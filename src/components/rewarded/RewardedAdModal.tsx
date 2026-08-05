@@ -11,8 +11,6 @@ interface Props {
 export function RewardedAdModal({ access, featureName, features }: Props) {
   const { showAdModal, adLoading, cancelUnlock, watchAd, expiresAt, isUnlocked } = access;
 
-  if (!showAdModal && !adLoading && !isUnlocked) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={cancelUnlock} />

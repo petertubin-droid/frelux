@@ -27,7 +27,7 @@ export default function AdminLearn() {
         supabase.from('learn_categories').select('*').order('sort_order', { ascending: true }),
       ]);
       setArticles((artRes.data ?? []) as DbLearnArticle[]);
-      setCategories((catRes.data ?? []) as DbLearnArticle[] as unknown as DbLearnCategory[]);
+      setCategories((catRes.data ?? []) as DbLearnCategory[]);
       setStatus('ready');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed');

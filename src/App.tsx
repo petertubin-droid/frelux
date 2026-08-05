@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
+import AnalyticsScripts from '@/components/AnalyticsScripts';
 import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
 import Colors from '@/pages/Colors';
@@ -45,6 +46,7 @@ const AdminLabourSettings = lazy(() => import('@/pages/admin/AdminLabourSettings
 const AdminColors = lazy(() => import('@/pages/admin/AdminColors'));
 const AdminSettings = lazy(() => import('@/pages/admin/AdminSettings'));
 const AdminLegal = lazy(() => import('@/pages/admin/AdminLegal'));
+const AdminContactMessages = lazy(() => import('@/pages/admin/AdminContactMessages'));
 const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminAiMonetization = lazy(() => import('@/pages/admin/AdminAiMonetization'));
 const AdminAds = lazy(() => import('@/pages/admin/AdminAds'));
@@ -82,6 +84,7 @@ function PageLoader() {
 export default function App() {
   return (
     <AuthProvider>
+      <AnalyticsScripts />
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
@@ -164,6 +167,7 @@ export default function App() {
             <Route path="learn" element={<AdminLearn />} />
             <Route path="ai-learning" element={<AdminAiLearningAssistant />} />
             <Route path="legal" element={<AdminLegal />} />
+            <Route path="contact" element={<AdminContactMessages />} />
 
             {/* Color Library */}
             <Route path="colors" element={<AdminColors />} />

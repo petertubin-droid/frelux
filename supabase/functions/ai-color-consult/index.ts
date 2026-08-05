@@ -361,6 +361,13 @@ Deno.serve(async (req: Request) => {
   if (payload.mode === 'image' && !payload.imageDataUrl) {
     return jsonResponse({ error: 'Image is required for image mode', code: 'BAD_REQUEST' }, 400);
   }
+  if (payload.mode === 'image' && payload.imageDataUrl) {
+    const { data: base64Data } = extractBase64FromDataUrl(payload.imageDataUrl);
+    const byteLength = Math.ceil((base64Data.length * 3) / 4);
+    if (byteLength > 5 * 1024 * 1024) {
+      return jsonResponse({ error: 'Image exceeds 5 MB limit', code: 'IMAGE_TOO_LARGE' }, 400);
+    }
+  }
 
   // Client fingerprint for rate limiting (always computed from request headers)
   const forwarded = req.headers.get('x-forwarded-for') ?? '';

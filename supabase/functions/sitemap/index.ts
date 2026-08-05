@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
       { loc: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
       { loc: "/terms", priority: "0.3", changefreq: "yearly" },
       { loc: "/cookie-policy", priority: "0.3", changefreq: "yearly" },
-      { loc: "/disclaimer", priority: "0.3", changefamp: "yearly" },
+      { loc: "/disclaimer", priority: "0.3", changefreq: "yearly" },
       { loc: "/ai-disclaimer", priority: "0.3", changefreq: "yearly" },
     ];
 

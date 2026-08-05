@@ -76,7 +76,9 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           )}
         </div>
       </div>
-      <RewardedAdModal access={access} featureName={featureName} features={features} />
+      {(access.showAdModal || access.adLoading || access.isUnlocked) && (
+        <RewardedAdModal access={access} featureName={featureName} features={features} />
+      )}
     </>
   );
 }

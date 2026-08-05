@@ -5,6 +5,7 @@ import { siteConfig } from '@/config/site';
 import { whatsappUrl, track } from '@/lib/analytics';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
+import { supabase } from '@/lib/supabase';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -36,15 +37,23 @@ export default function Contact() {
     return Object.keys(e).length === 0;
   }
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!validate()) return;
     setStatus('submitting');
-    // No backend connected yet — surface an honest error rather than fake success.
-    // Replace this block with a Supabase Edge Function or email service call later.
-    window.setTimeout(() => {
+    const { error } = await supabase.from('contact_messages').insert({
+      name: form.name,
+      email: form.email,
+      subject: form.subject,
+      message: form.message,
+    });
+    if (error) {
       setStatus('error');
-    }, 600);
+      return;
+    }
+    setStatus('success');
+    track('contact_form_submit', { subject: form.subject });
+    setForm({ name: '', email: '', subject: '', message: '' });
   }
 
   return (

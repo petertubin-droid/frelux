@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
   LogOut, Menu, X, ExternalLink, Wand2, Megaphone, Layers, Image, Sparkles, Gift,
-  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat,
+  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -40,6 +40,7 @@ const navModules: NavModule[] = [
       { label: 'Learn Articles', to: '/admin/learn', icon: BookOpen },
       { label: 'AI Learning Assistant', to: '/admin/ai-learning', icon: Sparkles },
       { label: 'Legal Pages', to: '/admin/legal', icon: FileText },
+      { label: 'Contact Messages', to: '/admin/contact', icon: Mail },
     ],
   },
   {

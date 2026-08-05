@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Trash2, Plus, X, Search, Plug, Puzzle, BookOpen, ShieldCheck, ToggleLeft, Activity, History, FolderTree, FolderOpen } from 'lucide-react';
+import { Trash2, Plus, X, Search, Plug, Puzzle, BookOpen, ShieldCheck, ToggleLeft, Activity, History, FolderTree, FolderOpen, RotateCcw } from 'lucide-react';
 import { getTool } from '@/components/studio/tools';
 import { ToolHeader } from '@/components/studio/StudioShared';
 import { AdminCard, AdminButton, AdminField, Toggle, StateMessage } from '@/components/admin/AdminUi';
@@ -12,7 +12,7 @@ import {
   fetchFeatures, updateFeature,
   fetchRoles, createRole, deleteRole,
   fetchMetrics,
-  fetchArtifacts, deleteArtifact, fetchVersions,
+  fetchArtifacts, deleteArtifact, fetchVersions, updateArtifact,
 } from '@/lib/ai-studio';
 import type { DbStudioPlugin, DbStudioPrompt, DbStudioIntegration, DbStudioFeature, DbStudioRole, DbStudioMetric, DbStudioArtifact, DbStudioVersion } from '@/types/database';
 
@@ -478,7 +478,24 @@ function VersionHistory() {
                 <div key={v.id} className="rounded-lg border border-neutral-200 bg-white p-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-brand-navy">Version {v.version_number}</span>
-                    <span className="text-xs text-neutral-400">{new Date(v.created_at).toLocaleString()}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-neutral-400">{new Date(v.created_at).toLocaleString()}</span>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!confirm(`Restore artifact to version ${v.version_number}?`)) return;
+                          try {
+                            await updateArtifact(selected, { content: v.content });
+                            setArtifacts((prev) => prev.map((a) => a.id === selected ? { ...a, content: v.content, version_number: v.version_number } : a));
+                          } catch (e) {
+                            setError((e as Error).message);
+                          }
+                        }}
+                        className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5"
+                      >
+                        <RotateCcw className="h-3 w-3" /> Restore
+                      </button>
+                    </div>
                   </div>
                   {v.change_summary && <p className="mt-1 text-xs text-neutral-500">{v.change_summary}</p>}
                   <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700"><code>{v.content.slice(0, 500)}{v.content.length > 500 ? '...' : ''}</code></pre>

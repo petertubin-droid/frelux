@@ -127,7 +127,11 @@ export function AdvancedCalculator({ netArea, config, clientHash }: Props) {
 
   function handleExportPDF() {
     const win = window.open('', '_blank');
-    if (!win) return;
+    if (!win) {
+      setSaveStatus('Popup blocked. Please allow popups for this site to export PDF.');
+      window.setTimeout(() => setSaveStatus(null), 5000);
+      return;
+    }
     const html = generateQuotationHTML(estimate, savedEstimates.find((e) => e.estimateData === estimate));
     win.document.write(html);
     win.document.close();

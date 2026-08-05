@@ -273,48 +273,26 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       metadata: { ad_unit_id: adUnitId, provider_slug: primaryProvider?.slug },
     });
 
-    // Attempt ad load — simulate 5s ad watch
-    // In production, the actual provider SDK would be called here
-    let adSuccess = false;
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      adSuccess = true;
-    } catch {
-      adSuccess = false;
-    }
-
-    // Fallback to secondary provider if primary fails
-    if (!adSuccess && fallbackProvider) {
-      await logAdEvent({
-        event_type: 'error',
-        provider_id: providerId,
-        tool_key: toolKey,
-        client_hash: clientHash,
-        metadata: { error: 'primary_provider_failed', fallback: fallbackProvider.slug },
-      });
-
-      // Try fallback provider
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-        adSuccess = true;
-      } catch {
-        adSuccess = false;
-      }
-    }
-
-    if (!adSuccess) {
-      const failureMsg = featureConfig?.reward_rules?.failure_message ?? 'Unable to load ad. Please try again.';
-      await logAdEvent({
-        event_type: 'error',
-        provider_id: providerId,
-        tool_key: toolKey,
-        client_hash: clientHash,
-        metadata: { error: 'all_providers_failed' },
-      });
-      setError(failureMsg);
-      setAdLoading(false);
-      return;
-    }
+    // No rewarded ad SDK is integrated yet. Surface an honest message
+    // instead of simulating a successful ad watch.
+    const failureMsg = featureConfig?.reward_rules?.failure_message
+      ?? 'Rewarded ads are not available yet. Please check back later.';
+    await logAdEvent({
+      event_type: 'error',
+      provider_id: providerId,
+      tool_key: toolKey,
+      client_hash: clientHash,
+      metadata: { error: 'no_ad_provider_configured' },
+    });
+    await logRewardedAdEvent({
+      toolKey,
+      eventType: 'error',
+      clientHash,
+      adProvider: providerName,
+    });
+    setError(failureMsg);
+    setAdLoading(false);
+    return;
 
     // Log reward
     const revenue = 0.05;

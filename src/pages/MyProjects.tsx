@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Folder, Clock, Trash2, Copy, Plus, Loader2, AlertCircle, Palette as PaletteIcon, Calculator, DollarSign, Layers, Pencil, Check, X, Pin, Search, Share2, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { fetchFavoriteColors, fetchFavoritePalettes, fetchUserProjects, deleteUserProject, duplicateUserProject, fetchUserCollections, createUserCollection, deleteUserCollection, fetchCollectionColors, renameUserCollection, moveColorToCollection, fetchRecentlyViewedColors, clearRecentlyViewed, togglePinRecentlyViewed, createShareableLink } from '@/lib/queries';
@@ -22,6 +22,7 @@ export default function MyProjects() {
   });
 
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('projects');
   const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState('');
@@ -83,6 +84,23 @@ export default function MyProjects() {
   async function handleDuplicate(id: string) {
     await duplicateUserProject(id);
     loadAll();
+  }
+
+  const PROJECT_ROUTES: Record<string, string> = {
+    screeding: '/screeding-calculator',
+    paint_calc: '/paint-calculator',
+    cost_estimate: '/cost-estimator',
+    ai_recommendation: '/ai-color-assistant',
+    custom: '/paint-calculator',
+    pop_ceiling: '/pop-ceiling-calculator',
+    pop_estimate: '/pop-ceiling-cost-estimator',
+    tile: '/tile-calculator',
+    tile_estimate: '/tile-cost-estimator',
+  };
+
+  function handleOpenProject(p: DbUserProject) {
+    const route = PROJECT_ROUTES[p.project_type] ?? '/paint-calculator';
+    navigate(route, { state: { projectData: p.project_data, projectId: p.id, projectName: p.name } });
   }
 
   async function handleCreateCollection() {
@@ -221,6 +239,7 @@ export default function MyProjects() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => handleOpenProject(p)} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple-dark" title="Open"><ArrowRight className="h-3.5 w-3.5" /> Open</button>
                     <button type="button" onClick={() => handleShare('project', p.id)} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple" title="Share"><Share2 className="h-4 w-4" /></button>
                     <button type="button" onClick={() => handleDuplicate(p.id)} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple" title="Duplicate"><Copy className="h-4 w-4" /></button>
                     <button type="button" onClick={() => handleDeleteProject(p.id)} className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50" title="Delete"><Trash2 className="h-4 w-4" /></button>

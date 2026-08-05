@@ -70,12 +70,10 @@ export async function fetchRelatedColors(categoryIds: string[], excludeId: strin
     .select('*')
     .eq('is_published', true)
     .neq('id', excludeId)
+    .overlaps('category_ids', categoryIds)
     .order('sort_order')
-    .limit(6);
-  const filtered = (data ?? []).filter((c: DbColorCombination) =>
-    (c.category_ids ?? []).some((id) => categoryIds.includes(id))
-  );
-  return { data: filtered.slice(0, 3) as DbColorCombination[], error };
+    .limit(3);
+  return { data: (data ?? []) as DbColorCombination[], error };
 }
 
 export async function fetchLegalPage(slug: string) {
@@ -623,11 +621,13 @@ export async function deleteShareableLink(linkId: string): Promise<{ error: stri
 }
 
 export async function fetchSharedResource(linkId: string): Promise<{ data: DbShareableLink | null; error: string | null }> {
+  const now = new Date().toISOString();
   const { data, error } = await supabase
     .from('shareable_links')
     .select('*')
     .eq('id', linkId)
     .eq('is_active', true)
+    .or(`expires_at.is.null,expires_at.gte.${now}`)
     .maybeSingle();
   return { data: data as DbShareableLink | null, error: error ? error.message : null };
 }
@@ -712,6 +712,8 @@ export async function fetchScreedingMixConfig() {
     .from('screeding_mix_config')
     .select('*')
     .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
   return { data: data as DbScreedingMixConfig | null, error: error ? error.message : null };
 }
