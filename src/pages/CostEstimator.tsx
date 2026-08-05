@@ -1,0 +1,458 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { CheckCircle2, ArrowRight, Info, AlertCircle, Loader2 } from 'lucide-react';
+import PageHeader from '@/components/ui/PageHeader';
+import { calculateEstimatedTotal } from '@/lib/calc';
+import { track } from '@/lib/analytics';
+import { logAnalyticsEvent, fetchPaintProducts, fetchMaterialPrices, fetchSiteSettings } from '@/lib/queries';
+import { formatCurrency, formatNumber, classNames } from '@/lib/utils';
+import type { CostEstimateInput, CostEstimateResult, ProjectType, ContainerRecommendation } from '@/types';
+import type { DbPaintProduct, DbMaterialPrice, DbSiteSettings } from '@/types/database';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
+import { calculateLabourCost } from '@/lib/labour';
+
+interface PassedState {
+  projectType?: ProjectType;
+  paintableArea?: number;
+  paintLiters?: number;
+  coats?: number;
+  paintType?: string;
+  paintTypeName?: string;
+  recommendedContainers?: ContainerRecommendation[];
+  totalRecommendedLiters?: number;
+}
+
+import { useSeo } from '@/lib/seo';
+
+export default function CostEstimator() {
+  useSeo({
+    title: 'Cost Estimator — Estimate Your Painting Project Cost',
+    description:
+      'Estimate the practical cost of your painting project. Paint, primer, materials, and labor — based on real product prices and your paint quantity.',
+    canonicalPath: '/cost-estimator',
+    ogType: 'website',
+  });
+
+  const location = useLocation();
+  const passed = (location.state as PassedState | null) ?? {};
+
+  const [products, setProducts] = useState<DbPaintProduct[]>([]);
+  const [materials, setMaterials] = useState<DbMaterialPrice[]>([]);
+  const [settings, setSettings] = useState<DbSiteSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  const currencySymbol = settings?.default_currency_symbol ?? '₦';
+  const currency = settings?.default_currency ?? 'NGN';
+
+  const [input, setInput] = useState<CostEstimateInput>({
+    projectType: passed.projectType ?? 'room',
+    paintableArea: passed.paintableArea ?? 0,
+    paintLiters: passed.paintLiters ?? 0,
+    coats: passed.coats ?? 2,
+    paintType: passed.paintType ?? '',
+    paintProductId: null,
+    paintProductName: '',
+    paintContainerSize: 0,
+    paintContainerPrice: 0,
+    paintPricePerLiter: 0,
+    paintUseContainerPricing: false,
+    includePrimer: false,
+    primerLiters: 0,
+    primerPricePerLiter: 0,
+    includeFiller: false,
+    fillerCost: 0,
+    includePutty: false,
+    puttyCost: 0,
+    includeSandpaper: false,
+    sandpaperCost: 0,
+    includeBrushes: false,
+    brushesCost: 0,
+    includeRollers: false,
+    rollersCost: 0,
+    includeOther: false,
+    otherMaterialsCost: 0,
+    laborMode: 'perSqm',
+    laborRatePerSqm: 0,
+    laborTotal: 0,
+    currency,
+    currencySymbol,
+  });
+  const [result, setResult] = useState<CostEstimateResult | null>(null);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('paint');
+
+  useEffect(() => {
+    async function loadAll() {
+      setLoading(true);
+      const [prodRes, matRes, settingsRes] = await Promise.all([
+        fetchPaintProducts(),
+        fetchMaterialPrices(),
+        fetchSiteSettings(),
+      ]);
+      if (prodRes.error) setLoadError(prodRes.error.message);
+      if (matRes.error) setLoadError(matRes.error.message);
+      if (settingsRes.error) setLoadError(settingsRes.error.message);
+
+      setProducts(prodRes.data);
+      setMaterials(matRes.data);
+      setSettings(settingsRes.data);
+
+      // Pre-fill primer price from the first primer material.
+      const primer = matRes.data.find((m) => m.category === 'primer');
+      if (primer) {
+        setInput((prev) => ({ ...prev, primerPricePerLiter: Number(primer.price) }));
+      }
+      setLoading(false);
+    }
+    loadAll();
+  }, []);
+
+  // Update currency in input when settings load.
+  useEffect(() => {
+    if (settings) {
+      setInput((prev) => ({
+        ...prev,
+        currency: settings.default_currency,
+        currencySymbol: settings.default_currency_symbol,
+      }));
+    }
+  }, [settings]);
+
+  // When a paint product is selected, fill container size and price so
+  // the estimator uses actual container purchase cost.
+  useEffect(() => {
+    if (input.paintProductId) {
+      const product = products.find((p) => p.id === input.paintProductId);
+      if (product && Number(product.container_size) > 0) {
+        setInput((prev) => ({
+          ...prev,
+          paintProductName: product.name,
+          paintContainerSize: Number(product.container_size),
+          paintContainerPrice: Number(product.price),
+          paintPricePerLiter: Number(product.price) / Number(product.container_size),
+          paintUseContainerPricing: true,
+        }));
+      }
+    } else {
+      setInput((prev) => ({
+        ...prev,
+        paintProductName: '',
+        paintContainerSize: 0,
+        paintContainerPrice: 0,
+        paintUseContainerPricing: false,
+      }));
+    }
+  }, [input.paintProductId, products]);
+
+  function update<K extends keyof CostEstimateInput>(key: K, value: CostEstimateInput[K]) {
+    setInput((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function compute() {
+    const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
+    const labourCost = calculateLabourCost(labourConfig, input.paintableArea);
+    const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
+    setResult(r);
+    track('cost_estimate_completed', { total: r.total });
+    logAnalyticsEvent('cost_estimate_completed', { total: r.total });
+  }
+
+  const hasArea = input.paintableArea > 0;
+
+  function toggleMaterial(cat: string, costKey: keyof CostEstimateInput, includeKey: keyof CostEstimateInput) {
+    const mat = materials.find((m) => m.category === cat);
+    const isEnabling = !input[includeKey as keyof CostEstimateInput];
+    update(includeKey, isEnabling as never);
+    if (isEnabling && mat) {
+      update(costKey, Number(mat.price) as never);
+    }
+  }
+
+  if (loading) {
+    return (
+      <>
+        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." backTo="/" backLabel="Home" />
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
+          <Loader2 className="h-5 w-5 animate-spin" /> Loading pricing data…
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="Tool"
+        title="Cost Estimator"
+        subtitle="Get a practical estimate for materials and painting labor. Prices are editable so you can match local rates."
+        backTo="/"
+        backLabel="Home"
+      />
+
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        {loadError && (
+          <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>Some pricing data couldn't be loaded: {loadError}. You can still enter prices manually below.</p>
+          </div>
+        )}
+
+        {!hasArea && (
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
+            <p>
+              Tip: Use the{' '}
+              <Link to="/paint-calculator" className="font-semibold text-brand-purple underline">Paint Calculator</Link>{' '}
+              first, then continue here — your paintable area and paint quantity will carry over automatically.
+            </p>
+          </div>
+        )}
+
+        <div className="grid gap-6 lg:grid-cols-5">
+          <div className="card p-6 sm:p-8 lg:col-span-3">
+            {/* Project summary */}
+            <Section title="Project summary">
+              <div className="grid gap-4 sm:grid-cols-3">
+                <Field label="Project type">
+                  <select value={input.projectType} onChange={(e) => update('projectType', e.target.value as ProjectType)} className="input-field">
+                    <option value="room">Room</option>
+                    <option value="house">House</option>
+                    <option value="exterior">Exterior</option>
+                    <option value="fence">Fence or Gate</option>
+                  </select>
+                </Field>
+                <Field label="Paintable area (m²)">
+                  <input type="number" min={0} step="0.01" value={input.paintableArea || ''} onChange={(e) => update('paintableArea', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                </Field>
+                <Field label="Paint quantity (L)">
+                  <input type="number" min={0} step="0.01" value={input.paintLiters || ''} onChange={(e) => update('paintLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                </Field>
+              </div>
+              {passed.paintTypeName && (
+                <p className="mt-3 text-xs text-neutral-400">From calculator: {passed.paintTypeName} · {passed.coats ?? 2} coats</p>
+              )}
+            </Section>
+
+            {/* Paint cost */}
+            <Section title="Paint">
+              {products.length > 0 ? (
+                <Field label="Paint product" hint="Selecting a product calculates cost based on actual container purchases">
+                  <select
+                    value={input.paintProductId ?? ''}
+                    onChange={(e) => update('paintProductId', e.target.value || null)}
+                    className="input-field"
+                  >
+                    <option value="">— Manual price entry —</option>
+                    {products.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}{p.brand ? ` (${p.brand})` : ''} · {p.container_size}L · {formatCurrency(Number(p.price), currencySymbol)}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              ) : (
+                <p className="text-xs text-neutral-400">No paint products configured. Enter a manual price per liter below.</p>
+              )}
+
+              {input.paintUseContainerPricing && input.paintContainerSize > 0 ? (
+                <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+                  <p className="text-sm font-semibold text-brand-navy">Container based pricing</p>
+                  <p className="mt-1 text-xs text-neutral-500">
+                    {formatNumber(input.paintLiters, 1)} L required · {input.paintContainerSize} L containers ·{' '}
+                    {Math.ceil(input.paintLiters / input.paintContainerSize)} container(s) needed ·{' '}
+                    {formatCurrency(input.paintContainerPrice, currencySymbol)} each
+                  </p>
+                  <p className="mt-2 text-xs text-neutral-400">
+                    Paint cost = {Math.ceil(input.paintLiters / input.paintContainerSize)} × {formatCurrency(input.paintContainerPrice, currencySymbol)} ={' '}
+                    <span className="font-semibold text-brand-navy">{formatCurrency(Math.ceil(input.paintLiters / input.paintContainerSize) * input.paintContainerPrice, currencySymbol)}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <Field label={`Paint price per liter (${currencySymbol})`} hint="Manual entry">
+                    <input type="number" min={0} value={input.paintPricePerLiter || ''} onChange={(e) => update('paintPricePerLiter', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                  <Field label="Paint liters" hint="From calculator or manual">
+                    <input type="number" min={0} step="0.01" value={input.paintLiters || ''} onChange={(e) => update('paintLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  </Field>
+                </div>
+              )}
+            </Section>
+
+            {/* Primer */}
+            <Section title="Primer">
+              <div className="flex items-center gap-3">
+                <Toggle checked={input.includePrimer} onChange={(v) => update('includePrimer', v)} />
+                <span className="text-sm text-neutral-600">Include primer</span>
+              </div>
+              {input.includePrimer && (
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <Field label="Primer liters">
+                    <input type="number" min={0} step="0.01" value={input.primerLiters || ''} onChange={(e) => update('primerLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  </Field>
+                  <Field label={`Primer price per liter (${currencySymbol})`}>
+                    <input type="number" min={0} value={input.primerPricePerLiter || ''} onChange={(e) => update('primerPricePerLiter', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                </div>
+              )}
+            </Section>
+
+            {/* Materials */}
+            <Section title="Additional materials">
+              <p className="mb-3 text-xs text-neutral-400">Toggle materials to include them. Prices auto fill from configured data when available.</p>
+              <div className="space-y-2">
+                <MaterialToggle label="Filler" checked={input.includeFiller} onToggle={() => toggleMaterial('filler', 'fillerCost', 'includeFiller')} cost={input.fillerCost} symbol={currencySymbol} onCostChange={(v) => update('fillerCost', v)} />
+                <MaterialToggle label="Putty" checked={input.includePutty} onToggle={() => toggleMaterial('putty', 'puttyCost', 'includePutty')} cost={input.puttyCost} symbol={currencySymbol} onCostChange={(v) => update('puttyCost', v)} />
+                <MaterialToggle label="Sandpaper" checked={input.includeSandpaper} onToggle={() => toggleMaterial('sandpaper', 'sandpaperCost', 'includeSandpaper')} cost={input.sandpaperCost} symbol={currencySymbol} onCostChange={(v) => update('sandpaperCost', v)} />
+                <MaterialToggle label="Brushes" checked={input.includeBrushes} onToggle={() => toggleMaterial('brushes', 'brushesCost', 'includeBrushes')} cost={input.brushesCost} symbol={currencySymbol} onCostChange={(v) => update('brushesCost', v)} />
+                <MaterialToggle label="Rollers" checked={input.includeRollers} onToggle={() => toggleMaterial('rollers', 'rollersCost', 'includeRollers')} cost={input.rollersCost} symbol={currencySymbol} onCostChange={(v) => update('rollersCost', v)} />
+                <MaterialToggle label="Other materials" checked={input.includeOther} onToggle={() => update('includeOther', !input.includeOther)} cost={input.otherMaterialsCost} symbol={currencySymbol} onCostChange={(v) => update('otherMaterialsCost', v)} />
+              </div>
+            </Section>
+
+            <LabourCostSection
+              estimatorKey="paint"
+              config={labourConfig}
+              onChange={setLabourConfig}
+              currencySymbol={currencySymbol}
+              area={input.paintableArea}
+              last
+            />
+
+            <button type="button" onClick={compute} className="btn-primary mt-6 w-full sm:w-auto">
+              Calculate estimate
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Results panel */}
+          <div className="lg:col-span-2">
+            <div className="card sticky top-20 overflow-hidden">
+              <div className="bg-brand-navy p-6 text-white">
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Estimated total</p>
+                {result ? (
+                  <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.total, currencySymbol)}</p>
+                ) : (
+                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}—</p>
+                )}
+                <p className="mt-1 text-xs text-white/50">Estimate only — not a final quote.</p>
+              </div>
+              <div className="space-y-2 p-6">
+                <Row
+                  label={result && result.paintContainerCount > 0 ? `Paint (${result.paintContainerCount} containers)` : 'Paint'}
+                  value={result ? formatCurrency(result.paintCost, currencySymbol) : '—'}
+                />
+                {input.includePrimer && <Row label="Primer" value={result ? formatCurrency(result.primerCost, currencySymbol) : '—'} />}
+                {input.includeFiller && <Row label="Filler" value={result ? formatCurrency(result.fillerCost, currencySymbol) : '—'} />}
+                {input.includePutty && <Row label="Putty" value={result ? formatCurrency(result.puttyCost, currencySymbol) : '—'} />}
+                {input.includeSandpaper && <Row label="Sandpaper" value={result ? formatCurrency(result.sandpaperCost, currencySymbol) : '—'} />}
+                {input.includeBrushes && <Row label="Brushes" value={result ? formatCurrency(result.brushesCost, currencySymbol) : '—'} />}
+                {input.includeRollers && <Row label="Rollers" value={result ? formatCurrency(result.rollersCost, currencySymbol) : '—'} />}
+                {input.includeOther && <Row label="Other" value={result ? formatCurrency(result.otherMaterialsCost, currencySymbol) : '—'} />}
+                <div className="border-t border-neutral-100 pt-2">
+                  <Row label="Material cost" value={result ? formatCurrency(result.total - result.laborCost, currencySymbol) : '—'} />
+                  {labourConfig.includeLabour && <Row label="Labour cost" value={result ? formatCurrency(result.laborCost, currencySymbol) : '—'} />}
+                </div>
+                <div className="border-t border-neutral-100 pt-2">
+                  <Row label="Grand total" value={result ? formatCurrency(result.total, currencySymbol) : '—'} strong />
+                </div>
+                {result && (
+                  <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
+                    Based on {formatNumber(input.paintableArea)} m² and {formatNumber(input.paintLiters, 1)} L of paint.
+                  </div>
+                )}
+              </div>
+              <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
+                Estimate only. Actual costs may vary depending on product brand, location, surface condition, market prices, and labor rates.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Section({ title, children, last }: { title: string; children: ReactNode; last?: boolean }) {
+  return (
+    <div className={last ? '' : 'mb-6 border-b border-neutral-100 pb-6'}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">{title}</h2>
+      {children}
+    </div>
+  );
+}
+
+function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-500')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-700')}>{value}</span>
+    </div>
+  );
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <label className="block">
+      <span className="block text-sm font-semibold text-neutral-700">{label}</span>
+      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      <div className="mt-1.5">{children}</div>
+    </label>
+  );
+}
+
+function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onChange(!checked)}
+      className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
+      aria-pressed={checked}
+    >
+      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
+    </button>
+  );
+}
+
+function MaterialToggle({
+  label,
+  checked,
+  onToggle,
+  cost,
+  symbol,
+  onCostChange,
+}: {
+  label: string;
+  checked: boolean;
+  onToggle: () => void;
+  cost: number;
+  symbol: string;
+  onCostChange: (v: number) => void;
+}) {
+  return (
+    <div className={classNames('rounded-lg border p-3 transition-colors', checked ? 'border-brand-purple/30 bg-brand-purple/5' : 'border-neutral-200')}>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Toggle checked={checked} onChange={onToggle} />
+          <span className="text-sm font-semibold text-neutral-700">{label}</span>
+        </div>
+        {checked && (
+          <div className="flex items-center gap-2">
+            <div className="relative w-28">
+              <input
+                type="number"
+                min={0}
+                value={cost || ''}
+                onChange={(e) => onCostChange(Number(e.target.value))}
+                className="input-field pr-7 text-sm"
+                placeholder="0"
+              />
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-400">{symbol}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

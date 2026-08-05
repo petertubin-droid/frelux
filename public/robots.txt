@@ -1,0 +1,10 @@
+# robots.txt for FRELUX PAINT CALC
+# Public pages are crawlable. Admin and auth routes are excluded.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /login
+
+Sitemap: https://freluxpaintcalc.com/sitemap.xml

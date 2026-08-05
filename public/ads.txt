@@ -1,0 +1,9 @@
+# ads.txt — FRELUX PAINT CALC
+#
+# Add your real Google AdSense publisher entry below after your AdSense
+# account is approved. Replace the placeholder with your actual publisher ID.
+#
+# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+#
+# Example (replace with your real ID):
+# google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
