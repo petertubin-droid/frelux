@@ -856,3 +856,23 @@ export interface DbLabourCategory {
   created_at: string;
   updated_at: string;
 }
+
+// =========================================================
+// Calculator Templates
+// =========================================================
+
+export type TemplateType = 'paint' | 'screeding' | 'pop_ceiling' | 'tile';
+
+export interface DbCalculatorTemplate {
+  id: string;
+  user_id: string | null;
+  template_type: TemplateType;
+  name: string;
+  description: string | null;
+  calculator_data: Record<string, unknown>;
+  is_builtin: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

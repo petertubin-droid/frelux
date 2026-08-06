@@ -1,7 +1,10 @@
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Folder, Clock, Trash2, Copy, Plus, Loader2, AlertCircle, Palette as PaletteIcon, Calculator, DollarSign, Layers, Pencil, Check, X, Pin, Search, Share2, ArrowRight } from 'lucide-react';
+import { Heart, Folder, Clock, Trash2, Copy, Plus, AlertCircle, Palette as PaletteIcon, Calculator, DollarSign, Layers, Pencil, Check, X, Pin, Search, Share2, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonList, SkeletonGrid } from '@/components/ui/Skeleton';
+import { useToast } from '@/components/ui/Toast';
 import { fetchFavoriteColors, fetchFavoritePalettes, fetchUserProjects, deleteUserProject, duplicateUserProject, fetchUserCollections, createUserCollection, deleteUserCollection, fetchCollectionColors, renameUserCollection, moveColorToCollection, fetchRecentlyViewedColors, clearRecentlyViewed, togglePinRecentlyViewed, createShareableLink } from '@/lib/queries';
 import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
@@ -22,6 +25,7 @@ export default function MyProjects() {
   });
 
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('projects');
   const [status, setStatus] = useState<Status>('loading');
@@ -151,7 +155,9 @@ export default function MyProjects() {
     if (data) {
       const link = `${SITE_URL}/shared/${data.id}`;
       if (navigator.clipboard) navigator.clipboard.writeText(link);
-      alert(`Shareable link copied to clipboard:\n${link}`);
+      toast({ type: 'success', title: 'Share link copied', message: 'The shareable link has been copied to your clipboard.' });
+    } else {
+      toast({ type: 'error', title: 'Failed to create share link' });
     }
   }
 
@@ -178,7 +184,14 @@ export default function MyProjects() {
     );
   }
 
-  if (status === 'loading') return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading your projects…</div>;
+  if (status === 'loading') return (
+    <>
+      <PageHeader eyebrow="Your workspace" title="My Projects" subtitle="Your saved colors, palettes, calculations, and custom collections — all in one place." />
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <SkeletonGrid count={6} />
+      </div>
+    </>
+  );
   if (status === 'error') return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>;
 
   const projectIcon = (type: string) => {
@@ -248,7 +261,13 @@ export default function MyProjects() {
               ))}
             </div>
           ) : (
-            <EmptyState icon={Folder} title="No saved projects yet" message="Save calculations and estimates from the calculators to revisit them here." />
+            <EmptyState
+              illustration="projects"
+              title="No saved projects yet"
+              description="Save calculations and estimates from the calculators to revisit them here."
+              actionLabel="Start calculating"
+              actionTo="/paint-calculator"
+            />
           )
         )}
 
@@ -266,7 +285,13 @@ export default function MyProjects() {
               ))}
             </div>
           ) : (
-            <EmptyState icon={Heart} title="No favorite colors yet" message="Tap the heart icon on any color to save it here." />
+            <EmptyState
+              illustration="favorites"
+              title="No favorite colors yet"
+              description="Tap the heart icon on any color to save it here."
+              actionLabel="Browse colors"
+              actionTo="/colors"
+            />
           )
         )}
 
@@ -289,7 +314,13 @@ export default function MyProjects() {
               ))}
             </div>
           ) : (
-            <EmptyState icon={PaletteIcon} title="No favorite palettes yet" message="Browse color palettes and save the ones you love." />
+            <EmptyState
+              illustration="favorites"
+              title="No favorite palettes yet"
+              description="Browse color palettes and save the ones you love."
+              actionLabel="Browse palettes"
+              actionTo="/colors"
+            />
           )
         )}
 
@@ -360,7 +391,11 @@ export default function MyProjects() {
                 ))}
               </div>
             ) : (
-              <EmptyState icon={Folder} title="No collections yet" message="Create custom collections to organize your favorite colors by project or theme." />
+              <EmptyState
+              illustration="projects"
+              title="No collections yet"
+              description="Create custom collections to organize your favorite colors by project or theme."
+            />
             )}
           </>
         )}
@@ -392,7 +427,13 @@ export default function MyProjects() {
                 </div>
               </>
             ) : (
-              <EmptyState icon={Clock} title="No recently viewed colors" message="Browse the color library and your viewed colors will appear here." />
+              <EmptyState
+              illustration="generic"
+              title="No recently viewed colors"
+              description="Browse the color library and your viewed colors will appear here."
+              actionLabel="Browse colors"
+              actionTo="/colors"
+            />
             )}
           </>
         )}
@@ -401,12 +442,3 @@ export default function MyProjects() {
   );
 }
 
-function EmptyState({ icon: Icon, title, message }: { icon: typeof Folder; title: string; message: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-12 text-center">
-      <Icon className="mx-auto h-8 w-8 text-neutral-300" />
-      <p className="mt-3 text-sm font-semibold text-neutral-600">{title}</p>
-      <p className="mt-1 text-xs text-neutral-400">{message}</p>
-    </div>
-  );
-}

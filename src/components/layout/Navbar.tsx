@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Calculator, LogIn, LogOut, User, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, X, Calculator, LogIn, LogOut, User, ChevronDown, Sun, Moon, LayoutDashboard } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces } from '@/config/site';
 import { classNames } from '@/lib/utils';
@@ -126,6 +126,10 @@ export default function Navbar() {
           </button>
           {user ? (
             <div className="flex items-center gap-2">
+              <Link to="/dashboard" className="inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:text-brand-purple">
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                Dashboard
+              </Link>
               <Link to="/my-projects" className="inline-flex items-center gap-1.5 rounded-md bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:text-brand-purple">
                 <User className="h-3.5 w-3.5" />
                 <span className="max-w-[120px] truncate">{user.email}</span>
@@ -192,6 +196,10 @@ export default function Navbar() {
             </Link>
             {user ? (
               <>
+                <Link to="/dashboard" className="btn-secondary mt-2 w-full">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Link>
                 <Link to="/my-projects" className="btn-secondary mt-2 w-full">
                   <User className="h-4 w-4" />
                   My Projects

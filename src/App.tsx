@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
+import { ToastProvider } from '@/components/ui/Toast';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
 import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
@@ -34,6 +35,7 @@ const PaintColorDetail = lazy(() => import('@/pages/PaintColorDetail'));
 const CompareColors = lazy(() => import('@/pages/CompareColors'));
 const MyProjects = lazy(() => import('@/pages/MyProjects'));
 const SharedProject = lazy(() => import('@/pages/SharedProject'));
+const Dashboard = lazy(() => import('@/pages/Dashboard'));
 
 // Admin pages — all lazy-loaded to keep the public bundle small
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
@@ -84,10 +86,11 @@ function PageLoader() {
 export default function App() {
   return (
     <AuthProvider>
-      <AnalyticsScripts />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
+      <ToastProvider>
+        <AnalyticsScripts />
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
           {/* ─────────────────────────────────────────────────────── */}
           {/* PUBLIC SITE — all public-facing pages under Layout */}
           {/* No admin links, routes, or components appear here. */}
@@ -120,6 +123,9 @@ export default function App() {
             {/* Projects workspace */}
             <Route path="/my-projects" element={<Suspense fallback={<PageLoader />}><MyProjects /></Suspense>} />
             <Route path="/shared/:id" element={<Suspense fallback={<PageLoader />}><SharedProject /></Suspense>} />
+
+            {/* Dashboard */}
+            <Route path="/dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
 
             {/* Learn workspace */}
             <Route path="/learn" element={<Suspense fallback={<PageLoader />}><Learn /></Suspense>} />
@@ -233,8 +239,9 @@ export default function App() {
               <Route path="file_manager" element={<StudioManagement />} />
             </Route>
           </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   );
 }

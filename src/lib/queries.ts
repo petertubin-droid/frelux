@@ -27,6 +27,8 @@ import type {
   DbRewardedUnlockLog,
   DbRewardedAdEvent,
   DbAdvancedEstimate,
+  DbCalculatorTemplate,
+  TemplateType,
   ColorRelationshipType,
   ShareableResourceType,
 } from '@/types/database';
@@ -853,4 +855,77 @@ export async function fetchRewardedAdEventStats(days = 30) {
     .gte('created_at', new Date(Date.now() - days * 86400000).toISOString())
     .order('created_at', { ascending: false });
   return { data: (data ?? []) as Pick<DbRewardedAdEvent, 'tool_key' | 'event_type' | 'revenue_estimated' | 'created_at'>[], error: error ? error.message : null };
+}
+
+// =========================================================
+// Calculator Templates
+// =========================================================
+
+export async function fetchBuiltinTemplates(type?: TemplateType) {
+  let query = supabase.from('calculator_templates').select('*').eq('is_builtin', true).eq('is_active', true);
+  if (type) query = query.eq('template_type', type);
+  query = query.order('sort_order').order('name');
+  const { data, error } = await query;
+  return { data: (data ?? []) as DbCalculatorTemplate[], error: error ? error.message : null };
+}
+
+export async function fetchUserTemplates(type?: TemplateType) {
+  let query = supabase.from('calculator_templates').select('*').eq('is_builtin', false);
+  if (type) query = query.eq('template_type', type);
+  query = query.order('updated_at', { ascending: false });
+  const { data, error } = await query;
+  return { data: (data ?? []) as DbCalculatorTemplate[], error: error ? error.message : null };
+}
+
+export async function saveUserTemplate(
+  templateType: TemplateType,
+  name: string,
+  calculatorData: Record<string, unknown>,
+  description?: string,
+) {
+  const { data, error } = await supabase
+    .from('calculator_templates')
+    .insert({
+      template_type: templateType,
+      name,
+      description: description ?? null,
+      calculator_data: calculatorData,
+      is_builtin: false,
+      is_active: true,
+    })
+    .select()
+    .single();
+  return { data: data as DbCalculatorTemplate | null, error: error ? error.message : null };
+}
+
+export async function updateUserTemplate(id: string, updates: { name?: string; description?: string | null; calculator_data?: Record<string, unknown> }) {
+  const { error } = await supabase.from('calculator_templates').update(updates).eq('id', id);
+  return { error: error ? error.message : null };
+}
+
+export async function deleteUserTemplate(id: string) {
+  const { error } = await supabase.from('calculator_templates').delete().eq('id', id);
+  return { error: error ? error.message : null };
+}
+
+export async function duplicateUserTemplate(id: string, newName?: string) {
+  const { data: source, error: fetchError } = await supabase
+    .from('calculator_templates')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (fetchError || !source) return { data: null, error: fetchError ? fetchError.message : 'Template not found' };
+  const { data, error } = await supabase
+    .from('calculator_templates')
+    .insert({
+      template_type: source.template_type,
+      name: newName ?? `${source.name} (Copy)`,
+      description: source.description,
+      calculator_data: source.calculator_data,
+      is_builtin: false,
+      is_active: true,
+    })
+    .select()
+    .single();
+  return { data: data as DbCalculatorTemplate | null, error: error ? error.message : null };
 }

@@ -1,7 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Search, AlertCircle, Loader2, Grid3x3, Palette } from 'lucide-react';
+import { Search, AlertCircle, Grid3x3, Palette } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import AdSlot from '@/components/ui/AdSlot';
+import EmptyState from '@/components/ui/EmptyState';
+import { SkeletonGrid } from '@/components/ui/Skeleton';
 import ColorCard from '@/components/colors/ColorCard';
 import { fetchPaintColors, fetchColorFamilies, fetchColorCategories, fetchColorCombinations, logAnalyticsEvent, fetchFavoriteColorIds, toggleFavoriteColor } from '@/lib/queries';
 import { track } from '@/lib/analytics';
@@ -155,8 +157,8 @@ export default function Colors() {
         </div>
 
         {status === 'loading' && (
-          <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
-            <Loader2 className="h-5 w-5 animate-spin" /> Loading…
+          <div className="mt-6">
+            <SkeletonGrid count={12} />
           </div>
         )}
 
@@ -228,10 +230,13 @@ export default function Colors() {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-12 text-center">
-                <p className="text-sm font-medium text-neutral-500">No colors match your filters.</p>
-                <button type="button" onClick={() => { setQuery(''); setFamilyId(null); setCategoryId(null); setFilterType(null); setPage(1); }} className="mt-3 text-sm font-semibold text-brand-purple hover:underline">Clear filters</button>
-              </div>
+              <EmptyState
+                illustration="search"
+                title="No colors match your filters"
+                description="Try adjusting your search or filters to find what you're looking for."
+                actionLabel="Clear filters"
+                onAction={() => { setQuery(''); setFamilyId(null); setCategoryId(null); setFilterType(null); setPage(1); }}
+              />
             )}
 
             {/* Pagination */}
@@ -276,9 +281,11 @@ export default function Colors() {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-12 text-center">
-                <p className="text-sm font-medium text-neutral-500">No palettes match your search.</p>
-              </div>
+              <EmptyState
+                illustration="search"
+                title="No palettes match your search"
+                description="Try a different search term to find color palettes."
+              />
             )}
           </>
         )}

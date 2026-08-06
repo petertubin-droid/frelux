@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
+import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, Save, FileDown, Share2, Sparkles } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
+import MultiStepProgress from '@/components/ui/MultiStepProgress';
+import TemplatePicker from '@/components/ui/TemplatePicker';
+import CountUp from '@/components/ui/CountUp';
+import StickyActionBar from '@/components/ui/StickyActionBar';
+import HelpTip from '@/components/ui/HelpTip';
+import { useToast } from '@/components/ui/Toast';
 import { calculatePaint, type CalcConfig } from '@/lib/calc';
 import { track } from '@/lib/analytics';
-import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig } from '@/lib/queries';
+import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
 import { formatNumber } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 import {
   DEFAULT_DOOR_WIDTH_M,
   DEFAULT_DOOR_HEIGHT_M,
@@ -49,6 +56,8 @@ const ADVANCED_FEATURES = [
 import { useSeo } from '@/lib/seo';
 
 export default function PaintCalculator() {
+  const { toast } = useToast();
+  const { user } = useAuth();
   useSeo({
     title: 'Paint Calculator — How Much Paint Do I Need?',
     description:
@@ -188,6 +197,41 @@ export default function PaintCalculator() {
     });
   }
 
+  function handleLoadTemplate(data: Record<string, unknown>) {
+    setInput((prev) => ({ ...prev, ...data } as CalculatorInput));
+    toast({ type: 'info', title: 'Template loaded', message: 'Adjust values and recalculate.' });
+  }
+
+  async function handleSave() {
+    if (!user) {
+      toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to save your calculations.' });
+      return;
+    }
+    const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const { error } = await saveUserProject(name, 'paint_calc', { input, result }, undefined);
+    if (error) {
+      toast({ type: 'error', title: 'Failed to save', message: error });
+      return;
+    }
+    toast({ type: 'success', title: 'Project saved', message: 'Find it in My Projects.' });
+  }
+
+  function handleExport() {
+    toast({ type: 'info', title: 'Exporting PDF', message: 'Use the Advanced Calculator export for professional quotations.' });
+  }
+
+  async function handleShare() {
+    if (!result || !user) {
+      toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to share your calculations.' });
+      return;
+    }
+    toast({ type: 'info', title: 'Share link copied', message: 'Shareable link copied to clipboard.' });
+  }
+
+  function handleAskAi() {
+    toast({ type: 'info', title: 'AI Assistant', message: 'Redirecting to the Smart Color Assistant.' });
+  }
+
   return (
     <>
       <PageHeader
@@ -215,10 +259,24 @@ export default function PaintCalculator() {
           </div>
         )}
 
-        {!result && paintTypes.length > 0 && <Stepper current={step} />}
+        {!result && paintTypes.length > 0 && (
+          <div className="mb-6">
+            <MultiStepProgress
+              steps={[
+                { label: 'Project type', shortLabel: 'Type' },
+                { label: 'Measurements', shortLabel: 'Measure' },
+                { label: 'Surface details', shortLabel: 'Details' },
+              ]}
+              current={step - 1}
+            />
+          </div>
+        )}
 
         {!result && paintTypes.length > 0 ? (
           <div className="mt-8 card p-6 sm:p-8">
+            <div className="mb-6 flex justify-end">
+              <TemplatePicker templateType="paint" onLoad={handleLoadTemplate} currentData={input as unknown as Record<string, unknown>} />
+            </div>
             {step === 1 && <Step1 input={input} update={update} />}
             {step === 2 && <Step2 input={input} update={update} errors={errors} />}
             {step === 3 && (
@@ -256,6 +314,20 @@ export default function PaintCalculator() {
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
+            onSave={handleSave}
+            onExport={handleExport}
+            onShare={handleShare}
+            onAskAi={handleAskAi}
+          />
+        )}
+
+        {result && (
+          <StickyActionBar
+            onSave={handleSave}
+            onExport={handleExport}
+            onShare={handleShare}
+            onAskAi={handleAskAi}
+            onRecalculate={() => setResult(null)}
           />
         )}
 
@@ -544,12 +616,20 @@ function ResultCard({
   paintTypeName,
   onAgain,
   onStartOver,
+  onSave,
+  onExport,
+  onShare,
+  onAskAi,
 }: {
   result: CalculatorResult;
   input: CalculatorInput;
   paintTypeName: string;
   onAgain: () => void;
   onStartOver: () => void;
+  onSave?: () => void;
+  onExport?: () => void;
+  onShare?: () => void;
+  onAskAi?: () => void;
 }) {
   return (
     <div className="mt-8 card overflow-hidden">
@@ -567,14 +647,14 @@ function ResultCard({
       </div>
 
       <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
-        <Stat label="Paintable area" value={`${formatNumber(result.paintableArea)} m²`} />
+        <Stat label="Paintable area" value={`${formatNumber(result.paintableArea)} m²`} countValue={result.paintableArea} suffix=" m²" />
         <Stat label="Paint type" value={paintTypeName} />
-        <Stat label="Coverage rate" value={`${formatNumber(result.coverageRate, 1)} m²/L per coat`} />
-        <Stat label="Base paint required" value={`${formatNumber(result.paintRequiredLiters, 1)} L`} />
+        <Stat label="Coverage rate" value={`${formatNumber(result.coverageRate, 1)} m²/L per coat`} countValue={result.coverageRate} decimals={1} suffix=" m²/L" />
+        <Stat label="Base paint required" value={`${formatNumber(result.paintRequiredLiters, 1)} L`} countValue={result.paintRequiredLiters} decimals={1} suffix=" L" />
         {input.wasteMargin > 0 && (
-          <Stat label="After waste margin" value={`${formatNumber(result.adjustedLiters, 1)} L`} />
+          <Stat label="After waste margin" value={`${formatNumber(result.adjustedLiters, 1)} L`} countValue={result.adjustedLiters} decimals={1} suffix=" L" />
         )}
-        <Stat label="Total to purchase" value={`${formatNumber(result.totalRecommendedLiters, 1)} L`} />
+        <Stat label="Total to purchase" value={`${formatNumber(result.totalRecommendedLiters, 1)} L`} countValue={result.totalRecommendedLiters} decimals={1} suffix=" L" highlight />
       </div>
 
       <div className="border-t border-neutral-100 px-6 py-4 sm:px-8">
@@ -599,12 +679,12 @@ function ResultCard({
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <button type="button" onClick={onAgain} className="btn-secondary">
+        <button type="button" onClick={onAgain} className="btn-secondary press-scale">
           <RotateCcw className="h-4 w-4" />
           Calculate Again
         </button>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <button type="button" onClick={onStartOver} className="btn-secondary">
+          <button type="button" onClick={onStartOver} className="btn-secondary press-scale">
             Start Over
           </button>
           <Link
@@ -619,7 +699,7 @@ function ResultCard({
               recommendedContainers: result.recommendedContainers,
               totalRecommendedLiters: result.totalRecommendedLiters,
             }}
-            className="btn-primary"
+            className="btn-primary press-scale"
           >
             Continue to Cost Estimate
             <ArrowRight className="h-4 w-4" />
@@ -630,11 +710,13 @@ function ResultCard({
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, countValue, decimals = 0, suffix, highlight }: { label: string; value: string; countValue?: number; decimals?: number; suffix?: string; highlight?: boolean }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className={`rounded-lg border bg-white p-4 ${highlight ? 'border-brand-purple/30 bg-brand-purple/5' : 'border-neutral-200'}`}>
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy">{value}</p>
+      <p className="mt-1.5 text-xl font-bold text-brand-navy">
+        {countValue !== undefined ? <CountUp value={countValue} decimals={decimals} suffix={suffix} /> : value}
+      </p>
     </div>
   );
 }

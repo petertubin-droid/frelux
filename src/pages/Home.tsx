@@ -3,6 +3,7 @@ import ToolsSection from '@/components/home/ToolsSection';
 import ColorPreview from '@/components/home/ColorPreview';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import TrendingColors from '@/components/home/TrendingColors';
+import QuickCalculatorShortcuts from '@/components/ui/QuickCalculatorShortcuts';
 import AdSlot from '@/components/ui/AdSlot';
 import { useSeo } from '@/lib/seo';
 
@@ -27,6 +28,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <QuickCalculatorShortcuts />
       <ToolsSection />
       <AdSlot slotKey="home_mid" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
       <TrendingColors />
