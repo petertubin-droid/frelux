@@ -313,7 +313,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     });
 
     // Determine unlock duration (feature config takes priority)
-    const durationMinutes = featureConfig?.unlock_duration_minutes ?? config.unlock_duration_hours * 60;
+    const durationMinutes = featureConfig?.unlock_duration_minutes ?? config?.unlock_duration_hours ?? 60 * 60;
     let expiry: string;
     if (durationMinutes >= 1440) {
       expiry = endOfDayISO();
@@ -344,7 +344,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // Track daily count and set cooldown
     const newCount = incrementDailyUnlockCount(toolKey);
     setDailyUnlockCount(newCount);
-    const cooldownMinutes = featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+    const cooldownMinutes = featureConfig?.cooldown_minutes ?? config?.cooldown_minutes ?? 0;
     if (cooldownMinutes > 0) {
       setCooldownExpiry(toolKey, cooldownMinutes);
       setIsCooldownActive(true);

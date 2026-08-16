@@ -52,7 +52,7 @@ export default function Contact() {
       return;
     }
     setStatus('success');
-    track('contact_form_submit', { subject: form.subject });
+    track('contact_form_submitted', { subject: form.subject });
     setForm({ name: '', email: '', subject: '', message: '' });
   }
 
