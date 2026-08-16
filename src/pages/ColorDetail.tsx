@@ -104,7 +104,7 @@ export default function ColorDetail() {
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
         <div className="overflow-hidden rounded-xl border border-neutral-200">
-          <img src={color.image_url} alt={color.title} className="h-full w-full object-cover" />
+          <img src={color.image_url} alt={color.title} className="h-full w-full object-cover" loading="lazy" />
         </div>
 
         <div>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { fetchAdConfig, getProvidersForPlacement, getAdUnitId, shouldDisplayPlacement, logAdEvent } from '@/lib/ad-config';
+import { supabase } from '@/lib/supabase';
 import type { DbAdProvider, DbAdPlacement } from '@/types/database';
 
 /**
@@ -137,7 +138,6 @@ export default function AdSlot({
 
 // Legacy AdSense config fallback (reads from site_settings)
 async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
-  const { supabase } = await import('@/lib/supabase');
   const { data } = await supabase
     .from('site_settings')
     .select('ads_enabled, adsense_publisher_id, ad_slots')

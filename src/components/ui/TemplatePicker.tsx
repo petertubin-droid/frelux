@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Bookmark, Plus, Copy, Trash2, Pencil, Check, X, Loader2, Upload } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { Bookmark, Plus, Copy, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
 import { fetchBuiltinTemplates, fetchUserTemplates, saveUserTemplate, updateUserTemplate, deleteUserTemplate, duplicateUserTemplate } from '@/lib/queries';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
-import { classNames } from '@/lib/utils';
 import type { DbCalculatorTemplate, TemplateType } from '@/types/database';
 
 export default function TemplatePicker({
@@ -26,12 +25,7 @@ export default function TemplatePicker({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
 
-  useEffect(() => {
-    if (!open) return;
-    loadTemplates();
-  }, [open]);
-
-  async function loadTemplates() {
+  const loadTemplates = useCallback(async () => {
     setLoading(true);
     const [builtinRes, userRes] = await Promise.all([
       fetchBuiltinTemplates(templateType),
@@ -40,7 +34,12 @@ export default function TemplatePicker({
     setBuiltin(builtinRes.data);
     setUserTemplates(userRes.data);
     setLoading(false);
-  }
+  }, [templateType, user]);
+
+  useEffect(() => {
+    if (!open) return;
+    loadTemplates();
+  }, [open, loadTemplates]);
 
   async function handleSave() {
     if (!saveName.trim() || !user) return;

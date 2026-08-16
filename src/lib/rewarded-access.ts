@@ -349,7 +349,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       setCooldownExpiry(toolKey, cooldownMinutes);
       setIsCooldownActive(true);
     }
-  }, [config, featureConfig, primaryProvider, fallbackProvider, toolKey]);
+  }, [config, featureConfig, primaryProvider, toolKey]);
 
   return {
     toolKey,

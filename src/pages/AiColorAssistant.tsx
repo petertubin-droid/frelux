@@ -50,12 +50,24 @@ export default function AiColorAssistant() {
       'Describe your room or upload a photo and get AI-generated color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.',
     canonicalPath: '/ai-color-assistant',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Smart Color Assistant',
+      description: 'Describe your room or upload a photo and get AI-generated color recommendations tailored to your space, lighting, and furniture.',
+      url: 'https://freluxpaintcalc.com/ai-color-assistant',
+      applicationCategory: 'DesignApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const { user } = useAuth();
   const [view, setView] = useState<View>('choose');
   const [config, setConfig] = useState<AiAccessConfig | null>(null);
   const [usage, setUsage] = useState<AiUsageStatus | null>(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     track('ai_assistant_opened', {});

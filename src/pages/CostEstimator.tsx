@@ -31,6 +31,16 @@ export default function CostEstimator() {
       'Estimate the practical cost of your painting project. Paint, primer, materials, and labor — based on real product prices and your paint quantity.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Cost Estimator',
+      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, and labor — based on real product prices and your paint quantity.',
+      url: 'https://freluxpaintcalc.com/cost-estimator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const location = useLocation();

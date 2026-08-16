@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, ArrowRight, Loader2, AlertCircle, Clock, Star, type LucideIcon } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { BookOpen, ArrowRight, Loader2, AlertCircle, Clock, Star } from 'lucide-react';
+import { getIcon } from '@/lib/icon-map';
 import PageHeader from '@/components/ui/PageHeader';
 import { supabase } from '@/lib/supabase';
 import { useSeo } from '@/lib/seo';
@@ -107,7 +107,7 @@ export default function Learn() {
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Browse by topic</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((cat) => {
-              const IconComponent = (LucideIcons as unknown as Record<string, LucideIcon>)[cat.icon] ?? BookOpen;
+              const IconComponent = getIcon(cat.icon);
               return (
                 <Link key={cat.id} to={`/learn/category/${cat.slug}`} className="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">

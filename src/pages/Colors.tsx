@@ -22,6 +22,12 @@ export default function Colors() {
     description: 'Browse hundreds of professional paint colors and curated color palettes. Filter by color family, room type, style, and more.',
     canonicalPath: '/colors',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'FRELUX Color Library — Paint Colors & Palettes',
+      description: 'Browse hundreds of professional paint colors and curated color palettes. Filter by color family, room type, style, and more.',
+    },
   });
 
   const { user } = useAuth();
@@ -57,6 +63,7 @@ export default function Colors() {
         setFavIds(ids);
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
     loadInitial();
   }, [user]);
 

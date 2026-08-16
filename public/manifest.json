@@ -4,14 +4,57 @@
   "description": "Plan Your Perfect Paint Project — calculators, cost estimators, and AI color recommendations.",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0F172A",
   "theme_color": "#6B21A8",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["business", "productivity", "lifestyle"],
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Paint Calculator",
+      "short_name": "Paint Calc",
+      "url": "/paint-calculator",
+      "description": "Calculate paint quantities for your project"
+    },
+    {
+      "name": "Color Library",
+      "short_name": "Colors",
+      "url": "/colors",
+      "description": "Browse and compare paint colors"
+    },
+    {
+      "name": "Cost Estimator",
+      "short_name": "Estimate",
+      "url": "/cost-estimator",
+      "description": "Estimate painting project costs"
+    },
+    {
+      "name": "AI Color Assistant",
+      "short_name": "AI Assistant",
+      "url": "/ai-color-assistant",
+      "description": "Get AI-powered color recommendations"
     }
   ]
 }

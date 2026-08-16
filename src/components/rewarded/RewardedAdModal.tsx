@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function RewardedAdModal({ access, featureName, features }: Props) {
-  const { showAdModal, adLoading, cancelUnlock, watchAd, expiresAt, isUnlocked } = access;
+  const { adLoading, cancelUnlock, watchAd, expiresAt, isUnlocked } = access;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

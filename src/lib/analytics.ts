@@ -66,7 +66,6 @@ export function track(event: TrackEvent, params?: Record<string, unknown>): void
 
   // Always log in dev for visibility; safe no-op in production when unconfigured.
   if (import.meta.env.DEV) {
-    // eslint-disable-next-line no-console
     console.debug('[track]', event, params ?? {});
   }
 }

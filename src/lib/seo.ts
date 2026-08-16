@@ -8,6 +8,7 @@ export interface SeoMeta {
   ogImage?: string;
   noIndex?: boolean;
   structuredData?: object;
+  structuredDataArray?: object[];
 }
 
 const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://freluxpaintcalc.com';
@@ -43,44 +44,80 @@ function setStructuredData(id: string, data: object) {
   el.textContent = JSON.stringify(data);
 }
 
+function removeStructuredData(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
 export function useSeo(meta: SeoMeta) {
   useEffect(() => {
     const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title} — FRELUX PAINT CALC`;
     document.title = fullTitle;
 
+    // Primary meta
     setMeta('name', 'description', meta.description);
+    setMeta('name', 'author', 'FRELUX PAINT CALC');
+
+    // Open Graph
     setMeta('property', 'og:title', fullTitle);
     setMeta('property', 'og:description', meta.description);
     setMeta('property', 'og:type', meta.ogType ?? 'website');
     setMeta('property', 'og:url', `${SITE_URL}${meta.canonicalPath ?? ''}`);
+    setMeta('property', 'og:site_name', 'FRELUX PAINT CALC');
     if (meta.ogImage) setMeta('property', 'og:image', meta.ogImage);
+
+    // Twitter Cards
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', meta.description);
+    if (meta.ogImage) setMeta('name', 'twitter:image', meta.ogImage);
 
+    // Canonical URL
     if (meta.canonicalPath) {
       setLink('canonical', `${SITE_URL}${meta.canonicalPath}`);
     }
 
+    // Robots
     if (meta.noIndex) {
       setMeta('name', 'robots', 'noindex, nofollow');
     } else {
       const existing = document.head.querySelector('meta[name="robots"]');
-      if (existing) existing.remove();
+      if (existing) {
+        existing.setAttribute('content', 'index, follow');
+      } else {
+        setMeta('name', 'robots', 'index, follow');
+      }
     }
+
+    // Structured data — single or array
+    const sdIds: string[] = [];
 
     if (meta.structuredData) {
       setStructuredData('page-structured-data', meta.structuredData);
+      sdIds.push('page-structured-data');
     } else {
-      const existing = document.getElementById('page-structured-data');
-      if (existing) existing.remove();
+      removeStructuredData('page-structured-data');
+    }
+
+    if (meta.structuredDataArray && meta.structuredDataArray.length > 0) {
+      meta.structuredDataArray.forEach((data, index) => {
+        const id = `page-structured-data-${index}`;
+        setStructuredData(id, data);
+        sdIds.push(id);
+      });
+    }
+
+    // Clean up old array-based structured data that's no longer used
+    const maxArrayId = (meta.structuredDataArray?.length ?? 0) + 1;
+    for (let i = meta.structuredDataArray?.length ?? 0; i < maxArrayId + 5; i++) {
+      removeStructuredData(`page-structured-data-${i}`);
     }
 
     return () => {
-      const sd = document.getElementById('page-structured-data');
-      if (sd) sd.remove();
+      removeStructuredData('page-structured-data');
+      sdIds.forEach((id) => removeStructuredData(id));
     };
-  }, [meta.title, meta.description, meta.canonicalPath, meta.ogType, meta.ogImage, meta.noIndex, meta.structuredData]);
+  }, [meta.title, meta.description, meta.canonicalPath, meta.ogType, meta.ogImage, meta.noIndex, meta.structuredData, meta.structuredDataArray]);
 }
 
 export { SITE_URL };

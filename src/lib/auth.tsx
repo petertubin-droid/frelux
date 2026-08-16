@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', userId)
       .maybeSingle();
     if (error) {
-      // eslint-disable-next-line no-console
       console.error('[auth] Failed to load profile:', error.message);
       return null;
     }
@@ -110,12 +109,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       refreshProfile,
     }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [state]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');

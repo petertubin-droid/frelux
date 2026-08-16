@@ -1,10 +1,47 @@
 # robots.txt for FRELUX PAINT CALC
-# Public pages are crawlable. Admin and auth routes are excluded.
+# Public pages are crawlable. Admin, auth, and API routes are excluded.
 
 User-agent: *
 Allow: /
+Allow: /paint-calculator
+Allow: /screeding-calculator
+Allow: /pop-ceiling-calculator
+Allow: /tile-calculator
+Allow: /cost-estimator
+Allow: /screeding-cost-estimator
+Allow: /pop-ceiling-cost-estimator
+Allow: /tile-cost-estimator
+Allow: /colors
+Allow: /colors/compare
+Allow: /colors/paint/
+Allow: /colors/
+Allow: /ai-color-assistant
+Allow: /learn
+Allow: /learn/category/
+Allow: /learn/
+Allow: /about
+Allow: /contact
+Allow: /privacy-policy
+Allow: /terms
+Allow: /cookie-policy
+Allow: /disclaimer
+Allow: /ai-disclaimer
+
 Disallow: /admin
 Disallow: /admin/
 Disallow: /login
+Disallow: /my-projects
+Disallow: /dashboard
+Disallow: /shared/
+Disallow: /studio
+Disallow: /studio/
 
+# Block AI scrapers from training data (optional — remove to allow)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# Sitemap
 Sitemap: https://freluxpaintcalc.com/sitemap.xml

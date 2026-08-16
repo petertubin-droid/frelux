@@ -25,6 +25,16 @@ export default function PopCeilingCostEstimator() {
     description: 'Estimate the full cost of your POP ceiling project including materials, labour, and waste for both Nigerian and international workflows.',
     canonicalPath: '/pop-ceiling-cost-estimator',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX POP Ceiling Cost Estimator',
+      description: 'Estimate the full cost of your POP ceiling project including materials, labour, and waste.',
+      url: 'https://freluxpaintcalc.com/pop-ceiling-cost-estimator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const location = useLocation();
@@ -72,6 +82,7 @@ export default function PopCeilingCostEstimator() {
       const inputWithArea: PopCalcInput = {
         ...input,
         roomLength: sqrtArea,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
         roomWidth: sqrtArea,
       };
       const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');

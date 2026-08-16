@@ -283,6 +283,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
     if (!text.trim()) { setPreview(null); return; }
     const rows = parseInput(text);
     validateRows(rows);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, format]);
 
   async function doImport() {
@@ -545,7 +546,7 @@ function CombinationsTab() {
             return (
               <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-start gap-4">
-                  <img src={item.image_url} alt={item.title} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+                  <img src={item.image_url} alt={item.title} className="h-16 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="truncate text-base font-bold text-brand-navy">{item.title}</h3>

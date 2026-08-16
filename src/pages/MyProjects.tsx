@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Folder, Clock, Trash2, Copy, Plus, AlertCircle, Palette as PaletteIcon, Calculator, DollarSign, Layers, Pencil, Check, X, Pin, Search, Share2, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
-import { SkeletonList, SkeletonGrid } from '@/components/ui/Skeleton';
+import { SkeletonGrid } from '@/components/ui/Skeleton';
 import { useToast } from '@/components/ui/Toast';
 import { fetchFavoriteColors, fetchFavoritePalettes, fetchUserProjects, deleteUserProject, duplicateUserProject, fetchUserCollections, createUserCollection, deleteUserCollection, fetchCollectionColors, renameUserCollection, moveColorToCollection, fetchRecentlyViewedColors, clearRecentlyViewed, togglePinRecentlyViewed, createShareableLink } from '@/lib/queries';
 import { useSeo } from '@/lib/seo';

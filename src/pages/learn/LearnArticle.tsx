@@ -92,7 +92,7 @@ export default function LearnArticle() {
       {/* Cover image */}
       {article.cover_image_url && (
         <div className="mb-8 overflow-hidden rounded-xl">
-          <img src={article.cover_image_url} alt={article.title} className="w-full object-cover" />
+          <img src={article.cover_image_url} alt={article.title} className="w-full object-cover" loading="lazy" />
         </div>
       )}
 

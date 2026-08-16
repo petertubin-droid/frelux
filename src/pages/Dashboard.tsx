@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Heart, FolderOpen, Sparkles, Calculator, ArrowRight, TrendingUp, Palette } from 'lucide-react';
+import { Clock, Heart, Sparkles, Calculator, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/Skeleton';

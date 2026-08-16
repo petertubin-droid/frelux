@@ -39,6 +39,7 @@ function useCrud<T extends { id: string }>(table: string) {
     setItems(data ?? []);
     setLoading(false);
   }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, []);
   return { items, setItems, loading, error, setError, load };
 }

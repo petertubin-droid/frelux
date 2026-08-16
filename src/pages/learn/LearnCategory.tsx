@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { BookOpen, ArrowRight, ArrowLeft, Loader2, AlertCircle, Clock, type LucideIcon } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { BookOpen, ArrowRight, ArrowLeft, Loader2, AlertCircle, Clock } from 'lucide-react';
+import { getIcon } from '@/lib/icon-map';
 import PageHeader from '@/components/ui/PageHeader';
 import { supabase } from '@/lib/supabase';
 import { useSeo } from '@/lib/seo';
@@ -60,7 +60,7 @@ export default function LearnCategory() {
       </>
     );
 
-  const IconComponent = (LucideIcons as unknown as Record<string, LucideIcon>)[category.icon] ?? BookOpen;
+  const IconComponent = getIcon(category.icon);
 
   return (
     <>

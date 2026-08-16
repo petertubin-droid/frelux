@@ -32,6 +32,7 @@ interface LabourCostSectionProps {
  * When enabled, shows 5 pricing method choices and relevant input fields.
  * Users can always override any suggested rate.
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
   const [config, setConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
   const [loading, setLoading] = useState(true);

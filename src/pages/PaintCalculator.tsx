@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, Save, FileDown, Share2, Sparkles } from 'lucide-react';
+import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import MultiStepProgress from '@/components/ui/MultiStepProgress';
 import TemplatePicker from '@/components/ui/TemplatePicker';
 import CountUp from '@/components/ui/CountUp';
 import StickyActionBar from '@/components/ui/StickyActionBar';
-import HelpTip from '@/components/ui/HelpTip';
 import { useToast } from '@/components/ui/Toast';
 import { calculatePaint, type CalcConfig } from '@/lib/calc';
 import { track } from '@/lib/analytics';
@@ -64,6 +63,16 @@ export default function PaintCalculator() {
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
     canonicalPath: '/paint-calculator',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Paint Calculator',
+      description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
+      url: 'https://freluxpaintcalc.com/paint-calculator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const [step, setStep] = useState(1);
@@ -110,6 +119,7 @@ export default function PaintCalculator() {
           cementBagSizeKg: Number(data.cement_bag_size_kg),
           cementPricePerBag: Number(data.cement_price_per_bag),
           defaultMixRatio: data.default_mix_ratio,
+  // eslint-disable-next-line react-hooks/exhaustive-deps
           labourRatePerSqm: Number(data.labour_rate_per_sqm),
           wastePercentage: Number(data.waste_percentage),
           taxVatPercentage: Number(data.tax_vat_percentage),
@@ -314,19 +324,15 @@ export default function PaintCalculator() {
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
-            onSave={handleSave}
-            onExport={handleExport}
-            onShare={handleShare}
-            onAskAi={handleAskAi}
+          onSave={handleSave}
+          onExport={handleExport}
+          onShare={handleShare}
+          onAskAi={handleAskAi}
           />
         )}
 
         {result && (
           <StickyActionBar
-            onSave={handleSave}
-            onExport={handleExport}
-            onShare={handleShare}
-            onAskAi={handleAskAi}
             onRecalculate={() => setResult(null)}
           />
         )}
@@ -348,35 +354,6 @@ export default function PaintCalculator() {
         )}
       </div>
     </>
-  );
-}
-
-function Stepper({ current }: { current: number }) {
-  const steps = ['Project type', 'Measurements', 'Surface details'];
-  return (
-    <ol className="flex items-center gap-2">
-      {steps.map((label, i) => {
-        const n = i + 1;
-        const active = n === current;
-        const done = n < current;
-        return (
-          <li key={label} className="flex flex-1 items-center gap-2">
-            <span
-              className={
-                'flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ' +
-                (done ? 'bg-accent-green text-white' : active ? 'bg-brand-purple text-white' : 'bg-neutral-200 text-neutral-500')
-              }
-            >
-              {done ? <CheckCircle2 className="h-4 w-4" /> : n}
-            </span>
-            <span className={'hidden text-xs font-semibold sm:block ' + (active ? 'text-brand-navy' : 'text-neutral-400')}>
-              {label}
-            </span>
-            {n < steps.length && <span className="ml-1 hidden h-px flex-1 bg-neutral-200 sm:block" />}
-          </li>
-        );
-      })}
-    </ol>
   );
 }
 
@@ -616,10 +593,10 @@ function ResultCard({
   paintTypeName,
   onAgain,
   onStartOver,
-  onSave,
-  onExport,
-  onShare,
-  onAskAi,
+  onSave: _onSave,
+  onExport: _onExport,
+  onShare: _onShare,
+  onAskAi: _onAskAi,
 }: {
   result: CalculatorResult;
   input: CalculatorInput;

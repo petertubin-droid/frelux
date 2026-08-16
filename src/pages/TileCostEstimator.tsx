@@ -25,6 +25,16 @@ export default function TileCostEstimator() {
     description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
     canonicalPath: '/tile-cost-estimator',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Tile Cost Estimator',
+      description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
+      url: 'https://freluxpaintcalc.com/tile-cost-estimator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const location = useLocation();
@@ -98,6 +108,7 @@ export default function TileCostEstimator() {
   useEffect(() => {
     if (passed.surfaceArea && passed.surfaceArea > 0 && !passed.input) {
       const sqrtArea = Math.sqrt(passed.surfaceArea);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
       const inputWithArea: TileCalcInput = {
         ...input,
         length: sqrtArea,

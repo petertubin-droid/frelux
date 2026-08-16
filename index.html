@@ -4,17 +4,82 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="manifest" href="/manifest.json" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
+
+    <!-- Primary SEO Meta -->
     <meta name="description" content="FRELUX PAINT CALC - Calculate paint requirements, estimate painting costs, and discover colors that transform your space." />
-    <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
+    <meta name="author" content="FRELUX PAINT CALC" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#6B21A8" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FRELUX PAINT CALC" />
     <meta property="og:title" content="FRELUX PAINT CALC" />
     <meta property="og:description" content="Calculate what you need, estimate what it may cost, and discover colors that transform your space." />
+    <meta property="og:url" content="https://freluxpaintcalc.com" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="FRELUX PAINT CALC" />
+    <meta name="twitter:description" content="Calculate what you need, estimate what it may cost, and discover colors that transform your space." />
+
+    <!-- DNS Preconnect — resolve third-party origins early -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- Fonts — preload critical font weight, load rest with display=swap -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Resource Preloading — hint the most critical assets -->
+    <link rel="preload" href="/favicon.svg" as="image" type="image/svg+xml" />
+
+    <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
+
+    <!-- Organization Structured Data -->
+    <script type="application/ld+json" id="org-structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "FRELUX PAINT CALC",
+      "url": "https://freluxpaintcalc.com",
+      "description": "Calculate paint requirements, estimate painting costs, and discover colors that transform your space.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <!-- Inline critical CSS to reduce CLS and improve LCP -->
+    <style>
+      html { scroll-behavior: smooth; }
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      #root { min-height: 100vh; }
+      .page-loader { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Static fallback shown before JS hydration -->
+      <div class="page-loader">
+        <div style="width:32px;height:32px;border:2px solid #e2e8f0;border-top-color:#6B21A8;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
