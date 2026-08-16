@@ -1,0 +1,435 @@
+import { describe, it, expect } from 'vitest';
+import {
+  calculateWallArea,
+  calculateCeilingArea,
+  calculateDoorArea,
+  calculateWindowArea,
+  calculatePaintableArea,
+  calculatePaintRequired,
+  calculateAdjustedPaintRequired,
+  recommendContainerCombination,
+  calculatePaint,
+  calculatePaintCost,
+  calculateMaterialCost,
+  calculateLaborCost,
+  calculateEstimatedTotal,
+  DEFAULT_COVERAGE_M2_PER_LITER,
+  DEFAULT_CONTAINER_SIZES_LITERS,
+} from './calc';
+import type { CalculatorInput, CostEstimateInput } from '@/types';
+
+// ─────────────────────────────────────────────────────────
+// Wall area
+// ─────────────────────────────────────────────────────────
+describe('calculateWallArea', () => {
+  it('calculates perimeter × height for a room', () => {
+    // 6m × 4m room, 3m height → perimeter 20m × 3m = 60 m²
+    expect(calculateWallArea(6, 4, 3, 'room')).toBe(60);
+  });
+
+  it('calculates two walls when width is 0 (optional field)', () => {
+    // 6m length, 0 width, 3m height → 2 × 6 × 3 = 36
+    expect(calculateWallArea(6, 0, 3, 'room')).toBe(36);
+  });
+
+  it('calculates two walls when width is negative', () => {
+    expect(calculateWallArea(5, -1, 3, 'house')).toBe(30);
+  });
+
+  it('treats fence as flat surface (length × height)', () => {
+    // 10m fence, 2m height → 10 × 2 = 20 m² (width irrelevant)
+    expect(calculateWallArea(10, 3, 2, 'fence')).toBe(20);
+  });
+
+  it('handles exterior project type', () => {
+    // 8m × 5m exterior, 4m height → perimeter 26m × 4m = 104 m²
+    expect(calculateWallArea(8, 5, 4, 'exterior')).toBe(104);
+  });
+
+  it('returns 0 when height is 0', () => {
+    expect(calculateWallArea(5, 4, 0, 'room')).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Ceiling area
+// ─────────────────────────────────────────────────────────
+describe('calculateCeilingArea', () => {
+  it('calculates length × width for room', () => {
+    expect(calculateCeilingArea(6, 4, 'room')).toBe(24);
+  });
+
+  it('returns 0 for exterior (no ceiling)', () => {
+    expect(calculateCeilingArea(6, 4, 'exterior')).toBe(0);
+  });
+
+  it('returns 0 for fence (no ceiling)', () => {
+    expect(calculateCeilingArea(10, 2, 'fence')).toBe(0);
+  });
+
+  it('returns 0 when width is 0', () => {
+    expect(calculateCeilingArea(6, 0, 'room')).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Door & window area
+// ─────────────────────────────────────────────────────────
+describe('calculateDoorArea', () => {
+  it('calculates total door area', () => {
+    // 2 doors × 0.8m × 2.4m = 3.84 m²
+    expect(calculateDoorArea(2)).toBe(3.84);
+  });
+
+  it('returns 0 for 0 doors', () => {
+    expect(calculateDoorArea(0)).toBe(0);
+  });
+
+  it('handles custom dimensions', () => {
+    expect(calculateDoorArea(1, { width: 1.0, height: 2.5 })).toBe(2.5);
+  });
+
+  it('handles negative count (clamped to 0)', () => {
+    expect(calculateDoorArea(-1)).toBe(0);
+  });
+});
+
+describe('calculateWindowArea', () => {
+  it('calculates total window area', () => {
+    // 3 windows × 1.2m × 1.2m = 4.32 m²
+    expect(calculateWindowArea(3)).toBeCloseTo(4.32, 2);
+  });
+
+  it('returns 0 for 0 windows', () => {
+    expect(calculateWindowArea(0)).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Paintable area
+// ─────────────────────────────────────────────────────────
+describe('calculatePaintableArea', () => {
+  it('subtracts openings from surface', () => {
+    // 60 walls + 24 ceiling - 3.84 doors - 4.32 windows = 75.84
+    expect(calculatePaintableArea(60, 24, 3.84, 4.32, true)).toBeCloseTo(75.84, 2);
+  });
+
+  it('excludes ceiling when includeCeiling is false', () => {
+    // 60 - 3.84 - 4.32 = 51.84
+    expect(calculatePaintableArea(60, 24, 3.84, 4.32, false)).toBeCloseTo(51.84, 2);
+  });
+
+  it('clamps to 0 (never negative)', () => {
+    expect(calculatePaintableArea(10, 0, 20, 20, false)).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Paint required
+// ─────────────────────────────────────────────────────────
+describe('calculatePaintRequired', () => {
+  it('calculates liters from area, coats, coverage', () => {
+    // 50 m² × 2 coats / 10 m²/L = 10 L
+    expect(calculatePaintRequired(50, 2, 10)).toBe(10);
+  });
+
+  it('enforces minimum 1 coat', () => {
+    // 50 m² × max(1, 0) coats / 10 = 5 L
+    expect(calculatePaintRequired(50, 0, 10)).toBe(5);
+  });
+
+  it('returns 0 for zero coverage rate', () => {
+    expect(calculatePaintRequired(50, 2, 0)).toBe(0);
+  });
+
+  it('returns 0 for zero area', () => {
+    expect(calculatePaintRequired(0, 2, 10)).toBe(0);
+  });
+});
+
+describe('calculateAdjustedPaintRequired', () => {
+  it('applies waste margin', () => {
+    // 10 L × (1 + 0.10) = 11 L
+    expect(calculateAdjustedPaintRequired(10, 10)).toBe(11);
+  });
+
+  it('handles 0% waste', () => {
+    expect(calculateAdjustedPaintRequired(10, 0)).toBe(10);
+  });
+
+  it('clamps waste margin to 100%', () => {
+    // 10 L × (1 + 1.0) = 20 L (200% would be 30 L but clamped to 100%)
+    expect(calculateAdjustedPaintRequired(10, 150)).toBe(20);
+  });
+
+  it('handles negative waste (clamped to 0)', () => {
+    expect(calculateAdjustedPaintRequired(10, -10)).toBe(10);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Container recommendation
+// ─────────────────────────────────────────────────────────
+describe('recommendContainerCombination', () => {
+  it('recommends largest containers first', () => {
+    // 25 L with [1, 4, 20] → 1×20L + 2×4L (but 5 remaining → 1×4L + 1×1L)
+    const result = recommendContainerCombination(25, [1, 4, 20]);
+    // 25/20 = 1 (remaining 5), 5/4 = 1 (remaining 1), 1/1 = 1
+    expect(result).toEqual([
+      { size: 20, count: 1 },
+      { size: 4, count: 1 },
+      { size: 1, count: 1 },
+    ]);
+  });
+
+  it('returns empty for 0 liters', () => {
+    expect(recommendContainerCombination(0, [1, 4, 20])).toEqual([]);
+  });
+
+  it('adds smallest container for remainder', () => {
+    // 0.5 L → can't fill even 1L, so 1×1L (smallest)
+    const result = recommendContainerCombination(0.5, [1, 4, 20]);
+    expect(result).toEqual([{ size: 1, count: 1 }]);
+  });
+
+  it('uses default container sizes when none provided', () => {
+    const result = recommendContainerCombination(20, []);
+    expect(result).toEqual([{ size: 20, count: 1 }]);
+  });
+
+  it('handles exact fit (no remainder)', () => {
+    const result = recommendContainerCombination(8, [4, 20]);
+    expect(result).toEqual([{ size: 4, count: 2 }]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Full paint calculation
+// ─────────────────────────────────────────────────────────
+describe('calculatePaint', () => {
+  const baseInput: CalculatorInput = {
+    projectType: 'room',
+    length: 6,
+    width: 4,
+    wallHeight: 3,
+    doors: 1,
+    doorDims: { width: 0.8, height: 2.4 },
+    windows: 1,
+    windowDims: { width: 1.2, height: 1.2 },
+    coats: 2,
+    paintType: 'emulsion',
+    unit: 'meters',
+    includeCeiling: true,
+    wasteMargin: 10,
+  };
+
+  it('produces a complete result with all fields', () => {
+    const result = calculatePaint(baseInput);
+    expect(result).toHaveProperty('wallArea');
+    expect(result).toHaveProperty('ceilingArea');
+    expect(result).toHaveProperty('paintableArea');
+    expect(result).toHaveProperty('paintRequiredLiters');
+    expect(result).toHaveProperty('adjustedLiters');
+    expect(result).toHaveProperty('recommendedContainers');
+    expect(result).toHaveProperty('totalRecommendedLiters');
+  });
+
+  it('calculates correctly for a 6×4×3m room with 1 door, 1 window, 2 coats', () => {
+    const result = calculatePaint(baseInput);
+    // Wall: 2*(6+4)*3 = 60, Ceiling: 6*4 = 24
+    // Door: 0.8*2.4 = 1.92, Window: 1.2*1.2 = 1.44
+    // Paintable: 60+24-1.92-1.44 = 80.64
+    // Paint: 80.64*2/10 = 16.128 L → 10% waste → 17.7408
+    expect(result.wallArea).toBe(60);
+    expect(result.ceilingArea).toBe(24);
+    expect(result.doorArea).toBe(1.92);
+    expect(result.windowArea).toBeCloseTo(1.44, 2);
+    expect(result.paintableArea).toBeCloseTo(80.64, 2);
+    expect(result.paintRequiredLiters).toBeCloseTo(16.13, 1);
+    expect(result.adjustedLiters).toBeCloseTo(17.74, 1);
+  });
+
+  it('respects custom coverage rate via config', () => {
+    const result = calculatePaint(baseInput, { coverageRate: 5 });
+    // With 5 m²/L instead of 10, paint required doubles
+    expect(result.coverageRate).toBe(5);
+    expect(result.paintRequiredLiters).toBeCloseTo(32.26, 1);
+  });
+
+  it('handles feet input correctly', () => {
+    const feetInput: CalculatorInput = {
+      ...baseInput,
+      length: 20, // ~6.096m
+      width: 13,  // ~3.962m
+      wallHeight: 10, // ~3.048m
+      unit: 'feet',
+    };
+    const result = calculatePaint(feetInput);
+    // Wall: 2*(6.096+3.962)*3.048 ≈ 61.36 m²
+    expect(result.wallArea).toBeCloseTo(61.36, 0);
+    expect(result.unit).toBe('feet');
+  });
+
+  it('excludes ceiling when includeCeiling is false', () => {
+    const result = calculatePaint({ ...baseInput, includeCeiling: false });
+    // Paintable = 60 - 1.92 - 1.44 = 56.64 (no ceiling)
+    expect(result.paintableArea).toBeCloseTo(56.64, 1);
+  });
+
+  it('handles fence project type', () => {
+    const fenceInput: CalculatorInput = {
+      ...baseInput,
+      projectType: 'fence',
+      length: 10,
+      width: 0,
+      wallHeight: 2,
+    };
+    const result = calculatePaint(fenceInput);
+    // Fence: 10 × 2 = 20 m²
+    expect(result.wallArea).toBe(20);
+    expect(result.ceilingArea).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Cost calculations
+// ─────────────────────────────────────────────────────────
+describe('calculatePaintCost', () => {
+  it('uses container pricing when enabled', () => {
+    const input: CostEstimateInput = {
+      paintLiters: 18,
+      paintUseContainerPricing: true,
+      paintContainerSize: 20,
+      paintContainerPrice: 25000,
+      paintPricePerLiter: 0,
+    } as unknown as CostEstimateInput;
+    // ceil(18/20) = 1 container × 25000 = 25000
+    expect(calculatePaintCost(input).cost).toBe(25000);
+    expect(calculatePaintCost(input).containerCount).toBe(1);
+  });
+
+  it('rounds up to full containers', () => {
+    const input: CostEstimateInput = {
+      paintLiters: 21,
+      paintUseContainerPricing: true,
+      paintContainerSize: 20,
+      paintContainerPrice: 25000,
+      paintPricePerLiter: 0,
+    } as unknown as CostEstimateInput;
+    // ceil(21/20) = 2 containers × 25000 = 50000
+    expect(calculatePaintCost(input).cost).toBe(50000);
+    expect(calculatePaintCost(input).containerCount).toBe(2);
+  });
+
+  it('falls back to per-liter pricing when container pricing disabled', () => {
+    const input: CostEstimateInput = {
+      paintLiters: 18,
+      paintUseContainerPricing: false,
+      paintContainerSize: 20,
+      paintContainerPrice: 25000,
+      paintPricePerLiter: 1500,
+    } as unknown as CostEstimateInput;
+    // 18 × 1500 = 27000
+    expect(calculatePaintCost(input).cost).toBe(27000);
+    expect(calculatePaintCost(input).containerCount).toBe(0);
+  });
+});
+
+describe('calculateMaterialCost', () => {
+  const baseMaterials: Pick<CostEstimateInput,
+    'includeFiller' | 'fillerCost' | 'includePutty' | 'puttyCost' |
+    'includeSandpaper' | 'sandpaperCost' | 'includeBrushes' | 'brushesCost' |
+    'includeRollers' | 'rollersCost' | 'includeOther' | 'otherMaterialsCost'
+  > = {
+    includeFiller: true, fillerCost: 5000,
+    includePutty: true, puttyCost: 3000,
+    includeSandpaper: false, sandpaperCost: 1000,
+    includeBrushes: true, brushesCost: 2000,
+    includeRollers: false, rollersCost: 1500,
+    includeOther: false, otherMaterialsCost: 500,
+  };
+
+  it('sums only included materials', () => {
+    const input = baseMaterials as unknown as CostEstimateInput;
+    // 5000 + 3000 + 2000 = 10000 (sandpaper, rollers, other excluded)
+    expect(calculateMaterialCost(input)).toBe(10000);
+  });
+
+  it('returns 0 when all materials excluded', () => {
+    const input = {
+      includeFiller: false, fillerCost: 0,
+      includePutty: false, puttyCost: 0,
+      includeSandpaper: false, sandpaperCost: 0,
+      includeBrushes: false, brushesCost: 0,
+      includeRollers: false, rollersCost: 0,
+      includeOther: false, otherMaterialsCost: 0,
+    } as unknown as CostEstimateInput;
+    expect(calculateMaterialCost(input)).toBe(0);
+  });
+});
+
+describe('calculateLaborCost', () => {
+  it('calculates per-sqm labor', () => {
+    const input: CostEstimateInput = {
+      laborMode: 'perSqm',
+      paintableArea: 80,
+      laborRatePerSqm: 500,
+      laborTotal: 0,
+    } as unknown as CostEstimateInput;
+    // 80 × 500 = 40000
+    expect(calculateLaborCost(input)).toBe(40000);
+  });
+
+  it('uses manual labor total when mode is manual', () => {
+    const input: CostEstimateInput = {
+      laborMode: 'manual',
+      paintableArea: 80,
+      laborRatePerSqm: 500,
+      laborTotal: 25000,
+    } as unknown as CostEstimateInput;
+    expect(calculateLaborCost(input)).toBe(25000);
+  });
+});
+
+describe('calculateEstimatedTotal', () => {
+  it('sums all cost components', () => {
+    const input: CostEstimateInput = {
+      paintableArea: 80,
+      paintLiters: 18,
+      paintType: 'emulsion',
+      paintUseContainerPricing: true,
+      paintContainerSize: 20,
+      paintContainerPrice: 25000,
+      paintPricePerLiter: 0,
+      paintProductId: null,
+      paintProductName: '',
+      includePrimer: true,
+      primerLiters: 5,
+      primerPricePerLiter: 1200,
+      includeFiller: true, fillerCost: 5000,
+      includePutty: false, puttyCost: 0,
+      includeSandpaper: false, sandpaperCost: 0,
+      includeBrushes: true, brushesCost: 2000,
+      includeRollers: false, rollersCost: 0,
+      includeOther: false, otherMaterialsCost: 0,
+      laborMode: 'perSqm',
+      laborRatePerSqm: 500,
+      laborTotal: 0,
+      projectType: 'room',
+      coats: 2,
+    } as unknown as CostEstimateInput;
+
+    const result = calculateEstimatedTotal(input);
+    // Paint: 1 × 25000 = 25000
+    // Primer: 5 × 1200 = 6000
+    // Materials: 5000 + 2000 = 7000
+    // Labor: 80 × 500 = 40000
+    // Total: 25000 + 6000 + 7000 + 40000 = 78000
+    expect(result.paintCost).toBe(25000);
+    expect(result.primerCost).toBe(6000);
+    expect(result.fillerCost).toBe(5000);
+    expect(result.brushesCost).toBe(2000);
+    expect(result.laborCost).toBe(40000);
+    expect(result.total).toBe(78000);
+  });
+});
