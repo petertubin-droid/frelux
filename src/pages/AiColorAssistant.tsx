@@ -61,23 +61,23 @@ export default function AiColorAssistant() {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
     },
   });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const { user } = useAuth();
   const [view, setView] = useState<View>('choose');
   const [config, setConfig] = useState<AiAccessConfig | null>(null);
   const [usage, setUsage] = useState<AiUsageStatus | null>(null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     track('ai_assistant_opened', {});
     logAnalyticsEvent('ai_assistant_opened', {});
     refreshAccessState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Re-check usage when auth state changes (login/logout)
   useEffect(() => {
     refreshAccessState();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   async function refreshAccessState() {

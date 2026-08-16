@@ -108,7 +108,6 @@ export default function TileCostEstimator() {
   useEffect(() => {
     if (passed.surfaceArea && passed.surfaceArea > 0 && !passed.input) {
       const sqrtArea = Math.sqrt(passed.surfaceArea);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
       const inputWithArea: TileCalcInput = {
         ...input,
         length: sqrtArea,
@@ -119,6 +118,7 @@ export default function TileCostEstimator() {
       const r: TileCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
       setResult(r);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passed.surfaceArea, tileMaterials, labourConfig]);
 
   function update<K extends keyof TileCalcInput>(key: K, value: TileCalcInput[K]) {

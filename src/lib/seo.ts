@@ -12,6 +12,7 @@ export interface SeoMeta {
 }
 
 const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://freluxpaintcalc.com';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 function setMeta(attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -64,13 +65,13 @@ export function useSeo(meta: SeoMeta) {
     setMeta('property', 'og:type', meta.ogType ?? 'website');
     setMeta('property', 'og:url', `${SITE_URL}${meta.canonicalPath ?? ''}`);
     setMeta('property', 'og:site_name', 'FRELUX PAINT CALC');
-    if (meta.ogImage) setMeta('property', 'og:image', meta.ogImage);
+    setMeta('property', 'og:image', meta.ogImage ?? DEFAULT_OG_IMAGE);
 
     // Twitter Cards
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', meta.description);
-    if (meta.ogImage) setMeta('name', 'twitter:image', meta.ogImage);
+    setMeta('name', 'twitter:image', meta.ogImage ?? DEFAULT_OG_IMAGE);
 
     // Canonical URL
     if (meta.canonicalPath) {

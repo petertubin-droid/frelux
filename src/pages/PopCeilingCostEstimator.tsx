@@ -82,7 +82,6 @@ export default function PopCeilingCostEstimator() {
       const inputWithArea: PopCalcInput = {
         ...input,
         roomLength: sqrtArea,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
         roomWidth: sqrtArea,
       };
       const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
@@ -93,6 +92,7 @@ export default function PopCeilingCostEstimator() {
       track('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
       logAnalyticsEvent('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [passed.ceilingArea, materials, labourConfig]);
 
   function update<K extends keyof PopCalcInput>(key: K, value: PopCalcInput[K]) {

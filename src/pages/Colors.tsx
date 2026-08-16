@@ -63,13 +63,13 @@ export default function Colors() {
         setFavIds(ids);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
     loadInitial();
   }, [user]);
 
   useEffect(() => {
     if (tab === 'colors') loadColors();
     else loadPalettes();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, page, familyId, categoryId, filterType, sort, query]);
 
   async function loadColors() {

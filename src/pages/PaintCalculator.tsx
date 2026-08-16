@@ -119,7 +119,6 @@ export default function PaintCalculator() {
           cementBagSizeKg: Number(data.cement_bag_size_kg),
           cementPricePerBag: Number(data.cement_price_per_bag),
           defaultMixRatio: data.default_mix_ratio,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
           labourRatePerSqm: Number(data.labour_rate_per_sqm),
           wastePercentage: Number(data.waste_percentage),
           taxVatPercentage: Number(data.tax_vat_percentage),
@@ -130,6 +129,7 @@ export default function PaintCalculator() {
     }
     loadTypes();
     loadScreedingConfig();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const calcConfig: CalcConfig | undefined = useMemo(() => {
