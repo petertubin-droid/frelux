@@ -7,6 +7,7 @@ const corsHeaders = {
 };
 
 const GEMINI_MODEL = 'gemini-2.0-flash';
+const MAX_REQUESTS_PER_HOUR = 15;
 
 interface AiLearnRequest {
   action: 'ask' | 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison';
@@ -16,6 +17,7 @@ interface AiLearnRequest {
   articleType?: string;
   targetKeywords?: string[];
   context?: string;
+  clientId?: string;
 }
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -38,6 +40,37 @@ async function getAuthenticatedUserId(req: Request, supabaseUrl: string, anonKey
 async function isUserAdmin(supabase: ReturnType<typeof createClient>, userId: string): Promise<boolean> {
   const { data } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle();
   return data?.role === 'admin';
+}
+
+async function sha256(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkHourlyRateLimit(supabase: ReturnType<typeof createClient>, clientHash: string): Promise<{ allowed: boolean; count: number }> {
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count, error } = await supabase
+    .from('ai_request_log')
+    .select('*', { count: 'exact', head: true })
+    .eq('client_hash', clientHash)
+    .gte('created_at', oneHourAgo);
+  if (error) return { allowed: true, count: 0 };
+  return { allowed: (count ?? 0) < MAX_REQUESTS_PER_HOUR, count: count ?? 0 };
+}
+
+async function logAiRequest(
+  supabase: ReturnType<typeof createClient>,
+  clientHash: string,
+  status: 'success' | 'error' | 'rate_limited',
+  providerError?: string
+): Promise<void> {
+  await supabase.from('ai_request_log').insert({
+    request_type: 'text',
+    client_hash: clientHash,
+    status,
+    provider_error: providerError ?? null,
+  });
 }
 
 // Fetch published learn articles as knowledge base context
@@ -131,6 +164,15 @@ Deno.serve(async (req: Request) => {
 
     switch (body.action) {
       case 'ask': {
+        const clientHash = await sha256(body.clientId || crypto.randomUUID());
+        const { allowed, count } = await checkHourlyRateLimit(supabase, clientHash);
+        if (!allowed) {
+          await logAiRequest(supabase, clientHash, 'rate_limited');
+          return jsonResponse({
+            error: `Rate limit exceeded (${count}/${MAX_REQUESTS_PER_HOUR} requests per hour). Please try again later.`,
+            code: 'RATE_LIMITED',
+          }, 429);
+        }
         const knowledgeBase = await fetchKnowledgeBase(supabase);
         systemPrompt = ASK_SYSTEM_PROMPT.replace('{{KNOWLEDGE_BASE}}', knowledgeBase || 'No published articles yet. Provide general expert guidance.');
         userPrompt = `User question: ${body.question ?? ''}\n\nProvide a helpful, practical answer.`;
@@ -214,6 +256,10 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
     }
 
     const result = await callGemini(apiKey, systemPrompt, userPrompt);
+    if (body.action === 'ask') {
+      const logHash = await sha256(body.clientId || 'unknown');
+      await logAiRequest(supabase, logHash, 'success');
+    }
     return jsonResponse({ result });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
