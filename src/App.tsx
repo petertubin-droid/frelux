@@ -9,6 +9,8 @@ import Home from '@/pages/Home';
 import Colors from '@/pages/Colors';
 import NotFound from '@/pages/NotFound';
 import Login from '@/pages/Login';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { useWebVitals } from '@/lib/web-vitals';
 
 // Lazy-loaded public pages for code splitting
 const ColorDetail = lazy(() => import('@/pages/ColorDetail'));
@@ -61,6 +63,7 @@ const AdminPopMaterials = lazy(() => import('@/pages/admin/AdminPopMaterials'));
 const AdminTileMaterials = lazy(() => import('@/pages/admin/AdminTileMaterials'));
 const AdminMedia = lazy(() => import('@/pages/admin/AdminMedia'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
+const AdminErrors = lazy(() => import('@/pages/admin/AdminErrors'));
 const AdminSeo = lazy(() => import('@/pages/admin/AdminSeo'));
 const StudioLayout = lazy(() => import('@/components/studio/StudioLayout'));
 const StudioOverview = lazy(() => import('@/pages/studio/StudioOverview'));
@@ -84,13 +87,15 @@ function PageLoader() {
 }
 
 export default function App() {
+  useWebVitals();
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <AnalyticsScripts />
-        <BrowserRouter>
-          <ScrollToTop />
-          <Routes>
+    <ErrorBoundary boundaryName="app-root">
+      <AuthProvider>
+        <ToastProvider>
+          <AnalyticsScripts />
+          <BrowserRouter>
+            <ScrollToTop />
+            <Routes>
           {/* ─────────────────────────────────────────────────────── */}
           {/* PUBLIC SITE — all public-facing pages under Layout */}
           {/* No admin links, routes, or components appear here. */}
@@ -203,6 +208,9 @@ export default function App() {
             {/* Analytics */}
             <Route path="analytics" element={<AdminAnalytics />} />
 
+            {/* Error Monitor */}
+            <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
+
             {/* SEO */}
             <Route path="seo" element={<AdminSeo />} />
 
@@ -243,5 +251,6 @@ export default function App() {
         </BrowserRouter>
       </ToastProvider>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }

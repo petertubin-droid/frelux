@@ -155,7 +155,7 @@ describe('calculateScreedingArea', () => {
   it('calculates single wall method', () => {
     // 5ft wide wall, 10ft high, 2 walls
     const input: ScreedingCalcInput = {
-      method: 'single_wall',
+      method: 'individual_wall',
       roomLength: 0,
       roomWidth: 0,
       wallHeight: 10,
@@ -202,6 +202,8 @@ describe('calculateScreedingEstimate', () => {
       packageUnit: 'kg',
       unitPrice: 7500,
       labourRatePerSqm: 500,
+      materialId: 'mat-1',
+      coverageUnit: 'kg',
       materialName: 'Cement',
       currency: 'NGN',
       currencySymbol: '₦',
@@ -228,6 +230,8 @@ describe('calculateScreedingEstimate', () => {
       packageUnit: 'kg',
       unitPrice: 7500,
       labourRatePerSqm: 500,
+      materialId: 'mat-1',
+      coverageUnit: 'kg',
       materialName: 'Cement',
       currency: 'NGN',
       currencySymbol: '₦',
@@ -247,6 +251,8 @@ describe('calculateScreedingEstimate', () => {
       packageUnit: 'kg',
       unitPrice: 7500,
       labourRatePerSqm: 500,
+      materialId: 'mat-1',
+      coverageUnit: 'kg',
       materialName: 'Cement',
       currency: 'NGN',
       currencySymbol: '₦',
@@ -314,7 +320,7 @@ describe('validateScreedingInput', () => {
 
   it('returns error for zero wall width in single_wall mode', () => {
     const input: ScreedingCalcInput = {
-      method: 'single_wall',
+      method: 'individual_wall',
       roomLength: 0,
       roomWidth: 0,
       wallHeight: 10,
@@ -332,7 +338,7 @@ describe('validateScreedingInput', () => {
 
   it('returns error for zero wall count in single_wall mode', () => {
     const input: ScreedingCalcInput = {
-      method: 'single_wall',
+      method: 'individual_wall',
       roomLength: 0,
       roomWidth: 0,
       wallHeight: 10,

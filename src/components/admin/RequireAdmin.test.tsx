@@ -55,7 +55,7 @@ describe('RequireAdmin', () => {
       isAdmin: false,
       loading: true,
       signOut: mockSignOut,
-    } as ReturnType<typeof useAuth>);
+    } as unknown as ReturnType<typeof useAuth>);
 
     renderWithRouter();
     expect(screen.getByText(/Checking your session/i)).toBeInTheDocument();
@@ -68,7 +68,7 @@ describe('RequireAdmin', () => {
       isAdmin: false,
       loading: false,
       signOut: mockSignOut,
-    } as ReturnType<typeof useAuth>);
+    } as unknown as ReturnType<typeof useAuth>);
 
     renderWithRouter();
     expect(screen.getByTestId('admin-login')).toBeInTheDocument();
@@ -77,11 +77,11 @@ describe('RequireAdmin', () => {
 
   it('shows not authorized when user is authenticated but not admin', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: '123', email: 'user@test.com' } as ReturnType<typeof useAuth>['user'],
+      user: { id: '123', email: 'user@test.com' } as unknown as ReturnType<typeof useAuth>['user'],
       isAdmin: false,
       loading: false,
       signOut: mockSignOut,
-    } as ReturnType<typeof useAuth>);
+    } as unknown as ReturnType<typeof useAuth>);
 
     renderWithRouter();
     expect(screen.getByText(/Not authorized/i)).toBeInTheDocument();
@@ -90,11 +90,11 @@ describe('RequireAdmin', () => {
 
   it('renders admin content when user is admin', () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: '123', email: 'admin@test.com' } as ReturnType<typeof useAuth>['user'],
+      user: { id: '123', email: 'admin@test.com' } as unknown as ReturnType<typeof useAuth>['user'],
       isAdmin: true,
       loading: false,
       signOut: mockSignOut,
-    } as ReturnType<typeof useAuth>);
+    } as unknown as ReturnType<typeof useAuth>);
 
     renderWithRouter();
     expect(screen.getByTestId('admin-content')).toBeInTheDocument();
@@ -102,11 +102,11 @@ describe('RequireAdmin', () => {
 
   it('calls signOut when sign out button is clicked', async () => {
     vi.mocked(useAuth).mockReturnValue({
-      user: { id: '123', email: 'user@test.com' } as ReturnType<typeof useAuth>['user'],
+      user: { id: '123', email: 'user@test.com' } as unknown as ReturnType<typeof useAuth>['user'],
       isAdmin: false,
       loading: false,
       signOut: mockSignOut,
-    } as ReturnType<typeof useAuth>);
+    } as unknown as ReturnType<typeof useAuth>);
 
     renderWithRouter();
     const signOutButton = screen.getByText('Sign out');
