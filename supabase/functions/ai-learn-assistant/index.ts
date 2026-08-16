@@ -147,6 +147,21 @@ Deno.serve(async (req: Request) => {
     const body = await req.json() as AiLearnRequest;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // Input validation — prevent oversized prompts
+    const MAX_INPUT_LENGTH = 10000;
+    const inputFields = [body.question, body.content, body.topic, body.context];
+    for (const field of inputFields) {
+      if (field && field.length > MAX_INPUT_LENGTH) {
+        return jsonResponse({ error: 'Input too long (max 10000 characters).', code: 'BAD_REQUEST' }, 400);
+      }
+    }
+    if (!body.action) {
+      return jsonResponse({ error: 'Action is required.', code: 'BAD_REQUEST' }, 400);
+    }
+    if (body.action === 'ask' && !body.question?.trim()) {
+      return jsonResponse({ error: 'Question is required.', code: 'BAD_REQUEST' }, 400);
+    }
+
     // For admin-only actions, verify admin status
     if (body.action !== 'ask') {
       const userId = await getAuthenticatedUserId(req, supabaseUrl, anonKey);
@@ -262,7 +277,8 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
     }
     return jsonResponse({ result });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const isRateLimit = err instanceof Error && err.message.includes("Rate limit");
+    const message = isRateLimit ? err.message : 'AI service error. Please try again.';
     return jsonResponse({ error: message, code: 'PROVIDER_ERROR' }, 502);
   }
 });

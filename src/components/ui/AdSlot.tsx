@@ -150,7 +150,7 @@ async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
 
   // Find the AdSense provider from ad_providers, or create a synthetic one
   const { data: provData } = await supabase
-    .from('ad_providers')
+    .from('ad_providers_public')
     .select('*')
     .eq('slug', 'google_adsense')
     .maybeSingle();

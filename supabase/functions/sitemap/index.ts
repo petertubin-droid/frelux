@@ -2,11 +2,20 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 const SITE_URL = "https://freluxpaintcalc.com";
+
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -59,15 +68,16 @@ Deno.serve(async (req: Request) => {
 
     for (const u of staticUrls) {
       urls.push(`  <url>
-    <loc>${SITE_URL}${u.loc}</loc>
+    <loc>${SITE_URL}${escapeXml(u.loc)}</loc>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`);
     }
 
     for (const c of colors) {
+      const slug = escapeXml(c.slug);
       urls.push(`  <url>
-    <loc>${SITE_URL}/colors/paint/${c.slug}</loc>
+    <loc>${SITE_URL}/colors/paint/${slug}</loc>
     <lastmod>${new Date(c.updated_at).toISOString().split("T")[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -75,8 +85,9 @@ Deno.serve(async (req: Request) => {
     }
 
     for (const p of palettes) {
+      const slug = escapeXml(p.slug);
       urls.push(`  <url>
-    <loc>${SITE_URL}/colors/${p.slug}</loc>
+    <loc>${SITE_URL}/colors/${slug}</loc>
     <lastmod>${new Date(p.updated_at).toISOString().split("T")[0]}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -84,17 +95,19 @@ Deno.serve(async (req: Request) => {
     }
 
     for (const cat of categories) {
+      const slug = escapeXml(cat.slug);
       urls.push(`  <url>
-    <loc>${SITE_URL}/learn/category/${cat.slug}</loc>
+    <loc>${SITE_URL}/learn/category/${slug}</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>`);
     }
 
     for (const a of articles) {
-      const lastmod = (a.published_at ?? a.updated_at).split("T")[0];
+      const slug = escapeXml(a.slug);
+      const lastmod = escapeXml((a.published_at ?? a.updated_at).split("T")[0]);
       urls.push(`  <url>
-    <loc>${SITE_URL}/learn/${a.slug}</loc>
+    <loc>${SITE_URL}/learn/${slug}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -113,8 +126,8 @@ ${urls.join("\n")}
         "Cache-Control": "public, max-age=3600",
       },
     });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+  } catch {
+    return new Response(JSON.stringify({ error: "Failed to generate sitemap" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

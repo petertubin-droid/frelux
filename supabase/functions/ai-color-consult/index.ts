@@ -113,7 +113,7 @@ async function checkHourlyRateLimit(supabase: ReturnType<typeof createClient>, c
     .select('*', { count: 'exact', head: true })
     .eq('client_hash', clientHash)
     .gte('created_at', oneHourAgo);
-  if (error) return { allowed: true, count: 0 };
+  if (error) return { allowed: false, count: 0 };
   return { allowed: (count ?? 0) < MAX_REQUESTS_PER_HOUR, count: count ?? 0 };
 }
 
@@ -358,11 +358,18 @@ Deno.serve(async (req: Request) => {
   if (payload.mode === 'text' && !payload.description?.trim()) {
     return jsonResponse({ error: 'Description is required for text mode', code: 'BAD_REQUEST' }, 400);
   }
+  if (payload.description && payload.description.length > 5000) {
+    return jsonResponse({ error: 'Description too long (max 5000 characters)', code: 'BAD_REQUEST' }, 400);
+  }
   if (payload.mode === 'image' && !payload.imageDataUrl) {
     return jsonResponse({ error: 'Image is required for image mode', code: 'BAD_REQUEST' }, 400);
   }
   if (payload.mode === 'image' && payload.imageDataUrl) {
-    const { data: base64Data } = extractBase64FromDataUrl(payload.imageDataUrl);
+    const { data: base64Data, mimeType } = extractBase64FromDataUrl(payload.imageDataUrl);
+    const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+    if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
+      return jsonResponse({ error: 'Unsupported image format. Use JPEG, PNG, or WebP.', code: 'BAD_REQUEST' }, 400);
+    }
     const byteLength = Math.ceil((base64Data.length * 3) / 4);
     if (byteLength > 5 * 1024 * 1024) {
       return jsonResponse({ error: 'Image exceeds 5 MB limit', code: 'IMAGE_TOO_LARGE' }, 400);

@@ -22,7 +22,7 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
   }
 
   const [provRes, placeRes] = await Promise.all([
-    supabase.from('ad_providers').select('*').eq('is_active', true).order('priority'),
+    supabase.from('ad_providers_public').select('*').eq('is_active', true).order('priority'),
     supabase.from('ad_placements').select('*').eq('is_active', true),
   ]);
 
