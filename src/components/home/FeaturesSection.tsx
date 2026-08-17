@@ -7,7 +7,7 @@ const features = [
   {
     icon: Ruler,
     title: 'Practical calculations',
-    description: 'Enter your measurements and get realistic paint quantity estimates — no guesswork.',
+    description: 'Enter your measurements and get realistic paint quantity estimates. No guesswork.',
   },
   {
     icon: TrendingUp,
@@ -32,7 +32,7 @@ export default function FeaturesSection() {
       <SectionHeading
         label="Why FRELUX"
         title="Tools that respect your time and budget"
-        subtitle="Everything you need to plan a paint project with confidence — in one focused place."
+        subtitle="Everything you need to plan a paint project with confidence, in one focused place."
         align="center"
         className="[&_.section-label]:text-accent-yellow [&_.section-title]:text-white [&_.section-subtitle]:text-white/60"
       />

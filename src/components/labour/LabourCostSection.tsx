@@ -155,7 +155,7 @@ export default function LabourCostSection({
                 onChange={(e) => applyCategory(e.target.value)}
                 className="input-field"
               >
-                <option value="">— No category selected —</option>
+                <option value="">No category selected</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
                     {cat.category_name} · {currencySymbol}{Number(cat.suggested_rate).toLocaleString()}/{cat.rate_unit === 'per_sqm' ? 'm²' : cat.rate_unit === 'per_room' ? 'room' : cat.rate_unit === 'daily' ? 'day' : 'project'}
@@ -256,7 +256,7 @@ export default function LabourCostSection({
             )}
 
             {config.pricingMethod === 'custom' && (
-              <Field label={`Custom Labour Amount (${currencySymbol})`} hint="Enter any custom labour cost — full flexibility">
+              <Field label={`Custom Labour Amount (${currencySymbol})`} hint="Enter any custom labour cost. Full flexibility">
                 <input
                   type="number"
                   min={0}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, CheckCircle2, AlertCircle, Wand2, Lock, Gift, CreditCard } from 'lucide-react';
+import { Save, CheckCircle2, AlertCircle, DollarSign, Lock, Gift, CreditCard } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings, AiAccessMode } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
@@ -68,7 +68,7 @@ export default function AdminAiMonetization() {
         {/* Global AI toggle */}
         <AdminCard>
           <div className="flex items-start gap-3">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Wand2 className="h-5 w-5" /></div>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><DollarSign className="h-5 w-5" /></div>
             <div className="flex-1">
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">Global AI</h2>
               <div className="mt-3 flex items-center gap-3">

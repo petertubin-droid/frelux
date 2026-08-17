@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Sparkles, Save, Copy, Download, Trash2,
+  Bot, Save, Copy, Download, Trash2,
   TrendingUp, ShoppingBag, Loader2,
-  Layers, Percent, DollarSign, Zap,
+  Layers, Percent, DollarSign, Calculator,
 } from 'lucide-react';
 import { calculateAdvancedEstimate, type AdvancedCalcInput } from '@/lib/calc';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -195,7 +195,7 @@ Also flag any unrealistic values or potential issues.`;
     { key: 'mix', label: 'Mix Ratio', icon: Percent },
     { key: 'costs', label: 'Costs', icon: DollarSign },
     { key: 'compare', label: 'Compare', icon: TrendingUp },
-    { key: 'ai', label: 'AI Assistant', icon: Sparkles },
+    { key: 'ai', label: 'AI Assistant', icon: Bot },
     { key: 'saved', label: 'Saved', icon: Save },
   ];
 
@@ -205,7 +205,7 @@ Also flag any unrealistic values or potential issues.`;
         {/* Header */}
         <div className="flex items-center gap-2 border-b border-neutral-100 pb-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
-            <Sparkles className="h-5 w-5 text-brand-purple" />
+            <Bot className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
             <h3 className="text-base font-bold text-brand-navy">Advanced Calculator</h3>
@@ -315,8 +315,8 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
           <h4 className="text-sm font-bold text-brand-navy">Material Shopping List</h4>
         </div>
         <ul className="mt-2 space-y-1 text-sm text-neutral-600">
-          <li>{estimate.paintBuckets} × Screeding Paint (20 L bucket) — {formatCurrency(estimate.paintBuckets * input.paintPricePerBucket, estimate.currencySymbol)}</li>
-          <li>{estimate.cementBags} × White Cement (40 kg bag) — {formatCurrency(estimate.cementBags * input.cementPricePerBag, estimate.currencySymbol)}</li>
+          <li>{estimate.paintBuckets} × Screeding Paint (20 L bucket): {formatCurrency(estimate.paintBuckets * input.paintPricePerBucket, estimate.currencySymbol)}</li>
+          <li>{estimate.cementBags} × White Cement (40 kg bag): {formatCurrency(estimate.cementBags * input.cementPricePerBag, estimate.currencySymbol)}</li>
         </ul>
       </div>
 
@@ -554,7 +554,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
     <div className="space-y-4">
       <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-brand-purple" />
+          <Bot className="h-4 w-4 text-brand-purple" />
           <h4 className="text-sm font-bold text-brand-navy">AI Powered Recommendations</h4>
         </div>
         <p className="mt-1 text-xs text-neutral-500">Get smart suggestions to reduce waste and lower costs.</p>
@@ -564,7 +564,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
           disabled={loading}
           className="mt-3 flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple/90 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calculator className="h-3.5 w-3.5" />}
           Analyze Estimate & Recommend
         </button>
       </div>
@@ -582,7 +582,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
             className="input-field flex-1"
           />
           <button type="button" onClick={onAsk} disabled={loading || !question.trim()} className="btn-primary flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
             Ask
           </button>
         </div>
@@ -597,7 +597,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
       {response && (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
           <div className="flex items-start gap-2">
-            <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+            <Bot className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-neutral-700">{response}</div>
           </div>
         </div>

@@ -148,7 +148,7 @@ export default function ColorDetail() {
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <Info label="Recommended rooms" value={(color.recommended_rooms ?? []).join(', ') || '—'} />
+            <Info label="Recommended rooms" value={(color.recommended_rooms ?? []).join(', ') || 'N/A'} />
             <Info label="Style" value={color.style} />
           </div>
         </div>

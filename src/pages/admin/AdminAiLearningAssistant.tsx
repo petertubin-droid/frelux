@@ -1,22 +1,22 @@
 import { useState } from 'react';
-import { Sparkles, Loader2, AlertCircle, Check, FileText, Search, HelpCircle, Image, ListOrdered, GitCompare, Send } from 'lucide-react';
+import { GraduationCap, Loader2, AlertCircle, Check, FileText, Search, HelpCircle, Image, ListOrdered, GitCompare, Send } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField } from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 
 type Action = 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison';
 
-const actions: { value: Action; label: string; icon: typeof Sparkles; desc: string }[] = [
+const actions: { value: Action; label: string; icon: typeof GraduationCap; desc: string }[] = [
   { value: 'generate_article', label: 'Generate Article', icon: FileText, desc: 'Create a complete article from a topic' },
   { value: 'expand_outline', label: 'Expand Outline', icon: ListOrdered, desc: 'Turn an outline into a full guide' },
-  { value: 'rewrite', label: 'Rewrite & Improve', icon: Sparkles, desc: 'Improve clarity, grammar, and flow' },
+  { value: 'rewrite', label: 'Rewrite & Improve', icon: GraduationCap, desc: 'Improve clarity, grammar, and flow' },
   { value: 'improve', label: 'Improve Content', icon: Check, desc: 'Enhance readability and structure' },
   { value: 'seo_optimize', label: 'SEO Optimize', icon: Search, desc: 'Meta title, description, keywords, links' },
   { value: 'generate_faq', label: 'Generate FAQs', icon: HelpCircle, desc: 'Create FAQ items from a topic' },
   { value: 'generate_summary', label: 'Article Summary', icon: FileText, desc: 'Generate a concise excerpt' },
   { value: 'image_prompts', label: 'Image Prompts', icon: Image, desc: 'Generate AI image prompts' },
   { value: 'alt_text', label: 'Alt Text', icon: Image, desc: 'Generate image alt text' },
-  { value: 'tutorial_steps', label: 'Tutorial Steps', icon: ListOrdered, desc: 'Generate step-by-step instructions' },
+  { value: 'tutorial_steps', label: 'Tutorial Steps', icon: ListOrdered, desc: 'Generate step by step instructions' },
   { value: 'comparison', label: 'Comparison Article', icon: GitCompare, desc: 'Compare products or methods' },
 ];
 
@@ -111,7 +111,7 @@ export default function AdminAiLearningAssistant() {
             )}
 
             <AdminButton onClick={handleRun} disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GraduationCap className="h-4 w-4" />}
               {loading ? 'Generating…' : 'Run AI'}
             </AdminButton>
           </AdminCard>

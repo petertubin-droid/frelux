@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
-import { ArrowLeft, Menu, X, Sparkles } from 'lucide-react';
+import { ArrowLeft, Menu, X, Code } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 
@@ -12,7 +12,7 @@ export default function StudioLayout() {
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4 lg:hidden">
         <Link to="/admin/studio" className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-brand-purple" />
+          <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-sm font-bold text-brand-navy">AI Studio</span>
         </Link>
         <button type="button" onClick={() => setMobileOpen(true)} className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100" aria-label="Open menu">
@@ -32,7 +32,7 @@ export default function StudioLayout() {
             <div className="absolute inset-0 bg-neutral-900/40" onClick={() => setMobileOpen(false)} />
             <aside className="absolute left-0 top-0 h-full w-72 bg-white shadow-xl">
               <div className="flex h-14 items-center justify-between border-b border-neutral-200 px-4">
-                <span className="flex items-center gap-2 text-sm font-bold text-brand-navy"><Sparkles className="h-5 w-5 text-brand-purple" /> AI Studio</span>
+                <span className="flex items-center gap-2 text-sm font-bold text-brand-navy"><Code className="h-5 w-5 text-brand-purple" /> AI Studio</span>
                 <button type="button" onClick={() => setMobileOpen(false)} className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
               </div>
               <SidebarContent onNavigate={() => setMobileOpen(false)} />
@@ -56,7 +56,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-neutral-200 px-5 py-4 lg:block">
         <Link to="/admin/studio" className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-brand-purple" />
+          <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-base font-bold text-brand-navy">AI Developer Studio</span>
         </Link>
         <p className="mt-0.5 text-xs text-neutral-400">AI assisted development</p>

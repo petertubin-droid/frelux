@@ -139,7 +139,7 @@ export default function Colors() {
       <PageHeader
         eyebrow="Inspiration"
         title="Color Library"
-        subtitle="Browse hundreds of professional paint colors and curated palettes — with color codes you can take to any paint shop."
+        subtitle="Browse hundreds of professional paint colors and curated palettes with color codes you can take to any paint shop."
         backTo="/"
         backLabel="Home"
       />
@@ -189,7 +189,7 @@ export default function Colors() {
               <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="input-field sm:w-auto">
                 <option value="display_order">Default order</option>
                 <option value="popularity">Most popular</option>
-                <option value="name">Name (A–Z)</option>
+                <option value="name">Name (A to Z)</option>
                 <option value="newest">Newest first</option>
               </select>
             </div>

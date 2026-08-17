@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Code } from 'lucide-react';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 import { supabase } from '@/lib/supabase';
 
@@ -31,7 +31,7 @@ export default function StudioOverview() {
     <div>
       <div className="mb-6 flex items-start gap-4">
         <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple">
-          <Sparkles className="h-6 w-6" />
+          <Code className="h-6 w-6" />
         </div>
         <div>
           <h1 className="text-xl font-bold text-brand-navy">AI Developer Studio</h1>

@@ -32,7 +32,7 @@ const ADVANCED_FEATURES = [
   'Export professional PDF quotations',
   'Material shopping list',
   'Cost comparison between brands',
-  'AI-powered recommendations for reducing waste',
+  'AI recommendations for reducing waste',
   'AI assistant for calculation questions',
 ];
 
@@ -151,7 +151,7 @@ export default function ScreedingCostEstimator() {
             <p>
               Tip: Use the{' '}
               <Link to="/screeding-calculator" className="font-semibold text-brand-purple underline">Wall Screeding Calculator</Link>{' '}
-              first, then continue here — your screeding area will carry over automatically.
+              first, then continue here. Your screeding area will carry over automatically.
             </p>
           </div>
         )}
@@ -233,9 +233,9 @@ export default function ScreedingCostEstimator() {
                   {result ? (
                     <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.grandTotal, currencySymbol)}</p>
                   ) : (
-                    <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}—</p>
+                    <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}0</p>
                   )}
-                  <p className="mt-1 text-xs text-white/50">Estimate only — not a final quote.</p>
+                  <p className="mt-1 text-xs text-white/50">Estimate only, not a final quote.</p>
                 </div>
                 <div className="space-y-3 p-6">
                   {result ? (

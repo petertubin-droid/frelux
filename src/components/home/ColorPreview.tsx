@@ -31,7 +31,7 @@ export default function ColorPreview() {
         <SectionHeading
           label="Color ideas"
           title="Find colors that fit your space"
-          subtitle="Browse curated palettes for every room and style — from calm neutrals to bold statements."
+          subtitle="Browse curated palettes for every room and style, from calm neutrals to bold statements."
         />
         <Link to="/colors" className="btn-outline shrink-0">
           View all colors

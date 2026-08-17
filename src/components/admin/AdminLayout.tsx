@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
-  LogOut, Menu, X, ExternalLink, Wand2, Megaphone, Layers, Image, Sparkles, Gift,
+  LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Code, Gift,
   BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
@@ -38,7 +38,7 @@ const navModules: NavModule[] = [
     heading: 'Content',
     items: [
       { label: 'Learn Articles', to: '/admin/learn', icon: BookOpen },
-      { label: 'AI Learning Assistant', to: '/admin/ai-learning', icon: Sparkles },
+      { label: 'AI Learning Assistant', to: '/admin/ai-learning', icon: GraduationCap },
       { label: 'Legal Pages', to: '/admin/legal', icon: FileText },
       { label: 'Contact Messages', to: '/admin/contact', icon: Mail },
     ],
@@ -74,10 +74,10 @@ const navModules: NavModule[] = [
   {
     heading: 'AI',
     items: [
-      { label: 'AI Monetization', to: '/admin/ai-monetization', icon: Wand2 },
+      { label: 'AI Monetization', to: '/admin/ai-monetization', icon: DollarSign },
       { label: 'Ad Management', to: '/admin/ads', icon: Megaphone },
       { label: 'Rewarded Access', to: '/admin/rewarded-access', icon: Gift },
-      { label: 'AI Developer Studio', to: '/admin/studio', icon: Sparkles },
+      { label: 'AI Developer Studio', to: '/admin/studio', icon: GraduationCap },
     ],
   },
   {

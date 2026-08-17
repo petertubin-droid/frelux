@@ -1,6 +1,6 @@
 import {
   MessageSquare, Layout, Database, Code2, LayoutDashboard, FormInput, Workflow,
-  Sparkles, Component, FileCode2, Bug, RefreshCw, TestTube2, FileText, Rocket,
+  Code, Component, FileCode2, Bug, RefreshCw, TestTube2, FileText, Rocket,
   Puzzle, FolderTree, FolderOpen, History, BookOpen, Plug, ShieldCheck, ToggleLeft,
   Activity,
 } from 'lucide-react';
@@ -10,7 +10,7 @@ export interface ToolDef {
   slug: string;
   label: string;
   shortLabel: string;
-  icon: typeof Sparkles;
+  icon: typeof Code;
   description: string;
   category: 'AI Generation' | 'Code Quality' | 'Platform Management' | 'Infrastructure';
 }
@@ -25,13 +25,13 @@ export const TOOLS: ToolDef[] = [
   { slug: 'dashboard_builder', label: 'AI Dashboard Builder', shortLabel: 'Dashboards', icon: LayoutDashboard, description: 'Generate data dashboards with charts', category: 'AI Generation' },
   { slug: 'form_builder', label: 'AI Form Builder', shortLabel: 'Forms', icon: FormInput, description: 'Generate validated forms with TypeScript types', category: 'AI Generation' },
   { slug: 'workflow_builder', label: 'AI Workflow Builder', shortLabel: 'Workflows', icon: Workflow, description: 'Design automation workflows and processes', category: 'AI Generation' },
-  { slug: 'feature_generator', label: 'AI Feature Generator', shortLabel: 'Features', icon: Sparkles, description: 'Architect complete feature specifications', category: 'AI Generation' },
+  { slug: 'feature_generator', label: 'AI Feature Generator', shortLabel: 'Features', icon: Code, description: 'Architect complete feature specifications', category: 'AI Generation' },
   { slug: 'component_generator', label: 'AI Component Generator', shortLabel: 'Components', icon: Component, description: 'Generate reusable React components', category: 'AI Generation' },
   { slug: 'code_generator', label: 'AI Code Generator', shortLabel: 'Code', icon: FileCode2, description: 'Generate code in any language from prompts', category: 'AI Generation' },
   { slug: 'deploy_assistant', label: 'AI Deployment Assistant', shortLabel: 'Deploy', icon: Rocket, description: 'Deployment guides, checklists, and optimization', category: 'AI Generation' },
 
   // Code Quality
-  { slug: 'bug_detection', label: 'AI Bug Detection & Auto-Fix', shortLabel: 'Bug Fix', icon: Bug, description: 'Detect bugs, security issues, and auto-generate fixes', category: 'Code Quality' },
+  { slug: 'bug_detection', label: 'AI Bug Detection AI Bug Detection & Auto-Fix Auto Fix', shortLabel: 'Bug Fix', icon: Bug, description: 'Detect bugs, security issues, and auto-generate fixes', category: 'Code Quality' },
   { slug: 'refactoring', label: 'AI Refactoring', shortLabel: 'Refactor', icon: RefreshCw, description: 'Improve code quality while preserving behavior', category: 'Code Quality' },
   { slug: 'test_generator', label: 'AI Test Generator', shortLabel: 'Tests', icon: TestTube2, description: 'Generate comprehensive test suites', category: 'Code Quality' },
   { slug: 'docs_generator', label: 'AI Documentation Generator', shortLabel: 'Docs', icon: FileText, description: 'Generate API docs, component docs, and guides', category: 'Code Quality' },

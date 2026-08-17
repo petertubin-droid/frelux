@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Save, FileDown, Share2, Sparkles, RotateCcw } from 'lucide-react';
+import { Save, FileDown, Share2, MessageCircle, RotateCcw } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 export interface ResultStat {
@@ -74,33 +74,33 @@ export default function ResultCard({
 
         {children}
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {onSave && (
-            <button onClick={onSave} className="btn-primary press-scale">
+            <button type="button" onClick={onSave} className="btn-primary press-scale">
               <Save className="h-4 w-4" />
               Save
             </button>
           )}
           {onExport && (
-            <button onClick={onExport} className="btn-secondary press-scale">
+            <button type="button" onClick={onExport} className="btn-secondary press-scale">
               <FileDown className="h-4 w-4" />
               Export PDF
             </button>
           )}
           {onShare && (
-            <button onClick={onShare} className="btn-secondary press-scale">
+            <button type="button" onClick={onShare} className="btn-secondary press-scale">
               <Share2 className="h-4 w-4" />
               Share
             </button>
           )}
           {onAskAi && (
-            <button onClick={onAskAi} className="btn-secondary press-scale">
-              <Sparkles className="h-4 w-4" />
+            <button type="button" onClick={onAskAi} className="btn-secondary press-scale">
+              <MessageCircle className="h-4 w-4" />
               Ask AI
             </button>
           )}
           {onRecalculate && (
-            <button onClick={onRecalculate} className="btn-secondary press-scale">
+            <button type="button" onClick={onRecalculate} className="btn-secondary press-scale">
               <RotateCcw className="h-4 w-4" />
               Recalculate
             </button>

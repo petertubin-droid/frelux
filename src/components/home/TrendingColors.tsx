@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Star, Clock, ArrowRight } from 'lucide-react';
+import { TrendingUp, Award, Clock, ArrowRight } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { fetchTrendingColors, fetchFeaturedColors, fetchRecentlyAddedColors } from '@/lib/queries';
@@ -28,7 +28,7 @@ export default function TrendingColors() {
       <SectionHeading
         label="Color inspiration"
         title="Trending & featured colors"
-        subtitle="Explore what's popular right now — from timeless classics to the latest trending shades."
+        subtitle="Explore what's popular right now, from timeless classics to the latest trending shades."
         align="center"
       />
 
@@ -40,7 +40,7 @@ export default function TrendingColors() {
 
         {/* Featured */}
         {featured.length > 0 && (
-          <ColorRow icon={Star} title="Featured Colors" colors={featured} />
+          <ColorRow icon={Award} title="Featured Colors" colors={featured} />
         )}
 
         {/* Recently added */}
@@ -69,7 +69,7 @@ function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; titl
         {colors.map((c) => (
           <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-md">
             <div className="aspect-square" style={{ background: c.hex_code }}>
-              <span className="flex h-full items-center justify-center text-[10px] font-bold uppercase opacity-70" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
+              <span className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-70" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
             </div>
             <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p></div>
           </Link>

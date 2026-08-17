@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Loader2, Save, Copy, Check, AlertCircle, Sparkles, FileCode2, Trash2, Download, ChevronDown, ChevronRight } from 'lucide-react';
+import { Loader2, Save, Copy, Check, AlertCircle, Cpu, FileCode2, Trash2, Download, ChevronDown, ChevronRight } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 // =========================================================
@@ -42,7 +42,7 @@ export function PromptInput({
           disabled={loading || !value.trim()}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}
           {loading ? 'Generating…' : buttonText}
         </button>
       </div>
@@ -251,7 +251,7 @@ export function SaveBar({ onSave, saving, saved, label = 'Save as artifact' }: {
 // =========================================================
 // ToolHeader — consistent header for each tool page
 // =========================================================
-export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Sparkles; title: string; description: string }) {
+export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cpu; title: string; description: string }) {
   return (
     <div className="mb-6 flex items-start gap-4">
       <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple">

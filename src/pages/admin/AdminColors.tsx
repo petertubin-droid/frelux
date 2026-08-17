@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X, Search, Download, Upload, Star, TrendingUp } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
@@ -121,7 +121,7 @@ function PaintColorsTab() {
                     <div className="flex items-center gap-2">
                       <h3 className="truncate text-sm font-bold text-brand-navy">{item.name}</h3>
                       {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
-                      {item.is_featured && <Star className="h-3.5 w-3.5 text-brand-purple" />}
+                      {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
                       {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
                     </div>
                     <p className="text-xs text-neutral-400">{fam?.name ?? '—'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>

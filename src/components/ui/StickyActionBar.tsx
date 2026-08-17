@@ -1,4 +1,4 @@
-import { Save, FileDown, Share2, Sparkles, RotateCcw } from 'lucide-react';
+import { Save, FileDown, Share2, MessageCircle, RotateCcw } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 export default function StickyActionBar({
@@ -20,7 +20,7 @@ export default function StickyActionBar({
     onSave && { label: saveLabel, icon: Save, onClick: onSave, primary: true },
     onExport && { label: 'Export', icon: FileDown, onClick: onExport, primary: false },
     onShare && { label: 'Share', icon: Share2, onClick: onShare, primary: false },
-    onAskAi && { label: 'Ask AI', icon: Sparkles, onClick: onAskAi, primary: false },
+    onAskAi && { label: 'Ask AI', icon: MessageCircle, onClick: onAskAi, primary: false },
     onRecalculate && { label: 'Recalculate', icon: RotateCcw, onClick: onRecalculate, primary: false },
   ].filter(Boolean) as { label: string; icon: typeof Save; onClick: () => void; primary: boolean }[];
 
@@ -30,7 +30,7 @@ export default function StickyActionBar({
     <div className="sticky bottom-0 z-30 mt-6 border-t border-neutral-200 bg-white/90 backdrop-blur-md">
       <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-3">
         {buttons.map((btn) => (
-          <button
+          <button type="button"
             key={btn.label}
             onClick={btn.onClick}
             className={classNames(

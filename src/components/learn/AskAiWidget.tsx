@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Sparkles, Send, Loader2, AlertCircle, MessageSquare, X } from 'lucide-react';
+import { MessageSquare, Send, Loader2, AlertCircle, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getClientId } from '@/lib/ai-access';
 import { classNames } from '@/lib/utils';
@@ -66,7 +66,7 @@ export default function AskAiWidget() {
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:bg-brand-purple/90 hover:shadow-xl"
       >
-        <Sparkles className="h-5 w-5" />
+        <MessageSquare className="h-5 w-5" />
         Ask AI
       </button>
     );
@@ -77,7 +77,7 @@ export default function AskAiWidget() {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-200 bg-brand-navy px-4 py-3">
         <div className="flex items-center gap-2 text-white">
-          <Sparkles className="h-4 w-4 text-accent-green" />
+          <MessageSquare className="h-4 w-4 text-accent-green" />
           <span className="text-sm font-semibold">Ask AI Assistant</span>
         </div>
         <button type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-white/60 hover:bg-white/10 hover:text-white" aria-label="Close">

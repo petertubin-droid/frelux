@@ -142,7 +142,7 @@ export const PLACEMENT_TYPE_LABELS: Record<string, string> = {
   native: 'Native Ad',
   rewarded: 'Rewarded Ad',
   interstitial: 'Interstitial Ad',
-  in_article: 'In-Article Ad',
+  in_article: 'In Article Ad',
 };
 
 export const PAGE_TARGET_LABELS: Record<string, string> = {

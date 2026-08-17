@@ -1,4 +1,4 @@
-import { X, PlayCircle, Loader2, Sparkles, CheckCircle2, Lock, Clock } from 'lucide-react';
+import { X, PlayCircle, Loader2, Gift, CheckCircle2, Lock, Clock } from 'lucide-react';
 import { formatExpiry } from '@/lib/rewarded-access';
 import type { RewardedAccess } from '@/lib/rewarded-access';
 
@@ -19,7 +19,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
         <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-6 w-6 text-accent-green" />
+              <Gift className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
             <button type="button" onClick={cancelUnlock} className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white">
@@ -27,7 +27,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             </button>
           </div>
           <p className="mt-2 text-sm text-white/70">
-            Unlock all advanced features for today. Watch one short ad — no subscriptions, no payments.
+            Unlock all advanced features for today. Watch one short ad. No subscriptions, no payments.
           </p>
         </div>
 

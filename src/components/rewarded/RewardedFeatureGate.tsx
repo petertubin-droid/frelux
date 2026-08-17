@@ -1,4 +1,4 @@
-import { Lock, Sparkles, Clock } from 'lucide-react';
+import { Lock, CheckCircle2, Clock } from 'lucide-react';
 import { useRewardedAccess, formatExpiry } from '@/lib/rewarded-access';
 import { RewardedAdModal } from './RewardedAdModal';
 
@@ -52,12 +52,12 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           </div>
           <h3 className="mt-3 text-base font-bold text-brand-navy">{featureName}</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-neutral-500">
-            Unlock advanced features by watching a short ad. No subscriptions, no payments — just one ad for full access until 11:59 PM today.
+            Unlock advanced features by watching a short ad. No subscriptions, no payments. Just one ad for full access until 11:59 PM today.
           </p>
           <div className="mx-auto mt-4 max-w-sm space-y-1.5 text-left">
             {features.map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-neutral-600">
-                <Sparkles className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
                 {f}
               </div>
             ))}

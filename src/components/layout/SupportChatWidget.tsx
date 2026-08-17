@@ -12,7 +12,7 @@ export default function SupportChatWidget() {
     {
       id: 1,
       from: 'support',
-      text: `Hi! Welcome to ${siteConfig.shortName}. Live chat isn't connected yet, but we respond quickly on WhatsApp. Use the link below to reach us directly.`,
+      text: `Hi! Welcome to ${siteConfig.shortName}. For the fastest response, chat with us on WhatsApp using the link below.`,
     },
   ]);
   const [draft, setDraft] = useState('');
@@ -29,6 +29,14 @@ export default function SupportChatWidget() {
     if (!text) return;
     setMessages((m) => [...m, { id: Date.now(), from: 'user', text }]);
     setDraft('');
+    // Respond with a helpful redirect
+    setTimeout(() => {
+      setMessages((m) => [...m, {
+        id: Date.now() + 1,
+        from: 'support',
+        text: 'Thanks for your message! For a quick response, please reach us on WhatsApp using the link below. We typically reply within minutes during business hours.',
+      }]);
+    }, 500);
   }
 
   return (
@@ -37,7 +45,7 @@ export default function SupportChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          className="fixed bottom-20 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Open support chat"
         >
           <MessageSquare className="h-5 w-5" />
@@ -70,7 +78,7 @@ export default function SupportChatWidget() {
                   </div>
                   <div className="leading-tight">
                     <p className="text-sm font-semibold">FRELUX Support</p>
-                    <p className="text-[11px] text-white/70">We'll get back to you</p>
+                    <p className="text-[11px] text-white/70">We typically reply within minutes</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -83,7 +91,7 @@ export default function SupportChatWidget() {
                 </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-neutral-50 p-4">
+              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-neutral-50 p-4" role="log" aria-live="polite">
                 {messages.map((m) => (
                   <div key={m.id} className={m.from === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                     <div
@@ -106,7 +114,7 @@ export default function SupportChatWidget() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
                 >
-                  Prefer WhatsApp? Chat with us →
+                  Chat with us on WhatsApp →
                 </a>
               </div>
 
@@ -119,6 +127,7 @@ export default function SupportChatWidget() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Type a message…"
+                  aria-label="Type a message"
                   className="flex-1 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple"
                 />
                 <button

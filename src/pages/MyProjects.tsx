@@ -186,7 +186,7 @@ export default function MyProjects() {
 
   if (status === 'loading') return (
     <>
-      <PageHeader eyebrow="Your workspace" title="My Projects" subtitle="Your saved colors, palettes, calculations, and custom collections — all in one place." />
+      <PageHeader eyebrow="Your workspace" title="My Projects" subtitle="Your saved colors, palettes, calculations, and custom collections, all in one place." />
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <SkeletonGrid count={6} />
       </div>
@@ -214,7 +214,7 @@ export default function MyProjects() {
 
   return (
     <>
-      <PageHeader eyebrow="Your workspace" title="My Projects" subtitle="Your saved colors, palettes, calculations, and custom collections — all in one place." />
+      <PageHeader eyebrow="Your workspace" title="My Projects" subtitle="Your saved colors, palettes, calculations, and custom collections, all in one place." />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Tabs */}

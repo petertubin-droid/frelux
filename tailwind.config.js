@@ -32,13 +32,6 @@ export default {
           900: '#0F172A',
           950: '#020617',
         },
-        neon: {
-          purple: '#A855F7',
-          cyan: '#22D3EE',
-          green: '#4ADE80',
-          pink: '#F472B6',
-          blue: '#60A5FA',
-        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
@@ -48,24 +41,9 @@ export default {
         22: '5.5rem',
       },
       boxShadow: {
-        'neon-purple': '0 0 5px rgba(168, 85, 247, 0.5), 0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(168, 85, 247, 0.15)',
-        'neon-cyan': '0 0 5px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3), 0 0 40px rgba(34, 211, 238, 0.15)',
-        'neon-green': '0 0 5px rgba(74, 222, 128, 0.5), 0 0 20px rgba(74, 222, 128, 0.3), 0 0 40px rgba(74, 222, 128, 0.15)',
-        'neon-blue': '0 0 5px rgba(96, 165, 250, 0.5), 0 0 20px rgba(96, 165, 250, 0.3), 0 0 40px rgba(96, 165, 250, 0.15)',
-      },
-      keyframes: {
-        'neon-pulse': {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.7' },
-        },
-        'neon-flow': {
-          '0%, 100%': { boxShadow: '0 0 5px rgba(168, 85, 247, 0.4), 0 0 15px rgba(168, 85, 247, 0.2)' },
-          '50%': { boxShadow: '0 0 10px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.4)' },
-        },
-      },
-      animation: {
-        'neon-pulse': 'neon-pulse 2.5s ease-in-out infinite',
-        'neon-flow': 'neon-flow 3s ease-in-out infinite',
+        'card': '0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.08)',
+        'elevated': '0 12px 40px rgba(0, 0, 0, 0.10)',
       },
     },
   },

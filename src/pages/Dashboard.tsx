@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Heart, Sparkles, Calculator, ArrowRight } from 'lucide-react';
+import { Clock, Heart, Lightbulb, Calculator, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/Skeleton';
@@ -212,7 +212,7 @@ export default function Dashboard() {
             <section>
               <div className="mb-4 flex items-center justify-between">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy">
-                  <Sparkles className="h-5 w-5 text-accent-orange" /> AI Recommendations
+                  <Lightbulb className="h-5 w-5 text-accent-orange" /> AI Recommendations
                 </h2>
               </div>
               <div className="rounded-2xl border border-accent-orange/20 bg-gradient-to-br from-accent-orange/5 to-white p-6">
@@ -222,7 +222,7 @@ export default function Dashboard() {
                     <p className="mt-1 text-sm text-neutral-500">Describe your space or upload a photo and let AI suggest the perfect palette.</p>
                   </div>
                   <Link to="/ai-color-assistant" className="btn-primary press-scale shrink-0">
-                    <Sparkles className="h-4 w-4" /> Try AI Assistant
+                    <Lightbulb className="h-4 w-4" /> Try AI Assistant
                   </Link>
                 </div>
               </div>

@@ -27,7 +27,7 @@ export default function Hero() {
             Plan Your Perfect Paint Project
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/70 text-balance">
-            Measure your walls, calculate screeding and paint needs, estimate costs, and discover colors that transform your space — all in one place.
+            Measure your walls, calculate screeding and paint needs, estimate costs, and discover colors that transform your space, all in one place.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

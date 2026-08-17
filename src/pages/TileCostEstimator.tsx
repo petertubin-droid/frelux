@@ -250,9 +250,9 @@ export default function TileCostEstimator() {
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.grandTotal, currencySymbol)}</p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}—</p>
+                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}0</p>
                 )}
-                <p className="mt-1 text-xs text-white/50">Estimate only — not a final quote.</p>
+                <p className="mt-1 text-xs text-white/50">Estimate only, not a final quote.</p>
               </div>
               <div className="space-y-2 p-6">
                 {result ? (

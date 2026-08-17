@@ -116,7 +116,7 @@ export default function SharedProject() {
                     .map(([key, value]) => (
                       <div key={key}>
                         <dt className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{key.replace(/_/g, ' ')}</dt>
-                        <dd className="mt-0.5 text-sm text-neutral-700">{value === null || value === undefined ? '—' : typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
+                        <dd className="mt-0.5 text-sm text-neutral-700">{value === null || value === undefined ? 'N/A' : typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
                       </div>
                     ))}
                 </dl>

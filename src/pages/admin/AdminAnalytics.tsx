@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { DbAnalyticsEvent } from '@/types/database';
 import { AdminHeader, AdminCard, StateMessage } from '@/components/admin/AdminUi';
-import { Calculator, DollarSign, Palette, MessageCircle, Mail, TrendingUp, AlertTriangle, Wand2 } from 'lucide-react';
+import { Calculator, DollarSign, Palette, MessageCircle, Mail, TrendingUp, AlertTriangle, BarChart3 } from 'lucide-react';
 
 const CATEGORIES = [
   {
@@ -19,7 +19,7 @@ const CATEGORIES = [
   },
   {
     label: 'AI Assistant',
-    icon: Wand2,
+    icon: BarChart3,
     events: ['ai_assistant_opened', 'text_consultation_submitted', 'image_analysis_started', 'ai_recommendation_generated', 'ai_request_failed', 'ai_usage_limit_reached', 'rewarded_access_requested', 'rewarded_access_verified'],
     color: 'text-accent-orange',
   },
@@ -82,7 +82,7 @@ export default function AdminAnalytics() {
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
-                  <Wand2 className="h-5 w-5 text-accent-green" />
+                  <BarChart3 className="h-5 w-5 text-accent-green" />
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">AI successes</p>
                 </div>
                 <p className="mt-1 text-2xl font-bold text-brand-navy">{aiSuccess}</p>

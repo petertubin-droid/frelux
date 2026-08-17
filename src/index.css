@@ -154,106 +154,78 @@
 }
 
 /* =========================================================
-   Premium Neon Dark Mode
+   Refined Dark Mode — Professional, not neon
    ========================================================= */
 
 .dark body {
-  background-color: #0a0a0f;
+  background-color: #0f172a;
   color: #e2e8f0;
 }
 
 .dark .card {
-  background-color: rgba(15, 23, 42, 0.7);
-  border-color: rgba(168, 85, 247, 0.15);
-  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.08), 0 4px 24px rgba(0, 0, 0, 0.4);
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.dark .card:hover {
-  border-color: rgba(168, 85, 247, 0.35);
-  box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.2), 0 0 20px rgba(168, 85, 247, 0.12), 0 4px 24px rgba(0, 0, 0, 0.5);
+  background-color: #1e293b;
+  border-color: #334155;
 }
 
 .dark .btn-primary {
   background-color: #7c3aed;
-  border: 1px solid rgba(168, 85, 247, 0.5);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.3), 0 0 20px rgba(168, 85, 247, 0.15);
-  transition: box-shadow 0.3s ease, transform 0.15s ease;
 }
 
 .dark .btn-primary:hover {
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.5), 0 0 30px rgba(168, 85, 247, 0.3);
+  background-color: #6d28d9;
 }
 
 .dark .btn-secondary {
-  background-color: rgba(30, 41, 59, 0.8);
-  border-color: rgba(168, 85, 247, 0.2);
+  background-color: #1e293b;
+  border-color: #334155;
   color: #e2e8f0;
 }
 
 .dark .btn-secondary:hover {
-  border-color: rgba(168, 85, 247, 0.4);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.15);
+  background-color: #334155;
+  border-color: #475569;
 }
 
 .dark .input-field {
-  background-color: rgba(15, 23, 42, 0.6);
-  border-color: rgba(168, 85, 247, 0.15);
+  background-color: #1e293b;
+  border-color: #334155;
   color: #e2e8f0;
 }
 
 .dark .input-field:focus {
-  border-color: rgba(168, 85, 247, 0.5);
-  box-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
+  border-color: #7c3aed;
 }
 
-/* Neon active nav indicator */
+/* Active nav indicator */
 .dark .nav-active {
-  border-left: 2px solid transparent;
-  border-image: linear-gradient(to bottom, #a855f7, #22d3ee) 1;
-  box-shadow: -4px 0 12px rgba(168, 85, 247, 0.2);
+  border-left: 2px solid #7c3aed;
 }
 
-/* Neon link hover */
-.dark a:hover {
-  text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
-}
-
-/* Neon scrollbar */
+/* Scrollbar */
 .dark ::-webkit-scrollbar {
   width: 6px;
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: #0f172a;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.3);
+  background: #334155;
   border-radius: 3px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.5);
+  background: #475569;
 }
 
-/* Neon glow animation for interactive elements */
-.dark .neon-glow {
-  animation: neon-flow 3s ease-in-out infinite;
-}
-
-/* Respect reduced motion — disable all neon animations */
+/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .dark .card,
   .dark .btn-primary,
   .dark .btn-secondary,
-  .dark .input-field,
-  .dark .neon-glow {
+  .dark .input-field {
     transition: none !important;
     animation: none !important;
-    box-shadow: none !important;
-  }
-  .dark a:hover {
-    text-shadow: none !important;
   }
 }

@@ -48,7 +48,7 @@ const ADVANCED_FEATURES = [
   'Export professional PDF quotations',
   'Material shopping list',
   'Cost comparison between brands',
-  'AI-powered recommendations for reducing waste',
+  'AI recommendations for reducing waste',
   'AI assistant for calculation questions',
 ];
 
@@ -159,7 +159,7 @@ export default function PaintCalculator() {
       if (input.doors < 0) e.doors = 'Doors cannot be negative';
       if (input.windows < 0) e.windows = 'Windows cannot be negative';
       if (input.coats < 1) e.coats = 'Enter at least 1 coat';
-      if (input.wasteMargin < 0 || input.wasteMargin > 100) e.wasteMargin = 'Waste margin must be 0–100';
+      if (input.wasteMargin < 0 || input.wasteMargin > 100) e.wasteMargin = 'Waste margin must be 0 to 100';
     }
     setErrors(e);
     return Object.keys(e).length === 0;

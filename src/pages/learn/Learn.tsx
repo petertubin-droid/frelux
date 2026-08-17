@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, ArrowRight, Loader2, AlertCircle, Clock, Star } from 'lucide-react';
+import { BookOpen, ArrowRight, Loader2, AlertCircle, Clock, Award } from 'lucide-react';
 import { getIcon } from '@/lib/icon-map';
 import PageHeader from '@/components/ui/PageHeader';
 import { supabase } from '@/lib/supabase';
@@ -86,7 +86,7 @@ export default function Learn() {
                   )}
                   <div className="p-5">
                     <div className="flex items-center gap-2">
-                      <Star className="h-3.5 w-3.5 text-accent-orange" />
+                      <Award className="h-3.5 w-3.5 text-accent-orange" />
                       <span className="text-xs font-semibold uppercase tracking-widest text-accent-orange">Featured</span>
                     </div>
                     <h3 className="mt-2 text-lg font-bold text-brand-navy">{article.title}</h3>

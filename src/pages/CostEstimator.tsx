@@ -28,14 +28,14 @@ export default function CostEstimator() {
   useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
-      'Estimate the practical cost of your painting project. Paint, primer, materials, and labor — based on real product prices and your paint quantity.',
+      'Estimate the practical cost of your painting project. Paint, primer, materials, and labor, based on real product prices and your paint quantity.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Cost Estimator',
-      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, and labor — based on real product prices and your paint quantity.',
+      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, and labor, based on real product prices and your paint quantity.',
       url: 'https://freluxpaintcalc.com/cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
@@ -213,7 +213,7 @@ export default function CostEstimator() {
             <p>
               Tip: Use the{' '}
               <Link to="/paint-calculator" className="font-semibold text-brand-purple underline">Paint Calculator</Link>{' '}
-              first, then continue here — your paintable area and paint quantity will carry over automatically.
+              first, then continue here. Your paintable area and paint quantity will carry over automatically.
             </p>
           </div>
         )}
@@ -252,7 +252,7 @@ export default function CostEstimator() {
                     onChange={(e) => update('paintProductId', e.target.value || null)}
                     className="input-field"
                   >
-                    <option value="">— Manual price entry —</option>
+                    <option value="">Manual price entry</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.name}{p.brand ? ` (${p.brand})` : ''} · {p.container_size}L · {formatCurrency(Number(p.price), currencySymbol)}
@@ -343,28 +343,28 @@ export default function CostEstimator() {
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.total, currencySymbol)}</p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}—</p>
+                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}0</p>
                 )}
-                <p className="mt-1 text-xs text-white/50">Estimate only — not a final quote.</p>
+                <p className="mt-1 text-xs text-white/50">Estimate only, not a final quote.</p>
               </div>
               <div className="space-y-2 p-6">
                 <Row
                   label={result && result.paintContainerCount > 0 ? `Paint (${result.paintContainerCount} containers)` : 'Paint'}
-                  value={result ? formatCurrency(result.paintCost, currencySymbol) : '—'}
+                  value={result ? formatCurrency(result.paintCost, currencySymbol) : 'N/A'}
                 />
-                {input.includePrimer && <Row label="Primer" value={result ? formatCurrency(result.primerCost, currencySymbol) : '—'} />}
-                {input.includeFiller && <Row label="Filler" value={result ? formatCurrency(result.fillerCost, currencySymbol) : '—'} />}
-                {input.includePutty && <Row label="Putty" value={result ? formatCurrency(result.puttyCost, currencySymbol) : '—'} />}
-                {input.includeSandpaper && <Row label="Sandpaper" value={result ? formatCurrency(result.sandpaperCost, currencySymbol) : '—'} />}
-                {input.includeBrushes && <Row label="Brushes" value={result ? formatCurrency(result.brushesCost, currencySymbol) : '—'} />}
-                {input.includeRollers && <Row label="Rollers" value={result ? formatCurrency(result.rollersCost, currencySymbol) : '—'} />}
-                {input.includeOther && <Row label="Other" value={result ? formatCurrency(result.otherMaterialsCost, currencySymbol) : '—'} />}
+                {input.includePrimer && <Row label="Primer" value={result ? formatCurrency(result.primerCost, currencySymbol) : 'N/A'} />}
+                {input.includeFiller && <Row label="Filler" value={result ? formatCurrency(result.fillerCost, currencySymbol) : 'N/A'} />}
+                {input.includePutty && <Row label="Putty" value={result ? formatCurrency(result.puttyCost, currencySymbol) : 'N/A'} />}
+                {input.includeSandpaper && <Row label="Sandpaper" value={result ? formatCurrency(result.sandpaperCost, currencySymbol) : 'N/A'} />}
+                {input.includeBrushes && <Row label="Brushes" value={result ? formatCurrency(result.brushesCost, currencySymbol) : 'N/A'} />}
+                {input.includeRollers && <Row label="Rollers" value={result ? formatCurrency(result.rollersCost, currencySymbol) : 'N/A'} />}
+                {input.includeOther && <Row label="Other" value={result ? formatCurrency(result.otherMaterialsCost, currencySymbol) : 'N/A'} />}
                 <div className="border-t border-neutral-100 pt-2">
-                  <Row label="Material cost" value={result ? formatCurrency(result.total - result.laborCost, currencySymbol) : '—'} />
-                  {labourConfig.includeLabour && <Row label="Labour cost" value={result ? formatCurrency(result.laborCost, currencySymbol) : '—'} />}
+                  <Row label="Material cost" value={result ? formatCurrency(result.total - result.laborCost, currencySymbol) : 'N/A'} />
+                  {labourConfig.includeLabour && <Row label="Labour cost" value={result ? formatCurrency(result.laborCost, currencySymbol) : 'N/A'} />}
                 </div>
                 <div className="border-t border-neutral-100 pt-2">
-                  <Row label="Grand total" value={result ? formatCurrency(result.total, currencySymbol) : '—'} strong />
+                  <Row label="Grand total" value={result ? formatCurrency(result.total, currencySymbol) : 'N/A'} strong />
                 </div>
                 {result && (
                   <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">

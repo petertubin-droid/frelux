@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   Palette,
   Upload,
-  Wand2,
+  MessageSquare,
   Image as ImageIcon,
   Info,
   AlertCircle,
@@ -47,14 +47,14 @@ export default function AiColorAssistant() {
   useSeo({
     title: 'Smart Color Assistant — Get Personalized Paint Color Ideas',
     description:
-      'Describe your room or upload a photo and get AI-generated color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.',
+      'Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.',
     canonicalPath: '/ai-color-assistant',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Smart Color Assistant',
-      description: 'Describe your room or upload a photo and get AI-generated color recommendations tailored to your space, lighting, and furniture.',
+      description: 'Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture.',
       url: 'https://freluxpaintcalc.com/ai-color-assistant',
       applicationCategory: 'DesignApplication',
       operatingSystem: 'Web',
@@ -108,7 +108,7 @@ export default function AiColorAssistant() {
 
         {view !== 'choose' && (
           <div className="mb-6 flex flex-wrap gap-2">
-            <ViewTab active={view === 'text'} onClick={() => setView('text')} icon={Wand2} label="Describe my space" />
+            <ViewTab active={view === 'text'} onClick={() => setView('text')} icon={MessageSquare} label="Describe my space" />
             <ViewTab active={view === 'image'} onClick={() => setView('image')} icon={ImageIcon} label="Upload a room image" />
           </div>
         )}
@@ -125,7 +125,7 @@ function DisclaimerBanner() {
     <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 p-4 text-sm text-neutral-700">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-cyan" />
       <p>
-        AI recommendations are AI-generated suggestions for inspiration only — not professional design advice. They may vary
+        AI recommendations are AI suggestions for inspiration only, not professional design advice. They may vary
         depending on image quality, lighting, and screen settings. Always test a physical paint sample before purchase. See our{' '}
         <Link to="/ai-disclaimer" className="font-semibold text-brand-purple underline">AI Disclaimer</Link>.
       </p>
@@ -172,7 +172,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
         className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left transition-all hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
       >
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
-          <Wand2 className="h-6 w-6" />
+          <MessageSquare className="h-6 w-6" />
         </span>
         <div>
           <h2 className="text-lg font-bold text-brand-navy">Describe my space</h2>
@@ -208,7 +208,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
   );
 }
 
-function ViewTab({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: typeof Wand2; label: string }) {
+function ViewTab({ active, onClick, icon: Icon, label }: { active: boolean; onClick: () => void; icon: typeof MessageSquare; label: string }) {
   return (
     <button
       type="button"

@@ -27,7 +27,7 @@ export default function AiDisclaimer() {
           heading: 'Accuracy and suitability',
           body: (
             <p>
-              AI-generated color suggestions may be imperfect, incomplete, or unsuitable for your specific space. Colors
+              AI color suggestions may be imperfect, incomplete, or unsuitable for your specific space. Colors
               appear differently depending on lighting, surface texture, screen calibration, and surrounding decor. Always
               test a physical paint sample on your wall before making a final decision.
             </p>

@@ -132,7 +132,7 @@ export default function CompareColors() {
 
   return (
     <>
-      <PageHeader eyebrow="Tools" title="Compare Colors" subtitle="Compare up to 4 paint colors side by side — with HEX, RGB, HSL, and recommendations." backTo="/colors" backLabel="Color Library" />
+      <PageHeader eyebrow="Tools" title="Compare Colors" subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations." backTo="/colors" backLabel="Color Library" />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Search */}
@@ -207,17 +207,17 @@ export default function CompareColors() {
                   </CompareRow>
                   {/* Recommended usage */}
                   <CompareRow label="Rooms">
-                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{c.recommended_usage.join(', ') || '—'}</td>)}
+                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{c.recommended_usage.join(', ') || 'N/A'}</td>)}
                   </CompareRow>
                   {/* Finishes */}
                   <CompareRow label="Finishes">
-                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{c.finish_compatibility.join(', ') || '—'}</td>)}
+                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{c.finish_compatibility.join(', ') || 'N/A'}</td>)}
                   </CompareRow>
                   {/* Family */}
                   <CompareRow label="Family">
                     {selected.map((c) => {
                       const fam = families.find((f) => f.id === c.color_family_id);
-                      return <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{fam?.name ?? '—'}</td>;
+                      return <td key={c.id} className="border-b border-neutral-100 p-2 text-sm text-neutral-700">{fam?.name ?? 'N/A'}</td>;
                     })}
                   </CompareRow>
                   {/* Complementary */}

@@ -21,12 +21,14 @@ export default function WhatsAppFab() {
       target="_blank"
       rel="noopener noreferrer"
       onClick={() => track('whatsapp_clicked', { source: 'fab' })}
-      className={`fixed left-4 z-30 inline-flex items-center gap-2 rounded-full bg-accent-green px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-accent-green/30 transition-all duration-300 hover:scale-105 active:scale-95 sm:bottom-4 sm:left-auto sm:right-20 ${
+      className={`fixed left-4 z-30 inline-flex items-center gap-2 rounded-full bg-accent-green px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 sm:bottom-4 sm:left-auto sm:right-20 ${
         show
           ? 'bottom-20 translate-y-0 opacity-100 sm:bottom-4'
           : 'pointer-events-none translate-y-4 opacity-0'
       }`}
       aria-label="Chat on WhatsApp"
+      aria-hidden={!show}
+      tabIndex={show ? 0 : -1}
     >
       <MessageCircle className="h-5 w-5" />
       <span className="hidden sm:inline">WhatsApp</span>

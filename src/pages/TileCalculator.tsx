@@ -213,7 +213,7 @@ export default function TileCalculator() {
             <div className="mt-6">
               <Field label="Tile size" hint="Select a standard size or enter custom dimensions">
                 <select onChange={(e) => onTileSizeChange(e.target.value)} className="input-field" defaultValue="">
-                  <option value="">— Custom size —</option>
+                  <option value="">Custom size</option>
                   {tileSizes.map((s) => (
                     <option key={s.id} value={s.id}>{s.name} ({s.tiles_per_box}/box)</option>
                   ))}
