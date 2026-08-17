@@ -151,17 +151,15 @@ export default function Navbar() {
           </Link>
         </div>
 
+        {/* Hamburger menu — rightmost position, opens existing navigation drawer */}
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
-          className="inline-flex items-center justify-center rounded-md p-2 text-neutral-700 hover:bg-neutral-100 lg:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden"
           aria-label="Open menu"
           aria-expanded={mobileOpen}
         >
-          <Menu className="h-6 w-6" />
-        </button>
-        <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center justify-center rounded-md p-2 text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800 lg:hidden">
-          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
         </button>
       </nav>
 
@@ -182,8 +180,8 @@ export default function Navbar() {
         >
           <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4">
             <Logo />
-            <button type="button" onClick={() => setMobileOpen(false)} className="inline-flex items-center justify-center rounded-md p-2 text-neutral-700 hover:bg-neutral-100" aria-label="Close menu">
-              <X className="h-6 w-6" />
+            <button type="button" onClick={() => setMobileOpen(false)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 hover:bg-neutral-100" aria-label="Close menu">
+              <X className="h-[22px] w-[22px]" strokeWidth={1.75} />
             </button>
           </div>
           <div className="flex flex-col gap-0.5 overflow-y-auto p-4" style={{ maxHeight: 'calc(100% - 4rem)' }}>
@@ -215,6 +213,30 @@ export default function Navbar() {
                 Sign in
               </Link>
             )}
+
+            {/* Theme toggle relocated to drawer footer */}
+            <div className="mt-4 border-t border-neutral-200 pt-3">
+              <button
+                type="button"
+                onClick={toggle}
+                className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
+                aria-label="Toggle dark mode"
+              >
+                <span className="flex items-center gap-2.5">
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                  {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+                </span>
+                <span className={classNames(
+                  'relative inline-flex h-5 w-9 items-center rounded-full transition-colors',
+                  theme === 'dark' ? 'bg-brand-purple' : 'bg-neutral-300'
+                )}>
+                  <span className={classNames(
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    theme === 'dark' ? 'translate-x-4' : 'translate-x-0.5'
+                  )} />
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
