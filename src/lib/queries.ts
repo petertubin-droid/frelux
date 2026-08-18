@@ -741,6 +741,11 @@ export async function fetchAllRewardedToolConfigs() {
   return { data: (data ?? []) as DbRewardedToolConfig[], error: error ? error.message : null };
 }
 
+/**
+ * @deprecated Issue #7 fix: Use logAdEvent from '@/lib/ad-config' instead.
+ * This function writes to the legacy rewarded_ad_events table. The new
+ * unified ad_analytics_events table (via logAdEvent) is the source of truth.
+ */
 export async function logRewardedAdEvent(params: {
   toolKey: string;
   eventType: 'impression' | 'click' | 'reward' | 'close' | 'error';
@@ -760,6 +765,12 @@ export async function logRewardedAdEvent(params: {
   return { error: error ? error.message : null };
 }
 
+/**
+ * @deprecated Issue #2 fix: Unlocks are now granted server-side via the
+ * grant-rewarded-unlock edge function. Direct client-side INSERT into
+ * rewarded_unlock_log is no longer permitted by RLS policies.
+ * This function will fail silently — use the edge function instead.
+ */
 export async function recordRewardedUnlock(params: {
   toolKey: string;
   clientHash: string;

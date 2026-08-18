@@ -2,8 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   fetchRewardedToolConfig,
   checkRewardedUnlock,
-  recordRewardedUnlock,
-  logRewardedAdEvent,
 } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { logAdEvent } from '@/lib/ad-config';
@@ -74,6 +72,14 @@ function endOfDayISO(): string {
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
   return end.toISOString();
 }
+
+// ─────────────────────────────────────────────────────────
+// Client-side daily count and cooldown — UX hints only.
+// Real enforcement is server-side in the grant-rewarded-unlock
+// edge function. These provide immediate feedback without
+// a round-trip, but can be bypassed (that's OK — the server
+// is the source of truth).
+// ─────────────────────────────────────────────────────────
 
 function getCooldownExpiry(toolKey: string): number | null {
   const stored = localStorage.getItem(COOLDOWN_PREFIX + toolKey);
@@ -166,7 +172,8 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       }
     }
 
-    // Fetch provider details if config has provider IDs
+    // Fetch provider details — use the public view (ad_providers_public) not the raw table.
+    // The raw ad_providers table is admin-only after Phase 2b RLS hardening.
     const cfg = cfgRes.data;
     const feat = featRes.data as DbRewardedFeatureConfig | null;
     const primaryId = feat?.primary_provider_id ?? cfg?.primary_provider_id;
@@ -174,13 +181,14 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
     if (primaryId || fallbackId) {
       const ids = [primaryId, fallbackId].filter(Boolean) as string[];
-      const { data: provData } = await supabase.from('ad_providers').select('*').in('id', ids);
+      // Fix for issue #3: use ad_providers_public instead of ad_providers
+      const { data: provData } = await supabase.from('ad_providers_public').select('*').in('id', ids);
       const providers = (provData as DbAdProvider[]) ?? [];
       setPrimaryProvider(primaryId ? providers.find((p) => p.id === primaryId) ?? null : null);
       setFallbackProvider(fallbackId ? providers.find((p) => p.id === fallbackId) ?? null : null);
     }
 
-    // Check daily limit and cooldown
+    // Update client-side hints (server is the real enforcer)
     setDailyUnlockCount(getDailyUnlockCount(toolKey));
     setIsCooldownActive(getCooldownExpiry(toolKey) !== null);
 
@@ -222,7 +230,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
   const requestUnlock = useCallback(() => {
     if (isUnlocked) return;
-    // Check daily limit
+    // Client-side hint checks (server enforces for real)
     const feat = featureConfig;
     const cfg = config;
     const dailyLimit = feat?.daily_usage_limit ?? cfg?.daily_usage_limit ?? 0;
@@ -230,7 +238,6 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       setError(`Daily limit reached (${dailyLimit} unlocks per day). Please try again tomorrow.`);
       return;
     }
-    // Check cooldown
     const cooldown = getCooldownExpiry(toolKey);
     if (cooldown) {
       const remaining = Math.ceil((cooldown - Date.now()) / 60_000);
@@ -258,13 +265,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     const providerId = primaryProvider?.id ?? null;
     const adUnitId = primaryProvider?.credentials?.ad_unit_id ?? config.ad_unit_id ?? null;
 
-    // Log impression to both legacy and new analytics tables
-    await logRewardedAdEvent({
-      toolKey,
-      eventType: 'impression',
-      clientHash,
-      adProvider: providerName,
-    });
+    // Log impression to the unified analytics table only (issue #7 fix: no duplicate logging)
     await logAdEvent({
       event_type: 'impression',
       provider_id: providerId,
@@ -273,81 +274,79 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       metadata: { ad_unit_id: adUnitId, provider_slug: primaryProvider?.slug },
     });
 
-    // No rewarded ad SDK is integrated yet. Surface an honest message
-    // instead of simulating a successful ad watch.
-    const failureMsg = featureConfig?.reward_rules?.failure_message
-      ?? 'Rewarded ads are not available yet. Please check back later.';
-    await logAdEvent({
-      event_type: 'error',
-      provider_id: providerId,
-      tool_key: toolKey,
-      client_hash: clientHash,
-      metadata: { error: 'no_ad_provider_configured' },
-    });
-    await logRewardedAdEvent({
-      toolKey,
-      eventType: 'error',
-      clientHash,
-      adProvider: providerName,
-    });
-    setError(failureMsg);
-    setAdLoading(false);
-    return;
+    // ──────────────────────────────────────────────────────
+    // Issue #1 fix: Call the server-side edge function to verify
+    // the ad and grant the unlock. No more dead code or client-side
+    // unlock insertion.
+    //
+    // When a real rewarded ad SDK is integrated:
+    // 1. Show the ad via the provider's SDK
+    // 2. On ad completion, get the verification token from the SDK
+    // 3. Pass the token as adToken to the edge function
+    // 4. The edge function verifies the token with the provider
+    //
+    // For now, the edge function checks for REWARDED_DEV_MODE env var.
+    // ──────────────────────────────────────────────────────
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('grant-rewarded-unlock', {
+        body: {
+          toolKey,
+          clientHash,
+          adProvider: providerName,
+          // adToken will be provided by the ad SDK when integrated
+          adToken: null,
+        },
+      });
 
-    // Log reward
-    const revenue = 0.05;
-    await logRewardedAdEvent({
-      toolKey,
-      eventType: 'reward',
-      clientHash,
-      adProvider: providerName,
-      revenueEstimated: revenue,
-    });
-    await logAdEvent({
-      event_type: 'reward',
-      provider_id: providerId,
-      tool_key: toolKey,
-      client_hash: clientHash,
-      revenue_estimated: revenue,
-      metadata: { ad_unit_id: adUnitId },
-    });
+      if (fnError || !data?.success) {
+        const errorMsg = data?.error ?? fnError?.message ?? 'Failed to unlock. Please try again.';
 
-    // Determine unlock duration (feature config takes priority)
-    const durationMinutes = featureConfig?.unlock_duration_minutes ?? config?.unlock_duration_hours ?? 60 * 60;
-    let expiry: string;
-    if (durationMinutes >= 1440) {
-      expiry = endOfDayISO();
-    } else {
-      expiry = new Date(Date.now() + durationMinutes * 60_000).toISOString();
-    }
+        // Log error event
+        await logAdEvent({
+          event_type: 'error',
+          provider_id: providerId,
+          tool_key: toolKey,
+          client_hash: clientHash,
+          metadata: { error: data?.code ?? 'edge_function_error' },
+        });
 
-    const { error: recError } = await recordRewardedUnlock({
-      toolKey,
-      clientHash,
-      expiresAt: expiry,
-      adProvider: providerName,
-    });
+        setError(errorMsg);
+        setAdLoading(false);
+        return;
+      }
 
-    if (recError) {
-      setError(recError);
+      // Unlock granted successfully
+      const expiry = data.expiresAt as string;
+      const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
+
+      // Log reward event to unified analytics only (issue #7 fix)
+      await logAdEvent({
+        event_type: 'reward',
+        provider_id: providerId,
+        tool_key: toolKey,
+        client_hash: clientHash,
+        revenue_estimated: revenueEstimate,
+        metadata: { ad_unit_id: adUnitId, expires_at: expiry },
+      });
+
+      setLocalExpiry(toolKey, expiry);
+      setIsUnlocked(true);
+      setExpiresAt(expiry);
+      setShowAdModal(false);
       setAdLoading(false);
-      return;
-    }
+      setAdProviderUsed(providerName);
 
-    setLocalExpiry(toolKey, expiry);
-    setIsUnlocked(true);
-    setExpiresAt(expiry);
-    setShowAdModal(false);
-    setAdLoading(false);
-    setAdProviderUsed(providerName);
-
-    // Track daily count and set cooldown
-    const newCount = incrementDailyUnlockCount(toolKey);
-    setDailyUnlockCount(newCount);
-    const cooldownMinutes = featureConfig?.cooldown_minutes ?? config?.cooldown_minutes ?? 0;
-    if (cooldownMinutes > 0) {
-      setCooldownExpiry(toolKey, cooldownMinutes);
-      setIsCooldownActive(true);
+      // Update client-side hints
+      const newCount = incrementDailyUnlockCount(toolKey);
+      setDailyUnlockCount(newCount);
+      const cooldownMinutes = featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+      if (cooldownMinutes > 0) {
+        setCooldownExpiry(toolKey, cooldownMinutes);
+        setIsCooldownActive(true);
+      }
+    } catch {
+      setError('Unable to reach the unlock service. Please try again.');
+      setAdLoading(false);
     }
   }, [config, featureConfig, primaryProvider, toolKey]);
 

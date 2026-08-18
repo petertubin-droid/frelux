@@ -52,10 +52,15 @@ export interface DbSiteSettings {
   ai_paid_currency: string;
   ai_reset_period: string;
   ai_admin_override: boolean;
+  // Payment provider status (Issue #4 fix)
+  payment_provider_configured: boolean;
   // Ads
   ads_enabled: boolean;
   adsense_publisher_id: string | null;
   ad_slots: Record<string, string>;
+  // Analytics (Issue #5 fix: read from DB for admin-configurable analytics)
+  ga_measurement_id: string | null;
+  meta_pixel_id: string | null;
   updated_at: string;
 }
 
@@ -798,6 +803,8 @@ export interface DbRewardedFeatureConfig {
     success_message?: string;
     failure_message?: string;
   };
+  // Issue #9 fix: configurable revenue estimate per unlock
+  revenue_per_unlock: number;
   created_at: string;
   updated_at: string;
 }

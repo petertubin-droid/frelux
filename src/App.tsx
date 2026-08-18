@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
 import { ToastProvider } from '@/components/ui/Toast';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
+import { AdBlockNotice } from '@/components/ui/AdBlockNotice';
 import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
 import Colors from '@/pages/Colors';
@@ -101,6 +102,7 @@ export default function App() {
       <AuthProvider>
         <ToastProvider>
           <AnalyticsScripts />
+          <AdBlockNotice />
           <BrowserRouter>
             <ScrollToTop />
             <Routes>

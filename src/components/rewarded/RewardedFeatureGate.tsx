@@ -76,7 +76,8 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           )}
         </div>
       </div>
-      {(access.showAdModal || access.adLoading || access.isUnlocked) && (
+      {/* Issue #8 fix: Only show modal when actively requesting unlock, not when already unlocked */}
+      {(access.showAdModal || access.adLoading) && (
         <RewardedAdModal access={access} featureName={featureName} features={features} />
       )}
     </>
