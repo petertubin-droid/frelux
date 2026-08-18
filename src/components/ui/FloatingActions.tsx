@@ -15,7 +15,7 @@ export default function FloatingActions() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-20 right-4 z-40 sm:bottom-20 sm:right-6">
+    <div className="fixed bottom-36 right-4 z-40 sm:bottom-20 sm:right-6">
       {open && (
         <div className="absolute bottom-14 right-0 flex flex-col gap-2 sm:bottom-16">
           {actions.map((action, i) => (
@@ -37,13 +37,13 @@ export default function FloatingActions() {
       <button
         onClick={() => setOpen((v) => !v)}
         className={classNames(
-          'flex h-14 w-14 items-center justify-center rounded-full shadow-xl transition-all duration-300 press-scale',
+          'flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 press-scale sm:h-14 sm:w-14',
           open ? 'bg-neutral-700 text-white rotate-45' : 'bg-brand-purple text-white hover:bg-brand-purple/90',
         )}
         aria-label={open ? 'Close quick actions' : 'Open quick actions'}
         aria-expanded={open}
       >
-        {open ? <X className="h-6 w-6" /> : <Plus className="h-6 w-6" />}
+        {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Plus className="h-5 w-5 sm:h-6 sm:w-6" />}
       </button>
     </div>
   );
