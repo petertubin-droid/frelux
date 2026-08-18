@@ -62,32 +62,39 @@ const tools = [
 
 export default function ToolsSection() {
   return (
-    <section className="bg-white py-20 sm:py-24">
+    <section className="relative overflow-hidden bg-white py-24 sm:py-28">
+      {/* Subtle background pattern */}
+      <div className="pointer-events-none absolute inset-0 bg-dots opacity-40" aria-hidden="true" />
+
       <SectionHeading
         label="Main tools"
         title="Your complete project workflow"
         subtitle="Follow these steps in order — from measuring your walls to choosing the perfect colors."
         align="center"
       />
-      <Container className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => {
+      <Container className="relative mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map((tool, i) => {
           const Icon = tool.icon;
           return (
             <Link
               key={tool.title}
               to={tool.to}
-              className="card-hover group relative flex flex-col rounded-xl border border-neutral-200/80 bg-white p-6 lg:p-7"
+              className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-7 animate-fade-in-up"
+              style={{ animationDelay: `${i * 0.06}s` }}
             >
+              {/* Subtle hover gradient */}
+              <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/4" />
+
               <div className="flex items-center justify-between">
-                <span className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${tool.accent}`}>
+                <span className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${tool.accent} transition-transform duration-300 group-hover:scale-105`}>
                   <Icon className="h-6 w-6" />
                 </span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50 text-sm font-bold text-neutral-400 ring-1 ring-neutral-200/60">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-50 text-sm font-bold text-neutral-300 ring-1 ring-neutral-200/60 transition-colors group-hover:text-brand-purple group-hover:ring-brand-purple/20">
                   {tool.step}
                 </span>
               </div>
               <h3 className="mt-5 font-display text-lg font-bold text-neutral-900">{tool.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{tool.description}</p>
+              <p className="mt-2.5 flex-1 text-sm leading-relaxed text-neutral-500">{tool.description}</p>
               <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5">
                 {tool.action}
                 <ArrowRight className="h-4 w-4" />

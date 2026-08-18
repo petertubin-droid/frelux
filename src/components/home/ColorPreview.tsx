@@ -26,7 +26,7 @@ export default function ColorPreview() {
   }
 
   return (
-    <section className="bg-neutral-50/50 py-20 sm:py-24">
+    <section className="bg-white py-24 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
@@ -40,7 +40,7 @@ export default function ColorPreview() {
           </Link>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loading && (
             <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400">
               <Loader2 className="h-5 w-5 animate-spin" /> Loading color palettes…
@@ -55,27 +55,27 @@ export default function ColorPreview() {
             <Link
               key={c.id}
               to={`/colors/${c.slug}`}
-              className="card-hover group overflow-hidden rounded-xl border border-neutral-200/80 bg-white"
+              className="card-hover group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
                   src={c.image_url}
                   alt={c.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2.5 backdrop-blur-sm">
+                <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-3 backdrop-blur-md">
                   {[c.main_color_code, c.secondary_color_code, c.accent_color_code].map((hex) => (
                     <div
                       key={hex}
-                      className="h-7 flex-1 rounded ring-1 ring-black/5"
+                      className="h-8 flex-1 rounded-lg ring-1 ring-black/5"
                       style={{ background: hex }}
                       title={hex}
                     />
                   ))}
                 </div>
               </div>
-              <div className="p-5">
+              <div className="p-6">
                 {(c.category_ids ?? []).length > 0 && (
                   <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
                     {catName(c.category_ids[0])}

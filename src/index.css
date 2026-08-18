@@ -2,13 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   PREMIUM DESIGN SYSTEM — FRELUX
+   Refined, sophisticated, high-end SaaS aesthetic
+   ========================================================= */
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   body {
     @apply bg-white text-neutral-900 font-sans antialiased;
     overflow-x: hidden;
+    font-feature-settings: "cv01", "cv03", "cv04", "ss01";
   }
   * {
     @apply box-border;
@@ -20,7 +29,11 @@
   select:focus-visible,
   textarea:focus-visible,
   [tabindex]:focus-visible {
-    @apply outline-none ring-2 ring-brand-purple/40 ring-offset-2 rounded;
+    @apply outline-none ring-2 ring-brand-purple/30 ring-offset-2 rounded-md;
+  }
+  /* Better heading rendering */
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight;
   }
 }
 
@@ -52,27 +65,54 @@
     clip: auto;
     white-space: normal;
   }
-  /* Premium grid pattern background */
+
+  /* Premium grid pattern — more subtle */
   .bg-grid {
     background-image:
-      linear-gradient(to right, rgba(124, 58, 237, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+      linear-gradient(to right, rgba(109, 40, 217, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(109, 40, 217, 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
   }
   .bg-grid-dark {
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 56px 56px;
   }
-  /* Subtle dotted pattern */
+  /* Dotted pattern — subtle */
   .bg-dots {
-    background-image: radial-gradient(circle, rgba(124, 58, 237, 0.08) 1px, transparent 1px);
-    background-size: 24px 24px;
+    background-image: radial-gradient(circle, rgba(109, 40, 217, 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
   }
-  /* Gradient text */
+  /* Gradient text — refined */
   .text-gradient {
-    @apply bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-brand-purple-light via-white to-brand-purple-light bg-clip-text text-transparent;
+  }
+  .text-gradient-purple {
+    @apply bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple-light bg-clip-text text-transparent;
+  }
+
+  /* Premium mesh gradient background */
+  .bg-mesh {
+    background-color: #0A0A1A;
+    background-image:
+      radial-gradient(at 20% 15%, rgba(109, 40, 217, 0.25) 0px, transparent 50%),
+      radial-gradient(at 80% 70%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(76, 29, 149, 0.2) 0px, transparent 50%);
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+  }
+  .glass-dark {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  /* Smooth scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(161, 161, 170, 0.3) transparent;
   }
 }
 
@@ -106,11 +146,15 @@
   }
   /* Input field — premium, refined */
   .input-field {
-    @apply w-full px-3.5 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all duration-200;
+    @apply w-full px-3.5 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/30 focus:border-brand-purple transition-all duration-200;
   }
   /* Premium card — layered shadow, subtle border */
   .card {
-    @apply bg-white border border-neutral-200/80 rounded-xl shadow-card;
+    @apply bg-white border border-neutral-200/60 rounded-xl shadow-card;
+  }
+  /* Premium card — elevated */
+  .card-elevated {
+    @apply bg-white border border-neutral-200/40 rounded-2xl shadow-premium;
   }
   /* Section label — premium eyebrow */
   .section-label {
@@ -129,7 +173,7 @@
 }
 
 /* =========================================================
-   Micro-interaction Animations
+   Micro-interaction Animations — Premium
    ========================================================= */
 
 @keyframes toast-in {
@@ -148,7 +192,7 @@
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in-up { animation: fade-in-up 0.35s ease-out both; }
+.animate-fade-in-up { animation: fade-in-up 0.4s ease-out both; }
 
 @keyframes skeleton-pulse {
   0% { background-position: 200% 0; }
@@ -183,14 +227,22 @@
   transform: scale(0.97);
 }
 
-/* Card hover lift — subtle and premium */
+/* Card hover lift — refined and premium */
 .card-hover {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
 }
 .card-hover:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
-  border-color: rgba(124, 58, 237, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-color: rgba(109, 40, 217, 0.15);
+}
+
+/* Premium glow on hover */
+.glow-hover {
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glow-hover:hover {
+  box-shadow: 0 0 0 1px rgba(109, 40, 217, 0.1), 0 12px 40px rgba(109, 40, 217, 0.08);
 }
 
 /* =========================================================
@@ -198,32 +250,37 @@
    ========================================================= */
 
 .dark body {
-  background-color: #0B1120;
-  color: #E4E4E7;
+  background-color: #0A0A1A;
+  color: #E5E5EA;
 }
 
 .dark .card {
-  background-color: #1A2332;
-  border-color: #2A3447;
+  background-color: #12122A;
+  border-color: #1E1E3A;
+}
+
+.dark .card-elevated {
+  background-color: #12122A;
+  border-color: #1E1E3A;
 }
 
 .dark .btn-primary {
-  background-color: #7C3AED;
-}
-
-.dark .btn-primary:hover {
   background-color: #6D28D9;
 }
 
+.dark .btn-primary:hover {
+  background-color: #5B21B6;
+}
+
 .dark .btn-secondary {
-  background-color: #1A2332;
-  border-color: #2A3447;
-  color: #E4E4E7;
+  background-color: #12122A;
+  border-color: #1E1E3A;
+  color: #E5E5EA;
 }
 
 .dark .btn-secondary:hover {
-  background-color: #2A3447;
-  border-color: #3F3F46;
+  background-color: #1E1E3A;
+  border-color: #2A2A4A;
 }
 
 .dark .btn-outline {
@@ -232,19 +289,19 @@
 }
 
 .dark .btn-outline:hover {
-  background-color: #7C3AED;
+  background-color: #6D28D9;
   color: #fff;
-  border-color: #7C3AED;
+  border-color: #6D28D9;
 }
 
 .dark .input-field {
-  background-color: #1A2332;
-  border-color: #2A3447;
-  color: #E4E4E7;
+  background-color: #12122A;
+  border-color: #1E1E3A;
+  color: #E5E5EA;
 }
 
 .dark .input-field:focus {
-  border-color: #7C3AED;
+  border-color: #6D28D9;
 }
 
 .dark .section-title {
@@ -255,31 +312,36 @@
   color: #A78BFA;
 }
 
-.dark .btn-secondary {
-  color: #E4E4E7;
+.dark .section-subtitle {
+  color: #A1A1AA;
 }
 
 /* Active nav indicator */
 .dark .nav-active {
-  border-left: 2px solid #7C3AED;
+  border-left: 2px solid #6D28D9;
 }
 
-/* Scrollbar */
+/* Scrollbar — dark */
 .dark ::-webkit-scrollbar {
   width: 6px;
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0B1120;
+  background: #0A0A1A;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #2A3447;
+  background: #2A2A4A;
   border-radius: 3px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #3F3F46;
+}
+
+/* Glass dark variants */
+.dark .glass {
+  @apply bg-[#12122A]/80 backdrop-blur-xl border border-white/5;
 }
 
 /* Respect reduced motion */

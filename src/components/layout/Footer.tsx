@@ -45,8 +45,11 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-neutral-200/80 bg-neutral-50/50">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50">
+      {/* Subtle top gradient */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
+
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
@@ -57,7 +60,7 @@ export default function Footer() {
               href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-accent-green hover:underline"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15"
             >
               <MessageCircle className="h-4 w-4" />
               {siteConfig.whatsappDisplay}
@@ -72,7 +75,7 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/80 pt-6 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row">
           <p className="text-xs text-neutral-400">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
@@ -88,7 +91,7 @@ export default function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">{title}</h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>

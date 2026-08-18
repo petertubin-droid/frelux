@@ -24,7 +24,9 @@ export default function TrendingColors() {
   if (trending.length === 0 && featured.length === 0 && recent.length === 0) return null;
 
   return (
-    <section className="bg-white py-20 sm:py-24">
+    <section className="relative overflow-hidden bg-neutral-50/50 py-24 sm:py-28">
+      <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" aria-hidden="true" />
+
       <SectionHeading
         label="Color inspiration"
         title="Trending & featured colors"
@@ -32,7 +34,7 @@ export default function TrendingColors() {
         align="center"
       />
 
-      <Container className="mt-14 space-y-14">
+      <Container className="relative mt-16 space-y-14">
         {/* Trending */}
         {trending.length > 0 && (
           <ColorRow icon={TrendingUp} title="Trending Colors" colors={trending} />
@@ -49,8 +51,8 @@ export default function TrendingColors() {
         )}
 
         <div className="text-center">
-          <Link to="/colors" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98]">
-            Browse all colors <ArrowRight className="h-4 w-4" />
+          <Link to="/colors" className="group inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl active:scale-[0.98]">
+            Browse all colors <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </Container>
@@ -62,7 +64,7 @@ function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; titl
   return (
     <div>
       <div className="mb-5 flex items-center gap-2.5">
-        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/8 text-brand-purple">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-purple/8 text-brand-purple">
           <Icon className="h-5 w-5" />
         </span>
         <h3 className="font-display text-lg font-bold text-neutral-900">{title}</h3>
@@ -72,17 +74,17 @@ function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; titl
           <Link
             key={c.id}
             to={`/colors/paint/${c.slug}`}
-            className="card-hover group overflow-hidden rounded-lg border border-neutral-200/80 bg-white"
+            className="card-hover group overflow-hidden rounded-xl border border-neutral-200/60 bg-white"
           >
             <div className="aspect-square" style={{ background: c.hex_code }}>
               <span
-                className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-70"
+                className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-60"
                 style={{ color: readableTextColor(c.hex_code) }}
               >
                 {c.hex_code}
               </span>
             </div>
-            <div className="p-2.5">
+            <div className="p-3">
               <p className="truncate text-xs font-semibold text-neutral-900">{c.name}</p>
             </div>
           </Link>
