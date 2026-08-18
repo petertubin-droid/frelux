@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
             <p>
               We log anonymous analytics events (such as "calculator started" or "AI recommendation generated") to
               understand how the tools are used. These events do not include your full AI descriptions, uploaded images,
-              or personal information. We may use Google Analytics and Meta Pixel when configured — these tools collect
+              or personal information. We may use Google Analytics and Meta Pixel when configured, these tools collect
               aggregate usage data through their own cookies. No private AI API keys are ever exposed to the browser.
             </p>
           ),
@@ -36,7 +36,7 @@ export default function PrivacyPolicy() {
           body: (
             <p>
               To enforce the shared daily AI usage limit, we store an anonymous random identifier in your browser's
-              localStorage and a count of successful AI generations per day. This identifier is a random token — it is not
+              localStorage and a count of successful AI generations per day. This identifier is a random token, it is not
               linked to your name, email, or identity. Failed AI requests do not consume your daily allowance.
             </p>
           ),
@@ -47,7 +47,7 @@ export default function PrivacyPolicy() {
             <p>
               The site is prepared to display advertisements through Google AdSense. Advertising is only activated when a
               real publisher ID is configured by an administrator. When advertising is active, Google may use cookies to
-              serve relevant ads. We do not control the cookies set by advertising providers — see our Cookie Policy for
+              serve relevant ads. We do not control the cookies set by advertising providers, see our Cookie Policy for
               how to manage them.
             </p>
           ),

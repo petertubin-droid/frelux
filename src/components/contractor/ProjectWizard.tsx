@@ -25,8 +25,9 @@ import {
   Check,
   MapPin,
   Hammer,
-  Sparkles,
+
   Crown,
+  Award,
   DollarSign,
   User,
   Phone,
@@ -136,7 +137,7 @@ const QUALITY_OPTIONS: Array<{
 }> = [
   { value: 'economy', label: 'Economy', icon: DollarSign },
   { value: 'standard', label: 'Standard', icon: Hammer },
-  { value: 'premium', label: 'Premium', icon: Sparkles },
+  { value: 'premium', label: 'Premium', icon: Award },
   { value: 'luxury', label: 'Luxury', icon: Crown },
 ];
 
@@ -439,7 +440,7 @@ export default function ProjectWizard() {
         {recommendation && (
           <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
             <div className="flex items-center gap-2 text-purple-700">
-              <Sparkles className="h-4 w-4" />
+              <Award className="h-4 w-4" />
               <span className="text-sm font-semibold">Smart Recommendation</span>
             </div>
             <p className="mt-1 text-sm text-gray-600">{recommendation.reason}</p>

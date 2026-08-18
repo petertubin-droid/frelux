@@ -628,7 +628,7 @@ function RoomCard({
               </div>
               <p className="mt-1 text-xs text-neutral-500">
                 Calculated from the surface assessment above. Surface condition,
-                type, smoothness, and porosity each contribute — rougher or more
+                type, smoothness, and porosity each contribute, rougher or more
                 porous surfaces with damage require extra material to account for
                 absorption, spillage, and touch-ups.
               </p>
@@ -796,7 +796,7 @@ function CalculatorModal({
                 <Calculator className="h-4.5 w-4.5 text-brand-purple" />
               </div>
               <h3 className="text-base font-bold text-brand-navy">
-                Calculator — {room.name}
+                Calculator, {room.name}
               </h3>
             </div>
             <button

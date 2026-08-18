@@ -69,7 +69,7 @@ export default function ToolsSection() {
       <SectionHeading
         label="Main tools"
         title="Your complete project workflow"
-        subtitle="Follow these steps in order — from measuring your walls to choosing the perfect colors."
+        subtitle="Follow these steps in order, from measuring your walls to choosing the perfect colors."
         align="center"
       />
       <Container className="relative mt-16 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

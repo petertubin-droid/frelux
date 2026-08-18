@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Sparkles } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check } from 'lucide-react';
 import Container from '@/components/ui/Container';
 
 const heroSteps = [
@@ -36,7 +36,6 @@ export default function Hero() {
         <div className="animate-fade-in-up">
           {/* Eyebrow badge */}
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md">
-            <Sparkles className="h-3.5 w-3.5 text-brand-purple-light" />
             Plan. Estimate. Discover.
           </span>
 
@@ -53,7 +52,7 @@ export default function Hero() {
 
           {/* Subheadline */}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/55 text-balance">
-            Measure your walls, calculate screeding and paint needs, estimate costs, and discover colors that transform your space — all in one place.
+            Measure your walls, calculate screeding and paint needs, estimate costs, and discover colors that transform your space, all in one place.
           </p>
 
           {/* CTAs */}
@@ -122,7 +121,7 @@ export default function Hero() {
         {/* Right: Visual composition */}
         <div className="relative hidden lg:block animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <div className="relative mx-auto max-w-md">
-            {/* Main image — premium frame */}
+            {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10">
               <img
                 src="https://images.pexels.com/photos/6438713/pexels-photo-6438713.jpeg?auto=compress&cs=tinysrgb&w=900"
@@ -134,7 +133,7 @@ export default function Hero() {
               <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/50 via-transparent to-transparent" />
             </div>
 
-            {/* Floating swatch card — glassmorphism */}
+            {/* Floating swatch card */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white p-4 shadow-premium-lg animate-float">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
                 Suggested palette
@@ -147,13 +146,13 @@ export default function Hero() {
               <p className="mt-2.5 text-xs font-semibold text-neutral-700">Serene Living</p>
             </div>
 
-            {/* Floating estimate chip — glassmorphism */}
+            {/* Floating estimate chip */}
             <div className="absolute -right-5 top-8 rounded-xl bg-white px-4 py-3.5 shadow-premium-lg animate-float-delayed">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400">
                 Paint needed
               </p>
               <p className="mt-1 font-display text-2xl font-bold text-neutral-900">14 L</p>
-              <p className="text-[11px] text-neutral-500">2 coats · 38 m²</p>
+              <p className="text-[11px] text-neutral-500">2 coats, 38 m²</p>
             </div>
 
             {/* Floating accuracy badge */}
