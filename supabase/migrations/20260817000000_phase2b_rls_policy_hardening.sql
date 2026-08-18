@@ -260,7 +260,7 @@ CREATE POLICY "room_images_delete_own" ON storage.objects FOR DELETE
   USING (
     bucket_id = 'room-images'
     AND (
-      storage.foldername(name) = auth.uid()::text
+      (storage.foldername(name))[1] = auth.uid()::text
       OR public.is_admin()
     )
   );
