@@ -876,3 +876,277 @@ export interface DbCalculatorTemplate {
   created_at: string;
   updated_at: string;
 }
+
+// =========================================================
+// Phase 5: Professional Contractor Experience
+// =========================================================
+
+export type ProjectType = 'painting' | 'screeding' | 'pop_ceiling' | 'tiling' | 'multi_trade';
+export type BuildingType = 'residential' | 'commercial' | 'industrial' | 'institutional' | 'renovation';
+export type SurfaceLocation = 'interior' | 'exterior' | 'both';
+export type ConstructionType = 'new_construction' | 'renovation' | 'touch_up';
+export type FinishQuality = 'economy' | 'standard' | 'premium' | 'luxury';
+export type BudgetLevel = 'economy' | 'standard' | 'premium' | 'luxury';
+export type MaterialQuality = 'economy' | 'standard' | 'premium' | 'luxury';
+export type ProjectStatus = 'draft' | 'in_progress' | 'on_hold' | 'completed' | 'archived';
+export type RoomType = 'living_room' | 'bedroom' | 'kitchen' | 'bathroom' | 'balcony' | 'hallway' | 'staircase' | 'office' | 'dining' | 'custom';
+export type SurfaceCondition = 'excellent' | 'good' | 'fair' | 'poor' | 'damaged';
+export type SurfaceType = 'fresh_plaster' | 'old_paint' | 'peeling_paint' | 'moisture' | 'cracks' | 'mould' | 'concrete' | 'wood' | 'metal';
+export type WallSmoothness = 'smooth' | 'slightly_rough' | 'rough' | 'very_rough';
+export type Porosity = 'low' | 'medium' | 'high' | 'very_high';
+export type RoomCalcType = 'paint' | 'screeding' | 'pop_ceiling' | 'tiling';
+export type ShoppingCategory = 'paint' | 'primer' | 'white_cement' | 'screeding_paint' | 'pop_cement' | 'soap' | 'fibre' | 'boards' | 'tiles' | 'tile_adhesive' | 'grout' | 'masking_tape' | 'brushes' | 'rollers' | 'sandpaper' | 'extension_pole' | 'ladders' | 'scaffolding' | 'ppe' | 'accessories' | 'labour' | 'transport' | 'misc';
+export type LabourRole = 'painter' | 'pop_installer' | 'wall_screeder' | 'tile_installer' | 'labourer' | 'foreman' | 'electrician' | 'plumber' | 'carpenter' | 'supervisor';
+export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'revised';
+export type TimelinePhase = 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' | 'touch_up' | 'cleanup';
+export type MaterialCatalogCategory = 'paint' | 'primer' | 'white_cement' | 'screeding_paint' | 'pop_cement' | 'soap' | 'fibre' | 'boards' | 'tiles' | 'tile_adhesive' | 'grout' | 'masking_tape' | 'brushes' | 'rollers' | 'sandpaper' | 'extension_pole' | 'ladders' | 'scaffolding' | 'ppe' | 'accessories';
+export type DurabilityRating = 'low' | 'medium' | 'high' | 'premium';
+
+export interface DbContractorProject {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  project_type: ProjectType;
+  building_type: BuildingType;
+  surface_location: SurfaceLocation;
+  construction_type: ConstructionType;
+  finish_quality: FinishQuality;
+  budget_level: BudgetLevel;
+  material_quality: MaterialQuality;
+  client_name: string | null;
+  client_phone: string | null;
+  client_email: string | null;
+  client_address: string | null;
+  status: ProjectStatus;
+  progress_percentage: number;
+  notes: string | null;
+  tags: string[];
+  total_material_cost: number;
+  total_labour_cost: number;
+  total_transport_cost: number;
+  total_misc_cost: number;
+  total_markup: number;
+  total_profit: number;
+  total_project_cost: number;
+  estimated_duration_days: number | null;
+  currency: string;
+  currency_symbol: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbProjectRoom {
+  id: string;
+  project_id: string;
+  name: string;
+  room_type: RoomType;
+  sort_order: number;
+  length_m: number | null;
+  width_m: number | null;
+  height_m: number | null;
+  unit: 'meters' | 'feet';
+  surface_condition: SurfaceCondition;
+  surface_type: SurfaceType;
+  wall_smoothness: WallSmoothness;
+  porosity: Porosity;
+  waste_factor_percentage: number;
+  calculation_type: RoomCalcType;
+  calculation_input: Record<string, unknown>;
+  calculation_result: Record<string, unknown>;
+  material_cost: number;
+  labour_cost: number;
+  room_total_cost: number;
+  surface_prep: SurfacePrepStep[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SurfacePrepStep {
+  action: string;
+  reason: string;
+  product?: string;
+  priority: 'required' | 'recommended' | 'optional';
+}
+
+export interface DbProjectShoppingItem {
+  id: string;
+  project_id: string;
+  category: ShoppingCategory;
+  name: string;
+  quantity: number;
+  unit: string;
+  estimated_price: number;
+  total_price: number;
+  notes: string | null;
+  is_purchased: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbProjectLabourPlan {
+  id: string;
+  project_id: string;
+  role: LabourRole;
+  worker_count: number;
+  days_required: number;
+  daily_wage: number;
+  total_cost: number;
+  notes: string | null;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbProjectQuotation {
+  id: string;
+  project_id: string;
+  quotation_number: string;
+  version: number;
+  material_cost: number;
+  labour_cost: number;
+  transport_cost: number;
+  misc_cost: number;
+  markup_percentage: number;
+  markup_amount: number;
+  profit_percentage: number;
+  profit_amount: number;
+  tax_percentage: number;
+  tax_amount: number;
+  grand_total: number;
+  terms_conditions: string | null;
+  timeline_days: number | null;
+  validity_days: number;
+  payment_terms: string | null;
+  company_name: string | null;
+  company_logo_url: string | null;
+  company_address: string | null;
+  company_phone: string | null;
+  company_email: string | null;
+  status: QuotationStatus;
+  signed_by: string | null;
+  signed_at: string | null;
+  signature_data: string | null;
+  currency: string;
+  currency_symbol: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbProjectTimeline {
+  id: string;
+  project_id: string;
+  phase: TimelinePhase;
+  name: string;
+  description: string | null;
+  days_required: number;
+  start_day: number;
+  end_day: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  sort_order: number;
+  depends_on: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbProjectAttachment {
+  id: string;
+  project_id: string;
+  file_name: string;
+  storage_path: string;
+  public_url: string;
+  mime_type: string;
+  file_size: number;
+  description: string | null;
+  uploaded_by: string;
+  created_at: string;
+}
+
+export interface DbProjectVersion {
+  id: string;
+  project_id: string;
+  version_number: number;
+  snapshot: Record<string, unknown>;
+  change_summary: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface DbMaterialCatalog {
+  id: string;
+  category: MaterialCatalogCategory;
+  name: string;
+  brand: string | null;
+  description: string | null;
+  coverage_rate: number | null;
+  coverage_unit: string | null;
+  package_size: number | null;
+  package_unit: string | null;
+  economy_price: number;
+  standard_price: number;
+  premium_price: number;
+  luxury_price: number;
+  regional_prices: Record<string, number>;
+  recommended_usage: string[];
+  durability_rating: DurabilityRating | null;
+  lifespan_years: number | null;
+  finish_type: string | null;
+  maintenance_frequency: string | null;
+  quality_tier: FinishQuality;
+  is_available: boolean;
+  region: string | null;
+  is_active: boolean;
+  sort_order: number;
+  currency: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbTimelineTemplate {
+  id: string;
+  name: string;
+  project_type: ProjectType;
+  description: string | null;
+  phases: TimelineTemplatePhase[];
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TimelineTemplatePhase {
+  phase: TimelinePhase;
+  name: string;
+  days: number;
+  depends_on: string | null;
+}
+
+export interface DbQuotationSettings {
+  id: string;
+  company_name: string | null;
+  company_logo_url: string | null;
+  company_address: string | null;
+  company_phone: string | null;
+  company_email: string | null;
+  default_terms_conditions: string;
+  default_payment_terms: string;
+  default_validity_days: number;
+  default_markup_percentage: number;
+  default_profit_percentage: number;
+  default_tax_percentage: number;
+  currency: string;
+  currency_symbol: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbWeatherCache {
+  id: string;
+  location: string;
+  forecast_data: Record<string, unknown>;
+  cached_at: string;
+  expires_at: string;
+}

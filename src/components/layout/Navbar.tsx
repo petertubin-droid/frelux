@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Menu, X, Calculator, LogIn, LogOut, User, ChevronDown, Sun, Moon, LayoutDashboard } from 'lucide-react';
+import { Menu, X, Calculator, LogIn, LogOut, User, ChevronDown, Sun, Moon, LayoutDashboard, Building2 } from "lucide-react";
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces } from '@/config/site';
 import { classNames } from '@/lib/utils';
@@ -146,6 +146,10 @@ export default function Navbar() {
                 Sign in
               </Link>
             )}
+            <Link to="/contractor" className="inline-flex items-center gap-1.5 rounded-md bg-purple-50 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-purple-100">
+              <Building2 className="h-3.5 w-3.5" />
+              Contractor
+            </Link>
             <Link to="/paint-calculator" className="btn-primary">
               <Calculator className="h-4 w-4" />
               Get Started
@@ -195,6 +199,10 @@ export default function Navbar() {
             {navWorkspaces.map((workspace) => (
               <MobileNavItem key={workspace.label} workspace={workspace} />
             ))}
+            <Link to="/contractor" className="btn-secondary mt-2 w-full">
+              <Building2 className="h-4 w-4" />
+              Contractor Projects
+            </Link>
             <Link to="/paint-calculator" className="btn-primary mt-3 w-full">
               <Calculator className="h-4 w-4" />
               Get Started

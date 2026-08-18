@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
-  LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Code, Gift,
-  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle,
+  LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift,
+  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -102,6 +102,14 @@ const navModules: NavModule[] = [
     heading: 'Integrations',
     items: [
       { label: 'Integration Center', to: '/admin/studio/integration_center', icon: Plug },
+    ],
+  },
+  {
+    heading: 'Contractor',
+    items: [
+      { label: 'Material Catalog', to: '/admin/material-catalog', icon: Package },
+      { label: 'Timeline Templates', to: '/admin/timeline-templates', icon: Calendar },
+      { label: 'Quotation Settings', to: '/admin/quotation-settings', icon: FileSignature },
     ],
   },
   {

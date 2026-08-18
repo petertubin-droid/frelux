@@ -39,6 +39,14 @@ const MyProjects = lazy(() => import('@/pages/MyProjects'));
 const SharedProject = lazy(() => import('@/pages/SharedProject'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 
+// Contractor experience pages
+const ContractorProjects = lazy(() => import('@/pages/contractor/ContractorProjects'));
+const ProjectWizard = lazy(() => import('@/components/contractor/ProjectWizard'));
+const ProjectDashboard = lazy(() => import('@/pages/contractor/ProjectDashboard'));
+const AdminMaterialCatalog = lazy(() => import('@/pages/admin/AdminMaterialCatalog'));
+const AdminTimelineTemplates = lazy(() => import('@/pages/admin/AdminTimelineTemplates'));
+const AdminQuotationSettings = lazy(() => import('@/pages/admin/AdminQuotationSettings'));
+
 // Admin pages — all lazy-loaded to keep the public bundle small
 const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/components/admin/AdminLayout'));
@@ -132,6 +140,11 @@ export default function App() {
             {/* Dashboard */}
             <Route path="/dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
 
+            {/* Contractor Experience */}
+            <Route path="/contractor" element={<Suspense fallback={<PageLoader />}><ContractorProjects /></Suspense>} />
+            <Route path="/contractor/wizard" element={<Suspense fallback={<PageLoader />}><ProjectWizard /></Suspense>} />
+            <Route path="/contractor/projects/:id" element={<Suspense fallback={<PageLoader />}><ProjectDashboard /></Suspense>} />
+
             {/* Learn workspace */}
             <Route path="/learn" element={<Suspense fallback={<PageLoader />}><Learn /></Suspense>} />
             <Route path="/learn/category/:categorySlug" element={<Suspense fallback={<PageLoader />}><LearnCategory /></Suspense>} />
@@ -210,6 +223,11 @@ export default function App() {
 
             {/* Error Monitor */}
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
+
+            {/* Contractor Config */}
+            <Route path="material-catalog" element={<Suspense fallback={<PageLoader />}><AdminMaterialCatalog /></Suspense>} />
+            <Route path="timeline-templates" element={<Suspense fallback={<PageLoader />}><AdminTimelineTemplates /></Suspense>} />
+            <Route path="quotation-settings" element={<Suspense fallback={<PageLoader />}><AdminQuotationSettings /></Suspense>} />
 
             {/* SEO */}
             <Route path="seo" element={<AdminSeo />} />
