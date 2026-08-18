@@ -16,6 +16,22 @@ import { Link } from 'react-router-dom';
 type Tab = 'colors' | 'palettes';
 type Status = 'loading' | 'error' | 'ready';
 
+// Representative colors for each family (for the chart)
+const familySwatchColors: Record<string, string> = {
+  'White': '#F5F5F0',
+  'Black': '#1A1A1A',
+  'Gray': '#8C8C8C',
+  'Beige': '#E3D5B5',
+  'Blue': '#1B3A5C',
+  'Green': '#2C4A3E',
+  'Brown': '#6F4E37',
+  'Red': '#9E1B32',
+  'Yellow': '#EAB308',
+  'Orange': '#C97B5A',
+  'Purple': '#5C2E5A',
+  'Pink': '#F8C8DC',
+};
+
 export default function Colors() {
   useSeo({
     title: 'Color Library — Paint Colors & Palettes',
@@ -146,15 +162,15 @@ export default function Colors() {
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Tab switcher */}
-        <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white p-1">
+        <div className="mb-6 inline-flex rounded-xl border border-neutral-200/60 bg-white p-1 shadow-card">
           {(['colors', 'palettes'] as Tab[]).map((t) => (
             <button
               key={t}
               type="button"
               onClick={() => { setTab(t); setPage(1); setStatus('loading'); }}
               className={classNames(
-                'inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all',
-                tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple'
+                'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition-all duration-200',
+                tab === t ? 'bg-brand-purple text-white shadow-sm' : 'text-neutral-600 hover:text-brand-purple'
               )}
             >
               {t === 'colors' ? <Grid3x3 className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
@@ -170,7 +186,7 @@ export default function Colors() {
         )}
 
         {status === 'error' && (
-          <div className="mx-auto max-w-md rounded-xl border border-red-200 bg-red-50 p-8 text-center">
+          <div className="mx-auto max-w-md rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
             <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
             <p className="mt-3 text-sm font-semibold text-red-700">Couldn't load colors</p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
@@ -180,6 +196,57 @@ export default function Colors() {
 
         {status === 'ready' && tab === 'colors' && (
           <>
+            {/* Color family chart bar */}
+            {families.length > 0 && !familyId && !query && !filterType && !categoryId && (
+              <div className="mb-8 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-card">
+                <div className="mb-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-display text-sm font-bold text-neutral-900">Color Family Distribution</h3>
+                    <p className="mt-0.5 text-xs text-neutral-400">Click a family to filter</p>
+                  </div>
+                  <span className="text-xs font-semibold text-neutral-400">{totalColors} colors</span>
+                </div>
+                {/* Bar chart */}
+                <div className="flex h-10 overflow-hidden rounded-xl border border-neutral-200/60">
+                  {families.map((f, i) => {
+                    const segmentWidth = `${100 / families.length}%`;
+                    const swatch = familySwatchColors[f.name] || '#CCCCCC';
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => { setFamilyId(f.id); setPage(1); }}
+                        className="group relative h-full transition-all duration-300 hover:flex-grow-[1.5]"
+                        style={{ background: swatch, width: segmentWidth }}
+                        title={f.name}
+                      >
+                        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                          <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">{f.name}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Family labels */}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {families.map((f) => {
+                    const swatch = familySwatchColors[f.name] || '#CCCCCC';
+                    return (
+                      <button
+                        key={f.id}
+                        type="button"
+                        onClick={() => { setFamilyId(f.id); setPage(1); }}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200/60 px-2.5 py-1 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                      >
+                        <span className="h-3 w-3 rounded-full ring-1 ring-black/5" style={{ background: swatch }} />
+                        {f.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Search + filters */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-xs">
@@ -229,7 +296,7 @@ export default function Colors() {
 
             <p className="mt-4 text-sm text-neutral-500">{totalColors} colors found</p>
 
-            {/* Color grid */}
+            {/* Color grid — premium cards */}
             {colors.length > 0 ? (
               <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {colors.map((c) => (
@@ -248,10 +315,10 @@ export default function Colors() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button type="button" disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-semibold text-neutral-600 disabled:opacity-40 hover:bg-neutral-50">Prev</button>
+              <div className="mt-10 flex items-center justify-center gap-2">
+                <button type="button" disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50">Prev</button>
                 <span className="px-3 text-sm text-neutral-500">Page {page} of {totalPages}</span>
-                <button type="button" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-semibold text-neutral-600 disabled:opacity-40 hover:bg-neutral-50">Next</button>
+                <button type="button" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50">Next</button>
               </div>
             )}
           </>
@@ -267,21 +334,23 @@ export default function Colors() {
             {filteredPalettes.length > 0 ? (
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPalettes.map((c) => (
-                  <Link key={c.id} to={`/colors/${c.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
+                  <Link key={c.id} to={`/colors/${c.slug}`} className="group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
                     <div className="relative aspect-[4/3] overflow-hidden">
-                      <img src={c.image_url} alt={c.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
-                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
+                      <img src={c.image_url} alt={c.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
+                      {/* Premium color strip */}
+                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/95 p-3 backdrop-blur-md">
                         {[c.main_color_code, c.secondary_color_code, c.accent_color_code].map((hex) => (
-                          <div key={hex} className="h-6 flex-1 rounded ring-1 ring-black/5" style={{ background: hex }} title={hex} />
+                          <div key={hex} className="h-8 flex-1 rounded-lg ring-1 ring-black/5" style={{ background: hex }} title={hex} />
                         ))}
                       </div>
                     </div>
-                    <div className="p-5">
-                      <h3 className="text-lg font-bold text-brand-navy">{c.title}</h3>
+                    <div className="p-6">
+                      <h3 className="font-display text-lg font-bold text-neutral-900 transition-colors group-hover:text-brand-purple">{c.title}</h3>
                       <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{c.description}</p>
                       <div className="mt-3 flex items-center gap-2">
-                        <span className="rounded-full bg-brand-purple/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple">{c.style}</span>
-                        {c.is_trending && <span className="rounded-full bg-accent-orange/15 px-2.5 py-0.5 text-[11px] font-semibold text-accent-orange">Trending</span>}
+                        <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">{c.style}</span>
+                        {c.is_trending && <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-[11px] font-semibold text-accent-orange">Trending</span>}
+                        {c.is_featured && <span className="rounded-full bg-accent-green/10 px-2.5 py-1 text-[11px] font-semibold text-accent-green">Featured</span>}
                       </div>
                     </div>
                   </Link>
@@ -306,7 +375,7 @@ export default function Colors() {
 function FilterRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-widest text-neutral-400 sm:w-20">{label}</span>
+      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 sm:w-20">{label}</span>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );
@@ -314,7 +383,7 @@ function FilterRow({ label, children }: { label: string; children: ReactNode }) 
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={classNames('rounded-full border px-3 py-1.5 text-xs font-medium transition-all', active ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300 hover:text-brand-purple')}>
+    <button type="button" onClick={onClick} className={classNames('rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200', active ? 'border-brand-purple bg-brand-purple text-white shadow-sm' : 'border-neutral-200/60 bg-white text-neutral-600 hover:border-brand-purple/30 hover:text-brand-purple')}>
       {children}
     </button>
   );
