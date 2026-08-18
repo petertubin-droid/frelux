@@ -7,20 +7,20 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-neutral-50 text-neutral-900 font-sans antialiased;
+    @apply bg-white text-neutral-900 font-sans antialiased;
     overflow-x: hidden;
   }
   * {
     @apply box-border;
   }
-  /* Global focus indicators for keyboard navigation */
+  /* Premium focus indicators */
   a:focus-visible,
   button:focus-visible,
   input:focus-visible,
   select:focus-visible,
   textarea:focus-visible,
   [tabindex]:focus-visible {
-    @apply outline-none ring-2 ring-brand-purple ring-offset-2 rounded;
+    @apply outline-none ring-2 ring-brand-purple/40 ring-offset-2 rounded;
   }
 }
 
@@ -28,7 +28,10 @@
   .text-balance {
     text-wrap: balance;
   }
-  /* Screen reader only — visually hidden but accessible to assistive tech */
+  .font-display {
+    font-family: '"Plus Jakarta Sans"', Inter, system-ui, sans-serif;
+  }
+  /* Screen reader only */
   .sr-only {
     position: absolute;
     width: 1px;
@@ -49,6 +52,28 @@
     clip: auto;
     white-space: normal;
   }
+  /* Premium grid pattern background */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-grid-dark {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  /* Subtle dotted pattern */
+  .bg-dots {
+    background-image: radial-gradient(circle, rgba(124, 58, 237, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple bg-clip-text text-transparent;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -63,29 +88,43 @@
 }
 
 @layer components {
+  /* Primary button — premium, refined */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-purple text-white font-semibold text-sm rounded-lg hover:bg-brand-purple-dark active:scale-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-purple text-white font-semibold text-sm rounded-lg shadow-sm hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:ring-offset-2;
   }
+  /* Secondary button — clean white with subtle border */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-brand-navy border border-neutral-200 font-semibold text-sm rounded-lg hover:bg-neutral-50 hover:border-neutral-300 active:scale-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-neutral-700 border border-neutral-200 font-semibold text-sm rounded-lg hover:bg-neutral-50 hover:border-neutral-300 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:ring-offset-2;
   }
+  /* Outline button — brand accent */
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-brand-purple border border-brand-purple font-semibold text-sm rounded-lg hover:bg-brand-purple hover:text-white active:scale-95 transition-all duration-150;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-brand-purple border border-brand-purple/30 font-semibold text-sm rounded-lg hover:bg-brand-purple hover:text-white hover:border-brand-purple active:scale-[0.98] transition-all duration-200;
   }
+  /* Ghost button — minimal */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-transparent text-neutral-600 font-medium text-sm rounded-lg hover:bg-neutral-100 hover:text-neutral-900 active:scale-[0.98] transition-all duration-200;
+  }
+  /* Input field — premium, refined */
   .input-field {
-    @apply w-full px-3.5 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:border-transparent transition-all duration-150;
+    @apply w-full px-3.5 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all duration-200;
   }
+  /* Premium card — layered shadow, subtle border */
   .card {
-    @apply bg-white border border-neutral-200 rounded-xl shadow-sm;
+    @apply bg-white border border-neutral-200/80 rounded-xl shadow-card;
   }
+  /* Section label — premium eyebrow */
   .section-label {
-    @apply text-xs font-semibold uppercase tracking-widest text-brand-purple;
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple;
   }
   .section-title {
-    @apply text-2xl sm:text-3xl font-bold text-brand-navy leading-tight;
+    @apply font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-900 leading-[1.15] tracking-tight;
   }
   .section-subtitle {
     @apply text-base text-neutral-500 leading-relaxed;
+  }
+  /* Premium badge */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
 }
 
@@ -136,7 +175,7 @@
 }
 .animate-page-enter { animation: page-enter 0.3s ease-out; }
 
-/* Press feedback for buttons and cards */
+/* Press feedback */
 .press-scale {
   transition: transform 0.1s ease;
 }
@@ -144,61 +183,85 @@
   transform: scale(0.97);
 }
 
-/* Card hover lift */
+/* Card hover lift — subtle and premium */
 .card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 .card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-color: rgba(124, 58, 237, 0.2);
 }
 
 /* =========================================================
-   Refined Dark Mode — Professional, not neon
+   Refined Dark Mode — Professional, premium
    ========================================================= */
 
 .dark body {
-  background-color: #0f172a;
-  color: #e2e8f0;
+  background-color: #0B1120;
+  color: #E4E4E7;
 }
 
 .dark .card {
-  background-color: #1e293b;
-  border-color: #334155;
+  background-color: #1A2332;
+  border-color: #2A3447;
 }
 
 .dark .btn-primary {
-  background-color: #7c3aed;
+  background-color: #7C3AED;
 }
 
 .dark .btn-primary:hover {
-  background-color: #6d28d9;
+  background-color: #6D28D9;
 }
 
 .dark .btn-secondary {
-  background-color: #1e293b;
-  border-color: #334155;
-  color: #e2e8f0;
+  background-color: #1A2332;
+  border-color: #2A3447;
+  color: #E4E4E7;
 }
 
 .dark .btn-secondary:hover {
-  background-color: #334155;
-  border-color: #475569;
+  background-color: #2A3447;
+  border-color: #3F3F46;
+}
+
+.dark .btn-outline {
+  color: #A78BFA;
+  border-color: rgba(167, 139, 250, 0.3);
+}
+
+.dark .btn-outline:hover {
+  background-color: #7C3AED;
+  color: #fff;
+  border-color: #7C3AED;
 }
 
 .dark .input-field {
-  background-color: #1e293b;
-  border-color: #334155;
-  color: #e2e8f0;
+  background-color: #1A2332;
+  border-color: #2A3447;
+  color: #E4E4E7;
 }
 
 .dark .input-field:focus {
-  border-color: #7c3aed;
+  border-color: #7C3AED;
+}
+
+.dark .section-title {
+  color: #FAFAFA;
+}
+
+.dark .section-label {
+  color: #A78BFA;
+}
+
+.dark .btn-secondary {
+  color: #E4E4E7;
 }
 
 /* Active nav indicator */
 .dark .nav-active {
-  border-left: 2px solid #7c3aed;
+  border-left: 2px solid #7C3AED;
 }
 
 /* Scrollbar */
@@ -207,16 +270,16 @@
 }
 
 .dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #0B1120;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #2A3447;
   border-radius: 3px;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3F3F46;
 }
 
 /* Respect reduced motion */

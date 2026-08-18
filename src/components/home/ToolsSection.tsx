@@ -62,33 +62,33 @@ const tools = [
 
 export default function ToolsSection() {
   return (
-    <section className="bg-neutral-50 py-16 sm:py-20">
+    <section className="bg-white py-20 sm:py-24">
       <SectionHeading
         label="Main tools"
         title="Your complete project workflow"
         subtitle="Follow these steps in order — from measuring your walls to choosing the perfect colors."
         align="center"
       />
-      <Container className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <Container className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => {
           const Icon = tool.icon;
           return (
             <Link
               key={tool.title}
               to={tool.to}
-              className="group relative flex flex-col rounded-xl border border-neutral-200 bg-white p-7 transition-all hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-lg"
+              className="card-hover group relative flex flex-col rounded-xl border border-neutral-200/80 bg-white p-6 lg:p-7"
             >
-              <div className="flex items-center gap-3">
-                <span className={`inline-flex h-12 w-12 items-center justify-center rounded-lg ${tool.accent}`}>
+              <div className="flex items-center justify-between">
+                <span className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${tool.accent}`}>
                   <Icon className="h-6 w-6" />
                 </span>
-                <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-neutral-100 text-sm font-bold text-neutral-500">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-50 text-sm font-bold text-neutral-400 ring-1 ring-neutral-200/60">
                   {tool.step}
                 </span>
               </div>
-              <h3 className="mt-5 text-lg font-bold text-brand-navy">{tool.title}</h3>
+              <h3 className="mt-5 font-display text-lg font-bold text-neutral-900">{tool.title}</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500">{tool.description}</p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-transform group-hover:gap-2.5">
+              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5">
                 {tool.action}
                 <ArrowRight className="h-4 w-4" />
               </span>

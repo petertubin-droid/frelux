@@ -24,7 +24,7 @@ export default function TrendingColors() {
   if (trending.length === 0 && featured.length === 0 && recent.length === 0) return null;
 
   return (
-    <section className="bg-white py-16 sm:py-20">
+    <section className="bg-white py-20 sm:py-24">
       <SectionHeading
         label="Color inspiration"
         title="Trending & featured colors"
@@ -32,7 +32,7 @@ export default function TrendingColors() {
         align="center"
       />
 
-      <Container className="mt-12 space-y-12">
+      <Container className="mt-14 space-y-14">
         {/* Trending */}
         {trending.length > 0 && (
           <ColorRow icon={TrendingUp} title="Trending Colors" colors={trending} />
@@ -49,7 +49,7 @@ export default function TrendingColors() {
         )}
 
         <div className="text-center">
-          <Link to="/colors" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95">
+          <Link to="/colors" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98]">
             Browse all colors <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -61,17 +61,30 @@ export default function TrendingColors() {
 function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; title: string; colors: DbPaintColor[] }) {
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
-        <Icon className="h-5 w-5 text-brand-purple" />
-        <h3 className="text-lg font-bold text-brand-navy">{title}</h3>
+      <div className="mb-5 flex items-center gap-2.5">
+        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/8 text-brand-purple">
+          <Icon className="h-5 w-5" />
+        </span>
+        <h3 className="font-display text-lg font-bold text-neutral-900">{title}</h3>
       </div>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         {colors.map((c) => (
-          <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-md">
+          <Link
+            key={c.id}
+            to={`/colors/paint/${c.slug}`}
+            className="card-hover group overflow-hidden rounded-lg border border-neutral-200/80 bg-white"
+          >
             <div className="aspect-square" style={{ background: c.hex_code }}>
-              <span className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-70" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
+              <span
+                className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-70"
+                style={{ color: readableTextColor(c.hex_code) }}
+              >
+                {c.hex_code}
+              </span>
             </div>
-            <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p></div>
+            <div className="p-2.5">
+              <p className="truncate text-xs font-semibold text-neutral-900">{c.name}</p>
+            </div>
           </Link>
         ))}
       </div>

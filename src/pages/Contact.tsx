@@ -141,7 +141,7 @@ export default function Contact() {
           {/* Support info */}
           <div className="lg:col-span-2">
             <div className="card p-6 sm:p-8">
-              <h2 className="text-lg font-bold text-brand-navy">Other ways to reach us</h2>
+              <h2 className="font-display text-lg font-bold text-neutral-900">Other ways to reach us</h2>
               <ul className="mt-4 space-y-4 text-sm">
                 <li>
                   <a
@@ -155,7 +155,7 @@ export default function Contact() {
                       <MessageCircle className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block font-semibold text-brand-navy">WhatsApp</span>
+                      <span className="block font-semibold text-neutral-900">WhatsApp</span>
                       <span className="block text-neutral-500">{siteConfig.whatsappDisplay}</span>
                     </span>
                   </a>
@@ -165,7 +165,7 @@ export default function Contact() {
                     <Mail className="h-4 w-4" />
                   </span>
                   <span>
-                    <span className="block font-semibold text-brand-navy">Email</span>
+                    <span className="block font-semibold text-neutral-900">Email</span>
                     <span className="block text-neutral-500">{siteConfig.email}</span>
                   </span>
                 </li>

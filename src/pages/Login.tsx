@@ -70,14 +70,21 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4 py-10">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 flex justify-center"><Logo /></div>
-        <div className="card p-6 sm:p-8">
-          <h1 className="text-xl font-bold text-brand-navy">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10">
+      {/* Subtle grid pattern background */}
+      <div className="pointer-events-none absolute inset-0 bg-grid" aria-hidden="true" />
+      {/* Soft radial glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/8 blur-[120px]" aria-hidden="true" />
+
+      <div className="relative w-full max-w-sm animate-fade-in-up">
+        <div className="mb-6 flex justify-center">
+          <Logo />
+        </div>
+        <div className="card p-6 shadow-premium sm:p-8">
+          <h1 className="font-display text-xl font-bold text-neutral-900">
             {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1.5 text-sm text-neutral-500">
             {mode === 'signin'
               ? 'Sign in to access AI features and your account.'
               : mode === 'signup'

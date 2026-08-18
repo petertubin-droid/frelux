@@ -26,66 +26,68 @@ export default function ColorPreview() {
   }
 
   return (
-    <section className="bg-white py-16 sm:py-20">
-      <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-        <SectionHeading
-          label="Color ideas"
-          title="Find colors that fit your space"
-          subtitle="Browse curated palettes for every room and style, from calm neutrals to bold statements."
-        />
-        <Link to="/colors" className="btn-outline shrink-0">
-          View all colors
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-
-      <Container className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {loading && (
-          <div className="col-span-full flex items-center justify-center gap-2 py-12 text-sm text-neutral-400">
-            <Loader2 className="h-5 w-5 animate-spin" /> Loading color palettes…
-          </div>
-        )}
-        {!loading && combinations.length === 0 && (
-          <div className="col-span-full py-12 text-center text-sm text-neutral-400">
-            No color combinations published yet.
-          </div>
-        )}
-        {combinations.map((c) => (
-          <Link
-            key={c.id}
-            to={`/colors/${c.slug}`}
-            className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden">
-              <img
-                src={c.image_url}
-                alt={c.title}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                loading="lazy"
-              />
-              <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
-                {[c.main_color_code, c.secondary_color_code, c.accent_color_code].map((hex) => (
-                  <div
-                    key={hex}
-                    className="h-6 flex-1 rounded ring-1 ring-black/5"
-                    style={{ background: hex }}
-                    title={hex}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="p-5">
-              {(c.category_ids ?? []).length > 0 && (
-                <p className="text-xs font-semibold uppercase tracking-widest text-brand-purple">
-                  {catName(c.category_ids[0])}
-                </p>
-              )}
-              <h3 className="mt-1.5 text-lg font-bold text-brand-navy">{c.title}</h3>
-              <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{c.description}</p>
-            </div>
+    <section className="bg-neutral-50/50 py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+          <SectionHeading
+            label="Color ideas"
+            title="Find colors that fit your space"
+            subtitle="Browse curated palettes for every room and style, from calm neutrals to bold statements."
+          />
+          <Link to="/colors" className="btn-outline shrink-0">
+            View all colors
+            <ArrowRight className="h-4 w-4" />
           </Link>
-        ))}
-      </Container>
+        </div>
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {loading && (
+            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400">
+              <Loader2 className="h-5 w-5 animate-spin" /> Loading color palettes…
+            </div>
+          )}
+          {!loading && combinations.length === 0 && (
+            <div className="col-span-full py-16 text-center text-sm text-neutral-400">
+              No color combinations published yet.
+            </div>
+          )}
+          {combinations.map((c) => (
+            <Link
+              key={c.id}
+              to={`/colors/${c.slug}`}
+              className="card-hover group overflow-hidden rounded-xl border border-neutral-200/80 bg-white"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img
+                  src={c.image_url}
+                  alt={c.title}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2.5 backdrop-blur-sm">
+                  {[c.main_color_code, c.secondary_color_code, c.accent_color_code].map((hex) => (
+                    <div
+                      key={hex}
+                      className="h-7 flex-1 rounded ring-1 ring-black/5"
+                      style={{ background: hex }}
+                      title={hex}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="p-5">
+                {(c.category_ids ?? []).length > 0 && (
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
+                    {catName(c.category_ids[0])}
+                  </p>
+                )}
+                <h3 className="mt-1.5 font-display text-lg font-bold text-neutral-900">{c.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{c.description}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

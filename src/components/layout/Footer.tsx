@@ -45,8 +45,8 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-neutral-200 bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+    <footer className="border-t border-neutral-200/80 bg-neutral-50/50">
+      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
@@ -72,7 +72,7 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-neutral-200 pt-6 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/80 pt-6 sm:flex-row">
           <p className="text-xs text-neutral-400">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
@@ -88,11 +88,11 @@ export default function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
   return (
     <div>
-      <h3 className="text-sm font-semibold text-brand-navy">{title}</h3>
-      <ul className="mt-4 space-y-2">
+      <h3 className="text-sm font-semibold text-neutral-900">{title}</h3>
+      <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>
-            <Link to={link.path} className="text-sm text-neutral-500 hover:text-brand-purple">
+            <Link to={link.path} className="text-sm text-neutral-500 transition-colors hover:text-brand-purple">
               {link.label}
             </Link>
           </li>

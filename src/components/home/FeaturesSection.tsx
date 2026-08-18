@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShieldCheck, Ruler, Palette, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Ruler, Palette, TrendingUp, ArrowRight } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 
@@ -28,32 +28,41 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="bg-brand-navy py-16 text-white sm:py-20">
+    <section className="relative overflow-hidden bg-brand-navy py-20 text-white sm:py-24">
+      {/* Grid pattern */}
+      <div className="pointer-events-none absolute inset-0 bg-grid-dark" aria-hidden="true" />
+      {/* Subtle glow */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/15 blur-[100px]" aria-hidden="true" />
+
       <SectionHeading
         label="Why FRELUX"
         title="Tools that respect your time and budget"
         subtitle="Everything you need to plan a paint project with confidence, in one focused place."
         align="center"
-        className="[&_.section-label]:text-accent-yellow [&_.section-title]:text-white [&_.section-subtitle]:text-white/60"
+        className="[&_.section-label]:text-brand-purple-light [&_.section-title]:text-white [&_.section-subtitle]:text-white/50"
       />
-      <Container className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <Container className="relative mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         {features.map((f) => {
           const Icon = f.icon;
           return (
-            <div key={f.title}>
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-white/10">
-                <Icon className="h-5 w-5 text-accent-cyan" />
+            <div key={f.title} className="group">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/10 group-hover:ring-white/20">
+                <Icon className="h-5 w-5 text-brand-purple-light" />
               </span>
-              <h3 className="mt-4 text-base font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/60">{f.description}</p>
+              <h3 className="mt-4 font-display text-base font-bold">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-white/50">{f.description}</p>
             </div>
           );
         })}
       </Container>
 
-      <Container className="mt-12 text-center">
-        <Link to="/paint-calculator" className="btn-primary bg-white text-brand-purple hover:bg-neutral-100">
+      <Container className="relative mt-14 text-center">
+        <Link
+          to="/paint-calculator"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-brand-navy shadow-lg transition-all hover:bg-neutral-100 hover:shadow-xl active:scale-[0.98]"
+        >
           Start planning
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </Container>
     </section>

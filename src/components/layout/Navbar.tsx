@@ -49,8 +49,8 @@ export default function Navbar() {
       className={classNames(
         'sticky top-0 z-40 w-full transition-all duration-200',
         scrolled
-          ? 'bg-white/90 backdrop-blur border-b border-neutral-200 shadow-sm'
-          : 'bg-white border-b border-transparent'
+          ? 'bg-white/80 backdrop-blur-lg border-b border-neutral-200/80 shadow-sm'
+          : 'bg-white/60 backdrop-blur-md border-b border-transparent'
       )}
     >
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">

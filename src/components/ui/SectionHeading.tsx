@@ -25,7 +25,12 @@ export default function SectionHeading({
         className
       )}
     >
-      {label && <p className="section-label mb-3">{label}</p>}
+      {label && (
+        <p className="section-label mb-3">
+          <span className="h-1 w-1 rounded-full bg-brand-purple" />
+          {label}
+        </p>
+      )}
       <h2 className="section-title text-balance">{title}</h2>
       {subtitle && <p className="section-subtitle mt-4 text-balance">{subtitle}</p>}
     </Container>

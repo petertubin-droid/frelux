@@ -22,8 +22,8 @@ export default function AdminBranding() {
   const [darkLogo, setDarkLogo] = useState<string | null>(null);
   const [favicon, setFavicon] = useState<string | null>(null);
   const [pwaIcon, setPwaIcon] = useState<string | null>(null);
-  const [primaryColor, setPrimaryColor] = useState('#6B21A8');
-  const [secondaryColor, setSecondaryColor] = useState('#0F172A');
+  const [primaryColor, setPrimaryColor] = useState('#7C3AED');
+  const [secondaryColor, setSecondaryColor] = useState('#0B1120');
   const [accentColor, setAccentColor] = useState('#F97316');
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export default function AdminBranding() {
           <Palette className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy">Brand Colors</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400">These colors are applied as CSS variables across the site. Use hex codes (e.g. #6B21A8).</p>
+        <p className="mt-1 text-xs text-neutral-400">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
