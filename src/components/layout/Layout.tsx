@@ -46,10 +46,10 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen w-full flex-col">
       <a href="#main-content" className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">Skip to main content</a>
       <Navbar />
-      <main id="main-content" className="flex-1 pb-16 md:pb-0" role="main">
+      <main id="main-content" className="w-full flex-1 pb-16 md:pb-0" role="main">
         <Outlet />
       </main>
       <Footer />

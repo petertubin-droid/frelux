@@ -29,16 +29,11 @@ if (typeof window !== 'undefined') {
   window.addEventListener('load', () => {
     setTimeout(() => {
       const badge = document.createElement('div');
-      badge.style.cssText = 'position:fixed;top:0;left:0;z-index:999999;background:red;color:white;font:11px monospace;padding:4px;max-width:100vw;white-space:pre-wrap;';
-      const iw = document.documentElement.clientWidth;
-      const offenders = [];
-      document.querySelectorAll('*').forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.right > iw + 1 && el.tagName !== 'HTML' && el.tagName !== 'BODY') {
-          offenders.push(`${el.tagName}.${(el.className||'').toString().slice(0,40)} right:${Math.round(r.right)}`);
-        }
-      });
-      badge.textContent = `iw:${iw}\n` + offenders.slice(0, 8).join('\n');
+      badge.style.cssText = 'position:fixed;top:0;left:0;z-index:999999;background:red;color:white;font:12px monospace;padding:4px;';
+      const dw = document.documentElement.scrollWidth;
+      const iw = window.innerWidth;
+      const bw = document.body.scrollWidth;
+      badge.textContent = `iw:${iw} dw:${dw} bw:${bw} diff:${dw - iw}`;
       document.body.appendChild(badge);
     }, 800);
   });
