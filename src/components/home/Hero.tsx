@@ -124,7 +124,7 @@ export default function Hero() {
             {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10">
               <img
-                src="https://images.pexels.com/photos/6438713/pexels-photo-6438713.jpeg?auto=compress&cs=tinysrgb&w=900"
+                src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900"
                 alt="Painter rolling fresh color onto a wall"
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
