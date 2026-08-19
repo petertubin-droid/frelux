@@ -23,3 +23,18 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
     });
   });
 }
+
+// TEMP DEBUG — remove after diagnosing width overflow
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const badge = document.createElement('div');
+      badge.style.cssText = 'position:fixed;top:0;left:0;z-index:999999;background:red;color:white;font:12px monospace;padding:4px;';
+      const dw = document.documentElement.scrollWidth;
+      const iw = window.innerWidth;
+      const bw = document.body.scrollWidth;
+      badge.textContent = `iw:${iw} dw:${dw} bw:${bw} diff:${dw - iw}`;
+      document.body.appendChild(badge);
+    }, 800);
+  });
+}
