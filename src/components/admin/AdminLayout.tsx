@@ -56,6 +56,17 @@ const navModules: NavModule[] = [
     ],
   },
   {
+    heading: 'Estimation Engine',
+    items: [
+      { label: 'Products', to: '/admin/estimation-products', icon: Layers },
+      { label: 'Materials', to: '/admin/estimation-materials', icon: Layers },
+      { label: 'Config & Rules', to: '/admin/estimation-config', icon: Settings },
+      { label: 'Pricing', to: '/admin/estimation-pricing', icon: DollarSign },
+      { label: 'Estimates', to: '/admin/estimation-estimates', icon: FileText },
+      { label: 'Audit Log', to: '/admin/estimation-audit', icon: ShieldCheck },
+    ],
+  },
+  {
     heading: 'Calculators',
     items: [
       { label: 'Paint Calculator', to: '/admin/paint-types', icon: Calculator },

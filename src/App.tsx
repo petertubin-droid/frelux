@@ -53,6 +53,12 @@ const AdminLogin = lazy(() => import('@/pages/admin/AdminLogin'));
 const AdminLayout = lazy(() => import('@/components/admin/AdminLayout'));
 const RequireAdmin = lazy(() => import('@/components/admin/RequireAdmin'));
 const AdminOverview = lazy(() => import('@/pages/admin/AdminOverview'));
+const AdminEstimationConfig = lazy(() => import('@/pages/admin/AdminEstimationConfig'));
+const AdminEstimationProducts = lazy(() => import('@/pages/admin/AdminEstimationProducts'));
+const AdminEstimationMaterials = lazy(() => import('@/pages/admin/AdminEstimationMaterials'));
+const AdminEstimationPricing = lazy(() => import('@/pages/admin/AdminEstimationPricing'));
+const AdminEstimationEstimates = lazy(() => import('@/pages/admin/AdminEstimationEstimates'));
+const AdminEstimationAudit = lazy(() => import('@/pages/admin/AdminEstimationAudit'));
 const AdminPaintTypes = lazy(() => import('@/pages/admin/AdminPaintTypes'));
 const AdminPricing = lazy(() => import('@/pages/admin/AdminPricing'));
 const AdminLabourSettings = lazy(() => import('@/pages/admin/AdminLabourSettings'));
@@ -202,6 +208,12 @@ export default function App() {
             <Route path="media" element={<AdminMedia />} />
 
             {/* Calculators */}
+            <Route path="estimation-config" element={<AdminEstimationConfig />} />
+            <Route path="estimation-products" element={<AdminEstimationProducts />} />
+            <Route path="estimation-materials" element={<AdminEstimationMaterials />} />
+            <Route path="estimation-pricing" element={<AdminEstimationPricing />} />
+            <Route path="estimation-estimates" element={<AdminEstimationEstimates />} />
+            <Route path="estimation-audit" element={<AdminEstimationAudit />} />
             <Route path="paint-types" element={<AdminPaintTypes />} />
             <Route path="screeding" element={<AdminScreedingMaterials />} />
             <Route path="pop-materials" element={<AdminPopMaterials />} />
