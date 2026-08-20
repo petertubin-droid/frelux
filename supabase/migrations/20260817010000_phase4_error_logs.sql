@@ -46,6 +46,7 @@ ALTER TABLE public.error_logs FORCE ROW LEVEL SECURITY;
 -- 3. Admins can SELECT, UPDATE all errors
 -- 4. Anon can INSERT errors (for unauthenticated error reporting)
 
+DROP POLICY IF EXISTS "Anyone can insert error logs" ON error_logs;
 CREATE POLICY "Anyone can insert error logs"
   ON public.error_logs FOR INSERT
   TO anon, authenticated
