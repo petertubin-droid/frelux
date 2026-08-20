@@ -423,7 +423,7 @@ export default function TyroleneEstimator() {
       <PageHeader
         title="Tyrolene Estimator"
         subtitle="Partition-based exterior finishing calculator: FRELUX production methodology"
-        breadcrumbs={[{ label: 'Tyrolene Estimator' }]}
+        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Tyrolene Estimator' }]}
       />
 
       <Container className="py-8 space-y-6 max-w-4xl">

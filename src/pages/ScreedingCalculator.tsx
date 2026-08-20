@@ -129,7 +129,7 @@ export default function ScreedingCalculator() {
         eyebrow="Tool"
         title="Wall Screeding Calculator"
         subtitle="Calculate the exact wall surface area that needs screeding, with door and window openings deducted."
-        breadcrumbs={[{ label: 'Screeding Calculator' }]}
+        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Screeding Calculator' }]}
         useCalcTitle
       />
 

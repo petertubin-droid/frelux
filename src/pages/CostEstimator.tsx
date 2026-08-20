@@ -248,7 +248,7 @@ export default function CostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Cost Estimator' }]} />
+        <PageHeader eyebrow="Tool" title="Paint Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Paint Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading pricing data…
         </div>
@@ -260,10 +260,9 @@ export default function CostEstimator() {
     <>
       <PageHeader
         eyebrow="Tool"
-        title="Cost Estimator"
+        title="Paint Cost Estimator"
         subtitle="Get a practical estimate for materials and painting labor. Prices are editable so you can match local rates."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Paint Cost Estimator' }]}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">

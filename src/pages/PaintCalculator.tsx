@@ -314,7 +314,7 @@ export default function PaintCalculator() {
         eyebrow="Tool"
         title="Paint Calculator"
         subtitle="Estimate how much paint your project may require, step by step."
-        breadcrumbs={[{ label: 'Paint Calculator' }]}
+        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Paint Calculator' }]}
         useCalcTitle
       />
 

@@ -7,7 +7,7 @@ import AnalyticsScripts from '@/components/AnalyticsScripts';
 import { AdBlockNotice } from '@/components/ui/AdBlockNotice';
 import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
-import Colors from '@/pages/Colors';
+const Colors = lazy(() => import('@/pages/Colors'));
 import NotFound from '@/pages/NotFound';
 import Login from '@/pages/Login';
 import ErrorBoundary from '@/components/ErrorBoundary';
@@ -149,7 +149,7 @@ export default function App() {
             <Route path="/tyrolene-estimator" element={<Suspense fallback={<PageLoader />}><TyroleneEstimator /></Suspense>} />
 
             {/* Colors workspace */}
-            <Route path="/colors" element={<Colors />} />
+            <Route path="/colors" element={<Suspense fallback={<PageLoader />}><Colors /></Suspense>} />
             <Route path="/colors/compare" element={<Suspense fallback={<PageLoader />}><CompareColors /></Suspense>} />
             <Route path="/colors/paint/:slug" element={<Suspense fallback={<PageLoader />}><PaintColorDetail /></Suspense>} />
             <Route path="/colors/:slug" element={<Suspense fallback={<PageLoader />}><ColorDetail /></Suspense>} />

@@ -23,7 +23,7 @@ export default function Logo({ className, variant = 'full', light = false }: Log
   return (
     <span className={classNames('inline-flex items-center gap-2.5', className)}>
       {logoUrl ? (
-        <img src={logoUrl} alt={displayName} className="h-9 w-auto shrink-0" />
+        <img src={logoUrl} alt={displayName} width={36} height={36} className="h-9 w-auto shrink-0" />
       ) : (
         <LogoMark className="h-9 w-auto shrink-0" />
       )}
@@ -46,6 +46,8 @@ export function LogoMark({ className }: { className?: string }) {
     <img
       src="/logo-mark.png"
       alt={`${siteConfig.name} logo`}
+      width={36}
+      height={36}
       className={className}
     />
   );

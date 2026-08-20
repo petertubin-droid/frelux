@@ -125,6 +125,14 @@ const routes = [
     description: 'Estimate the cost of wall screeding based on your wall area and current material prices. Cement, sand, and labour cost breakdown.',
     priority: '0.8',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Screeding Cost Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Cost Estimators', item: `${SITE_URL}/cost-estimator` },
+        { '@type': 'ListItem', position: 3, name: 'Screeding Cost Estimator', item: `${SITE_URL}/screeding-cost-estimator` },
+      ]},
+    ],
   },
   {
     path: '/pop-ceiling-cost-estimator',
@@ -132,6 +140,14 @@ const routes = [
     description: 'Estimate the cost of your POP ceiling project. POP cement, mesh, and other material costs based on your ceiling area.',
     priority: '0.8',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX POP Ceiling Cost Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Cost Estimators', item: `${SITE_URL}/cost-estimator` },
+        { '@type': 'ListItem', position: 3, name: 'POP Ceiling Cost Estimator', item: `${SITE_URL}/pop-ceiling-cost-estimator` },
+      ]},
+    ],
   },
   {
     path: '/tile-cost-estimator',
@@ -139,6 +155,14 @@ const routes = [
     description: 'Estimate tiling project cost. Tile, adhesive, grout, and labour costs based on your tile area and current prices.',
     priority: '0.8',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tile Cost Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+        { '@type': 'ListItem', position: 2, name: 'Cost Estimators', item: `${SITE_URL}/cost-estimator` },
+        { '@type': 'ListItem', position: 3, name: 'Tile Cost Estimator', item: `${SITE_URL}/tile-cost-estimator` },
+      ]},
+    ],
   },
   {
     path: '/finish-estimator',

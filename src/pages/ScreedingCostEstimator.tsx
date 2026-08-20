@@ -62,14 +62,33 @@ export default function ScreedingCostEstimator() {
       'Estimate wall screeding costs with real-world mix calculations. Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, VAT, and a professional quotation.',
     canonicalPath: '/screeding-cost-estimator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Wall Screeding Cost Estimator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'FRELUX Wall Screeding Cost Estimator',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Cost Estimators', item: 'https://freluxpaintcalc.com/cost-estimator' },
+          { '@type': 'ListItem', position: 3, name: 'Screeding Cost Estimator', item: 'https://freluxpaintcalc.com/screeding-cost-estimator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'How much does wall screeding cost?', acceptedAnswer: { '@type': 'Answer', text: 'Wall screeding cost depends on the area, mix ratio, and current material prices. Use the FRELUX Screeding Cost Estimator to calculate the total cost of screeding paint, white cement, and bonding agents.' } },
+          { '@type': 'Question', name: 'What materials are needed for wall screeding?', acceptedAnswer: { '@type': 'Answer', text: 'Screeding paint (20L buckets), white cement (40kg bags), bonding agents, and optionally fibreglass mesh for large wall areas.' } },
+        ],
+      },
+    ],
   });
 
   const location = useLocation();
@@ -119,7 +138,7 @@ export default function ScreedingCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." breadcrumbs={[{ label: 'Screeding Cost Estimator' }]} />
+        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Screeding Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading configuration…
         </div>
@@ -135,8 +154,7 @@ export default function ScreedingCostEstimator() {
         eyebrow="Tool"
         title="Screeding Cost Estimator"
         subtitle="Real world screeding cost: Screeding Paint (20L buckets) + White Cement (40kg bags), waste, and VAT. Labour not included."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Screeding Cost Estimator' }]}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">

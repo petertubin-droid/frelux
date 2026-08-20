@@ -497,7 +497,7 @@ export default function PaintingEstimator() {
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
           subtitle="Professional room-based paint quantity and cost estimation."
-        breadcrumbs={[{ label: 'Painting Estimator' }]}
+        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="flex items-center justify-center gap-3 text-neutral-500">
@@ -516,7 +516,7 @@ export default function PaintingEstimator() {
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
           subtitle="Professional room-based paint quantity and cost estimation."
-        breadcrumbs={[{ label: 'Painting Estimator' }]}
+        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
@@ -535,7 +535,7 @@ export default function PaintingEstimator() {
         eyebrow="FRELUX Estimator"
         title="Painting Estimator"
         subtitle="Professional room-based paint quantity and cost estimation using FRELUX methodology."
-      breadcrumbs={[{ label: 'Painting Estimator' }]}
+      breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
       />
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         {/* Configuration warnings */}

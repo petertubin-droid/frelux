@@ -61,6 +61,8 @@ export default function ColorPreview() {
                 <img
                   src={c.image_url}
                   alt={c.title}
+                  width={400}
+                  height={300}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
