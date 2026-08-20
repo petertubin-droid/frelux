@@ -8,6 +8,9 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://freluxpaintcalc.com" />
+
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta http-equiv="X-Frame-Options" content="DENY" />
@@ -15,43 +18,67 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
 
     <!-- Primary SEO Meta -->
-    <meta name="description" content="FRELUX PAINT CALC - Calculate paint requirements, estimate painting costs, and discover colors that transform your space." />
+    <meta name="description" content="FRELUX PAINT CALC — Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes." />
     <meta name="author" content="FRELUX PAINT CALC" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="keywords" content="paint calculator, paint cost estimator, screeding calculator, wall paint calculator, paint quantity calculator, paint color assistant, tile calculator, POP ceiling calculator, construction cost estimator, paint estimation tool, frelux" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="3 days" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
     <meta name="theme-color" content="#7C3AED" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0A0A1A" media="(prefers-color-scheme: dark)" />
+
+    <!-- Mobile Web App Meta -->
+    <meta name="application-name" content="FRELUX PAINT CALC" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="FRELUX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#6D28D9" />
+    <meta name="msapplication-tap-highlight" content="no" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FRELUX PAINT CALC" />
-    <meta property="og:title" content="FRELUX PAINT CALC" />
-    <meta property="og:description" content="Calculate what you need, estimate what it may cost, and discover colors that transform your space." />
+    <meta property="og:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
+    <meta property="og:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate estimates and curated colors." />
     <meta property="og:url" content="https://freluxpaintcalc.com" />
     <meta property="og:image" content="https://freluxpaintcalc.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="FRELUX PAINT CALC — Paint calculators, cost estimators, and AI color tools" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="en_GB" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="FRELUX PAINT CALC" />
-    <meta name="twitter:description" content="Calculate what you need, estimate what it may cost, and discover colors that transform your space." />
+    <meta name="twitter:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
+    <meta name="twitter:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant." />
     <meta name="twitter:image" content="https://freluxpaintcalc.com/og-image.png" />
+    <meta name="twitter:image:alt" content="FRELUX PAINT CALC — Paint calculators and AI color tools" />
 
-    <!-- DNS Preconnect — resolve third-party origins early -->
+    <!-- DNS Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://freluxpaintcalc.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://freluxpaintcalc.supabase.co" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
 
-    <!-- Fonts — Inter (body) + Plus Jakarta Sans (display headings) -->
+    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Resource Preloading — hint the most critical assets -->
+    <!-- Resource Preloading -->
     <link rel="preload" href="/favicon-32.png" as="image" type="image/png" />
+    <link rel="preload" href="/manifest.json" as="fetch" crossorigin />
 
     <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
 
@@ -61,19 +88,121 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "FRELUX PAINT CALC",
+      "alternateName": "FRELUX Paint",
       "url": "https://freluxpaintcalc.com",
-      "description": "Calculate paint requirements, estimate painting costs, and discover colors that transform your space.",
+      "description": "Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes.",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
+      "browserRequirements": "Requires JavaScript",
+      "featureList": "Paint Calculator, Screeding Calculator, POP Ceiling Calculator, Tile Calculator, Cost Estimator, AI Color Assistant, Color Library",
       "offers": {
         "@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
+      },
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "Homeowners, Decorators, Contractors"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "FRELUX PAINT CALC",
+        "url": "https://freluxpaintcalc.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://freluxpaintcalc.com/logo-mark.png",
+          "width": 512,
+          "height": 512
+        }
       }
     }
     </script>
 
-    <!-- Inline critical CSS to reduce CLS and improve LCP -->
+    <!-- FAQPage Structured Data -->
+    <script type="application/ld+json" id="faq-structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I calculate how much paint I need?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the FRELUX Paint Calculator: enter your wall dimensions (length, width, height), deduct doors and windows, select the number of coats, and the calculator will estimate paint quantity in litres based on standard coverage rates."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Is the FRELUX paint calculator free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, all FRELUX calculators and cost estimators are completely free. No sign-up is required to use the paint calculator, screeding calculator, or cost estimator."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I estimate the total cost of my painting project?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, the FRELUX Cost Estimator breaks down material costs (paint, primer, tools) and optional labour costs to give you a practical project budget estimate using real product prices."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I choose the right paint colors for my room?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the FRELUX Smart Color Assistant for AI-powered color recommendations, or browse the curated Color Library with hundreds of paint colors and room-ready combinations with exact color codes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is wall screeding and how do I calculate it?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Wall screeding is the process of smoothing wall surfaces before painting. Use the FRELUX Screeding Calculator to calculate the wall surface area that needs screeding, with door and window deductions, and estimate screeding material and labour costs."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- BreadcrumbList Structured Data -->
+    <script type="application/ld+json" id="breadcrumb-structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://freluxpaintcalc.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Paint Calculator",
+          "item": "https://freluxpaintcalc.com/paint-calculator"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Cost Estimator",
+          "item": "https://freluxpaintcalc.com/cost-estimator"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Colors",
+          "item": "https://freluxpaintcalc.com/colors"
+        }
+      ]
+    }
+    </script>
+
+    <!-- Inline critical CSS -->
     <style>
       html { scroll-behavior: smooth; }
       body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
@@ -83,7 +212,6 @@
   </head>
   <body>
     <div id="root">
-      <!-- Static fallback shown before JS hydration -->
       <div class="page-loader">
         <div style="width:32px;height:32px;border:2px solid #e2e8f0;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
       </div>

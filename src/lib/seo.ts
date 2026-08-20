@@ -7,6 +7,7 @@ export interface SeoMeta {
   ogType?: string;
   ogImage?: string;
   noIndex?: boolean;
+  keywords?: string;
   structuredData?: object;
   structuredDataArray?: object[];
 }
@@ -53,41 +54,46 @@ function removeStructuredData(id: string) {
 export function useSeo(meta: SeoMeta) {
   useEffect(() => {
     const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title} — FRELUX PAINT CALC`;
-    document.title = fullTitle;
+    const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
+    const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
     // Primary meta
+    document.title = fullTitle;
     setMeta('name', 'description', meta.description);
     setMeta('name', 'author', 'FRELUX PAINT CALC');
+
+    // Keywords (if provided)
+    if (meta.keywords) {
+      setMeta('name', 'keywords', meta.keywords);
+    }
 
     // Open Graph
     setMeta('property', 'og:title', fullTitle);
     setMeta('property', 'og:description', meta.description);
     setMeta('property', 'og:type', meta.ogType ?? 'website');
-    setMeta('property', 'og:url', `${SITE_URL}${meta.canonicalPath ?? ''}`);
+    setMeta('property', 'og:url', canonicalUrl);
     setMeta('property', 'og:site_name', 'FRELUX PAINT CALC');
-    setMeta('property', 'og:image', meta.ogImage ?? DEFAULT_OG_IMAGE);
+    setMeta('property', 'og:image', ogImage);
+    setMeta('property', 'og:image:width', '1200');
+    setMeta('property', 'og:image:height', '630');
+    setMeta('property', 'og:image:alt', `${fullTitle} — FRELUX PAINT CALC`);
+    setMeta('property', 'og:locale', 'en_US');
 
     // Twitter Cards
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', meta.description);
-    setMeta('name', 'twitter:image', meta.ogImage ?? DEFAULT_OG_IMAGE);
+    setMeta('name', 'twitter:image', ogImage);
+    setMeta('name', 'twitter:image:alt', `${fullTitle} — FRELUX PAINT CALC`);
 
-    // Canonical URL
-    if (meta.canonicalPath) {
-      setLink('canonical', `${SITE_URL}${meta.canonicalPath}`);
-    }
+    // Canonical URL — always set
+    setLink('canonical', canonicalUrl);
 
     // Robots
     if (meta.noIndex) {
       setMeta('name', 'robots', 'noindex, nofollow');
     } else {
-      const existing = document.head.querySelector('meta[name="robots"]');
-      if (existing) {
-        existing.setAttribute('content', 'index, follow');
-      } else {
-        setMeta('name', 'robots', 'index, follow');
-      }
+      setMeta('name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     }
 
     // Structured data — single or array
@@ -108,8 +114,8 @@ export function useSeo(meta: SeoMeta) {
       });
     }
 
-    // Clean up old array-based structured data that's no longer used
-    const maxArrayId = (meta.structuredDataArray?.length ?? 0) + 1;
+    // Clean up old array-based structured data
+    const maxArrayId = (meta.structuredDataArray?.length ?? 0) + 5;
     for (let i = meta.structuredDataArray?.length ?? 0; i < maxArrayId + 5; i++) {
       removeStructuredData(`page-structured-data-${i}`);
     }
@@ -118,7 +124,7 @@ export function useSeo(meta: SeoMeta) {
       removeStructuredData('page-structured-data');
       sdIds.forEach((id) => removeStructuredData(id));
     };
-  }, [meta.title, meta.description, meta.canonicalPath, meta.ogType, meta.ogImage, meta.noIndex, meta.structuredData, meta.structuredDataArray]);
+  }, [meta.title, meta.description, meta.canonicalPath, meta.ogType, meta.ogImage, meta.noIndex, meta.keywords, meta.structuredData, meta.structuredDataArray]);
 }
 
 export { SITE_URL };
