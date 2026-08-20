@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 
 export default function PrivacyPolicy() {
   useSeo({
-    title: 'Privacy Policy — FRELUX PAINT CALC',
+    title: 'Privacy Policy: FRELUX PAINT CALC',
     description: 'How FRELUX PAINT CALC handles your information when you use our website and tools. Read our privacy policy for details on data collection and usage.',
     canonicalPath: '/privacy-policy',
     ogType: 'website',

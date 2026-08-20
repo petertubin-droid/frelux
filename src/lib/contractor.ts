@@ -1408,7 +1408,7 @@ function parseWeatherData(data: Record<string, unknown>): WeatherInfo {
   if (temp > 32) warnings.push('High temperature may cause paint to dry too quickly');
   if (temp < 10) warnings.push('Cold temperature may slow paint drying');
   if (humidity > 85) warnings.push('High humidity will affect paint adhesion and drying');
-  if (rainChance > 40) warnings.push('High rain chance — avoid exterior painting');
+  if (rainChance > 40) warnings.push('High rain chance, avoid exterior painting');
 
   if (suitable) recommendations.push('Good conditions for painting');
   if (temp >= 15 && temp <= 28) recommendations.push('Optimal temperature range for paint application');

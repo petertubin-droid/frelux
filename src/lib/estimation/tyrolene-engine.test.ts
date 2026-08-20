@@ -610,7 +610,7 @@ describe('Tyrolene Engine — calculateTyroleneProject', () => {
   it('TEST 10: labour is never automatically calculated', () => {
     const result = calculateTyroleneProject(makeInput({ standard_partition_count: 4 }), makeConfig());
 
-    expect(result.labour_note).toBe('Labour: Not included — negotiated separately.');
+    expect(result.labour_note).toBe('Labour: Not included, negotiated separately.');
     // No labour line items
     const labourItems = result.line_items.filter(li => li.item_type === 'labour');
     expect(labourItems).toHaveLength(0);
@@ -788,7 +788,7 @@ describe('Tyrolene Engine — Calculation Steps & Transparency', () => {
     const scalingStep = result.calculation_steps.find(s => s.label === 'Scaling Factor');
     expect(scalingStep).toBeDefined();
 
-    const cementTheoreticalStep = result.calculation_steps.find(s => s.label === 'Cement — Theoretical');
+    const cementTheoreticalStep = result.calculation_steps.find(s => s.label === 'Cement: Theoretical');
     expect(cementTheoreticalStep).toBeDefined();
     expect(cementTheoreticalStep!.value).toBe('1 bags');
 

@@ -21,7 +21,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
 export default function PopCeilingCalculator() {
   useSeo({
-    title: 'POP Ceiling Calculator — How Much POP Cement Do I Need?',
+    title: 'POP Ceiling Calculator: How Much POP Cement Do I Need?',
     description: 'Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for both Nigerian and international POP ceiling workflows.',
     canonicalPath: '/pop-ceiling-calculator',
     ogType: 'website',

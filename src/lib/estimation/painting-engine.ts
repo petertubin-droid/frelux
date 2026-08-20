@@ -322,7 +322,7 @@ export function validateRoomInput(
   // Validate coverage
   if (quality && (quality.coverage === null || quality.coverage === undefined)) {
     warnings.push(
-      `Coverage has not been configured for ${product?.name ?? 'product'} — ${quality.name}. ` +
+      `Coverage has not been configured for ${product?.name ?? 'product'}, ${quality.name}. ` +
       'Accurate calculation unavailable until the required FRELUX product/rule configuration is completed.'
     );
   }
@@ -354,10 +354,10 @@ export function validateRoomInput(
 
   // Unknown openings warning
   if (room.doors_unknown) {
-    warnings.push('Door dimensions not provided — estimate may be less precise.');
+    warnings.push('Door dimensions not provided, estimate may be less precise.');
   }
   if (room.windows_unknown) {
-    warnings.push('Window dimensions not provided — estimate may be less precise.');
+    warnings.push('Window dimensions not provided, estimate may be less precise.');
   }
 
   return createValidationResult(errors.length === 0, errors, warnings);
@@ -417,7 +417,7 @@ export function calculateRoom(
     steps.push({
       label: 'Door Openings',
       value: 'Not provided',
-      detail: 'Opening dimensions not provided — estimate may be less precise.',
+      detail: 'Opening dimensions not provided, estimate may be less precise.',
     });
   } else {
     doorArea = calculateOpeningArea(room.doors, room.unit);
@@ -435,7 +435,7 @@ export function calculateRoom(
     steps.push({
       label: 'Window Openings',
       value: 'Not provided',
-      detail: 'Opening dimensions not provided — estimate may be less precise.',
+      detail: 'Opening dimensions not provided, estimate may be less precise.',
     });
   } else {
     windowArea = calculateOpeningArea(room.windows, room.unit);
@@ -459,7 +459,7 @@ export function calculateRoom(
   const coverage = config.quality?.coverage ?? null;
   if (coverage === null || coverage === undefined) {
     errors.push(
-      `Coverage has not been configured for ${config.product?.name ?? 'product'} — ${config.quality?.name ?? 'quality'}. ` +
+      `Coverage has not been configured for ${config.product?.name ?? 'product'}, ${config.quality?.name ?? 'quality'}. ` +
       'Accurate calculation unavailable until the required FRELUX product/rule configuration is completed.'
     );
   }
@@ -491,7 +491,7 @@ export function calculateRoom(
   const theoreticalWallBuckets = litresToBuckets(theoreticalWallLitres, packSizeLitres);
   steps.push({
     label: 'Theoretical Wall Quantity',
-    value: coverage ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)` : 'Cannot calculate — coverage not configured',
+    value: coverage ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)` : 'Cannot calculate, coverage not configured',
     detail: coverage ? `(Net Wall Area × Coats) / Coverage = (${netWallArea.toFixed(2)} × ${coats}) / ${coverage}` : undefined,
   });
 
@@ -514,7 +514,7 @@ export function calculateRoom(
     steps.push({
       label: 'Ceiling',
       value: 'Not included',
-      detail: 'Ceiling excluded — ceiling quantity = 0.',
+      detail: 'Ceiling excluded, ceiling quantity = 0.',
     });
   }
 
@@ -605,7 +605,7 @@ export function calculateRoom(
   // Price validation
   if (!config.price || !isPriceConfigured(config.price?.price)) {
     warnings.push(
-      `Price has not been configured for ${config.product?.name ?? 'product'} — ${config.quality?.name ?? 'quality'}. ` +
+      `Price has not been configured for ${config.product?.name ?? 'product'}, ${config.quality?.name ?? 'quality'}. ` +
       'Material cost cannot be calculated until pricing is configured.'
     );
   }
@@ -789,7 +789,7 @@ export function calculatePaintingProject(
       );
 
       lineItems.push({
-        item_name: `${room.room_name} — ${product?.name ?? 'Paint'} (${quality?.name ?? 'N/A'})`,
+        item_name: `${room.room_name}, ${product?.name ?? 'Paint'} (${quality?.name ?? 'N/A'})`,
         item_type: 'product',
         product_id: room.product_id,
         quality_level_id: room.quality_id,
@@ -837,7 +837,7 @@ export function calculatePaintingProject(
   }
 
   // Labour note (never calculated)
-  const labourNote = 'Labour: Not included — negotiated separately.';
+  const labourNote = 'Labour: Not included, negotiated separately.';
 
   return {
     rooms: roomResults,

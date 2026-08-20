@@ -19,7 +19,7 @@ export default function QuickCalculatorShortcuts() {
         <div className="mb-5 flex items-end justify-between">
           <div>
             <h2 className="font-display text-lg font-bold text-neutral-900 sm:text-xl dark:text-white">Start with a calculator</h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">All calculators are free — no sign-up needed</p>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">All calculators are free, no sign-up needed</p>
           </div>
           <Link to="/paint-calculator" className="hidden items-center gap-1 text-sm font-semibold text-brand-purple transition-colors hover:text-brand-purple-dark sm:inline-flex dark:text-brand-purple-lighter dark:hover:text-brand-purple">
             Start Calculating <ArrowRight className="h-4 w-4" />

@@ -49,7 +49,7 @@ export default function AdminAiMonetization() {
     if (!settings) return;
     // Issue #4 fix: Guard against saving paid mode without a provider
     if (settings.ai_access_mode === 'paid' && !paymentProviderConfigured) {
-      setError('Cannot enable Paid mode — no payment provider is configured. Connect a payment provider (Paystack, Flutterwave, or Stripe) first.');
+      setError('Cannot enable Paid mode, no payment provider is configured. Connect a payment provider (Paystack, Flutterwave, or Stripe) first.');
       return;
     }
     setSaving(true); setError(null);
@@ -154,7 +154,7 @@ export default function AdminAiMonetization() {
         {/* Rewarded access */}
         <AdminCard>
           <div className="flex items-center gap-2"><Gift className="h-4 w-4 text-accent-orange" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Rewarded Access</h2></div>
-          <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Provider agnostic architecture. No rewarded provider is connected yet — the UI shows an unavailable state. Never grants access on a button click alone.</p>
+          <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Provider agnostic architecture. No rewarded provider is connected yet, the UI shows an unavailable state. Never grants access on a button click alone.</p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle checked={settings.ai_rewarded_enabled} onChange={(v) => update('ai_rewarded_enabled', v)} />
             <span className="text-sm text-neutral-600">Rewarded access available (shows option to users)</span>
@@ -175,18 +175,18 @@ export default function AdminAiMonetization() {
               onChange={(v) => {
                 // Issue #4 fix: Prevent enabling paid toggle without a provider
                 if (v && !paymentProviderConfigured) {
-                  setError('Cannot enable Paid access — no payment provider is configured. Connect a payment provider first.');
+                  setError('Cannot enable Paid access, no payment provider is configured. Connect a payment provider first.');
                   return;
                 }
                 update('ai_paid_enabled', v);
               }}
             />
             <span className="text-sm text-neutral-600">
-              Paid access {paymentProviderConfigured ? 'enabled' : '(disabled — no provider)'}
+              Paid access {paymentProviderConfigured ? 'enabled' : '(disabled, no provider)'}
             </span>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <AdminField label="Price" hint={paymentProviderConfigured ? 'Price per AI access period.' : 'Placeholder — not active until a payment provider is connected.'}>
+            <AdminField label="Price" hint={paymentProviderConfigured ? 'Price per AI access period.' : 'Placeholder, not active until a payment provider is connected.'}>
               <input
                 type="number"
                 min={0}

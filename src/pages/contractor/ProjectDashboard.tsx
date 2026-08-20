@@ -444,12 +444,12 @@ export default function ProjectDashboard() {
     if (!project || shoppingList.length === 0) return;
     const total = shoppingList.reduce((sum, i) => sum + i.total_price, 0);
     const purchased = shoppingList.filter(i => i.is_purchased).length;
-    const summary = `*${project.name} — Shopping List*\n\n` +
+    const summary = `*${project.name}: Shopping List*\n\n` +
       `Items: ${shoppingList.length}\n` +
       `Purchased: ${purchased}/${shoppingList.length}\n` +
       `Estimated Total: ${project.currency_symbol}${total.toLocaleString('en-NG')}\n\n` +
       shoppingList.slice(0, 20).map(i =>
-        `${i.is_purchased ? '✅' : '⬜'} ${i.name} — ${i.quantity} ${i.unit} (${project.currency_symbol}${i.total_price.toLocaleString('en-NG')})`
+        `${i.is_purchased ? '✅' : '⬜'} ${i.name}, ${i.quantity} ${i.unit} (${project.currency_symbol}${i.total_price.toLocaleString('en-NG')})`
       ).join('\n') +
       (shoppingList.length > 20 ? `\n...and ${shoppingList.length - 20} more items` : '');
     window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank');
@@ -936,19 +936,19 @@ function OverviewTab(props: OverviewTabProps) {
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <p className="text-xs font-medium uppercase text-gray-500">Client Name</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_name ?? '—'}</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_name ?? 'N/A'}</p>
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-gray-500">Phone</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_phone ?? '—'}</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_phone ?? 'N/A'}</p>
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-gray-500">Email</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_email ?? '—'}</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_email ?? 'N/A'}</p>
           </div>
           <div>
             <p className="text-xs font-medium uppercase text-gray-500">Address</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_address ?? '—'}</p>
+            <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_address ?? 'N/A'}</p>
           </div>
         </div>
       </div>
@@ -1965,7 +1965,7 @@ function NotesTab(props: NotesTabProps) {
           className="mt-3 w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
         />
         <p className="mt-2 text-xs text-gray-500">
-          {notesDirty ? 'Unsaved changes — click "Save Notes" to persist.' : 'All changes saved.'}
+          {notesDirty ? 'Unsaved changes, click "Save Notes" to persist.' : 'All changes saved.'}
         </p>
       </div>
 

@@ -83,7 +83,7 @@ export default function AdminBranding() {
     <>
       <AdminHeader
         title="Site Branding"
-        subtitle="Manage your website identity — logos, favicon, PWA icon, site name, tagline, browser title, and brand colors. Changes apply instantly across the entire site."
+        subtitle="Manage your website identity, logos, favicon, PWA icon, site name, tagline, browser title, and brand colors. Changes apply instantly across the entire site."
       />
 
       {error && (

@@ -21,7 +21,7 @@ interface PassedState {
 
 export default function PopCeilingCostEstimator() {
   useSeo({
-    title: 'POP Ceiling Cost Estimator — Estimate POP Ceiling Project Cost',
+    title: 'POP Ceiling Cost Estimator: Estimate POP Ceiling Project Cost',
     description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
     canonicalPath: '/pop-ceiling-cost-estimator',
     ogType: 'website',

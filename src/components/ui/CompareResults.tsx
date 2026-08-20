@@ -141,7 +141,7 @@ export function CompareResults({ open, onClose }: { open: boolean; onClose: () =
                       <tr key={key} className="border-b border-neutral-50 dark:border-white/5">
                         <td className="py-2.5 pr-4 text-xs font-medium text-neutral-400">{key}</td>
                         {selectedEntries.map(e => {
-                          const val = e.data[key] ?? '—';
+                          const val = e.data[key] ?? 'N/A';
                           // Highlight differences
                           const values = selectedEntries.map(se => se.data[key]);
                           const isDifferent = values.some(v => v !== values[0]);

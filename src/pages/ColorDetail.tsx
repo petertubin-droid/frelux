@@ -19,7 +19,7 @@ export default function ColorDetail() {
   const [copied, setCopied] = useState<string | null>(null);
 
   useSeo({
-    title: color ? `${color.title} — Color Combination` : 'Color Combination',
+    title: color ? `${color.title}: Color Combination` : 'Color Combination',
     description:
       color?.description ?? 'View this curated paint color combination with color codes, recommended rooms, and styling tips.',
     canonicalPath: color ? `/colors/${color.slug}` : '/colors',

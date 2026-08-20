@@ -151,7 +151,7 @@ export default function AdminEstimationProduction() {
                   </div>
                   <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                     Minimum: <span className="font-semibold">{rule.min_quantity} {rule.unit}</span>
-                    {rule.description && ` — ${rule.description}`}
+                    {rule.description && `, ${rule.description}`}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

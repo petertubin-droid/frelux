@@ -17,7 +17,7 @@ type Status = 'loading' | 'ready' | 'error';
 
 export default function MyProjects() {
   useSeo({
-    title: 'My Projects — Saved Colors, Palettes & Calculations',
+    title: 'My Projects: Saved Colors, Palettes & Calculations',
     description: 'View your saved paint colors, color palettes, calculations, and custom collections.',
     canonicalPath: '/my-projects',
     ogType: 'website',

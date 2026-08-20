@@ -17,7 +17,7 @@ export default function LearnCategory() {
   const [status, setStatus] = useState<Status>('loading');
 
   useSeo({
-    title: category ? `${category.name} — Learn` : 'Learn Category',
+    title: category ? `${category.name}: Learn` : 'Learn Category',
     description: category?.description ?? 'Browse educational articles from FRELUX.',
     canonicalPath: `/learn/category/${categorySlug}`,
     ogType: 'website',

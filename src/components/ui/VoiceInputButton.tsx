@@ -18,7 +18,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
       onResult(num);
       setFeedback(`Heard: ${transcript} → ${num}`);
     } else {
-      setFeedback(`Heard: "${transcript}" — couldn't parse a number`);
+      setFeedback(`Heard: "${transcript}", couldn't parse a number`);
     }
     setTimeout(() => setFeedback(null), 3000);
   });

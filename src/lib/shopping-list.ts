@@ -136,7 +136,7 @@ export function shoppingListToText(items: ShoppingListItem[]): string {
   ];
   for (const item of items) {
     const check = item.checked ? '✅' : '☐';
-    lines.push(`${check} ${item.quantity} — ${item.name}`);
+    lines.push(`${check} ${item.quantity}, ${item.name}`);
     if (item.detail) lines.push(`    ${item.detail}`);
   }
   lines.push('');

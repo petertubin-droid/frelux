@@ -154,7 +154,7 @@ export default function LabourCostSection({
             <div>
               <label className="mb-2 block text-sm font-semibold text-neutral-700">
                 Suggested Labour Categories
-                <span className="ml-1 font-normal text-neutral-400">(optional — you can override)</span>
+                <span className="ml-1 font-normal text-neutral-400">(optional, you can override)</span>
               </label>
               <select
                 value={config.categoryId ?? ''}
@@ -279,8 +279,8 @@ export default function LabourCostSection({
           <div className="flex items-start gap-2 rounded-lg bg-brand-purple/5 p-3 text-xs text-neutral-500 dark:text-neutral-400">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
             <span>
-              Labour rates vary by contractor, location, and project. These are suggestions only —
-              you can enter any amount. Your labour selection is saved with your estimate.
+              Labour rates vary by contractor, location, and project. These are suggestions only.
+              You can enter any amount. Your labour selection is saved with your estimate.
             </span>
           </div>
         </div>

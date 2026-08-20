@@ -24,7 +24,7 @@ const PROJECT_ROUTES: Record<string, string> = {
 
 export default function Dashboard() {
   useSeo({
-    title: 'Dashboard — FRELUX PAINT CALC',
+    title: 'Dashboard: FRELUX PAINT CALC',
     description: 'Your personal dashboard with recent projects, saved estimates, favorite colors, and AI recommendations.',
     canonicalPath: '/dashboard',
     noIndex: true,

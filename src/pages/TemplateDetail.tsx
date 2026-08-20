@@ -39,7 +39,7 @@ export default function TemplateDetail() {
     if (!template) return null;
     return {
       title: template.seo_title ?? `${template.name} | FRELUX`,
-      description: template.seo_description ?? `${template.name} — use this template with the FRELUX ${calculatorLabel(template.calculator_type)} calculator.`,
+      description: template.seo_description ?? `${template.name}, use this template with the FRELUX ${calculatorLabel(template.calculator_type)} calculator.`,
       canonicalPath: `/templates/${template.slug}`,
       structuredData: {
         '@context': 'https://schema.org',

@@ -40,20 +40,20 @@ describe('useSeo', () => {
   describe('document.title', () => {
     it('sets document.title appending the site suffix when not already present', () => {
       renderSeo({ title: 'About Us', description: 'About the company' });
-      expect(document.title).toBe('About Us — FRELUX PAINT CALC');
+      expect(document.title).toBe('About Us: FRELUX PAINT CALC');
     });
 
     it('does not double-append the suffix when title already contains FRELUX', () => {
-      renderSeo({ title: 'FRELUX PAINT CALC — Home', description: 'desc' });
-      expect(document.title).toBe('FRELUX PAINT CALC — Home');
+      renderSeo({ title: 'FRELUX PAINT CALC: Home', description: 'desc' });
+      expect(document.title).toBe('FRELUX PAINT CALC: Home');
     });
 
     it('updates the title when props change', () => {
       const { rerender } = renderSeo({ title: 'Page A', description: 'a' });
-      expect(document.title).toBe('Page A — FRELUX PAINT CALC');
+      expect(document.title).toBe('Page A: FRELUX PAINT CALC');
 
       rerender({ title: 'Page B', description: 'b' });
-      expect(document.title).toBe('Page B — FRELUX PAINT CALC');
+      expect(document.title).toBe('Page B: FRELUX PAINT CALC');
     });
   });
 
@@ -142,7 +142,7 @@ describe('useSeo', () => {
         ogImage: 'https://example.com/img.png',
       });
       expect(getMetaContent('property', 'og:title')).toBe(
-        'My Page — FRELUX PAINT CALC',
+        'My Page: FRELUX PAINT CALC',
       );
       expect(getMetaContent('property', 'og:description')).toBe('desc');
       expect(getMetaContent('property', 'og:type')).toBe('article');
@@ -177,7 +177,7 @@ describe('useSeo', () => {
       });
       expect(getMetaContent('name', 'twitter:card')).toBe('summary_large_image');
       expect(getMetaContent('name', 'twitter:title')).toBe(
-        'Hello — FRELUX PAINT CALC',
+        'Hello: FRELUX PAINT CALC',
       );
       expect(getMetaContent('name', 'twitter:description')).toBe('world');
       expect(getMetaContent('name', 'twitter:image')).toBe(

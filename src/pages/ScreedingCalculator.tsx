@@ -28,7 +28,7 @@ const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, he
 
 export default function ScreedingCalculator() {
   useSeo({
-    title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
+    title: 'Wall Screeding Calculator: How Much Screeding Do I Need?',
     description:
       'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
     canonicalPath: '/screeding-calculator',

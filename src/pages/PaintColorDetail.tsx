@@ -25,7 +25,7 @@ export default function PaintColorDetail() {
   const [isFav, setIsFav] = useState(false);
 
   useSeo({
-    title: color ? `${color.name} — Paint Color` : 'Paint Color',
+    title: color ? `${color.name}: Paint Color` : 'Paint Color',
     description: color ? `${color.name} (${color.hex_code}). RGB, HSL values, recommended usage, and compatible finishes for this professional paint color.` : 'View this professional paint color with full color codes and recommendations.',
     canonicalPath: color ? `/colors/paint/${color.slug}` : '/colors',
     ogType: 'article',

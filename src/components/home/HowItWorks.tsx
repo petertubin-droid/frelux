@@ -7,7 +7,7 @@ const steps = [
   {
     icon: Ruler,
     title: 'Measure',
-    description: 'Input your room dimensions, wall height, doors, and windows. Just a tape measure — no technical knowledge needed.',
+    description: 'Input your room dimensions, wall height, doors, and windows. Just a tape measure, no technical knowledge needed.',
     accent: 'text-brand-purple bg-brand-purple/8',
     number: '01',
   },

@@ -11,7 +11,7 @@ const MAX_COMPARE = 4;
 
 export default function CompareColors() {
   useSeo({
-    title: 'Compare Paint Colors — Side by Side',
+    title: 'Compare Paint Colors: Side by Side',
     description: 'Compare up to 4 paint colors side by side. View HEX, RGB, HSL values, recommended rooms, and compatible finishes.',
     canonicalPath: '/colors/compare',
     ogType: 'website',

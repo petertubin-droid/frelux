@@ -49,7 +49,7 @@ type View = 'choose' | 'text' | 'image';
 
 export default function AiColorAssistant() {
   useSeo({
-    title: 'Smart Color Assistant — Get Personalized Paint Color Ideas',
+    title: 'Smart Color Assistant: Get Personalized Paint Color Ideas',
     description:
       'Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture. Practical, specific paint color suggestions.',
     canonicalPath: '/ai-color-assistant',
@@ -840,7 +840,7 @@ function ResultPanel({
       {matchedPaintColors.length > 0 && (
         <div className="border-t border-neutral-100 bg-accent-green/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-green">Matching FRELUX paint colors</p>
-          <p className="mt-1 text-xs text-neutral-500">Closest matches from our color library — tap to view full details.</p>
+          <p className="mt-1 text-xs text-neutral-500">Closest matches from our color library, tap to view full details.</p>
           <div className="mt-3 grid grid-cols-2 gap-2">
             {matchedPaintColors.map((pc) => (
               <Link

@@ -102,5 +102,5 @@ function buildReason(input: SmartWasteInput, margin: number): string {
   if (input.isRepair) parts.push('repair work requires extra paint for patching');
   if (input.coats >= 3) parts.push('multiple coats become more efficient as coverage improves');
 
-  return `${margin}% waste margin — ${parts.join(', ')}.`;
+  return `${margin}% waste margin, ${parts.join(', ')}.`;
 }

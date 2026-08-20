@@ -135,7 +135,7 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
             <AdminField label="Brand"><input className="input-field" value={brand} onChange={(e) => setBrand(e.target.value)} /></AdminField>
             <AdminField label="Paint type">
               <select className="input-field" value={paintTypeId} onChange={(e) => setPaintTypeId(e.target.value)}>
-                <option value="">— None —</option>
+                <option value="">None</option>
                 {paintTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
               </select>
             </AdminField>

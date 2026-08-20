@@ -117,7 +117,7 @@ function FeatureConfigTab() {
                     onChange={(e) => updateFeature(feat.id, { primary_provider_id: e.target.value || null })}
                     className="input-field"
                   >
-                    <option value="">— None —</option>
+                    <option value="">None</option>
                     {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </AdminField>
@@ -127,7 +127,7 @@ function FeatureConfigTab() {
                     onChange={(e) => updateFeature(feat.id, { fallback_provider_id: e.target.value || null })}
                     className="input-field"
                   >
-                    <option value="">— None —</option>
+                    <option value="">None</option>
                     {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
                 </AdminField>
@@ -271,7 +271,7 @@ function ToolConfigTab() {
                   onChange={(e) => updateConfig(cfg.id, { primary_provider_id: e.target.value || null })}
                   className="input-field"
                 >
-                  <option value="">— Use legacy ad_provider —</option>
+                  <option value="">Use legacy ad_provider</option>
                   {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </AdminField>
@@ -281,7 +281,7 @@ function ToolConfigTab() {
                   onChange={(e) => updateConfig(cfg.id, { fallback_provider_id: e.target.value || null })}
                   className="input-field"
                 >
-                  <option value="">— None —</option>
+                  <option value="">None</option>
                   {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                 </select>
               </AdminField>

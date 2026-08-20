@@ -95,7 +95,7 @@ export function PaintMatcher() {
               <Camera className="h-7 w-7" />
             </div>
             <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">Take or upload a photo</p>
-            <p className="mt-1 text-xs text-neutral-400">JPG, PNG, or WebP — drag & drop or tap</p>
+            <p className="mt-1 text-xs text-neutral-400">JPG, PNG, or WebP, drag & drop or tap</p>
             <input
               ref={fileRef}
               type="file"

@@ -614,7 +614,7 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   // TEST 17: Labour NOT calculated
   // ---------------------------------------------------------
   describe('TEST 17: Labour is NOT calculated', () => {
-    it('displays "Labour: Not included — negotiated separately."', () => {
+    it('displays "Labour: Not included, negotiated separately."', () => {
       const projectInput: PaintingProjectInput = {
         rooms: [makeRoom()],
         currency: 'NGN',
@@ -640,7 +640,7 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
       };
 
       const result = calculatePaintingProject(projectInput, config);
-      expect(result.labour_note).toBe('Labour: Not included — negotiated separately.');
+      expect(result.labour_note).toBe('Labour: Not included, negotiated separately.');
       // No labour line items
       expect(result.line_items.every((li) => li.item_type !== 'labour')).toBe(true);
     });

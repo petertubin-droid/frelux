@@ -21,7 +21,7 @@ interface PassedState {
 
 export default function TileCostEstimator() {
   useSeo({
-    title: 'Tile Cost Estimator — Estimate Tile Installation Cost',
+    title: 'Tile Cost Estimator: Estimate Tile Installation Cost',
     description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, and waste. Labour not included.',
     canonicalPath: '/tile-cost-estimator',
     ogType: 'website',

@@ -53,7 +53,7 @@ export default function Home() {
   }), [featuredSlugs]);
 
   useSeo({
-    title: 'FRELUX PAINT CALC — Plan Your Perfect Paint Project',
+    title: 'FRELUX PAINT CALC: Plan Your Perfect Paint Project',
     description:
       'Calculate paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices. Free calculators and cost estimators for construction projects.',
     canonicalPath: '/',

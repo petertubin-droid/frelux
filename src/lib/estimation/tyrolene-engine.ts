@@ -470,7 +470,7 @@ export function checkTyroleneProductionEligibility(
     // No minimum configured — do NOT invent one
     return {
       eligible: false,
-      message: 'Tyrolene production eligibility for locations outside Owerri cannot be determined — the production minimum has not been configured. Contact FRELUX to confirm production availability.',
+      message: 'Tyrolene production eligibility for locations outside Owerri cannot be determined, the production minimum has not been configured. Contact FRELUX to confirm production availability.',
       min_required: 0,
       min_configured: false,
     };
@@ -588,7 +588,7 @@ export function calculateTyroleneProject(
     calcSteps.push({
       label: 'Standard Partition Count',
       value: `${equivalentPartitions}`,
-      detail: 'Entered directly — no dimensional adjustment applied',
+      detail: 'Entered directly, no dimensional adjustment applied',
     });
   } else if (hasActualDimensions && standardArea === null) {
     // Actual dimensions provided but standard partition not configured
@@ -724,18 +724,18 @@ export function calculateTyroleneProject(
   );
 
   // ── Labour note ──
-  const labourNote = 'Labour: Not included — negotiated separately.';
+  const labourNote = 'Labour: Not included, negotiated separately.';
 
   // ── Add calculation steps for materials ──
   for (const m of materialResults) {
     calcSteps.push({
-      label: `${m.material_name} — Theoretical`,
+      label: `${m.material_name}: Theoretical`,
       value: `${m.theoretical_quantity} ${m.theoretical_unit}`,
       detail: `(${equivalentPartitions} ÷ ${materialRatio.partitions_per_ratio}) × ratio quantity`,
     });
 
     calcSteps.push({
-      label: `${m.material_name} — Practical Purchase`,
+      label: `${m.material_name}: Practical Purchase`,
       value: `${m.practical_purchase_quantity} ${m.theoretical_unit}`,
       detail: `Rounded using ${m.rounding_rule} rule, pack size ${m.pack_size} → ${m.pack_count} pack(s)`,
     });

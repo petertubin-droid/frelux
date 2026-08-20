@@ -34,7 +34,7 @@ export default function PWASection() {
             </h2>
 
             <p className="mt-5 max-w-md text-lg leading-relaxed text-white/55 text-balance">
-              Access every FRELUX calculator from your phone — on site, in the store, wherever you are. Install it as an app on supported devices.
+              Access every FRELUX calculator from your phone, on site, in the store, wherever you are. Install it as an app on supported devices.
             </p>
 
             {/* Feature list */}
@@ -45,7 +45,7 @@ export default function PWASection() {
                 </span>
                 <div>
                   <p className="text-sm font-semibold text-white">Installable as a PWA</p>
-                  <p className="text-xs text-white/45">Add to your home screen — no app store needed</p>
+                  <p className="text-xs text-white/45">Add to your home screen, no app store needed</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">

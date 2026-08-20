@@ -12,7 +12,7 @@ const defaultBranding: DbSiteBranding = {
   id: '',
   website_name: 'FRELUX PAINT CALC',
   website_tagline: 'Plan Your Perfect Paint Project',
-  browser_title: 'FRELUX PAINT CALC — Plan Your Perfect Paint Project',
+  browser_title: 'FRELUX PAINT CALC: Plan Your Perfect Paint Project',
   light_logo_url: null,
   dark_logo_url: null,
   favicon_url: null,

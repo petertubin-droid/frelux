@@ -51,7 +51,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
         <h1>📋 ${title}</h1>
         <p style="color:#666;margin-bottom:20px;">Generated ${new Date().toLocaleDateString()}</p>
         <ul>
-          ${items.map((item, i) => `<li class="${item.checked ? 'checked' : ''}">${item.checked ? '✅' : '☐'} ${item.quantity} — ${item.name}${item.detail ? ` <em>(${item.detail})</em>` : ''}</li>`).join('')}
+          ${items.map((item, i) => `<li class="${item.checked ? 'checked' : ''}">${item.checked ? '✅' : '☐'} ${item.quantity}, ${item.name}${item.detail ? ` <em>(${item.detail})</em>` : ''}</li>`).join('')}
         </ul>
       </body></html>`;
     const w = window.open('', '_blank');
@@ -109,7 +109,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
               </span>
               <div className="min-w-0 flex-1">
                 <p className={classNames('text-sm font-semibold', item.checked ? 'text-neutral-400 line-through dark:text-neutral-500' : 'text-brand-navy dark:text-white')}>
-                  {item.quantity} — {item.name}
+                  {item.quantity}, {item.name}
                 </p>
                 {item.detail && <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{item.detail}</p>}
               </div>

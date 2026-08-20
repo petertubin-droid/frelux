@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 
 export default function About() {
   useSeo({
-    title: 'About — FRELUX PAINT CALC',
+    title: 'About: FRELUX PAINT CALC',
     description:
       'FRELUX PAINT CALC is a practical painting and color platform helping homeowners, decorators, and contractors plan paint projects with confidence.',
     canonicalPath: '/about',

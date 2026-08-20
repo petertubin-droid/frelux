@@ -101,7 +101,7 @@ describe('calculateFinish — Painting', () => {
     expect(result.materialCost).toBe(30000);
     // LABOUR IS NOT CALCULATED
     expect(result.totalCost).toBe(30000);
-    expect(result.labourNote).toBe('Labour: Not included — negotiated separately.');
+    expect(result.labourNote).toBe('Labour: Not included, negotiated separately.');
   });
 
   it('uses default coats when coats parameter is omitted', () => {
@@ -142,7 +142,7 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
     // Cost: 2 × 20000 = 40000
     expect(result.materialCost).toBe(40000);
     expect(result.totalCost).toBe(40000);
-    expect(result.labourNote).toBe('Labour: Not included — negotiated separately.');
+    expect(result.labourNote).toBe('Labour: Not included, negotiated separately.');
   });
 
   it('rounds up fractional bucket requirements', () => {

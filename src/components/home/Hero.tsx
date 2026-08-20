@@ -218,7 +218,7 @@ export default function Hero() {
 
             {/* Subheadline */}
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/55 text-balance">
-              FRELUX calculates paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices — then estimates your total project cost in minutes.
+              FRELUX calculates paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices, then estimates your total project cost in minutes.
             </p>
 
             {/* Primary CTAs */}

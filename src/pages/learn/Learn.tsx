@@ -12,14 +12,14 @@ type Status = 'loading' | 'ready' | 'error';
 
 export default function Learn() {
   useSeo({
-    title: 'Learn — Painting Guides, Tips & Tutorials',
+    title: 'Learn: Painting Guides, Tips & Tutorials',
     description: 'Explore painting guides, DIY tutorials, color psychology, buying guides, and expert tips to make your next paint project a success.',
     canonicalPath: '/learn',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'FRELUX Learn — Painting Guides & Tutorials',
+      name: 'FRELUX Learn: Painting Guides & Tutorials',
       description: 'Educational hub for painting guides, DIY tutorials, color psychology, and more.',
     },
   });

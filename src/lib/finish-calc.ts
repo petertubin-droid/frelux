@@ -129,7 +129,7 @@ export function getFinishTypeDescription(finishType: FinishType): string {
     case 'painting':
       return 'Standard paint application with coverage in m² per litre per coat.';
     case 'tyrolene':
-      return 'Textured exterior cementitious finish — partition-based estimation. Use the dedicated Tyrolene Estimator for accurate calculations.';
+      return 'Textured exterior cementitious finish, partition-based estimation. Use the dedicated Tyrolene Estimator for accurate calculations.';
     case 'grafitex':
       return 'Rough exterior finish. 1 × 20-L bucket covers 2 standard partitions. Price is admin-configurable.';
     default:
@@ -141,7 +141,7 @@ export function getFinishTypeDescription(finishType: FinishType): string {
 // Main calculation
 // ─────────────────────────────────────────────────────────
 
-const LABOUR_NOTE = 'Labour: Not included — negotiated separately.';
+const LABOUR_NOTE = 'Labour: Not included, negotiated separately.';
 
 /**
  * Calculate finish material quantities and costs for a given area.

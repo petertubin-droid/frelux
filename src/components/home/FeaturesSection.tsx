@@ -8,7 +8,7 @@ const trustFeatures = [
   {
     icon: MapPin,
     title: 'Nigerian market calculations',
-    description: 'Coverage rates, product sizes, and prices calibrated for Nigerian brands and building practices — not generic formulas.',
+    description: 'Coverage rates, product sizes, and prices calibrated for Nigerian brands and building practices, not generic formulas.',
   },
   {
     icon: Sliders,
@@ -18,7 +18,7 @@ const trustFeatures = [
   {
     icon: ShieldCheck,
     title: 'Transparent assumptions',
-    description: 'See exactly how every number is computed — coverage rates, waste factors, and mix ratios are all visible.',
+    description: 'See exactly how every number is computed, coverage rates, waste factors, and mix ratios are all visible.',
   },
   {
     icon: FileBarChart,

@@ -53,7 +53,7 @@ function removeStructuredData(id: string) {
 
 export function useSeo(meta: SeoMeta) {
   useEffect(() => {
-    const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title} — FRELUX PAINT CALC`;
+    const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PAINT CALC`;
     const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
@@ -76,7 +76,7 @@ export function useSeo(meta: SeoMeta) {
     setMeta('property', 'og:image', ogImage);
     setMeta('property', 'og:image:width', '1200');
     setMeta('property', 'og:image:height', '630');
-    setMeta('property', 'og:image:alt', `${fullTitle} — FRELUX PAINT CALC`);
+    setMeta('property', 'og:image:alt', `${fullTitle}: FRELUX PAINT CALC`);
     setMeta('property', 'og:locale', 'en_US');
 
     // Twitter Cards
@@ -84,7 +84,7 @@ export function useSeo(meta: SeoMeta) {
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', meta.description);
     setMeta('name', 'twitter:image', ogImage);
-    setMeta('name', 'twitter:image:alt', `${fullTitle} — FRELUX PAINT CALC`);
+    setMeta('name', 'twitter:image:alt', `${fullTitle}: FRELUX PAINT CALC`);
 
     // Canonical URL — always set
     setLink('canonical', canonicalUrl);

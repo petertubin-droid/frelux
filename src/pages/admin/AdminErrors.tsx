@@ -208,9 +208,9 @@ export default function AdminErrors() {
               <DetailRow label="Severity" value={selectedError.severity} />
               <DetailRow label="Boundary" value={selectedError.boundary_name} />
               <DetailRow label="Message" value={selectedError.error_message} />
-              <DetailRow label="URL" value={selectedError.url ?? '—'} />
+              <DetailRow label="URL" value={selectedError.url ?? 'N/A'} />
               <DetailRow label="Time" value={new Date(selectedError.created_at).toLocaleString()} />
-              <DetailRow label="User Agent" value={selectedError.user_agent ?? '—'} />
+              <DetailRow label="User Agent" value={selectedError.user_agent ?? 'N/A'} />
               {selectedError.error_stack && (
                 <div>
                   <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Stack trace</p>

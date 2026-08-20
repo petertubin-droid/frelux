@@ -54,7 +54,7 @@ export const PRICING_METHOD_DESCRIPTIONS: Record<LabourPricingMethod, string> = 
   per_sqm: 'Labour rate multiplied by the total area in square metres',
   per_room: 'Labour rate multiplied by the number of rooms',
   daily: 'Daily rate multiplied by the number of working days',
-  custom: 'Enter any custom labour amount — full flexibility',
+  custom: 'Enter any custom labour amount, full flexibility',
 };
 
 /**

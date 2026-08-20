@@ -67,7 +67,7 @@ const CALCULATOR_TYPE = 'tyrolene';
 
 export default function TyroleneEstimator() {
   useSeo({
-    title: 'FRELUX Tyrolene Estimator — Partition-Based Exterior Finishing Calculator',
+    title: 'FRELUX Tyrolene Estimator: Partition-Based Exterior Finishing Calculator',
     description: 'Professional Tyrolene estimator. Calculate cement, sand, acrylic bond, water seal, and anti-fungal requirements based on partition count. Exterior only. FRELUX production methodology.',
     canonicalPath: '/tyrolene-estimator',
     ogType: 'website',
@@ -422,7 +422,7 @@ export default function TyroleneEstimator() {
     <>
       <PageHeader
         title="Tyrolene Estimator"
-        subtitle="Partition-based exterior finishing calculator — FRELUX production methodology"
+        subtitle="Partition-based exterior finishing calculator: FRELUX production methodology"
       />
 
       <Container className="py-8 space-y-6 max-w-4xl">
@@ -432,11 +432,11 @@ export default function TyroleneEstimator() {
             <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-                FRELUX Tyrolene — Exterior Only
+                FRELUX Tyrolene: Exterior Only
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
                 Tyrolene is a textured exterior finishing system. Partition-based estimation.
-                Labour is not included — negotiated separately.
+                Labour is not included, negotiated separately.
               </p>
             </div>
           </div>
@@ -508,7 +508,7 @@ export default function TyroleneEstimator() {
               type="text"
               value={projectDescription}
               onChange={e => setProjectDescription(e.target.value)}
-              placeholder="e.g., Residential fence — Owerri"
+              placeholder="e.g., Residential fence. Owerri"
               className="w-full rounded-lg border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
             />
           </div>
@@ -620,7 +620,7 @@ export default function TyroleneEstimator() {
               ) : (
                 <p className="text-xs text-neutral-400">
                   Standard partition: {standardPartition.width}m × {standardPartition.height}m = {(standardPartition.width * standardPartition.height).toFixed(2)}m².
-                  Enter actual partition dimensions — the system will calculate equivalent standard partitions.
+                  Enter actual partition dimensions, the system will calculate equivalent standard partitions.
                 </p>
               )}
 
@@ -782,7 +782,7 @@ export default function TyroleneEstimator() {
                       <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
                         <p className="text-xs text-neutral-400">Adjusted</p>
                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">
-                          {result.has_dimensional_adjustment ? 'Yes — measured' : 'No — standard count'}
+                          {result.has_dimensional_adjustment ? 'Yes · measured' : 'No · standard count'}
                         </p>
                       </div>
                     </div>

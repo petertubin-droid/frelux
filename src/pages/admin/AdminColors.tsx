@@ -124,7 +124,7 @@ function PaintColorsTab() {
                       {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
                       {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
                     </div>
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{fam?.name ?? '—'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{fam?.name ?? 'N/A'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -210,8 +210,8 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <div className="flex items-end"><div className="h-10 w-full rounded-lg ring-1 ring-black/5" style={{ background: hex }} /></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Color family"><select className="input-field" value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">— None —</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</select></AdminField>
-            <AdminField label="Category"><select className="input-field" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">— None —</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></AdminField>
+            <AdminField label="Color family"><select className="input-field" value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">None</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</select></AdminField>
+            <AdminField label="Category"><select className="input-field" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">None</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Recommended usage" hint="Comma separated"><input className="input-field" value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="Living Room, Bedroom" /></AdminField>
@@ -364,8 +364,8 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
                 <tbody>
                   {preview.slice(0, 20).map((r, i) => (
                     <tr key={i} className={r.valid ? '' : 'text-red-500'}>
-                      <td className="py-0.5">{r.name || '—'}</td>
-                      <td className="py-0.5 font-mono">{r.hex || '—'}</td>
+                      <td className="py-0.5">{r.name || 'N/A'}</td>
+                      <td className="py-0.5 font-mono">{r.hex || 'N/A'}</td>
                       <td className="py-0.5">{r.valid ? 'OK' : r.error}</td>
                     </tr>
                   ))}

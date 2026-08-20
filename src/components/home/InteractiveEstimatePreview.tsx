@@ -94,7 +94,7 @@ export default function InteractiveEstimatePreview() {
             What a FRELUX estimate looks like
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
-            Real calculation output. No demo data — these numbers come from the actual FRELUX calculation engine.
+            Real calculation output. No demo data, these numbers come from the actual FRELUX calculation engine.
           </p>
         </div>
 
@@ -196,7 +196,7 @@ export default function InteractiveEstimatePreview() {
                     {animatedValues.area.toFixed(1)}<span className="text-base font-normal text-neutral-400"> m²</span>
                   </p>
                   <p className="mt-1 text-xs text-neutral-400">
-                    Wall area: {result.wallArea} m² — Door: {result.doorArea} m² — Window: {result.windowArea} m²
+                    Wall area: {result.wallArea} m² · Door: {result.doorArea} m² · Window: {result.windowArea} m²
                   </p>
                 </div>
 

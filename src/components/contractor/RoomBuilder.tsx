@@ -418,7 +418,7 @@ function RoomForm({
                 <span className="text-xs text-neutral-600">
                   {step.action}
                   {step.product && (
-                    <span className="text-neutral-400"> — {step.product}</span>
+                    <span className="text-neutral-400">, {step.product}</span>
                   )}
                 </span>
               </div>

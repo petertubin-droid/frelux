@@ -2,6 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function(){try{var t=localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}if(t==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})();
+    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -18,7 +21,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
 
     <!-- Primary SEO Meta -->
-    <meta name="description" content="FRELUX PAINT CALC — Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes." />
+    <meta name="description" content="FRELUX PAINT CALC: Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes." />
     <meta name="author" content="FRELUX PAINT CALC" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -44,22 +47,22 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FRELUX PAINT CALC" />
-    <meta property="og:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
+    <meta property="og:title" content="FRELUX PAINT CALC: Plan Your Perfect Paint Project" />
     <meta property="og:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate estimates and curated colors." />
     <meta property="og:url" content="https://freluxpaintcalc.com" />
     <meta property="og:image" content="https://freluxpaintcalc.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="FRELUX PAINT CALC — Paint calculators, cost estimators, and AI color tools" />
+    <meta property="og:image:alt" content="FRELUX PAINT CALC: Paint calculators, cost estimators, and AI color tools" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="en_GB" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
+    <meta name="twitter:title" content="FRELUX PAINT CALC: Plan Your Perfect Paint Project" />
     <meta name="twitter:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant." />
     <meta name="twitter:image" content="https://freluxpaintcalc.com/og-image.png" />
-    <meta name="twitter:image:alt" content="FRELUX PAINT CALC — Paint calculators and AI color tools" />
+    <meta name="twitter:image:alt" content="FRELUX PAINT CALC: Paint calculators and AI color tools" />
 
     <!-- DNS Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -80,7 +83,7 @@
     <link rel="preload" href="/favicon-32.png" as="image" type="image/png" />
     <link rel="preload" href="/manifest.json" as="fetch" crossorigin />
 
-    <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
+    <title>FRELUX PAINT CALC: Plan Your Perfect Paint Project</title>
 
     <!-- WebSite Schema (enables sitelinks search box) -->
     <script type="application/ld+json" id="website-structured-data">
@@ -224,17 +227,27 @@
     <!-- Inline critical CSS -->
     <style>
       html { scroll-behavior: smooth; }
-      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #ffffff; }
+      html.dark body { background-color: #0A0A1A; }
       #root { min-height: 100vh; width: 100%; }
-      .page-loader { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+      .page-loader { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .page-loader > div {
+        width: 36px; height: 36px;
+        border: 3px solid #e2e8f0;
+        border-top-color: #7C3AED;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+      html.dark .page-loader > div {
+        border-color: #1E1E3A;
+        border-top-color: #A78BFA;
+      }
     </style>
   </head>
   <body>
     <div id="root">
-      <div class="page-loader">
-        <div style="width:32px;height:32px;border:2px solid #e2e8f0;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-      </div>
-      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      <div class="page-loader"><div></div></div>
     </div>
     <noscript>
       <div style="display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:2rem;font-family:system-ui,sans-serif;">

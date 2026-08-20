@@ -155,7 +155,7 @@ export default function AdminAnalytics() {
                     {events.slice(0, 50).map((e) => (
                       <tr key={e.id} className="border-b border-neutral-100">
                         <td className="py-2 pr-4 font-medium text-brand-navy dark:text-white">{e.event}</td>
-                        <td className="py-2 pr-4 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e.page_path ?? '—'}</td>
+                        <td className="py-2 pr-4 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e.page_path ?? 'N/A'}</td>
                         <td className="py-2 pr-4 text-neutral-400 dark:text-neutral-500">{new Date(e.created_at).toLocaleString()}</td>
                       </tr>
                     ))}

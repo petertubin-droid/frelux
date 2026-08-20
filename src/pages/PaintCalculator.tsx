@@ -76,7 +76,7 @@ export default function PaintCalculator() {
   const { toast } = useToast();
   const { user } = useAuth();
   useSeo({
-    title: 'Paint Calculator — How Much Paint Do I Need?',
+    title: 'Paint Calculator: How Much Paint Do I Need?',
     description:
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
     canonicalPath: '/paint-calculator',
@@ -269,7 +269,7 @@ export default function PaintCalculator() {
       toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to save your calculations.' });
       return;
     }
-    const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const name = `Paint: ${input.projectType}, ${formatNumber(result?.paintableArea ?? 0)} m²`;
     const { error } = await saveUserProject(name, 'paint_calc', { input, result }, undefined);
     if (error) {
       toast({ type: 'error', title: 'Failed to save', message: error });
@@ -293,9 +293,9 @@ export default function PaintCalculator() {
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Paint: ${input.projectType} — ${formatNumber(result.paintableArea)} m²`;
+    const name = `Paint: ${input.projectType}, ${formatNumber(result.paintableArea)} m²`;
     saveLocalProject(name, 'paint_calc', { input, result });
-    toast({ type: 'success', title: 'Saved to device', message: 'Find it later — no login needed.' });
+    toast({ type: 'success', title: 'Saved to device', message: 'Find it later: no login needed.' });
   }
 
   async function handleShare() {

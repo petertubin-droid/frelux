@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 
 export default function CookiePolicy() {
   useSeo({
-    title: 'Cookie Policy — FRELUX PAINT CALC',
+    title: 'Cookie Policy: FRELUX PAINT CALC',
     description: 'How FRELUX PAINT CALC uses cookies. Learn about the cookies we use and how they improve your experience.',
     canonicalPath: '/cookie-policy',
     ogType: 'website',

@@ -21,7 +21,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { TileCalculatorSeo } from '@/components/seo/SeoContent';
 export default function TileCalculator() {
   useSeo({
-    title: 'Tile Calculator — How Many Tiles Do I Need?',
+    title: 'Tile Calculator: How Many Tiles Do I Need?',
     description: 'Free tile calculator. Enter your floor or wall dimensions and tile size to calculate tile quantity, boxes, adhesive, grout, and labour cost.',
     canonicalPath: '/tile-calculator',
     ogType: 'website',

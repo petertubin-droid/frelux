@@ -133,11 +133,11 @@ function ratePaintingConditions(humidity: number, precip: number, wind: number):
 }
 
 function getPaintNote(humidity: number, precip: number, wind: number): string {
-  if (precip > 2) return 'Rain expected — avoid painting';
-  if (humidity > 85) return 'Very humid — paint will dry slowly and may not cure properly';
-  if (humidity > 70) return 'Moderate humidity — paint may take longer to dry';
-  if (wind > 8) return 'Windy — dust may stick to wet paint';
-  if (humidity < 40) return 'Low humidity — paint may dry too fast, consider retarder';
+  if (precip > 2) return 'Rain expected, avoid painting';
+  if (humidity > 85) return 'Very humid, paint will dry slowly and may not cure properly';
+  if (humidity > 70) return 'Moderate humidity, paint may take longer to dry';
+  if (wind > 8) return 'Windy, dust may stick to wet paint';
+  if (humidity < 40) return 'Low humidity, paint may dry too fast, consider retarder';
   return 'Good conditions for painting';
 }
 

@@ -69,7 +69,7 @@ const DEFAULT_COATS = 2;
 
 export default function PaintingEstimator() {
   useSeo({
-    title: 'FRELUX Painting Estimator — Room-Based Paint Quantity & Cost Calculator',
+    title: 'FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator',
     description: 'Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.',
     canonicalPath: '/painting-estimator',
     ogType: 'website',
@@ -160,7 +160,7 @@ export default function PaintingEstimator() {
           // Check if coverage is configured
           for (const q of (quals ?? [])) {
             if (q.coverage === null || q.coverage === undefined) {
-              warnings.push(`Coverage not configured for ${product.name} — ${q.name}. Accurate calculation requires Admin coverage configuration.`);
+              warnings.push(`Coverage not configured for ${product.name}, ${q.name}. Accurate calculation requires Admin coverage configuration.`);
             }
           }
         }
@@ -924,7 +924,7 @@ function RoomCard({
               )}
             </div>
             {!room.include_ceiling && (
-              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Ceiling excluded — ceiling quantity = 0.</p>
+              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Ceiling excluded, ceiling quantity = 0.</p>
             )}
           </Section>
 
@@ -1005,7 +1005,7 @@ function EstimateResult({
             {room.include_ceiling && (
               <div className="mt-3 rounded-lg bg-blue-50 px-4 py-2 dark:bg-blue-500/10">
                 <p className="text-xs text-blue-700 dark:text-blue-400">
-                  Ceiling: {room.ceiling_quantity_buckets} bucket(s) — {room.ceiling_colour} — Calculated separately
+                  Ceiling: {room.ceiling_quantity_buckets} bucket(s) · {room.ceiling_colour} · Calculated separately
                 </p>
               </div>
             )}
@@ -1023,13 +1023,13 @@ function EstimateResult({
                 {room.colour_condition && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     <span className="font-semibold">Colour condition:</span> {room.colour_condition.name}
-                    {room.colour_condition.requires_warning && ' — professional adjustment recommended'}
+                    {room.colour_condition.requires_warning && ', professional adjustment recommended'}
                   </p>
                 )}
                 {room.surface_condition && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     <span className="font-semibold">Surface condition:</span> {room.surface_condition.name}
-                    {room.surface_condition.primer_recommended && ' — primer/sealer recommended'}
+                    {room.surface_condition.primer_recommended && ', primer/sealer recommended'}
                   </p>
                 )}
               </div>
@@ -1087,7 +1087,7 @@ function EstimateResult({
               {result.production_eligible ? (
                 <span className="text-green-700 dark:text-green-400">FRELUX Production Available</span>
               ) : (
-                <span className="text-orange-700 dark:text-orange-400">FRELUX Production — Minimum Not Met</span>
+                <span className="text-orange-700 dark:text-orange-400">FRELUX Production: Minimum Not Met</span>
               )}
             </p>
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">{result.production_message}</p>
@@ -1121,7 +1121,7 @@ function EstimateResult({
             </div>
             <div className="mt-2 flex justify-between text-sm">
               <span className="text-neutral-500 dark:text-neutral-400">Labour</span>
-              <span className="text-neutral-500 dark:text-neutral-400">Not included — negotiated separately.</span>
+              <span className="text-neutral-500 dark:text-neutral-400">Not included, negotiated separately.</span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
               <span className="font-semibold text-neutral-700 dark:text-neutral-200">Estimated Total Excluding Labour</span>

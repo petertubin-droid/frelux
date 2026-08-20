@@ -33,7 +33,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { CostEstimatorSeo } from '@/components/seo/SeoContent';
 export default function CostEstimator() {
   useSeo({
-    title: 'Cost Estimator — Estimate Your Painting Project Cost',
+    title: 'Cost Estimator: Estimate Your Painting Project Cost',
     description:
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
     canonicalPath: '/cost-estimator',
@@ -213,7 +213,7 @@ export default function CostEstimator() {
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
+    const name = `Cost Estimate: ${input.projectType}, ${formatCurrency(result.total, currencySymbol)}`;
     saveLocalProject(name, 'cost_estimate', { input, result });
   }
 

@@ -18,7 +18,7 @@ export default function SharedProject() {
 
   useSeo({
     title: 'Shared Project',
-    description: 'A shared FRELUX project — colors, calculations, and estimates.',
+    description: 'A shared FRELUX project, colors, calculations, and estimates.',
     noIndex: true,
   });
 

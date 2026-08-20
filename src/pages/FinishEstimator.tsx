@@ -25,7 +25,7 @@ const finishTypeMeta: Record<FinishType, { icon: typeof Paintbrush; color: strin
 
 export default function FinishEstimator() {
   useSeo({
-    title: 'Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator',
+    title: 'Finish Estimator: Painting, Tyrolene & Grafitex Cost Calculator',
     description: 'Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes. Labour not included.',
     canonicalPath: '/finish-estimator',
     ogType: 'website',
@@ -175,7 +175,7 @@ export default function FinishEstimator() {
 
   async function handleSave() {
     if (!result) return;
-    const name = `${getFinishTypeLabel(result.finishType)} — ${formatNumber(result.area)} m²`;
+    const name = `${getFinishTypeLabel(result.finishType)}, ${formatNumber(result.area)} m²`;
     const { error } = await saveUserProject(
       name,
       'custom',
@@ -227,7 +227,7 @@ export default function FinishEstimator() {
           <div className="flex items-start gap-3">
             <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-amber-900">Labour: Not included — negotiated separately.</p>
+              <p className="text-sm font-semibold text-amber-900">Labour: Not included, negotiated separately.</p>
               <p className="text-xs text-amber-700 mt-1">This calculator provides material quantities and costs only. Labour is not calculated.</p>
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function FinishEstimator() {
 
                   {/* Bucket price (admin-configurable) */}
                   <div>
-                    <label className="section-label">Bucket Price (₦) — Admin Configurable</label>
+                    <label className="section-label">Bucket Price (₦): Admin Configurable</label>
                     <input
                       type="number"
                       min="0"
@@ -543,8 +543,8 @@ export default function FinishEstimator() {
               title={`${getFinishTypeLabel(result.finishType)} Estimate`}
               subtitle={
                 result.finishType === 'grafitex'
-                  ? `${result.grafitexEquivalentPartitions} standard partitions — ${result.coats} coat`
-                  : `${formatNumber(result.area)} m² — ${result.coats} coat${result.coats > 1 ? 's' : ''} — ${result.wasteMargin}% waste`
+                  ? `${result.grafitexEquivalentPartitions} standard partitions, ${result.coats} coat`
+                  : `${formatNumber(result.area)} m² · ${result.coats} coat${result.coats > 1 ? 's' : ''} · ${result.wasteMargin}% waste`
               }
               stats={[
                 result.finishType === 'grafitex'

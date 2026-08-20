@@ -224,7 +224,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
                 const s = BUILTIN_PROVIDERS.find((p) => p.slug === e.target.value);
                 if (s) { setName(s.name); setProviderType(s.provider_type as AdProviderType); }
               }}>
-                <option value="">— Choose a provider —</option>
+                <option value="">Choose a provider</option>
                 {BUILTIN_PROVIDERS.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
               </select>
             </AdminField>

@@ -671,7 +671,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 function generateQuotationHTML(estimate: AdvancedEstimateData, saved?: { title: string } | undefined): string {
   const title = saved?.title || 'Screeding Estimate';
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title} — Quotation</title>
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}: Quotation</title>
 <style>
 body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a2e}
 .header{text-align:center;border-bottom:3px solid #6366f1;padding-bottom:20px;margin-bottom:30px}
@@ -687,7 +687,7 @@ td{padding:10px;border-bottom:1px solid #eee;font-size:13px}
 .grand{font-size:18px;font-weight:bold;color:#1a1a2e;border-top:2px solid #1a1a2e;padding-top:10px;margin-top:10px}
 .footer{margin-top:40px;text-align:center;font-size:11px;color:#999}
 </style></head><body>
-<div class="header"><h1>FRELUX</h1><p>Professional Quotation — ${title}</p><p>${new Date().toLocaleDateString()}</p></div>
+<div class="header"><h1>FRELUX</h1><p>Professional Quotation: ${title}</p><p>${new Date().toLocaleDateString()}</p></div>
 <table><thead><tr><th>Material/Service</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Total</th></tr></thead>
 <tbody>
 ${estimate.lineItems.map((i) => `<tr><td>${i.label}</td><td>${formatNumber(i.quantity)}</td><td>${i.unit}</td><td>${estimate.currencySymbol}${formatNumber(i.unitPrice)}</td><td>${estimate.currencySymbol}${formatNumber(i.total)}</td></tr>`).join('')}

@@ -31,7 +31,7 @@ const allTools: Tool[] = [
   {
     icon: Paintbrush,
     title: 'Painting Estimator',
-    description: 'Room-by-room estimation with the FRELUX methodology — quantity, ceiling, walls, and material cost.',
+    description: 'Room-by-room estimation with the FRELUX methodology, quantity, ceiling, walls, and material cost.',
     benefit: 'Bucket-level accuracy',
     to: '/painting-estimator',
     accent: 'text-brand-purple bg-brand-purple/10',
@@ -95,7 +95,7 @@ const allTools: Tool[] = [
   {
     icon: Building2,
     title: 'Finish Estimator',
-    description: 'Compare painting, Tyrolene, and Grafitex finishes — material quantities and costs side by side.',
+    description: 'Compare painting, Tyrolene, and Grafitex finishes, material quantities and costs side by side.',
     benefit: 'Side-by-side comparison',
     to: '/finish-estimator',
     accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',

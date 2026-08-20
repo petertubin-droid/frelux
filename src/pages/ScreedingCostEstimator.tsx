@@ -55,7 +55,7 @@ function dbToConfig(db: DbScreedingMixConfig): ScreedingMixConfig {
 
 export default function ScreedingCostEstimator() {
   useSeo({
-    title: 'Wall Screeding Cost Estimator — Paint + Cement Mix Calculator',
+    title: 'Wall Screeding Cost Estimator: Paint + Cement Mix Calculator',
     description:
       'Estimate wall screeding costs with real-world mix calculations. Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, VAT, and a professional quotation.',
     canonicalPath: '/screeding-cost-estimator',
@@ -194,7 +194,7 @@ export default function ScreedingCostEstimator() {
                     </div>
                     <div>
                       <span className="block text-neutral-400">Labour</span>
-                      <span className="font-semibold text-brand-navy dark:text-white">Not included — negotiated separately</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">Not included, negotiated separately</span>
                     </div>
                   </div>
                 </div>

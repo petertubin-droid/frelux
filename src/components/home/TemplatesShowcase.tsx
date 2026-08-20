@@ -98,7 +98,7 @@ export default function TemplatesShowcase() {
               <span className="text-xs text-neutral-400">3 months ago</span>
             </div>
             <div className="px-5 py-4">
-              <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white">Living Room — 2 Coats</h3>
+              <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white">Living Room, 2 Coats</h3>
               <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">12 × 12 ft · 2 coats · Premium emulsion</p>
               <div className="mt-3 flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
                 <span>14 L paint</span>

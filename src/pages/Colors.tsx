@@ -39,14 +39,14 @@ const familySwatchColors: Record<string, string> = {
 
 export default function Colors() {
   useSeo({
-    title: 'Color Library — Paint Colors & Palettes',
+    title: 'Color Library: Paint Colors & Palettes',
     description: 'Browse hundreds of professional paint colors and curated color palettes. Filter by color family, room type, style, and more.',
     canonicalPath: '/colors',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'FRELUX Color Library — Paint Colors & Palettes',
+      name: 'FRELUX Color Library: Paint Colors & Palettes',
       description: 'Browse hundreds of professional paint colors and curated color palettes. Filter by color family, room type, style, and more.',
     },
   });

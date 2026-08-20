@@ -429,7 +429,7 @@ export default function AdminTyroleneConfig() {
 
   return (
     <>
-      <AdminHeader title="Tyrolene Config" subtitle="Configure Tyrolene estimation parameters — exterior only, partition-based." />
+      <AdminHeader title="Tyrolene Config" subtitle="Configure Tyrolene estimation parameters, exterior only, partition-based." />
 
       {/* Tab Navigation */}
       <div className="mb-6 flex flex-wrap gap-2">
@@ -633,12 +633,12 @@ export default function AdminTyroleneConfig() {
             {/* Owerri */}
             <div className="rounded-lg border border-green-200 bg-green-50 p-3">
               <p className="text-sm font-medium text-green-900">Owerri</p>
-              <p className="text-xs text-green-700 mt-1">No minimum — production is always available for clients in Owerri.</p>
+              <p className="text-xs text-green-700 mt-1">No minimum, production is always available for clients in Owerri.</p>
             </div>
 
             {/* Outside Owerri */}
             <div className="rounded-lg border border-neutral-200 p-3">
-              <p className="text-sm font-medium text-neutral-900 mb-2">Outside Owerri — Minimum Partitions</p>
+              <p className="text-sm font-medium text-neutral-900 mb-2">Outside Owerri. Minimum Partitions</p>
               <div className="flex items-center gap-3">
                 <input
                   type="number"

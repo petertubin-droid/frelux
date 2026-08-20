@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 
 export default function Terms() {
   useSeo({
-    title: 'Terms of Service — FRELUX PAINT CALC',
+    title: 'Terms of Service: FRELUX PAINT CALC',
     description: 'Terms of service for using FRELUX PAINT CALC tools and website. Read our terms for usage guidelines and limitations.',
     canonicalPath: '/terms',
     ogType: 'website',
