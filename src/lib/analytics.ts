@@ -40,7 +40,9 @@ export type TrackEvent =
   | 'screeding_mix_estimate_generated'
   | 'rewarded_ad_watched'
   | 'advanced_calculator_opened'
-  | 'advanced_estimate_saved';
+  | 'advanced_estimate_saved'
+  | 'finish_estimator_opened'
+  | 'finish_estimate_completed';
 
 export function track(event: TrackEvent, params?: Record<string, unknown>): void {
   // Meta Pixel

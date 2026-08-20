@@ -1104,6 +1104,9 @@ export interface DbMaterialCatalog {
   quality_tier: FinishQuality;
   is_available: boolean;
   region: string | null;
+  currency: string;
+  is_active: boolean;
+  sort_order: number;
 }
 
 // =========================================================

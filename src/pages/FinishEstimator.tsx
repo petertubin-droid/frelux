@@ -74,7 +74,7 @@ export default function FinishEstimator() {
       if (ftRes.error) setLoadError(ftRes.error);
       else setFinishTypes(ftRes.data);
 
-      if (settingsRes) setSettings(settingsRes as DbSiteSettings);
+      if (settingsRes.data) setSettings(settingsRes.data);
       setLoading(false);
     }
     load();

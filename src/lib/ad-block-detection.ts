@@ -36,7 +36,7 @@ export async function detectAdBlocker(): Promise<boolean> {
     window.getComputedStyle(bait).visibility === 'hidden';
 
   // Check if adsbygoogle object exists (set by the AdSense script)
-  const adsenseBlocked = adsenseScript && !(window as Record<string, unknown>).adsbygoogle;
+  const adsenseBlocked = adsenseScript && !(window as unknown as Record<string, unknown>).adsbygoogle;
 
   document.body.removeChild(bait);
 

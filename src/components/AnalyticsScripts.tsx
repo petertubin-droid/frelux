@@ -22,15 +22,16 @@ export default function AnalyticsScripts() {
     let dbGaId: string | null = null;
     let dbPixelId: string | null = null;
 
-    supabase
+    Promise.resolve(supabase
       .from('site_settings')
       .select('adsense_publisher_id, ga_measurement_id, meta_pixel_id')
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => {
-        if (data?.adsense_publisher_id) dbPublisherId = data.adsense_publisher_id;
-        if (data?.ga_measurement_id) dbGaId = data.ga_measurement_id;
-        if (data?.meta_pixel_id) dbPixelId = data.meta_pixel_id;
+      .then((res: { data: Record<string, unknown> | null }) => {
+        const data = res.data;
+        if (data?.adsense_publisher_id) dbPublisherId = data.adsense_publisher_id as string;
+        if (data?.ga_measurement_id) dbGaId = data.ga_measurement_id as string;
+        if (data?.meta_pixel_id) dbPixelId = data.meta_pixel_id as string;
 
         // Inject scripts that weren't already injected from static config
         const effectiveGaId = dbGaId || siteConfig.analytics.gaMeasurementId;
@@ -47,7 +48,7 @@ export default function AnalyticsScripts() {
           injectAdsense(effectivePublisherId);
         }
       })
-      .catch(() => {
+      ).catch(() => {
         // Fall back to static config only if DB fetch fails
       });
 
