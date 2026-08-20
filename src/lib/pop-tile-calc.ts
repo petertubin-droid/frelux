@@ -33,7 +33,6 @@ export function calculatePopCeiling(
 
   const materialResults: PopMaterialResult[] = [];
   let materialCost = 0;
-  let labourCost = 0;
 
   const filtered = materials
     .filter((m) => m.workflow === input.workflow && m.is_active)
@@ -48,20 +47,8 @@ export function calculatePopCeiling(
     const coverage = Number(mat.coverage_rate);
     const pkgSize = Number(mat.package_size);
     const unitPrice = Number(mat.unit_price);
-    const labourRate = Number(mat.labour_rate_per_sqm);
-
     if (mat.category === 'labour') {
-      const labourAmount = ceilingArea * labourRate;
-      labourCost += labourAmount;
-      materialResults.push({
-        name: mat.name,
-        category: mat.category,
-        quantity: ceilingArea,
-        unit: 'm²',
-        packagesNeeded: 1,
-        cost: labourAmount,
-        isOptional: mat.is_optional,
-      });
+      // Labour not included — negotiated separately
     } else {
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
       const packagesNeeded = pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
@@ -79,13 +66,13 @@ export function calculatePopCeiling(
     }
   }
 
-  const grandTotal = materialCost + labourCost;
+  const grandTotal = materialCost; // Labour not included
 
   return {
     ceilingArea,
     materials: materialResults,
     materialCost,
-    labourCost,
+    labourCost: 0,
     wasteAmount: adjustedArea - ceilingArea,
     grandTotal,
     currency,
@@ -172,8 +159,8 @@ export function calculateTile(
   const spacerCost = spacerNeeded * input.spacerPricePerPack;
 
   const materialCost = tileCost + adhesiveCost + cementCost + sandCost + groutCost + spacerCost;
-  const labourCost = surfaceArea * input.labourRatePerSqm;
-  const grandTotal = materialCost + labourCost;
+  const labourCost = 0; // Labour not included — negotiated separately
+  const grandTotal = materialCost;
 
   return {
     surfaceArea,

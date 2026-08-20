@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { calculatePopCeiling } from '@/lib/pop-tile-calc';
-import { calculateLabourCost } from '@/lib/labour';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPopMaterials, fetchSiteSettings, saveUserProject } from '@/lib/queries';
 import { formatNumber, formatCurrency } from '@/lib/utils';
@@ -22,14 +20,14 @@ interface PassedState {
 export default function PopCeilingCostEstimator() {
   useSeo({
     title: 'POP Ceiling Cost Estimator — Estimate POP Ceiling Project Cost',
-    description: 'Estimate the full cost of your POP ceiling project including materials, labour, and waste for both Nigerian and international workflows.',
+    description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
     canonicalPath: '/pop-ceiling-cost-estimator',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX POP Ceiling Cost Estimator',
-      description: 'Estimate the full cost of your POP ceiling project including materials, labour, and waste.',
+      description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
       url: 'https://freluxpaintcalc.com/pop-ceiling-cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
@@ -47,7 +45,6 @@ export default function PopCeilingCostEstimator() {
   const [result, setResult] = useState<PopCalcResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('pop_ceiling');
 
   const [input, setInput] = useState<PopCalcInput>({
     workflow: (passed.workflow as 'nigeria' | 'international') ?? 'nigeria',
@@ -86,14 +83,13 @@ export default function PopCeilingCostEstimator() {
       };
       const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
       const rawResult = calculatePopCeiling(inputWithArea, nonLabourMaterials, currency, currencySymbol);
-      const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
-      const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
+      const r: PopCalcResult = { ...rawResult, labourCost: 0, grandTotal: rawResult.materialCost };
       setResult(r);
       track('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
       logAnalyticsEvent('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passed.ceilingArea, materials, labourConfig]);
+  }, [passed.ceilingArea, materials]);
 
   function update<K extends keyof PopCalcInput>(key: K, value: PopCalcInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));
@@ -102,8 +98,7 @@ export default function PopCeilingCostEstimator() {
   function compute() {
     const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
     const rawResult = calculatePopCeiling(input, nonLabourMaterials, currency, currencySymbol);
-    const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
-    const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
+    const r: PopCalcResult = { ...rawResult, labourCost: 0, grandTotal: rawResult.materialCost };
     setResult(r);
     track('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
     logAnalyticsEvent('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
@@ -112,7 +107,7 @@ export default function PopCeilingCostEstimator() {
   async function handleSave() {
     if (!user || !result) return;
     setSaving(true);
-    const { error } = await saveUserProject('POP Ceiling Cost Estimate', 'pop_estimate', { ...input, result, labourConfig });
+    const { error } = await saveUserProject('POP Ceiling Cost Estimate', 'pop_estimate', { ...input, result });
     setSaveMsg(error ? `Save failed: ${error}` : 'Saved to your projects');
     setSaving(false);
     setTimeout(() => setSaveMsg(''), 3000);
@@ -121,7 +116,7 @@ export default function PopCeilingCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material and labour costs for your POP ceiling project." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." backTo="/" backLabel="Home" />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -129,7 +124,7 @@ export default function PopCeilingCostEstimator() {
 
   return (
     <>
-      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities, labour cost, and grand total for your POP ceiling project." backTo="/" backLabel="Home" />
+      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included." backTo="/" backLabel="Home" />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">

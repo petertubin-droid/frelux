@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { calculateTile } from '@/lib/pop-tile-calc';
-import { calculateLabourCost } from '@/lib/labour';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSettings, saveUserProject } from '@/lib/queries';
 import { formatNumber, formatCurrency } from '@/lib/utils';
@@ -22,14 +20,14 @@ interface PassedState {
 export default function TileCostEstimator() {
   useSeo({
     title: 'Tile Cost Estimator — Estimate Tile Installation Cost',
-    description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
+    description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, and waste. Labour not included.',
     canonicalPath: '/tile-cost-estimator',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Tile Cost Estimator',
-      description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
+      description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, and waste. Labour not included.',
       url: 'https://freluxpaintcalc.com/tile-cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
@@ -48,7 +46,6 @@ export default function TileCostEstimator() {
   const [result, setResult] = useState<TileCalcResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('tile');
 
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: passed.input?.surfaceType ?? 'floor',
@@ -74,7 +71,6 @@ export default function TileCostEstimator() {
     spacerPricePerPack: passed.input?.spacerPricePerPack ?? 500,
     spacerPackageSize: passed.input?.spacerPackageSize ?? 1,
     wasteMargin: passed.input?.wasteMargin ?? 10,
-    labourRatePerSqm: passed.input?.labourRatePerSqm ?? 2000,
     unit: passed.input?.unit ?? 'meters',
   });
 
@@ -151,12 +147,11 @@ export default function TileCostEstimator() {
         width: sqrtArea,
       };
       const rawResult = calculateTile({ ...inputWithArea, labourRatePerSqm: 0 }, tileMaterials, currency, currencySymbol);
-      const labourCost = calculateLabourCost(labourConfig, rawResult.surfaceArea);
-      const r: TileCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
+      const r: TileCalcResult = { ...rawResult, labourCost: 0, grandTotal: rawResult.materialCost };
       setResult(r);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passed.surfaceArea, tileMaterials, labourConfig]);
+  }, [passed.surfaceArea, tileMaterials]);
 
   function update<K extends keyof TileCalcInput>(key: K, value: TileCalcInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));

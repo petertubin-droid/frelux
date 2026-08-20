@@ -7,7 +7,6 @@ import {
   round,
   type FinishCalcInput,
   type FinishMaterialConfig,
-  type FinishType,
 } from './finish-calc';
 
 describe('round helper', () => {
@@ -35,7 +34,7 @@ describe('getDefaultCoats', () => {
   it('returns correct default coats for each finish type', () => {
     expect(getDefaultCoats('painting')).toBe(2);
     expect(getDefaultCoats('tyrolene')).toBe(2);
-    expect(getDefaultCoats('grafitex')).toBe(3);
+    expect(getDefaultCoats('grafitex')).toBe(1); // Grafitex is single-coat
   });
 });
 
@@ -55,273 +54,286 @@ describe('getFinishTypeDescription', () => {
   });
 });
 
-describe('calculateFinish', () => {
-  describe('Painting calculation', () => {
-    it('calculates quantities, packages, and cost correctly for painting', () => {
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 100,
-        coats: 2,
-        wasteMargin: 10,
-      };
+describe('calculateFinish — Painting', () => {
+  const paintMaterial: FinishMaterialConfig = {
+    id: 'paint-1',
+    name: 'Paint',
+    finishType: 'painting',
+    coverageRate: 10,
+    coverageUnit: 'L',
+    packageSize: 20,
+    packageUnit: 'L',
+    unitPrice: 15000,
+    defaultCoats: 2,
+    isBase: true,
+    isFinishing: false,
+    isActive: true,
+    sortOrder: 0,
+  };
 
-      const result = calculateFinish(input);
+  it('calculates quantities, packages, and cost correctly', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: 100,
+      coats: 2,
+      wasteMargin: 10,
+      materials: [paintMaterial],
+    };
 
-      expect(result.finishType).toBe('painting');
-      expect(result.area).toBe(100);
-      expect(result.coats).toBe(2);
-      expect(result.wasteMargin).toBe(10);
-      expect(result.materials).toHaveLength(1);
+    const result = calculateFinish(input);
 
-      const mat = result.materials[0];
-      // quantityRequired = (100 × 2) / 10 = 20 L
-      expect(mat.quantityRequired).toBe(20);
-      // quantityWithWaste = 20 × 1.1 = 22 L
-      expect(mat.quantityWithWaste).toBe(22);
-      // packagesNeeded = ceil(22 / 20) = 2
-      expect(mat.packagesNeeded).toBe(2);
-      // cost = 2 × 15000 = 30000
-      expect(mat.cost).toBe(30000);
+    expect(result.finishType).toBe('painting');
+    expect(result.area).toBe(100);
+    expect(result.coats).toBe(2);
+    expect(result.wasteMargin).toBe(10);
+    expect(result.materials).toHaveLength(1);
 
-      expect(result.materialCost).toBe(30000);
-      // labour = 100 × 2 × 500 = 100000
-      expect(result.labourCost).toBe(100000);
-      expect(result.totalCost).toBe(130000);
-    });
+    const mat = result.materials[0];
+    // quantityRequired = (100 × 2) / 10 = 20 L
+    expect(mat.quantityRequired).toBe(20);
+    // quantityWithWaste = 20 × 1.1 = 22 L
+    expect(mat.quantityWithWaste).toBe(22);
+    // packagesNeeded = ceil(22 / 20) = 2
+    expect(mat.packagesNeeded).toBe(2);
+    // cost = 2 × 15000 = 30000
+    expect(mat.cost).toBe(30000);
 
-    it('uses default coats when coats parameter is omitted', () => {
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 100,
-        wasteMargin: 10,
-      };
-
-      const result = calculateFinish(input);
-      expect(result.coats).toBe(2);
-      expect(result.materials[0].quantityRequired).toBe(20);
-    });
+    expect(result.materialCost).toBe(30000);
+    // LABOUR IS NOT CALCULATED
+    expect(result.totalCost).toBe(30000);
+    expect(result.labourNote).toBe('Labour: Not included — negotiated separately.');
   });
 
-  describe('Tyrolene calculation', () => {
-    it('calculates base + texture materials correctly for tyrolene', () => {
-      const input: FinishCalcInput = {
-        finishType: 'tyrolene',
-        area: 50,
-        coats: 2,
-        wasteMargin: 5,
-      };
+  it('uses default coats when coats parameter is omitted', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: 100,
+      wasteMargin: 10,
+      materials: [paintMaterial],
+    };
 
-      const result = calculateFinish(input);
+    const result = calculateFinish(input);
+    expect(result.coats).toBe(2);
+    expect(result.materials[0].quantityRequired).toBe(20);
+  });
+});
 
-      expect(result.finishType).toBe('tyrolene');
-      expect(result.area).toBe(50);
-      expect(result.coats).toBe(2);
-      expect(result.wasteMargin).toBe(5);
-      expect(result.materials).toHaveLength(2);
+describe('calculateFinish — Grafitex (partition-based)', () => {
+  it('calculates bucket requirements from partition count', () => {
+    const input: FinishCalcInput = {
+      finishType: 'grafitex',
+      area: 0,
+      coats: 1,
+      wasteMargin: 0,
+      grafitexBucketPrice: 20000,
+      grafitexPartitionsPerBucket: 2, // FRELUX rule
+      standardPartitionArea: 9, // 3m × 3m
+      standardPartitionCount: 4,
+    };
 
-      const baseMat = result.materials[0];
-      expect(baseMat.isBase).toBe(true);
-      // quantityRequired = (50 × 2) / 1.5 = 66.67 kg
-      expect(baseMat.quantityRequired).toBe(66.67);
-      // quantityWithWaste = 66.67 × 1.05 = 70 kg
-      expect(baseMat.quantityWithWaste).toBe(70);
-      // packagesNeeded = ceil(70 / 25) = 3
-      expect(baseMat.packagesNeeded).toBe(3);
-      // cost = 3 × 8000 = 24000
-      expect(baseMat.cost).toBe(24000);
+    const result = calculateFinish(input);
 
-      const textureMat = result.materials[1];
-      expect(textureMat.isFinishing).toBe(true);
-      expect(textureMat.quantityRequired).toBe(66.67);
-      expect(textureMat.quantityWithWaste).toBe(70);
-      expect(textureMat.packagesNeeded).toBe(3);
-      expect(textureMat.cost).toBe(24000);
-
-      // Total material cost = 24000 + 24000 = 48000
-      expect(result.materialCost).toBe(48000);
-      // labour = 50 × 2 × 800 = 80000
-      expect(result.labourCost).toBe(80000);
-      expect(result.totalCost).toBe(128000);
-    });
+    expect(result.finishType).toBe('grafitex');
+    expect(result.grafitexEquivalentPartitions).toBe(4);
+    // Theoretical: 4 / 2 = 2 buckets
+    expect(result.grafitexBucketsTheoretical).toBe(2);
+    // Practical: ceil(2) = 2 buckets
+    expect(result.grafitexBucketsPractical).toBe(2);
+    // Cost: 2 × 20000 = 40000
+    expect(result.materialCost).toBe(40000);
+    expect(result.totalCost).toBe(40000);
+    expect(result.labourNote).toBe('Labour: Not included — negotiated separately.');
   });
 
-  describe('Grafitex calculation', () => {
-    it('calculates base + finishing coats correctly for grafitex', () => {
-      const input: FinishCalcInput = {
-        finishType: 'grafitex',
-        area: 40,
-        coats: 3,
-        wasteMargin: 0,
-      };
+  it('rounds up fractional bucket requirements', () => {
+    const input: FinishCalcInput = {
+      finishType: 'grafitex',
+      area: 0,
+      coats: 1,
+      wasteMargin: 0,
+      grafitexBucketPrice: 20000,
+      grafitexPartitionsPerBucket: 2,
+      standardPartitionArea: 9,
+      standardPartitionCount: 3,
+    };
 
-      const result = calculateFinish(input);
+    const result = calculateFinish(input);
 
-      expect(result.finishType).toBe('grafitex');
-      expect(result.area).toBe(40);
-      expect(result.coats).toBe(3);
-      expect(result.wasteMargin).toBe(0);
-      expect(result.materials).toHaveLength(2);
-
-      result.materials.forEach((mat) => {
-        // quantityRequired = (40 × 3) / 1.2 = 100 kg
-        expect(mat.quantityRequired).toBe(100);
-        expect(mat.quantityWithWaste).toBe(100);
-        // packagesNeeded = ceil(100 / 25) = 4
-        expect(mat.packagesNeeded).toBe(4);
-        // cost = 4 × 10000 = 40000
-        expect(mat.cost).toBe(40000);
-      });
-
-      expect(result.materialCost).toBe(80000);
-      // labour = 40 × 3 × 600 = 72000
-      expect(result.labourCost).toBe(72000);
-      expect(result.totalCost).toBe(152000);
-    });
-
-    it('uses default coats (3) when coats parameter is omitted for grafitex', () => {
-      const input: FinishCalcInput = {
-        finishType: 'grafitex',
-        area: 40,
-      };
-
-      const result = calculateFinish(input);
-      expect(result.coats).toBe(3);
-    });
+    // Theoretical: 3 / 2 = 1.5 buckets
+    expect(result.grafitexBucketsTheoretical).toBe(1.5);
+    // Practical: ceil(1.5) = 2 buckets
+    expect(result.grafitexBucketsPractical).toBe(2);
+    // Cost: 2 × 20000 = 40000
+    expect(result.materialCost).toBe(40000);
   });
 
-  describe('Zero area', () => {
-    it('returns all zeros when area is 0', () => {
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 0,
-        coats: 2,
-        wasteMargin: 10,
-      };
+  it('uses admin-configurable bucket price', () => {
+    const input1: FinishCalcInput = {
+      finishType: 'grafitex',
+      area: 0,
+      coats: 1,
+      wasteMargin: 0,
+      grafitexBucketPrice: 20000,
+      grafitexPartitionsPerBucket: 2,
+      standardPartitionArea: 9,
+      standardPartitionCount: 4,
+    };
 
-      const result = calculateFinish(input);
+    const input2: FinishCalcInput = {
+      ...input1,
+      grafitexBucketPrice: 25000, // Admin changes price
+    };
 
-      expect(result.area).toBe(0);
-      expect(result.materialCost).toBe(0);
-      expect(result.labourCost).toBe(0);
-      expect(result.totalCost).toBe(0);
+    const result1 = calculateFinish(input1);
+    const result2 = calculateFinish(input2);
 
-      result.materials.forEach((mat) => {
-        expect(mat.quantityRequired).toBe(0);
-        expect(mat.quantityWithWaste).toBe(0);
-        expect(mat.packagesNeeded).toBe(0);
-        expect(mat.cost).toBe(0);
-      });
-    });
+    expect(result1.materialCost).toBe(40000); // 2 × 20000
+    expect(result2.materialCost).toBe(50000); // 2 × 25000
   });
 
-  describe('Waste margin clamping', () => {
-    it('clamps waste margin > 100% down to 100%', () => {
-      const input: FinishCalcInput = {
+  it('calculates from area when partition count not provided', () => {
+    const input: FinishCalcInput = {
+      finishType: 'grafitex',
+      area: 36, // 36m² = 4 standard partitions (9m² each)
+      coats: 1,
+      wasteMargin: 0,
+      grafitexBucketPrice: 20000,
+      grafitexPartitionsPerBucket: 2,
+      standardPartitionArea: 9,
+    };
+
+    const result = calculateFinish(input);
+
+    expect(result.grafitexEquivalentPartitions).toBe(4);
+    expect(result.grafitexBucketsTheoretical).toBe(2);
+    expect(result.grafitexBucketsPractical).toBe(2);
+  });
+});
+
+describe('calculateFinish — Zero area', () => {
+  it('returns all zeros when area is 0', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: 0,
+      coats: 2,
+      wasteMargin: 10,
+      materials: [{
+        id: 'p1',
+        name: 'Paint',
         finishType: 'painting',
-        area: 100,
-        coats: 2,
-        wasteMargin: 150,
-      };
+        coverageRate: 10,
+        coverageUnit: 'L',
+        packageSize: 20,
+        packageUnit: 'L',
+        unitPrice: 15000,
+        defaultCoats: 2,
+        isBase: true,
+        isFinishing: false,
+        isActive: true,
+        sortOrder: 0,
+      }],
+    };
 
-      const result = calculateFinish(input);
+    const result = calculateFinish(input);
 
-      expect(result.wasteMargin).toBe(100);
-      const mat = result.materials[0];
-      expect(mat.quantityRequired).toBe(20);
-      // quantityWithWaste with 100% waste = 20 × 2.0 = 40 L
-      expect(mat.quantityWithWaste).toBe(40);
-      expect(mat.packagesNeeded).toBe(2);
-      expect(mat.cost).toBe(30000);
-    });
+    expect(result.area).toBe(0);
+    expect(result.materialCost).toBe(0);
+    expect(result.totalCost).toBe(0);
+    expect(result.labourNote).toContain('Not included');
+  });
+});
+
+describe('calculateFinish — Waste margin clamping', () => {
+  it('clamps waste margin > 100% down to 100%', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: 100,
+      coats: 2,
+      wasteMargin: 150,
+      materials: [{
+        id: 'p1',
+        name: 'Paint',
+        finishType: 'painting',
+        coverageRate: 10,
+        coverageUnit: 'L',
+        packageSize: 20,
+        packageUnit: 'L',
+        unitPrice: 15000,
+        defaultCoats: 2,
+        isBase: true,
+        isFinishing: false,
+        isActive: true,
+        sortOrder: 0,
+      }],
+    };
+
+    const result = calculateFinish(input);
+
+    expect(result.wasteMargin).toBe(100);
+    const mat = result.materials[0];
+    expect(mat.quantityRequired).toBe(20);
+    // quantityWithWaste with 100% waste = 20 × 2.0 = 40 L
+    expect(mat.quantityWithWaste).toBe(40);
+    expect(mat.packagesNeeded).toBe(2);
+    expect(mat.cost).toBe(30000);
+  });
+});
+
+describe('calculateFinish — Negative inputs', () => {
+  it('clamps negative area to 0', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: -50,
+      coats: 2,
+      wasteMargin: 10,
+      materials: [{
+        id: 'p1',
+        name: 'Paint',
+        finishType: 'painting',
+        coverageRate: 10,
+        coverageUnit: 'L',
+        packageSize: 20,
+        packageUnit: 'L',
+        unitPrice: 15000,
+        defaultCoats: 2,
+        isBase: true,
+        isFinishing: false,
+        isActive: true,
+        sortOrder: 0,
+      }],
+    };
+
+    const result = calculateFinish(input);
+    expect(result.area).toBe(0);
+    expect(result.materialCost).toBe(0);
+    expect(result.totalCost).toBe(0);
   });
 
-  describe('Negative inputs', () => {
-    it('clamps negative area to 0', () => {
-      const input: FinishCalcInput = {
+  it('clamps negative waste margin to 0', () => {
+    const input: FinishCalcInput = {
+      finishType: 'painting',
+      area: 100,
+      coats: 2,
+      wasteMargin: -15,
+      materials: [{
+        id: 'p1',
+        name: 'Paint',
         finishType: 'painting',
-        area: -50,
-        coats: 2,
-        wasteMargin: 10,
-      };
+        coverageRate: 10,
+        coverageUnit: 'L',
+        packageSize: 20,
+        packageUnit: 'L',
+        unitPrice: 15000,
+        defaultCoats: 2,
+        isBase: true,
+        isFinishing: false,
+        isActive: true,
+        sortOrder: 0,
+      }],
+    };
 
-      const result = calculateFinish(input);
-      expect(result.area).toBe(0);
-      expect(result.materialCost).toBe(0);
-      expect(result.labourCost).toBe(0);
-      expect(result.totalCost).toBe(0);
-    });
-
-    it('clamps negative waste margin to 0', () => {
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 100,
-        coats: 2,
-        wasteMargin: -15,
-      };
-
-      const result = calculateFinish(input);
-      expect(result.wasteMargin).toBe(0);
-      expect(result.materials[0].quantityWithWaste).toBe(20);
-    });
-
-    it('clamps negative coats to 0', () => {
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 100,
-        coats: -2,
-        wasteMargin: 10,
-      };
-
-      const result = calculateFinish(input);
-      expect(result.coats).toBe(0);
-      expect(result.materialCost).toBe(0);
-      expect(result.labourCost).toBe(0);
-    });
-  });
-
-  describe('Custom material overrides', () => {
-    it('allows passing custom material configurations', () => {
-      const customMaterials: FinishMaterialConfig[] = [
-        {
-          id: 'custom-1',
-          name: 'Custom Primer',
-          finishType: 'painting',
-          coverageRate: 8,
-          coverageUnit: 'L',
-          packageSize: 10,
-          packageUnit: 'L',
-          unitPrice: 5000,
-          defaultCoats: 1,
-          labourRatePerSqm: 300,
-          isBase: true,
-          isFinishing: false,
-          isActive: true,
-          sortOrder: 0,
-        },
-      ];
-
-      const input: FinishCalcInput = {
-        finishType: 'painting',
-        area: 80,
-        coats: 1,
-        wasteMargin: 0,
-        materials: customMaterials,
-      };
-
-      const result = calculateFinish(input);
-
-      expect(result.materials).toHaveLength(1);
-      const mat = result.materials[0];
-      expect(mat.name).toBe('Custom Primer');
-      // quantityRequired = (80 × 1) / 8 = 10 L
-      expect(mat.quantityRequired).toBe(10);
-      expect(mat.quantityWithWaste).toBe(10);
-      expect(mat.packagesNeeded).toBe(1);
-      expect(mat.cost).toBe(5000);
-      expect(result.materialCost).toBe(5000);
-      // labour = 80 × 1 × 300 = 24000
-      expect(result.labourCost).toBe(24000);
-      expect(result.totalCost).toBe(29000);
-    });
+    const result = calculateFinish(input);
+    expect(result.wasteMargin).toBe(0);
+    expect(result.materials[0].quantityWithWaste).toBe(20);
   });
 });

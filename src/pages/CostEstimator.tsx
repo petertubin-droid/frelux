@@ -8,8 +8,6 @@ import { logAnalyticsEvent, fetchPaintProducts, fetchMaterialPrices, fetchSiteSe
 import { formatCurrency, formatNumber, classNames } from '@/lib/utils';
 import type { CostEstimateInput, CostEstimateResult, ProjectType, ContainerRecommendation } from '@/types';
 import type { DbPaintProduct, DbMaterialPrice, DbSiteSettings } from '@/types/database';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
-import { calculateLabourCost } from '@/lib/labour';
 import { shareCostEstimateOnWhatsApp } from '@/lib/share';
 import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/shopping-list';
 import { exportPdfQuote } from '@/lib/pdf-export';
@@ -35,14 +33,14 @@ export default function CostEstimator() {
   useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
-      'Estimate the practical cost of your painting project. Paint, primer, materials, and labor, based on real product prices and your paint quantity.',
+      'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
     structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Cost Estimator',
-      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, and labor, based on real product prices and your paint quantity.',
+      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
       url: 'https://freluxpaintcalc.com/cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
@@ -90,16 +88,12 @@ export default function CostEstimator() {
     rollersCost: 0,
     includeOther: false,
     otherMaterialsCost: 0,
-    laborMode: 'perSqm',
-    laborRatePerSqm: 0,
-    laborTotal: 0,
     currency,
     currencySymbol,
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('paint');
 
   useEffect(() => {
     async function loadAll() {
@@ -204,7 +198,6 @@ export default function CostEstimator() {
 
   function compute() {
     const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
-    const labourCost = calculateLabourCost(labourConfig, input.paintableArea);
     const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
     setResult(r);
     trackCalculation('cost');

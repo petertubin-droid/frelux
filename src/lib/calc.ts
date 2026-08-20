@@ -302,9 +302,9 @@ export function calculateScreedingMix(
 
   // Costs
   const materialCost = paintTotalCost + cementTotalCost;
-  const labourCost = area * config.labourRatePerSqm;
+  const labourCost = 0; // Labour not included — negotiated separately
   const wasteAllowance = materialCost * wasteFraction;
-  const subtotal = materialCost + labourCost;
+  const subtotal = materialCost;
   const taxAmount = subtotal * taxFraction;
   const grandTotal = subtotal + taxAmount;
 
@@ -374,10 +374,10 @@ export function calculateAdvancedEstimate(input: AdvancedCalcInput): AdvancedEst
   const cementCost = cementBags * input.cementPricePerBag;
 
   const materialCost = paintCost + cementCost;
-  const labourCost = area * input.labourRatePerSqm * coatMultiplier;
+  const labourCost = 0; // Labour not included — negotiated separately
   const transportCost = Math.max(0, input.transportCost);
   const wasteAmount = materialCost * wasteFraction;
-  const subtotal = materialCost + labourCost + transportCost + wasteAmount;
+  const subtotal = materialCost + transportCost + wasteAmount;
   const markupAmount = subtotal * markupFraction;
   const profitAmount = (subtotal + markupAmount) * profitFraction;
   const preTax = subtotal + markupAmount + profitAmount;
@@ -387,7 +387,7 @@ export function calculateAdvancedEstimate(input: AdvancedCalcInput): AdvancedEst
   const lineItems: AdvancedEstimateLineItem[] = [
     { label: 'Screeding Paint (20 L Buckets)', quantity: paintBuckets, unit: 'bucket(s)', unitPrice: input.paintPricePerBucket, total: round(paintCost) },
     { label: 'White Cement (40 kg Bags)', quantity: cementBags, unit: 'bag(s)', unitPrice: input.cementPricePerBag, total: round(cementCost) },
-    { label: 'Labour', quantity: round(area), unit: 'm²', unitPrice: input.labourRatePerSqm * coatMultiplier, total: round(labourCost) },
+    // Labour not included — negotiated separately
     { label: 'Transport & Logistics', quantity: 1, unit: 'trip', unitPrice: transportCost, total: round(transportCost) },
   ];
 

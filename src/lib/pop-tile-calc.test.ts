@@ -175,7 +175,7 @@ const baseTileInput: TileCalcInput = {
   spacerPricePerPack: 500,
   spacerPackageSize: 1,
   wasteMargin: 10,
-  labourRatePerSqm: 2000,
+  labourRatePerSqm: 0,
   unit: 'meters',
 };
 
@@ -242,17 +242,13 @@ describe('calculatePopCeiling', () => {
     expect(names).toContain('LED Light Fitting');
   });
 
-  it('uses labour_rate_per_sqm for labour category materials', () => {
+  it('excludes labour category materials from calculation', () => {
     const result = calculatePopCeiling(basePopInput, popMaterials, 'NGN', '₦');
     const labourItem = result.materials.find((m) => m.name === 'POP Labour');
-    expect(labourItem).toBeDefined();
-    // labour amount = ceilingArea * labourRate = 24 * 1500 = 36000
-    expect(labourItem!.cost).toBeCloseTo(24 * 1500, 5);
-    expect(labourItem!.quantity).toBeCloseTo(24, 10);
-    expect(labourItem!.unit).toBe('m²');
-    expect(labourItem!.packagesNeeded).toBe(1);
-    // Labour cost totals
-    expect(result.labourCost).toBeCloseTo(36000, 5);
+    // Labour is excluded — not included in results
+    expect(labourItem).toBeUndefined();
+    // Labour cost is 0
+    expect(result.labourCost).toBe(0);
   });
 
   it('uses coverage_rate and package calculations for non-labour materials', () => {
@@ -452,14 +448,14 @@ describe('calculateTile', () => {
     expect(result.materialCost).toBeCloseTo(result.tileCost + result.adhesiveCost + result.cementCost + result.sandCost + result.groutCost + result.spacerCost, 5);
   });
 
-  it('computes labourCost = surfaceArea * labourRatePerSqm', () => {
+  it('labourCost is 0 (labour not included)', () => {
     const result = calculateTile(baseTileInput, tileMaterials, 'NGN', '₦');
-    expect(result.labourCost).toBeCloseTo(20 * 2000, 5);
+    expect(result.labourCost).toBe(0);
   });
 
-  it('computes grandTotal = materialCost + labourCost', () => {
+  it('computes grandTotal = materialCost (no labour)', () => {
     const result = calculateTile(baseTileInput, tileMaterials, 'NGN', '₦');
-    expect(result.grandTotal).toBeCloseTo(result.materialCost + result.labourCost, 5);
+    expect(result.grandTotal).toBeCloseTo(result.materialCost, 5);
   });
 
   it('returns currency and currencySymbol as passed', () => {
@@ -554,8 +550,8 @@ describe('calculateTile', () => {
     const spacerNeeded = Math.ceil(adjustedArea / 50); // 1
     const spacerCost = spacerNeeded * 500; // 500
     const materialCost = tileCost + adhesiveCost + groutCost + spacerCost; // 331,000
-    const labourCost = surfaceArea * 2000; // 40,000
-    const grandTotal = materialCost + labourCost; // 371,000
+    const labourCost = 0; // Labour not included
+    const grandTotal = materialCost; // 331,000
 
     expect(result.surfaceArea).toBeCloseTo(surfaceArea, 10);
     expect(result.tileArea).toBeCloseTo(tileArea, 10);

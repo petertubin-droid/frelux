@@ -3,8 +3,6 @@ import { useLocation, Link } from 'react-router-dom';
 import { CheckCircle2, Info, AlertCircle, Loader2, Calculator } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { calculateScreedingMix } from '@/lib/calc';
-import { calculateLabourCost } from '@/lib/labour';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchScreedingMixConfig } from '@/lib/queries';
@@ -74,7 +72,6 @@ export default function ScreedingCostEstimator() {
   const passed = (location.state as PassedState | null) ?? {};
 
   const [config, setConfig] = useState<ScreedingMixConfig | null>(null);
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('screeding');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
@@ -103,21 +100,20 @@ export default function ScreedingCostEstimator() {
       return;
     }
     const rawResult = calculateScreedingMix(netArea, { ...config, labourRatePerSqm: 0 });
-    const labourCost = calculateLabourCost(labourConfig, netArea);
-    const subtotal = rawResult.materialCost + labourCost;
+    const subtotal = rawResult.materialCost;
     const taxFraction = Math.max(0, Math.min(100, config.taxVatPercentage)) / 100;
     const taxAmount = subtotal * taxFraction;
     const grandTotal = subtotal + taxAmount;
-    const r: ScreedingMixResult = { ...rawResult, labourCost, taxAmount, grandTotal };
+    const r: ScreedingMixResult = { ...rawResult, labourCost: 0, taxAmount, grandTotal };
     setResult(r);
     track('screeding_mix_estimate_generated', { area: netArea, total: r.grandTotal });
     logAnalyticsEvent('screeding_mix_estimate_generated', { area: netArea, total: r.grandTotal });
-  }, [config, netArea, labourConfig]);
+  }, [config, netArea]);
 
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material and labour costs for your wall screeding project." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." backTo="/" backLabel="Home" />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading configuration…
         </div>
@@ -132,7 +128,7 @@ export default function ScreedingCostEstimator() {
       <PageHeader
         eyebrow="Tool"
         title="Screeding Cost Estimator"
-        subtitle="Real world screeding cost: Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, and VAT."
+        subtitle="Real world screeding cost: Screeding Paint (20L buckets) + White Cement (40kg bags), waste, and VAT. Labour not included."
         backTo="/"
         backLabel="Home"
       />
@@ -195,8 +191,8 @@ export default function ScreedingCostEstimator() {
                       <span className="font-semibold text-brand-navy dark:text-white">{config.defaultMixRatio}</span>
                     </div>
                     <div>
-                      <span className="block text-neutral-400">Suggested labour rate</span>
-                      <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.labourRatePerSqm, currencySymbol)}/m²</span>
+                      <span className="block text-neutral-400">Labour</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">Not included — negotiated separately</span>
                     </div>
                   </div>
                 </div>
