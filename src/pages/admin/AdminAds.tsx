@@ -599,17 +599,18 @@ function AnalyticsTab() {
   const [events, setEvents] = useState<{ event_type: string; count: number; revenue: number }[]>([]);
   const [providerStats, setProviderStats] = useState<{ provider_name: string; event_type: string; count: number; revenue: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState(30);
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
+      setLoading(true); setError(null);
       const since = new Date(Date.now() - days * 86_400_000).toISOString();
       const { data, error } = await supabase
         .from('ad_analytics_events')
         .select('event_type, provider_id, revenue_estimated, created_at, ad_providers(name)')
         .gte('created_at', since);
-      if (error) { console.error(error); setLoading(false); return; }
+      if (error) { setError(error.message); setLoading(false); return; }
 
       // Aggregate by event type
       const byType: Record<string, { count: number; revenue: number }> = {};
@@ -641,6 +642,7 @@ function AnalyticsTab() {
   const completionRate = totalImpressions > 0 ? (totalRewards / totalImpressions * 100).toFixed(1) : '0';
 
   if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching ad analytics." />;
+  if (error) return <StateMessage type="error" title="Analytics Error" message={error} />;
 
   return (
     <>
