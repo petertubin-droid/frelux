@@ -25,6 +25,22 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'WebSite', name: 'FRELUX PAINT CALC', url: SITE_URL },
       { '@context': 'https://schema.org', '@type': 'Organization', name: 'FRELUX PAINT CALC', url: SITE_URL },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Featured Calculator Templates',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Standard Living Room Painting', url: `${SITE_URL}/templates/standard-living-room-painting` },
+          { '@type': 'ListItem', position: 2, name: '2-Bedroom Flat Painting', url: `${SITE_URL}/templates/2-bedroom-flat-full-painting` },
+          { '@type': 'ListItem', position: 3, name: 'Exterior Duplex Painting', url: `${SITE_URL}/templates/exterior-duplex-painting` },
+          { '@type': 'ListItem', position: 4, name: 'Standard Floor Tiling', url: `${SITE_URL}/templates/standard-floor-tiling` },
+          { '@type': 'ListItem', position: 5, name: 'Large Format Porcelain Floor', url: `${SITE_URL}/templates/terrazzo-porcelain-floor-tiling` },
+          { '@type': 'ListItem', position: 6, name: 'Standard Room Screeding', url: `${SITE_URL}/templates/standard-room-screeding` },
+          { '@type': 'ListItem', position: 7, name: 'Living Room + Ceiling Screeding', url: `${SITE_URL}/templates/living-room-ceiling-screeding` },
+          { '@type': 'ListItem', position: 8, name: 'Large Living Room POP Ceiling', url: `${SITE_URL}/templates/large-living-room-pop-ceiling` },
+          { '@type': 'ListItem', position: 9, name: 'Master Bedroom POP Ceiling', url: `${SITE_URL}/templates/master-bedroom-pop-ceiling` },
+        ],
+      },
     ],
   },
   {
