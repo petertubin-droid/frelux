@@ -40,6 +40,7 @@ import type { DbColorCombination, DbPaintColor } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -119,6 +120,19 @@ export default function AiColorAssistant() {
         {view === 'text' && <TextConsultation config={config} usage={usage} onUsageConsumed={refreshAccessState} />}
         {view === 'image' && <ImageConsultation config={config} usage={usage} onUsageConsumed={refreshAccessState} />}
       </div>
+
+      <FaqSection faqs={[
+        { question: "How does the Smart Color Assistant work?", answer: <span>Describe your room, lighting, furniture, and the mood you want. The AI analyzes your description and suggests paint colors and combinations that suit your space.</span> },
+        { question: "Is the Smart Color Assistant free?", answer: <span>Yes, the Smart Color Assistant is free to use. You can describe your room and get AI-powered color recommendations without signing up.</span> },
+        { question: "Can I see the recommended colors in the library?", answer: <span>Yes. Each recommendation includes color names and codes that you can look up in the FRELUX Color Library for detailed views and comparisons.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.colors,
+        CALC_LINKS.compareColors,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.costEstimator,
+      ]} />
     </>
   );
 }

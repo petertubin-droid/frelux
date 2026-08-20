@@ -17,20 +17,40 @@ import type { DbCalculatorTemplate } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 export default function TileCalculator() {
   useSeo({
     title: 'Tile Calculator — How Many Tiles Do I Need?',
     description: 'Free tile calculator. Enter your floor or wall dimensions and tile size to calculate tile quantity, boxes, adhesive, grout, and labour cost.',
     canonicalPath: '/tile-calculator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Tile Calculator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'tile calculator, how many tiles do i need, tile quantity calculator, floor tile calculator, wall tile calculator',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Tile Calculator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Tile Calculator', item: 'https://freluxpaintcalc.com/tile-calculator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'How do I calculate how many tiles I need?', acceptedAnswer: { '@type': 'Answer', text: 'Measure the area to be tiled and divide by the area of one tile. Add 10–15% for cuts and breakage.' } },
+          { '@type': 'Question', name: 'How much extra tile should I buy?', acceptedAnswer: { '@type': 'Answer', text: 'Buy 10–15% more tiles than calculated to cover cuts, breakage, and future repairs.' } },
+        ],
+      },
+    ],
   });
 
   const { user } = useAuth();
@@ -398,6 +418,19 @@ export default function TileCalculator() {
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "How do I calculate how many tiles I need?", answer: <span>Measure the area to be tiled and divide by the area of one tile. Add 10–15% for cuts and breakage. The calculator does this automatically and also estimates adhesive and grout.</span> },
+        { question: "How much extra tile should I buy?", answer: <span>Buy 10–15% more tiles than the calculated quantity to cover cuts, breakage, and future repairs. The calculator includes a waste factor for this.</span> },
+        { question: "Does the calculator work for both floor and wall tiles?", answer: <span>Yes. Select the surface type (floor or wall) and enter your dimensions. The calculator adjusts for the different tile sizes and materials typically used.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.tileCost,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.popCeilingCalc,
+      ]} />
     </>
   );
 }

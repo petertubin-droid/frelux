@@ -53,6 +53,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 // =========================================================
 // Constants
 // =========================================================
@@ -69,14 +70,33 @@ export default function TyroleneEstimator() {
     description: 'Professional Tyrolene estimator. Calculate cement, sand, acrylic bond, water seal, and anti-fungal requirements based on partition count. Exterior only. FRELUX production methodology.',
     canonicalPath: '/tyrolene-estimator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Tyrolene Estimator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'tyrolene estimator, exterior finish calculator, tyrolene material, exterior wall finish, cement sand calculator',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Tyrolene Estimator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Tyrolene Estimator', item: 'https://freluxpaintcalc.com/tyrolene-estimator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'What is Tyrolene?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is a textured exterior wall finish made from cement, sand, acrylic bond, and water seal for weather resistance.' } },
+          { '@type': 'Question', name: 'How is Tyrolene calculated?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is calculated based on wall area and partition count. The estimator determines cement, sand, acrylic bond, and water seal quantities.' } },
+        ],
+      },
+    ],
   });
 
   useEffect(() => { trackRecentTool('/tyrolene-estimator', 'Tyrolene Estimator', 'Calculator'); }, []);
@@ -941,6 +961,19 @@ export default function TyroleneEstimator() {
           </div>
         )}
       </Container>
+
+      <FaqSection faqs={[
+        { question: "What is Tyrolene?", answer: <span>Tyrolene is a textured exterior wall finish made from a mixture of cement, sand, acrylic bond, and water seal. It provides weather resistance and a decorative texture to building exteriors.</span> },
+        { question: "How is Tyrolene calculated?", answer: <span>Tyrolene is calculated based on the wall area and the number of partitions (coats/layers). The estimator uses partition-based methodology to determine cement, sand, acrylic bond, water seal, and anti-fungal quantities.</span> },
+        { question: "Is Tyrolene only for exterior walls?", answer: <span>Yes, Tyrolene is designed for exterior surfaces. It provides weather protection and decorative texture for building facades.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.finishEstimator,
+        CALC_LINKS.paintingEstimator,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.paintCalculator,
+      ]} />
     </>
   );
 }

@@ -13,6 +13,9 @@ Allow: /pop-ceiling-cost-estimator
 Allow: /tile-calculator
 Allow: /tile-cost-estimator
 Allow: /cost-estimator
+Allow: /painting-estimator
+Allow: /tyrolene-estimator
+Allow: /templates
 Allow: /finish-estimator
 Allow: /colors
 Allow: /colors/compare
@@ -47,6 +50,9 @@ Allow: /
 Allow: /paint-calculator
 Allow: /screeding-calculator
 Allow: /cost-estimator
+Allow: /painting-estimator
+Allow: /tyrolene-estimator
+Allow: /templates
 Allow: /colors
 Allow: /ai-color-assistant
 Allow: /learn

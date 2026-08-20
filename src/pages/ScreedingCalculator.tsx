@@ -21,6 +21,7 @@ import type { DbCalculatorTemplate } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
 
@@ -31,14 +32,33 @@ export default function ScreedingCalculator() {
       'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
     canonicalPath: '/screeding-calculator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Wall Screeding Calculator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'screeding calculator, wall screeding, screeding area calculator, wall preparation, cement screed',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Wall Screeding Calculator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Screeding Calculator', item: 'https://freluxpaintcalc.com/screeding-calculator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'What is wall screeding?', acceptedAnswer: { '@type': 'Answer', text: 'Wall screeding is the process of smoothing wall surfaces with a cement-based mixture before painting.' } },
+          { '@type': 'Question', name: 'How do I calculate screeding area?', acceptedAnswer: { '@type': 'Answer', text: 'Measure the length and height of each wall, then subtract the area of doors and windows. The calculator does this automatically.' } },
+        ],
+      },
+    ],
   });
 
   useEffect(() => { trackRecentTool('/screeding-calculator', 'Screeding Calculator', 'Layers'); });
@@ -234,6 +254,19 @@ export default function ScreedingCalculator() {
           />
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "What is wall screeding?", answer: <span>Wall screeding is the process of smoothing wall surfaces with a cement-based mixture before painting. It creates a flat, even surface for a professional paint finish.</span> },
+        { question: "How do I calculate screeding area?", answer: <span>Measure the length and height of each wall, then subtract the area of doors and windows. The calculator does this automatically when you enter your room dimensions.</span> },
+        { question: "Do I need to screed before painting?", answer: <span>Screeding is recommended for uneven or rough walls. It provides a smooth surface that ensures better paint adhesion and a more professional finish.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.tileCalc,
+      ]} />
     </>
   );
 }

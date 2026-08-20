@@ -1,6 +1,15 @@
 import LegalLayout from '@/components/legal/LegalLayout';
+import { useSeo } from '@/lib/seo';
 
 export default function Disclaimer() {
+  useSeo({
+    title: 'Disclaimer — FRELUX PAINT CALC',
+    description: 'Disclaimer for FRELUX PAINT CALC tools and estimates. All calculations and estimates are for guidance only.',
+    canonicalPath: '/disclaimer',
+    ogType: 'website',
+    noIndex: false,
+  });
+
   return (
     <LegalLayout
       slug="disclaimer"

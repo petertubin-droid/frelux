@@ -6,6 +6,7 @@ import { getPublicTemplates, calculatorLabel } from '@/lib/templates';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 const CATEGORY_TABS: { key: CalculatorType | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'paint', label: 'Painting' },
@@ -176,6 +177,13 @@ export default function Templates() {
             </Link>
           ))}
         </div>
+        <RelatedTools links={[
+          CALC_LINKS.paintCalculator,
+          CALC_LINKS.screedingCalc,
+          CALC_LINKS.costEstimator,
+          CALC_LINKS.paintingEstimator,
+        ]} />
+
       </div>
     </div>
   );

@@ -1,6 +1,15 @@
 import LegalLayout from '@/components/legal/LegalLayout';
+import { useSeo } from '@/lib/seo';
 
 export default function Terms() {
+  useSeo({
+    title: 'Terms of Service — FRELUX PAINT CALC',
+    description: 'Terms of service for using FRELUX PAINT CALC tools and website. Read our terms for usage guidelines and limitations.',
+    canonicalPath: '/terms',
+    ogType: 'website',
+    noIndex: false,
+  });
+
   return (
     <LegalLayout
       slug="terms"

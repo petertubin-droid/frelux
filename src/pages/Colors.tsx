@@ -16,6 +16,7 @@ import { PaintMatcher } from '@/components/ui/PaintMatcher';
 import { trackColorView, trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 type Tab = 'colors' | 'palettes';
 type Status = 'loading' | 'error' | 'ready';
 
@@ -397,6 +398,13 @@ export default function Colors() {
 
         <AdSlot slotKey="colors_gallery_bottom" className="mt-10" />
       </div>
+
+      <RelatedTools links={[
+        CALC_LINKS.aiColor,
+        CALC_LINKS.compareColors,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.costEstimator,
+      ]} />
     </>
   );
 }

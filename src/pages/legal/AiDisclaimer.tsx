@@ -1,6 +1,15 @@
 import LegalLayout from '@/components/legal/LegalLayout';
+import { useSeo } from '@/lib/seo';
 
 export default function AiDisclaimer() {
+  useSeo({
+    title: 'AI Disclaimer — FRELUX PAINT CALC',
+    description: 'Disclaimer for AI-powered features in FRELUX PAINT CALC. Learn about the limitations and appropriate use of AI-generated recommendations.',
+    canonicalPath: '/ai-disclaimer',
+    ogType: 'website',
+    noIndex: false,
+  });
+
   return (
     <LegalLayout
       slug="ai-disclaimer"

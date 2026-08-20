@@ -11,6 +11,7 @@ import { useSeo } from '@/lib/seo';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbSiteSettings } from '@/types/database';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -234,6 +235,18 @@ export default function PopCeilingCostEstimator() {
           </div>
         </div>
       </div>
+
+      <FaqSection faqs={[
+        { question: "How much does a POP ceiling cost?", answer: <span>POP ceiling cost depends on ceiling area, POP cement price, mesh, and labour. Enter your ceiling area to get a practical cost estimate based on real material prices.</span> },
+        { question: "What materials are needed for a POP ceiling?", answer: <span>Typical materials include POP cement, fibre mesh, bonding agent, and water. The estimator calculates quantities and costs based on your ceiling area.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.tileCost,
+      ]} />
     </>
   );
 }

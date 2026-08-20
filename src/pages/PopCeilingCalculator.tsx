@@ -17,20 +17,40 @@ import type { DbCalculatorTemplate } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 export default function PopCeilingCalculator() {
   useSeo({
     title: 'POP Ceiling Calculator — How Much POP Cement Do I Need?',
     description: 'Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for both Nigerian and international POP ceiling workflows.',
     canonicalPath: '/pop-ceiling-calculator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX POP Ceiling Calculator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'POP ceiling calculator, plaster of paris, POP cement, ceiling design, POP ceiling material',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX POP Ceiling Calculator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'POP Ceiling Calculator', item: 'https://freluxpaintcalc.com/pop-ceiling-calculator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster, popular in Nigerian homes.' } },
+          { '@type': 'Question', name: 'How much POP cement do I need?', acceptedAnswer: { '@type': 'Answer', text: 'POP cement quantity depends on ceiling area and design complexity. Use the calculator for an accurate estimate.' } },
+        ],
+      },
+    ],
   });
 
   const { user } = useAuth();
@@ -219,6 +239,19 @@ export default function PopCeilingCalculator() {
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "What is a POP ceiling?", answer: <span>A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster. It is popular in Nigerian homes for creating smooth, sculpted ceiling designs.</span> },
+        { question: "How much POP cement do I need?", answer: <span>POP cement quantity depends on your ceiling area and design complexity. The calculator estimates material based on room dimensions and your selected workflow.</span> },
+        { question: "What is the difference between Nigerian and international POP workflows?", answer: <span>The Nigerian workflow uses specific local materials and techniques, while the international workflow follows standard gypsum board methods. The calculator supports both.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.tileCalc,
+      ]} />
     </>
   );
 }

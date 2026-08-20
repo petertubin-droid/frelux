@@ -12,6 +12,7 @@ import { useSeo } from '@/lib/seo';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 interface PassedState {
   netScreedingArea?: number;
   method?: string;
@@ -326,6 +327,18 @@ export default function ScreedingCostEstimator() {
           </div>
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "How much does wall screeding cost?", answer: <span>Screeding cost depends on wall area, cement and sand prices, and labour rates. Enter your wall area from the Screeding Calculator to get a practical cost estimate.</span> },
+        { question: "What materials are needed for screeding?", answer: <span>The main materials are cement, sand, and sometimes a bonding agent. The estimator calculates quantities based on your wall area and local material prices.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.finishEstimator,
+      ]} />
     </>
   );
 }

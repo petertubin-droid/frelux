@@ -41,6 +41,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 // =========================================================
 // Types
 // =========================================================
@@ -71,14 +72,33 @@ export default function PaintingEstimator() {
     description: 'Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.',
     canonicalPath: '/painting-estimator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Painting Estimator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'painting estimator, room painting cost, paint quantity estimator, professional paint calculator, FRELUX methodology',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Painting Estimator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Painting Estimator', item: 'https://freluxpaintcalc.com/painting-estimator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'What is the FRELUX painting estimation methodology?', acceptedAnswer: { '@type': 'Answer', text: 'The FRELUX methodology calculates paint quantity based on room dimensions, ceiling area, openings, quality tiers, and surface conditions using admin-configured rates.' } },
+          { '@type': 'Question', name: 'Can I estimate paint for multiple rooms?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Add each room with its dimensions and conditions for a combined project estimate.' } },
+        ],
+      },
+    ],
   });
 
   useEffect(() => { trackRecentTool('/painting-estimator', 'Painting Estimator', 'Calculator'); }, []);
@@ -620,6 +640,19 @@ export default function PaintingEstimator() {
         {/* Results */}
         {result && <EstimateResult result={result} showCalculation={showCalculation} onToggleCalculation={() => setShowCalculation(!showCalculation)} onSave={handleSave} saved={saved} onAddAdjustment={addAdjustment} />}
       </div>
+
+      <FaqSection faqs={[
+        { question: "What is the FRELUX painting estimation methodology?", answer: <span>The FRELUX methodology calculates paint quantity based on room-by-room dimensions, ceiling area, door and window deductions, paint quality tiers, colour conditions, and surface conditions. It uses admin-configured coverage rates and product prices for accurate estimates.</span> },
+        { question: "Can I estimate paint for multiple rooms?", answer: <span>Yes. The Painting Estimator supports multiple rooms. Add each room with its dimensions and conditions to get a combined project estimate.</span> },
+        { question: "Does the Painting Estimator include labour costs?", answer: <span>Yes. The Painting Estimator includes configurable labour rates alongside material costs for a complete project budget estimate.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.finishEstimator,
+        CALC_LINKS.tyroleneEstimator,
+      ]} />
     </>
   );
 }

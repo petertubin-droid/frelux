@@ -82,6 +82,25 @@
 
     <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
 
+    <!-- WebSite Schema (enables sitelinks search box) -->
+    <script type="application/ld+json" id="website-structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "FRELUX PAINT CALC",
+      "url": "https://freluxpaintcalc.com",
+      "description": "Free online paint calculator, screeding calculator, cost estimator, and AI color assistant.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://freluxpaintcalc.com/colors?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
     <!-- Organization Structured Data -->
     <script type="application/ld+json" id="org-structured-data">
     {

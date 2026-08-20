@@ -12,6 +12,7 @@ import type { DbFinishType, DbSiteSettings } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
 
@@ -27,14 +28,25 @@ export default function FinishEstimator() {
     description: 'Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes. Labour not included.',
     canonicalPath: '/finish-estimator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Finish Estimator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    keywords: 'finish estimator, wall finish calculator, tyrolene cost, grafitex cost, painting cost calculator',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Finish Estimator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Finish Estimator', item: 'https://freluxpaintcalc.com/finish-estimator' },
+        ],
+      },
+    ],
   });
 
   useEffect(() => { trackRecentTool('/finish-estimator', 'Finish Estimator', 'Calculator'); });
@@ -708,6 +720,18 @@ export default function FinishEstimator() {
           </div>
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "What wall finishes does the Finish Estimator support?", answer: <span>The Finish Estimator supports Painting, Tyrolene, and Grafitex finishes. Each uses real coverage rates and package sizes for accurate material and cost estimates.</span> },
+        { question: "Does the Finish Estimator include labour costs?", answer: <span>No, the Finish Estimator covers material quantities and costs only. For labour-inclusive estimates, use the Painting Estimator or individual cost estimators.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.paintingEstimator,
+        CALC_LINKS.tyroleneEstimator,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.paintCalculator,
+      ]} />
     </>
   );
 }

@@ -11,6 +11,7 @@ import { useSeo } from '@/lib/seo';
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -373,6 +374,18 @@ export default function TileCostEstimator() {
           </div>
         </div>
       </div>
+
+      <FaqSection faqs={[
+        { question: "How much does tiling cost?", answer: <span>Tiling cost depends on the tile type, area, adhesive, grout, and labour. Enter your tile area from the Tile Calculator to get a practical cost estimate.</span> },
+        { question: "What additional materials do I need for tiling?", answer: <span>Besides tiles, you need tile adhesive, grout, spacers, and potentially waterproofing membrane for wet areas. The estimator includes these in the cost breakdown.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.tileCalc,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.popCeilingCost,
+      ]} />
     </>
   );
 }

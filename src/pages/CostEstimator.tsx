@@ -29,6 +29,7 @@ import { useSeo } from '@/lib/seo';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
+import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 export default function CostEstimator() {
   useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
@@ -36,16 +37,35 @@ export default function CostEstimator() {
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Cost Estimator',
-      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
-      url: 'https://freluxpaintcalc.com/cost-estimator',
-      applicationCategory: 'CalculatorApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-    },
+    keywords: 'paint cost estimator, painting cost calculator, paint price calculator, paint budget, project cost estimate',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        name: 'FRELUX Cost Estimator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices.',
+        url: 'https://freluxpaintcalc.com/cost-estimator',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
+          { '@type': 'ListItem', position: 2, name: 'Cost Estimator', item: 'https://freluxpaintcalc.com/cost-estimator' },
+        ],
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'How much does it cost to paint a room?', acceptedAnswer: { '@type': 'Answer', text: 'The cost depends on room size, paint type, and materials. Use the Cost Estimator with your paint quantity for a practical estimate.' } },
+          { '@type': 'Question', name: 'Does the cost estimator include labour?', acceptedAnswer: { '@type': 'Answer', text: 'The standard Cost Estimator covers materials only. Use the Painting Estimator for labour-inclusive estimates.' } },
+        ],
+      },
+    ],
   });
 
   const location = useLocation();
@@ -448,6 +468,19 @@ export default function CostEstimator() {
           />
         )}
       </div>
+
+      <FaqSection faqs={[
+        { question: "How much does it cost to paint a room?", answer: <span>The cost depends on room size, paint type, number of coats, and materials. Use the Cost Estimator with your paint quantity to get a practical cost estimate based on real product prices.</span> },
+        { question: "Does the cost estimator include labour?", answer: <span>The standard Cost Estimator covers materials only. For labour-inclusive estimates, use the Finish Estimator or Painting Estimator which include configurable labour rates.</span> },
+        { question: "Are the prices up to date?", answer: <span>Prices are loaded from the FRELUX database and managed by administrators. They reflect real product prices but may not capture every market fluctuation.</span> },
+      ]} />
+
+      <RelatedTools links={[
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.paintingEstimator,
+        CALC_LINKS.finishEstimator,
+        CALC_LINKS.screedingCost,
+      ]} />
     </>
   );
 }
