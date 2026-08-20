@@ -13,6 +13,8 @@ import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/databas
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { TileCostEstimatorSeo } from '@/components/seo/SeoContent';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
+import { calculateLabourCost } from '@/lib/labour';
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -45,6 +47,7 @@ export default function TileCostEstimator() {
   const [tileMaterials, setTileMaterials] = useState<DbTileMaterial[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('tile');
   const [result, setResult] = useState<TileCalcResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');

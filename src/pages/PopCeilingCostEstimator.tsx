@@ -13,6 +13,8 @@ import type { DbPopMaterial, DbSiteSettings } from '@/types/database';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PopCeilingCostEstimatorSeo } from '@/components/seo/SeoContent';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
+import { calculateLabourCost } from '@/lib/labour';
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -44,6 +46,7 @@ export default function PopCeilingCostEstimator() {
   const [materials, setMaterials] = useState<DbPopMaterial[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('pop_ceiling');
   const [result, setResult] = useState<PopCalcResult | null>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
@@ -85,13 +88,14 @@ export default function PopCeilingCostEstimator() {
       };
       const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
       const rawResult = calculatePopCeiling(inputWithArea, nonLabourMaterials, currency, currencySymbol);
-      const r: PopCalcResult = { ...rawResult, labourCost: 0, grandTotal: rawResult.materialCost };
+      const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
+      const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
       setResult(r);
       track('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
       logAnalyticsEvent('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [passed.ceilingArea, materials]);
+  }, [passed.ceilingArea, materials, labourConfig]);
 
   function update<K extends keyof PopCalcInput>(key: K, value: PopCalcInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));
@@ -100,7 +104,8 @@ export default function PopCeilingCostEstimator() {
   function compute() {
     const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
     const rawResult = calculatePopCeiling(input, nonLabourMaterials, currency, currencySymbol);
-    const r: PopCalcResult = { ...rawResult, labourCost: 0, grandTotal: rawResult.materialCost };
+    const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
+    const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
     setResult(r);
     track('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });
     logAnalyticsEvent('pop_ceiling_estimate_generated', { workflow: input.workflow, total: r.grandTotal });

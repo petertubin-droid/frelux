@@ -13,6 +13,8 @@ import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/s
 import { exportPdfQuote } from '@/lib/pdf-export';
 import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
+import { calculateLabourCost } from '@/lib/labour';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -115,6 +117,7 @@ export default function CostEstimator() {
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('paint');
 
   useEffect(() => {
     async function loadAll() {
@@ -218,6 +221,7 @@ export default function CostEstimator() {
   }
 
   function compute() {
+    const labourCost = calculateLabourCost(labourConfig, input.paintableArea);
     const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
     const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
     setResult(r);

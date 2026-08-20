@@ -14,6 +14,8 @@ import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { ScreedingCostEstimatorSeo } from '@/components/seo/SeoContent';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
+import { calculateLabourCost } from '@/lib/labour';
 interface PassedState {
   netScreedingArea?: number;
   method?: string;
@@ -75,6 +77,7 @@ export default function ScreedingCostEstimator() {
 
   const [config, setConfig] = useState<ScreedingMixConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('screeding');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [result, setResult] = useState<ScreedingMixResult | null>(null);
@@ -102,15 +105,16 @@ export default function ScreedingCostEstimator() {
       return;
     }
     const rawResult = calculateScreedingMix(netArea, { ...config, labourRatePerSqm: 0 });
+    const labourCost = calculateLabourCost(labourConfig, netArea);
     const subtotal = rawResult.materialCost;
     const taxFraction = Math.max(0, Math.min(100, config.taxVatPercentage)) / 100;
     const taxAmount = subtotal * taxFraction;
-    const grandTotal = subtotal + taxAmount;
-    const r: ScreedingMixResult = { ...rawResult, labourCost: 0, taxAmount, grandTotal };
+    const grandTotal = subtotal + taxAmount + labourCost;
+    const r: ScreedingMixResult = { ...rawResult, labourCost, taxAmount, grandTotal };
     setResult(r);
     track('screeding_mix_estimate_generated', { area: netArea, total: r.grandTotal });
     logAnalyticsEvent('screeding_mix_estimate_generated', { area: netArea, total: r.grandTotal });
-  }, [config, netArea]);
+  }, [config, netArea, labourConfig]);
 
   if (loading) {
     return (
