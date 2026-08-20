@@ -45,7 +45,8 @@ export type TrackEvent =
   | 'finish_estimate_completed'
   | 'paint_matcher_upload'
   | 'paint_matcher_result'
-  | 'painting_estimator_calculated';
+  | 'painting_estimator_calculated'
+  | 'tyrolene_estimator_calculated';
 
 export function track(event: TrackEvent, params?: Record<string, unknown>): void {
   // Meta Pixel

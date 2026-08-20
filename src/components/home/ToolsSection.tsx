@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Ruler, Paintbrush } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Ruler, Paintbrush, Building2 } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 
@@ -66,6 +66,16 @@ const tools = [
   },
   {
     step: 7,
+    icon: Building2,
+    accent: 'text-amber-600 bg-amber-100',
+    glow: 'group-hover:bg-amber-400/10',
+    title: 'Tyrolene Estimator',
+    description: 'Partition-based exterior finishing estimator. Calculate cement, sand, acrylic bond, water seal, and anti-fungal requirements using FRELUX production methodology.',
+    action: 'Estimate Tyrolene',
+    to: '/tyrolene-estimator',
+  },
+  {
+    step: 8,
     icon: Palette,
     accent: 'text-brand-purple bg-brand-purple/10',
     glow: 'group-hover:bg-brand-purple/10',
