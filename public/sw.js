@@ -1,9 +1,10 @@
-// FRELUX PAINT CALC — Service Worker
-// Cache-first for static assets, network-first for navigation requests
+// FRELUX PAINT CALC — Service Worker v2
+// Cache-first for static assets, network-first for navigation, offline calculator support
 
-const CACHE_VERSION = 'frelux-v1';
+const CACHE_VERSION = 'frelux-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+const CALCULATOR_CACHE = `${CACHE_VERSION}-calculators`;
 
 const STATIC_ASSETS = [
   '/',
@@ -14,10 +15,34 @@ const STATIC_ASSETS = [
   '/sitemap.xml',
 ];
 
-// Install — pre-cache critical static assets
+// Calculator pages to cache for offline use
+const CALCULATOR_PAGES = [
+  '/paint-calculator',
+  '/cost-estimator',
+  '/screeding-calculator',
+  '/tile-calculator',
+  '/pop-ceiling-calculator',
+  '/screeding-cost-estimator',
+  '/tile-cost-estimator',
+  '/pop-ceiling-cost-estimator',
+  '/finish-estimator',
+];
+
+// Install — pre-cache critical static assets and calculator pages
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS))
+    Promise.all([
+      caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)),
+      caches.open(CALCULATOR_CACHE).then((cache) =>
+        Promise.allSettled(
+          CALCULATOR_PAGES.map((page) =>
+            fetch(page).then((res) => {
+              if (res.ok) return cache.put(page, res);
+            }).catch(() => {})
+          )
+        )
+      ),
+    ])
   );
   self.skipWaiting();
 });
@@ -28,7 +53,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key.startsWith('frelux-') && key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+          .filter((key) => key.startsWith('frelux-') && !key.startsWith(CACHE_VERSION))
           .map((key) => caches.delete(key))
       )
     )
@@ -57,10 +82,18 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const clone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => cache.put(request, clone));
+          // Cache calculator pages in their own cache
+          const cacheName = CALCULATOR_PAGES.some((p) => url.pathname.startsWith(p))
+            ? CALCULATOR_CACHE
+            : RUNTIME_CACHE;
+          caches.open(cacheName).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+        .catch(() => {
+          // Try runtime cache first, then calculator cache, then index.html
+          return caches.match(request)
+            .then((cached) => cached || caches.match('/index.html'));
+        })
     );
     return;
   }
@@ -78,4 +111,11 @@ self.addEventListener('fetch', (event) => {
       return cached || fetchPromise;
     })
   );
+});
+
+// Listen for messages from the page
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });

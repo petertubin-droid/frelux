@@ -3,14 +3,20 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { BrandingProvider } from '@/lib/branding';
 import { ThemeProvider } from '@/lib/theme';
+import { LanguageProvider } from '@/lib/i18n';
+import { AccessibilityProvider } from '@/lib/accessibility';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      <BrandingProvider>
-        <App />
-      </BrandingProvider>
+      <LanguageProvider>
+        <AccessibilityProvider>
+          <BrandingProvider>
+            <App />
+          </BrandingProvider>
+        </AccessibilityProvider>
+      </LanguageProvider>
     </ThemeProvider>
   </StrictMode>
 );

@@ -5,6 +5,7 @@ import FeaturesSection from '@/components/home/FeaturesSection';
 import TrendingColors from '@/components/home/TrendingColors';
 import QuickCalculatorShortcuts from '@/components/ui/QuickCalculatorShortcuts';
 import AdSlot from '@/components/ui/AdSlot';
+import { WeatherWidget } from '@/components/ui/WeatherWidget';
 import { useSeo } from '@/lib/seo';
 
 export default function Home() {
@@ -33,6 +34,14 @@ export default function Home() {
       <AdSlot slotKey="home_mid" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
       <TrendingColors />
       <ColorPreview />
+
+      {/* Weather-aware painting scheduler */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-md">
+          <WeatherWidget />
+        </div>
+      </div>
+
       <FeaturesSection />
     </>
   );
