@@ -1,4 +1,5 @@
 import Hero from '@/components/home/Hero';
+import HowItWorks from '@/components/home/HowItWorks';
 import ToolsSection from '@/components/home/ToolsSection';
 import ColorPreview from '@/components/home/ColorPreview';
 import FeaturesSection from '@/components/home/FeaturesSection';
@@ -14,7 +15,7 @@ export default function Home() {
   useSeo({
     title: 'FRELUX PAINT CALC — Plan Your Perfect Paint Project',
     description:
-      'Calculate paint requirements, estimate painting costs, and discover color combinations that transform your space. Free paint calculator, cost estimator, and smart color assistant.',
+      'Calculate paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices. Free calculators and cost estimators for construction projects.',
     canonicalPath: '/',
     ogType: 'website',
     structuredData: {
@@ -23,14 +24,17 @@ export default function Home() {
       name: 'FRELUX PAINT CALC',
       applicationCategory: 'HomeAndGardenApplication',
       description:
-        'Calculate paint requirements, estimate painting costs, and discover color combinations for your space.',
+        'Calculate materials and estimate costs for Nigerian construction and finishing projects. Free paint, screeding, POP ceiling, tile, and finishing calculators.',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
 
   return (
     <>
+      {/* Hero — primary CTA "Start Calculating" immediately visible */}
       <Hero />
+
+      {/* Quick access to most important calculators — above the fold */}
       <QuickCalculatorShortcuts />
 
       {/* Recently used tools — personalized quick access */}
@@ -38,8 +42,19 @@ export default function Home() {
         <RecentlyUsed />
       </div>
 
+      {/* How FRELUX Works — 3-step process */}
+      <HowItWorks />
+
+      {/* All calculators organized by trade category */}
       <ToolsSection />
+
+      {/* Trust signals + secondary CTAs */}
+      <FeaturesSection />
+
+      {/* Ad slot */}
       <AdSlot slotKey="home_mid" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
+
+      {/* Color inspiration */}
       <TrendingColors />
       <ColorPreview />
 
@@ -49,8 +64,6 @@ export default function Home() {
           <WeatherWidget />
         </div>
       </div>
-
-      <FeaturesSection />
 
       {/* Achievement badges — gamification */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
