@@ -67,6 +67,14 @@ END $$;
 -- =========================================================
 -- 4. Drop old columns (safe now that data is migrated)
 -- =========================================================
+-- Drop policies that depend on old columns BEFORE dropping them
+DROP POLICY IF EXISTS read_builtin_templates ON calculator_templates;
+DROP POLICY IF EXISTS read_own_templates ON calculator_templates;
+DROP POLICY IF EXISTS insert_own_templates ON calculator_templates;
+DROP POLICY IF EXISTS update_own_templates ON calculator_templates;
+DROP POLICY IF EXISTS delete_own_templates ON calculator_templates;
+DROP POLICY IF EXISTS template_owner_all ON calculator_templates;
+
 ALTER TABLE calculator_templates
   DROP COLUMN IF EXISTS template_type,
   DROP COLUMN IF EXISTS calculator_data,
