@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
+import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save, Wand2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import MultiStepProgress from '@/components/ui/MultiStepProgress';
 import TemplatePicker from '@/components/ui/TemplatePicker';
@@ -26,35 +26,14 @@ import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
-
-const projectTypes: { value: ProjectType; label: string; description: string; icon: typeof Home }[] = [
-  { value: 'room', label: 'Room', description: 'A single interior room', icon: Home },
-  { value: 'house', label: 'House', description: 'Whole house interior', icon: Building2 },
-  { value: 'exterior', label: 'Exterior', description: 'Outside walls', icon: Trees },
-  { value: 'fence', label: 'Fence or Gate', description: 'Fence, gate, or railing', icon: Fence },
-];
-
-const WASTE_OPTIONS = [0, 5, 10, 15];
-
-const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
-const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
-
-const ADVANCED_FEATURES = [
-  'Advanced material breakdown with line items',
-  'Custom mix ratio editor',
-  'Labour cost customization',
-  'Multiple waste percentage scenarios',
-  'Thickness and multiple coat calculations',
-  'Profit and markup calculator',
-  'Transport and logistics cost estimator',
-  'Tax/VAT calculator',
-  'Save, duplicate and compare estimates',
-  'Export professional PDF quotations',
-  'Material shopping list',
-  'Cost comparison between brands',
-  'AI recommendations for reducing waste',
-  'AI assistant for calculation questions',
-];
+import { sharePaintCalcOnWhatsApp } from '@/lib/share';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { useLanguage } from '@/lib/i18n';
+import { SmartWasteSelector } from '@/components/ui/SmartWasteSelector';
+import { generatePaintShoppingList } from '@/lib/shopping-list';
+import { saveLocalProject } from '@/lib/local-projects';
+import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
+import type { ShoppingListItem } from '@/lib/shopping-list';
 
 import { useSeo } from '@/lib/seo';
 
@@ -107,6 +86,9 @@ export default function PaintCalculator() {
   const [screedingConfig, setScreedingConfig] = useState<ScreedingMixConfig | null>(null);
   const [typesLoading, setTypesLoading] = useState(true);
   const [typesError, setTypesError] = useState<string | null>(null);
+  const [shoppingListOpen, setShoppingListOpen] = useState(false);
+  const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
+  const [wizardMode, setWizardMode] = useState(false);
 
   useEffect(() => {
     async function loadTypes() {
@@ -237,15 +219,29 @@ export default function PaintCalculator() {
   }
 
   function handleExport() {
-    toast({ type: 'info', title: 'Exporting PDF', message: 'Use the Advanced Calculator export for professional quotations.' });
+    if (!result) return;
+    // Navigate to cost estimator where PDF export is available
+    toast({ type: 'info', title: 'Continue to Cost Estimate', message: 'Complete the cost estimate to export a PDF quotation.' });
+  }
+
+  function handleShoppingList() {
+    if (!result) return;
+    const items = generatePaintShoppingList(result, input, selectedPaintType?.name ?? input.paintType);
+    setShoppingListItems(items);
+    setShoppingListOpen(true);
+  }
+
+  function handleSaveLocal() {
+    if (!result) return;
+    const name = `Paint: ${input.projectType} — ${formatNumber(result.paintableArea)} m²`;
+    saveLocalProject(name, 'paint_calc', { input, result });
+    toast({ type: 'success', title: 'Saved to device', message: 'Find it later — no login needed.' });
   }
 
   async function handleShare() {
-    if (!result || !user) {
-      toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to share your calculations.' });
-      return;
-    }
-    toast({ type: 'info', title: 'Share link copied', message: 'Shareable link copied to clipboard.' });
+    if (!result) return;
+    sharePaintCalcOnWhatsApp({ result, input, paintTypeName: selectedPaintType?.name ?? input.paintType });
+    toast({ type: 'success', title: 'Opening WhatsApp', message: 'Share your results on WhatsApp.' });
   }
 
   function handleAskAi() {
@@ -339,16 +335,26 @@ export default function PaintCalculator() {
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
-          onSave={handleSave}
-          onExport={handleExport}
-          onShare={handleShare}
-          onAskAi={handleAskAi}
+            onSave={handleSave}
+            onExport={handleExport}
+            onShare={handleShare}
+            onAskAi={handleAskAi}
+            onShoppingList={handleShoppingList}
+            onSaveLocal={handleSaveLocal}
           />
         )}
 
         {result && (
           <StickyActionBar
             onRecalculate={() => setResult(null)}
+          />
+        )}
+
+        {shoppingListOpen && (
+          <ShoppingListModal
+            items={shoppingListItems}
+            title="Paint Shopping List"
+            onClose={() => setShoppingListOpen(false)}
           />
         )}
 
@@ -421,6 +427,8 @@ function Step2({
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
   errors: Record<string, string>;
 }) {
+  const { t } = useLanguage();
+  const voiceLabel = input.unit === 'meters' ? 'length in meters' : 'length in feet';
   const unitLabel = input.unit === 'meters' ? 'm' : 'ft';
   const isFence = input.projectType === 'fence';
   const isExterior = input.projectType === 'exterior';
@@ -451,16 +459,25 @@ function Step2({
       </p>
 
       <div className={'mt-6 grid gap-4 ' + (isFence ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
-        <Field label={isFence ? 'Fence length' : 'Length'} suffix={unitLabel} error={errors.length}>
-          <input type="number" min={0} step="0.01" value={input.length || ''} onChange={(e) => update('length', Number(e.target.value))} className="input-field" placeholder="0.00" />
+        <Field label={isFence ? t('calc.length') : t('calc.length')} suffix={unitLabel} error={errors.length}>
+          <div className="flex items-center gap-2">
+            <input type="number" min={0} step="0.01" value={input.length || ''} onChange={(e) => update('length', Number(e.target.value))} className="input-field" placeholder="0.00" />
+            <VoiceInputButton label="length" onResult={(v) => update('length', v)} />
+          </div>
         </Field>
         {!isFence && (
-          <Field label="Width (Optional if not applicable)" suffix={unitLabel} hint="Leave blank if only one pair of walls needs painting">
-            <input type="number" min={0} step="0.01" value={input.width || ''} onChange={(e) => update('width', Number(e.target.value))} className="input-field" placeholder="0.00" />
+          <Field label={t("calc.width") + " (Optional if not applicable)"} suffix={unitLabel} hint="Leave blank if only one pair of walls needs painting">
+            <div className="flex items-center gap-2">
+              <input type="number" min={0} step="0.01" value={input.width || ''} onChange={(e) => update('width', Number(e.target.value))} className="input-field" placeholder="0.00" />
+              <VoiceInputButton label="width" onResult={(v) => update('width', v)} />
+            </div>
           </Field>
         )}
-        <Field label={isFence ? 'Fence height' : 'Wall height'} suffix={unitLabel} error={errors.wallHeight}>
-          <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
+        <Field label={isFence ? t('calc.wall_height') : t('calc.wall_height')} suffix={unitLabel} error={errors.wallHeight}>
+          <div className="flex items-center gap-2">
+            <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
+            <VoiceInputButton label="wall height" onResult={(v) => update('wallHeight', v)} />
+          </div>
         </Field>
       </div>
 
@@ -577,7 +594,16 @@ function Step3({
       </div>
 
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
+        <SmartWasteSelector
+          projectType={input.projectType}
+          coats={input.coats}
+          currentWaste={input.wasteMargin}
+          onWasteChange={(w) => update('wasteMargin', w)}
+        />
+      </div>
+
+      <div className="mt-4">
+        <span className="block text-sm font-semibold text-neutral-700">Or set waste margin manually</span>
         <p className="mt-0.5 text-xs text-neutral-400">Extra paint added to account for spills, roller waste, and touch ups.</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {WASTE_OPTIONS.map((w) => (
@@ -597,6 +623,7 @@ function Step3({
           ))}
         </div>
         {errors.wasteMargin && <span className="mt-1 block text-xs text-red-600">{errors.wasteMargin}</span>}
+        </div>
       </div>
     </div>
   );
@@ -608,10 +635,12 @@ function ResultCard({
   paintTypeName,
   onAgain,
   onStartOver,
-  onSave: _onSave,
-  onExport: _onExport,
-  onShare: _onShare,
+  onSave,
+  onExport,
+  onShare,
   onAskAi: _onAskAi,
+  onShoppingList,
+  onSaveLocal,
 }: {
   result: CalculatorResult;
   input: CalculatorInput;
@@ -622,6 +651,8 @@ function ResultCard({
   onExport?: () => void;
   onShare?: () => void;
   onAskAi?: () => void;
+  onShoppingList?: () => void;
+  onSaveLocal?: () => void;
 }) {
   return (
     <div className="mt-8 card overflow-hidden">
@@ -668,6 +699,26 @@ function ResultCard({
         <br />
         Coverage ~{formatNumber(result.coverageRate, 1)} m² per liter per coat. Final amounts vary by surface texture,
         application method, and product.
+      </div>
+
+      {/* Smart action buttons */}
+      <div className="grid grid-cols-2 gap-3 border-t border-neutral-100 p-6 sm:grid-cols-4 sm:p-8">
+        <button type="button" onClick={onShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
+          <MessageCircle className="h-5 w-5 text-accent-green" />
+          <span className="text-xs font-semibold text-accent-green">WhatsApp</span>
+        </button>
+        <button type="button" onClick={onShoppingList} className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20">
+          <ShoppingBag className="h-5 w-5 text-brand-purple" />
+          <span className="text-xs font-semibold text-brand-purple">Shopping List</span>
+        </button>
+        <button type="button" onClick={onSaveLocal} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-cyan/10 p-3 text-center transition-all hover:bg-accent-cyan/20">
+          <Save className="h-5 w-5 text-accent-cyan" />
+          <span className="text-xs font-semibold text-accent-cyan">Save to Device</span>
+        </button>
+        <button type="button" onClick={onSave} className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">
+          <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+          <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Save to Cloud</span>
+        </button>
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">

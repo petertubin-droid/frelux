@@ -12,6 +12,7 @@ import { useAuth } from '@/lib/auth';
 import type { DbPaintColor, DbColorFamily, DbColorCategory, DbColorCombination } from '@/types/database';
 import { classNames } from '@/lib/utils';
 import { Link } from 'react-router-dom';
+import { PaintMatcher } from '@/components/ui/PaintMatcher';
 
 type Tab = 'colors' | 'palettes';
 type Status = 'loading' | 'error' | 'ready';
@@ -365,6 +366,31 @@ export default function Colors() {
             )}
           </>
         )}
+
+        {/* AI Paint Matcher */}
+        <div className="mt-10 mb-6 grid gap-6 lg:grid-cols-2">
+          <PaintMatcher />
+          <div className="flex flex-col justify-center rounded-lg border border-neutral-200 p-6 dark:border-neutral-700">
+            <h3 className="text-lg font-bold text-brand-navy dark:text-white">Can't find your color?</h3>
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+              Take a photo of the painted wall and our AI Paint Matcher will scan it and find the closest paint color from our library of hundreds of professional colors.
+            </p>
+            <ul className="mt-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" /> Upload or take a photo
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" /> Get instant color matches
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" /> See similarity scores
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" /> Link to full color details
+              </li>
+            </ul>
+          </div>
+        </div>
 
         <AdSlot slotKey="colors_gallery_bottom" className="mt-10" />
       </div>
