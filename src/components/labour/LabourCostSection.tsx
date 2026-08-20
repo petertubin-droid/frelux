@@ -42,7 +42,13 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
     (async () => {
       const settings = await fetchLabourSettings(estimatorKey);
       if (cancelled) return;
-      setConfig(createInitialLabourConfig(settings));
+      // Preserve user's includeLabour choice — the async fetch should only
+      // update pricing method and suggested rates, not the toggle state.
+      // This fixes the bug where the toggle appears "on" but resets on click.
+      setConfig((prev) => ({
+        ...createInitialLabourConfig(settings),
+        includeLabour: prev.includeLabour,
+      }));
       setLoading(false);
     })();
     return () => { cancelled = true; };
@@ -287,18 +293,23 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
   return (
     <button
       type="button"
+      role="switch"
       onClick={() => onChange(!checked)}
       className={classNames(
-        'relative h-5 w-9 shrink-0 rounded-full transition-colors',
-        checked ? 'bg-accent-green' : 'bg-neutral-300 dark:bg-neutral-600',
+        'relative h-6 w-11 shrink-0 rounded-full transition-all duration-300',
+        checked
+          ? 'bg-accent-green shadow-sm shadow-accent-green/30'
+          : 'bg-neutral-200 dark:bg-neutral-700',
       )}
       aria-pressed={checked}
       aria-label="Include labour cost"
     >
       <span
         className={classNames(
-          'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-          checked ? 'translate-x-4' : 'translate-x-0.5',
+          'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ease-out',
+          checked
+            ? 'translate-x-5'
+            : 'translate-x-0.5',
         )}
       />
     </button>
