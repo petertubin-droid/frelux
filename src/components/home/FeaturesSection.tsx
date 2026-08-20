@@ -28,11 +28,11 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="relative overflow-hidden bg-brand-navy py-24 text-white sm:py-28">
+    <section className="relative overflow-hidden bg-brand-navy py-24 text-white sm:py-28 bg-noise">
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40" aria-hidden="true" />
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/12 blur-[140px]" aria-hidden="true" />
+      {/* Ambient glow — animated */}
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/12 blur-[140px] animate-gradient-pulse" aria-hidden="true" />
       <div className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-brand-purple-deep/10 blur-[120px]" aria-hidden="true" />
 
       <SectionHeading
@@ -48,16 +48,16 @@ export default function FeaturesSection() {
           return (
             <div
               key={f.title}
-              className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.04] animate-fade-in-up"
+              className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-7 backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.04] hover:-translate-y-1 animate-fade-in-up shimmer-border"
               style={{ animationDelay: `${i * 0.08}s` }}
             >
               {/* Hover glow */}
-              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/8" />
-              <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20">
-                <Icon className="h-6 w-6 text-brand-purple-light" />
+              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+              <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20 group-hover:scale-105">
+                <Icon className="h-6 w-6 text-brand-purple-light transition-transform duration-300 group-hover:scale-110" />
               </span>
               <h3 className="mt-5 font-display text-lg font-bold text-white">{f.title}</h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-white/45">{f.description}</p>
+              <p className="mt-2.5 text-sm leading-relaxed text-white/45 transition-colors duration-300 group-hover:text-white/55">{f.description}</p>
             </div>
           );
         })}
@@ -66,7 +66,7 @@ export default function FeaturesSection() {
       <Container className="relative mt-16 text-center">
         <Link
           to="/paint-calculator"
-          className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand-navy shadow-lg transition-all hover:bg-neutral-100 hover:shadow-xl active:scale-[0.98]"
+          className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand-navy shadow-lg transition-all hover:bg-neutral-100 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
         >
           Start planning
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
