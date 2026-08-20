@@ -41,6 +41,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { AiColorAssistantSeo } from '@/components/seo/SeoContent';
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -120,6 +121,8 @@ export default function AiColorAssistant() {
         {view === 'text' && <TextConsultation config={config} usage={usage} onUsageConsumed={refreshAccessState} />}
         {view === 'image' && <ImageConsultation config={config} usage={usage} onUsageConsumed={refreshAccessState} />}
       </div>
+
+      <AiColorAssistantSeo />
 
       <FaqSection faqs={[
         { question: "How does the Smart Color Assistant work?", answer: <span>Describe your room, lighting, furniture, and the mood you want. The AI analyzes your description and suggests paint colors and combinations that suit your space.</span> },

@@ -8,6 +8,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
+import { seoContentMap } from './seo-content-map.mjs';
 
 const SITE_URL = 'https://freluxpaintcalc.com';
 const distDir = 'dist';
@@ -297,6 +298,13 @@ for (const route of routes) {
       .map((sd, i) => `  <script type="application/ld+json" id="prerender-sd-${i}">${JSON.stringify(sd)}</script>`)
       .join('\n');
     html = html.replace('</head>', `${sdScripts}\n</head>`);
+  }
+
+  // Inject SEO content into #root for crawlers (React replaces it on load)
+  const pageContent = seoContentMap[route.path];
+  if (pageContent) {
+    const contentDiv = `<div style="max-width:48rem;margin:0 auto;padding:3rem 1rem;font-family:system-ui,sans-serif;color:#333;">${pageContent}</div>`;
+    html = html.replace('<div id="root">', `<div id="root">${contentDiv}`);
   }
 
   // Write file

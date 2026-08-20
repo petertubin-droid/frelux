@@ -42,6 +42,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { PaintingEstimatorSeo } from '@/components/seo/SeoContent';
 // =========================================================
 // Types
 // =========================================================
@@ -640,6 +641,8 @@ export default function PaintingEstimator() {
         {/* Results */}
         {result && <EstimateResult result={result} showCalculation={showCalculation} onToggleCalculation={() => setShowCalculation(!showCalculation)} onSave={handleSave} saved={saved} onAddAdjustment={addAdjustment} />}
       </div>
+
+      <PaintingEstimatorSeo />
 
       <FaqSection faqs={[
         { question: "What is the FRELUX painting estimation methodology?", answer: <span>The FRELUX methodology calculates paint quantity based on room-by-room dimensions, ceiling area, door and window deductions, paint quality tiers, colour conditions, and surface conditions. It uses admin-configured coverage rates and product prices for accurate estimates.</span> },

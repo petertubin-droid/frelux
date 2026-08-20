@@ -18,6 +18,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { TileCalculatorSeo } from '@/components/seo/SeoContent';
 export default function TileCalculator() {
   useSeo({
     title: 'Tile Calculator — How Many Tiles Do I Need?',
@@ -418,6 +419,8 @@ export default function TileCalculator() {
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
         )}
       </div>
+
+      <TileCalculatorSeo />
 
       <FaqSection faqs={[
         { question: "How do I calculate how many tiles I need?", answer: <span>Measure the area to be tiled and divide by the area of one tile. Add 10–15% for cuts and breakage. The calculator does this automatically and also estimates adhesive and grout.</span> },

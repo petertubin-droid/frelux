@@ -18,6 +18,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
 export default function PopCeilingCalculator() {
   useSeo({
     title: 'POP Ceiling Calculator — How Much POP Cement Do I Need?',
@@ -239,6 +240,8 @@ export default function PopCeilingCalculator() {
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
         )}
       </div>
+
+      <PopCeilingCalculatorSeo />
 
       <FaqSection faqs={[
         { question: "What is a POP ceiling?", answer: <span>A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster. It is popular in Nigerian homes for creating smooth, sculpted ceiling designs.</span> },

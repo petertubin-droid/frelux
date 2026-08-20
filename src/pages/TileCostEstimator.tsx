@@ -12,6 +12,7 @@ import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { TileCostEstimatorSeo } from '@/components/seo/SeoContent';
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -374,6 +375,8 @@ export default function TileCostEstimator() {
           </div>
         </div>
       </div>
+
+      <TileCostEstimatorSeo />
 
       <FaqSection faqs={[
         { question: "How much does tiling cost?", answer: <span>Tiling cost depends on the tile type, area, adhesive, grout, and labour. Enter your tile area from the Tile Calculator to get a practical cost estimate.</span> },

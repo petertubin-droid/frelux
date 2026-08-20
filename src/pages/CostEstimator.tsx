@@ -30,6 +30,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { CostEstimatorSeo } from '@/components/seo/SeoContent';
 export default function CostEstimator() {
   useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
@@ -468,6 +469,8 @@ export default function CostEstimator() {
           />
         )}
       </div>
+
+      <CostEstimatorSeo />
 
       <FaqSection faqs={[
         { question: "How much does it cost to paint a room?", answer: <span>The cost depends on room size, paint type, number of coats, and materials. Use the Cost Estimator with your paint quantity to get a practical cost estimate based on real product prices.</span> },

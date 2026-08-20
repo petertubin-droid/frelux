@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { PaintCalculatorSeo } from '@/components/seo/SeoContent';
 import { Link } from 'react-router-dom';
 import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save, Wand2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -432,6 +433,8 @@ export default function PaintCalculator() {
             )}
           </RewardedFeatureGate>
         )}
+
+      <PaintCalculatorSeo />
 
       <FaqSection faqs={[
         { question: "How do I calculate how much paint I need?", answer: <span>Enter your room length, width, and wall height into the calculator above. Deduct doors and windows, select the number of coats, and choose a paint type. The calculator estimates paint quantity in litres based on standard coverage rates.</span> },

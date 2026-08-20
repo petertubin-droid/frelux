@@ -54,6 +54,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { TyroleneEstimatorSeo } from '@/components/seo/SeoContent';
 // =========================================================
 // Constants
 // =========================================================
@@ -961,6 +962,8 @@ export default function TyroleneEstimator() {
           </div>
         )}
       </Container>
+
+      <TyroleneEstimatorSeo />
 
       <FaqSection faqs={[
         { question: "What is Tyrolene?", answer: <span>Tyrolene is a textured exterior wall finish made from a mixture of cement, sand, acrylic bond, and water seal. It provides weather resistance and a decorative texture to building exteriors.</span> },

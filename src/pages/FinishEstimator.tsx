@@ -13,6 +13,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { FinishEstimatorSeo } from '@/components/seo/SeoContent';
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
 
@@ -720,6 +721,8 @@ export default function FinishEstimator() {
           </div>
         )}
       </div>
+
+      <FinishEstimatorSeo />
 
       <FaqSection faqs={[
         { question: "What wall finishes does the Finish Estimator support?", answer: <span>The Finish Estimator supports Painting, Tyrolene, and Grafitex finishes. Each uses real coverage rates and package sizes for accurate material and cost estimates.</span> },

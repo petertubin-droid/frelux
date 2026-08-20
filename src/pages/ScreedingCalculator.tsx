@@ -22,6 +22,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { ScreedingCalculatorSeo } from '@/components/seo/SeoContent';
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
 
@@ -254,6 +255,8 @@ export default function ScreedingCalculator() {
           />
         )}
       </div>
+
+      <ScreedingCalculatorSeo />
 
       <FaqSection faqs={[
         { question: "What is wall screeding?", answer: <span>Wall screeding is the process of smoothing wall surfaces with a cement-based mixture before painting. It creates a flat, even surface for a professional paint finish.</span> },
