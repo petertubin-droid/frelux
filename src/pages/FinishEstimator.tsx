@@ -354,10 +354,10 @@ export default function FinishEstimator() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => updateArea('method', 'direct_wall')}
+                      onClick={() => updateArea('method', 'individual_wall')}
                       className={
                         'flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ' +
-                        (areaInput.method === 'direct_wall'
+                        (areaInput.method === 'individual_wall'
                           ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
                           : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')
                       }

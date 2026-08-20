@@ -111,6 +111,10 @@ export default function CostEstimator() {
     rollersCost: 0,
     includeOther: false,
     otherMaterialsCost: 0,
+    // Labor
+    laborMode: 'perSqm',
+    laborRatePerSqm: 0,
+    laborTotal: 0,
     currency,
     currencySymbol,
   });

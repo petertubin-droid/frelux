@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
   options?: { threshold?: number; rootMargin?: number; once?: boolean }
-): { ref: React.RefObject<T | null>; isVisible: boolean } {
+): { ref: React.RefObject<T>; isVisible: boolean } {
   const { threshold = 0.12, rootMargin = 0, once = true } = options ?? {};
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -47,7 +47,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
  */
 export function useBatchScrollReveal<T extends HTMLElement = HTMLDivElement>(
   staggerMs = 80
-): { ref: React.RefObject<T | null>; isVisible: boolean } {
+): { ref: React.RefObject<T>; isVisible: boolean } {
   const ref = useRef<T>(null);
   const [isVisible, setIsVisible] = useState(false);
 

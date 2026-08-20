@@ -76,6 +76,7 @@ export default function TileCostEstimator() {
     spacerPricePerPack: passed.input?.spacerPricePerPack ?? 500,
     spacerPackageSize: passed.input?.spacerPackageSize ?? 1,
     wasteMargin: passed.input?.wasteMargin ?? 10,
+    labourRatePerSqm: passed.input?.labourRatePerSqm ?? 0,
     unit: passed.input?.unit ?? 'meters',
   });
 
