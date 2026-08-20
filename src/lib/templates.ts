@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from './supabase';
+import { FALLBACK_TEMPLATES } from './template-data';
 import type {
   DbCalculatorTemplate,
   TemplateCreateInput,
@@ -119,7 +120,16 @@ export async function getUserTemplateById(
 export async function getPublicTemplates(
   options?: { calculatorType?: CalculatorType; search?: string; featuredOnly?: boolean }
 ): Promise<DbCalculatorTemplate[]> {
-  if (!isSupabaseConfigured) return [];
+  if (!isSupabaseConfigured) {
+    let result = FALLBACK_TEMPLATES;
+    if (options?.calculatorType) result = result.filter((t) => t.calculator_type === options.calculatorType);
+    if (options?.search) {
+      const q = options.search.toLowerCase();
+      result = result.filter((t) => t.name.toLowerCase().includes(q) || (t.description?.toLowerCase().includes(q) ?? false));
+    }
+    if (options?.featuredOnly) result = result.filter((t) => t.is_featured);
+    return result.sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.display_order - b.display_order);
+  }
   let q = supabase
     .from('calculator_templates')
     .select('*')
@@ -138,7 +148,7 @@ export async function getPublicTemplates(
 }
 
 export async function getPublicTemplateBySlug(slug: string): Promise<DbCalculatorTemplate | null> {
-  if (!isSupabaseConfigured) return null;
+  if (!isSupabaseConfigured) return FALLBACK_TEMPLATES.find((t) => t.slug === slug) ?? null;
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
@@ -158,7 +168,12 @@ export async function getRelatedPublicTemplates(
   excludeId: string,
   limit = 4
 ): Promise<DbCalculatorTemplate[]> {
-  if (!isSupabaseConfigured) return [];
+  if (!isSupabaseConfigured) {
+    return FALLBACK_TEMPLATES
+      .filter((t) => t.calculator_type === calculatorType && t.id !== excludeId)
+      .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.display_order - b.display_order)
+      .slice(0, limit);
+  }
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
