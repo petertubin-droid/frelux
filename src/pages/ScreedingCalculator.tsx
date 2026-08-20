@@ -14,6 +14,10 @@ import {
 } from '@/lib/utils';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
+import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
+import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
+import type { DbCalculatorTemplate } from '@/types/database';
 
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
@@ -51,6 +55,12 @@ export default function ScreedingCalculator() {
     unit: 'meters',
   });
 
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (loadedTemplate?.input_data) {
+      setInput(loadedTemplate.input_data as unknown as ScreedingCalcInput);
+    }
+  }, [loadedTemplate]);
   useEffect(() => {
     track('screeding_calculator_opened', {});
     logAnalyticsEvent('screeding_calculator_opened', {});
@@ -99,6 +109,10 @@ export default function ScreedingCalculator() {
         useCalcTitle
       />
 
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <LoadTemplateButton calculatorType="screeding" onLoad={(t) => setInput(t.input_data as unknown as ScreedingCalcInput)} />
+          <SaveTemplateButton calculatorType="screeding" inputData={input as unknown as Record<string, unknown>} defaultName={`${input.method === "full_room" ? `${input.roomLength}×${input.roomWidth}` : `${input.wallWidth}×${input.wallCount} walls`} Screeding`} />
+        </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
           <div className="card p-6 sm:p-8">

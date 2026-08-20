@@ -28,7 +28,7 @@ import type {
   DbRewardedUnlockLog,
   DbRewardedAdEvent,
   DbAdvancedEstimate,
-  DbCalculatorTemplate,
+  DbStudioTemplate,
   TemplateType,
   ColorRelationshipType,
   ShareableResourceType,
@@ -909,7 +909,7 @@ export async function fetchBuiltinTemplates(type?: TemplateType) {
   if (type) query = query.eq('template_type', type);
   query = query.order('sort_order').order('name');
   const { data, error } = await query;
-  return { data: (data ?? []) as DbCalculatorTemplate[], error: error ? error.message : null };
+  return { data: (data ?? []) as DbStudioTemplate[], error: error ? error.message : null };
 }
 
 export async function fetchUserTemplates(type?: TemplateType) {
@@ -917,7 +917,7 @@ export async function fetchUserTemplates(type?: TemplateType) {
   if (type) query = query.eq('template_type', type);
   query = query.order('updated_at', { ascending: false });
   const { data, error } = await query;
-  return { data: (data ?? []) as DbCalculatorTemplate[], error: error ? error.message : null };
+  return { data: (data ?? []) as DbStudioTemplate[], error: error ? error.message : null };
 }
 
 export async function saveUserTemplate(
@@ -938,7 +938,7 @@ export async function saveUserTemplate(
     })
     .select()
     .single();
-  return { data: data as DbCalculatorTemplate | null, error: error ? error.message : null };
+  return { data: data as DbStudioTemplate | null, error: error ? error.message : null };
 }
 
 export async function updateUserTemplate(id: string, updates: { name?: string; description?: string | null; calculator_data?: Record<string, unknown> }) {
@@ -970,5 +970,5 @@ export async function duplicateUserTemplate(id: string, newName?: string) {
     })
     .select()
     .single();
-  return { data: data as DbCalculatorTemplate | null, error: error ? error.message : null };
+  return { data: data as DbStudioTemplate | null, error: error ? error.message : null };
 }

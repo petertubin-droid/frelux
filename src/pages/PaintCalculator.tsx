@@ -12,6 +12,7 @@ import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
 import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import {
   DEFAULT_DOOR_WIDTH_M,
   DEFAULT_DOOR_HEIGHT_M,
@@ -21,6 +22,9 @@ import {
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig } from '@/types';
 import type { DbPaintType } from '@/types/database';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
+import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
+import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
+import type { DbCalculatorTemplate } from '@/types/database';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
 const projectTypes: { value: ProjectType; label: string; description: string; icon: typeof Home }[] = [
@@ -93,6 +97,12 @@ export default function PaintCalculator() {
     wasteMargin: 10,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (loadedTemplate?.input_data) {
+      setInput(loadedTemplate.input_data as unknown as CalculatorInput);
+    }
+  }, [loadedTemplate]);
   const [paintTypes, setPaintTypes] = useState<DbPaintType[]>([]);
   const [screedingConfig, setScreedingConfig] = useState<ScreedingMixConfig | null>(null);
   const [typesLoading, setTypesLoading] = useState(true);
@@ -254,6 +264,10 @@ export default function PaintCalculator() {
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <LoadTemplateButton calculatorType="paint" onLoad={(t) => setInput(t.input_data as unknown as CalculatorInput)} />
+          <SaveTemplateButton calculatorType="paint" inputData={input as unknown as Record<string, unknown>} defaultName={`${input.length}×${input.width} ${input.projectType}`} />
+        </div>
         {typesError && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />

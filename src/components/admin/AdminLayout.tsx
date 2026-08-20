@@ -73,6 +73,7 @@ const navModules: NavModule[] = [
       { label: 'Wall Screeding', to: '/admin/screeding', icon: Layers },
       { label: 'POP Ceiling', to: '/admin/pop-materials', icon: Layers },
       { label: 'Tile Library', to: '/admin/tile-materials', icon: Layers },
+      { label: 'Templates', to: '/admin/templates', icon: Layers },
     ],
   },
   {

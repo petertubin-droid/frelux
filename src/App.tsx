@@ -84,6 +84,10 @@ const AdminMedia = lazy(() => import('@/pages/admin/AdminMedia'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminErrors = lazy(() => import('@/pages/admin/AdminErrors'));
 const AdminSeo = lazy(() => import('@/pages/admin/AdminSeo'));
+const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
+const Templates = lazy(() => import('@/pages/Templates'));
+const TemplateDetail = lazy(() => import('@/pages/TemplateDetail'));
+const MyTemplates = lazy(() => import('@/pages/MyTemplates'));
 const StudioLayout = lazy(() => import('@/components/studio/StudioLayout'));
 const StudioOverview = lazy(() => import('@/pages/studio/StudioOverview'));
 const StudioTool = lazy(() => import('@/pages/studio/StudioTool'));
@@ -149,6 +153,9 @@ export default function App() {
 
             {/* Projects workspace */}
             <Route path="/my-projects" element={<Suspense fallback={<PageLoader />}><MyProjects /></Suspense>} />
+            <Route path="/templates" element={<Suspense fallback={<PageLoader />}><Templates /></Suspense>} />
+            <Route path="/templates/:slug" element={<Suspense fallback={<PageLoader />}><TemplateDetail /></Suspense>} />
+            <Route path="/my-templates" element={<Suspense fallback={<PageLoader />}><MyTemplates /></Suspense>} />
             <Route path="/shared/:id" element={<Suspense fallback={<PageLoader />}><SharedProject /></Suspense>} />
 
             {/* Dashboard */}
@@ -215,6 +222,7 @@ export default function App() {
 
             {/* Calculators */}
             <Route path="estimation-config" element={<AdminEstimationConfig />} />
+            <Route path="templates" element={<AdminTemplates />} />
             <Route path="estimation-products" element={<AdminEstimationProducts />} />
             <Route path="estimation-materials" element={<AdminEstimationMaterials />} />
             <Route path="estimation-pricing" element={<AdminEstimationPricing />} />

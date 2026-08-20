@@ -10,6 +10,10 @@ import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbPopWorkflow, DbSiteSettings } from '@/types/database';
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
+import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
+import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
+import type { DbCalculatorTemplate } from '@/types/database';
 
 export default function PopCeilingCalculator() {
   useSeo({
@@ -46,6 +50,12 @@ export default function PopCeilingCalculator() {
     includeDecorative: false,
     includeOptional: false,
   });
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (loadedTemplate?.input_data) {
+      setInput(loadedTemplate.input_data as unknown as PopCalcInput);
+    }
+  }, [loadedTemplate]);
 
   const currencySymbol = settings?.default_currency_symbol ?? '₦';
   const currency = settings?.default_currency ?? 'NGN';
@@ -114,6 +124,10 @@ export default function PopCeilingCalculator() {
     <>
       <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project." backTo="/" backLabel="Home" />
 
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <LoadTemplateButton calculatorType="pop" onLoad={(t) => setInput(t.input_data as unknown as PopCalcInput)} />
+          <SaveTemplateButton calculatorType="pop" inputData={input as unknown as Record<string, unknown>} defaultName={`${input.roomLength}×${input.roomWidth} POP`} />
+        </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
           <div className="card p-6 sm:p-8">

@@ -883,7 +883,7 @@ export interface DbLabourCategory {
 
 export type TemplateType = 'paint' | 'screeding' | 'pop_ceiling' | 'tile';
 
-export interface DbCalculatorTemplate {
+export interface DbStudioTemplate {
   id: string;
   user_id: string | null;
   template_type: TemplateType;
@@ -1192,4 +1192,46 @@ export interface DbWeatherCache {
   forecast_data: Record<string, unknown>;
   cached_at: string;
   expires_at: string;
+}
+
+// =========================================================
+// Calculator Templates
+// =========================================================
+export type CalculatorType = 'paint' | 'tile' | 'pop' | 'screeding';
+export type TemplateVisibility = 'private' | 'public' | 'unlisted';
+
+export interface DbCalculatorTemplate {
+  id: string;
+  user_id: string | null;
+  calculator_type: CalculatorType;
+  name: string;
+  description: string | null;
+  input_data: Record<string, unknown>;
+  schema_version: number;
+  visibility: TemplateVisibility;
+  is_favorite: boolean;
+  is_featured: boolean;
+  is_published: boolean;
+  display_order: number;
+  slug: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TemplateCreateInput {
+  calculator_type: CalculatorType;
+  name: string;
+  description?: string;
+  input_data: Record<string, unknown>;
+  visibility?: TemplateVisibility;
+}
+
+export interface TemplateUpdateInput {
+  name?: string;
+  description?: string;
+  input_data?: Record<string, unknown>;
+  is_favorite?: boolean;
+  visibility?: TemplateVisibility;
 }

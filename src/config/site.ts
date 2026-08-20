@@ -56,6 +56,7 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Paint Calculator', path: '/paint-calculator' },
       { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
       { label: 'Tile Calculator', path: '/tile-calculator' },
+      { label: 'Calculator Templates', path: '/templates' },
     ],
   },
   {
@@ -98,6 +99,7 @@ export const navWorkspaces: NavWorkspace[] = [
     children: [
       { label: 'Sign In', path: '/login' },
       { label: 'My Projects', path: '/my-projects' },
+      { label: 'My Templates', path: '/my-templates' },
       { label: 'Contact', path: '/contact' },
       { label: 'About', path: '/about' },
     ],

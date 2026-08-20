@@ -8,8 +8,12 @@ import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSetting
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
+import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
+import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
+import type { DbCalculatorTemplate } from '@/types/database';
 
 export default function TileCalculator() {
   useSeo({
@@ -67,6 +71,12 @@ export default function TileCalculator() {
     labourRatePerSqm: 2000,
     unit: 'meters',
   });
+  const { templateData: loadedTemplate } = useTemplateLoader();
+  useEffect(() => {
+    if (loadedTemplate?.input_data) {
+      setInput(loadedTemplate.input_data as unknown as TileCalcInput);
+    }
+  }, [loadedTemplate]);
 
   useEffect(() => {
     async function load() {
@@ -191,6 +201,10 @@ export default function TileCalculator() {
     <>
       <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project." backTo="/" backLabel="Home" useCalcTitle />
 
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <LoadTemplateButton calculatorType="tile" onLoad={(t) => setInput(t.input_data as unknown as TileCalcInput)} />
+          <SaveTemplateButton calculatorType="tile" inputData={input as unknown as Record<string, unknown>} defaultName={`${input.length}×${input.width} ${input.surfaceType}`} />
+        </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
           <div className="card p-6 sm:p-8">
