@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, ArrowRight } from 'lucide-react';
+import { MessageCircle, ArrowRight, Mail, MapPin } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
@@ -47,10 +47,34 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy bg-noise">
       {/* Premium top gradient line */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/20 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/30 to-transparent" />
       {/* Ambient glow */}
-      <div className="pointer-events-none absolute left-1/2 -top-20 h-40 w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/5 blur-[100px]" aria-hidden="true" />
+      <div className="pointer-events-none absolute left-1/2 -top-24 h-48 w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/6 blur-[120px]" aria-hidden="true" />
 
+      {/* Newsletter / CTA strip */}
+      <div className="relative border-b border-neutral-200/60 dark:border-white/5">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 rounded-2xl border border-neutral-200/60 bg-white p-8 sm:flex-row dark:border-white/5 dark:bg-brand-navy-mid">
+            <div>
+              <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white">
+                Start your next calculation
+              </h3>
+              <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+                Free calculators for paint, screeding, POP, tiles, and finishing materials.
+              </p>
+            </div>
+            <Link
+              to="/paint-calculator"
+              className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
+            >
+              <span>Start Calculating</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer content */}
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
@@ -58,15 +82,25 @@ export default function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
               Practical tools to plan paint, estimate cost, and discover the right colors for your space.
             </p>
-            <a
-              href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-all hover:bg-accent-green/15 hover:scale-105 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
-            >
-              <MessageCircle className="h-4 w-4" />
-              {siteConfig.whatsappDisplay}
-            </a>
+
+            {/* Contact info */}
+            <div className="mt-5 space-y-2.5">
+              <a
+                href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-all hover:bg-accent-green/15 hover:scale-105 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
+              >
+                <MessageCircle className="h-4 w-4" />
+                {siteConfig.whatsappDisplay}
+              </a>
+            </div>
+
+            {/* Built for Nigeria badge */}
+            <div className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-neutral-200/60 bg-white px-3 py-1.5 text-xs font-medium text-neutral-500 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
+              <MapPin className="h-3 w-3 text-brand-purple" />
+              Built for Nigerian construction
+            </div>
           </div>
 
           <FooterColumn title="Calculate" links={calculateLinks} />
@@ -76,6 +110,7 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
+        {/* Bottom bar */}
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
           <p className="text-xs text-neutral-400 dark:text-neutral-500">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
