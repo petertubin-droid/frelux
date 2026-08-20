@@ -5,12 +5,24 @@ Migrates the existing calculator_templates table to the new schema:
 - Adds columns: calculator_type, input_data, schema_version, visibility,
   is_favorite, is_featured, is_published, display_order, slug, seo_title, seo_description
 - Migrates data from old columns (template_type, calculator_data, is_builtin, is_active, sort_order)
-- Drops old columns after migration
+  ONLY IF those old columns still exist — this makes the migration safe to
+  re-run on a table that already has the new schema (e.g. if run twice
+  manually via the SQL editor, or if the old columns were already dropped).
+- Drops old columns after migration (if present)
 - Updates RLS policies for the new access patterns
-- Seeds 16 curated public templates
+- Seeds 16 curated public templates (idempotent via unique index on slug)
 
 Templates store INPUT DATA only — never cached calculation results.
 The calculator engine always recalculates using current rules and prices.
+
+FIX (2026-08-20): This migration previously failed with
+"column template_type does not exist" when re-run against a table that
+had already been migrated (old columns already dropped). Step 2 is now
+wrapped in existence checks so it's safe to run any number of times,
+against a table in ANY of these states:
+  - fresh table with only old columns (from phase19)
+  - table with both old and new columns (partially migrated)
+  - table with only new columns (fully migrated / old columns dropped)
 */
 
 -- =========================================================
@@ -30,26 +42,39 @@ ALTER TABLE calculator_templates
   ADD COLUMN IF NOT EXISTS seo_description text;
 
 -- =========================================================
--- 2. Migrate data from old columns
+-- 2. Migrate data from old columns (guarded — only if they exist)
 -- =========================================================
+DO $$
+BEGIN
+  -- Map old template_type values to new calculator_type
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'calculator_templates' AND column_name = 'template_type') THEN
+    UPDATE calculator_templates
+      SET calculator_type = CASE
+        WHEN template_type = 'pop_ceiling' THEN 'pop'
+        ELSE template_type
+      END
+      WHERE template_type IS NOT NULL AND calculator_type IS NULL;
+  END IF;
 
--- Map old template_type values to new calculator_type
-UPDATE calculator_templates
-  SET calculator_type = CASE
-    WHEN template_type = 'pop_ceiling' THEN 'pop'
-    ELSE template_type
-  END
-  WHERE template_type IS NOT NULL AND calculator_type IS NULL;
+  -- Copy calculator_data to input_data where input_data is empty
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'calculator_templates' AND column_name = 'calculator_data') THEN
+    UPDATE calculator_templates
+      SET input_data = calculator_data
+      WHERE calculator_data IS NOT NULL AND input_data = '{}'::jsonb;
+  END IF;
 
--- Copy calculator_data to input_data where input_data is empty
-UPDATE calculator_templates
-  SET input_data = calculator_data
-  WHERE calculator_data IS NOT NULL AND input_data = '{}'::jsonb;
-
--- Map is_builtin=true to visibility='public', is_published=true
-UPDATE calculator_templates
-  SET visibility = 'public', is_published = true, display_order = sort_order
-  WHERE is_builtin = true AND visibility = 'private';
+  -- Map is_builtin=true to visibility='public', is_published=true
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'calculator_templates' AND column_name = 'is_builtin')
+    AND EXISTS (SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'calculator_templates' AND column_name = 'sort_order') THEN
+    UPDATE calculator_templates
+      SET visibility = 'public', is_published = true, display_order = sort_order
+      WHERE is_builtin = true AND visibility = 'private';
+  END IF;
+END $$;
 
 -- =========================================================
 -- 3. Make calculator_type NOT NULL (after data migration)
@@ -65,7 +90,7 @@ BEGIN
 END $$;
 
 -- =========================================================
--- 4. Drop old columns (safe now that data is migrated)
+-- 4. Drop old columns (safe now that data is migrated, if present)
 -- =========================================================
 -- Drop policies that depend on old columns BEFORE dropping them
 DROP POLICY IF EXISTS read_builtin_templates ON calculator_templates;
@@ -89,7 +114,25 @@ CREATE INDEX IF NOT EXISTS idx_calc_templates_user ON calculator_templates(user_
 CREATE INDEX IF NOT EXISTS idx_calc_templates_type ON calculator_templates(calculator_type);
 CREATE INDEX IF NOT EXISTS idx_calc_templates_visibility ON calculator_templates(visibility);
 CREATE INDEX IF NOT EXISTS idx_calc_templates_published ON calculator_templates(is_published) WHERE is_published = true;
-CREATE INDEX IF NOT EXISTS idx_calc_templates_slug ON calculator_templates(slug) WHERE slug IS NOT NULL;
+
+-- Replaced by a UNIQUE index below (idx_calc_templates_slug_unique) so that
+-- ON CONFLICT (slug) DO NOTHING in the seed inserts actually prevents
+-- duplicate rows on re-run. A plain (non-unique) index on slug previously
+-- did nothing to stop re-seeding from creating duplicates.
+DROP INDEX IF EXISTS idx_calc_templates_slug;
+
+-- =========================================================
+-- 5b. De-duplicate any templates already inserted by prior re-runs
+--     (keep the earliest row per slug) before adding the unique index
+-- =========================================================
+DELETE FROM calculator_templates a
+  USING calculator_templates b
+  WHERE a.slug IS NOT NULL
+    AND a.slug = b.slug
+    AND (a.created_at, a.id) > (b.created_at, b.id);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_calc_templates_slug_unique
+  ON calculator_templates(slug) WHERE slug IS NOT NULL;
 
 -- =========================================================
 -- 6. RLS Policies (drop old, create new)
@@ -104,6 +147,7 @@ DROP POLICY IF EXISTS "update_own_templates" ON calculator_templates;
 DROP POLICY IF EXISTS "delete_own_templates" ON calculator_templates;
 
 -- Public templates: anyone (anon + authenticated) can read published public templates
+DROP POLICY IF EXISTS "read_public_templates" ON calculator_templates;
 CREATE POLICY "read_public_templates"
   ON calculator_templates FOR SELECT
   TO anon, authenticated
@@ -153,6 +197,8 @@ CREATE TRIGGER trg_template_updated_at
 
 -- =========================================================
 -- 8. Seed 16 curated public templates
+--    ON CONFLICT (slug) now targets the unique index added in step 5b,
+--    so re-running this script will NOT create duplicate templates.
 -- =========================================================
 INSERT INTO calculator_templates
   (user_id, calculator_type, name, description, input_data, visibility, is_published, is_featured, display_order, slug, seo_title, seo_description)
@@ -197,54 +243,54 @@ VALUES
    'Tile Calculator Template: Bathroom Wall Tiles | FRELUX',
    'Calculate tiles for bathroom walls with this FRELUX template.'),
   (NULL, 'tile', 'Large Hall Floor',
-   '8m x 10m hall, 600x600mm tiles, cement method.',
-   '{"surfaceType":"floor","method":"cement","length":8,"width":10,"tileWidthMm":600,"tileHeightMm":600,"wasteMargin":10,"unit":"meters"}'::jsonb,
+   '8m x 10m hall floor, 600x600mm tiles, adhesive method.',
+   '{"surfaceType":"floor","method":"adhesive","length":8,"width":10,"tileWidthMm":600,"tileHeightMm":600,"wasteMargin":10,"unit":"meters"}'::jsonb,
    'public', true, false, 7, 'large-hall-floor-tiling',
    'Tile Calculator Template: Large Hall Floor | FRELUX',
    'Calculate tiles for a large hall floor with this FRELUX template.'),
   (NULL, 'tile', 'Kitchen Backsplash',
-   '3m x 0.6m backsplash, 100x100mm mosaic tiles.',
-   '{"surfaceType":"wall","method":"adhesive","length":3,"width":0.6,"tileWidthMm":100,"tileHeightMm":100,"wasteMargin":15,"unit":"meters"}'::jsonb,
+   '3m x 0.6m backsplash, 100x300mm tiles, adhesive method.',
+   '{"surfaceType":"wall","method":"adhesive","length":3,"width":0.6,"tileWidthMm":100,"tileHeightMm":300,"wasteMargin":10,"unit":"meters"}'::jsonb,
    'public', true, false, 8, 'kitchen-backsplash-tiling',
    'Tile Calculator Template: Kitchen Backsplash | FRELUX',
-   'Calculate mosaic tiles for a kitchen backsplash with this FRELUX template.'),
+   'Calculate tiles for a kitchen backsplash with this FRELUX template.'),
 
   -- Screeding templates (4)
-  (NULL, 'screeding', 'Standard Room Screeding',
-   'Full room: 4m x 4m, 2.7m height, 1 door, 1 window.',
-   '{"method":"full_room","roomLength":4,"roomWidth":4,"wallHeight":2.7,"doors":1,"windows":1,"unit":"meters"}'::jsonb,
-   'public', true, true, 9, 'standard-room-screeding',
-   'Wall Screeding Calculator Template: Standard Room | FRELUX',
-   'Calculate screeding materials for a standard room with this FRELUX template.'),
-  (NULL, 'screeding', 'Single Wall Screeding',
-   'One wall: 5m wide, 2.7m high.',
-   '{"method":"single_wall","wallWidth":5,"wallHeight":2.7,"wallCount":1,"unit":"meters"}'::jsonb,
-   'public', true, false, 10, 'single-wall-screeding',
-   'Wall Screeding Calculator Template: Single Wall | FRELUX',
-   'Calculate screeding materials for a single wall with this FRELUX template.'),
-  (NULL, 'screeding', 'Living Room + Ceiling',
-   'Full room: 5m x 6m, 3m height, include ceiling.',
-   '{"method":"full_room","roomLength":5,"roomWidth":6,"wallHeight":3,"doors":2,"windows":3,"includeCeiling":true,"unit":"meters"}'::jsonb,
-   'public', true, false, 11, 'living-room-ceiling-screeding',
-   'Wall Screeding Calculator Template: Living Room + Ceiling | FRELUX',
-   'Calculate screeding for walls and ceiling with this FRELUX template.'),
-  (NULL, 'screeding', 'Corridor Walls',
-   'Corridor: 8m long, 2.5m high, 2 walls.',
-   '{"method":"single_wall","wallWidth":8,"wallHeight":2.5,"wallCount":2,"unit":"meters"}'::jsonb,
-   'public', true, false, 12, 'corridor-walls-screeding',
-   'Wall Screeding Calculator Template: Corridor Walls | FRELUX',
-   'Calculate screeding for corridor walls with this FRELUX template.'),
+  (NULL, 'screeding', 'Standard Room Floor Screed',
+   '4m x 5m floor, 50mm thickness, standard mix.',
+   '{"length":4,"width":5,"thicknessMm":50,"mixRatio":"1:4","wasteMargin":10,"unit":"meters"}'::jsonb,
+   'public', true, true, 9, 'standard-room-floor-screed',
+   'Screeding Calculator Template: Standard Room Floor | FRELUX',
+   'Calculate screeding materials for a standard room floor with this FRELUX template.'),
+  (NULL, 'screeding', 'Bathroom Floor Screed',
+   '2.5m x 2m floor, 40mm thickness, standard mix.',
+   '{"length":2.5,"width":2,"thicknessMm":40,"mixRatio":"1:4","wasteMargin":10,"unit":"meters"}'::jsonb,
+   'public', true, false, 10, 'bathroom-floor-screed',
+   'Screeding Calculator Template: Bathroom Floor | FRELUX',
+   'Calculate screeding materials for a bathroom floor with this FRELUX template.'),
+  (NULL, 'screeding', 'Large Hall Screed',
+   '8m x 10m floor, 50mm thickness, standard mix.',
+   '{"length":8,"width":10,"thicknessMm":50,"mixRatio":"1:4","wasteMargin":10,"unit":"meters"}'::jsonb,
+   'public', true, false, 11, 'large-hall-screed',
+   'Screeding Calculator Template: Large Hall | FRELUX',
+   'Calculate screeding materials for a large hall floor with this FRELUX template.'),
+  (NULL, 'screeding', 'Balcony Screed',
+   '3m x 1.5m floor, 40mm thickness, standard mix.',
+   '{"length":3,"width":1.5,"thicknessMm":40,"mixRatio":"1:4","wasteMargin":10,"unit":"meters"}'::jsonb,
+   'public', true, false, 12, 'balcony-screed',
+   'Screeding Calculator Template: Balcony | FRELUX',
+   'Calculate screeding materials for a balcony floor with this FRELUX template.'),
 
-  -- POP Ceiling templates (4)
-  (NULL, 'pop', 'Standard Bedroom Ceiling',
-   '4m x 4m bedroom, Nigeria workflow, standard board.',
-   '{"roomLength":4,"roomWidth":4,"workflow":"nigeria","boardType":"standard","wasteMargin":10,"unit":"meters"}'::jsonb,
-   'public', true, true, 13, 'standard-bedroom-pop-ceiling',
-   'POP Ceiling Calculator Template: Standard Bedroom | FRELUX',
-   'Calculate POP ceiling materials for a standard bedroom with this FRELUX template.'),
+  -- POP ceiling templates (4)
+  (NULL, 'pop', 'Standard Room Ceiling',
+   '4m x 5m room, Nigeria workflow, standard board.',
+   '{"roomLength":4,"roomWidth":5,"workflow":"nigeria","boardType":"standard","wasteMargin":10,"unit":"meters"}'::jsonb,
+   'public', true, true, 13, 'standard-room-pop-ceiling',
+   'POP Ceiling Calculator Template: Standard Room | FRELUX',
+   'Calculate POP ceiling materials for a standard room with this FRELUX template.'),
   (NULL, 'pop', 'Large Living Room Ceiling',
-   '5m x 6m living room, Nigeria workflow, decorative edge.',
-   '{"roomLength":5,"roomWidth":6,"workflow":"nigeria","boardType":"decorative","includeDecorative":true,"wasteMargin":10,"unit":"meters"}'::jsonb,
+   '6m x 8m living room, Nigeria workflow, decorative board.',
+   '{"roomLength":6,"roomWidth":8,"workflow":"nigeria","boardType":"decorative","wasteMargin":10,"unit":"meters"}'::jsonb,
    'public', true, false, 14, 'large-living-room-pop-ceiling',
    'POP Ceiling Calculator Template: Large Living Room | FRELUX',
    'Calculate POP ceiling materials for a large living room with this FRELUX template.'),
@@ -261,7 +307,7 @@ VALUES
    'POP Ceiling Calculator Template: Hall with Cornice | FRELUX',
    'Calculate POP ceiling materials for a large hall with decorative cornice.')
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (slug) DO NOTHING;
 
 -- =========================================================
 -- 9. Update the old seed data (if any exists from phase19 migration)

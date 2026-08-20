@@ -194,4 +194,4 @@ VALUES
    'POP Ceiling Calculator Template: Conference Room | FRELUX',
    'Calculate POP ceiling materials for a large conference room with this FRELUX template.')
 
-ON CONFLICT DO NOTHING;
+ON CONFLICT (slug) DO NOTHING;
