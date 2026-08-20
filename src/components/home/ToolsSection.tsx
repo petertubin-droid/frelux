@@ -8,6 +8,7 @@ const tools = [
     step: 1,
     icon: Ruler,
     accent: 'text-neutral-700 bg-neutral-100',
+    glow: 'group-hover:bg-neutral-400/10',
     title: 'Measure Walls',
     description: 'Grab your tape measure and record the length, width, and height of each wall. Note any doors and windows to deduct later.',
     action: 'Learn how',
@@ -17,6 +18,7 @@ const tools = [
     step: 2,
     icon: Layers,
     accent: 'text-accent-cyan bg-accent-cyan/10',
+    glow: 'group-hover:bg-accent-cyan/10',
     title: 'Wall Screeding Calculator',
     description: 'Calculate the wall surface area that needs screeding, with door and window deductions.',
     action: 'Calculate Screeding',
@@ -26,6 +28,7 @@ const tools = [
     step: 3,
     icon: DollarSign,
     accent: 'text-accent-orange bg-accent-orange/10',
+    glow: 'group-hover:bg-accent-orange/10',
     title: 'Wall Screeding Cost Estimator',
     description: 'Estimate the cost of screeding materials and labor based on your wall area.',
     action: 'Estimate Screeding Cost',
@@ -35,6 +38,7 @@ const tools = [
     step: 4,
     icon: Calculator,
     accent: 'text-accent-orange bg-accent-orange/10',
+    glow: 'group-hover:bg-accent-orange/10',
     title: 'Paint Calculator',
     description: 'Estimate how much paint your project may require based on wall area, coats, and deductions.',
     action: 'Calculate Paint',
@@ -44,6 +48,7 @@ const tools = [
     step: 5,
     icon: DollarSign,
     accent: 'text-accent-green bg-accent-green/10',
+    glow: 'group-hover:bg-accent-green/10',
     title: 'Paint Cost Estimator',
     description: 'Get a practical estimate for paint, materials, and painting labor using real product prices.',
     action: 'Estimate Paint Cost',
@@ -53,6 +58,7 @@ const tools = [
     step: 6,
     icon: Palette,
     accent: 'text-brand-purple bg-brand-purple/10',
+    glow: 'group-hover:bg-brand-purple/10',
     title: 'Smart Color Assistant',
     description: 'Get personalized color ideas for your room or home, then browse curated color combinations.',
     action: 'Explore Colors',
@@ -62,7 +68,7 @@ const tools = [
 
 export default function ToolsSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-28 dark:bg-brand-navy">
+    <section className="relative overflow-hidden bg-white py-24 sm:py-28 dark:bg-brand-navy bg-noise">
       {/* Subtle background pattern */}
       <div className="pointer-events-none absolute inset-0 bg-dots opacity-40" aria-hidden="true" />
 
@@ -82,20 +88,23 @@ export default function ToolsSection() {
               className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-7 dark:border-white/5 dark:bg-brand-navy-mid animate-fade-in-up"
               style={{ animationDelay: `${i * 0.06}s` }}
             >
-              {/* Subtle hover gradient */}
-              <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/4" />
+              {/* Subtle hover gradient — premium */}
+              <div className={`pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 ${tool.glow}`} />
+
+              {/* Shimmer border on top */}
+              <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
 
               <div className="flex items-center justify-between">
-                <span className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${tool.accent} transition-transform duration-300 group-hover:scale-105`}>
+                <span className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${tool.accent} transition-transform duration-300 group-hover:scale-110`}>
                   <Icon className="h-6 w-6" />
                 </span>
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-50 text-sm font-bold text-neutral-300 ring-1 ring-neutral-200/60 transition-colors group-hover:text-brand-purple group-hover:ring-brand-purple/20">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-50 text-sm font-bold text-neutral-300 ring-1 ring-neutral-200/60 transition-all duration-300 group-hover:text-brand-purple group-hover:ring-brand-purple/20 group-hover:bg-brand-purple/5 dark:bg-white/5 dark:text-neutral-600 dark:group-hover:text-brand-purple-lighter">
                   {tool.step}
                 </span>
               </div>
               <h3 className="mt-5 font-display text-lg font-bold text-neutral-900 dark:text-white">{tool.title}</h3>
-              <p className="mt-2.5 flex-1 text-sm leading-relaxed text-neutral-500">{tool.description}</p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5">
+              <p className="mt-2.5 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{tool.description}</p>
+              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                 {tool.action}
                 <ArrowRight className="h-4 w-4" />
               </span>
