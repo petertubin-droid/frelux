@@ -3,9 +3,9 @@
 export const siteConfig = {
   name: 'FRELUX PAINT CALC',
   shortName: 'FRELUX',
-  tagline: 'Plan Your Perfect Paint Project',
+  tagline: 'Smart calculators for painting, tiles & building projects',
   description:
-    'Calculate what you need, estimate what it may cost, and discover colors that can transform your space.',
+    'Smart calculators for painting, tiles & building projects',
   // International format without "+" for wa.me links
   whatsappNumber: '2349063612439',
   whatsappDisplay: '+234 906 361 2439',
@@ -93,17 +93,7 @@ export const navWorkspaces: NavWorkspace[] = [
     label: 'Learn',
     path: '/learn',
   },
-  {
-    label: 'Account',
-    path: '/login',
-    children: [
-      { label: 'Sign In', path: '/login' },
-      { label: 'My Projects', path: '/my-projects' },
-      { label: 'My Templates', path: '/my-templates' },
-      { label: 'Contact', path: '/contact' },
-      { label: 'About', path: '/about' },
-    ],
-  },
+
 ];
 
 // Legacy export kept for backward compatibility (footer uses similar structure)

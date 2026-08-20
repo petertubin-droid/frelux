@@ -15,7 +15,8 @@ export default function Login() {
   // Default to /dashboard after sign-in (was /ai-color-assistant which was confusing)
   const redirectTo = searchParams.get('redirect') ?? '/dashboard';
 
-  const [mode, setMode] = useState<Mode>('signin');
+  const initialMode = (searchParams.get('mode') as Mode) || 'signin';
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);

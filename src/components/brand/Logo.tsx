@@ -18,7 +18,7 @@ export default function Logo({ className, variant = 'full', light = false }: Log
   const logoUrl = theme === 'dark' ? branding?.dark_logo_url : branding?.light_logo_url;
   const displayName = branding?.website_name ?? siteConfig.name;
   const shortName = (branding?.website_name ?? siteConfig.shortName).split(' ')[0] ?? 'FRELUX';
-  const tagline = branding?.website_tagline ?? 'Paint Calc';
+  const tagline = branding?.website_tagline ?? 'Smart Calc';
 
   return (
     <span className={classNames('inline-flex items-center gap-2.5', className)}>
