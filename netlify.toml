@@ -2,6 +2,15 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # These VITE_-prefixed vars are intentionally bundled into the client-side
+  # JS output (that's how Vite env vars work). VITE_SUPABASE_ANON_KEY is
+  # Supabase's public anon key — safe to expose, access is enforced by RLS.
+  # VITE_OPENWEATHER_API_KEY / VITE_SITE_URL are also client-facing by design.
+  # Without this, Netlify's secret scanner flags them as "exposed secrets"
+  # in the build output, which fails the build.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL"
+
 # SPA routing — redirect all routes to index.html
 [[redirects]]
   from = "/*"
