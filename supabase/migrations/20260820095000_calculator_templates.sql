@@ -119,7 +119,17 @@ CREATE INDEX IF NOT EXISTS idx_calc_templates_published ON calculator_templates(
 -- ON CONFLICT (slug) DO NOTHING in the seed inserts actually prevents
 -- duplicate rows on re-run. A plain (non-unique) index on slug previously
 -- did nothing to stop re-seeding from creating duplicates.
+--
+-- NOTE: this is a full (non-partial) unique index, not a partial one
+-- filtered by "WHERE slug IS NOT NULL". Postgres already treats multiple
+-- NULLs as distinct under a plain UNIQUE index/constraint, so private
+-- user templates (slug = NULL) are unaffected. A PARTIAL unique index
+-- would require every "ON CONFLICT (slug)" clause to repeat the exact
+-- same WHERE predicate to be recognized as a matching arbiter (error
+-- 42P10 "no unique or exclusion constraint matching the ON CONFLICT
+-- specification" otherwise) -- a full index avoids that footgun.
 DROP INDEX IF EXISTS idx_calc_templates_slug;
+DROP INDEX IF EXISTS idx_calc_templates_slug_unique;
 
 -- =========================================================
 -- 5b. De-duplicate any templates already inserted by prior re-runs
@@ -132,7 +142,7 @@ DELETE FROM calculator_templates a
     AND (a.created_at, a.id) > (b.created_at, b.id);
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_calc_templates_slug_unique
-  ON calculator_templates(slug) WHERE slug IS NOT NULL;
+  ON calculator_templates(slug);
 
 -- =========================================================
 -- 6. RLS Policies (drop old, create new)
