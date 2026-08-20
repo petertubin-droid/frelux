@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
   LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift,
-  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type,
+  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type, Factory,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -64,6 +64,7 @@ const navModules: NavModule[] = [
       { label: 'Pricing', to: '/admin/estimation-pricing', icon: DollarSign },
       { label: 'Estimates', to: '/admin/estimation-estimates', icon: FileText },
       { label: 'Audit Log', to: '/admin/estimation-audit', icon: ShieldCheck },
+      { label: 'Production Rules', to: '/admin/estimation-production', icon: Factory },
     ],
   },
   {

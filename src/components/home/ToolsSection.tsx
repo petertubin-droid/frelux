@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Ruler } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Ruler, Paintbrush } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 
@@ -56,6 +56,16 @@ const tools = [
   },
   {
     step: 6,
+    icon: Paintbrush,
+    accent: 'text-brand-purple bg-brand-purple/10',
+    glow: 'group-hover:bg-brand-purple/10',
+    title: 'Painting Estimator',
+    description: 'Professional room-based painting estimator with FRELUX methodology — quantity, ceiling, doors, windows, and material cost.',
+    action: 'Estimate Painting',
+    to: '/painting-estimator',
+  },
+  {
+    step: 7,
     icon: Palette,
     accent: 'text-brand-purple bg-brand-purple/10',
     glow: 'group-hover:bg-brand-purple/10',

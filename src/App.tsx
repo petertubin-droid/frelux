@@ -41,6 +41,7 @@ const MyProjects = lazy(() => import('@/pages/MyProjects'));
 const SharedProject = lazy(() => import('@/pages/SharedProject'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
+const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 
 // Contractor experience pages
 const ContractorProjects = lazy(() => import('@/pages/contractor/ContractorProjects'));
@@ -61,6 +62,7 @@ const AdminEstimationMaterials = lazy(() => import('@/pages/admin/AdminEstimatio
 const AdminEstimationPricing = lazy(() => import('@/pages/admin/AdminEstimationPricing'));
 const AdminEstimationEstimates = lazy(() => import('@/pages/admin/AdminEstimationEstimates'));
 const AdminEstimationAudit = lazy(() => import('@/pages/admin/AdminEstimationAudit'));
+const AdminEstimationProduction = lazy(() => import('@/pages/admin/AdminEstimationProduction'));
 const AdminPaintTypes = lazy(() => import('@/pages/admin/AdminPaintTypes'));
 const AdminPricing = lazy(() => import('@/pages/admin/AdminPricing'));
 const AdminLabourSettings = lazy(() => import('@/pages/admin/AdminLabourSettings'));
@@ -141,6 +143,7 @@ export default function App() {
             <Route path="/pop-ceiling-cost-estimator" element={<Suspense fallback={<PageLoader />}><PopCeilingCostEstimator /></Suspense>} />
             <Route path="/tile-cost-estimator" element={<Suspense fallback={<PageLoader />}><TileCostEstimator /></Suspense>} />
             <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
+            <Route path="/painting-estimator" element={<Suspense fallback={<PageLoader />}><PaintingEstimator /></Suspense>} />
 
             {/* Colors workspace */}
             <Route path="/colors" element={<Colors />} />
@@ -228,6 +231,7 @@ export default function App() {
             <Route path="estimation-pricing" element={<AdminEstimationPricing />} />
             <Route path="estimation-estimates" element={<AdminEstimationEstimates />} />
             <Route path="estimation-audit" element={<AdminEstimationAudit />} />
+            <Route path="estimation-production" element={<Suspense fallback={<PageLoader />}><AdminEstimationProduction /></Suspense>} />
             <Route path="paint-types" element={<AdminPaintTypes />} />
             <Route path="screeding" element={<AdminScreedingMaterials />} />
             <Route path="pop-materials" element={<AdminPopMaterials />} />
