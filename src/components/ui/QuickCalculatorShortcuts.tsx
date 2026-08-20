@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Paintbrush, Layers, Grid3x3, Palette, ArrowRight } from 'lucide-react';
+import { Paintbrush, Layers, Grid3x3, Palette, ArrowRight, Calculator } from 'lucide-react';
 
 const shortcuts = [
   { to: '/paint-calculator', label: 'Paint Calculator', icon: Paintbrush, description: 'Calculate paint quantities and costs' },
+  { to: '/finish-estimator', label: 'Finish Estimator', icon: Calculator, description: 'Estimate Painting, Tyrolene and Grafitex finishes' },
   { to: '/pop-ceiling-calculator', label: 'POP Ceiling', icon: Layers, description: 'Estimate POP ceiling materials' },
   { to: '/tile-calculator', label: 'Tile Calculator', icon: Grid3x3, description: 'Plan tile layout and materials' },
-  { to: '/ai-color-assistant', label: 'Smart Color Assistant', icon: Palette, description: 'Get AI color recommendations' },
 ];
 
 export default function QuickCalculatorShortcuts() {

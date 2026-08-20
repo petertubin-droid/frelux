@@ -62,6 +62,7 @@ export const navWorkspaces: NavWorkspace[] = [
     label: 'Estimate',
     path: '/cost-estimator',
     children: [
+      { label: 'Finish Estimator', path: '/finish-estimator' },
       { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
       { label: 'Paint Cost Estimator', path: '/cost-estimator' },
       { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator' },

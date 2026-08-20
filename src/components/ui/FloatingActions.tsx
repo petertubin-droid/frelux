@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X } from 'lucide-react';
+import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator } from "lucide-react";
 import { classNames } from '@/lib/utils';
 
 const actions = [
   { to: '/paint-calculator', label: 'Paint Calculator', icon: Paintbrush },
   { to: '/pop-ceiling-calculator', label: 'POP Ceiling Calculator', icon: Layers },
   { to: '/tile-calculator', label: 'Tile Calculator', icon: Grid3x3 },
+  { to: '/finish-estimator', label: 'Finish Estimator', icon: Calculator },
   { to: '/ai-color-assistant', label: 'Smart Color Assistant', icon: Palette },
   { to: '/my-projects', label: 'My Projects', icon: FolderOpen },
 ];

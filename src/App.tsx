@@ -39,6 +39,7 @@ const CompareColors = lazy(() => import('@/pages/CompareColors'));
 const MyProjects = lazy(() => import('@/pages/MyProjects'));
 const SharedProject = lazy(() => import('@/pages/SharedProject'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
+const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
 
 // Contractor experience pages
 const ContractorProjects = lazy(() => import('@/pages/contractor/ContractorProjects'));
@@ -131,6 +132,7 @@ export default function App() {
             <Route path="/screeding-cost-estimator" element={<Suspense fallback={<PageLoader />}><ScreedingCostEstimator /></Suspense>} />
             <Route path="/pop-ceiling-cost-estimator" element={<Suspense fallback={<PageLoader />}><PopCeilingCostEstimator /></Suspense>} />
             <Route path="/tile-cost-estimator" element={<Suspense fallback={<PageLoader />}><TileCostEstimator /></Suspense>} />
+            <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
 
             {/* Colors workspace */}
             <Route path="/colors" element={<Colors />} />
@@ -260,29 +262,17 @@ export default function App() {
               <Route path="dashboard_builder" element={<StudioTool />} />
               <Route path="form_builder" element={<StudioTool />} />
               <Route path="workflow_builder" element={<StudioTool />} />
-              <Route path="feature_generator" element={<StudioTool />} />
-              <Route path="component_generator" element={<StudioTool />} />
-              <Route path="code_generator" element={<StudioTool />} />
-              <Route path="bug_detection" element={<StudioTool />} />
-              <Route path="refactoring" element={<StudioTool />} />
-              <Route path="test_generator" element={<StudioTool />} />
-              <Route path="docs_generator" element={<StudioTool />} />
-              <Route path="deploy_assistant" element={<StudioTool />} />
-              <Route path="plugin_manager" element={<StudioManagement />} />
-              <Route path="prompt_library" element={<StudioManagement />} />
-              <Route path="integration_center" element={<StudioManagement />} />
-              <Route path="feature_management" element={<StudioManagement />} />
-              <Route path="role_management" element={<StudioManagement />} />
-              <Route path="system_monitoring" element={<StudioManagement />} />
-              <Route path="version_history" element={<StudioManagement />} />
-              <Route path="project_explorer" element={<StudioManagement />} />
-              <Route path="file_manager" element={<StudioManagement />} />
+              <Route path="page/:pageId" element={<StudioTool />} />
+              <Route path="management" element={<StudioManagement />} />
             </Route>
           </Route>
-          </Routes>
-        </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
+
+          {/* Fallback for unmatched admin routes */}
+          <Route path="/admin/*" element={<NotFound />} />
+        </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

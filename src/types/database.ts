@@ -1104,6 +1104,23 @@ export interface DbMaterialCatalog {
   quality_tier: FinishQuality;
   is_available: boolean;
   region: string | null;
+// Finish Types (Painting, Tyrolene, Grafitex)
+// =========================================================
+
+export interface DbFinishType {
+  id: string;
+  name: string;
+  slug: string;              // 'painting', 'tyrolene', 'grafitex'
+  description: string | null;
+  coverage_rate: number;     // m² per unit per coat
+  coverage_unit: string;     // 'L' for painting, 'kg' for tyrolene/grafitex
+  default_coats: number;    // recommended number of coats
+  package_size: number;      // size of one package
+  package_unit: string;     // 'L' or 'kg'
+  unit_price: number;        // price per package
+  labour_rate_per_sqm: number;
+  is_base: boolean;           // true for base coat materials
+  is_finishing: boolean;     // true for finishing/top coat materials
   is_active: boolean;
   sort_order: number;
   currency: string;

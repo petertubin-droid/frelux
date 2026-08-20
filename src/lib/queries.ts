@@ -18,6 +18,7 @@ import type {
   DbMaterialPrice,
   DbLaborRate,
   DbScreedingMaterial,
+  DbFinishType,
   DbColorRelationshipOverride,
   DbShareableLink,
   DbMediaFolder,
@@ -141,6 +142,37 @@ export async function fetchScreedingMaterials() {
     .eq('is_active', true)
     .order('sort_order');
   return { data: (data ?? []) as DbScreedingMaterial[], error };
+
+// =========================================================
+// Finish Types (Painting, Tyrolene, Grafitex)
+// =========================================================
+
+export async function fetchFinishTypes(): Promise<{ data: DbFinishType[]; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from('finish_types')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+    if (error) throw error;
+    return { data: (data ?? []) as DbFinishType[], error: null };
+  } catch (e) {
+    return { data: [], error: e instanceof Error ? e.message : 'Failed to load finish types' };
+  }
+}
+
+export async function fetchAllFinishTypes(): Promise<{ data: DbFinishType[]; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from('finish_types')
+      .select('*')
+      .order('sort_order', { ascending: true });
+    if (error) throw error;
+    return { data: (data ?? []) as DbFinishType[], error: null };
+  } catch (e) {
+    return { data: [], error: e instanceof Error ? e.message : 'Failed to load finish types' };
+  }
+}
 }
 
 // =========================================================
