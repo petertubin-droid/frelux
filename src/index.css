@@ -315,3 +315,140 @@
 /* Scroll reveal */
 .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+
+/* =========================================================
+   ACCESSIBILITY MODE — High contrast, large text, reduced motion
+   ========================================================= */
+
+/* High contrast mode */
+.accessibility-mode {
+  --contrast-boost: 1;
+}
+.accessibility-mode body {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+.accessibility-mode .card,
+.accessibility-mode .card-elevated,
+.accessibility-mode .card-premium {
+  border-color: #000000 !important;
+  border-width: 2px !important;
+  background: #ffffff !important;
+}
+.accessibility-mode .text-neutral-400,
+.accessibility-mode .text-neutral-500 {
+  color: #333333 !important;
+}
+.accessibility-mode .text-neutral-600 {
+  color: #1a1a1a !important;
+}
+.accessibility-mode .btn-primary {
+  background-color: #4C1D95 !important;
+  color: #ffffff !important;
+  border: 2px solid #000000 !important;
+}
+.accessibility-mode .btn-secondary {
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+}
+.accessibility-mode .input-field {
+  border: 2px solid #000000 !important;
+  color: #000000 !important;
+  background: #ffffff !important;
+}
+.accessibility-mode .input-field:focus {
+  border-color: #4C1D95 !important;
+  outline: 3px solid #4C1D95 !important;
+}
+.accessibility-mode a {
+  text-decoration: underline !important;
+  font-weight: 600 !important;
+}
+.accessibility-mode button {
+  outline-offset: 2px !important;
+}
+.accessibility-mode button:focus-visible {
+  outline: 3px solid #4C1D95 !important;
+}
+.accessibility-mode .border-neutral-200,
+.accessibility-mode .border-neutral-300 {
+  border-color: #666666 !important;
+}
+
+/* Larger text mode */
+.large-text {
+  font-size: 18px;
+}
+.large-text .text-xs { font-size: 0.875rem !important; }
+.large-text .text-sm { font-size: 1rem !important; }
+.large-text .text-base { font-size: 1.125rem !important; }
+.large-text .text-lg { font-size: 1.25rem !important; }
+.large-text .text-xl { font-size: 1.375rem !important; }
+.large-text .text-2xl { font-size: 1.625rem !important; }
+.large-text .text-3xl { font-size: 1.875rem !important; }
+.large-text .text-4xl { font-size: 2.25rem !important; }
+.large-text .text-5xl { font-size: 2.75rem !important; }
+.large-text input,
+.large-text select,
+.large-text textarea {
+  font-size: 1.125rem !important;
+}
+.large-text button {
+  min-height: 44px;
+}
+.large-text .btn-primary,
+.large-text .btn-secondary {
+  padding-top: 0.625rem !important;
+  padding-bottom: 0.625rem !important;
+}
+
+/* Reduced motion mode */
+.reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Larger touch targets on mobile for accessibility */
+@media (max-width: 768px) {
+  .accessibility-mode button,
+  .accessibility-mode a.btn-primary,
+  .accessibility-mode a.btn-secondary {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* =========================================================
+   OFFLINE INDICATOR
+   ========================================================= */
+.offline-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: #1a1a2e;
+  color: #ffffff;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.offline-banner-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f59e0b;
+  animation: pulse-offline 2s ease-in-out infinite;
+}
+@keyframes pulse-offline {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

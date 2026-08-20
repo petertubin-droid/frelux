@@ -27,6 +27,9 @@ import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import { sharePaintCalcOnWhatsApp } from '@/lib/share';
+import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
+import { useLanguage } from '@/lib/i18n';
+import { SmartWasteSelector } from '@/components/ui/SmartWasteSelector';
 import { generatePaintShoppingList } from '@/lib/shopping-list';
 import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
@@ -424,6 +427,8 @@ function Step2({
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
   errors: Record<string, string>;
 }) {
+  const { t } = useLanguage();
+  const voiceLabel = input.unit === 'meters' ? 'length in meters' : 'length in feet';
   const unitLabel = input.unit === 'meters' ? 'm' : 'ft';
   const isFence = input.projectType === 'fence';
   const isExterior = input.projectType === 'exterior';
@@ -454,16 +459,25 @@ function Step2({
       </p>
 
       <div className={'mt-6 grid gap-4 ' + (isFence ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
-        <Field label={isFence ? 'Fence length' : 'Length'} suffix={unitLabel} error={errors.length}>
-          <input type="number" min={0} step="0.01" value={input.length || ''} onChange={(e) => update('length', Number(e.target.value))} className="input-field" placeholder="0.00" />
+        <Field label={isFence ? t('calc.length') : t('calc.length')} suffix={unitLabel} error={errors.length}>
+          <div className="flex items-center gap-2">
+            <input type="number" min={0} step="0.01" value={input.length || ''} onChange={(e) => update('length', Number(e.target.value))} className="input-field" placeholder="0.00" />
+            <VoiceInputButton label="length" onResult={(v) => update('length', v)} />
+          </div>
         </Field>
         {!isFence && (
-          <Field label="Width (Optional if not applicable)" suffix={unitLabel} hint="Leave blank if only one pair of walls needs painting">
-            <input type="number" min={0} step="0.01" value={input.width || ''} onChange={(e) => update('width', Number(e.target.value))} className="input-field" placeholder="0.00" />
+          <Field label={t("calc.width") + " (Optional if not applicable)"} suffix={unitLabel} hint="Leave blank if only one pair of walls needs painting">
+            <div className="flex items-center gap-2">
+              <input type="number" min={0} step="0.01" value={input.width || ''} onChange={(e) => update('width', Number(e.target.value))} className="input-field" placeholder="0.00" />
+              <VoiceInputButton label="width" onResult={(v) => update('width', v)} />
+            </div>
           </Field>
         )}
-        <Field label={isFence ? 'Fence height' : 'Wall height'} suffix={unitLabel} error={errors.wallHeight}>
-          <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
+        <Field label={isFence ? t('calc.wall_height') : t('calc.wall_height')} suffix={unitLabel} error={errors.wallHeight}>
+          <div className="flex items-center gap-2">
+            <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
+            <VoiceInputButton label="wall height" onResult={(v) => update('wallHeight', v)} />
+          </div>
         </Field>
       </div>
 
@@ -580,7 +594,16 @@ function Step3({
       </div>
 
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
+        <SmartWasteSelector
+          projectType={input.projectType}
+          coats={input.coats}
+          currentWaste={input.wasteMargin}
+          onWasteChange={(w) => update('wasteMargin', w)}
+        />
+      </div>
+
+      <div className="mt-4">
+        <span className="block text-sm font-semibold text-neutral-700">Or set waste margin manually</span>
         <p className="mt-0.5 text-xs text-neutral-400">Extra paint added to account for spills, roller waste, and touch ups.</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {WASTE_OPTIONS.map((w) => (
@@ -600,6 +623,7 @@ function Step3({
           ))}
         </div>
         {errors.wasteMargin && <span className="mt-1 block text-xs text-red-600">{errors.wasteMargin}</span>}
+        </div>
       </div>
     </div>
   );

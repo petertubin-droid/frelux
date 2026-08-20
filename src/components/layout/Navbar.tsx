@@ -6,6 +6,8 @@ import { navWorkspaces } from '@/config/site';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { AccessibilityToggle } from '@/components/ui/AccessibilityToggle';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -122,6 +124,8 @@ export default function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <AccessibilityToggle />
+            <LanguageSwitcher />
             <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200">
               {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
             </button>
@@ -262,6 +266,15 @@ export default function Navbar() {
                 <Building2 className="h-4 w-4" />
                 Contractor Portal
               </Link>
+            </div>
+
+            {/* Language & Accessibility */}
+            <div className="mt-4 flex items-center justify-around border-t border-neutral-100 pt-4 dark:border-white/5">
+              <AccessibilityToggle compact={false} />
+              <LanguageSwitcher compact={false} />
+              <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center gap-1.5 rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200">
+                {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+              </button>
             </div>
 
             {/* CTA */}

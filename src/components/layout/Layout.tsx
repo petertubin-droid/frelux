@@ -8,6 +8,7 @@ import WhatsAppFab from '@/components/layout/WhatsAppFab';
 import FloatingActions from '@/components/ui/FloatingActions';
 import MobileBottomNav from '@/components/ui/MobileBottomNav';
 import { supabase } from '@/lib/supabase';
+import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
 
 export default function Layout() {
   const [maintenance, setMaintenance] = useState(false);
@@ -53,6 +54,7 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
+      <OfflineIndicator />
       <SupportChatWidget />
       <WhatsAppFab />
       <FloatingActions />
