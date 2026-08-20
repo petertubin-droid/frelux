@@ -127,18 +127,51 @@ export function calculateTile(
   const wasteMultiplier = 1 + input.wasteMargin / 100;
   const adjustedArea = surfaceArea * wasteMultiplier;
 
+  // --- Tiles (always calculated) ---
   const tileAreaM2 = (input.tileWidthMm / 1000) * (input.tileHeightMm / 1000);
   const tilesNeeded = tileAreaM2 > 0 ? Math.ceil(adjustedArea / tileAreaM2) : 0;
   const boxesNeeded = input.tilesPerBox > 0 ? Math.ceil(tilesNeeded / input.tilesPerBox) : tilesNeeded;
   const tileCost = boxesNeeded * input.tilePricePerBox;
 
-  const adhesiveNeeded = input.adhesiveCoverageRate > 0 ? adjustedArea / input.adhesiveCoverageRate : 0;
-  const adhesiveCost = Math.ceil(adhesiveNeeded) * input.adhesivePricePerBag;
+  // --- Adhesive (only when method === 'adhesive') ---
+  let adhesiveNeeded = 0;
+  let adhesiveCost = 0;
+  if (input.method === 'adhesive') {
+    adhesiveNeeded = input.adhesiveCoverageRate > 0 ? adjustedArea / input.adhesiveCoverageRate : 0;
+    adhesiveCost = Math.ceil(adhesiveNeeded) * input.adhesivePricePerBag;
+  }
 
+  // --- Cement (only when method === 'traditional') ---
+  let cementNeeded = 0;
+  let cementCost = 0;
+  if (input.method === 'traditional') {
+    const cementQty = input.cementCoverageRate > 0 ? adjustedArea / input.cementCoverageRate : 0;
+    const cementPkgSize = input.cementPackageSize > 0 ? input.cementPackageSize : 1;
+    cementNeeded = Math.ceil(cementQty / cementPkgSize);
+    cementCost = cementNeeded * input.cementPricePerBag;
+  }
+
+  // --- Sharp sand (only when method === 'traditional') ---
+  let sandNeeded = 0;
+  let sandCost = 0;
+  if (input.method === 'traditional') {
+    const sandQty = input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
+    const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
+    sandNeeded = Math.ceil(sandQty / sandPkgSize);
+    sandCost = sandNeeded * input.sandPricePerBag;
+  }
+
+  // --- Grout (always needed) ---
   const groutNeeded = input.groutCoverageRate > 0 ? adjustedArea / input.groutCoverageRate : 0;
   const groutCost = Math.ceil(groutNeeded) * input.groutPricePerKg;
 
-  const materialCost = tileCost + adhesiveCost + groutCost;
+  // --- Tile spacers (always needed) ---
+  const spacerQty = input.spacerCoverageRate > 0 ? adjustedArea / input.spacerCoverageRate : 0;
+  const spacerPkgSize = input.spacerPackageSize > 0 ? input.spacerPackageSize : 1;
+  const spacerNeeded = Math.ceil(spacerQty / spacerPkgSize);
+  const spacerCost = spacerNeeded * input.spacerPricePerPack;
+
+  const materialCost = tileCost + adhesiveCost + cementCost + sandCost + groutCost + spacerCost;
   const labourCost = surfaceArea * input.labourRatePerSqm;
   const grandTotal = materialCost + labourCost;
 
@@ -148,10 +181,17 @@ export function calculateTile(
     tilesNeeded,
     boxesNeeded,
     tileCost,
+    method: input.method,
     adhesiveNeeded: Math.ceil(adhesiveNeeded),
     adhesiveCost,
+    cementNeeded,
+    cementCost,
+    sandNeeded,
+    sandCost,
     groutNeeded: Math.ceil(groutNeeded),
     groutCost,
+    spacerNeeded,
+    spacerCost,
     wasteAmount: adjustedArea - surfaceArea,
     materialCost,
     labourCost,

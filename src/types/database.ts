@@ -555,7 +555,7 @@ export interface DbLearnArticle {
 
 export type PopWorkflowType = 'nigeria' | 'international';
 export type PopMaterialCategory = 'primary' | 'finishing' | 'decorative' | 'framework' | 'ceiling_boards' | 'fasteners' | 'labour';
-export type TileMaterialCategory = 'tile' | 'adhesive' | 'grout' | 'spacer' | 'waterproofing' | 'labour' | 'other';
+export type TileMaterialCategory = 'tile' | 'adhesive' | 'grout' | 'spacer' | 'cement' | 'sand' | 'labour' | 'other';
 
 export interface DbPopMaterial {
   id: string;

@@ -153,6 +153,7 @@ const basePopInput: PopCalcInput = {
 
 const baseTileInput: TileCalcInput = {
   surfaceType: 'floor',
+  method: 'adhesive',
   length: 5,
   width: 4,
   height: 3,
@@ -162,8 +163,17 @@ const baseTileInput: TileCalcInput = {
   tilePricePerBox: 18000,
   adhesiveCoverageRate: 5, // 1 bag covers 5 m²
   adhesivePricePerBag: 7000,
+  cementCoverageRate: 5,
+  cementPricePerBag: 4500,
+  cementPackageSize: 1,
+  sandCoverageRate: 5,
+  sandPricePerBag: 3000,
+  sandPackageSize: 1,
   groutCoverageRate: 10, // 1 kg covers 10 m²
   groutPricePerKg: 2500,
+  spacerCoverageRate: 50,
+  spacerPricePerPack: 500,
+  spacerPackageSize: 1,
   wasteMargin: 10,
   labourRatePerSqm: 2000,
   unit: 'meters',
@@ -439,7 +449,7 @@ describe('calculateTile', () => {
 
   it('computes materialCost = tileCost + adhesiveCost + groutCost', () => {
     const result = calculateTile(baseTileInput, tileMaterials, 'NGN', '₦');
-    expect(result.materialCost).toBeCloseTo(result.tileCost + result.adhesiveCost + result.groutCost, 5);
+    expect(result.materialCost).toBeCloseTo(result.tileCost + result.adhesiveCost + result.cementCost + result.sandCost + result.groutCost + result.spacerCost, 5);
   });
 
   it('computes labourCost = surfaceArea * labourRatePerSqm', () => {
@@ -527,7 +537,8 @@ describe('calculateTile', () => {
 
   it('matches a full hand-computed Nigerian scenario', () => {
     // Floor: 5m x 4m, 600x600 tiles, 4 per box, ₦18,000/box
-    // 10% waste, adhesive 5 m²/bag @ ₦7,000, grout 10 m²/kg @ ₦2,500, labour ₦2,000/m²
+    // 10% waste, adhesive 5 m²/bag @ ₦7,000, grout 10 m²/kg @ ₦2,500
+    // spacers 50 m²/pack @ ₦500, labour ₦2,000/m²
     const result = calculateTile(baseTileInput, tileMaterials, 'NGN', '₦');
 
     const surfaceArea = 20;
@@ -540,9 +551,11 @@ describe('calculateTile', () => {
     const adhesiveCost = adhesiveNeeded * 7000; // 35,000
     const groutNeeded = Math.ceil(adjustedArea / 10); // 3
     const groutCost = groutNeeded * 2500; // 7,500
-    const materialCost = tileCost + adhesiveCost + groutCost; // 330,500
+    const spacerNeeded = Math.ceil(adjustedArea / 50); // 1
+    const spacerCost = spacerNeeded * 500; // 500
+    const materialCost = tileCost + adhesiveCost + groutCost + spacerCost; // 331,000
     const labourCost = surfaceArea * 2000; // 40,000
-    const grandTotal = materialCost + labourCost; // 370,500
+    const grandTotal = materialCost + labourCost; // 371,000
 
     expect(result.surfaceArea).toBeCloseTo(surfaceArea, 10);
     expect(result.tileArea).toBeCloseTo(tileArea, 10);
@@ -553,6 +566,8 @@ describe('calculateTile', () => {
     expect(result.adhesiveCost).toBe(adhesiveCost);
     expect(result.groutNeeded).toBe(groutNeeded);
     expect(result.groutCost).toBe(groutCost);
+    expect(result.spacerNeeded).toBe(spacerNeeded);
+    expect(result.spacerCost).toBe(spacerCost);
     expect(result.materialCost).toBe(materialCost);
     expect(result.labourCost).toBe(labourCost);
     expect(result.grandTotal).toBe(grandTotal);

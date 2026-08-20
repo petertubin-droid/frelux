@@ -327,6 +327,7 @@ export interface PopEstimateResult {
 
 export interface TileCalcInput {
   surfaceType: 'floor' | 'wall';
+  method: 'traditional' | 'adhesive';
   length: number;
   width: number;
   height: number;
@@ -334,10 +335,24 @@ export interface TileCalcInput {
   tileHeightMm: number;
   tilesPerBox: number;
   tilePricePerBox: number;
+  // Tile adhesive (used when method === 'adhesive')
   adhesiveCoverageRate: number;
   adhesivePricePerBag: number;
+  // Cement (used when method === 'traditional')
+  cementCoverageRate: number;
+  cementPricePerBag: number;
+  cementPackageSize: number;
+  // Sharp sand (used when method === 'traditional')
+  sandCoverageRate: number;
+  sandPricePerBag: number;
+  sandPackageSize: number;
+  // Grout (always needed)
   groutCoverageRate: number;
   groutPricePerKg: number;
+  // Tile spacers (always needed)
+  spacerCoverageRate: number;
+  spacerPricePerPack: number;
+  spacerPackageSize: number;
   wasteMargin: number;
   labourRatePerSqm: number;
   unit: Unit;
@@ -349,10 +364,17 @@ export interface TileCalcResult {
   tilesNeeded: number;
   boxesNeeded: number;
   tileCost: number;
+  method: 'traditional' | 'adhesive';
   adhesiveNeeded: number;
   adhesiveCost: number;
+  cementNeeded: number;
+  cementCost: number;
+  sandNeeded: number;
+  sandCost: number;
   groutNeeded: number;
   groutCost: number;
+  spacerNeeded: number;
+  spacerCost: number;
   wasteAmount: number;
   materialCost: number;
   labourCost: number;

@@ -42,6 +42,7 @@ export default function TileCalculator() {
 
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: 'floor',
+    method: 'adhesive',
     length: 0,
     width: 0,
     height: 0,
@@ -51,8 +52,17 @@ export default function TileCalculator() {
     tilePricePerBox: 12000,
     adhesiveCoverageRate: 5,
     adhesivePricePerBag: 4500,
+    cementCoverageRate: 5,
+    cementPricePerBag: 4500,
+    cementPackageSize: 1,
+    sandCoverageRate: 5,
+    sandPricePerBag: 3000,
+    sandPackageSize: 1,
     groutCoverageRate: 20,
     groutPricePerKg: 1500,
+    spacerCoverageRate: 50,
+    spacerPricePerPack: 500,
+    spacerPackageSize: 1,
     wasteMargin: 10,
     labourRatePerSqm: 2000,
     unit: 'meters',
@@ -69,7 +79,7 @@ export default function TileCalculator() {
       setTileMaterials(matRes.data);
       setSettings(settingsRes.data);
 
-      // Auto-fill adhesive and grout prices from seeded data
+      // Auto-fill material prices from seeded data
       const adhesive = matRes.data.find((m) => m.category === 'adhesive');
       if (adhesive) {
         setInput((prev) => ({
@@ -78,12 +88,39 @@ export default function TileCalculator() {
           adhesivePricePerBag: Number(adhesive.unit_price),
         }));
       }
+      const cement = matRes.data.find((m) => m.category === 'cement');
+      if (cement) {
+        setInput((prev) => ({
+          ...prev,
+          cementCoverageRate: Number(cement.coverage_rate),
+          cementPricePerBag: Number(cement.unit_price),
+          cementPackageSize: Number(cement.package_size) || 1,
+        }));
+      }
+      const sand = matRes.data.find((m) => m.category === 'sand');
+      if (sand) {
+        setInput((prev) => ({
+          ...prev,
+          sandCoverageRate: Number(sand.coverage_rate),
+          sandPricePerBag: Number(sand.unit_price),
+          sandPackageSize: Number(sand.package_size) || 1,
+        }));
+      }
       const grout = matRes.data.find((m) => m.category === 'grout');
       if (grout) {
         setInput((prev) => ({
           ...prev,
           groutCoverageRate: Number(grout.coverage_rate),
           groutPricePerKg: Number(grout.unit_price),
+        }));
+      }
+      const spacer = matRes.data.find((m) => m.category === 'spacer');
+      if (spacer) {
+        setInput((prev) => ({
+          ...prev,
+          spacerCoverageRate: Number(spacer.coverage_rate),
+          spacerPricePerPack: Number(spacer.unit_price),
+          spacerPackageSize: Number(spacer.package_size) || 1,
         }));
       }
       const labour = matRes.data.find((m) => m.category === 'labour');
@@ -239,6 +276,77 @@ export default function TileCalculator() {
               </Field>
             </div>
 
+            {/* Installation method */}
+            <div className="mt-6">
+              <h2 className="text-lg font-bold text-brand-navy">Installation method</h2>
+              <p className="mt-1 text-sm text-neutral-500">Choose how the tiles will be installed.</p>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {([
+                  { value: 'adhesive', label: 'Tile Adhesive Method', desc: 'Pre-mixed adhesive (recommended)' },
+                  { value: 'traditional', label: 'Traditional Method', desc: 'Cement + sharp sand mix' },
+                ] as const).map((m) => {
+                  const selected = input.method === m.value;
+                  return (
+                    <button key={m.value} type="button" onClick={() => update('method', m.value)}
+                      className={'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' + (selected ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
+                      <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
+                        <Grid3x3 className="h-5 w-5" />
+                      </span>
+                      <span>
+                        <span className="block text-sm font-semibold text-brand-navy">{m.label}</span>
+                        <span className="block text-xs text-neutral-500">{m.desc}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Material inputs based on method */}
+            {input.method === 'adhesive' && (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <Field label={`Adhesive price per bag (${currencySymbol})`}>
+                  <input type="number" min={0} value={input.adhesivePricePerBag || ''} onChange={(e) => update('adhesivePricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label="Adhesive coverage (m²/bag)">
+                  <input type="number" min={0} step="0.1" value={input.adhesiveCoverageRate || ''} onChange={(e) => update('adhesiveCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+              </div>
+            )}
+
+            {input.method === 'traditional' && (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <Field label={`Cement price per bag (${currencySymbol})`}>
+                  <input type="number" min={0} value={input.cementPricePerBag || ''} onChange={(e) => update('cementPricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label="Cement coverage (m²/bag)">
+                  <input type="number" min={0} step="0.1" value={input.cementCoverageRate || ''} onChange={(e) => update('cementCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label={`Sharp sand price per bag (${currencySymbol})`}>
+                  <input type="number" min={0} value={input.sandPricePerBag || ''} onChange={(e) => update('sandPricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label="Sharp sand coverage (m²/bag)">
+                  <input type="number" min={0} step="0.1" value={input.sandCoverageRate || ''} onChange={(e) => update('sandCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+              </div>
+            )}
+
+            {/* Grout + Spacers (always shown) */}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <Field label={`Grout price per kg (${currencySymbol})`}>
+                <input type="number" min={0} value={input.groutPricePerKg || ''} onChange={(e) => update('groutPricePerKg', Number(e.target.value))} className="input-field" placeholder="0" />
+              </Field>
+              <Field label="Grout coverage (m²/kg)">
+                <input type="number" min={0} step="0.1" value={input.groutCoverageRate || ''} onChange={(e) => update('groutCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+              </Field>
+              <Field label={`Tile spacers price per pack (${currencySymbol})`}>
+                <input type="number" min={0} value={input.spacerPricePerPack || ''} onChange={(e) => update('spacerPricePerPack', Number(e.target.value))} className="input-field" placeholder="0" />
+              </Field>
+              <Field label="Spacer coverage (m²/pack)">
+                <input type="number" min={0} step="0.1" value={input.spacerCoverageRate || ''} onChange={(e) => update('spacerCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+              </Field>
+            </div>
+
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
@@ -306,14 +414,20 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
         <Stat label="Tile area" value={`${formatNumber(result.tileArea, 3)} m²`} />
         <Stat label="Tiles needed" value={`${result.tilesNeeded}`} />
         <Stat label="Boxes needed" value={`${result.boxesNeeded}`} />
-        <Stat label="Adhesive needed" value={`${result.adhesiveNeeded} bag(s)`} />
+        {result.method === 'adhesive' && <Stat label="Adhesive needed" value={`${result.adhesiveNeeded} bag(s)`} />}
+        {result.method === 'traditional' && <Stat label="Cement needed" value={`${result.cementNeeded} bag(s)`} />}
+        {result.method === 'traditional' && <Stat label="Sharp sand needed" value={`${result.sandNeeded} bag(s)`} />}
         <Stat label="Grout needed" value={`${result.groutNeeded} kg`} />
+        <Stat label="Tile spacers needed" value={`${result.spacerNeeded} pack(s)`} />
       </div>
 
       <div className="mt-2 space-y-2 px-6 pb-6 sm:px-8">
         <Row label="Tile cost" value={formatCurrency(result.tileCost, currencySymbol)} />
-        <Row label="Adhesive cost" value={formatCurrency(result.adhesiveCost, currencySymbol)} />
+        {result.method === 'adhesive' && <Row label="Adhesive cost" value={formatCurrency(result.adhesiveCost, currencySymbol)} />}
+        {result.method === 'traditional' && <Row label="Cement cost" value={formatCurrency(result.cementCost, currencySymbol)} />}
+        {result.method === 'traditional' && <Row label="Sharp sand cost" value={formatCurrency(result.sandCost, currencySymbol)} />}
         <Row label="Grout cost" value={formatCurrency(result.groutCost, currencySymbol)} />
+        <Row label="Tile spacers cost" value={formatCurrency(result.spacerCost, currencySymbol)} />
         <Row label="Labour cost" value={formatCurrency(result.labourCost, currencySymbol)} />
         <div className="border-t border-neutral-100 pt-2">
           <Row label="Grand total" value={formatCurrency(result.grandTotal, currencySymbol)} strong />

@@ -52,6 +52,7 @@ export default function TileCostEstimator() {
 
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: passed.input?.surfaceType ?? 'floor',
+    method: passed.input?.method ?? 'adhesive',
     length: passed.input?.length ?? 0,
     width: passed.input?.width ?? 0,
     height: passed.input?.height ?? 0,
@@ -61,8 +62,17 @@ export default function TileCostEstimator() {
     tilePricePerBox: passed.input?.tilePricePerBox ?? 12000,
     adhesiveCoverageRate: passed.input?.adhesiveCoverageRate ?? 5,
     adhesivePricePerBag: passed.input?.adhesivePricePerBag ?? 4500,
+    cementCoverageRate: passed.input?.cementCoverageRate ?? 5,
+    cementPricePerBag: passed.input?.cementPricePerBag ?? 4500,
+    cementPackageSize: passed.input?.cementPackageSize ?? 1,
+    sandCoverageRate: passed.input?.sandCoverageRate ?? 5,
+    sandPricePerBag: passed.input?.sandPricePerBag ?? 3000,
+    sandPackageSize: passed.input?.sandPackageSize ?? 1,
     groutCoverageRate: passed.input?.groutCoverageRate ?? 20,
     groutPricePerKg: passed.input?.groutPricePerKg ?? 1500,
+    spacerCoverageRate: passed.input?.spacerCoverageRate ?? 50,
+    spacerPricePerPack: passed.input?.spacerPricePerPack ?? 500,
+    spacerPackageSize: passed.input?.spacerPackageSize ?? 1,
     wasteMargin: passed.input?.wasteMargin ?? 10,
     labourRatePerSqm: passed.input?.labourRatePerSqm ?? 2000,
     unit: passed.input?.unit ?? 'meters',
@@ -90,12 +100,39 @@ export default function TileCostEstimator() {
           adhesivePricePerBag: Number(adhesive.unit_price),
         }));
       }
+      const cement = matRes.data.find((m) => m.category === 'cement');
+      if (cement) {
+        setInput((prev) => ({
+          ...prev,
+          cementCoverageRate: Number(cement.coverage_rate),
+          cementPricePerBag: Number(cement.unit_price),
+          cementPackageSize: Number(cement.package_size) || 1,
+        }));
+      }
+      const sand = matRes.data.find((m) => m.category === 'sand');
+      if (sand) {
+        setInput((prev) => ({
+          ...prev,
+          sandCoverageRate: Number(sand.coverage_rate),
+          sandPricePerBag: Number(sand.unit_price),
+          sandPackageSize: Number(sand.package_size) || 1,
+        }));
+      }
       const grout = matRes.data.find((m) => m.category === 'grout');
       if (grout) {
         setInput((prev) => ({
           ...prev,
           groutCoverageRate: Number(grout.coverage_rate),
           groutPricePerKg: Number(grout.unit_price),
+        }));
+      }
+      const spacer = matRes.data.find((m) => m.category === 'spacer');
+      if (spacer) {
+        setInput((prev) => ({
+          ...prev,
+          spacerCoverageRate: Number(spacer.coverage_rate),
+          spacerPricePerPack: Number(spacer.unit_price),
+          spacerPackageSize: Number(spacer.package_size) || 1,
         }));
       }
 
@@ -208,19 +245,65 @@ export default function TileCostEstimator() {
               </div>
             </Section>
 
+            <Section title="Installation Method">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {([
+                  { value: 'adhesive', label: 'Tile Adhesive', desc: 'Pre-mixed adhesive' },
+                  { value: 'traditional', label: 'Traditional', desc: 'Cement + sharp sand' },
+                ] as const).map((m) => {
+                  const selected = input.method === m.value;
+                  return (
+                    <button key={m.value} type="button" onClick={() => update('method', m.value)}
+                      className={'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' + (selected ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
+                      <span>
+                        <span className="block text-sm font-semibold text-brand-navy">{m.label}</span>
+                        <span className="block text-xs text-neutral-500">{m.desc}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </Section>
+
             <Section title="Materials">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={`Adhesive price per bag (${currencySymbol})`}>
-                  <input type="number" min={0} value={input.adhesivePricePerBag || ''} onChange={(e) => update('adhesivePricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
-                </Field>
-                <Field label="Adhesive coverage (m²/bag)">
-                  <input type="number" min={0} step="0.1" value={input.adhesiveCoverageRate || ''} onChange={(e) => update('adhesiveCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
-                </Field>
+              {input.method === 'adhesive' && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label={`Adhesive price per bag (${currencySymbol})`}>
+                    <input type="number" min={0} value={input.adhesivePricePerBag || ''} onChange={(e) => update('adhesivePricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                  <Field label="Adhesive coverage (m²/bag)">
+                    <input type="number" min={0} step="0.1" value={input.adhesiveCoverageRate || ''} onChange={(e) => update('adhesiveCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                </div>
+              )}
+              {input.method === 'traditional' && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label={`Cement price per bag (${currencySymbol})`}>
+                    <input type="number" min={0} value={input.cementPricePerBag || ''} onChange={(e) => update('cementPricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                  <Field label="Cement coverage (m²/bag)">
+                    <input type="number" min={0} step="0.1" value={input.cementCoverageRate || ''} onChange={(e) => update('cementCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                  <Field label={`Sharp sand price per bag (${currencySymbol})`}>
+                    <input type="number" min={0} value={input.sandPricePerBag || ''} onChange={(e) => update('sandPricePerBag', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                  <Field label="Sharp sand coverage (m²/bag)">
+                    <input type="number" min={0} step="0.1" value={input.sandCoverageRate || ''} onChange={(e) => update('sandCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                  </Field>
+                </div>
+              )}
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field label={`Grout price per kg (${currencySymbol})`}>
                   <input type="number" min={0} value={input.groutPricePerKg || ''} onChange={(e) => update('groutPricePerKg', Number(e.target.value))} className="input-field" placeholder="0" />
                 </Field>
                 <Field label="Grout coverage (m²/kg)">
                   <input type="number" min={0} step="0.1" value={input.groutCoverageRate || ''} onChange={(e) => update('groutCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label={`Tile spacers price per pack (${currencySymbol})`}>
+                  <input type="number" min={0} value={input.spacerPricePerPack || ''} onChange={(e) => update('spacerPricePerPack', Number(e.target.value))} className="input-field" placeholder="0" />
+                </Field>
+                <Field label="Spacer coverage (m²/pack)">
+                  <input type="number" min={0} step="0.1" value={input.spacerCoverageRate || ''} onChange={(e) => update('spacerCoverageRate', Number(e.target.value))} className="input-field" placeholder="0" />
                 </Field>
                 <Field label="Waste margin (%)">
                   <input type="number" min={0} max={50} value={input.wasteMargin} onChange={(e) => update('wasteMargin', Number(e.target.value))} className="input-field" />
@@ -261,8 +344,11 @@ export default function TileCostEstimator() {
                     <Row label="Tiles needed" value={`${result.tilesNeeded}`} />
                     <Row label="Boxes needed" value={`${result.boxesNeeded}`} />
                     <Row label="Tile cost" value={formatCurrency(result.tileCost, currencySymbol)} />
-                    <Row label="Adhesive cost" value={formatCurrency(result.adhesiveCost, currencySymbol)} />
+                    {result.method === 'adhesive' && <Row label="Adhesive cost" value={formatCurrency(result.adhesiveCost, currencySymbol)} />}
+                    {result.method === 'traditional' && <Row label="Cement cost" value={formatCurrency(result.cementCost, currencySymbol)} />}
+                    {result.method === 'traditional' && <Row label="Sharp sand cost" value={formatCurrency(result.sandCost, currencySymbol)} />}
                     <Row label="Grout cost" value={formatCurrency(result.groutCost, currencySymbol)} />
+                    <Row label="Tile spacers cost" value={formatCurrency(result.spacerCost, currencySymbol)} />
                     <div className="border-t border-neutral-100 pt-2">
                       <Row label="Material cost" value={formatCurrency(result.materialCost, currencySymbol)} />
                       {labourConfig.includeLabour && <Row label="Labour cost" value={formatCurrency(result.labourCost, currencySymbol)} />}

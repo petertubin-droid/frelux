@@ -8,7 +8,7 @@ import type { DbTileSize, DbTileMaterial, TileMaterialCategory } from '@/types/d
 type Status = 'loading' | 'ready' | 'error';
 type Tab = 'sizes' | 'materials';
 
-const tileCategories: TileMaterialCategory[] = ['tile', 'adhesive', 'grout', 'spacer', 'waterproofing', 'labour', 'other'];
+const tileCategories: TileMaterialCategory[] = ['tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other'];
 
 export default function AdminTileMaterials() {
   const [tab, setTab] = useState<Tab>('sizes');
