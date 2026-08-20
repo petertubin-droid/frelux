@@ -14,6 +14,7 @@ export default function AdminLearn() {
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
   const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState('');
+  const [mutationError, setMutationError] = useState<string | null>(null);
   const [editing, setEditing] = useState<DbLearnArticle | null>(null);
   const [showEditor, setShowEditor] = useState(false);
 
@@ -36,10 +37,16 @@ export default function AdminLearn() {
   }
 
   async function handleSave(article: Partial<DbLearnArticle> & { slug: string; title: string; category_slug: string }) {
+    setMutationError(null);
+    let result;
     if (editing) {
-      await supabase.from('learn_articles').update({ ...article, updated_at: new Date().toISOString() }).eq('id', editing.id);
+      result = await supabase.from('learn_articles').update({ ...article, updated_at: new Date().toISOString() }).eq('id', editing.id);
     } else {
-      await supabase.from('learn_articles').insert(article);
+      result = await supabase.from('learn_articles').insert(article);
+    }
+    if (result.error) {
+      setMutationError(result.error.message);
+      return;
     }
     setShowEditor(false);
     setEditing(null);
@@ -48,7 +55,12 @@ export default function AdminLearn() {
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this article?')) return;
-    await supabase.from('learn_articles').delete().eq('id', id);
+    setMutationError(null);
+    const { error: delError } = await supabase.from('learn_articles').delete().eq('id', id);
+    if (delError) {
+      setMutationError(delError.message);
+      return;
+    }
     setArticles((prev) => prev.filter((a) => a.id !== id));
   }
 
@@ -56,12 +68,22 @@ export default function AdminLearn() {
     const newStatus: LearnArticleStatus = article.status === 'published' ? 'draft' : 'published';
     const updates: Record<string, unknown> = { status: newStatus, updated_at: new Date().toISOString() };
     if (newStatus === 'published' && !article.published_at) updates.published_at = new Date().toISOString();
-    await supabase.from('learn_articles').update(updates).eq('id', article.id);
+    setMutationError(null);
+    const { error: updateError } = await supabase.from('learn_articles').update(updates).eq('id', article.id);
+    if (updateError) {
+      setMutationError(updateError.message);
+      return;
+    }
     setArticles((prev) => prev.map((a) => a.id === article.id ? { ...a, status: newStatus, published_at: updates.published_at as string ?? a.published_at } : a));
   }
 
   async function handleToggleCategoryActive(cat: DbLearnCategory) {
-    await supabase.from('learn_categories').update({ is_active: !cat.is_active }).eq('id', cat.id);
+    setMutationError(null);
+    const { error: updateError } = await supabase.from('learn_categories').update({ is_active: !cat.is_active }).eq('id', cat.id);
+    if (updateError) {
+      setMutationError(updateError.message);
+      return;
+    }
     setCategories((prev) => prev.map((c) => c.id === cat.id ? { ...c, is_active: !c.is_active } : c));
   }
 
@@ -75,6 +97,12 @@ export default function AdminLearn() {
         subtitle="Manage educational articles and categories."
         action={tab === 'articles' ? <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus className="h-4 w-4" /> New Article</AdminButton> : undefined}
       />
+
+      {mutationError && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <AlertCircle className="h-4 w-4 shrink-0" /> {mutationError}
+        </div>
+      )}
 
       {/* Tab switcher */}
       <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
