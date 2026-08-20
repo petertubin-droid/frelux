@@ -1,3 +1,5 @@
+import { trackShare } from '@/lib/achievements';
+
 /**
  * WhatsApp Share Utility
  * Generates formatted WhatsApp messages from calculator results.
@@ -88,14 +90,17 @@ function buildCostEstimateMessage(data: CostEstimateShareData): string {
 export function sharePaintCalcOnWhatsApp(data: PaintCalcShareData): void {
   const message = encodeURIComponent(buildPaintCalcMessage(data));
   window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
+  trackShare();
 }
 
 export function shareCostEstimateOnWhatsApp(data: CostEstimateShareData): void {
   const message = encodeURIComponent(buildCostEstimateMessage(data));
   window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
+  trackShare();
 }
 
 export function shareTextOnWhatsApp(text: string): void {
   const message = encodeURIComponent(text);
   window.open(`https://wa.me/?text=${message}`, '_blank', 'noopener,noreferrer');
+  trackShare();
 }

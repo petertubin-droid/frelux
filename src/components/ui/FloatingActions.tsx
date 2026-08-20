@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator } from "lucide-react";
+import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator, ArrowLeftRight } from "lucide-react";
 import { classNames } from '@/lib/utils';
 
 const actions = [
@@ -37,6 +37,7 @@ export default function FloatingActions() {
         </div>
       )}
       <button
+        data-tour="floating"
         onClick={() => setOpen((v) => !v)}
         className={classNames(
           'flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 press-scale sm:h-14 sm:w-14',

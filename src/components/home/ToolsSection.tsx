@@ -68,7 +68,7 @@ const tools = [
 
 export default function ToolsSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-28 dark:bg-brand-navy bg-noise">
+    <section data-tour="calculators" className="relative overflow-hidden bg-white py-24 sm:py-28 dark:bg-brand-navy bg-noise">
       {/* Subtle background pattern */}
       <div className="pointer-events-none absolute inset-0 bg-dots opacity-40" aria-hidden="true" />
 

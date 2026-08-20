@@ -28,6 +28,8 @@ interface PassedState {
 }
 
 import { useSeo } from '@/lib/seo';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 export default function CostEstimator() {
   useSeo({
@@ -51,6 +53,7 @@ export default function CostEstimator() {
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
 
+  useEffect(() => { trackRecentTool('/cost-estimator', 'Cost Estimator', 'DollarSign'); });
   const [products, setProducts] = useState<DbPaintProduct[]>([]);
   const [materials, setMaterials] = useState<DbMaterialPrice[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
@@ -204,6 +207,7 @@ export default function CostEstimator() {
     const labourCost = calculateLabourCost(labourConfig, input.paintableArea);
     const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
     setResult(r);
+    trackCalculation('cost');
     track('cost_estimate_completed', { total: r.total });
     logAnalyticsEvent('cost_estimate_completed', { total: r.total });
   }

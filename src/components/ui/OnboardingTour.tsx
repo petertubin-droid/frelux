@@ -1,0 +1,170 @@
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { TOUR_STEPS, completeOnboarding } from '@/lib/onboarding';
+import { classNames } from '@/lib/utils';
+
+export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
+  const [step, setStep] = useState(0);
+  const [position, setPosition] = useState({ top: 0, left: 0, placement: 'below' as 'below' | 'above' | 'center' });
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const currentTour = TOUR_STEPS[step];
+
+  useEffect(() => {
+    function updatePosition() {
+      const el = document.querySelector(currentTour.target);
+      if (!el) {
+        setPosition({ top: window.innerHeight / 2 - 100, left: window.innerWidth / 2 - 175, placement: 'center' });
+        return;
+      }
+
+      const rect = el.getBoundingClientRect();
+      const tooltipWidth = 350;
+      const tooltipHeight = 200;
+      const margin = 16;
+
+      let placement: 'below' | 'above' | 'center' = 'below';
+      let top = rect.bottom + margin;
+
+      if (rect.bottom + tooltipHeight + margin > window.innerHeight) {
+        placement = 'above';
+        top = rect.top - tooltipHeight - margin;
+      }
+
+      if (top < 0) {
+        placement = 'below';
+        top = rect.bottom + margin;
+      }
+
+      let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+      left = Math.max(margin, Math.min(left, window.innerWidth - tooltipWidth - margin));
+
+      setPosition({ top, left, placement });
+    }
+
+    updatePosition();
+    window.addEventListener('resize', updatePosition);
+    window.addEventListener('scroll', updatePosition, true);
+    return () => {
+      window.removeEventListener('resize', updatePosition);
+      window.removeEventListener('scroll', updatePosition, true);
+    };
+  }, [step, currentTour.target]);
+
+  function next() {
+    if (step < TOUR_STEPS.length - 1) {
+      setStep(s => s + 1);
+    } else {
+      finish();
+    }
+  }
+
+  function prev() {
+    if (step > 0) setStep(s => s - 1);
+  }
+
+  function finish() {
+    completeOnboarding();
+    onComplete();
+  }
+
+  function skip() {
+    completeOnboarding();
+    onComplete();
+  }
+
+  // Highlight the target element
+  useEffect(() => {
+    const el = document.querySelector(currentTour.target) as HTMLElement;
+    if (el) {
+      el.style.position = el.style.position || 'relative';
+      el.style.zIndex = '60';
+      el.classList.add('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-brand-navy', 'rounded-xl', 'transition-all', 'duration-300');
+    }
+    return () => {
+      if (el) {
+        el.style.zIndex = '';
+        el.classList.remove('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-brand-navy', 'rounded-xl', 'transition-all', 'duration-300');
+      }
+    };
+  }, [step, currentTour.target]);
+
+  const isLast = step === TOUR_STEPS.length - 1;
+  const progress = ((step + 1) / TOUR_STEPS.length) * 100;
+
+  return (
+    <div className="fixed inset-0 z-[90]" ref={overlayRef}>
+      {/* Dark overlay with cutout */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={skip} />
+
+      {/* Tooltip */}
+      <div
+        className="absolute w-[350px] max-w-[calc(100vw-2rem)] animate-fade-in-up"
+        style={{ top: `${position.top}px`, left: `${position.left}px` }}
+      >
+        <div className="overflow-hidden rounded-2xl border border-brand-purple/20 bg-white shadow-2xl dark:bg-brand-navy-mid">
+          {/* Header with progress bar */}
+          <div className="relative bg-gradient-to-r from-brand-purple to-brand-purple-light px-5 py-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{currentTour.icon}</span>
+                <div>
+                  <h3 className="text-base font-bold text-white">{currentTour.title}</h3>
+                  <p className="text-[11px] text-white/70">Step {step + 1} of {TOUR_STEPS.length}</p>
+                </div>
+              </div>
+              <button onClick={skip} className="rounded-lg p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white" aria-label="Skip tour">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/20">
+              <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+
+          {/* Body */}
+          <div className="px-5 py-4">
+            <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">{currentTour.description}</p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-between border-t border-neutral-100 px-5 py-3 dark:border-white/5">
+            <button
+              onClick={prev}
+              disabled={step === 0}
+              className={classNames(
+                'flex items-center gap-1 text-sm font-medium transition-colors',
+                step === 0 ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200',
+              )}
+            >
+              <ArrowLeft className="h-4 w-4" /> Back
+            </button>
+            <button
+              onClick={next}
+              className="flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90 press-scale"
+            >
+              {isLast ? (
+                <>
+                  <Sparkles className="h-4 w-4" /> Got it!
+                </>
+              ) : (
+                <>
+                  {currentTour.cta || 'Next'} <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Arrow pointing to target */}
+        {position.placement === 'below' && (
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2">
+            <div className="h-4 w-4 rotate-45 border-l border-t border-brand-purple/20 bg-white dark:bg-brand-navy-mid" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

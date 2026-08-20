@@ -95,7 +95,7 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     'calc.project_type': 'Ụdị ọrụ',
     'calc.room': 'Ụlọ',
     'calc.house': 'Ụlọ dum',
-    'calc.exterior': 'N'èzí ụlọ',
+    'calc.exterior': 'N\'èzí ụlọ',
     'calc.fence': 'Mgba',
     'calc.dimensions': 'Ntụle ụlọ',
     'calc.length': 'Ogologo',

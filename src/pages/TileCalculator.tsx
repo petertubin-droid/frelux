@@ -14,6 +14,8 @@ import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/databas
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import type { DbCalculatorTemplate } from '@/types/database';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 export default function TileCalculator() {
   useSeo({
@@ -32,6 +34,7 @@ export default function TileCalculator() {
   });
 
   const { user } = useAuth();
+  useEffect(() => { trackRecentTool('/tile-calculator', 'Tile Calculator', 'Grid3x3'); });
   const [tileSizes, setTileSizes] = useState<DbTileSize[]>([]);
   const [tileMaterials, setTileMaterials] = useState<DbTileMaterial[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
@@ -169,6 +172,7 @@ export default function TileCalculator() {
     if (Object.keys(e).length > 0) return;
 
     const r = calculateTile(input, tileMaterials, currency, currencySymbol);
+    trackCalculation('tile');
     setResult(r);
     track('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
     logAnalyticsEvent('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AdminHeader, AdminCard } from '@/components/admin/AdminUi';
-import { Search, FileText, Image, Code, CheckCircle2, XCircle, ExternalLink, Globe, Map, Robot } from 'lucide-react';
+import { Search, FileText, Image, Code, CheckCircle2, XCircle, ExternalLink, Globe, Map, Bot } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface SeoPageStatus {
@@ -96,7 +96,7 @@ export default function AdminSeo() {
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">These files are deployed and accessible by search engines.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <SeoFileCard icon={Map} label="sitemap.xml" url="/sitemap.xml" description="XML sitemap with all public URLs and image entries" />
-          <SeoFileCard icon={Robot} label="robots.txt" url="/robots.txt" description="Crawl directives for Googlebot, Bingbot, and other crawlers" />
+          <SeoFileCard icon={Bot} label="robots.txt" url="/robots.txt" description="Crawl directives for Googlebot, Bingbot, and other crawlers" />
           <SeoFileCard icon={FileText} label="manifest.json" url="/manifest.json" description="PWA manifest for installable web app" />
         </div>
       </AdminCard>
@@ -168,7 +168,7 @@ export default function AdminSeo() {
           <FeatureItem label="Open Graph + Twitter Cards" description="Per-page OG and Twitter meta tags via useSeo hook" />
           <FeatureItem label="JSON-LD Structured Data" description="WebApplication, FAQPage, BreadcrumbList, Article, and CollectionPage schemas" />
           <FeatureItem label="Sitemap with Image Entries" description="XML sitemap includes lastmod dates and image sitemap support" />
-          <FeatureItem label="Robots.txt with Bot Rules" description="Googlebot, Bingbot, Yandex, DuckDuckBot rules with crawl delays" />
+          <FeatureItem label="Bots.txt with Bot Rules" description="Googlebot, Bingbot, Yandex, DuckDuckBot rules with crawl delays" />
           <FeatureItem label="PWA Manifest" description="Installable web app with shortcuts for calculators and tools" />
           <FeatureItem label="Mobile Web App Meta" description="apple-mobile-web-app, format-detection, msapplication meta tags" />
           <FeatureItem label="DNS Prefetch + Preconnect" description="Performance hints for fonts, analytics, and CDN resources" />

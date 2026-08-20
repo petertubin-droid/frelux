@@ -37,6 +37,8 @@ import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
 import type { AiRecommendation, AiConsultMode, AiRequestStatus } from '@/types/ai';
 import type { DbColorCombination, DbPaintColor } from '@/types/database';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -63,6 +65,7 @@ export default function AiColorAssistant() {
   });
 
   const { user } = useAuth();
+  useEffect(() => { trackRecentTool('/ai-color-assistant', 'AI Color Assistant', 'Bot'); });
   const [view, setView] = useState<View>('choose');
   const [config, setConfig] = useState<AiAccessConfig | null>(null);
   const [usage, setUsage] = useState<AiUsageStatus | null>(null);

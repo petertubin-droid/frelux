@@ -13,6 +13,8 @@ import type { DbPaintColor, DbColorFamily, DbColorCategory, DbColorCombination }
 import { classNames } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { PaintMatcher } from '@/components/ui/PaintMatcher';
+import { trackColorView, trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 type Tab = 'colors' | 'palettes';
 type Status = 'loading' | 'error' | 'ready';
@@ -48,6 +50,7 @@ export default function Colors() {
   });
 
   const { user } = useAuth();
+  useEffect(() => { trackColorView(); trackRecentTool('/colors', 'Browse Colors', 'Palette'); });
   const [tab, setTab] = useState<Tab>('colors');
   const [status, setStatus] = useState<Status>('loading');
   const [errorMsg, setErrorMsg] = useState('');

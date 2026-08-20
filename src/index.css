@@ -452,3 +452,13 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+
+/* Scrollbar hide utility for horizontal scroll areas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

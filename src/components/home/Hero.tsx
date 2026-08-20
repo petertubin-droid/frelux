@@ -17,6 +17,7 @@ const trustPoints = [
 
 export default function Hero() {
   return (
+      <div data-tour="hero" className="contents">
     <section className="relative overflow-hidden bg-mesh-animated text-white bg-noise">
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40" aria-hidden="true" />
@@ -74,7 +75,7 @@ export default function Hero() {
               Paint Calculator
             </Link>
             <Link
-              to="/ai-color-assistant"
+              to="/ai-color-assistant" data-tour="ai"
               className="inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-sm font-semibold text-white/80 transition-all hover:text-white hover:bg-white/5 active:scale-[0.98]"
             >
               <Palette className="h-4 w-4" />
@@ -168,5 +169,6 @@ export default function Hero() {
       {/* Bottom fade transition */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-white dark:to-brand-navy" aria-hidden="true" />
     </section>
+    </div>
   );
 }

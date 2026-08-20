@@ -28,7 +28,7 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className="relative overflow-hidden bg-brand-navy py-24 text-white sm:py-28 bg-noise">
+    <section data-tour="cost" className="relative overflow-hidden bg-brand-navy py-24 text-white sm:py-28 bg-noise">
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40" aria-hidden="true" />
       {/* Ambient glow — animated */}

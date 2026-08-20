@@ -9,6 +9,8 @@ import { track } from '@/lib/analytics';
 import { useSeo } from '@/lib/seo';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import type { DbFinishType, DbSiteSettings } from '@/types/database';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
@@ -35,6 +37,7 @@ export default function FinishEstimator() {
     },
   });
 
+  useEffect(() => { trackRecentTool('/finish-estimator', 'Finish Estimator', 'Calculator'); });
   const [finishTypes, setFinishTypes] = useState<DbFinishType[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,6 +116,7 @@ export default function FinishEstimator() {
         ? dbMaterials.map(dbToFinishMaterialConfig)
         : [];
 
+    trackCalculation('finish');
     const calcResult = calculateFinish({
       finishType: selectedFinish,
       area,

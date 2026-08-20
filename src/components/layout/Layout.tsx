@@ -7,13 +7,34 @@ import SupportChatWidget from '@/components/layout/SupportChatWidget';
 import WhatsAppFab from '@/components/layout/WhatsAppFab';
 import FloatingActions from '@/components/ui/FloatingActions';
 import MobileBottomNav from '@/components/ui/MobileBottomNav';
-import { supabase } from '@/lib/supabase';
 import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
+import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalette';
+import { OnboardingTour } from '@/components/ui/OnboardingTour';
+import { AchievementToast } from '@/components/ui/AchievementBadges';
+import { isOnboardingComplete } from '@/lib/onboarding';
+import { trackVisit } from '@/lib/achievements';
+import type { Achievement } from '@/lib/achievements';
+import { supabase } from '@/lib/supabase';
 
 export default function Layout() {
   const [maintenance, setMaintenance] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
   const location = useLocation();
+  const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
+
+  // Track visit and check onboarding on first load
+  useEffect(() => {
+    const newlyUnlocked = trackVisit();
+    if (newlyUnlocked.length > 0) {
+      setNewAchievements(newlyUnlocked);
+      setTimeout(() => setNewAchievements([]), 5000);
+    }
+    if (!isOnboardingComplete() && location.pathname === '/') {
+      setTimeout(() => setShowOnboarding(true), 800);
+    }
+  }, []);
 
   useEffect(() => {
     async function check() {
@@ -59,6 +80,9 @@ export default function Layout() {
       <WhatsAppFab />
       <FloatingActions />
       <MobileBottomNav />
+      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+      {showOnboarding && <OnboardingTour onComplete={() => setShowOnboarding(false)} />}
+      <AchievementToast achievements={newAchievements} onDismiss={() => setNewAchievements([])} />
     </div>
   );
 }
