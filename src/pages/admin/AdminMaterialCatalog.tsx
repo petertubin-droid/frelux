@@ -106,7 +106,7 @@ export default function AdminMaterialCatalog() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500">
+              <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Category</th>
                 <th className="py-2 pr-4">Brand</th>

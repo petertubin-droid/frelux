@@ -24,7 +24,7 @@ export default function TrendingColors() {
   if (trending.length === 0 && featured.length === 0 && recent.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-neutral-50/50 py-24 sm:py-28">
+    <section className="relative overflow-hidden bg-neutral-50/50 py-24 sm:py-28 dark:bg-brand-navy-mid">
       <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" aria-hidden="true" />
 
       <SectionHeading

@@ -14,7 +14,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={cancelUnlock} />
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-brand-navy-mid">
         {/* Header */}
         <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
           <div className="flex items-start justify-between">

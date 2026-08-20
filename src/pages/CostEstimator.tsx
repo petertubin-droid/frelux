@@ -266,7 +266,7 @@ export default function CostEstimator() {
 
               {input.paintUseContainerPricing && input.paintContainerSize > 0 ? (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                  <p className="text-sm font-semibold text-brand-navy">Container based pricing</p>
+                  <p className="text-sm font-semibold text-brand-navy dark:text-white">Container based pricing</p>
                   <p className="mt-1 text-xs text-neutral-500">
                     {formatNumber(input.paintLiters, 1)} L required · {input.paintContainerSize} L containers ·{' '}
                     {Math.ceil(input.paintLiters / input.paintContainerSize)} container(s) needed ·{' '}
@@ -274,7 +274,7 @@ export default function CostEstimator() {
                   </p>
                   <p className="mt-2 text-xs text-neutral-400">
                     Paint cost = {Math.ceil(input.paintLiters / input.paintContainerSize)} × {formatCurrency(input.paintContainerPrice, currencySymbol)} ={' '}
-                    <span className="font-semibold text-brand-navy">{formatCurrency(Math.ceil(input.paintLiters / input.paintContainerSize) * input.paintContainerPrice, currencySymbol)}</span>
+                    <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(Math.ceil(input.paintLiters / input.paintContainerSize) * input.paintContainerPrice, currencySymbol)}</span>
                   </p>
                 </div>
               ) : (
@@ -396,8 +396,8 @@ function Section({ title, children, last }: { title: string; children: ReactNode
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-500')}>{label}</span>
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-700')}>{value}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
 }
@@ -420,7 +420,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
       aria-pressed={checked}
     >
-      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
+      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
     </button>
   );
 }

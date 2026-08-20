@@ -38,10 +38,10 @@ export default function AdminLegal() {
                   <FileText className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-brand-navy">{item.title}</h3>
+                      <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.title}</h3>
                       {item.is_published ? <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-semibold text-accent-green">Published</span> : <span className="rounded-full bg-accent-yellow/20 px-2 py-0.5 text-[11px] font-semibold text-accent-yellow">Draft</span>}
                     </div>
-                    <p className="mt-0.5 text-xs text-neutral-400">/{item.slug} · updated {new Date(item.updated_at).toLocaleDateString()}</p>
+                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">/{item.slug} · updated {new Date(item.updated_at).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
@@ -78,15 +78,15 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">Edit {initial.title}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Edit {initial.title}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
           <AdminField label="Title"><input className="input-field" value={title} onChange={(e) => setTitle(e.target.value)} /></AdminField>
           <AdminField label="Content" hint="Plain text. Paragraphs separated by blank lines."><textarea className="input-field min-h-[300px] resize-y font-mono text-sm" value={content} onChange={(e) => setContent(e.target.value)} /></AdminField>
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Published</span>
-            <p className="mt-0.5 text-xs text-neutral-400">When published, this content replaces the default draft layout on the public site.</p>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Published</span>
+            <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">When published, this content replaces the default draft layout on the public site.</p>
             <div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

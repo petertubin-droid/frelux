@@ -86,8 +86,8 @@ export default function EmptyState({
           {illustrationPaths[illustration]}
         </svg>
       </div>
-      <h3 className="text-xl font-bold text-brand-navy">{title}</h3>
-      <p className="mt-2 max-w-md text-sm text-neutral-500 leading-relaxed">{description}</p>
+      <h3 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h3>
+      <p className="mt-2 max-w-md text-sm text-neutral-500 leading-relaxed dark:text-neutral-400">{description}</p>
       {actionLabel && (actionTo || onAction) && (
         <div className="mt-6">
           {actionTo ? (

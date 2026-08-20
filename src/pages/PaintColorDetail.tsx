@@ -141,17 +141,17 @@ export default function PaintColorDetail() {
             {color.is_featured && <span className="rounded-full bg-brand-purple/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple">Featured</span>}
           </div>
 
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl">{color.name}</h1>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-white">{color.name}</h1>
 
           {/* Copyable color values */}
           <div className="mt-6 space-y-3">
             {copyFields.map((f) => (
-              <div key={f.label} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3">
+              <div key={f.label} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{f.label}</p>
-                  <p className="mt-0.5 text-sm font-semibold text-brand-navy">{f.value}</p>
+                  <p className="mt-0.5 text-sm font-semibold text-brand-navy dark:text-white">{f.value}</p>
                 </div>
-                <button type="button" onClick={() => copy(f.value)} className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple">
+                <button type="button" onClick={() => copy(f.value)} className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter">
                   {copied === f.value ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied === f.value ? 'Copied' : 'Copy'}
                 </button>
@@ -194,12 +194,12 @@ export default function PaintColorDetail() {
       {/* Related colors */}
       {related.length > 0 && (
         <div className="mt-12">
-          <h2 className="text-xl font-bold text-brand-navy">Similar colors</h2>
+          <h2 className="text-xl font-bold text-brand-navy dark:text-white">Similar colors</h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
             {related.map((c) => (
-              <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-md">
+              <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md">
                 <div className="aspect-square" style={{ background: c.hex_code }} />
-                <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p></div>
+                <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p></div>
               </Link>
             ))}
           </div>
@@ -240,7 +240,7 @@ function ColorRelationships({ color, allColors, overrides }: { color: DbPaintCol
 
   return (
     <div className="mt-12">
-      <h2 className="text-xl font-bold text-brand-navy">Color Relationships</h2>
+      <h2 className="text-xl font-bold text-brand-navy dark:text-white">Color Relationships</h2>
       <p className="mt-1 text-sm text-neutral-500">Automatically computed harmonies and coordinated colors.</p>
       <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {sections.filter((s) => s.colors.length > 0).map((s) => (
@@ -248,9 +248,9 @@ function ColorRelationships({ color, allColors, overrides }: { color: DbPaintCol
             <h3 className="text-sm font-bold text-neutral-700">{s.title}</h3>
             <div className="mt-2 space-y-2">
               {s.colors.map((c) => (
-                <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 transition-all hover:border-brand-purple hover:shadow-sm">
+                <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:border-brand-purple hover:shadow-sm">
                   <div className="h-8 w-8 shrink-0 rounded ring-1 ring-black/5" style={{ background: c.hex_code }} />
-                  <div className="min-w-0"><p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p><p className="text-[10px] text-neutral-400">{c.hex_code}</p></div>
+                  <div className="min-w-0"><p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p><p className="text-[10px] text-neutral-400">{c.hex_code}</p></div>
                 </Link>
               ))}
               {overrideMap.has(s.type) && <span className="text-[10px] font-semibold text-brand-purple">Admin curated</span>}

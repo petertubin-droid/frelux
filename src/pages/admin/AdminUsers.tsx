@@ -31,23 +31,23 @@ export default function AdminUsers() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-200">
-                <th className="py-3 pr-4 font-semibold text-neutral-500">Email</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500">Role</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500">Joined</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Email</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Role</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Joined</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 ? (
-                <tr><td colSpan={3} className="py-8 text-center text-neutral-400">No users yet.</td></tr>
+                <tr><td colSpan={3} className="py-8 text-center text-neutral-400 dark:text-neutral-500">No users yet.</td></tr>
               ) : users.map((u) => (
                 <tr key={u.id} className="border-b border-neutral-100 last:border-0">
-                  <td className="py-3 pr-4 font-medium text-brand-navy">{u.email}</td>
+                  <td className="py-3 pr-4 font-medium text-brand-navy dark:text-white">{u.email}</td>
                   <td className="py-3 pr-4">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${u.role === 'admin' ? 'bg-brand-purple/15 text-brand-purple' : 'bg-neutral-100 text-neutral-500'}`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="py-3 pr-4 text-neutral-400">{new Date(u.created_at).toLocaleDateString()}</td>
+                  <td className="py-3 pr-4 text-neutral-400 dark:text-neutral-500">{new Date(u.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

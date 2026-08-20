@@ -39,19 +39,19 @@ export default function AdminLogin() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center"><Logo /></div>
         <div className="card p-6 sm:p-8">
-          <h1 className="text-xl font-bold text-brand-navy">{mode === 'signin' ? 'Admin sign in' : 'Create admin account'}</h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <h1 className="text-xl font-bold text-brand-navy dark:text-white">{mode === 'signin' ? 'Admin sign in' : 'Create admin account'}</h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
             {mode === 'signin' ? 'Sign in with an authorized admin account to manage the platform.' : 'Create an account, then ask an existing admin to grant you admin access.'}
           </p>
           {!configured && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-neutral-700">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-neutral-700 dark:text-neutral-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
               <p>Supabase isn’t configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable admin access.</p>
             </div>
           )}
           {signedUpEmail ? (
             <div className="mt-6 space-y-4">
-              <div className="rounded-lg border border-accent-green/30 bg-accent-green/10 p-4 text-sm text-neutral-700">
+              <div className="rounded-lg border border-accent-green/30 bg-accent-green/10 p-4 text-sm text-neutral-700 dark:text-neutral-200">
                 <p className="font-semibold text-accent-green">Account created</p>
                 <p className="mt-1">Your account <span className="font-semibold">{signedUpEmail}</span> has been registered. New accounts start as a regular user. To get admin access, an existing admin needs to update your role to <span className="font-semibold">admin</span> in the profiles table.</p>
               </div>
@@ -60,14 +60,14 @@ export default function AdminLogin() {
           ) : (
             <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
               <label className="block">
-                <span className="block text-sm font-semibold text-neutral-700">Email</span>
+                <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
                 <div className="relative mt-1.5">
                   <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                   <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field pl-9" placeholder="admin@example.com" autoComplete="email" required />
                 </div>
               </label>
               <label className="block">
-                <span className="block text-sm font-semibold text-neutral-700">Password</span>
+                <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                 <div className="relative mt-1.5">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                   <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field pl-9" placeholder="••••••••" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
@@ -90,7 +90,7 @@ export default function AdminLogin() {
             </form>
           )}
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-400"><Link to="/" className="hover:text-brand-purple">← Back to website</Link></p>
+        <p className="mt-6 text-center text-xs text-neutral-400 dark:text-neutral-500"><Link to="/" className="hover:text-brand-purple">← Back to website</Link></p>
       </div>
     </div>
   );

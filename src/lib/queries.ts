@@ -142,6 +142,7 @@ export async function fetchScreedingMaterials() {
     .eq('is_active', true)
     .order('sort_order');
   return { data: (data ?? []) as DbScreedingMaterial[], error };
+}
 
 // =========================================================
 // Finish Types (Painting, Tyrolene, Grafitex)
@@ -172,7 +173,6 @@ export async function fetchAllFinishTypes(): Promise<{ data: DbFinishType[]; err
   } catch (e) {
     return { data: [], error: e instanceof Error ? e.message : 'Failed to load finish types' };
   }
-}
 }
 
 // =========================================================

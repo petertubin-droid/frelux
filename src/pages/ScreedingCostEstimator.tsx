@@ -184,19 +184,19 @@ export default function ScreedingCostEstimator() {
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
                       <span className="block text-neutral-400">Paint coverage</span>
-                      <span className="font-semibold text-brand-navy">{config.paintCoverageRateM2PerL} m²/L</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">{config.paintCoverageRateM2PerL} m²/L</span>
                     </div>
                     <div>
                       <span className="block text-neutral-400">Cement ratio</span>
-                      <span className="font-semibold text-brand-navy">{config.cementConsumptionRatioKgPerL} kg/L</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">{config.cementConsumptionRatioKgPerL} kg/L</span>
                     </div>
                     <div>
                       <span className="block text-neutral-400">Default mix</span>
-                      <span className="font-semibold text-brand-navy">{config.defaultMixRatio}</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">{config.defaultMixRatio}</span>
                     </div>
                     <div>
                       <span className="block text-neutral-400">Suggested labour rate</span>
-                      <span className="font-semibold text-brand-navy">{formatCurrency(config.labourRatePerSqm, currencySymbol)}/m²</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.labourRatePerSqm, currencySymbol)}/m²</span>
                     </div>
                   </div>
                 </div>
@@ -206,11 +206,11 @@ export default function ScreedingCostEstimator() {
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="rounded-lg border border-neutral-200 p-3">
                     <span className="block text-neutral-400">Screeding Paint (20L bucket)</span>
-                    <span className="font-semibold text-brand-navy">{formatCurrency(config.paintPricePerBucket, currencySymbol)}</span>
+                    <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.paintPricePerBucket, currencySymbol)}</span>
                   </div>
                   <div className="rounded-lg border border-neutral-200 p-3">
                     <span className="block text-neutral-400">White Cement (40kg bag)</span>
-                    <span className="font-semibold text-brand-navy">{formatCurrency(config.cementPricePerBag, currencySymbol)}</span>
+                    <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.cementPricePerBag, currencySymbol)}</span>
                   </div>
                 </div>
               </Section>
@@ -311,9 +311,9 @@ export default function ScreedingCostEstimator() {
 
         {/* Navigation to next step */}
         {netArea > 0 && (
-          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-brand-navy">Next step: Paint Calculator</p>
+              <p className="text-sm font-semibold text-brand-navy dark:text-white">Next step: Paint Calculator</p>
               <p className="mt-0.5 text-xs text-neutral-500">Once your walls are screeded, calculate how much paint you'll need.</p>
             </div>
             <Link
@@ -346,8 +346,8 @@ function Section({ title, children, last }: { title: string; children: ReactNode
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-500')}>{label}</span>
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-700')}>{value}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
 }

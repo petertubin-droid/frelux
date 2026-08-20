@@ -358,3 +358,45 @@
     animation: none !important;
   }
 }
+
+/* =========================================================
+   Additional Dark Mode Enhancements
+   ========================================================= */
+
+/* Dark mode grid pattern — visible on dark backgrounds */
+.dark .bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Dark mode dots pattern */
+.dark .bg-dots {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Dark mode badge */
+.dark .badge {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #E5E5EA;
+}
+
+/* Dark mode card-hover lift */
+.dark .card-hover:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* Dark mode glow hover */
+.dark .glow-hover:hover {
+  box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.15), 0 12px 40px rgba(109, 40, 217, 0.15);
+}
+
+/* Respect reduced motion — disable theme transitions */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}

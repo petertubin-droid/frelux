@@ -117,9 +117,9 @@ export default function AdminScreedingMaterials() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Paintbrush className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">Screeding Paint (20L Buckets)</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Screeding Paint (20L Buckets)</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Coverage rate (m²/L)" hint="Square metres covered per litre of paint">
             <input type="number" min={0} step="0.1" className="input-field" value={paintCoverage} onChange={(e) => setPaintCoverage(Number(e.target.value))} />
@@ -137,9 +137,9 @@ export default function AdminScreedingMaterials() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Package className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">White Cement (40kg Bags)</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">White Cement (40kg Bags)</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Consumption ratio (kg/L)" hint="Kg of cement per litre of paint">
             <input type="number" min={0} step="0.1" className="input-field" value={cementRatio} onChange={(e) => setCementRatio(Number(e.target.value))} />
@@ -157,7 +157,7 @@ export default function AdminScreedingMaterials() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Layers className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">Mix Ratio, Labour & Overheads</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Mix Ratio, Labour & Overheads</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Default mix ratio" hint="e.g. 2:1 (paint:cement)">
@@ -175,7 +175,7 @@ export default function AdminScreedingMaterials() {
       {/* Currency & Tax section */}
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
-          <h2 className="text-sm font-bold text-brand-navy">Currency & Tax</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Currency & Tax</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
           <AdminField label="Currency code">
@@ -188,7 +188,7 @@ export default function AdminScreedingMaterials() {
             <input type="number" min={0} max={100} step="0.5" className="input-field" value={taxPct} onChange={(e) => setTaxPct(Number(e.target.value))} />
           </AdminField>
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Active</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
             <div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function AdminScreedingMaterials() {
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Configuration'}
         </button>
-        <span className="text-xs text-neutral-400">
+        <span className="text-xs text-neutral-400 dark:text-neutral-500">
           Paint: {formatCurrency(paintPrice, currencySymbol)} / {paintBucketSize}L bucket · Cement: {formatCurrency(cementPrice, currencySymbol)} / {cementBagSize}kg bag
         </span>
       </div>

@@ -73,7 +73,7 @@ export default function AdminPopMaterials() {
         </div>}
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {workflows.map((wf) => (
           <button key={wf} type="button" onClick={() => setFilterWf(wf)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', filterWf === wf ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
@@ -91,19 +91,19 @@ export default function AdminPopMaterials() {
             if (catItems.length === 0) return null;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400">{cat.replace(/_/g, ' ')}</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat.replace(/_/g, ' ')}</h3>
                 <div className="space-y-2">
                   {catItems.map((mat) => (
                     <AdminCard key={mat.id} className="flex items-center justify-between">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-bold text-brand-navy">{mat.name}</p>
-                          {mat.is_optional && <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-500">Optional</span>}
+                          <p className="truncate text-sm font-bold text-brand-navy dark:text-white">{mat.name}</p>
+                          {mat.is_optional && <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Optional</span>}
                           <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', mat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
                             {mat.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-xs text-neutral-400">
+                        <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
                           {mat.coverage_rate} {mat.coverage_unit} coverage · {mat.package_size} {mat.package_unit} pkg · ₦{mat.unit_price} · Labour ₦{mat.labour_rate_per_sqm}/m²
                         </p>
                       </div>
@@ -151,7 +151,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
 

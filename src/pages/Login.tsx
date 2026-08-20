@@ -71,7 +71,7 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10 dark:bg-brand-navy">
       {/* Subtle grid pattern background */}
       <div className="pointer-events-none absolute inset-0 bg-grid" aria-hidden="true" />
       {/* Soft radial glow */}
@@ -82,10 +82,10 @@ export default function Login() {
           <Logo />
         </div>
         <div className="card p-6 shadow-premium sm:p-8">
-          <h1 className="font-display text-xl font-bold text-neutral-900">
+          <h1 className="font-display text-xl font-bold text-neutral-900 dark:text-white">
             {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
           </h1>
-          <p className="mt-1.5 text-sm text-neutral-500">
+          <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
             {mode === 'signin'
               ? 'Sign in to access your projects, saved estimates, and AI features.'
               : mode === 'signup'
@@ -94,14 +94,14 @@ export default function Login() {
           </p>
 
           {!configured && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-neutral-700">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-neutral-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <p>Authentication is not configured. Please check back later.</p>
             </div>
           )}
 
           {info && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
               <p>{info}</p>
             </div>
@@ -109,7 +109,7 @@ export default function Login() {
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700">Email</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
               <div className="relative mt-1.5">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                 <input
@@ -126,7 +126,7 @@ export default function Login() {
 
             {mode !== 'reset' && (
               <label className="block">
-                <span className="block text-sm font-semibold text-neutral-700">Password</span>
+                <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                 <div className="relative mt-1.5">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                   <input
@@ -144,7 +144,7 @@ export default function Login() {
             )}
 
             {error && (
-              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>{error}</p>
               </div>
@@ -158,29 +158,29 @@ export default function Login() {
             <div className="flex flex-col items-center gap-2 text-xs">
               {mode === 'signin' && (
                 <>
-                  <button type="button" onClick={() => { setMode('signup'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline">
+                  <button type="button" onClick={() => { setMode('signup'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                     Need an account? Sign up
                   </button>
-                  <button type="button" onClick={() => { setMode('reset'); setError(null); setInfo(null); }} className="text-neutral-500 hover:text-brand-purple hover:underline">
+                  <button type="button" onClick={() => { setMode('reset'); setError(null); setInfo(null); }} className="text-neutral-500 hover:text-brand-purple hover:underline dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
                     Forgot your password?
                   </button>
                 </>
               )}
               {mode === 'signup' && (
-                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline">
+                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                   Already have an account? Sign in
                 </button>
               )}
               {mode === 'reset' && (
-                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline">
+                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                   Back to sign in
                 </button>
               )}
             </div>
           </form>
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-400">
-          <Link to="/" className="inline-flex items-center gap-1 hover:text-brand-purple">
+        <p className="mt-6 text-center text-xs text-neutral-400 dark:text-neutral-500">
+          <Link to="/" className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter">
             <ArrowLeft className="h-3 w-3" /> Back to website
           </Link>
         </p>

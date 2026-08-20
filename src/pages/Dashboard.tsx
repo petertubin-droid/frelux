@@ -89,13 +89,13 @@ export default function Dashboard() {
           <div className="space-y-8">
             {/* Continue Last Project */}
             {lastProject && (
-              <section className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white p-6 animate-fade-in-up">
+              <section className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white dark:from-brand-purple/10 dark:to-brand-navy-mid p-6 animate-fade-in-up">
                 <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple">
                   <Clock className="h-4 w-4" /> Continue where you left off
                 </div>
                 <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-brand-navy">{lastProject.name}</h3>
+                    <h3 className="text-lg font-bold text-brand-navy dark:text-white">{lastProject.name}</h3>
                     {lastProject.description && <p className="mt-1 text-sm text-neutral-500">{lastProject.description}</p>}
                     <p className="mt-1 text-xs text-neutral-400">Updated {new Date(lastProject.updated_at).toLocaleDateString()}</p>
                   </div>
@@ -113,10 +113,10 @@ export default function Dashboard() {
             {/* Recent Calculations */}
             <section>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
                   <Calculator className="h-5 w-5 text-brand-purple" /> Recent Calculations
                 </h2>
-                <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline">View all</Link>
+                <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">View all</Link>
               </div>
               {projects.length > 0 ? (
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -125,9 +125,9 @@ export default function Dashboard() {
                       key={p.id}
                       to={PROJECT_ROUTES[p.project_type] ?? '/paint-calculator'}
                       state={{ projectData: p.project_data, projectId: p.id, projectName: p.name }}
-                      className="card-hover group rounded-xl border border-neutral-200 bg-white p-4"
+                      className="card-hover group rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
                     >
-                      <h3 className="text-sm font-bold text-brand-navy group-hover:text-brand-purple">{p.name}</h3>
+                      <h3 className="text-sm font-bold text-brand-navy dark:text-white group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{p.name}</h3>
                       {p.description && <p className="mt-0.5 text-xs text-neutral-500">{p.description}</p>}
                       <p className="mt-2 text-xs text-neutral-400">{new Date(p.updated_at).toLocaleDateString()}</p>
                     </Link>
@@ -148,18 +148,18 @@ export default function Dashboard() {
               {/* Favorite Colors */}
               <section>
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
                     <Heart className="h-5 w-5 text-rose-400" /> Favorite Colors
                   </h2>
-                  <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline">View all</Link>
+                  <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">View all</Link>
                 </div>
                 {favColors.length > 0 ? (
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {favColors.slice(0, 6).map((c) => (
-                      <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+                      <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-brand-navy">{c.name}</p>
+                          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{c.name}</p>
                           <p className="text-xs text-neutral-400">{c.hex_code}</p>
                         </div>
                       </Link>
@@ -179,18 +179,18 @@ export default function Dashboard() {
               {/* Recently Viewed */}
               <section>
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
                     <Clock className="h-5 w-5 text-neutral-400" /> Recently Viewed
                   </h2>
-                  <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline">View all</Link>
+                  <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">View all</Link>
                 </div>
                 {recentColors.length > 0 ? (
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                     {recentColors.slice(0, 6).map((c) => (
-                      <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3">
+                      <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-brand-navy">{c.name}</p>
+                          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{c.name}</p>
                           <p className="text-xs text-neutral-400">{c.hex_code}</p>
                         </div>
                       </Link>
@@ -211,14 +211,14 @@ export default function Dashboard() {
             {/* AI Recommendations */}
             <section>
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
                   <Lightbulb className="h-5 w-5 text-accent-orange" /> AI Recommendations
                 </h2>
               </div>
               <div className="rounded-2xl border border-accent-orange/20 bg-gradient-to-br from-accent-orange/5 to-white p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-base font-bold text-brand-navy">Get personalized color ideas</h3>
+                    <h3 className="text-base font-bold text-brand-navy dark:text-white">Get personalized color ideas</h3>
                     <p className="mt-1 text-sm text-neutral-500">Describe your space or upload a photo and let AI suggest the perfect palette.</p>
                   </div>
                   <Link to="/ai-color-assistant" className="btn-primary press-scale shrink-0">

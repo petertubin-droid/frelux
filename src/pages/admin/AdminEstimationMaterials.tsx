@@ -141,7 +141,7 @@ export default function AdminEstimationMaterials() {
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-brand-navy">{item.name}</h3>
+                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
                     <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700 capitalize">
                       {item.category}
                     </span>
@@ -152,9 +152,9 @@ export default function AdminEstimationMaterials() {
                     )}
                   </div>
                   {item.description && (
-                    <p className="mt-0.5 text-sm text-neutral-500">{item.description}</p>
+                    <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
                   )}
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
                     {baseUnit && (
                       <span>
                         Unit: {baseUnit.name} ({baseUnit.symbol})
@@ -280,7 +280,7 @@ function MaterialForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 overflow-y-auto">
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl my-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit estimation material' : 'Add estimation material'}
           </h2>
           <button
@@ -432,7 +432,7 @@ function MaterialForm({
               />
             </AdminField>
             <div>
-              <span className="block text-sm font-semibold text-neutral-700">Active</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
               <div className="mt-2">
                 <Toggle checked={isActive} onChange={setIsActive} />
               </div>

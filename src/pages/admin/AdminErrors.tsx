@@ -102,8 +102,8 @@ export default function AdminErrors() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900">Error Monitor</h1>
-          <p className="mt-1 text-sm text-neutral-500">Runtime errors and exceptions logged from the frontend</p>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Error Monitor</h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Runtime errors and exceptions logged from the frontend</p>
         </div>
         <button
           type="button"
@@ -141,16 +141,16 @@ export default function AdminErrors() {
 
       {/* Error list */}
       {loading ? (
-        <div className="py-12 text-center text-sm text-neutral-400">Loading…</div>
+        <div className="py-12 text-center text-sm text-neutral-400 dark:text-neutral-500">Loading…</div>
       ) : errors.length === 0 ? (
-        <div className="py-12 text-center text-sm text-neutral-400">No errors found 🎉</div>
+        <div className="py-12 text-center text-sm text-neutral-400 dark:text-neutral-500">No errors found 🎉</div>
       ) : (
         <div className="space-y-2">
           {errors.map(err => (
             <div
               key={err.id}
               className={`rounded-lg border p-4 transition-colors ${
-                err.is_resolved ? 'border-neutral-100 bg-neutral-50 opacity-60' : 'border-neutral-200 bg-white hover:bg-neutral-50'
+                err.is_resolved ? 'border-neutral-100 bg-neutral-50 opacity-60' : 'border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid hover:bg-neutral-50'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -162,10 +162,10 @@ export default function AdminErrors() {
                     {err.is_resolved && (
                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">resolved</span>
                     )}
-                    <span className="text-xs text-neutral-400">{err.boundary_name}</span>
+                    <span className="text-xs text-neutral-400 dark:text-neutral-500">{err.boundary_name}</span>
                   </div>
                   <p className="mt-1 truncate text-sm font-medium text-neutral-800">{err.error_message}</p>
-                  <p className="mt-0.5 text-xs text-neutral-400">
+                  <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
                     {new Date(err.created_at).toLocaleString()}
                     {err.url && <span className="ml-2 truncate">· {err.url}</span>}
                   </p>
@@ -199,7 +199,7 @@ export default function AdminErrors() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedError(null)}>
           <div className="max-h-80vh w-full max-w-2xl overflow-auto rounded-lg bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-neutral-900">Error Details</h2>
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Error Details</h2>
               <button type="button" onClick={() => setSelectedError(null)} className="text-neutral-400 hover:text-neutral-600">
                 <span className="text-xl">×</span>
               </button>
@@ -213,13 +213,13 @@ export default function AdminErrors() {
               <DetailRow label="User Agent" value={selectedError.user_agent ?? '—'} />
               {selectedError.error_stack && (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-neutral-500">Stack trace</p>
+                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Stack trace</p>
                   <pre className="overflow-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-300">{selectedError.error_stack}</pre>
                 </div>
               )}
               {selectedError.component_stack && (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-neutral-500">Component stack</p>
+                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Component stack</p>
                   <pre className="overflow-auto rounded-lg bg-neutral-100 p-3 text-xs text-neutral-600">{selectedError.component_stack}</pre>
                 </div>
               )}
@@ -233,8 +233,8 @@ export default function AdminErrors() {
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
-      <p className="text-xs font-medium text-neutral-500">{label}</p>
+    <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+      <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent ?? 'text-neutral-900'}`}>{formatNumber(value, 0)}</p>
     </div>
   );
@@ -243,7 +243,7 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <span className="w-24 shrink-0 text-xs font-medium text-neutral-500">{label}</span>
+      <span className="w-24 shrink-0 text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{label}</span>
       <span className="min-w-0 flex-1 text-sm text-neutral-800 break-words">{value}</span>
     </div>
   );

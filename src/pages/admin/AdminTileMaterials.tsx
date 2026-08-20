@@ -98,7 +98,7 @@ export default function AdminTileMaterials() {
         }
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['sizes', 'materials'] as Tab[]).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
@@ -116,13 +116,13 @@ export default function AdminTileMaterials() {
             <AdminCard key={s.id} className="flex items-center justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-brand-navy">{s.name}</p>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">{s.name}</p>
                   {s.is_standard && <span className="rounded-full bg-brand-purple/15 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">Standard</span>}
                   <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
                     {s.is_active ? 'Active' : 'Inactive'}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-neutral-400">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box} tiles/box</p>
+                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box} tiles/box</p>
               </div>
               <div className="flex items-center gap-2">
                 <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
@@ -148,18 +148,18 @@ export default function AdminTileMaterials() {
             if (catItems.length === 0) return null;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400">{cat}</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat}</h3>
                 <div className="space-y-2">
                   {catItems.map((m) => (
                     <AdminCard key={m.id} className="flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-brand-navy">{m.name}</p>
+                          <p className="text-sm font-bold text-brand-navy dark:text-white">{m.name}</p>
                           <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', m.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
                             {m.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-xs text-neutral-400">{m.coverage_rate} {m.coverage_unit} · ₦{m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²</p>
+                        <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{m.coverage_rate} {m.coverage_unit} · ₦{m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Toggle checked={m.is_active} onChange={() => handleToggleMatActive(m)} />
@@ -195,7 +195,7 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
       <AdminField label="Name"><input className="input-field" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
@@ -234,7 +234,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">

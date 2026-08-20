@@ -77,7 +77,7 @@ export default function AdminLearn() {
       />
 
       {/* Tab switcher */}
-      <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white p-1">
+      <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['articles', 'categories'] as const).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
@@ -96,11 +96,11 @@ export default function AdminLearn() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 shrink-0 text-neutral-400" />
-                  <p className="truncate text-sm font-bold text-brand-navy">{article.title}</p>
+                  <p className="truncate text-sm font-bold text-brand-navy dark:text-white">{article.title}</p>
                   <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', article.status === 'published' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>{article.status}</span>
                   {article.is_featured && <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-[10px] font-semibold text-accent-orange">Featured</span>}
                 </div>
-                <p className="mt-0.5 truncate text-xs text-neutral-400">{article.category_slug.replace(/-/g, ' ')} · {new Date(article.updated_at).toLocaleDateString()}</p>
+                <p className="mt-0.5 truncate text-xs text-neutral-400 dark:text-neutral-500">{article.category_slug.replace(/-/g, ' ')} · {new Date(article.updated_at).toLocaleDateString()}</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={article.status === 'published'} onChange={() => handleTogglePublished(article)} />
@@ -130,12 +130,12 @@ export default function AdminLearn() {
               <div className="flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><BookOpen className="h-5 w-5" /></div>
                 <div>
-                  <p className="text-sm font-bold text-brand-navy">{cat.name}</p>
-                  <p className="text-xs text-neutral-400">/{cat.slug} · Order {cat.sort_order}</p>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</p>
+                  <p className="text-xs text-neutral-400 dark:text-neutral-500">/{cat.slug} · Order {cat.sort_order}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-neutral-400">{cat.is_active ? 'Active' : 'Inactive'}</span>
+                <span className="text-xs text-neutral-400 dark:text-neutral-500">{cat.is_active ? 'Active' : 'Inactive'}</span>
                 <Toggle checked={cat.is_active} onChange={() => handleToggleCategoryActive(cat)} />
               </div>
             </AdminCard>
@@ -207,7 +207,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">{article ? 'Edit Article' : 'New Article'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{article ? 'Edit Article' : 'New Article'}</h2>
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
 
@@ -249,7 +249,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       </div>
 
       <AdminCard className="bg-neutral-50">
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400">SEO Settings</h3>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">SEO Settings</h3>
         <div className="space-y-4">
           <AdminField label="Meta Title" hint="Overrides the default page title for search engines."><input className="input-field" value={form.meta_title} onChange={(e) => setForm({ ...form, meta_title: e.target.value })} /></AdminField>
           <AdminField label="Meta Description" hint="Overrides the default description for search engines."><textarea className="input-field" rows={2} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} /></AdminField>

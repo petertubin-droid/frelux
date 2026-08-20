@@ -162,7 +162,7 @@ export default function Colors() {
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Tab switcher */}
-        <div className="mb-6 inline-flex rounded-xl border border-neutral-200/60 bg-white p-1 shadow-card">
+        <div className="mb-6 inline-flex rounded-xl border border-neutral-200/60 bg-white p-1 shadow-card dark:border-white/5 dark:bg-brand-navy-mid">
           {(['colors', 'palettes'] as Tab[]).map((t) => (
             <button
               key={t}
@@ -170,7 +170,7 @@ export default function Colors() {
               onClick={() => { setTab(t); setPage(1); setStatus('loading'); }}
               className={classNames(
                 'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition-all duration-200',
-                tab === t ? 'bg-brand-purple text-white shadow-sm' : 'text-neutral-600 hover:text-brand-purple'
+                tab === t ? 'bg-brand-purple text-white shadow-sm dark:bg-brand-purple' : 'text-neutral-600 hover:text-brand-purple dark:text-neutral-300 dark:hover:text-brand-purple-lighter'
               )}
             >
               {t === 'colors' ? <Grid3x3 className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
@@ -198,11 +198,11 @@ export default function Colors() {
           <>
             {/* Color family chart bar */}
             {families.length > 0 && !familyId && !query && !filterType && !categoryId && (
-              <div className="mb-8 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-card">
+              <div className="mb-8 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-card dark:border-white/5 dark:bg-brand-navy-mid">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <h3 className="font-display text-sm font-bold text-neutral-900">Color Family Distribution</h3>
-                    <p className="mt-0.5 text-xs text-neutral-400">Click a family to filter</p>
+                    <h3 className="font-display text-sm font-bold text-neutral-900 dark:text-white">Color Family Distribution</h3>
+                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Click a family to filter</p>
                   </div>
                   <span className="text-xs font-semibold text-neutral-400">{totalColors} colors</span>
                 </div>
@@ -294,7 +294,7 @@ export default function Colors() {
               </FilterRow>
             </div>
 
-            <p className="mt-4 text-sm text-neutral-500">{totalColors} colors found</p>
+            <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">{totalColors} colors found</p>
 
             {/* Color grid — premium cards */}
             {colors.length > 0 ? (
@@ -316,9 +316,9 @@ export default function Colors() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-10 flex items-center justify-center gap-2">
-                <button type="button" disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50">Prev</button>
+                <button type="button" disabled={page === 1} onClick={() => setPage((p) => p - 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50 dark:border-white/5 dark:text-neutral-300 dark:hover:bg-white/5">Prev</button>
                 <span className="px-3 text-sm text-neutral-500">Page {page} of {totalPages}</span>
-                <button type="button" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50">Next</button>
+                <button type="button" disabled={page === totalPages} onClick={() => setPage((p) => p + 1)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50 dark:border-white/5 dark:text-neutral-300 dark:hover:bg-white/5">Next</button>
               </div>
             )}
           </>
@@ -334,19 +334,19 @@ export default function Colors() {
             {filteredPalettes.length > 0 ? (
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredPalettes.map((c) => (
-                  <Link key={c.id} to={`/colors/${c.slug}`} className="group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
+                  <Link key={c.id} to={`/colors/${c.slug}`} className="group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img src={c.image_url} alt={c.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" />
                       {/* Premium color strip */}
-                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/95 p-3 backdrop-blur-md">
+                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/95 p-3 backdrop-blur-md dark:bg-brand-navy/95">
                         {[c.main_color_code, c.secondary_color_code, c.accent_color_code].map((hex) => (
                           <div key={hex} className="h-8 flex-1 rounded-lg ring-1 ring-black/5" style={{ background: hex }} title={hex} />
                         ))}
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="font-display text-lg font-bold text-neutral-900 transition-colors group-hover:text-brand-purple">{c.title}</h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{c.description}</p>
+                      <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
+                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{c.description}</p>
                       <div className="mt-3 flex items-center gap-2">
                         <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">{c.style}</span>
                         {c.is_trending && <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-[11px] font-semibold text-accent-orange">Trending</span>}
@@ -383,7 +383,7 @@ function FilterRow({ label, children }: { label: string; children: ReactNode }) 
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
-    <button type="button" onClick={onClick} className={classNames('rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200', active ? 'border-brand-purple bg-brand-purple text-white shadow-sm' : 'border-neutral-200/60 bg-white text-neutral-600 hover:border-brand-purple/30 hover:text-brand-purple')}>
+    <button type="button" onClick={onClick} className={classNames('rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200', active ? 'border-brand-purple bg-brand-purple text-white shadow-sm' : 'border-neutral-200/60 bg-white text-neutral-600 hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-300 dark:hover:text-brand-purple-lighter')}>
       {children}
     </button>
   );

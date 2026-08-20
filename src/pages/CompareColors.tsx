@@ -147,10 +147,10 @@ export default function CompareColors() {
         {results.length > 0 && (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {results.map((c) => (
-              <button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white text-left transition-all hover:border-brand-purple hover:shadow-md">
+              <button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white text-left dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:border-brand-purple hover:shadow-md">
                 <div className="aspect-square" style={{ background: c.hex_code }} />
                 <div className="p-2">
-                  <p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p>
+                  <p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p>
                   <p className="text-[10px] text-neutral-400">{c.hex_code}</p>
                 </div>
               </button>
@@ -164,7 +164,7 @@ export default function CompareColors() {
 
         {/* Comparison area */}
         {selected.length === 0 ? (
-          <div className="mt-8 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-12 text-center">
+          <div className="mt-8 rounded-xl border border-dashed border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-12 text-center">
             <p className="text-sm font-medium text-neutral-500">Search and select colors above to compare them here.</p>
           </div>
         ) : (
@@ -187,7 +187,7 @@ export default function CompareColors() {
                   </tr>
                   {/* Name row */}
                   <CompareRow label="Name">
-                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2"><Link to={`/colors/paint/${c.slug}`} className="text-sm font-bold text-brand-navy hover:text-brand-purple">{c.name}</Link></td>)}
+                    {selected.map((c) => <td key={c.id} className="border-b border-neutral-100 p-2"><Link to={`/colors/paint/${c.slug}`} className="text-sm font-bold text-brand-navy hover:text-brand-purple dark:text-white dark:hover:text-brand-purple-lighter">{c.name}</Link></td>)}
                   </CompareRow>
                   {/* HEX row */}
                   <CompareRow label="HEX">
@@ -250,13 +250,13 @@ export default function CompareColors() {
             {/* Key Differences */}
             {keyDifferences.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-brand-navy">Key Differences</h3>
+                <h3 className="text-lg font-bold text-brand-navy dark:text-white">Key Differences</h3>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full border-collapse">
                     <tbody>
                       {keyDifferences.map((diff) => (
                         <tr key={diff.label}>
-                          <td className="border-b border-neutral-200 bg-neutral-50 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 100 }}>{diff.label}</td>
+                          <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 100 }}>{diff.label}</td>
                           {diff.values.map((v, i) => (
                             <td key={i} className="border-b border-neutral-100 p-2 text-sm text-neutral-700" style={{ minWidth: 150 }}>{v}</td>
                           ))}
@@ -271,11 +271,11 @@ export default function CompareColors() {
             {/* Coordinated Palettes */}
             {coordinatedPalettes.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-brand-navy">Coordinated Palettes</h3>
+                <h3 className="text-lg font-bold text-brand-navy dark:text-white">Coordinated Palettes</h3>
                 <p className="mt-1 text-sm text-neutral-500">Color combinations featuring your selected colors.</p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {coordinatedPalettes.map((p) => (
-                    <Link key={p.id} to={`/colors/${p.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
+                    <Link key={p.id} to={`/colors/${p.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img src={p.image_url} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                         <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
@@ -284,7 +284,7 @@ export default function CompareColors() {
                           ))}
                         </div>
                       </div>
-                      <div className="p-3"><p className="truncate text-sm font-bold text-brand-navy">{p.title}</p></div>
+                      <div className="p-3"><p className="truncate text-sm font-bold text-brand-navy dark:text-white">{p.title}</p></div>
                     </Link>
                   ))}
                 </div>
@@ -304,7 +304,7 @@ export default function CompareColors() {
 function CompareRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <tr>
-      <td className="border-b border-neutral-200 bg-neutral-50 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 80 }}>{label}</td>
+      <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 80 }}>{label}</td>
       {children}
     </tr>
   );

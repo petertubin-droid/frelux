@@ -103,7 +103,7 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Type className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">Site Identity</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Site Identity</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <AdminField label="Website Name">
@@ -122,9 +122,9 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">Logos & Icons</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Logos & Icons</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
           <MediaUploader label="Light Mode Logo" value={lightLogo} onChange={setLightLogo} folder="branding" />
           <MediaUploader label="Dark Mode Logo" value={darkLogo} onChange={setDarkLogo} folder="branding" />
@@ -137,9 +137,9 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Palette className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy">Brand Colors</h2>
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Brand Colors</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function AdminBranding() {
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Branding'}
         </button>
-        <span className="text-xs text-neutral-400">Changes apply instantly across the website.</span>
+        <span className="text-xs text-neutral-400 dark:text-neutral-500">Changes apply instantly across the website.</span>
       </div>
     </>
   );

@@ -62,7 +62,7 @@ const tools = [
 
 export default function ToolsSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24 sm:py-28">
+    <section className="relative overflow-hidden bg-white py-24 sm:py-28 dark:bg-brand-navy">
       {/* Subtle background pattern */}
       <div className="pointer-events-none absolute inset-0 bg-dots opacity-40" aria-hidden="true" />
 
@@ -79,7 +79,7 @@ export default function ToolsSection() {
             <Link
               key={tool.title}
               to={tool.to}
-              className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-7 animate-fade-in-up"
+              className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-7 dark:border-white/5 dark:bg-brand-navy-mid animate-fade-in-up"
               style={{ animationDelay: `${i * 0.06}s` }}
             >
               {/* Subtle hover gradient */}
@@ -93,7 +93,7 @@ export default function ToolsSection() {
                   {tool.step}
                 </span>
               </div>
-              <h3 className="mt-5 font-display text-lg font-bold text-neutral-900">{tool.title}</h3>
+              <h3 className="mt-5 font-display text-lg font-bold text-neutral-900 dark:text-white">{tool.title}</h3>
               <p className="mt-2.5 flex-1 text-sm leading-relaxed text-neutral-500">{tool.description}</p>
               <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5">
                 {tool.action}

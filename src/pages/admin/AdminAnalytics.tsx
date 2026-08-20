@@ -75,34 +75,34 @@ export default function AdminAnalytics() {
               <AdminCard>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5 text-brand-navy" />
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Total events</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Total events</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-brand-navy">{totalEvents}</p>
-                <p className="mt-0.5 text-xs text-neutral-400">Event count, not unique visitors</p>
+                <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{totalEvents}</p>
+                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Event count, not unique visitors</p>
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5 text-accent-green" />
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">AI successes</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">AI successes</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-brand-navy">{aiSuccess}</p>
-                <p className="mt-0.5 text-xs text-neutral-400">Recommendations generated</p>
+                <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{aiSuccess}</p>
+                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Recommendations generated</p>
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-red-500" />
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">AI failures</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">AI failures</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-brand-navy">{aiFailed}</p>
-                <p className="mt-0.5 text-xs text-neutral-400">Failed AI requests</p>
+                <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{aiFailed}</p>
+                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Failed AI requests</p>
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
                   <Mail className="h-5 w-5 text-accent-green" />
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">WhatsApp clicks</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">WhatsApp clicks</p>
                 </div>
-                <p className="mt-1 text-2xl font-bold text-brand-navy">{counts['whatsapp_clicked'] ?? 0}</p>
-                <p className="mt-0.5 text-xs text-neutral-400">Contact via WhatsApp</p>
+                <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{counts['whatsapp_clicked'] ?? 0}</p>
+                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Contact via WhatsApp</p>
               </AdminCard>
             </div>
 
@@ -115,14 +115,14 @@ export default function AdminAnalytics() {
                   <AdminCard key={cat.label}>
                     <div className="flex items-center gap-2">
                       <Icon className={'h-4 w-4 ' + cat.color} />
-                      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{cat.label}</p>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat.label}</p>
                     </div>
-                    <p className="mt-1 text-2xl font-bold text-brand-navy">{catTotal}</p>
+                    <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{catTotal}</p>
                     <div className="mt-2 space-y-1">
                       {cat.events.map((e) => (
                         <div key={e} className="flex items-center justify-between text-xs">
-                          <span className="text-neutral-500">{e}</span>
-                          <span className="font-semibold text-brand-navy">{counts[e] ?? 0}</span>
+                          <span className="text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e}</span>
+                          <span className="font-semibold text-brand-navy dark:text-white">{counts[e] ?? 0}</span>
                         </div>
                       ))}
                     </div>
@@ -137,32 +137,32 @@ export default function AdminAnalytics() {
                 <AdminCard>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-accent-yellow" />
-                    <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Usage limit reached</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Usage limit reached</p>
                   </div>
-                  <p className="mt-1 text-2xl font-bold text-brand-navy">{aiLimitReached}</p>
-                  <p className="mt-0.5 text-xs text-neutral-400">Times users hit the daily AI limit</p>
+                  <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{aiLimitReached}</p>
+                  <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Times users hit the daily AI limit</p>
                 </AdminCard>
               </div>
             )}
 
             {/* Recent events table */}
             <AdminCard>
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">Recent events</h2>
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Recent events</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                  <thead><tr className="border-b border-neutral-200 text-xs uppercase tracking-widest text-neutral-400"><th className="py-2 pr-4">Event</th><th className="py-2 pr-4">Page</th><th className="py-2 pr-4">Time</th></tr></thead>
+                  <thead><tr className="border-b border-neutral-200 text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500"><th className="py-2 pr-4">Event</th><th className="py-2 pr-4">Page</th><th className="py-2 pr-4">Time</th></tr></thead>
                   <tbody>
                     {events.slice(0, 50).map((e) => (
                       <tr key={e.id} className="border-b border-neutral-100">
-                        <td className="py-2 pr-4 font-medium text-brand-navy">{e.event}</td>
-                        <td className="py-2 pr-4 text-neutral-500">{e.page_path ?? '—'}</td>
-                        <td className="py-2 pr-4 text-neutral-400">{new Date(e.created_at).toLocaleString()}</td>
+                        <td className="py-2 pr-4 font-medium text-brand-navy dark:text-white">{e.event}</td>
+                        <td className="py-2 pr-4 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e.page_path ?? '—'}</td>
+                        <td className="py-2 pr-4 text-neutral-400 dark:text-neutral-500">{new Date(e.created_at).toLocaleString()}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <p className="mt-3 text-xs text-neutral-400">Showing the 50 most recent events. Total events logged: {totalEvents}.</p>
+              <p className="mt-3 text-xs text-neutral-400 dark:text-neutral-500">Showing the 50 most recent events. Total events logged: {totalEvents}.</p>
             </AdminCard>
           </>
         )

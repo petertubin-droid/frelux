@@ -366,7 +366,7 @@ function Step1({
 }) {
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy">Choose project type</h2>
+      <h2 className="text-lg font-bold text-brand-navy dark:text-white">Choose project type</h2>
       <p className="mt-1 text-sm text-neutral-500">Select what you're painting to tailor the calculation.</p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {projectTypes.map((p) => {
@@ -386,7 +386,7 @@ function Step1({
                 <Icon className="h-5 w-5" />
               </span>
               <span>
-                <span className="block text-sm font-semibold text-brand-navy">{p.label}</span>
+                <span className="block text-sm font-semibold text-brand-navy dark:text-white">{p.label}</span>
                 <span className="block text-xs text-neutral-500">{p.description}</span>
               </span>
             </button>
@@ -412,7 +412,7 @@ function Step2({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy">Enter measurements</h2>
+      <h2 className="text-lg font-bold text-brand-navy dark:text-white">Enter measurements</h2>
       <p className="mt-1 text-sm text-neutral-500">Provide the dimensions of the area you're painting.</p>
 
       <div className="mt-5 inline-flex rounded-lg border border-neutral-200 p-1">
@@ -496,7 +496,7 @@ function Step3({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy">Surface details</h2>
+      <h2 className="text-lg font-bold text-brand-navy dark:text-white">Surface details</h2>
       <p className="mt-1 text-sm text-neutral-500">Tell us about the finish you want{showOpenings ? ', plus doors and windows' : ''}.</p>
 
       {showOpenings && (
@@ -638,7 +638,7 @@ function ResultCard({
         <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Recommended containers</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {result.recommendedContainers.map((c, i) => (
-            <span key={i} className="rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm font-semibold text-brand-navy">
+            <span key={i} className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white">
               {c.count} × {c.size} L
             </span>
           ))}
@@ -691,7 +691,7 @@ function Stat({ label, value, countValue, decimals = 0, suffix, highlight }: { l
   return (
     <div className={`rounded-lg border bg-white p-4 ${highlight ? 'border-brand-purple/30 bg-brand-purple/5' : 'border-neutral-200'}`}>
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy">
+      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white">
         {countValue !== undefined ? <CountUp value={countValue} decimals={decimals} suffix={suffix} /> : value}
       </p>
     </div>
@@ -706,7 +706,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
       aria-pressed={checked}
     >
-      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
+      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
     </button>
   );
 }

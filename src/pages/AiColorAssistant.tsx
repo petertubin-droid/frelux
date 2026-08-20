@@ -144,10 +144,10 @@ function UsageBanner({ config, usage }: { config: AiAccessConfig; usage: AiUsage
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 text-sm">
+    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid text-sm">
       <div className="flex items-center gap-2">
         <Clock className="h-4 w-4 text-brand-purple" />
-        <span className="font-semibold text-brand-navy">{usage.remaining} uses remaining today</span>
+        <span className="font-semibold text-brand-navy dark:text-white">{usage.remaining} uses remaining today</span>
       </div>
       <span className="text-neutral-400">·</span>
       <span className="text-neutral-500">Daily limit: {usage.limit}</span>
@@ -169,13 +169,13 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
         type="button"
         onClick={() => onSelect('text')}
         disabled={!!disabled}
-        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left transition-all hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
+        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid text-left transition-all hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
       >
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
           <MessageSquare className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy">Describe my space</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Describe my space</h2>
           <p className="mt-1 text-sm text-neutral-500">
             Tell us about your room, furniture, lighting, and the mood you want. The AI suggests a tailored color palette.
           </p>
@@ -189,13 +189,13 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
         type="button"
         onClick={() => onSelect('image')}
         disabled={!!disabled}
-        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 text-left transition-all hover:-translate-y-1 hover:border-accent-orange/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
+        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid text-left transition-all hover:-translate-y-1 hover:border-accent-orange/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
       >
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-orange/10 text-accent-orange transition-colors group-hover:bg-accent-orange group-hover:text-white">
           <ImageIcon className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy">Upload a room image</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Upload a room image</h2>
           <p className="mt-1 text-sm text-neutral-500">
             Share a photo of your room. The AI analyzes wall color, furniture, and lighting to recommend colors.
           </p>
@@ -215,7 +215,7 @@ function ViewTab({ active, onClick, icon: Icon, label }: { active: boolean; onCl
       onClick={onClick}
       className={classNames(
         'inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all',
-        active ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
+        active ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-white/5 dark:text-neutral-300 dark:hover:border-white/10'
       )}
       aria-pressed={active}
     >
@@ -247,10 +247,10 @@ function AccessGate({ decision, config, onRewarded, isAuthenticated }: { decisio
         <div className="flex items-start gap-3">
           <Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
           <div>
-            <p className="font-semibold text-brand-navy">You've used all your free AI recommendations for today.</p>
+            <p className="font-semibold text-brand-navy dark:text-white">You've used all your free AI recommendations for today.</p>
             <p className="mt-1 text-xs text-neutral-500">Your daily allowance resets tomorrow.</p>
             {decision.nextAction === 'rewarded' && config?.rewardedEnabled && (
-              <button type="button" onClick={onRewarded} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-white px-4 py-2 text-sm font-semibold text-accent-orange hover:bg-accent-orange/5">
+              <button type="button" onClick={onRewarded} className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-white px-4 py-2 dark:border-accent-orange/30 dark:bg-brand-navy-mid text-sm font-semibold text-accent-orange hover:bg-accent-orange/5">
                 <Gift className="h-4 w-4" />
                 Unlock with rewarded access
               </button>
@@ -372,12 +372,12 @@ function TextConsultation({ config, usage, onUsageConsumed }: { config: AiAccess
           <AccessGate decision={decision} config={config} onRewarded={handleRewarded} isAuthenticated={!!user} />
         )}
         {rewardedState === 'denied' && (
-          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-500">
+          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-neutral-500">
             No rewarded access provider is currently configured. Please check back later.
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy">Describe your space</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Describe your space</h2>
         <p className="mt-1 text-sm text-neutral-500">
           The more detail you give, the better the recommendation. Mention room type, furniture, current colors, lighting,
           and the mood or style you want.
@@ -561,12 +561,12 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
           <AccessGate decision={decision} config={config} onRewarded={handleRewarded} isAuthenticated={!!user} />
         )}
         {rewardedState === 'denied' && (
-          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-xs text-neutral-500">
+          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-neutral-500">
             No rewarded access provider is currently configured. Please check back later.
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy">Upload a room image</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Upload a room image</h2>
         <p className="mt-1 text-sm text-neutral-500">
           Share a clear photo of your room. JPG, PNG, or WebP up to 5 MB. You can optionally add a description for better results.
         </p>
@@ -576,11 +576,11 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
             <ImageDropzone onFile={onFile} disabled={!decision.allowed} />
           ) : (
             <div className="relative overflow-hidden rounded-xl border border-neutral-200">
-              <img src={preview} alt="Room preview" className="max-h-72 w-full object-contain bg-neutral-50" />
+              <img src={preview} alt="Room preview" className="max-h-72 w-full object-contain bg-neutral-50 dark:bg-brand-navy" />
               <button
                 type="button"
                 onClick={clearFile}
-                className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-600 shadow hover:bg-white"
+                className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-600 shadow hover:bg-white dark:bg-brand-navy/90 dark:text-neutral-300 dark:hover:bg-brand-navy-mid"
                 aria-label="Remove image"
               >
                 <X className="h-4 w-4" />
@@ -685,7 +685,7 @@ function ImageDropzone({ onFile, disabled }: { onFile: (f: File | undefined) => 
       <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
         <Upload className="h-5 w-5" />
       </span>
-      <p className="mt-3 text-sm font-semibold text-brand-navy">Tap to upload or take a photo</p>
+      <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">Tap to upload or take a photo</p>
       <p className="mt-1 text-xs text-neutral-400">JPG, PNG, or WebP · up to 5 MB</p>
     </div>
   );
@@ -731,7 +731,7 @@ function ResultPanel({
     return (
       <div className="card sticky top-20 p-8 text-center">
         <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
-        <p className="mt-4 text-sm font-semibold text-brand-navy">{label}</p>
+        <p className="mt-4 text-sm font-semibold text-brand-navy dark:text-white">{label}</p>
         <p className="mt-1 text-xs text-neutral-400">This usually takes a few seconds.</p>
       </div>
     );
@@ -801,7 +801,7 @@ function ResultPanel({
               track('color_recommendation_clicked', { slug: matchedColor.slug, mode });
               logAnalyticsEvent('color_recommendation_clicked', { slug: matchedColor.slug, mode });
             }}
-            className="mt-2 flex items-center gap-3 rounded-lg border border-brand-purple/20 bg-white p-3 transition-colors hover:border-brand-purple/40"
+            className="mt-2 flex items-center gap-3 rounded-lg border border-brand-purple/20 bg-white p-3 dark:border-brand-purple/20 dark:bg-brand-navy-mid transition-colors hover:border-brand-purple/40"
           >
             <div className="flex gap-1">
               {[matchedColor.main_color_code, matchedColor.secondary_color_code, matchedColor.accent_color_code].map((hex) => (
@@ -809,7 +809,7 @@ function ResultPanel({
               ))}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-brand-navy">{matchedColor.title}</p>
+              <p className="text-sm font-bold text-brand-navy dark:text-white">{matchedColor.title}</p>
               <p className="text-xs text-neutral-500">View this color combination</p>
             </div>
             <ArrowRight className="h-4 w-4 text-brand-purple" />
@@ -830,11 +830,11 @@ function ResultPanel({
                   track('color_recommendation_clicked', { slug: pc.slug, mode, source: 'paint_color' });
                   logAnalyticsEvent('color_recommendation_clicked', { slug: pc.slug, mode, source: 'paint_color' });
                 }}
-                className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 transition-colors hover:border-accent-green/40"
+                className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 dark:border-white/5 dark:bg-brand-navy-mid transition-colors hover:border-accent-green/40"
               >
                 <div className="h-8 w-8 shrink-0 rounded ring-1 ring-black/10" style={{ background: pc.hex_code }} />
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-bold text-brand-navy">{pc.name}</p>
+                  <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{pc.name}</p>
                   <p className="text-[10px] text-neutral-400">{pc.hex_code}</p>
                 </div>
               </Link>
@@ -843,7 +843,7 @@ function ResultPanel({
         </div>
       )}
 
-      <div className="border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-xs text-neutral-500">
+      <div className="border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-xs text-neutral-500 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
         AI suggestions are for inspiration only. Test a physical paint sample before deciding.
       </div>
     </div>
@@ -857,7 +857,7 @@ function ColorSwatch({ color }: { color: { name: string; hex: string; role: stri
   const roleLabel = color.role === 'main' ? 'Main color' : color.role === 'secondary' ? 'Secondary color' : 'Accent color';
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white p-3">
+    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
       <div
         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/10"
         style={{ background: hex, color: textColor }}
@@ -866,7 +866,7 @@ function ColorSwatch({ color }: { color: { name: string; hex: string; role: stri
       </div>
       <div className="flex-1">
         <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{roleLabel}</p>
-        <p className="text-sm font-bold text-brand-navy">{color.name}</p>
+        <p className="text-sm font-bold text-brand-navy dark:text-white">{color.name}</p>
         <p className="font-mono text-xs text-neutral-500">{valid ? hex : 'Invalid color'}</p>
       </div>
     </div>

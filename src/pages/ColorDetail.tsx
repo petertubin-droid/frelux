@@ -118,14 +118,14 @@ export default function ColorDetail() {
               </span>
             ))}
           </div>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl">{color.title}</h1>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-white">{color.title}</h1>
           <p className="mt-3 text-base leading-relaxed text-neutral-600">{color.description}</p>
 
           <div className="mt-6 space-y-3">
             {swatches.map((s) => (
               <div
                 key={s.hex}
-                className="flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-3"
+                className="flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
               >
                 <div
                   className="h-12 w-12 shrink-0 rounded-md ring-1 ring-black/10"
@@ -133,12 +133,12 @@ export default function ColorDetail() {
                 />
                 <div className="flex-1">
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{s.label}</p>
-                  <p className="text-sm font-semibold text-brand-navy">{s.name}</p>
+                  <p className="text-sm font-semibold text-brand-navy dark:text-white">{s.name}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => copy(s.hex)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter"
                 >
                   {copied === s.hex ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
                   {copied === s.hex ? 'Copied' : s.hex}
@@ -158,13 +158,13 @@ export default function ColorDetail() {
 
       {related.length > 0 && (
         <div>
-          <h2 className="text-xl font-bold text-brand-navy">Related combinations</h2>
+          <h2 className="text-xl font-bold text-brand-navy dark:text-white">Related combinations</h2>
           <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((c) => (
               <Link
                 key={c.id}
                 to={`/colors/${c.slug}`}
-                className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg"
+                className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
@@ -184,7 +184,7 @@ export default function ColorDetail() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-bold text-brand-navy">{c.title}</h3>
+                  <h3 className="text-base font-bold text-brand-navy dark:text-white">{c.title}</h3>
                   <p className="mt-1 text-sm text-neutral-500 line-clamp-2">{c.description}</p>
                 </div>
               </Link>
@@ -198,7 +198,7 @@ export default function ColorDetail() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
       <p className="mt-1 text-sm text-neutral-700">{value}</p>
     </div>

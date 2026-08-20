@@ -45,7 +45,7 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50">
+    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy">
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
 
@@ -53,14 +53,14 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
               Practical tools to plan paint, estimate cost, and discover the right colors for your space.
             </p>
             <a
               href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
             >
               <MessageCircle className="h-4 w-4" />
               {siteConfig.whatsappDisplay}
@@ -75,11 +75,11 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row">
-          <p className="text-xs text-neutral-400">
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-neutral-400 dark:text-neutral-500">
             Estimates are for guidance only and not a guarantee of final cost or quantity.
           </p>
         </div>
@@ -91,11 +91,11 @@ export default function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
   return (
     <div>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">{title}</h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>
-            <Link to={link.path} className="text-sm text-neutral-500 transition-colors hover:text-brand-purple">
+            <Link to={link.path} className="text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
               {link.label}
             </Link>
           </li>

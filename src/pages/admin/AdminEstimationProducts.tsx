@@ -136,12 +136,12 @@ export default function AdminEstimationProducts() {
               <AdminCard className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-brand-navy">{p.name}</h3>
+                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{p.name}</h3>
                     {!p.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
                     {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700">Quality tiers</span>}
                   </div>
-                  {p.description && <p className="mt-0.5 text-sm text-neutral-500">{p.description}</p>}
-                  <div className="mt-1 flex flex-wrap gap-2 text-xs text-neutral-400">
+                  {p.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{p.description}</p>}
+                  <div className="mt-1 flex flex-wrap gap-2 text-xs text-neutral-400 dark:text-neutral-500">
                     <span>Category: {p.category}</span>
                     <span>·</span>
                     <span>Type: {p.product_type}</span>
@@ -165,11 +165,11 @@ export default function AdminEstimationProducts() {
               {expandedId === p.id && p.has_quality_levels && (
                 <div className="ml-4 mt-1 space-y-2">
                   {(qualityMap[p.id] ?? []).map(q => (
-                    <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-2.5">
+                    <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-4 py-2.5">
                       <div className="flex items-center gap-2">
                         <Tag className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm font-semibold text-brand-navy">{q.name}</span>
-                        {q.coverage && <span className="text-xs text-neutral-400">· {q.coverage} {q.coverage_unit ?? ''}</span>}
+                        <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
+                        {q.coverage && <span className="text-xs text-neutral-400 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
                         {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
                       </div>
                       <div className="flex items-center gap-2">
@@ -260,7 +260,7 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 overflow-y-auto">
       <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl my-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit product' : 'Add product'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit product' : 'Add product'}</h2>
           <button onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -304,8 +304,8 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
           </div>
           <AdminField label="Paint compatibility"><input className="input-field" value={paintCompat} onChange={e => setPaintCompat(e.target.value)} /></AdminField>
           <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-neutral-700">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
-            <div><span className="block text-sm font-semibold text-neutral-700">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2">
@@ -368,7 +368,7 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 overflow-y-auto">
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl my-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit quality level' : 'Add quality level'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit quality level' : 'Add quality level'}</h2>
           <button onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -397,7 +397,7 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
             <AdminField label="Durability"><input className="input-field" value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
           </div>
           <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-neutral-700">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
             <AdminField label="Sort order"><input type="number" className="input-field" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

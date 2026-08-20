@@ -14,7 +14,7 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
   const textColor = readableTextColor(color.hex_code);
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
       <Link to={`/colors/paint/${color.slug}`} className="block">
         {/* Color swatch — large, premium */}
         <div
@@ -31,12 +31,12 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
 
           {/* Badges */}
           {color.is_trending && (
-            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-orange backdrop-blur-sm">
+            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-orange backdrop-blur-sm dark:bg-brand-navy/90">
               Trending
             </span>
           )}
           {color.is_featured && !color.is_trending && (
-            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple backdrop-blur-sm">
+            <span className="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-brand-purple backdrop-blur-sm dark:bg-brand-navy/90">
               Featured
             </span>
           )}
@@ -59,7 +59,7 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
           }}
           className={classNames(
             'absolute right-3 bottom-16 rounded-full p-2 backdrop-blur-md transition-all duration-200',
-            isFavorited ? 'bg-white text-red-500 shadow-sm' : 'bg-white/60 text-neutral-400 hover:bg-white hover:text-red-500'
+            isFavorited ? 'bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500' : 'bg-white/60 text-neutral-400 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400'
           )}
           aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
@@ -70,10 +70,10 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
       {/* Info bar */}
       <div className="px-3.5 py-3">
         <Link to={`/colors/paint/${color.slug}`}>
-          <h3 className="truncate text-sm font-bold text-neutral-900 transition-colors group-hover:text-brand-purple">{color.name}</h3>
+          <h3 className="truncate text-sm font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{color.name}</h3>
         </Link>
         <div className="mt-1 flex items-center gap-2">
-          <p className="text-[11px] text-neutral-400">
+          <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
             {color.is_interior && color.is_exterior ? 'Interior / Exterior' : color.is_interior ? 'Interior' : 'Exterior'}
           </p>
         </div>

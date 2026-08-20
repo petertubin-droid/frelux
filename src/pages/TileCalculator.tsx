@@ -158,7 +158,7 @@ export default function TileCalculator() {
         {!result && (
           <div className="card p-6 sm:p-8">
             {/* Surface type */}
-            <h2 className="text-lg font-bold text-brand-navy">Surface type</h2>
+            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Surface type</h2>
             <p className="mt-1 text-sm text-neutral-500">Are you tiling a floor or a wall?</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {([
@@ -173,7 +173,7 @@ export default function TileCalculator() {
                       <Grid3x3 className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-brand-navy">{s.label}</span>
+                      <span className="block text-sm font-semibold text-brand-navy dark:text-white">{s.label}</span>
                       <span className="block text-xs text-neutral-500">{s.desc}</span>
                     </span>
                   </button>
@@ -345,9 +345,9 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy">{value}</p>
+      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white">{value}</p>
     </div>
   );
 }
@@ -369,8 +369,8 @@ function Field({ label, hint, suffix, error, children }: { label: string; hint?:
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-500')}>{label}</span>
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-700')}>{value}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
 }

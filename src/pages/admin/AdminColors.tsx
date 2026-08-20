@@ -14,7 +14,7 @@ export default function AdminColors() {
   return (
     <>
       <AdminHeader title="Color Gallery" subtitle="Manage individual paint colors, palettes, categories, and color families." />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white p-1">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['paint_colors','combinations','categories','families'] as Tab[]).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>{t.replace('_', ' ')}</button>
         ))}
@@ -106,7 +106,7 @@ function PaintColorsTab() {
           <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add color</AdminButton>
         </div>
       </div>
-      <p className="mb-3 text-sm text-neutral-500">{filtered.length} of {items.length} colors</p>
+      <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{filtered.length} of {items.length} colors</p>
       {filtered.length === 0 ? <StateMessage type="empty" title="No colors found" message="Add your first paint color or adjust your search." /> : (
         <div className="space-y-2">
           {filtered.map((item) => {
@@ -119,12 +119,12 @@ function PaintColorsTab() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="truncate text-sm font-bold text-brand-navy">{item.name}</h3>
+                      <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.name}</h3>
                       {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
                       {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
                       {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
                     </div>
-                    <p className="text-xs text-neutral-400">{fam?.name ?? '—'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{fam?.name ?? '—'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -197,7 +197,7 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit color' : 'Add color'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit color' : 'Add color'}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -218,10 +218,10 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <AdminField label="Finish compatibility" hint="Comma separated"><input className="input-field" value={finishes} onChange={(e) => setFinishes(e.target.value)} placeholder="Emulsion, Satin" /></AdminField>
           </div>
           <div className="flex flex-wrap gap-4">
-            <div><span className="block text-sm font-semibold text-neutral-700">Interior</span><div className="mt-2"><Toggle checked={isInterior} onChange={setIsInterior} /></div></div>
-            <div><span className="block text-sm font-semibold text-neutral-700">Exterior</span><div className="mt-2"><Toggle checked={isExterior} onChange={setIsExterior} /></div></div>
-            <div><span className="block text-sm font-semibold text-neutral-700">Featured</span><div className="mt-2"><Toggle checked={isFeatured} onChange={setIsFeatured} /></div></div>
-            <div><span className="block text-sm font-semibold text-neutral-700">Trending</span><div className="mt-2"><Toggle checked={isTrending} onChange={setIsTrending} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Interior</span><div className="mt-2"><Toggle checked={isInterior} onChange={setIsInterior} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Exterior</span><div className="mt-2"><Toggle checked={isExterior} onChange={setIsExterior} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Featured</span><div className="mt-2"><Toggle checked={isFeatured} onChange={setIsFeatured} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Trending</span><div className="mt-2"><Toggle checked={isTrending} onChange={setIsTrending} /></div></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Popularity score"><input type="number" className="input-field" value={popularity} onChange={(e) => setPopularity(Number(e.target.value))} /></AdminField>
@@ -329,7 +329,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">Bulk import colors</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Bulk import colors</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
 
@@ -339,20 +339,20 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
           <button type="button" onClick={() => setFormat('json')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'json' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>JSON</button>
         </div>
 
-        <p className="mt-3 text-sm text-neutral-500">
+        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
           {format === 'csv'
             ? <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">Name, #HEX, family slug, category slug</code></>
             : <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">JSON array of objects: name, hex, family_slug, category_slug</code></>}
         </p>
-        <p className="text-xs text-neutral-400">Family and category slugs are optional. RGB/HSL are auto computed from the hex code.</p>
+        <p className="text-xs text-neutral-400 dark:text-neutral-500">Family and category slugs are optional. RGB/HSL are auto computed from the hex code.</p>
 
         <textarea className="input-field mt-3 font-mono text-xs" rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder={format === 'csv' ? 'Warm White, #F5F1E8, white, interior-wall-colors' : '[{"name": "Warm White", "hex": "#F5F1E8"}]'} />
 
         {/* Validation preview */}
         {preview && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3">
             <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-neutral-700">
+              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                 <span className="text-accent-green">{validCount} valid</span>
                 {errorCount > 0 && <span className="ml-3 text-red-600">{errorCount} invalid</span>}
               </p>
@@ -360,7 +360,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
             </div>
             <div className="mt-2 max-h-32 overflow-y-auto">
               <table className="w-full text-xs">
-                <thead><tr className="text-left text-neutral-400"><th className="pb-1">Name</th><th className="pb-1">HEX</th><th className="pb-1">Status</th></tr></thead>
+                <thead><tr className="text-left text-neutral-400 dark:text-neutral-500"><th className="pb-1">Name</th><th className="pb-1">HEX</th><th className="pb-1">Status</th></tr></thead>
                 <tbody>
                   {preview.slice(0, 20).map((r, i) => (
                     <tr key={i} className={r.valid ? '' : 'text-red-500'}>
@@ -371,14 +371,14 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
                   ))}
                 </tbody>
               </table>
-              {preview.length > 20 && <p className="mt-1 text-xs text-neutral-400">…and {preview.length - 20} more</p>}
+              {preview.length > 20 && <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">…and {preview.length - 20} more</p>}
             </div>
           </div>
         )}
 
         {/* Import result */}
         {result && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-sm">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-sm">
             <p className="font-semibold text-accent-green">{result.added} colors added{result.duplicates > 0 && `, ${result.duplicates} duplicates skipped`}</p>
             {result.errors.length > 0 && (
               <div className="mt-2">
@@ -441,7 +441,7 @@ function FamiliesTab() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <AdminCard key={item.id} className="flex items-center justify-between">
-              <div><h3 className="text-base font-bold text-brand-navy">{item.name}</h3><p className="text-xs text-neutral-400">/{item.slug}</p></div>
+              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-400 dark:text-neutral-500">/{item.slug}</p></div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -482,7 +482,7 @@ function FamilyForm({ initial, onClose, onSaved }: { initial: DbColorFamily | nu
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit family' : 'Add family'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit family' : 'Add family'}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -491,7 +491,7 @@ function FamilyForm({ initial, onClose, onSaved }: { initial: DbColorFamily | nu
           <AdminField label="Description"><input className="input-field" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order"><input type="number" className="input-field" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
-            <div><span className="block text-sm font-semibold text-neutral-700">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
@@ -549,11 +549,11 @@ function CombinationsTab() {
                   <img src={item.image_url} alt={item.title} className="h-16 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="truncate text-base font-bold text-brand-navy">{item.title}</h3>
+                      <h3 className="truncate text-base font-bold text-brand-navy dark:text-white">{item.title}</h3>
                       {!item.is_published ? <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Draft</span> : <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-semibold text-accent-green">Published</span>}
                     </div>
-                    <p className="mt-0.5 truncate text-sm text-neutral-500">{item.description}</p>
-                    {cats.length > 0 && <p className="mt-1 text-xs text-neutral-400">{cats.map((c) => c.name).join(', ')}</p>}
+                    <p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
+                    {cats.length > 0 && <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{cats.map((c) => c.name).join(', ')}</p>}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
@@ -611,7 +611,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit combination' : 'Add combination'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit combination' : 'Add combination'}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -647,7 +647,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Sort order"><input type="number" className="input-field" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
-            <div><span className="block text-sm font-semibold text-neutral-700">Published</span><div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Published</span><div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
@@ -697,7 +697,7 @@ function CategoriesTab() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <AdminCard key={item.id} className="flex items-center justify-between">
-              <div><h3 className="text-base font-bold text-brand-navy">{item.name}</h3><p className="text-xs text-neutral-400">/{item.slug}</p></div>
+              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-400 dark:text-neutral-500">/{item.slug}</p></div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -738,7 +738,7 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">{initial ? 'Edit category' : 'Add category'}</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit category' : 'Add category'}</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
         <div className="mt-5 space-y-4">
@@ -755,7 +755,7 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order"><input type="number" className="input-field" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
-            <div><span className="block text-sm font-semibold text-neutral-700">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>

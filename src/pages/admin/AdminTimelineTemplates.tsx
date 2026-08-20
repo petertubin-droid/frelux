@@ -67,7 +67,7 @@ export default function AdminTimelineTemplates() {
                   <div key={i} className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs">
                     <Calendar className="h-3 w-3 text-neutral-400" />
                     <span className="font-medium">{phase.name}</span>
-                    <span className="text-neutral-400">{phase.days}d</span>
+                    <span className="text-neutral-400 dark:text-neutral-500">{phase.days}d</span>
                   </div>
                 ))}
               </div>
@@ -130,11 +130,11 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700">Name</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Name</span>
               <input value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
             </label>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700">Project Type</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Project Type</span>
               <select value={projectType} onChange={e => setProjectType(e.target.value as ProjectType)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
               </select>
@@ -142,12 +142,12 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
           </div>
 
           <label className="block">
-            <span className="block text-sm font-semibold text-neutral-700">Description</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Description</span>
             <input value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
           </label>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Phases</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Phases</span>
             <div className="mt-2 space-y-2">
               {phases.map((phase, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_80px_1fr_auto] gap-2">

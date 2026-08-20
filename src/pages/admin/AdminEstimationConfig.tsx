@@ -69,7 +69,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'units'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
           )}
         >
           Units
@@ -81,7 +81,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'pack_sizes'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
           )}
         >
           Pack Sizes
@@ -93,7 +93,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_rules'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
           )}
         >
           Calc Rules
@@ -105,7 +105,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_versions'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
           )}
         >
           Calc Versions
@@ -175,7 +175,7 @@ function UnitsTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy">Estimation Units</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Estimation Units</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -209,8 +209,8 @@ function UnitsTab() {
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-brand-navy">{item.name}</h3>
-                  <span className="rounded-md bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-700">
+                  <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                  <span className="rounded-md bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-200">
                     {item.symbol}
                   </span>
                   {!item.is_active && (
@@ -219,7 +219,7 @@ function UnitsTab() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                   Category: <span className="capitalize">{item.category}</span> · Sort order: {item.sort_order}
                 </p>
               </div>
@@ -310,7 +310,7 @@ function UnitForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit unit' : 'Add unit'}
           </h2>
           <button
@@ -364,7 +364,7 @@ function UnitForm({
               />
             </AdminField>
             <div>
-              <span className="block text-sm font-semibold text-neutral-700">Active</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
               <div className="mt-2">
                 <Toggle checked={isActive} onChange={setIsActive} />
               </div>
@@ -476,7 +476,7 @@ function PackSizesTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy">Pack Sizes</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Pack Sizes</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -524,10 +524,10 @@ function PackSizesTab() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                     <span>
                       Pack size:{' '}
-                      <strong className="text-brand-navy">
+                      <strong className="text-brand-navy dark:text-white">
                         {item.pack_size} {unit?.symbol ?? ''}
                       </strong>
                     </span>
@@ -675,7 +675,7 @@ function PackSizeForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit pack size' : 'Add pack size'}
           </h2>
           <button
@@ -706,7 +706,7 @@ function PackSizeForm({
 
             <AdminField label="Referenced Item">
               {loadingRefs ? (
-                <div className="py-2 text-xs text-neutral-400">Loading items…</div>
+                <div className="py-2 text-xs text-neutral-400 dark:text-neutral-500">Loading items…</div>
               ) : refOptions.length > 0 ? (
                 <select
                   className="input-field"
@@ -812,7 +812,7 @@ function PackSizeForm({
           </div>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Active</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>
@@ -858,7 +858,7 @@ function getRuleStatusBadge(status: RuleStatus | string) {
       );
     case 'calculated':
       return (
-        <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700">
+        <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
           Calculated
         </span>
       );
@@ -933,7 +933,7 @@ function CalcRulesTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy">Calculation Rules</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Calculation Rules</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -967,7 +967,7 @@ function CalcRulesTab() {
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-mono text-base font-bold text-brand-navy">
+                  <h3 className="font-mono text-base font-bold text-brand-navy dark:text-white">
                     {rule.rule_key}
                   </h3>
                   {getRuleStatusBadge(rule.rule_status)}
@@ -982,11 +982,11 @@ function CalcRulesTab() {
                 </div>
 
                 {rule.description && (
-                  <p className="mt-1 text-sm text-neutral-500">{rule.description}</p>
+                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{rule.description}</p>
                 )}
 
-                <div className="mt-2 rounded-lg bg-neutral-50 p-2.5 border border-neutral-200">
-                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400">
+                <div className="mt-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-2.5 border border-neutral-200">
+                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
                     Rule Value (JSON)
                   </span>
                   <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-neutral-800">
@@ -1095,7 +1095,7 @@ function CalcRuleForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit calculation rule' : 'Add calculation rule'}
           </h2>
           <button
@@ -1169,7 +1169,7 @@ function CalcRuleForm({
           </AdminField>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Active</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>
@@ -1255,7 +1255,7 @@ function CalcVersionsTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy">Calculation Versions</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Calculation Versions</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -1292,7 +1292,7 @@ function CalcVersionsTab() {
                   <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 capitalize">
                     {ver.calculator_type}
                   </span>
-                  <h3 className="text-base font-bold text-brand-navy">
+                  <h3 className="text-base font-bold text-brand-navy dark:text-white">
                     v{ver.version_number}{' '}
                     {ver.version_label ? `(${ver.version_label})` : ''}
                   </h3>
@@ -1303,7 +1303,7 @@ function CalcVersionsTab() {
                   )}
                 </div>
                 {ver.description && (
-                  <p className="mt-1 text-sm text-neutral-500">{ver.description}</p>
+                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{ver.description}</p>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
@@ -1402,7 +1402,7 @@ function CalcVersionForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit calculation version' : 'Add calculation version'}
           </h2>
           <button
@@ -1462,7 +1462,7 @@ function CalcVersionForm({
           </AdminField>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700">Active</span>
+            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>

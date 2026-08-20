@@ -117,7 +117,7 @@ export default function PopCeilingCalculator() {
         {!result && (
           <div className="card p-6 sm:p-8">
             {/* Workflow selection */}
-            <h2 className="text-lg font-bold text-brand-navy">Choose workflow</h2>
+            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Choose workflow</h2>
             <p className="mt-1 text-sm text-neutral-500">Select the POP ceiling method that matches your region.</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               {workflows.map((wf) => {
@@ -130,7 +130,7 @@ export default function PopCeilingCalculator() {
                       <Icon className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-brand-navy">{wf.name}</span>
+                      <span className="block text-sm font-semibold text-brand-navy dark:text-white">{wf.name}</span>
                       <span className="block text-xs text-neutral-500">{wf.description}</span>
                     </span>
                   </button>
@@ -252,10 +252,10 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
               {items.map((m, i) => (
                 <div key={i} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3">
                   <div>
-                    <p className="text-sm font-semibold text-brand-navy">{m.name}</p>
+                    <p className="text-sm font-semibold text-brand-navy dark:text-white">{m.name}</p>
                     <p className="text-xs text-neutral-400">{formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded} package(s)</p>
                   </div>
-                  <p className="text-sm font-bold text-brand-navy">{formatCurrency(m.cost, currencySymbol)}</p>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">{formatCurrency(m.cost, currencySymbol)}</p>
                 </div>
               ))}
             </div>
@@ -301,7 +301,7 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
       <button type="button" onClick={() => onChange(!checked)}
         className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
         aria-pressed={checked}>
-        <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
+        <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
       </button>
       <div>
         <p className="text-sm font-semibold text-neutral-700">{label}</p>
@@ -328,8 +328,8 @@ function Field({ label, suffix, hint, error, children }: { label: string; suffix
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-500')}>{label}</span>
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy' : 'text-neutral-700')}>{value}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
 }

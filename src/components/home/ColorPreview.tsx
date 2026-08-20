@@ -26,7 +26,7 @@ export default function ColorPreview() {
   }
 
   return (
-    <section className="bg-white py-24 sm:py-28">
+    <section className="bg-white py-24 sm:py-28 dark:bg-brand-navy">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
@@ -42,12 +42,12 @@ export default function ColorPreview() {
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loading && (
-            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400">
+            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400 dark:text-neutral-500">
               <Loader2 className="h-5 w-5 animate-spin" /> Loading color palettes…
             </div>
           )}
           {!loading && combinations.length === 0 && (
-            <div className="col-span-full py-16 text-center text-sm text-neutral-400">
+            <div className="col-span-full py-16 text-center text-sm text-neutral-400 dark:text-neutral-500">
               No color combinations published yet.
             </div>
           )}
@@ -55,7 +55,7 @@ export default function ColorPreview() {
             <Link
               key={c.id}
               to={`/colors/${c.slug}`}
-              className="card-hover group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white"
+              className="card-hover group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white dark:border-white/5 dark:bg-brand-navy-mid"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img

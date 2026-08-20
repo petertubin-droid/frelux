@@ -105,15 +105,15 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     // Production fallback
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-50 px-4 text-center">
-        <div className="rounded-lg border border-neutral-200 bg-white p-8 shadow-sm">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-50 px-4 text-center dark:bg-brand-navy">
+        <div className="rounded-lg border border-neutral-200 bg-white p-8 shadow-sm dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
             <svg className="h-6 w-6 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
           </div>
-          <h1 className="text-xl font-semibold text-neutral-800">Something went wrong</h1>
-          <p className="mt-2 max-w-sm text-sm text-neutral-500">
+          <h1 className="text-xl font-semibold text-neutral-800 dark:text-white">Something went wrong</h1>
+          <p className="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
             An unexpected error occurred. Try refreshing the page, or return home to continue.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
@@ -126,7 +126,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             </button>
             <a
               href="/"
-              className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50"
+              className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
             >
               Go home
             </a>

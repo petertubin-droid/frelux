@@ -267,7 +267,7 @@ export default function AdminEstimationEstimates() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-sm font-bold text-brand-navy">
+                      <span className="font-mono text-sm font-bold text-brand-navy dark:text-white">
                         {est.estimate_ref}
                       </span>
 
@@ -290,7 +290,7 @@ export default function AdminEstimationEstimates() {
                       </p>
                     )}
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
                       <span className="inline-flex items-center gap-1">
                         <Calendar className="h-3 w-3" /> {new Date(est.created_at).toLocaleString()}
                       </span>
@@ -303,10 +303,10 @@ export default function AdminEstimationEstimates() {
 
                   <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
                     <div className="text-right">
-                      <span className="text-base font-extrabold text-brand-navy">
+                      <span className="text-base font-extrabold text-brand-navy dark:text-white">
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
-                      <p className="text-[10px] text-neutral-400">Total Material Cost</p>
+                      <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Total Material Cost</p>
                     </div>
 
                     <div className="rounded-full bg-neutral-100 p-2 text-neutral-500 hover:bg-neutral-200">
@@ -326,7 +326,7 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     {isItemLoading ? (
-                      <div className="p-4 text-center text-xs text-neutral-500">Loading line items...</div>
+                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Loading line items...</div>
                     ) : lineItems.length === 0 ? (
                       <p className="text-xs text-neutral-500 italic p-2">No line items recorded for this estimate.</p>
                     ) : (
@@ -358,14 +358,14 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 text-right font-mono">
                                   {item.quantity_required} {item.unit}
                                 </td>
-                                <td className="p-2.5 text-right font-mono font-semibold text-neutral-700">
+                                <td className="p-2.5 text-right font-mono font-semibold text-neutral-700 dark:text-neutral-200">
                                   {item.practical_purchase_qty} {item.unit}
-                                  {item.pack_size && <span className="block text-[9px] text-neutral-400">Pack: {item.pack_size}</span>}
+                                  {item.pack_size && <span className="block text-[9px] text-neutral-400 dark:text-neutral-500">Pack: {item.pack_size}</span>}
                                 </td>
                                 <td className="p-2.5 text-right font-mono">
                                   {formatCurrency(item.unit_price, est.currency)}
                                 </td>
-                                <td className="p-2.5 text-right font-mono font-bold text-brand-navy">
+                                <td className="p-2.5 text-right font-mono font-bold text-brand-navy dark:text-white">
                                   {formatCurrency(item.total_price, est.currency)}
                                 </td>
                                 <td className="p-2.5 capitalize text-neutral-500 text-[11px]">
@@ -411,7 +411,7 @@ export default function AdminEstimationEstimates() {
                         )}
 
                         {est.notes && (
-                          <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-2.5 text-neutral-700 sm:col-span-2">
+                          <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2.5 text-neutral-700 sm:col-span-2">
                             <span className="font-bold block mb-1 text-[11px]">Notes</span>
                             <p className="text-[11px]">{est.notes}</p>
                           </div>

@@ -219,7 +219,7 @@ export default function AdminEstimationPricing() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-neutral-400" />
-          <div className="flex rounded-lg border border-neutral-200 bg-white p-1 text-xs font-medium">
+          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <button
                 key={type}
@@ -270,7 +270,7 @@ export default function AdminEstimationPricing() {
                     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}>
                       {item.price_type}
                     </span>
-                    <h3 className="text-base font-bold text-brand-navy">
+                    <h3 className="text-base font-bold text-brand-navy dark:text-white">
                       {refInfo ? refInfo.name : `Ref: ${item.ref_id.slice(0, 8)}...`}
                     </h3>
                     {!item.is_active && (
@@ -280,27 +280,27 @@ export default function AdminEstimationPricing() {
                     )}
                   </div>
 
-                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500">
-                    <span className="font-mono text-neutral-400">ID: {item.ref_id}</span>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+                    <span className="font-mono text-neutral-400 dark:text-neutral-500">ID: {item.ref_id}</span>
                     {packSizeVal && (
-                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium text-neutral-700">
+                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium text-neutral-700 dark:text-neutral-200">
                         Pack size: {packSizeVal}
                       </span>
                     )}
-                    <span className="inline-flex items-center gap-1 text-neutral-500">
+                    <span className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                       <Calendar className="h-3 w-3" /> Effective: {item.effective_date}
                     </span>
                   </div>
 
-                  {item.notes && <p className="mt-1 text-xs italic text-neutral-500">{item.notes}</p>}
+                  {item.notes && <p className="mt-1 text-xs italic text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.notes}</p>}
                 </div>
 
                 <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
                   <div className="text-right">
-                    <span className="text-lg font-extrabold text-brand-navy">
+                    <span className="text-lg font-extrabold text-brand-navy dark:text-white">
                       {formatCurrency(item.price, item.currency)}
                     </span>
-                    <p className="text-[10px] uppercase tracking-wider text-neutral-400">{item.currency}</p>
+                    <p className="text-[10px] uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{item.currency}</p>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -469,7 +469,7 @@ function PricingForm({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
       <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy">
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
             {initial ? 'Edit Price Record' : 'Add Price Record'}
           </h2>
           <button
@@ -603,7 +603,7 @@ function PricingForm({
           </AdminField>
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold text-neutral-700">Is Active</span>
+            <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Is Active</span>
             <Toggle checked={isActive} onChange={setIsActive} />
           </div>
 
@@ -671,8 +671,8 @@ function PriceHistoryModal({
       <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl max-h-[85vh] flex flex-col">
         <div className="flex items-center justify-between pb-4 border-b">
           <div>
-            <h2 className="text-lg font-bold text-brand-navy">Price History</h2>
-            <p className="text-xs text-neutral-500">
+            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Price History</h2>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
               {refName} ({item.price_type})
             </p>
           </div>
@@ -709,21 +709,21 @@ function PriceHistoryModal({
                       <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
                       {h.old_price !== null ? (
                         <span>
-                          <span className="line-through text-neutral-400">
+                          <span className="line-through text-neutral-400 dark:text-neutral-500">
                             {formatCurrency(h.old_price, h.currency)}
                           </span>{' '}
                           →{' '}
-                          <span className="font-bold text-brand-navy">
+                          <span className="font-bold text-brand-navy dark:text-white">
                             {formatCurrency(h.new_price, h.currency)}
                           </span>
                         </span>
                       ) : (
-                        <span className="font-bold text-brand-navy">
+                        <span className="font-bold text-brand-navy dark:text-white">
                           Initial Price: {formatCurrency(h.new_price, h.currency)}
                         </span>
                       )}
                     </span>
-                    <span className="text-neutral-400">
+                    <span className="text-neutral-400 dark:text-neutral-500">
                       {new Date(h.created_at).toLocaleString()}
                     </span>
                   </div>

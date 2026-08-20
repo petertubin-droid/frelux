@@ -102,7 +102,7 @@ export default function ScreedingCalculator() {
         {!result && (
           <div className="card p-6 sm:p-8">
             {/* Method selection */}
-            <h2 className="text-lg font-bold text-brand-navy">Choose calculation method</h2>
+            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Choose calculation method</h2>
             <p className="mt-1 text-sm text-neutral-500">Select how you want to measure your walls.</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <button
@@ -117,7 +117,7 @@ export default function ScreedingCalculator() {
                   <Home className="h-5 w-5" />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-brand-navy">Full Room</span>
+                  <span className="block text-sm font-semibold text-brand-navy dark:text-white">Full Room</span>
                   <span className="block text-xs text-neutral-500">Measure all four walls using room length and width.</span>
                 </span>
               </button>
@@ -133,7 +133,7 @@ export default function ScreedingCalculator() {
                   <RectangleHorizontal className="h-5 w-5" />
                 </span>
                 <span>
-                  <span className="block text-sm font-semibold text-brand-navy">Individual Wall</span>
+                  <span className="block text-sm font-semibold text-brand-navy dark:text-white">Individual Wall</span>
                   <span className="block text-xs text-neutral-500">Measure one wall and specify how many similar walls.</span>
                 </span>
               </button>
@@ -351,9 +351,9 @@ function ScreedingResultCard({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4">
+    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
       <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy">{value}</p>
+      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white">{value}</p>
     </div>
   );
 }

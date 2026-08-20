@@ -14,8 +14,8 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
 
   if (access.loading) {
     return (
-      <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 py-6 text-sm text-neutral-400">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple" />
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 py-6 text-sm text-neutral-400 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple dark:border-white/10 dark:border-t-brand-purple-lighter" />
         Loading…
       </div>
     );
@@ -50,7 +50,7 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
             <Lock className="h-6 w-6 text-brand-purple" />
           </div>
-          <h3 className="mt-3 text-base font-bold text-brand-navy">{featureName}</h3>
+          <h3 className="mt-3 text-base font-bold text-brand-navy dark:text-white">{featureName}</h3>
           <p className="mx-auto mt-1 max-w-md text-sm text-neutral-500">
             Unlock advanced features by watching a short ad. No subscriptions, no payments. Just one ad for full access until 11:59 PM today.
           </p>

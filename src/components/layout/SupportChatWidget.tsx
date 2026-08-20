@@ -57,7 +57,7 @@ export default function SupportChatWidget() {
           className={
             minimized
               ? 'fixed bottom-20 right-4 z-40 sm:bottom-4 sm:right-4'
-              : 'fixed bottom-20 left-1/2 z-40 flex h-[min(70vh,520px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0'
+              : 'fixed bottom-20 left-1/2 z-40 flex h-[min(70vh,520px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/5 dark:bg-brand-navy-mid sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0'
           }
         >
           {minimized ? (
@@ -91,14 +91,14 @@ export default function SupportChatWidget() {
                 </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-neutral-50 p-4" role="log" aria-live="polite">
+              <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-neutral-50 dark:bg-brand-navy p-4" role="log" aria-live="polite">
                 {messages.map((m) => (
                   <div key={m.id} className={m.from === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                     <div
                       className={
                         m.from === 'user'
                           ? 'max-w-[80%] break-words rounded-2xl rounded-br-md bg-brand-purple px-3.5 py-2 text-sm text-white'
-                          : 'max-w-[80%] break-words rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-sm text-neutral-700 shadow-sm border border-neutral-100'
+                          : 'max-w-[80%] break-words rounded-2xl rounded-bl-md bg-white px-3.5 py-2 text-sm text-neutral-700 shadow-sm border border-neutral-100 dark:bg-white/10 dark:text-neutral-200 dark:border-white/5'
                       }
                     >
                       {m.text}
@@ -107,7 +107,7 @@ export default function SupportChatWidget() {
                 ))}
               </div>
 
-              <div className="border-t border-neutral-100 bg-white px-4 pt-2.5">
+              <div className="border-t border-neutral-100 bg-white px-4 pt-2.5 dark:border-white/5 dark:bg-brand-navy-mid">
                 <a
                   href={whatsappUrl('Hello FRELUX, I need help with my paint project.')}
                   target="_blank"
@@ -120,7 +120,7 @@ export default function SupportChatWidget() {
 
               <form
                 onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-                className="flex items-center gap-2 rounded-b-2xl bg-white p-3"
+                className="flex items-center gap-2 rounded-b-2xl bg-white p-3 dark:bg-brand-navy-mid"
               >
                 <input
                   type="text"
@@ -128,7 +128,7 @@ export default function SupportChatWidget() {
                   onChange={(e) => setDraft(e.target.value)}
                   placeholder="Type a message…"
                   aria-label="Type a message"
-                  className="flex-1 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                  className="flex-1 rounded-full border border-neutral-200 bg-neutral-50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-neutral-200"
                 />
                 <button
                   type="submit"
