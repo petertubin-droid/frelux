@@ -62,7 +62,8 @@ begin
   if not exists (
     select 1 from pg_constraint where conname = 'ai_usage_daily_user_date_unique'
   ) then
-    create unique index ai_usage_daily_user_date_unique
+    DROP INDEX IF EXISTS ai_usage_daily_user_date_unique;
+      create unique index ai_usage_daily_user_date_unique
       on ai_usage_daily (user_id, usage_date)
       where user_id is not null;
   end if;
