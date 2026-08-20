@@ -14,166 +14,98 @@ import {
 } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 interface Tool {
   icon: LucideIcon;
   title: string;
   description: string;
+  benefit: string;
   to: string;
   accent: string;
   glow: string;
+  featured?: boolean;
 }
 
-interface Category {
-  label: string;
-  icon: LucideIcon;
-  tools: Tool[];
-}
-
-const categories: Category[] = [
+const allTools: Tool[] = [
   {
-    label: 'Painting',
     icon: Paintbrush,
-    tools: [
-      {
-        icon: Calculator,
-        title: 'Paint Calculator',
-        description: 'Estimate how many litres of paint you need based on wall area, coats, doors, and windows.',
-        to: '/paint-calculator',
-        accent: 'text-accent-orange bg-accent-orange/10',
-        glow: 'group-hover:bg-accent-orange/10',
-      },
-      {
-        icon: DollarSign,
-        title: 'Paint Cost Estimator',
-        description: 'Get a full cost breakdown for paint, primer, putty, and materials using real product prices.',
-        to: '/cost-estimator',
-        accent: 'text-accent-green bg-accent-green/10',
-        glow: 'group-hover:bg-accent-green/10',
-      },
-      {
-        icon: Paintbrush,
-        title: 'Painting Estimator',
-        description: 'Room-by-room estimation with the FRELUX methodology — quantity, ceiling, walls, and material cost.',
-        to: '/painting-estimator',
-        accent: 'text-brand-purple bg-brand-purple/10',
-        glow: 'group-hover:bg-brand-purple/10',
-      },
-    ],
+    title: 'Painting Estimator',
+    description: 'Room-by-room estimation with the FRELUX methodology — quantity, ceiling, walls, and material cost.',
+    benefit: 'Bucket-level accuracy',
+    to: '/painting-estimator',
+    accent: 'text-brand-purple bg-brand-purple/10',
+    glow: 'group-hover:bg-brand-purple/10',
+    featured: true,
   },
   {
-    label: 'Screeding',
+    icon: Calculator,
+    title: 'Paint Calculator',
+    description: 'Estimate how many litres of paint you need based on wall area, coats, doors, and windows.',
+    benefit: 'Litres & containers',
+    to: '/paint-calculator',
+    accent: 'text-accent-orange bg-accent-orange/10',
+    glow: 'group-hover:bg-accent-orange/10',
+  },
+  {
     icon: Square,
-    tools: [
-      {
-        icon: Square,
-        title: 'Wall Screeding Calculator',
-        description: 'Calculate the wall surface area that needs screeding, with door and window deductions.',
-        to: '/screeding-calculator',
-        accent: 'text-accent-cyan bg-accent-cyan/10',
-        glow: 'group-hover:bg-accent-cyan/10',
-      },
-      {
-        icon: DollarSign,
-        title: 'Screeding Cost Estimator',
-        description: 'Estimate the cost of screeding materials — cement, sand, and bonding agents.',
-        to: '/screeding-cost-estimator',
-        accent: 'text-accent-green bg-accent-green/10',
-        glow: 'group-hover:bg-accent-green/10',
-      },
-    ],
+    title: 'Screeding Calculator',
+    description: 'Calculate the wall surface area that needs screeding, with door and window deductions.',
+    benefit: 'Surface area & materials',
+    to: '/screeding-calculator',
+    accent: 'text-accent-cyan bg-accent-cyan/10',
+    glow: 'group-hover:bg-accent-cyan/10',
   },
   {
-    label: 'POP Ceiling',
     icon: Layers,
-    tools: [
-      {
-        icon: Layers,
-        title: 'POP Ceiling Calculator',
-        description: 'Calculate POP cement, fibreglass mesh, and materials needed for your ceiling project.',
-        to: '/pop-ceiling-calculator',
-        accent: 'text-brand-purple bg-brand-purple/10',
-        glow: 'group-hover:bg-brand-purple/10',
-      },
-      {
-        icon: DollarSign,
-        title: 'POP Ceiling Cost Estimator',
-        description: 'Estimate the total cost of your POP ceiling project with current material prices.',
-        to: '/pop-ceiling-cost-estimator',
-        accent: 'text-accent-green bg-accent-green/10',
-        glow: 'group-hover:bg-accent-green/10',
-      },
-    ],
+    title: 'POP Ceiling Calculator',
+    description: 'Calculate POP cement, fibreglass mesh, and materials needed for your ceiling project.',
+    benefit: 'Cement & mesh quantities',
+    to: '/pop-ceiling-calculator',
+    accent: 'text-brand-purple bg-brand-purple/10',
+    glow: 'group-hover:bg-brand-purple/10',
   },
   {
-    label: 'Tiles',
     icon: Grid3x3,
-    tools: [
-      {
-        icon: Grid3x3,
-        title: 'Tile Calculator',
-        description: 'Calculate how many tiles you need, plus adhesive and grout, for floors and walls.',
-        to: '/tile-calculator',
-        accent: 'text-accent-cyan bg-accent-cyan/10',
-        glow: 'group-hover:bg-accent-cyan/10',
-      },
-      {
-        icon: DollarSign,
-        title: 'Tile Cost Estimator',
-        description: 'Estimate the total cost of your tiling project — tiles, adhesive, grout, and labour.',
-        to: '/tile-cost-estimator',
-        accent: 'text-accent-green bg-accent-green/10',
-        glow: 'group-hover:bg-accent-green/10',
-      },
-    ],
+    title: 'Tile Calculator',
+    description: 'Calculate how many tiles you need, plus adhesive and grout, for floors and walls.',
+    benefit: 'Tiles, adhesive & grout',
+    to: '/tile-calculator',
+    accent: 'text-accent-cyan bg-accent-cyan/10',
+    glow: 'group-hover:bg-accent-cyan/10',
   },
   {
-    label: 'Finishing',
-    icon: Hammer,
-    tools: [
-      {
-        icon: Building2,
-        title: 'Finish Estimator',
-        description: 'Compare painting, Tyrolene, and Grafitex finishes — material quantities and costs side by side.',
-        to: '/finish-estimator',
-        accent: 'text-amber-600 bg-amber-100',
-        glow: 'group-hover:bg-amber-400/10',
-      },
-      {
-        icon: Building2,
-        title: 'Tyrolene Estimator',
-        description: 'Partition-based exterior finish estimator. Calculate cement, sand, acrylic bond, and additives.',
-        to: '/tyrolene-estimator',
-        accent: 'text-amber-600 bg-amber-100',
-        glow: 'group-hover:bg-amber-400/10',
-      },
-    ],
+    icon: Building2,
+    title: 'Tyrolene Estimator',
+    description: 'Partition-based exterior finish estimator. Calculate cement, sand, acrylic bond, and additives.',
+    benefit: 'Exterior finishing',
+    to: '/tyrolene-estimator',
+    accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',
+    glow: 'group-hover:bg-amber-400/10',
   },
   {
-    label: 'Colors & Design',
-    icon: Palette,
-    tools: [
-      {
-        icon: Palette,
-        title: 'Smart Color Assistant',
-        description: 'Get AI-powered colour recommendations based on your room type, lighting, and mood.',
-        to: '/ai-color-assistant',
-        accent: 'text-brand-purple bg-brand-purple/10',
-        glow: 'group-hover:bg-brand-purple/10',
-      },
-      {
-        icon: Grid3x3,
-        title: 'Color Library',
-        description: 'Browse hundreds of paint colours with names and codes. Compare side by side.',
-        to: '/colors',
-        accent: 'text-brand-purple bg-brand-purple/10',
-        glow: 'group-hover:bg-brand-purple/10',
-      },
-    ],
+    icon: DollarSign,
+    title: 'Paint Cost Estimator',
+    description: 'Get a full cost breakdown for paint, primer, putty, and materials using real product prices.',
+    benefit: 'Full cost breakdown',
+    to: '/cost-estimator',
+    accent: 'text-accent-green bg-accent-green/10',
+    glow: 'group-hover:bg-accent-green/10',
+  },
+  {
+    icon: Building2,
+    title: 'Finish Estimator',
+    description: 'Compare painting, Tyrolene, and Grafitex finishes — material quantities and costs side by side.',
+    benefit: 'Side-by-side comparison',
+    to: '/finish-estimator',
+    accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',
+    glow: 'group-hover:bg-amber-400/10',
   },
 ];
 
 export default function ToolsSection() {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+
   return (
     <section data-tour="calculators" className="relative overflow-hidden bg-white py-20 sm:py-24 dark:bg-brand-navy bg-noise">
       {/* Subtle background pattern */}
@@ -182,58 +114,100 @@ export default function ToolsSection() {
       <SectionHeading
         label="All calculators"
         title="Everything you need, organized by trade"
-        subtitle="Pick a category and start calculating. Every tool uses Nigerian coverage rates and real product prices."
+        subtitle="Pick a calculator and start calculating. Every tool uses Nigerian coverage rates and real product prices."
         align="center"
       />
 
-      <Container className="relative mt-14 space-y-12">
-        {categories.map((category, ci) => {
-          const CatIcon = category.icon;
-          return (
-            <div key={category.label} className="animate-fade-in-up" style={{ animationDelay: `${ci * 0.05}s` }}>
-              {/* Category header */}
-              <div className="mb-5 flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/8 text-brand-purple dark:text-brand-purple-lighter">
-                  <CatIcon className="h-5 w-5" />
+      <Container className="relative mt-14">
+        {/* Bento-style grid: featured card spans 2 columns */}
+        <div
+          ref={ref}
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {allTools.map((tool, i) => {
+            const Icon = tool.icon;
+            const isFeatured = tool.featured;
+            return (
+              <Link
+                key={tool.to}
+                to={tool.to}
+                className={`card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-1 ${
+                  isFeatured ? 'lg:col-span-2 lg:row-span-1' : ''
+                } lg:col-span-1`}
+                style={{
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                  transitionProperty: 'opacity, transform',
+                  transitionDuration: '600ms',
+                  transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  transitionDelay: `${i * 60}ms`,
+                }}
+              >
+                {/* Subtle hover gradient */}
+                <div className={`pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 ${tool.glow}`} />
+
+                {/* Shimmer border on top */}
+                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
+
+                <div className="flex items-center gap-3">
+                  <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${tool.accent} transition-transform duration-300 group-hover:scale-110`}>
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  {isFeatured && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+                      Recommended
+                    </span>
+                  )}
+                </div>
+
+                <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h4>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{tool.description}</p>
+
+                {/* Benefit tag */}
+                <div className="mt-4 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+                    {tool.benefit}
+                  </span>
+                </div>
+
+                {/* CTA */}
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
+                  Open calculator
+                  <ArrowRight className="h-4 w-4" />
                 </span>
-                <h3 className="font-display text-xl font-bold text-neutral-900 dark:text-white">{category.label}</h3>
-                <span className="text-sm text-neutral-400 dark:text-neutral-500">({category.tools.length} tools)</span>
-              </div>
+              </Link>
+            );
+          })}
 
-              {/* Tool cards */}
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {category.tools.map((tool) => {
-                  const Icon = tool.icon;
-                  return (
-                    <Link
-                      key={tool.to}
-                      to={tool.to}
-                      className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid"
-                    >
-                      {/* Subtle hover gradient */}
-                      <div className={`pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 ${tool.glow}`} />
-
-                      {/* Shimmer border on top */}
-                      <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
-
-                      <div className="flex items-center gap-3">
-                        <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${tool.accent} transition-transform duration-300 group-hover:scale-110`}>
-                          <Icon className="h-5 w-5" />
-                        </span>
-                      </div>
-                      <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h4>
-                      <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{tool.description}</p>
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
-                        Open calculator
-                        <ArrowRight className="h-4 w-4" />
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
+          {/* Color & AI — smaller card */}
+          <Link
+            to="/colors"
+            className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+              transitionProperty: 'opacity, transform',
+              transitionDuration: '600ms',
+              transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+              transitionDelay: `${allTools.length * 60}ms`,
+            }}
+          >
+            <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-brand-purple/10 transition-transform duration-300 group-hover:scale-110">
+                <Palette className="h-5 w-5" />
+              </span>
             </div>
-          );
-        })}
+            <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h4>
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+              Browse hundreds of paint colours with names and codes. Get AI-powered recommendations.
+            </p>
+            <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
+              Explore colors
+              <ArrowRight className="h-4 w-4" />
+            </span>
+          </Link>
+        </div>
       </Container>
 
       {/* Explore all CTA */}

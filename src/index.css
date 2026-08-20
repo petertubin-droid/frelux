@@ -462,3 +462,59 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* =========================================================
+   SCROLL REVEAL & PREMIUM ANIMATION ADDITIONS
+   ========================================================= */
+
+/* Reveal animations (used with useScrollReveal hook) */
+.reveal-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-item.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger container for batch reveals */
+.stagger-container[data-visible="true"] > [data-reveal] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger-container > [data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Premium card depth on hover — enhanced version */
+.card-hover-premium {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
+}
+.card-hover-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.03);
+  border-color: rgba(109, 40, 217, 0.15);
+}
+.dark .card-hover-premium:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+  border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* Smooth count-up animation helper */
+@keyframes count-up {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-count-up {
+  animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Section transition fade */
+.section-fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

@@ -6,6 +6,10 @@ import FeaturesSection from '@/components/home/FeaturesSection';
 import TrendingColors from '@/components/home/TrendingColors';
 import QuickCalculatorShortcuts from '@/components/ui/QuickCalculatorShortcuts';
 import FeaturedTemplates from '@/components/home/FeaturedTemplates';
+import InteractiveEstimatePreview from '@/components/home/InteractiveEstimatePreview';
+import TemplatesShowcase from '@/components/home/TemplatesShowcase';
+import PWASection from '@/components/home/PWASection';
+import FinalCTA from '@/components/home/FinalCTA';
 import AdSlot from '@/components/ui/AdSlot';
 import { WeatherWidget } from '@/components/ui/WeatherWidget';
 import { RecentlyUsed } from '@/components/ui/RecentlyUsed';
@@ -59,7 +63,7 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero — primary CTA "Start Calculating" immediately visible */}
+      {/* Hero — cinematic headline + interactive estimate preview */}
       <Hero />
 
       {/* Quick access to most important calculators — above the fold */}
@@ -70,24 +74,33 @@ export default function Home() {
         <RecentlyUsed />
       </div>
 
-      {/* How FRELUX Works — 3-step process */}
+      {/* Interactive estimate preview — product demo with real calc engine */}
+      <InteractiveEstimatePreview />
+
+      {/* How FRELUX Works — 4-step process */}
       <HowItWorks />
 
-      {/* All calculators organized by trade category */}
+      {/* All calculators organized by trade — premium product cards */}
       <ToolsSection />
 
       {/* Featured calculator templates — SEO crawlable links */}
       <FeaturedTemplates />
 
-      {/* Trust signals + secondary CTAs */}
+      {/* Trust signals + why FRELUX */}
       <FeaturesSection />
 
       {/* Ad slot */}
       <AdSlot slotKey="home_mid" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
 
+      {/* Saved calculations & templates showcase */}
+      <TemplatesShowcase />
+
       {/* Color inspiration */}
       <TrendingColors />
       <ColorPreview />
+
+      {/* PWA / mobile experience */}
+      <PWASection />
 
       {/* Weather-aware painting scheduler */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -100,6 +113,9 @@ export default function Home() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <AchievementBadges />
       </div>
+
+      {/* Final CTA — strong closing */}
+      <FinalCTA />
     </>
   );
 }

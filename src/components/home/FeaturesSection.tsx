@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Sliders, ShieldCheck, FileBarChart, ArrowRight, Share2, Save, Calculator } from 'lucide-react';
+import { MapPin, Sliders, ShieldCheck, FileBarChart, ArrowRight, Smartphone, Database } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const trustFeatures = [
   {
@@ -16,7 +17,7 @@ const trustFeatures = [
   },
   {
     icon: ShieldCheck,
-    title: 'Transparent calculation assumptions',
+    title: 'Transparent assumptions',
     description: 'See exactly how every number is computed — coverage rates, waste factors, and mix ratios are all visible.',
   },
   {
@@ -24,30 +25,42 @@ const trustFeatures = [
     title: 'Professional estimates',
     description: 'Detailed cost breakdowns that contractors trust. Get quantities, unit prices, and totals for every material.',
   },
+  {
+    icon: Smartphone,
+    title: 'Mobile-first accessibility',
+    description: 'Every calculator works perfectly on small screens. Access your estimates from any phone, anywhere on site.',
+  },
+  {
+    icon: Database,
+    title: 'Accurate units & quantities',
+    description: 'Metric and imperial support. Real product pack sizes. Practical purchase quantities, not just theoretical numbers.',
+  },
 ];
 
 const secondaryCtas = [
   {
-    icon: Save,
+    icon: FileBarChart,
     label: 'Save Estimate',
     to: '/my-projects',
     description: 'Keep your estimates and come back anytime',
   },
   {
-    icon: Share2,
+    icon: ArrowRight,
     label: 'Share Estimate',
     to: '/my-projects',
     description: 'Send a shareable link to your contractor',
   },
   {
-    icon: Calculator,
+    icon: Sliders,
     label: 'Explore Calculators',
     to: '/paint-calculator',
-    description: 'Browse all 14 calculators and estimators',
+    description: 'Browse all calculators and estimators',
   },
 ];
 
 export default function FeaturesSection() {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+
   return (
     <section data-tour="cost" className="relative overflow-hidden bg-brand-navy py-20 text-white sm:py-24 bg-noise">
       {/* Grid pattern */}
@@ -64,30 +77,38 @@ export default function FeaturesSection() {
         className="[&_.section-label]:text-brand-purple-light [&_.section-title]:text-white [&_.section-subtitle]:text-white/45"
       />
 
-      {/* Trust signals */}
-      <Container className="relative mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {trustFeatures.map((f, i) => {
-          const Icon = f.icon;
-          return (
-            <div
-              key={f.title}
-              className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.04] hover:-translate-y-1 animate-fade-in-up shimmer-border"
-              style={{ animationDelay: `${i * 0.08}s` }}
-            >
-              {/* Hover glow */}
-              <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
-              <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20 group-hover:scale-105">
-                <Icon className="h-5 w-5 text-brand-purple-light transition-transform duration-300 group-hover:scale-110" />
-              </span>
-              <h3 className="mt-4 font-display text-base font-bold text-white">{f.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/45 transition-colors duration-300 group-hover:text-white/55">{f.description}</p>
-            </div>
-          );
-        })}
+      {/* Trust signals — 3 column grid */}
+      <Container className="relative mt-14">
+        <div ref={ref} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {trustFeatures.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <div
+                key={f.title}
+                className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/15 hover:bg-white/[0.04] hover:-translate-y-1"
+                style={{
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                  transitionDelay: `${i * 70}ms`,
+                  transitionDuration: '600ms',
+                  transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
+              >
+                {/* Hover glow */}
+                <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+                <span className="relative inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20 group-hover:scale-105">
+                  <Icon className="h-5 w-5 text-brand-purple-light transition-transform duration-300 group-hover:scale-110" />
+                </span>
+                <h3 className="mt-4 font-display text-base font-bold text-white">{f.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/45 transition-colors duration-300 group-hover:text-white/55">{f.description}</p>
+              </div>
+            );
+          })}
+        </div>
       </Container>
 
       {/* Secondary CTAs */}
-      <Container className="relative mt-12">
+      <Container className="relative mt-10">
         <div className="grid gap-4 sm:grid-cols-3">
           {secondaryCtas.map((cta) => {
             const Icon = cta.icon;
@@ -109,17 +130,6 @@ export default function FeaturesSection() {
             );
           })}
         </div>
-      </Container>
-
-      {/* Primary CTA */}
-      <Container className="relative mt-12 text-center">
-        <Link
-          to="/paint-calculator"
-          className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-brand-navy shadow-lg transition-all hover:bg-neutral-100 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
-        >
-          Start Calculating
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
       </Container>
     </section>
   );

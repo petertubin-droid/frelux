@@ -67,12 +67,25 @@ export default function Navbar() {
         )}
       >
         <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" aria-label="FRELUX PAINT CALC home" className="shrink-0">
-            <Logo />
-          </Link>
+          {/* Logo — left */}
+          <div className="flex items-center gap-3">
+            {/* Hamburger — left side on mobile (before logo) */}
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-all hover:bg-neutral-100 active:scale-95 lg:hidden dark:text-neutral-200 dark:hover:bg-white/5"
+              aria-label="Open menu"
+              aria-expanded={mobileOpen}
+            >
+              <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
+            </button>
+            <Link to="/" aria-label="FRELUX PAINT CALC home" className="shrink-0">
+              <Logo />
+            </Link>
+          </div>
 
           {/* Desktop nav with workspace dropdowns */}
-          <div ref={dropdownRef} className="hidden items-center gap-0.5 lg:flex">
+          <div ref={dropdownRef} className="hidden items-center gap-1 lg:flex">
             {navWorkspaces.map((workspace) => (
               <div key={workspace.label} className="relative">
                 {workspace.children ? (
@@ -82,7 +95,7 @@ export default function Navbar() {
                       onClick={() => setOpenDropdown(openDropdown === workspace.label ? null : workspace.label)}
                       onMouseEnter={() => setOpenDropdown(workspace.label)}
                       className={classNames(
-                        'flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                        'flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200',
                         location.pathname.startsWith(workspace.path) || openDropdown === workspace.label
                           ? 'text-brand-purple dark:text-brand-purple-lighter'
                           : 'text-neutral-600 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5'
@@ -123,7 +136,7 @@ export default function Navbar() {
                   <NavLink
                     to={workspace.path}
                     className={({ isActive }) => classNames(
-                      'rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
+                      'rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200',
                       isActive ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-600 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5'
                     )}
                   >
@@ -187,10 +200,9 @@ export default function Navbar() {
                     <>
                       {/* User email header */}
                       <div className="px-4 py-2.5 border-b border-neutral-100 dark:border-white/5">
-                        <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Signed in as</p>
+                        <p className="text-xs text-neutral-400 dark:text-neutral-500">Signed in as</p>
                         <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{user.email}</p>
                       </div>
-                      {/* Account menu items */}
                       {accountMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
@@ -239,7 +251,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Primary CTA — Start Calculating (more prominent than account icon) */}
+            {/* Primary CTA — Start Calculating */}
             <Link
               to="/paint-calculator"
               className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-brand-purple dark:hover:bg-brand-purple-dark"
@@ -247,22 +259,11 @@ export default function Navbar() {
               <Calculator className="h-4 w-4" />
               Start Calculating
             </Link>
-
-            {/* Hamburger menu (mobile/tablet only) */}
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-all hover:bg-neutral-100 active:scale-95 lg:hidden dark:text-neutral-200 dark:hover:bg-white/5"
-              aria-label="Open menu"
-              aria-expanded={mobileOpen}
-            >
-              <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
-            </button>
           </div>
         </nav>
       </header>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer — slides from LEFT */}
       <div
         className={classNames('fixed inset-0 z-50 lg:hidden', mobileOpen ? 'pointer-events-auto' : 'pointer-events-none')}
         aria-hidden={!mobileOpen}
@@ -276,11 +277,11 @@ export default function Navbar() {
           onClick={() => setMobileOpen(false)}
         />
 
-        {/* Drawer panel */}
+        {/* Drawer panel — left side */}
         <div
           className={classNames(
-            'absolute right-0 top-0 h-full w-[320px] max-w-[85vw] overflow-y-auto bg-white shadow-premium-lg transition-transform duration-300 dark:bg-brand-navy',
-            mobileOpen ? 'translate-x-0' : 'translate-x-full'
+            'absolute left-0 top-0 h-full w-[320px] max-w-[85vw] overflow-y-auto bg-white shadow-premium-lg transition-transform duration-300 dark:bg-brand-navy',
+            mobileOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           {/* Drawer header */}
@@ -382,12 +383,14 @@ export default function Navbar() {
             </div>
 
             {/* Primary CTA */}
-            <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
-              <Link to="/paint-calculator" className="flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark active:scale-[0.98]">
-                <Calculator className="h-4 w-4" />
-                Start Calculating
-              </Link>
-            </div>
+            <Link
+              to="/paint-calculator"
+              onClick={() => setMobileOpen(false)}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark active:scale-[0.98]"
+            >
+              <Calculator className="h-4 w-4" />
+              Start Calculating
+            </Link>
           </div>
         </div>
       </div>

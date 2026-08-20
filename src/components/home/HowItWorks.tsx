@@ -1,32 +1,42 @@
-import { Ruler, Calculator, FileText, ArrowRight } from 'lucide-react';
+import { Ruler, Calculator, FileText, Share2, ArrowRight } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { Link } from 'react-router-dom';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const steps = [
   {
     icon: Ruler,
-    title: 'Enter your measurements',
-    description: 'Input your room dimensions, wall height, doors, and windows. No technical knowledge needed — just a tape measure.',
+    title: 'Measure',
+    description: 'Input your room dimensions, wall height, doors, and windows. Just a tape measure — no technical knowledge needed.',
     accent: 'text-brand-purple bg-brand-purple/8',
     number: '01',
   },
   {
     icon: Calculator,
-    title: 'Calculate materials',
+    title: 'Calculate',
     description: 'FRELUX computes exact quantities of paint, cement, sand, tiles, or POP using Nigerian coverage rates and real product sizes.',
     accent: 'text-accent-cyan bg-accent-cyan/10',
     number: '02',
   },
   {
     icon: FileText,
-    title: 'Get your estimate',
-    description: 'See a full cost breakdown with current market prices. Save your estimate, share it with your contractor, or print it out.',
+    title: 'Review',
+    description: 'See a full cost breakdown with current market prices. Every formula, coverage rate, and waste factor is visible.',
     accent: 'text-accent-green bg-accent-green/10',
     number: '03',
+  },
+  {
+    icon: Share2,
+    title: 'Save & Share',
+    description: 'Save your estimate, share a link with your contractor, or print it as a PDF. Reuse saved templates anytime.',
+    accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',
+    number: '04',
   },
 ];
 
 export default function HowItWorks() {
+  const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
+
   return (
     <section className="relative overflow-hidden bg-white py-20 sm:py-24 dark:bg-brand-navy bg-noise">
       <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" aria-hidden="true" />
@@ -36,30 +46,40 @@ export default function HowItWorks() {
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">How it works</span>
           <h2 className="mt-3 font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
-            From measurement to estimate in 3 steps
+            From measurement to estimate in 4 steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
             No spreadsheets. No guesswork. Just accurate numbers you can trust.
           </p>
         </div>
 
-        {/* Steps */}
-        <div className="mt-16 grid gap-8 md:grid-cols-3 lg:gap-6">
+        {/* Steps — 4 columns on desktop */}
+        <div
+          ref={ref}
+          className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5"
+        >
           {steps.map((step, i) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.title}
-                className="relative animate-fade-in-up"
-                style={{ animationDelay: `${i * 0.1}s` }}
+                className="relative transition-all duration-600"
+                style={{
+                  opacity: isVisible ? 1 : 0,
+                  transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+                  transitionDelay: `${i * 100}ms`,
+                  transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                }}
               >
-                {/* Connector line on desktop */}
+                {/* Connector arrow between cards on desktop */}
                 {i < steps.length - 1 && (
-                  <div className="pointer-events-none absolute top-12 left-[60%] hidden h-px w-full bg-gradient-to-r from-neutral-200 to-transparent dark:from-white/10 md:block" aria-hidden="true" />
+                  <div className="pointer-events-none absolute -right-2.5 top-12 z-10 hidden lg:block">
+                    <ArrowRight className="h-4 w-4 text-neutral-200 dark:text-white/10" />
+                  </div>
                 )}
 
-                <div className="relative rounded-2xl border border-neutral-200/60 bg-white p-7 dark:border-white/5 dark:bg-brand-navy-mid">
-                  {/* Step number */}
+                <div className="relative h-full rounded-2xl border border-neutral-200/60 bg-white p-7 transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-brand-navy-mid dark:hover:border-brand-purple/30">
+                  {/* Step number — large faded */}
                   <div className="flex items-center justify-between">
                     <span className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${step.accent} transition-transform duration-300 hover:scale-105`}>
                       <Icon className="h-6 w-6" />
