@@ -116,6 +116,11 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           <p className="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
             An unexpected error occurred. Try refreshing the page, or return home to continue.
           </p>
+          {this.state.error && (
+            <p className="mt-2 max-w-sm break-words text-xs text-neutral-400 dark:text-neutral-500">
+              DEBUG: {this.state.error.message}
+            </p>
+          )}
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
               type="button"
