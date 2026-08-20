@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS screeding_mix_config (
 ALTER TABLE screeding_mix_config ENABLE ROW LEVEL SECURITY;
 
 -- Public read (calculator needs config); only admins write via service role.
+DROP POLICY IF EXISTS "read_screeding_mix_config" ON screeding_mix_config;
 CREATE POLICY "read_screeding_mix_config" ON screeding_mix_config
   FOR SELECT TO anon, authenticated USING (true);
 
