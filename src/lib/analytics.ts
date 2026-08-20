@@ -42,7 +42,10 @@ export type TrackEvent =
   | 'advanced_calculator_opened'
   | 'advanced_estimate_saved'
   | 'finish_estimator_opened'
-  | 'finish_estimate_completed';
+  | 'finish_estimate_completed'
+  | 'paint_matcher_upload'
+  | 'paint_matcher_result'
+  | 'painting_estimator_calculated';
 
 export function track(event: TrackEvent, params?: Record<string, unknown>): void {
   // Meta Pixel

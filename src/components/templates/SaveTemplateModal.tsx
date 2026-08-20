@@ -7,7 +7,7 @@ interface SaveTemplateModalProps {
   onClose: () => void;
   calculatorType: CalculatorType;
   inputData: Record<string, unknown>;
-  onSave: (name: string, description: string) => Promise<void>;
+  onSave: (name: string, description: string | undefined) => Promise<void>;
   defaultName?: string;
 }
 

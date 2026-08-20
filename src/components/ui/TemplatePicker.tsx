@@ -3,7 +3,7 @@ import { Bookmark, Plus, Copy, Trash2, Pencil, Check, X, Loader2 } from 'lucide-
 import { fetchBuiltinTemplates, fetchUserTemplates, saveUserTemplate, updateUserTemplate, deleteUserTemplate, duplicateUserTemplate } from '@/lib/queries';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
-import type { DbCalculatorTemplate, TemplateType } from '@/types/database';
+import type { DbStudioTemplate, TemplateType } from '@/types/database';
 
 export default function TemplatePicker({
   templateType,
@@ -17,8 +17,8 @@ export default function TemplatePicker({
   const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [builtin, setBuiltin] = useState<DbCalculatorTemplate[]>([]);
-  const [userTemplates, setUserTemplates] = useState<DbCalculatorTemplate[]>([]);
+  const [builtin, setBuiltin] = useState<DbStudioTemplate[]>([]);
+  const [userTemplates, setUserTemplates] = useState<DbStudioTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveName, setSaveName] = useState('');

@@ -347,14 +347,12 @@ export default function PaintingEstimator() {
     setShowCalculation(false);
     setCalculating(false);
 
-    // @ts-expect-error custom event
     track('painting_estimator_calculated', {
       rooms: rooms.length,
       total_buckets: calcResult.combined_practical_buckets,
       total_cost: calcResult.total_material_cost,
     });
-    // @ts-expect-error custom tool type
-    trackCalculation('painting-estimator');
+    trackCalculation('painting');
   }, [rooms, products, qualities, prices, calcRules, colourConditions, surfaceConditions, productionRules, calcVersionId, projectDescription, customerLocation, addPrimer]);
 
   // =========================================================
@@ -920,7 +918,7 @@ function RoomCard({
 // =========================================================
 
 function EstimateResult({
-  result, showCalculation, onToggleCalculation, onSave, saved, _onAddAdjustment,
+  result, showCalculation, onToggleCalculation, onSave, saved, onAddAdjustment: _onAddAdjustment,
 }: {
   result: PaintingEstimateResult;
   showCalculation: boolean;

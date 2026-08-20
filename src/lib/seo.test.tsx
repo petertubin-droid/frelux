@@ -88,9 +88,9 @@ describe('useSeo', () => {
       expect(link!.getAttribute('href')).toBe(`${SITE_URL}/about`);
     });
 
-    it('does not create a canonical link when canonicalPath is absent', () => {
+    it('creates a canonical link pointing to SITE_URL when canonicalPath is absent', () => {
       renderSeo({ title: 'T', description: 'd' });
-      expect(getLink('canonical')).toBeNull();
+      expect(getLink('canonical')!.getAttribute('href')).toBe(SITE_URL);
     });
 
     it('updates the canonical href when canonicalPath changes', () => {
@@ -113,14 +113,14 @@ describe('useSeo', () => {
       expect(getMetaContent('name', 'robots')).toBe('noindex, nofollow');
     });
 
-    it('sets robots to index, follow when noIndex is false', () => {
+    it('sets robots to index, follow with max directives when noIndex is false', () => {
       renderSeo({ title: 'T', description: 'd', noIndex: false });
-      expect(getMetaContent('name', 'robots')).toBe('index, follow');
+      expect(getMetaContent('name', 'robots')).toBe('index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
 
-    it('defaults to index, follow when noIndex is not provided', () => {
+    it('defaults to index, follow with max directives when noIndex is not provided', () => {
       renderSeo({ title: 'T', description: 'd' });
-      expect(getMetaContent('name', 'robots')).toBe('index, follow');
+      expect(getMetaContent('name', 'robots')).toBe('index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
 
     it('updates robots content when noIndex toggles', () => {
@@ -128,7 +128,7 @@ describe('useSeo', () => {
       expect(getMetaContent('name', 'robots')).toBe('noindex, nofollow');
 
       rerender({ title: 'T', description: 'd', noIndex: false });
-      expect(getMetaContent('name', 'robots')).toBe('index, follow');
+      expect(getMetaContent('name', 'robots')).toBe('index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     });
   });
 

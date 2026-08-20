@@ -22,7 +22,7 @@ export default function SaveTemplateButton({
 
   if (!user) return null;
 
-  const handleSave = async (name: string, description: string) => {
+  const handleSave = async (name: string, description: string | undefined) => {
     await create({
       calculator_type: calculatorType,
       name,

@@ -61,7 +61,7 @@ export function savePaintCalcDefaults(settings: DefaultSettings['paintCalc']): v
 }
 
 /** Load paint calculator settings */
-export function loadPaintCalcDefaults(): DefaultSettings['paintCalc'] {
+export function loadPaintCalcDefaults(): NonNullable<DefaultSettings['paintCalc']> {
   return getDefaults().paintCalc ?? {};
 }
 

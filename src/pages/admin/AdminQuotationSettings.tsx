@@ -23,11 +23,7 @@ export default function AdminQuotationSettings() {
     setSaved(false);
     setError(null);
     try {
-      const result = await updateQuotationSettings(settings.id, settings);
-      if (result && result.error) {
-        setError(result.error.message ?? 'Failed to save quotation settings.');
-        return;
-      }
+      await updateQuotationSettings(settings.id, settings);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {

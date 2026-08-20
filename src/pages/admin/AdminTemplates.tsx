@@ -27,7 +27,7 @@ export default function AdminTemplates() {
       const data = await adminGetAllTemplates();
       setTemplates(data);
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Failed to load templates', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Failed to load templates' });
     } finally {
       setLoading(false);
     }
@@ -43,10 +43,10 @@ export default function AdminTemplates() {
     if (!confirm('Delete this template? This cannot be undone.')) return;
     try {
       await adminDeleteTemplate(id);
-      toast('Template deleted', { type: 'success' });
+      toast({ type: 'success', title: 'Template deleted' });
       await load();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Delete failed', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Delete failed' });
     }
   };
 
@@ -60,20 +60,20 @@ export default function AdminTemplates() {
         is_published: false,
         is_featured: false,
       });
-      toast('Template duplicated', { type: 'success' });
+      toast({ type: 'success', title: 'Template duplicated' });
       await load();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Duplicate failed', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Duplicate failed' });
     }
   };
 
   const togglePublished = async (t: DbCalculatorTemplate) => {
     try {
       await adminUpdateTemplate(t.id, { is_published: !t.is_published });
-      toast(t.is_published ? 'Unpublished' : 'Published', { type: 'success' });
+      toast({ type: 'success', title: t.is_published ? 'Unpublished' : 'Published' });
       await load();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Update failed', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Update failed' });
     }
   };
 
@@ -82,7 +82,7 @@ export default function AdminTemplates() {
       await adminUpdateTemplate(t.id, { is_featured: !t.is_featured });
       await load();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Update failed', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Update failed' });
     }
   };
 
@@ -216,7 +216,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
   const [jsonError, setJsonError] = useState<string | null>(null);
 
   const handleSave = async () => {
-    if (!name.trim()) { toast('Name is required', { type: 'error' }); return; }
+    if (!name.trim()) { toast({ type: 'error', title: 'Name is required' }); return; }
     let parsedData: Record<string, unknown>;
     try { parsedData = JSON.parse(inputJson); setJsonError(null); }
     catch (e) { setJsonError(e instanceof Error ? e.message : 'Invalid JSON'); return; }
@@ -236,7 +236,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           is_featured: isFeatured,
           display_order: displayOrder,
         });
-        toast('Template updated', { type: 'success' });
+        toast({ type: 'success', title: 'Template updated' });
       } else {
         await adminCreateTemplate({
           calculator_type: calculatorType,
@@ -250,11 +250,11 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           is_featured: isFeatured,
           display_order: displayOrder,
         });
-        toast('Template created', { type: 'success' });
+        toast({ type: 'success', title: 'Template created' });
       }
       onSaved();
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Save failed', { type: 'error' });
+      toast({ type: 'error', title: e instanceof Error ? e.message : 'Save failed' });
     } finally {
       setSaving(false);
     }

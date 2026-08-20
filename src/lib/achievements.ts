@@ -108,7 +108,7 @@ function saveUnlocked(list: UnlockedAchievement[]): void {
 }
 
 /** Track a calculator usage */
-export function trackCalculation(type: 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai'): Achievement[] {
+export function trackCalculation(type: 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai' | 'painting'): Achievement[] {
   const stats = getStats();
   stats.totalCalculations++;
 

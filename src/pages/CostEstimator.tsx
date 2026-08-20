@@ -182,9 +182,9 @@ export default function CostEstimator() {
       paintTypeName: passed.paintTypeName ?? input.paintProductName ?? 'Paint',
       company: settings ? {
         name: settings.site_name,
-        phone: settings.contact_phone,
+        phone: settings.whatsapp_number,
         email: settings.contact_email,
-        address: settings.contact_address,
+        address: undefined,
       } : undefined,
     });
   }

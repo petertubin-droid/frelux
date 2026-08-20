@@ -7,7 +7,7 @@ import {
   deleteUserTemplate,
   duplicateUserTemplate,
 } from './templates';
-import type { DbCalculatorTemplate, CalculatorType, TemplateCreateInput } from '@/types/database';
+import type { DbCalculatorTemplate, CalculatorType, TemplateCreateInput, TemplateUpdateInput } from '@/types/database';
 
 interface UseTemplatesResult {
   templates: DbCalculatorTemplate[];
@@ -15,7 +15,7 @@ interface UseTemplatesResult {
   error: string | null;
   refresh: () => Promise<void>;
   create: (input: TemplateCreateInput) => Promise<DbCalculatorTemplate | null>;
-  update: (id: string, updates: Partial<DbCalculatorTemplate>) => Promise<void>;
+  update: (id: string, updates: TemplateUpdateInput) => Promise<void>;
   remove: (id: string) => Promise<void>;
   duplicate: (id: string, newName?: string) => Promise<DbCalculatorTemplate | null>;
   toggleFavorite: (id: string, current: boolean) => Promise<void>;
@@ -65,7 +65,7 @@ export function useUserTemplates(calculatorType?: CalculatorType): UseTemplatesR
   );
 
   const update = useCallback(
-    async (id: string, updates: Partial<DbCalculatorTemplate>) => {
+    async (id: string, updates: TemplateUpdateInput) => {
       if (!user) return;
       try {
         await updateUserTemplate(id, user.id, updates);
