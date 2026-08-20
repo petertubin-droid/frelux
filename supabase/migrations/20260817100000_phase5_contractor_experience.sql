@@ -70,6 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_contractor_projects_project_type ON public.contra
 ALTER TABLE public.contractor_projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.contractor_projects FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own contractor projects" ON contractor_projects;
 CREATE POLICY "Users can CRUD own contractor projects"
   ON public.contractor_projects FOR ALL
   TO authenticated

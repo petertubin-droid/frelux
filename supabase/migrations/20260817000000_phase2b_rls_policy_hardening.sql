@@ -141,6 +141,7 @@ CREATE POLICY "admin_delete_labour_categories" ON labour_categories FOR DELETE
 DROP POLICY IF EXISTS "public_read_ad_providers" ON ad_providers;
 
 -- Admin-only full SELECT on ad_providers (includes credentials)
+DROP POLICY IF EXISTS "admin_read_ad_providers" ON ad_providers;
 CREATE POLICY "admin_read_ad_providers" ON ad_providers FOR SELECT
   TO authenticated USING (public.is_admin());
 
