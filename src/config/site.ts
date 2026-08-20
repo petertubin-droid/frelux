@@ -26,7 +26,7 @@ export const siteConfig = {
 } as const;
 
 // =========================================================
-// Public navigation — organized into 8 workspaces
+// Public navigation — organized into logical workspaces
 // =========================================================
 // Each workspace is a top-level nav item. Workspaces with children
 // render as dropdown menus on desktop and expandable sections on mobile.
@@ -49,23 +49,25 @@ export const navWorkspaces: NavWorkspace[] = [
     path: '/',
   },
   {
-    label: 'Calculate',
-    path: '/screeding-calculator',
+    label: 'Calculators',
+    path: '/paint-calculator',
     children: [
-      { label: 'Wall Screeding Calculator', path: '/screeding-calculator' },
       { label: 'Paint Calculator', path: '/paint-calculator' },
+      { label: 'Screeding Calculator', path: '/screeding-calculator' },
       { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
       { label: 'Tile Calculator', path: '/tile-calculator' },
+      { label: 'Painting Estimator', path: '/painting-estimator' },
+      { label: 'Tyrolene Estimator', path: '/tyrolene-estimator' },
+      { label: 'Finish Estimator', path: '/finish-estimator' },
       { label: 'Calculator Templates', path: '/templates' },
     ],
   },
   {
-    label: 'Estimate',
+    label: 'Cost Estimators',
     path: '/cost-estimator',
     children: [
-      { label: 'Finish Estimator', path: '/finish-estimator' },
-      { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
       { label: 'Paint Cost Estimator', path: '/cost-estimator' },
+      { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
       { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator' },
       { label: 'Tile Cost Estimator', path: '/tile-cost-estimator' },
     ],
@@ -76,22 +78,20 @@ export const navWorkspaces: NavWorkspace[] = [
     children: [
       { label: 'Color Library', path: '/colors' },
       { label: 'Compare Colors', path: '/colors/compare' },
-    ],
-  },
-  {
-    label: 'AI',
-    path: '/ai-color-assistant',
-    children: [
       { label: 'Smart Color Assistant', path: '/ai-color-assistant' },
     ],
   },
   {
-    label: 'Projects',
-    path: '/my-projects',
+    label: 'Templates',
+    path: '/templates',
   },
   {
     label: 'Learn',
     path: '/learn',
+  },
+  {
+    label: 'Projects',
+    path: '/my-projects',
   },
 
 ];

@@ -100,6 +100,10 @@ export default function MyProjects() {
     pop_estimate: '/pop-ceiling-cost-estimator',
     tile: '/tile-calculator',
     tile_estimate: '/tile-cost-estimator',
+    painting: '/painting-estimator',
+    tyrolene: '/tyrolene-estimator',
+    finish: '/finish-estimator',
+    screeding_cost: '/screeding-cost-estimator',
   };
 
   function handleOpenProject(p: DbUserProject) {

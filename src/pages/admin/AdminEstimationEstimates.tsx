@@ -197,7 +197,7 @@ export default function AdminEstimationEstimates() {
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-neutral-400" />
-            <span className="text-xs font-semibold text-neutral-600">Calculator:</span>
+            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Calculator:</span>
             <select
               className="input-field text-xs py-1.5"
               value={calcFilter}
@@ -214,7 +214,7 @@ export default function AdminEstimationEstimates() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-neutral-600">Status:</span>
+            <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Status:</span>
             <select
               className="input-field text-xs py-1.5"
               value={statusFilter}
@@ -271,7 +271,7 @@ export default function AdminEstimationEstimates() {
                         {est.estimate_ref}
                       </span>
 
-                      <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs font-semibold capitalize text-neutral-700 border border-neutral-200">
+                      <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs font-semibold capitalize text-neutral-700 border border-neutral-200 dark:bg-white/5 dark:text-neutral-300 dark:border-white/10">
                         {est.calculator_type}
                       </span>
 
@@ -285,7 +285,7 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     {est.project_description && (
-                      <p className="mt-1.5 text-xs text-neutral-600 line-clamp-1">
+                      <p className="mt-1.5 text-xs text-neutral-600 line-clamp-1 dark:text-neutral-400">
                         {est.project_description}
                       </p>
                     )}
@@ -332,7 +332,7 @@ export default function AdminEstimationEstimates() {
                     ) : (
                       <div className="overflow-x-auto rounded-lg border border-neutral-200">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-neutral-50 font-semibold text-neutral-600 border-b border-neutral-200">
+                          <thead className="bg-neutral-50 font-semibold text-neutral-600 border-b border-neutral-200 dark:bg-white/5 dark:text-neutral-300 dark:border-white/10">
                             <tr>
                               <th className="p-2.5">Item Name</th>
                               <th className="p-2.5">Type</th>
@@ -345,8 +345,8 @@ export default function AdminEstimationEstimates() {
                           </thead>
                           <tbody className="divide-y divide-neutral-200">
                             {lineItems.map((item) => (
-                              <tr key={item.id} className="hover:bg-neutral-50/80">
-                                <td className="p-2.5 font-medium text-neutral-800">
+                              <tr key={item.id} className="hover:bg-neutral-50/80 dark:hover:bg-white/5">
+                                <td className="p-2.5 font-medium text-neutral-800 dark:text-neutral-200">
                                   {item.item_name}
                                   {item.notes && <p className="text-[10px] text-neutral-400 italic">{item.notes}</p>}
                                 </td>
@@ -383,9 +383,9 @@ export default function AdminEstimationEstimates() {
 
                     {/* Additional Metadata / Warnings / Notes */}
                     {(est.notes || (est.warnings && est.warnings.length > 0) || (est.recommendations && est.recommendations.length > 0)) && (
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2 text-xs">
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2 text-xs dark:text-neutral-300">
                         {est.warnings && est.warnings.length > 0 && (
-                          <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-amber-800">
+                          <div className="rounded-lg border border-amber-200 bg-amber-50 p-2.5 text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
                             <span className="font-bold flex items-center gap-1 mb-1 text-[11px]">
                               <AlertTriangle className="h-3.5 w-3.5 text-amber-600" /> Warnings
                             </span>
@@ -398,7 +398,7 @@ export default function AdminEstimationEstimates() {
                         )}
 
                         {est.recommendations && est.recommendations.length > 0 && (
-                          <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-blue-800">
+                          <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-blue-800 dark:border-blue-500/20 dark:bg-blue-500/10 dark:text-blue-400">
                             <span className="font-bold flex items-center gap-1 mb-1 text-[11px]">
                               <Lightbulb className="h-3.5 w-3.5 text-blue-600" /> Recommendations
                             </span>

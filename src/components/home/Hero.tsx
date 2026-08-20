@@ -5,7 +5,6 @@ import Container from '@/components/ui/Container';
 import { calculatePaint } from '@/lib/calc';
 import { DEFAULT_COVERAGE_M2_PER_LITER, DEFAULT_CONTAINER_SIZES_LITERS } from '@/lib/calc';
 import type { CalculatorInput } from '@/types';
-import { feetToMeters } from '@/lib/utils';
 
 const trustPoints = [
   'No sign-up required',
@@ -159,12 +158,6 @@ function EstimatePreview() {
         </div>
       </div>
 
-      {/* Floating accuracy badge */}
-      <div className="absolute -top-4 right-12 rounded-xl bg-brand-purple px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 animate-pulse-ring">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">Accuracy</p>
-        <p className="font-display text-sm font-bold text-white">98.4%</p>
-      </div>
-
       {/* Floating swatch card */}
       <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white p-4 shadow-premium-lg animate-float-smooth dark:bg-brand-navy-mid dark:border dark:border-white/10">
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-white/30">
@@ -209,16 +202,12 @@ export default function Hero() {
 
             {/* Headline */}
             <h1 className="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.5rem] text-balance">
-              Know what you need{' '}
-              <span className="relative inline-block">
-                <span className="text-gradient-premium">before you buy</span>
-                <span className="absolute -bottom-1 left-0 h-[2px] w-full bg-gradient-to-r from-brand-purple-light/0 via-brand-purple-light/60 to-brand-purple-light/0" />
-              </span>
+              Know exactly what materials your project needs
             </h1>
 
             {/* Subheadline */}
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/55 text-balance">
-              FRELUX calculates paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices, then estimates your total project cost in minutes.
+              FRELUX calculates materials and project costs using practical Nigerian construction and finishing measurements, real product sizes, and configurable market prices.
             </p>
 
             {/* Primary CTAs */}

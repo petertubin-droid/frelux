@@ -1,19 +1,22 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle, ArrowRight, Mail, MapPin } from 'lucide-react';
+import { MessageCircle, ArrowRight, MapPin } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
 
-const calculateLinks = [
-  { label: 'Wall Screeding Calculator', path: '/screeding-calculator' },
+const calculatorLinks = [
   { label: 'Paint Calculator', path: '/paint-calculator' },
+  { label: 'Screeding Calculator', path: '/screeding-calculator' },
   { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
   { label: 'Tile Calculator', path: '/tile-calculator' },
+  { label: 'Painting Estimator', path: '/painting-estimator' },
+  { label: 'Tyrolene Estimator', path: '/tyrolene-estimator' },
+  { label: 'Finish Estimator', path: '/finish-estimator' },
 ];
 
-const estimateLinks = [
-  { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
+const estimatorLinks = [
   { label: 'Paint Cost Estimator', path: '/cost-estimator' },
+  { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
   { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator' },
   { label: 'Tile Cost Estimator', path: '/tile-cost-estimator' },
 ];
@@ -24,15 +27,11 @@ const colorLinks = [
   { label: 'Smart Color Assistant', path: '/ai-color-assistant' },
 ];
 
-const learnLinks = [
+const resourceLinks = [
+  { label: 'Calculator Templates', path: '/templates' },
   { label: 'Learn Hub', path: '/learn' },
-];
-
-const accountLinks = [
-  { label: 'Sign In', path: '/login' },
-  { label: 'My Projects', path: '/my-projects' },
+  { label: 'About FRELUX', path: '/about' },
   { label: 'Contact', path: '/contact' },
-  { label: 'About', path: '/about' },
 ];
 
 const legalLinks = [
@@ -80,7 +79,7 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
-              Practical tools to plan paint, estimate cost, and discover the right colors for your space.
+              Practical tools to calculate materials, estimate project costs, and discover the right colors for Nigerian construction projects.
             </p>
 
             {/* Contact info */}
@@ -103,10 +102,10 @@ export default function Footer() {
             </div>
           </div>
 
-          <FooterColumn title="Calculate" links={calculateLinks} />
-          <FooterColumn title="Estimate" links={estimateLinks} />
-          <FooterColumn title="Colors & AI" links={[...colorLinks]} />
-          <FooterColumn title="Learn & Account" links={[...learnLinks, ...accountLinks]} />
+          <FooterColumn title="Calculators" links={calculatorLinks} />
+          <FooterColumn title="Cost Estimators" links={estimatorLinks} />
+          <FooterColumn title="Colors & AI" links={colorLinks} />
+          <FooterColumn title="Resources" links={resourceLinks} />
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 

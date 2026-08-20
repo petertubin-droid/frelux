@@ -18,8 +18,8 @@ const ogImage = `${SITE_URL}/og-image.png`;
 const routes = [
   {
     path: '/',
-    title: 'FRELUX PAINT CALC: Plan Your Perfect Paint Project',
-    description: 'Free paint calculator, screeding calculator, cost estimator, tile calculator, POP ceiling calculator, and AI color assistant. Plan materials and costs for any painting project.',
+    title: 'FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs',
+    description: 'Know exactly what materials your construction project needs. Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',
     priority: '1.0',
     changefreq: 'weekly',
     structuredData: [

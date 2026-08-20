@@ -1,11 +1,11 @@
 import Hero from '@/components/home/Hero';
+import ChooseProject from '@/components/home/ChooseProject';
 import HowItWorks from '@/components/home/HowItWorks';
 import ToolsSection from '@/components/home/ToolsSection';
+import CommercialReadiness from '@/components/home/CommercialReadiness';
 import ColorPreview from '@/components/home/ColorPreview';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import TrendingColors from '@/components/home/TrendingColors';
-import QuickCalculatorShortcuts from '@/components/ui/QuickCalculatorShortcuts';
-import FeaturedTemplates from '@/components/home/FeaturedTemplates';
 import InteractiveEstimatePreview from '@/components/home/InteractiveEstimatePreview';
 import TemplatesShowcase from '@/components/home/TemplatesShowcase';
 import PWASection from '@/components/home/PWASection';
@@ -53,9 +53,9 @@ export default function Home() {
   }), [featuredSlugs]);
 
   useSeo({
-    title: 'FRELUX PAINT CALC: Plan Your Perfect Paint Project',
+    title: 'FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs',
     description:
-      'Calculate paint, screeding, POP ceiling, tiles, and finishing materials with real Nigerian market prices. Free calculators and cost estimators for construction projects.',
+      'Know exactly what materials your project needs. Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',
     canonicalPath: '/',
     ogType: 'website',
     structuredData,
@@ -63,11 +63,13 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero — cinematic headline + interactive estimate preview */}
+      {/* Hero — clear headline + interactive estimate preview */}
       <Hero />
 
-      {/* Quick access to most important calculators — above the fold */}
-      <QuickCalculatorShortcuts />
+      {/* Choose Your Project — 6 calculator cards immediately below hero */}
+      <div className="bg-white dark:bg-brand-navy">
+        <ChooseProject />
+      </div>
 
       {/* Recently used tools — personalized quick access */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -80,11 +82,11 @@ export default function Home() {
       {/* How FRELUX Works — 4-step process */}
       <HowItWorks />
 
+      {/* Commercial readiness — more than calculators */}
+      <CommercialReadiness />
+
       {/* All calculators organized by trade — premium product cards */}
       <ToolsSection />
-
-      {/* Featured calculator templates — SEO crawlable links */}
-      <FeaturedTemplates />
 
       {/* Trust signals + why FRELUX */}
       <FeaturesSection />
