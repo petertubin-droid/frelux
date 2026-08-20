@@ -14,6 +14,8 @@ import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import type { DbCalculatorTemplate } from '@/types/database';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 export default function PopCeilingCalculator() {
   useSeo({
@@ -32,6 +34,7 @@ export default function PopCeilingCalculator() {
   });
 
   const { user } = useAuth();
+  useEffect(() => { trackRecentTool('/pop-ceiling-calculator', 'POP Ceiling Calculator', 'Grid3x3'); });
   const [materials, setMaterials] = useState<DbPopMaterial[]>([]);
   const [workflows, setWorkflows] = useState<DbPopWorkflow[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
@@ -88,6 +91,7 @@ export default function PopCeilingCalculator() {
     if (Object.keys(e).length > 0) return;
 
     const r = calculatePopCeiling(input, materials, currency, currencySymbol);
+    trackCalculation('pop');
     setResult(r);
     track('pop_ceiling_calculated', { workflow: input.workflow, area: r.ceilingArea });
     logAnalyticsEvent('pop_ceiling_calculated', { workflow: input.workflow, area: r.ceilingArea });

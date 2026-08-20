@@ -18,6 +18,8 @@ import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import type { DbCalculatorTemplate } from '@/types/database';
+import { trackCalculation } from '@/lib/achievements';
+import { trackRecentTool } from '@/lib/smart-defaults';
 
 const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
@@ -39,6 +41,7 @@ export default function ScreedingCalculator() {
     },
   });
 
+  useEffect(() => { trackRecentTool('/screeding-calculator', 'Screeding Calculator', 'Layers'); });
   const [result, setResult] = useState<ScreedingCalcResult | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [input, setInput] = useState<ScreedingCalcInput>({
@@ -76,6 +79,7 @@ export default function ScreedingCalculator() {
     setErrors(e);
     if (Object.keys(e).length > 0) return;
     const r = calculateScreedingArea(input);
+    trackCalculation('screeding');
     setResult(r);
     track('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });
     logAnalyticsEvent('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });

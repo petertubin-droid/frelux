@@ -29,6 +29,9 @@ import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import { sharePaintCalcOnWhatsApp } from '@/lib/share';
 import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
 import { useLanguage } from '@/lib/i18n';
+import { trackCalculation } from '@/lib/achievements';
+import { savePaintCalcDefaults, loadPaintCalcDefaults, trackRecentTool } from '@/lib/smart-defaults';
+import { GuidedTip } from '@/components/ui/GuidedTip';
 import { SmartWasteSelector } from '@/components/ui/SmartWasteSelector';
 import { generatePaintShoppingList } from '@/lib/shopping-list';
 import { saveLocalProject } from '@/lib/local-projects';
@@ -60,8 +63,11 @@ export default function PaintCalculator() {
 
   const [step, setStep] = useState(1);
   const [result, setResult] = useState<CalculatorResult | null>(null);
+
+  useEffect(() => { trackRecentTool('/paint-calculator', 'Paint Calculator', 'Calculator'); }, []);
+  const savedDefaults = loadPaintCalcDefaults();
   const [input, setInput] = useState<CalculatorInput>({
-    projectType: 'room',
+    projectType: (savedDefaults.projectType as CalculatorInput['projectType']) || 'room',
     length: 0,
     width: 0,
     wallHeight: 0,
@@ -69,11 +75,11 @@ export default function PaintCalculator() {
     doorDims: defaultDoorDims,
     windows: 0,
     windowDims: defaultWindowDims,
-    coats: 2,
+    coats: savedDefaults.coats ?? 2,
     paintType: '',
-    unit: 'meters',
+    unit: savedDefaults.unit ?? 'meters',
     includeCeiling: false,
-    wasteMargin: 10,
+    wasteMargin: savedDefaults.wasteMargin ?? 10,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { templateData: loadedTemplate } = useTemplateLoader();
@@ -175,6 +181,8 @@ export default function PaintCalculator() {
     if (paintTypes.length === 0) return;
     const r = calculatePaint(input, calcConfig);
     setResult(r);
+    trackCalculation('paint');
+    savePaintCalcDefaults({ unit: input.unit, projectType: input.projectType, coats: input.coats, wasteMargin: input.wasteMargin });
     track('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
     logAnalyticsEvent('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
   }
@@ -459,6 +467,15 @@ function Step2({
       </p>
 
       <div className={'mt-6 grid gap-4 ' + (isFence ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
+        <div className="mb-4">
+          <GuidedTip
+            tip={{
+              id: 'tip_paint_step2_dimensions',
+              title: 'Quick tip: Measurements',
+              content: 'Enter your wall dimensions in meters or feet. Toggle the unit at the top. Leave "Width" blank if you only have one pair of walls to paint.',
+            }}
+          />
+        </div>
         <Field label={isFence ? t('calc.length') : t('calc.length')} suffix={unitLabel} error={errors.length}>
           <div className="flex items-center gap-2">
             <input type="number" min={0} step="0.01" value={input.length || ''} onChange={(e) => update('length', Number(e.target.value))} className="input-field" placeholder="0.00" />
@@ -623,7 +640,6 @@ function Step3({
           ))}
         </div>
         {errors.wasteMargin && <span className="mt-1 block text-xs text-red-600">{errors.wasteMargin}</span>}
-        </div>
       </div>
     </div>
   );

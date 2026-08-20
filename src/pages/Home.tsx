@@ -6,6 +6,8 @@ import TrendingColors from '@/components/home/TrendingColors';
 import QuickCalculatorShortcuts from '@/components/ui/QuickCalculatorShortcuts';
 import AdSlot from '@/components/ui/AdSlot';
 import { WeatherWidget } from '@/components/ui/WeatherWidget';
+import { RecentlyUsed } from '@/components/ui/RecentlyUsed';
+import { AchievementBadges } from '@/components/ui/AchievementBadges';
 import { useSeo } from '@/lib/seo';
 
 export default function Home() {
@@ -30,6 +32,12 @@ export default function Home() {
     <>
       <Hero />
       <QuickCalculatorShortcuts />
+
+      {/* Recently used tools — personalized quick access */}
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        <RecentlyUsed />
+      </div>
+
       <ToolsSection />
       <AdSlot slotKey="home_mid" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" />
       <TrendingColors />
@@ -43,6 +51,11 @@ export default function Home() {
       </div>
 
       <FeaturesSection />
+
+      {/* Achievement badges — gamification */}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <AchievementBadges />
+      </div>
     </>
   );
 }

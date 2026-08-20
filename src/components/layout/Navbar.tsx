@@ -7,6 +7,7 @@ import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { Search } from 'lucide-react';
 import { AccessibilityToggle } from '@/components/ui/AccessibilityToggle';
 
 export default function Navbar() {
@@ -124,6 +125,15 @@ export default function Navbar() {
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <button
+              onClick={() => { const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true }); document.dispatchEvent(e); }}
+              className="hidden items-center gap-2 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-300 hover:text-neutral-600 sm:flex dark:border-white/10 dark:hover:border-white/20"
+              aria-label="Open command palette"
+            >
+              <Search className="h-3.5 w-3.5" />
+              <span>Search</span>
+              <kbd className="rounded border border-neutral-200 px-1 text-[10px] font-medium dark:border-white/10">⌘K</kbd>
+            </button>
             <AccessibilityToggle />
             <LanguageSwitcher />
             <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200">

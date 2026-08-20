@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { X, Check, ShoppingBag, Share2, Printer } from 'lucide-react';
 import type { ShoppingListItem } from '@/lib/shopping-list';
-import { shoppingListToText, shareTextOnWhatsApp } from '@/lib/shopping-list';
+import { shoppingListToText } from '@/lib/shopping-list';
+import { shareTextOnWhatsApp } from '@/lib/share';
 import { classNames } from '@/lib/utils';
 
 interface ShoppingListModalProps {
