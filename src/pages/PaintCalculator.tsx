@@ -250,6 +250,7 @@ export default function PaintCalculator() {
         subtitle="Estimate how much paint your project may require, step by step."
         backTo="/"
         backLabel="Home"
+        useCalcTitle
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -619,7 +620,7 @@ function ResultCard({
           {input.projectType} project · {input.coats} coat{input.coats > 1 ? 's' : ''} · {paintTypeName}
           {input.wasteMargin > 0 && ` · ${input.wasteMargin}% waste margin`}
         </p>
-        <p className="mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.adjustedLiters, 1)} L</p>
+        <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.adjustedLiters, 1)} L</p>
         <p className="mt-1 text-sm text-white/60">estimated paint required (incl. waste margin)</p>
       </div>
 

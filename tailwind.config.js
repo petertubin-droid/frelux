@@ -43,8 +43,13 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-body)', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-headings)', 'system-ui', 'sans-serif'],
+        nav: ['var(--font-nav)', 'system-ui', 'sans-serif'],
+        btn: ['var(--font-btn)', 'system-ui', 'sans-serif'],
+        calcTitle: ['var(--font-calc-title)', 'system-ui', 'sans-serif'],
+        calcResult: ['var(--font-calc-result)', 'system-ui', 'sans-serif'],
+        admin: ['var(--font-admin)', 'system-ui', 'sans-serif'],
       },
       spacing: {
         18: '4.5rem',

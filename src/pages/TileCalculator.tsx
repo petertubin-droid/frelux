@@ -181,7 +181,7 @@ export default function TileCalculator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." backTo="/" backLabel="Home" useCalcTitle />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -189,7 +189,7 @@ export default function TileCalculator() {
 
   return (
     <>
-      <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project." backTo="/" backLabel="Home" />
+      <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project." backTo="/" backLabel="Home" useCalcTitle />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
@@ -405,7 +405,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
         <p className="mt-3 text-sm text-white/60">
           {input.surfaceType === 'floor' ? 'Floor' : 'Wall'} tiling · {input.tileWidthMm}×{input.tileHeightMm}mm · {input.wasteMargin}% waste
         </p>
-        <p className="mt-1 text-4xl font-bold sm:text-5xl">{result.boxesNeeded} box(es)</p>
+        <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">{result.boxesNeeded} box(es)</p>
         <p className="mt-1 text-sm text-white/60">{result.tilesNeeded} tiles needed</p>
       </div>
 

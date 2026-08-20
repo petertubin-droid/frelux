@@ -7,6 +7,16 @@
    Refined, sophisticated, high-end SaaS aesthetic
    ========================================================= */
 
+:root {
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-headings: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-nav: 'Inter', system-ui, sans-serif;
+  --font-btn: 'Inter', system-ui, sans-serif;
+  --font-calc-title: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-calc-result: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-admin: 'Inter', system-ui, sans-serif;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -17,7 +27,7 @@
     width: 100%;
   }
   body {
-    @apply bg-white text-neutral-900 font-sans antialiased;
+    @apply bg-white text-neutral-900 antialiased; font-family: var(--font-body);
     overflow-x: hidden;
     width: 100%;
     max-width: 100vw;
@@ -38,6 +48,7 @@
   /* Better heading rendering */
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight;
+    font-family: var(--font-headings);
   }
 }
 
@@ -46,7 +57,7 @@
     text-wrap: balance;
   }
   .font-display {
-    font-family: '"Plus Jakarta Sans"', Inter, system-ui, sans-serif;
+    font-family: var(--font-headings);
   }
   /* Screen reader only */
   .sr-only {
@@ -135,18 +146,22 @@
   /* Primary button — premium, refined */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-purple text-white font-semibold text-sm rounded-lg shadow-sm hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:ring-offset-2;
+    font-family: var(--font-btn);
   }
   /* Secondary button — clean white with subtle border */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-neutral-700 border border-neutral-200 font-semibold text-sm rounded-lg hover:bg-neutral-50 hover:border-neutral-300 active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:ring-offset-2;
+    font-family: var(--font-btn);
   }
   /* Outline button — brand accent */
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-brand-purple border border-brand-purple/30 font-semibold text-sm rounded-lg hover:bg-brand-purple hover:text-white hover:border-brand-purple active:scale-[0.98] transition-all duration-200;
+    font-family: var(--font-btn);
   }
   /* Ghost button — minimal */
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-transparent text-neutral-600 font-medium text-sm rounded-lg hover:bg-neutral-100 hover:text-neutral-900 active:scale-[0.98] transition-all duration-200;
+    font-family: var(--font-btn);
   }
   /* Input field — premium, refined */
   .input-field {
@@ -399,4 +414,22 @@
   * {
     transition: none !important;
   }
+}
+
+/* Apply typography CSS variables to specific areas */
+nav, .mobile-nav {
+  font-family: var(--font-nav);
+}
+
+/* Admin layout gets admin font */
+.admin-layout, [class*="admin-layout"] {
+  font-family: var(--font-admin);
+}
+
+/* Calculator titles and results */
+.calc-title {
+  font-family: var(--font-calc-title) !important;
+}
+.calc-result {
+  font-family: var(--font-calc-result) !important;
 }

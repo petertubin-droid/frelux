@@ -103,7 +103,8 @@ export default function PopCeilingCalculator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate POP ceiling materials and quantities." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate POP ceiling materials and quantities." backTo="/" backLabel="Home"
+        useCalcTitle />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -240,7 +241,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
         <p className="mt-3 text-sm text-white/60">
           {input.workflow === 'nigeria' ? 'Nigeria' : 'International'} workflow · {input.wasteMargin}% waste margin
         </p>
-        <p className="mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.ceilingArea)} m²</p>
+        <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.ceilingArea)} m²</p>
         <p className="mt-1 text-sm text-white/60">ceiling area</p>
       </div>
 

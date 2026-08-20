@@ -27,6 +27,17 @@ export interface DbSiteBranding {
 
 export type AiAccessMode = 'free' | 'rewarded' | 'paid' | 'free_rewarded' | 'disabled';
 
+// Typography configuration stored in site_settings.typography_config (JSONB)
+export interface TypographyConfig {
+  body: string;
+  headings: string;
+  navigation: string;
+  buttons: string;
+  calculatorTitles: string;
+  calculatorResults: string;
+  admin: string;
+}
+
 export interface DbSiteSettings {
   id: string;
   site_name: string;
@@ -61,6 +72,8 @@ export interface DbSiteSettings {
   // Analytics (Issue #5 fix: read from DB for admin-configurable analytics)
   ga_measurement_id: string | null;
   meta_pixel_id: string | null;
+  // Typography
+  typography_config: TypographyConfig;
   updated_at: string;
 }
 

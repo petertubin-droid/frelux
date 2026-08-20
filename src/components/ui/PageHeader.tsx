@@ -8,6 +8,7 @@ export default function PageHeader({
   subtitle,
   backTo,
   backLabel,
+  useCalcTitle = false,
 }: {
   eyebrow?: string;
   title: string;
@@ -15,6 +16,7 @@ export default function PageHeader({
   backTo?: string;
   backLabel?: string;
   children?: ReactNode;
+  useCalcTitle?: boolean;
 }) {
   return (
     <div className="border-b border-neutral-200/80 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
@@ -33,7 +35,7 @@ export default function PageHeader({
             {eyebrow}
           </p>
         )}
-        <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl text-balance dark:text-white">
+        <h1 className={`font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl text-balance dark:text-white${useCalcTitle ? " calc-title" : ""}`}>
           {title}
         </h1>
         {subtitle && <p className="mt-3 max-w-2xl text-base text-neutral-500 text-balance dark:text-neutral-400">{subtitle}</p>}

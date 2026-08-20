@@ -96,6 +96,7 @@ export default function ScreedingCalculator() {
         subtitle="Calculate the exact wall surface area that needs screeding, with door and window openings deducted."
         backTo="/"
         backLabel="Home"
+        useCalcTitle
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -307,7 +308,7 @@ function ScreedingResultCard({
         <p className="mt-3 text-sm text-white/60">
           {input.method === 'full_room' ? 'Full room' : 'Individual wall'} project · {input.unit}
         </p>
-        <p className="mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.netScreedingArea)} m²</p>
+        <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">{formatNumber(result.netScreedingArea)} m²</p>
         <p className="mt-1 text-sm text-white/60">net wall surface requiring screeding</p>
       </div>
 

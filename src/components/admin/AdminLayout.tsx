@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
   LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift,
-  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature,
+  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -127,6 +127,7 @@ const navModules: NavModule[] = [
     heading: 'System',
     items: [
       { label: 'Site Branding', to: '/admin/branding', icon: Palette },
+      { label: 'Typography', to: '/admin/typography', icon: Type },
       { label: 'Site Settings', to: '/admin/settings', icon: Settings },
       { label: 'Roles & Permissions', to: '/admin/studio/role_management', icon: ShieldCheck },
       { label: 'Error Monitor', to: '/admin/errors', icon: AlertTriangle },
@@ -155,7 +156,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0f]">
+    <div className="admin-layout min-h-screen bg-neutral-50 dark:bg-[#0a0a0f]">
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4 dark:border-neutral-800 dark:bg-neutral-900 lg:hidden">
         <span className="text-sm font-bold text-brand-navy dark:text-white">FRELUX Admin</span>

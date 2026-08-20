@@ -12,6 +12,7 @@ import NotFound from '@/pages/NotFound';
 import Login from '@/pages/Login';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { useWebVitals } from '@/lib/web-vitals';
+import { useTypography } from '@/lib/useTypography';
 
 // Lazy-loaded public pages for code splitting
 const ColorDetail = lazy(() => import('@/pages/ColorDetail'));
@@ -76,6 +77,8 @@ const AdminScreedingMaterials = lazy(() => import('@/pages/admin/AdminScreedingM
 const AdminLearn = lazy(() => import('@/pages/admin/AdminLearn'));
 const AdminAiLearningAssistant = lazy(() => import('@/pages/admin/AdminAiLearningAssistant'));
 const AdminPopMaterials = lazy(() => import('@/pages/admin/AdminPopMaterials'));
+const AdminTypography = lazy(() => import('@/pages/admin/AdminTypography'));
+
 const AdminTileMaterials = lazy(() => import('@/pages/admin/AdminTileMaterials'));
 const AdminMedia = lazy(() => import('@/pages/admin/AdminMedia'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
@@ -103,6 +106,7 @@ function PageLoader() {
 }
 
 export default function App() {
+  useTypography();
   useWebVitals();
   return (
     <ErrorBoundary boundaryName="app-root">
@@ -249,6 +253,7 @@ export default function App() {
             <Route path="seo" element={<AdminSeo />} />
 
             {/* System */}
+            <Route path="typography" element={<AdminTypography />} />
             <Route path="settings" element={<AdminSettings />} />
 
             {/* AI Developer Studio (nested) */}
