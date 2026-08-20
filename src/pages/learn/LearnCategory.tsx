@@ -43,7 +43,7 @@ export default function LearnCategory() {
   if (status === 'loading')
     return (
       <>
-        <PageHeader eyebrow="Learn" title="Loading…" subtitle="" backTo="/learn" backLabel="Learn" />
+        <PageHeader eyebrow="Learn" title="Loading…" subtitle="" breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: 'Loading…' }]} />
         <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -51,7 +51,7 @@ export default function LearnCategory() {
   if (status === 'notfound' || status === 'error' || !category)
     return (
       <>
-        <PageHeader eyebrow="Learn" title="Category not found" subtitle="" backTo="/learn" backLabel="Learn" />
+        <PageHeader eyebrow="Learn" title="Category not found" subtitle="" breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: 'Loading…' }]} />
         <div className="mx-auto max-w-md py-20 text-center">
           <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
           <p className="mt-3 text-sm text-neutral-500">This category doesn't exist or has been removed.</p>
@@ -64,7 +64,7 @@ export default function LearnCategory() {
 
   return (
     <>
-      <PageHeader eyebrow="Learn" title={category.name} subtitle={category.description ?? ''} backTo="/learn" backLabel="All topics" />
+      <PageHeader eyebrow="Learn" title={category.name} subtitle={category.description ?? ''} breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: category.name }]} />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <div className="mb-8 flex items-center gap-4">

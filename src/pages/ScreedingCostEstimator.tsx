@@ -115,7 +115,7 @@ export default function ScreedingCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." breadcrumbs={[{ label: 'Screeding Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading configuration…
         </div>

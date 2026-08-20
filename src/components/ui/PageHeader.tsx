@@ -1,6 +1,12 @@
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { ReactNode } from 'react';
+import Breadcrumbs from '@/components/ui/Breadcrumbs';
+
+interface Crumb {
+  label: string;
+  path?: string;
+}
 
 export default function PageHeader({
   eyebrow,
@@ -8,6 +14,7 @@ export default function PageHeader({
   subtitle,
   backTo,
   backLabel,
+  breadcrumbs,
   useCalcTitle = false,
 }: {
   eyebrow?: string;
@@ -15,13 +22,18 @@ export default function PageHeader({
   subtitle?: string;
   backTo?: string;
   backLabel?: string;
+  breadcrumbs?: Crumb[];
   children?: ReactNode;
   useCalcTitle?: boolean;
 }) {
   return (
     <div className="border-b border-neutral-200/80 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
-        {backTo && (
+        {breadcrumbs ? (
+          <div className="mb-5">
+            <Breadcrumbs items={breadcrumbs} />
+          </div>
+        ) : backTo ? (
           <Link
             to={backTo}
             className="mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
@@ -29,7 +41,7 @@ export default function PageHeader({
             <ChevronLeft className="h-4 w-4" />
             {backLabel ?? 'Back'}
           </Link>
-        )}
+        ) : null}
         {eyebrow && (
           <p className="section-label mb-3">
             {eyebrow}

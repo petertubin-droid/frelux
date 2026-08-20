@@ -73,7 +73,7 @@ export default function SharedProject() {
 
   return (
     <>
-      <PageHeader eyebrow="Shared" title={project?.name ?? 'Shared Project'} subtitle={project?.description ?? undefined} />
+      <PageHeader eyebrow="Shared" title={project?.name ?? 'Shared Project'} subtitle={project?.description ?? undefined} breadcrumbs={[{ label: 'Shared Project' }]} />
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-accent-blue/20 bg-accent-blue/5 p-3 text-sm text-neutral-600">

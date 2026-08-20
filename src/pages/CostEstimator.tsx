@@ -240,7 +240,7 @@ export default function CostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading pricing data…
         </div>

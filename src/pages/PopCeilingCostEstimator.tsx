@@ -118,7 +118,7 @@ export default function PopCeilingCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'POP Ceiling Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -126,7 +126,7 @@ export default function PopCeilingCostEstimator() {
 
   return (
     <>
-      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included." backTo="/" backLabel="Home" />
+      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'POP Ceiling Cost Estimator' }]} />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">

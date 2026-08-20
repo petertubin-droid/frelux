@@ -100,8 +100,7 @@ export default function AiColorAssistant() {
         eyebrow="Smart Tool"
         title="Smart Color Assistant"
         subtitle="Describe your space or share a photo and get personalized color ideas tailored to your room."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Color Library', path: '/colors' }, { label: 'Smart Color Assistant' }]}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">

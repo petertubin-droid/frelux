@@ -54,7 +54,7 @@ export default function Learn() {
   if (status === 'loading')
     return (
       <>
-        <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
         <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -62,14 +62,14 @@ export default function Learn() {
   if (status === 'error')
     return (
       <>
-        <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
         <div className="mx-auto max-w-md py-20 text-center"><AlertCircle className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>
       </>
     );
 
   return (
     <>
-      <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." backTo="/" backLabel="Home" />
+      <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Featured articles */}

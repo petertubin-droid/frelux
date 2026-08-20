@@ -60,7 +60,7 @@ export default function Dashboard() {
   if (!user) {
     return (
       <>
-        <PageHeader eyebrow="Personal workspace" title="Dashboard" subtitle="Sign in to access your personal dashboard with recent projects, saved estimates, and favorite colors." />
+        <PageHeader eyebrow="Personal workspace" title="Dashboard" subtitle="Sign in to access your personal dashboard with recent projects, saved estimates, and favorite colors." breadcrumbs={[{ label: 'Dashboard' }]} />
         <div className="mx-auto max-w-2xl px-4 py-12">
           <EmptyState
             illustration="generic"
@@ -78,7 +78,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <PageHeader eyebrow="Personal workspace" title="Dashboard" subtitle="Pick up where you left off and explore your saved work." />
+      <PageHeader eyebrow="Personal workspace" title="Dashboard" subtitle="Pick up where you left off and explore your saved work." breadcrumbs={[{ label: 'Dashboard' }]} />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {loading ? (

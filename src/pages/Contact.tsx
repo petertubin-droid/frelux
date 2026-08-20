@@ -62,8 +62,7 @@ export default function Contact() {
         eyebrow="Contact"
         title="Get in touch"
         subtitle="Questions about a paint project, pricing, or colors? Send a message or reach us directly on WhatsApp."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Contact' }]}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">

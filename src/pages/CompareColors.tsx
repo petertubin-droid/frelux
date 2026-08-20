@@ -132,7 +132,7 @@ export default function CompareColors() {
 
   return (
     <>
-      <PageHeader eyebrow="Tools" title="Compare Colors" subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations." backTo="/colors" backLabel="Color Library" />
+      <PageHeader eyebrow="Tools" title="Compare Colors" subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations." breadcrumbs={[{ label: 'Color Library', path: '/colors' }, { label: 'Compare Colors' }]} />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Search */}
