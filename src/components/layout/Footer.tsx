@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, ArrowRight } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
@@ -45,11 +45,13 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy">
-      {/* Subtle top gradient */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
+    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy bg-noise">
+      {/* Premium top gradient line */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/20 to-transparent" />
+      {/* Ambient glow */}
+      <div className="pointer-events-none absolute left-1/2 -top-20 h-40 w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/5 blur-[100px]" aria-hidden="true" />
 
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
@@ -60,7 +62,7 @@ export default function Footer() {
               href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
+              className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-all hover:bg-accent-green/15 hover:scale-105 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
             >
               <MessageCircle className="h-4 w-4" />
               {siteConfig.whatsappDisplay}
@@ -71,7 +73,6 @@ export default function Footer() {
           <FooterColumn title="Estimate" links={estimateLinks} />
           <FooterColumn title="Colors & AI" links={[...colorLinks]} />
           <FooterColumn title="Learn & Account" links={[...learnLinks, ...accountLinks]} />
-
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
@@ -95,7 +96,10 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>
-            <Link to={link.path} className="text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
+            <Link to={link.path} className="group inline-flex items-center gap-1 text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
+              <span className="inline-block w-0 overflow-hidden whitespace-nowrap text-[10px] opacity-0 transition-all duration-200 group-hover:w-3 group-hover:opacity-100">
+                <ArrowRight className="h-3 w-3" />
+              </span>
               {link.label}
             </Link>
           </li>
