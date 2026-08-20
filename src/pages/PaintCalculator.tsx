@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
+import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save, Wand2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import MultiStepProgress from '@/components/ui/MultiStepProgress';
 import TemplatePicker from '@/components/ui/TemplatePicker';
@@ -26,35 +26,11 @@ import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
-
-const projectTypes: { value: ProjectType; label: string; description: string; icon: typeof Home }[] = [
-  { value: 'room', label: 'Room', description: 'A single interior room', icon: Home },
-  { value: 'house', label: 'House', description: 'Whole house interior', icon: Building2 },
-  { value: 'exterior', label: 'Exterior', description: 'Outside walls', icon: Trees },
-  { value: 'fence', label: 'Fence or Gate', description: 'Fence, gate, or railing', icon: Fence },
-];
-
-const WASTE_OPTIONS = [0, 5, 10, 15];
-
-const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
-const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
-
-const ADVANCED_FEATURES = [
-  'Advanced material breakdown with line items',
-  'Custom mix ratio editor',
-  'Labour cost customization',
-  'Multiple waste percentage scenarios',
-  'Thickness and multiple coat calculations',
-  'Profit and markup calculator',
-  'Transport and logistics cost estimator',
-  'Tax/VAT calculator',
-  'Save, duplicate and compare estimates',
-  'Export professional PDF quotations',
-  'Material shopping list',
-  'Cost comparison between brands',
-  'AI recommendations for reducing waste',
-  'AI assistant for calculation questions',
-];
+import { sharePaintCalcOnWhatsApp } from '@/lib/share';
+import { generatePaintShoppingList } from '@/lib/shopping-list';
+import { saveLocalProject } from '@/lib/local-projects';
+import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
+import type { ShoppingListItem } from '@/lib/shopping-list';
 
 import { useSeo } from '@/lib/seo';
 
@@ -107,6 +83,9 @@ export default function PaintCalculator() {
   const [screedingConfig, setScreedingConfig] = useState<ScreedingMixConfig | null>(null);
   const [typesLoading, setTypesLoading] = useState(true);
   const [typesError, setTypesError] = useState<string | null>(null);
+  const [shoppingListOpen, setShoppingListOpen] = useState(false);
+  const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
+  const [wizardMode, setWizardMode] = useState(false);
 
   useEffect(() => {
     async function loadTypes() {
@@ -237,15 +216,29 @@ export default function PaintCalculator() {
   }
 
   function handleExport() {
-    toast({ type: 'info', title: 'Exporting PDF', message: 'Use the Advanced Calculator export for professional quotations.' });
+    if (!result) return;
+    // Navigate to cost estimator where PDF export is available
+    toast({ type: 'info', title: 'Continue to Cost Estimate', message: 'Complete the cost estimate to export a PDF quotation.' });
+  }
+
+  function handleShoppingList() {
+    if (!result) return;
+    const items = generatePaintShoppingList(result, input, selectedPaintType?.name ?? input.paintType);
+    setShoppingListItems(items);
+    setShoppingListOpen(true);
+  }
+
+  function handleSaveLocal() {
+    if (!result) return;
+    const name = `Paint: ${input.projectType} — ${formatNumber(result.paintableArea)} m²`;
+    saveLocalProject(name, 'paint_calc', { input, result });
+    toast({ type: 'success', title: 'Saved to device', message: 'Find it later — no login needed.' });
   }
 
   async function handleShare() {
-    if (!result || !user) {
-      toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to share your calculations.' });
-      return;
-    }
-    toast({ type: 'info', title: 'Share link copied', message: 'Shareable link copied to clipboard.' });
+    if (!result) return;
+    sharePaintCalcOnWhatsApp({ result, input, paintTypeName: selectedPaintType?.name ?? input.paintType });
+    toast({ type: 'success', title: 'Opening WhatsApp', message: 'Share your results on WhatsApp.' });
   }
 
   function handleAskAi() {
@@ -339,16 +332,26 @@ export default function PaintCalculator() {
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
-          onSave={handleSave}
-          onExport={handleExport}
-          onShare={handleShare}
-          onAskAi={handleAskAi}
+            onSave={handleSave}
+            onExport={handleExport}
+            onShare={handleShare}
+            onAskAi={handleAskAi}
+            onShoppingList={handleShoppingList}
+            onSaveLocal={handleSaveLocal}
           />
         )}
 
         {result && (
           <StickyActionBar
             onRecalculate={() => setResult(null)}
+          />
+        )}
+
+        {shoppingListOpen && (
+          <ShoppingListModal
+            items={shoppingListItems}
+            title="Paint Shopping List"
+            onClose={() => setShoppingListOpen(false)}
           />
         )}
 
@@ -608,10 +611,12 @@ function ResultCard({
   paintTypeName,
   onAgain,
   onStartOver,
-  onSave: _onSave,
-  onExport: _onExport,
-  onShare: _onShare,
+  onSave,
+  onExport,
+  onShare,
   onAskAi: _onAskAi,
+  onShoppingList,
+  onSaveLocal,
 }: {
   result: CalculatorResult;
   input: CalculatorInput;
@@ -622,6 +627,8 @@ function ResultCard({
   onExport?: () => void;
   onShare?: () => void;
   onAskAi?: () => void;
+  onShoppingList?: () => void;
+  onSaveLocal?: () => void;
 }) {
   return (
     <div className="mt-8 card overflow-hidden">
@@ -668,6 +675,26 @@ function ResultCard({
         <br />
         Coverage ~{formatNumber(result.coverageRate, 1)} m² per liter per coat. Final amounts vary by surface texture,
         application method, and product.
+      </div>
+
+      {/* Smart action buttons */}
+      <div className="grid grid-cols-2 gap-3 border-t border-neutral-100 p-6 sm:grid-cols-4 sm:p-8">
+        <button type="button" onClick={onShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
+          <MessageCircle className="h-5 w-5 text-accent-green" />
+          <span className="text-xs font-semibold text-accent-green">WhatsApp</span>
+        </button>
+        <button type="button" onClick={onShoppingList} className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20">
+          <ShoppingBag className="h-5 w-5 text-brand-purple" />
+          <span className="text-xs font-semibold text-brand-purple">Shopping List</span>
+        </button>
+        <button type="button" onClick={onSaveLocal} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-cyan/10 p-3 text-center transition-all hover:bg-accent-cyan/20">
+          <Save className="h-5 w-5 text-accent-cyan" />
+          <span className="text-xs font-semibold text-accent-cyan">Save to Device</span>
+        </button>
+        <button type="button" onClick={onSave} className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">
+          <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+          <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Save to Cloud</span>
+        </button>
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
