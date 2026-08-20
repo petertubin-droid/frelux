@@ -12,7 +12,8 @@ export default function Login() {
   const { signIn, signUp, resetPassword, user, configured } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get('redirect') ?? '/ai-color-assistant';
+  // Default to /dashboard after sign-in (was /ai-color-assistant which was confusing)
+  const redirectTo = searchParams.get('redirect') ?? '/dashboard';
 
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
@@ -86,22 +87,22 @@ export default function Login() {
           </h1>
           <p className="mt-1.5 text-sm text-neutral-500">
             {mode === 'signin'
-              ? 'Sign in to access AI features and your account.'
+              ? 'Sign in to access your projects, saved estimates, and AI features.'
               : mode === 'signup'
-              ? 'Create an account to use AI features and future premium access.'
+              ? 'Create an account to save estimates and access premium features.'
               : 'Enter your email and we will send you reset instructions.'}
           </p>
 
           {!configured && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-neutral-700">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-neutral-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <p>Authentication is not configured. Please check back later.</p>
             </div>
           )}
 
           {info && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 p-3 text-sm text-neutral-700">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent-green" />
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
               <p>{info}</p>
             </div>
           )}

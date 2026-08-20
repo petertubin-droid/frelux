@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, X, Calculator, LogIn, LogOut, User, ChevronDown, Sun, Moon, LayoutDashboard, Building2 } from "lucide-react";
 import Logo from '@/components/brand/Logo';
-import { navWorkspaces } from '@/config/site';
+import { navWorkspaces, type NavWorkspace } from '@/config/site';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -209,14 +209,36 @@ export default function Navbar() {
               Get Started
             </Link>
             <div className="mt-3 flex items-center gap-3 border-t border-neutral-200 pt-4">
-              <Link
-                to="/login"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600"
-                onClick={() => setMobileOpen(false)}
-              >
-                <LogIn className="h-4 w-4" />
-                Sign in
-              </Link>
+              {user ? (
+                <>
+                  <Link
+                    to="/dashboard"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                  <span className="text-neutral-300">·</span>
+                  <button
+                    type="button"
+                    onClick={() => { signOut(); setMobileOpen(false); }}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign in
+                </Link>
+              )}
               <span className="text-neutral-300">·</span>
               <button type="button" onClick={toggle} className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600">
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -238,53 +260,3 @@ function MobileNavItem({ workspace }: { workspace: NavWorkspace }) {
     return (
       <NavLink
         to={workspace.path}
-        className={({ isActive }) => classNames(
-          'rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
-          isActive ? 'text-brand-purple bg-purple-50' : 'text-neutral-700 hover:bg-neutral-50'
-        )}
-      >
-        {workspace.label}
-      </NavLink>
-    );
-  }
-
-  const isChildActive = workspace.children.some((c) => c.path === location.pathname);
-
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={() => setExpanded(!expanded)}
-        className={classNames(
-          'flex w-full items-center justify-between rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
-          isChildActive || expanded ? 'text-brand-purple' : 'text-neutral-700 hover:bg-neutral-50'
-        )}
-      >
-        {workspace.label}
-        <ChevronDown className={classNames('h-4 w-4 transition-transform', expanded && 'rotate-180')} />
-      </button>
-      {expanded && (
-        <div className="ml-3 mt-0.5 flex flex-col gap-0.5 border-l border-neutral-200 pl-3">
-          <NavLink
-            to={workspace.path}
-            className="rounded-lg px-4 py-2 text-sm text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-brand-purple"
-          >
-            {workspace.label} Home
-          </NavLink>
-          {workspace.children.map((child) => (
-            <NavLink
-              key={child.path}
-              to={child.path}
-              className={({ isActive }) => classNames(
-                'rounded-lg px-4 py-2 text-sm transition-colors',
-                isActive ? 'font-semibold text-brand-purple' : 'text-neutral-500 hover:bg-neutral-50 hover:text-brand-purple'
-              )}
-            >
-              {child.label}
-            </NavLink>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}

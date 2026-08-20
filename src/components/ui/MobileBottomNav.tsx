@@ -1,17 +1,23 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Calculator, Palette, FolderOpen, User } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
-
-const navItems = [
-  { to: '/', label: 'Home', icon: Home },
-  { to: '/paint-calculator', label: 'Calculate', icon: Calculator },
-  { to: '/colors', label: 'Colors', icon: Palette },
-  { to: '/my-projects', label: 'Projects', icon: FolderOpen },
-  { to: '/login', label: 'Account', icon: User },
-];
 
 export default function MobileBottomNav() {
   const { pathname } = useLocation();
+  const { user } = useAuth();
+
+  // When logged in, Account → /dashboard; when logged out, Account → /login
+  const accountTo = user ? '/dashboard' : '/login';
+  const accountLabel = user ? 'Account' : 'Sign In';
+
+  const navItems = [
+    { to: '/', label: 'Home', icon: Home },
+    { to: '/paint-calculator', label: 'Calculate', icon: Calculator },
+    { to: '/colors', label: 'Colors', icon: Palette },
+    { to: '/my-projects', label: 'Projects', icon: FolderOpen },
+    { to: accountTo, label: accountLabel, icon: User },
+  ];
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/95 backdrop-blur-md md:hidden">
