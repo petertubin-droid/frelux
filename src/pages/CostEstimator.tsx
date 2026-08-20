@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Info, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Info, AlertCircle, Loader2, MessageCircle, ShoppingBag, FileText, Save } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { calculateEstimatedTotal } from '@/lib/calc';
 import { track } from '@/lib/analytics';
@@ -10,6 +10,11 @@ import type { CostEstimateInput, CostEstimateResult, ProjectType, ContainerRecom
 import type { DbPaintProduct, DbMaterialPrice, DbSiteSettings } from '@/types/database';
 import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { calculateLabourCost } from '@/lib/labour';
+import { shareCostEstimateOnWhatsApp } from '@/lib/share';
+import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/shopping-list';
+import { exportPdfQuote } from '@/lib/pdf-export';
+import { saveLocalProject } from '@/lib/local-projects';
+import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -89,6 +94,8 @@ export default function CostEstimator() {
     currencySymbol,
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
+  const [shoppingListOpen, setShoppingListOpen] = useState(false);
+  const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('paint');
 
   useEffect(() => {
@@ -156,6 +163,40 @@ export default function CostEstimator() {
 
   function update<K extends keyof CostEstimateInput>(key: K, value: CostEstimateInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function handleWhatsAppShare() {
+    if (!result) return;
+    const paintTypeName = passed.paintTypeName ?? input.paintProductName ?? 'Paint';
+    shareCostEstimateOnWhatsApp({ result, input, paintTypeName });
+  }
+
+  function handlePdfExport() {
+    if (!result) return;
+    exportPdfQuote({
+      result,
+      input,
+      paintTypeName: passed.paintTypeName ?? input.paintProductName ?? 'Paint',
+      company: settings ? {
+        name: settings.site_name,
+        phone: settings.contact_phone,
+        email: settings.contact_email,
+        address: settings.contact_address,
+      } : undefined,
+    });
+  }
+
+  function handleShoppingList() {
+    if (!result) return;
+    const items = generateCostEstimateShoppingList(result, input, passed.paintTypeName ?? input.paintProductName ?? 'Paint');
+    setShoppingListItems(items);
+    setShoppingListOpen(true);
+  }
+
+  function handleSaveLocal() {
+    if (!result) return;
+    const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
+    saveLocalProject(name, 'cost_estimate', { input, result });
   }
 
   function compute() {
@@ -376,9 +417,39 @@ export default function CostEstimator() {
               <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
                 Estimate only. Actual costs may vary depending on product brand, location, surface condition, market prices, and labor rates.
               </div>
+
+              {/* Smart action buttons */}
+              {result && (
+                <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-4">
+                  <button type="button" onClick={handleWhatsAppShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
+                    <MessageCircle className="h-5 w-5 text-accent-green" />
+                    <span className="text-xs font-semibold text-accent-green">WhatsApp</span>
+                  </button>
+                  <button type="button" onClick={handlePdfExport} className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20">
+                    <FileText className="h-5 w-5 text-brand-purple" />
+                    <span className="text-xs font-semibold text-brand-purple">Export PDF</span>
+                  </button>
+                  <button type="button" onClick={handleShoppingList} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20">
+                    <ShoppingBag className="h-5 w-5 text-accent-orange" />
+                    <span className="text-xs font-semibold text-accent-orange">Shopping List</span>
+                  </button>
+                  <button type="button" onClick={handleSaveLocal} className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">
+                    <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+                    <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Save to Device</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {shoppingListOpen && (
+          <ShoppingListModal
+            items={shoppingListItems}
+            title="Cost Estimate Shopping List"
+            onClose={() => setShoppingListOpen(false)}
+          />
+        )}
       </div>
     </>
   );
