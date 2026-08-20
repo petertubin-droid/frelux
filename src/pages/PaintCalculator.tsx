@@ -38,6 +38,36 @@ import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
 import type { ShoppingListItem } from '@/lib/shopping-list';
 
+const projectTypes: { value: ProjectType; label: string; description: string; icon: typeof Home }[] = [
+  { value: 'room', label: 'Room', description: 'A single interior room', icon: Home },
+  { value: 'house', label: 'House', description: 'Whole house interior', icon: Building2 },
+  { value: 'exterior', label: 'Exterior', description: 'Outside walls', icon: Trees },
+  { value: 'fence', label: 'Fence or Gate', description: 'Fence, gate, or railing', icon: Fence },
+];
+
+const WASTE_OPTIONS = [0, 5, 10, 15];
+
+const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
+const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
+
+const ADVANCED_FEATURES = [
+  'Advanced material breakdown with line items',
+  'Custom mix ratio editor',
+  'Labour cost customization',
+  'Multiple waste percentage scenarios',
+  'Thickness and multiple coat calculations',
+  'Profit and markup calculator',
+  'Transport and logistics cost estimator',
+  'Tax/VAT calculator',
+  'Save, duplicate and compare estimates',
+  'Export professional PDF quotations',
+  'Material shopping list',
+  'Cost comparison between brands',
+  'AI recommendations for reducing waste',
+  'AI assistant for calculation questions',
+];
+
+
 import { useSeo } from '@/lib/seo';
 
 export default function PaintCalculator() {
