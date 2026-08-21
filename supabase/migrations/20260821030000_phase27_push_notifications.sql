@@ -3,6 +3,7 @@
 -- NOTE: uses public.set_updated_at() — the shared trigger function already defined
 -- in phase5_contractor_experience.sql. (Do NOT reference update_updated_at_column —
 -- that function does not exist in this project.)
+-- NOTE: pro_conversations uses customer_id (NOT client_id) — see phase25_pro_connect.sql.
 
 -- Push subscriptions table
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
@@ -57,24 +58,23 @@ $$;
 -- =============================================
 -- MESSAGE NOTIFICATION TRIGGER
 -- =============================================
--- When a new message is inserted into pro_conversations_messages,
--- we want to notify the recipient that they have a new message.
--- The actual push sending is handled by an edge function, but we
--- create a helper function that the edge function can call to get
--- the recipient's subscriptions.
+-- When a new message is inserted into pro_messages, we want to notify the
+-- recipient that they have a new message. The actual push sending is
+-- handled by an edge function, but we create a helper function that the
+-- edge function can call to get the recipient's subscriptions.
 
 CREATE OR REPLACE FUNCTION public.get_message_recipient_subscriptions(p_conversation_id UUID)
 RETURNS TABLE (endpoint TEXT, p256dh_key TEXT, auth_key TEXT, recipient_id UUID)
 LANGUAGE sql SECURITY DEFINER
 AS $$
   WITH conv AS (
-    SELECT client_id, professional_id FROM public.pro_conversations WHERE id = p_conversation_id
+    SELECT customer_id, professional_id FROM public.pro_conversations WHERE id = p_conversation_id
   )
   SELECT
     ps.endpoint, ps.p256dh_key, ps.auth_key,
     COALESCE(
       CASE WHEN pp.user_id IS NOT NULL THEN pp.user_id END,
-      c.client_id
+      c.customer_id
     ) AS recipient_id
   FROM conv c
   JOIN public.pro_profiles pp ON pp.id = c.professional_id
@@ -85,9 +85,9 @@ AS $$
 
   SELECT
     ps.endpoint, ps.p256dh_key, ps.auth_key,
-    c.client_id AS recipient_id
+    c.customer_id AS recipient_id
   FROM conv c
-  JOIN public.push_subscriptions ps ON ps.user_id = c.client_id AND ps.is_active = true;
+  JOIN public.push_subscriptions ps ON ps.user_id = c.customer_id AND ps.is_active = true;
 $$;
 
 -- =============================================
