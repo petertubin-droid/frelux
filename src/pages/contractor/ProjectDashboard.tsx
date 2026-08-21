@@ -8,7 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Package, Users, DollarSign, Clock, TrendingUp, Plus, Trash2, Edit,
   Download, Share2, Printer, FileText, Calendar, CheckCircle2, Circle,
-  Upload, ClipboardList, Hammer, ArrowLeft, Save, X, Loader2, AlertCircle,
+  Upload, ClipboardList, Hammer, ArrowLeft, Save, X, Loader2, AlertCircle, Brain,
 } from 'lucide-react';
 import {
   fetchContractorProject, fetchProjectRooms, fetchLabourPlan, fetchShoppingList,
@@ -22,6 +22,7 @@ import {
   fetchAttachments, deleteAttachment,
 } from '@/lib/contractor';
 import { generateQuotationPDF, generateShoppingListPDF } from '@/lib/pdf';
+import { AiProjectPanel } from '@/components/ai/AiProjectPanel';
 import type {
   DbContractorProject, DbProjectRoom, DbProjectLabourPlan,
   DbProjectShoppingItem, DbProjectTimeline, DbProjectQuotation,
@@ -45,7 +46,7 @@ function formatCurrency(value: number): string {
   return currencyFormatter.format(value || 0);
 }
 
-type TabKey = 'overview' | 'rooms' | 'labour' | 'shopping' | 'quotation' | 'timeline' | 'notes';
+type TabKey = 'overview' | 'rooms' | 'labour' | 'shopping' | 'quotation' | 'timeline' | 'notes' | 'ai';
 
 const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: 'overview', label: 'Overview', icon: TrendingUp },
@@ -55,6 +56,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: 'quotation', label: 'Quotation', icon: FileText },
   { key: 'timeline', label: 'Timeline', icon: Calendar },
   { key: 'notes', label: 'Notes', icon: Hammer },
+  { key: 'ai', label: 'AI Assistant', icon: Brain },
 ];
 
 const ROOM_TYPES: RoomType[] = ['living_room', 'bedroom', 'kitchen', 'bathroom', 'balcony', 'hallway', 'staircase', 'office', 'dining', 'custom'];
@@ -838,6 +840,30 @@ export default function ProjectDashboard() {
             onFileChange={handleFileChange}
             onDeleteAttachment={handleDeleteAttachment}
           />
+        )}
+        {activeTab === 'ai' && (
+          <AiProjectPanel projectData={{
+            name: project.name,
+            project_type: project.project_type,
+            building_type: project.building_type,
+            finish_quality: project.finish_quality,
+            budget_level: project.budget_level,
+            status: project.status,
+            rooms: rooms.map(r => ({
+              name: r.room_name,
+              calculation_type: r.calculation_type,
+              surface_area: r.surface_area ?? 0,
+              material_cost: r.material_cost ?? 0,
+              labour_cost: r.labour_cost ?? 0,
+              input_data: r.input_data,
+            })),
+            total_material_cost: project.total_material_cost,
+            total_labour_cost: project.total_labour_cost,
+            total_project_cost: project.total_project_cost,
+            currency: project.currency,
+            currency_symbol: project.currency_symbol,
+            notes: project.notes,
+          }} />
         )}
       </div>
     </div>

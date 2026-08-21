@@ -8,6 +8,7 @@ import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSetting
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { saveEstimateHistory } from '@/lib/crm';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
@@ -196,6 +197,7 @@ export default function TileCalculator() {
     trackCalculation('tile');
     setResult(r);
     track('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
+    void saveEstimateHistory(null, { calculator_type: 'tile', project_name: `Tile: ${input.surfaceType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
   }
 

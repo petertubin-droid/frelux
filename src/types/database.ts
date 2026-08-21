@@ -1235,3 +1235,74 @@ export interface TemplateUpdateInput {
   is_favorite?: boolean;
   visibility?: TemplateVisibility;
 }
+
+// =========================================================
+// Client Management (Mini CRM)
+// =========================================================
+export interface DbClient {
+  id: string;
+  user_id: string;
+  name: string;
+  company: string | null;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  notes: string | null;
+  status: 'active' | 'inactive' | 'blacklisted';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbClientCommunication {
+  id: string;
+  client_id: string;
+  user_id: string;
+  type: 'call' | 'email' | 'whatsapp' | 'meeting' | 'note';
+  subject: string | null;
+  body: string | null;
+  created_at: string;
+}
+
+// =========================================================
+// Project Folders
+// =========================================================
+export interface DbProjectFolder {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// =========================================================
+// Integration Settings
+// =========================================================
+export interface DbIntegrationSetting {
+  id: string;
+  integration_key: string;
+  display_name: string;
+  category: 'payment' | 'analytics' | 'communication' | 'maps' | 'storage' | 'advertising';
+  is_enabled: boolean;
+  config: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+// =========================================================
+// Estimate History
+// =========================================================
+export interface DbEstimateHistory {
+  id: string;
+  user_id: string | null;
+  calculator_type: CalculatorType;
+  project_name: string | null;
+  total_cost: number | null;
+  material_cost: number | null;
+  labour_cost: number | null;
+  currency: string;
+  input_data: Record<string, unknown>;
+  result_data: Record<string, unknown>;
+  created_at: string;
+}

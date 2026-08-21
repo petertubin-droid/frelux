@@ -115,7 +115,7 @@ const navModules: NavModule[] = [
   {
     heading: 'Integrations',
     items: [
-      { label: 'Integration Center', to: '/admin/studio/integration_center', icon: Plug },
+      { label: 'Integration Center', to: '/admin/integrations', icon: Plug },
     ],
   },
   {

@@ -8,6 +8,7 @@ import { logAnalyticsEvent, fetchPopMaterials, fetchPopWorkflows, fetchSiteSetti
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { saveEstimateHistory } from '@/lib/crm';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbPopWorkflow, DbSiteSettings } from '@/types/database';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -115,6 +116,7 @@ export default function PopCeilingCalculator() {
     trackCalculation('pop');
     setResult(r);
     track('pop_ceiling_calculated', { workflow: input.workflow, area: r.ceilingArea });
+    void saveEstimateHistory(null, { calculator_type: 'pop', project_name: `POP Ceiling: ${input.workflow}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('pop_ceiling_calculated', { workflow: input.workflow, area: r.ceilingArea });
   }
 

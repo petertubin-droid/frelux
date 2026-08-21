@@ -71,6 +71,7 @@ const ADVANCED_FEATURES = [
 
 
 import { useSeo } from '@/lib/seo';
+import { saveEstimateHistory } from '@/lib/crm';
 
 export default function PaintCalculator() {
   const { toast } = useToast();
@@ -236,6 +237,7 @@ export default function PaintCalculator() {
     trackCalculation('paint');
     savePaintCalcDefaults({ unit: input.unit, projectType: input.projectType, coats: input.coats, wasteMargin: input.wasteMargin });
     track('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
+    void saveEstimateHistory(user?.id ?? null, { calculator_type: 'paint', project_name: `Paint: ${input.projectType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
   }
 

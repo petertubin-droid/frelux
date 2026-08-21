@@ -79,6 +79,7 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Color Library', path: '/colors' },
       { label: 'Compare Colors', path: '/colors/compare' },
       { label: 'Smart Color Assistant', path: '/ai-color-assistant' },
+      { label: 'AI Color Preview (Before/After)', path: '/color-preview' },
     ],
   },
   {
@@ -88,6 +89,19 @@ export const navWorkspaces: NavWorkspace[] = [
   {
     label: 'Learn',
     path: '/learn',
+  },
+  {
+    label: 'Account',
+    path: '/login',
+    children: [
+      { label: 'Sign In', path: '/login' },
+      { label: 'My Projects', path: '/my-projects' },
+      { label: 'My Templates', path: '/my-templates' },
+      { label: 'Client Management', path: '/clients' },
+      { label: 'Estimate Analytics', path: '/analytics' },
+      { label: 'Contact', path: '/contact' },
+      { label: 'About', path: '/about' },
+    ],
   },
   {
     label: 'Projects',

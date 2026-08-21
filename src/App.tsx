@@ -43,6 +43,9 @@ const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
 const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
+const ClientManagement = lazy(() => import('@/pages/ClientManagement'));
+const EstimateAnalytics = lazy(() => import('@/pages/EstimateAnalytics'));
+const ColorPreview = lazy(() => import('@/pages/ColorPreview'));
 
 // Contractor experience pages
 const ContractorProjects = lazy(() => import('@/pages/contractor/ContractorProjects'));
@@ -89,6 +92,7 @@ const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminErrors = lazy(() => import('@/pages/admin/AdminErrors'));
 const AdminSeo = lazy(() => import('@/pages/admin/AdminSeo'));
 const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
+const AdminIntegrations = lazy(() => import('@/pages/admin/AdminIntegrations'));
 const Templates = lazy(() => import('@/pages/Templates'));
 const TemplateDetail = lazy(() => import('@/pages/TemplateDetail'));
 const MyTemplates = lazy(() => import('@/pages/MyTemplates'));
@@ -156,6 +160,7 @@ export default function App() {
 
             {/* AI workspace */}
             <Route path="/ai-color-assistant" element={<Suspense fallback={<PageLoader />}><AiColorAssistant /></Suspense>} />
+            <Route path="/color-preview" element={<Suspense fallback={<PageLoader />}><ColorPreview /></Suspense>} />
 
             {/* Projects workspace */}
             <Route path="/my-projects" element={<Suspense fallback={<PageLoader />}><MyProjects /></Suspense>} />
@@ -171,6 +176,8 @@ export default function App() {
             <Route path="/contractor" element={<Suspense fallback={<PageLoader />}><ContractorProjects /></Suspense>} />
             <Route path="/contractor/wizard" element={<Suspense fallback={<PageLoader />}><ProjectWizard /></Suspense>} />
             <Route path="/contractor/projects/:id" element={<Suspense fallback={<PageLoader />}><ProjectDashboard /></Suspense>} />
+            <Route path="/clients" element={<Suspense fallback={<PageLoader />}><ClientManagement /></Suspense>} />
+            <Route path="/analytics" element={<Suspense fallback={<PageLoader />}><EstimateAnalytics /></Suspense>} />
 
             {/* Learn workspace */}
             <Route path="/learn" element={<Suspense fallback={<PageLoader />}><Learn /></Suspense>} />
@@ -256,6 +263,7 @@ export default function App() {
 
             {/* Analytics */}
             <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="integrations" element={<AdminIntegrations />} />
 
             {/* Error Monitor */}
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />

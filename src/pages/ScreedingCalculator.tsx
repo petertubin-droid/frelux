@@ -14,6 +14,7 @@ import {
 } from '@/lib/utils';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
+import { saveEstimateHistory } from '@/lib/crm';
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -103,6 +104,7 @@ export default function ScreedingCalculator() {
     trackCalculation('screeding');
     setResult(r);
     track('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });
+    void saveEstimateHistory(null, { calculator_type: 'screeding', project_name: `Screeding: ${r.method}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });
   }
 

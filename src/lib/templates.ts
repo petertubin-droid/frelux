@@ -275,3 +275,194 @@ export function calculatorLabel(type: CalculatorType): string {
 export function calculatorPath(type: CalculatorType): string {
   return CALCULATOR_META[type]?.path ?? '/';
 }
+
+// =========================================================
+// Template Import / Export
+// =========================================================
+
+export interface TemplateExportData {
+  version: number;
+  exportedAt: string;
+  template: {
+    calculator_type: CalculatorType;
+    name: string;
+    description: string | null;
+    input_data: Record<string, unknown>;
+    visibility: TemplateVisibility;
+    category: string | null;
+    building_type: string | null;
+  };
+}
+
+export function exportTemplate(template: DbCalculatorTemplate): void {
+  const exportData: TemplateExportData = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    template: {
+      calculator_type: template.calculator_type,
+      name: template.name,
+      description: template.description,
+      input_data: template.input_data,
+      visibility: template.visibility,
+      category: (template as DbCalculatorTemplate & { category?: string | null }).category ?? null,
+      building_type: (template as DbCalculatorTemplate & { building_type?: string | null }).building_type ?? null,
+    },
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `frelux-template-${template.name.toLowerCase().replace(/\s+/g, '-')}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function importTemplate(
+  userId: string,
+  file: File
+): Promise<DbCalculatorTemplate> {
+  const text = await file.text();
+  let data: TemplateExportData;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('Invalid template file: not valid JSON');
+  }
+
+  if (!data.version || !data.template) {
+    throw new Error('Invalid template file: missing required fields');
+  }
+
+  if (!data.template.calculator_type || !data.template.name) {
+    throw new Error('Invalid template file: missing calculator_type or name');
+  }
+
+  const validTypes: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
+  if (!validTypes.includes(data.template.calculator_type)) {
+    throw new Error(`Invalid calculator type: ${data.template.calculator_type}`);
+  }
+
+  return createUserTemplate(userId, {
+    calculator_type: data.template.calculator_type,
+    name: data.template.name,
+    description: data.template.description ?? undefined,
+    input_data: data.template.input_data,
+    visibility: 'private',
+  });
+}
+
+// =========================================================
+// Template Categories
+// =========================================================
+
+export const TEMPLATE_CATEGORIES = [
+  { value: 'general', label: 'General' },
+  { value: 'residential', label: 'Residential' },
+  { value: 'commercial', label: 'Commercial' },
+  { value: 'industrial', label: 'Industrial' },
+  { value: 'hospitality', label: 'Hospitality' },
+  { value: 'healthcare', label: 'Healthcare' },
+  { value: 'education', label: 'Education' },
+] as const;
+
+export const BUILDING_TYPES = [
+  { value: 'residential', label: 'Residential Building' },
+  { value: 'commercial', label: 'Commercial Building' },
+  { value: 'industrial', label: 'Industrial Project' },
+  { value: 'hotel', label: 'Hotels' },
+  { value: 'hospital', label: 'Hospitals' },
+  { value: 'school', label: 'Schools' },
+  { value: 'duplex', label: 'Duplexes' },
+  { value: 'apartment', label: 'Apartments' },
+] as const;
+
+export async function getTemplatesByCategory(
+  category: string,
+  options?: { calculatorType?: CalculatorType }
+): Promise<DbCalculatorTemplate[]> {
+  if (!isSupabaseConfigured) return [];
+  let q = supabase
+    .from('calculator_templates')
+    .select('*')
+    .eq('visibility', 'public')
+    .eq('is_published', true)
+    .eq('category', category);
+
+  if (options?.calculatorType) q = q.eq('calculator_type', options.calculator_type);
+
+  q = q.order('display_order', { ascending: true });
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as DbCalculatorTemplate[];
+}
+
+export async function getTemplatesByBuildingType(
+  buildingType: string,
+  options?: { calculatorType?: CalculatorType }
+): Promise<DbCalculatorTemplate[]> {
+  if (!isSupabaseConfigured) return [];
+  let q = supabase
+    .from('calculator_templates')
+    .select('*')
+    .eq('visibility', 'public')
+    .eq('is_published', true)
+    .eq('building_type', buildingType);
+
+  if (options?.calculatorType) q = q.eq('calculator_type', options.calculator_type);
+
+  q = q.order('display_order', { ascending: true });
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as DbCalculatorTemplate[];
+}
+
+// =========================================================
+// Default Template Management
+// =========================================================
+
+export async function setDefaultTemplate(
+  userId: string,
+  templateId: string,
+  calculatorType: CalculatorType
+): Promise<void> {
+  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+
+  // Unset any existing default for this calculator type
+  await supabase
+    .from('calculator_templates')
+    .update({ is_default: false })
+    .eq('user_id', userId)
+    .eq('calculator_type', calculatorType)
+    .eq('is_default', true);
+
+  // Set the new default
+  const { error } = await supabase
+    .from('calculator_templates')
+    .update({ is_default: true })
+    .eq('id', templateId)
+    .eq('user_id', userId);
+
+  if (error) throw error;
+}
+
+export async function getDefaultTemplate(
+  userId: string,
+  calculatorType: CalculatorType
+): Promise<DbCalculatorTemplate | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('calculator_templates')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('calculator_type', calculatorType)
+    .eq('is_default', true)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') return null;
+    throw error;
+  }
+  return data as DbCalculatorTemplate;
+}

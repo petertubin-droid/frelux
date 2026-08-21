@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Copy, Trash2, Edit2, ArrowRight, Calculator } from 'lucide-react';
+import { Star, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 'lucide-react';
 import { calculatorLabel, calculatorPath } from '@/lib/templates';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -13,6 +13,7 @@ interface TemplateCardProps {
   onDelete?: () => void;
   onDuplicate?: () => void;
   onToggleFavorite?: () => void;
+  onExport?: () => void;
 }
 
 export default function TemplateCard({
@@ -23,6 +24,7 @@ export default function TemplateCard({
   onDelete,
   onDuplicate,
   onToggleFavorite,
+  onExport,
 }: TemplateCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -99,6 +101,15 @@ export default function TemplateCard({
                 aria-label="Edit template"
               >
                 <Edit2 className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {onExport && (
+              <button
+                onClick={onExport}
+                className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                aria-label="Export template"
+              >
+                <Download className="h-3.5 w-3.5" />
               </button>
             )}
             {onDuplicate && (

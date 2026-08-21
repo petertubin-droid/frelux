@@ -1,10 +1,10 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Loader2, Star, Bookmark, ChevronRight, LogIn } from 'lucide-react';
+import { Search, Loader2, Star, Bookmark, ChevronRight, LogIn, Upload, Download } from 'lucide-react';
 import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import { useUserTemplates } from '@/lib/useTemplates';
-import { calculatorLabel, CALCULATOR_META } from '@/lib/templates';
+import { calculatorLabel, CALCULATOR_META, exportTemplate, importTemplate } from '@/lib/templates';
 import TemplateCard from '@/components/templates/TemplateCard';
 import type { CalculatorType, DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -33,11 +33,14 @@ export default function MyTemplates() {
 
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const fileRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'recent' | 'name' | 'favorites'>('recent');
   const [activeCategory, setActiveCategory] = useState<CalculatorType | 'all'>('all');
+  const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
-  const { templates, loading, error, remove, duplicate, toggleFavorite } = useUserTemplates(
+  const { templates, loading, error, remove, duplicate, toggleFavorite, refresh } = useUserTemplates(
     activeCategory === 'all' ? undefined : activeCategory
   );
 
@@ -55,6 +58,39 @@ export default function MyTemplates() {
     else result.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     return result;
   }, [templates, search, sort]);
+
+  function handleExportAll() {
+    if (filtered.length === 0) return;
+    // Export each template as a separate JSON download
+    for (const t of filtered) {
+      exportTemplate(t);
+    }
+  }
+
+  function handleExportOne(template: DbCalculatorTemplate) {
+    exportTemplate(template);
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setImportStatus('Importing...');
+    setImportError(null);
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      const result = await importTemplate(data, user.id);
+      setImportStatus(`Imported "${result.name}" successfully!`);
+      await refresh();
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Failed to import template');
+      setImportStatus(null);
+    } finally {
+      if (fileRef.current) fileRef.current.value = '';
+      // Clear status after 3 seconds
+      setTimeout(() => { setImportStatus(null); setImportError(null); }, 3000);
+    }
+  }
 
   if (authLoading) {
     return (
@@ -102,13 +138,50 @@ export default function MyTemplates() {
             Your saved calculator configurations. Private and secure.
           </p>
         </div>
-        <Link
-          to="/templates"
-          className="shrink-0 text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
-        >
-          Browse FRELUX Templates
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fileRef.current?.click()}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+            title="Import a template from JSON file"
+          >
+            <Upload className="h-3.5 w-3.5" /> Import
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json"
+            onChange={handleImportFile}
+            className="hidden"
+          />
+          {filtered.length > 0 && (
+            <button
+              onClick={handleExportAll}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+              title="Export all templates as JSON files"
+            >
+              <Download className="h-3.5 w-3.5" /> Export All
+            </button>
+          )}
+          <Link
+            to="/templates"
+            className="shrink-0 text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
+          >
+            Browse FRELUX Templates
+          </Link>
+        </div>
       </div>
+
+      {/* Import status */}
+      {importStatus && (
+        <div className="mt-3 rounded-lg bg-emerald-50 px-4 py-2 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+          {importStatus}
+        </div>
+      )}
+      {importError && (
+        <div className="mt-3 rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
+          {importError}
+        </div>
+      )}
 
       {/* Controls */}
       <div className="mt-6 space-y-3">
@@ -173,7 +246,7 @@ export default function MyTemplates() {
           <Bookmark className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
           <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates yet</p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            Use "Save as Template" in any calculator to create your first one.
+            Use "Save as Template" in any calculator to create your first one. You can also import a template from a JSON file.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             {(['paint', 'tile', 'screeding', 'pop'] as CalculatorType[]).map((type) => (
@@ -198,6 +271,7 @@ export default function MyTemplates() {
               onDelete={() => remove(t.id)}
               onDuplicate={() => duplicate(t.id)}
               onToggleFavorite={() => toggleFavorite(t.id, t.is_favorite)}
+              onExport={() => handleExportOne(t)}
             />
           ))}
         </div>
