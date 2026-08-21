@@ -996,13 +996,22 @@ function EstimateResult({
             </p>
           </div>
           <div className="p-5">
-            {/* Stats grid */}
+            {/* Stats grid — room-based quantities first, m² as supplementary */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatBox label="Net Wall Area" value={`${room.net_wall_area_m2.toFixed(2)} m²`} />
-              <StatBox label="Coverage" value={room.coverage_m2_per_liter ? `${room.coverage_m2_per_liter} m²/L` : 'Not configured'} />
               <StatBox label="Theoretical Qty" value={`${room.theoretical_total_litres.toFixed(2)} L`} highlight />
               <StatBox label="Purchase Qty" value={`${room.practical_total_buckets} bucket(s)`} highlight />
+              <StatBox label="Room Size" value={`${room.length_m.toFixed(2)} × ${room.breadth_m.toFixed(2)} × ${room.height_m.toFixed(2)} m`} />
+              <StatBox label="Paint Quality" value={room.quality?.name ?? 'N/A'} />
             </div>
+
+            {/* Height adjustment warning */}
+            {room.height_adjustment?.is_high && (
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 dark:border-amber-500/20 dark:bg-amber-500/10">
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  <span className="font-semibold">⚠ Height Notice:</span> {room.height_adjustment.message}
+                </p>
+              </div>
+            )}
 
             {/* Ceiling info */}
             {room.include_ceiling && (

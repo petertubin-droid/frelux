@@ -14,6 +14,8 @@
  * - Manual professional adjustments are recorded and never overwrite the original
  * - Labour is NEVER calculated (negotiated separately)
  * - All business values come from database configuration
+ * - Height adjustment: walls above 8 ft (FRELUX standard) are "too high" and trigger
+ *   a customer-facing warning plus an optional admin-configurable adjustment factor
  */
 
 import type {
@@ -83,6 +85,14 @@ export interface PaintingProjectInput {
   primer_product_id?: string | null;
 }
 
+export interface HeightAdjustmentInfo {
+  is_high: boolean;               // true if wall height exceeds FRELUX standard
+  standard_height_m: number;       // the configured standard height in metres
+  actual_height_m: number;         // the actual wall height in metres
+  adjustment_factor: number;       // admin-configured factor (1.0 = no change, default warning-only)
+  message: string;                // customer-facing message
+}
+
 export interface PaintingRoomCalcResult {
   room_id: string;
   room_name: string;
@@ -118,6 +128,8 @@ export interface PaintingRoomCalcResult {
   include_ceiling: boolean;
   ceiling_colour: string;
   ceiling_quantity_buckets: number;
+  // Height adjustment
+  height_adjustment: HeightAdjustmentInfo | null;
   // Warnings
   warnings: string[];
   recommendations: string[];
@@ -172,6 +184,10 @@ export interface PaintingEstimateResult {
 
 const CALCULATOR_TYPE = 'painting';
 
+// FRELUX standard wall height fallbacks (admin-configurable via calc rules)
+const FALLBACK_STANDARD_HEIGHT_FT = 8;
+const FALLBACK_STANDARD_HEIGHT_M = 2.4384;
+
 // =========================================================
 // Core Calculation Functions
 // =========================================================
@@ -221,7 +237,8 @@ export function calculateCeilingArea(lengthM: number, breadthM: number): number 
 
 /**
  * Calculates theoretical paint required in litres for a given area, coverage, and coats.
- * Formula: (area × coats) / coverage
+ * Internal calculation — NOT shown as the primary FRELUX methodology to the customer.
+ * The customer-facing explanation uses room dimensions, height, coats, and quality.
  */
 export function calculateTheoreticalLitres(
   areaM2: number,
@@ -282,6 +299,74 @@ export function getRoundingRule(roundingRule: EstimationCalcRule | null): string
     if (typeof rule === 'string') return rule;
   }
   return 'ceil'; // FRELUX default: round up
+}
+
+/**
+ * Gets the FRELUX standard wall height from calc rules.
+ * Falls back to 8 ft (2.4384 m) — the verified FRELUX standard.
+ */
+export function getStandardHeight(
+  standardHeightRule: EstimationCalcRule | null
+): { ft: number; m: number } {
+  if (standardHeightRule?.rule_value) {
+    const rv = standardHeightRule.rule_value as Record<string, unknown>;
+    const valueM = rv.value_m;
+    const valueFt = rv.value_ft;
+    if (typeof valueM === 'number' && valueM > 0 && typeof valueFt === 'number' && valueFt > 0) {
+      return { ft: valueFt, m: valueM };
+    }
+    if (typeof valueM === 'number' && valueM > 0) {
+      return { ft: valueM / 0.3048, m: valueM };
+    }
+    if (typeof valueFt === 'number' && valueFt > 0) {
+      return { ft: valueFt, m: feetToMeters(valueFt) };
+    }
+  }
+  return { ft: FALLBACK_STANDARD_HEIGHT_FT, m: FALLBACK_STANDARD_HEIGHT_M };
+}
+
+/**
+ * Evaluates whether the wall height exceeds the FRELUX standard and returns
+ * height adjustment information including the admin-configurable adjustment factor.
+ *
+ * FRELUX rule: Walls above 8 ft (2.44 m) are considered "too high".
+ * Default adjustment is warning-only (factor 1.0) — the engine already uses
+ * the actual wall height in the area calculation, so the warning ensures the
+ * customer is aware their walls exceed the FRELUX standard. Admin can configure
+ * a higher adjustment_factor if additional paint allowance is needed.
+ */
+export function evaluateHeightAdjustment(
+  heightM: number,
+  unit: 'feet' | 'meters',
+  inputHeight: number,
+  heightAdjustmentRule: EstimationCalcRule | null,
+  standardHeight: { ft: number; m: number }
+): HeightAdjustmentInfo | null {
+  const rv = heightAdjustmentRule?.rule_value as Record<string, unknown> | null;
+
+  const enabled = rv ? rv.enabled !== false : true;
+  if (!enabled) return null;
+
+  const thresholdM = rv?.warning_threshold_m as number | undefined
+    ?? standardHeight.m;
+  const adjustmentFactor = typeof rv?.adjustment_factor === 'number'
+    ? (rv.adjustment_factor as number)
+    : 1.0;
+  const message = typeof rv?.message === 'string'
+    ? (rv.message as string)
+    : `Wall height exceeds the FRELUX standard (${standardHeight.ft} ft / ${standardHeight.m.toFixed(2)} m). This is considered a high wall. Professional assessment recommended for non-standard heights.`;
+
+  if (heightM > thresholdM) {
+    return {
+      is_high: true,
+      standard_height_m: standardHeight.m,
+      actual_height_m: heightM,
+      adjustment_factor: adjustmentFactor,
+      message,
+    };
+  }
+
+  return null;
 }
 
 // =========================================================
@@ -378,6 +463,8 @@ export function calculateRoom(
     roundingRule: EstimationCalcRule | null;
     colourConditions: EstimationColourCondition[];
     surfaceConditions: EstimationSurfaceCondition[];
+    standardHeightRule?: EstimationCalcRule | null;
+    heightAdjustmentRule?: EstimationCalcRule | null;
   }
 ): PaintingRoomCalcResult {
   const steps: PaintingCalcStep[] = [];
@@ -455,6 +542,28 @@ export function calculateRoom(
     detail: `Gross Wall Area − Door Area − Window Area = ${grossWallArea.toFixed(2)} − ${doorArea.toFixed(2)} − ${windowArea.toFixed(2)}`,
   });
 
+  // ---- Height adjustment (FRELUX rule: walls above 8 ft are "too high") ----
+  const standardHeight = getStandardHeight(config.standardHeightRule ?? null);
+  const heightAdjustment = evaluateHeightAdjustment(
+    heightM,
+    room.unit,
+    room.height,
+    config.heightAdjustmentRule ?? null,
+    standardHeight
+  );
+
+  if (heightAdjustment) {
+    warnings.push(heightAdjustment.message);
+    steps.push({
+      label: 'Height Adjustment',
+      value: `${room.height} ${room.unit} (above FRELUX standard of ${standardHeight.ft} ft)`,
+      detail: heightAdjustment.message +
+        (heightAdjustment.adjustment_factor !== 1.0
+          ? ` Adjustment factor: ${heightAdjustment.adjustment_factor}.`
+          : ' No additional factor applied — actual height is already used in the wall area calculation.'),
+    });
+  }
+
   // Coverage from quality
   const coverage = config.quality?.coverage ?? null;
   if (coverage === null || coverage === undefined) {
@@ -464,9 +573,13 @@ export function calculateRoom(
     );
   }
   steps.push({
-    label: 'Coverage Rate',
-    value: coverage ? `${coverage} m²/L per coat` : 'NOT CONFIGURED',
-    detail: coverage ? `Configured for ${config.quality?.name ?? 'N/A'} quality` : 'Admin must configure coverage before accurate calculation.',
+    label: 'Paint Quality & Coverage',
+    value: coverage
+      ? `${config.quality?.name ?? 'N/A'} — ${coverage} m²/L per coat`
+      : `${config.quality?.name ?? 'N/A'} — NOT CONFIGURED`,
+    detail: coverage
+      ? `Coverage rate configured for ${config.quality?.name ?? 'this quality'} level.`
+      : 'Admin must configure coverage before accurate calculation.',
   });
 
   // Pack size
@@ -484,15 +597,21 @@ export function calculateRoom(
   steps.push({
     label: 'Coats',
     value: `${coats} coat(s)`,
+    detail: coats === 2 ? 'FRELUX standard: 2 coats.' : undefined,
   });
 
-  // Theoretical wall litres
+  // Theoretical wall litres — internal calculation using room dimensions
+  // The customer-facing explanation uses room dimensions, height, quality, and coats
   const theoreticalWallLitres = coverage ? calculateTheoreticalLitres(netWallArea, coats, coverage) : 0;
   const theoreticalWallBuckets = litresToBuckets(theoreticalWallLitres, packSizeLitres);
   steps.push({
     label: 'Theoretical Wall Quantity',
-    value: coverage ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)` : 'Cannot calculate, coverage not configured',
-    detail: coverage ? `(Net Wall Area × Coats) / Coverage = (${netWallArea.toFixed(2)} × ${coats}) / ${coverage}` : undefined,
+    value: coverage
+      ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
+      : 'Cannot calculate — coverage not configured',
+    detail: coverage
+      ? `Based on ${room.length} × ${room.breadth} ${room.unit} room at ${room.height} ${room.unit} height, ${coats} coat(s), ${config.quality?.name ?? 'N/A'} quality.`
+      : undefined,
   });
 
   // Ceiling
@@ -508,7 +627,7 @@ export function calculateRoom(
     steps.push({
       label: 'Ceiling',
       value: `${theoreticalCeilingBuckets} bucket(s) (${theoreticalCeilingLitres.toFixed(2)} L)`,
-      detail: `FRELUX rule: ${ceilingQtyBuckets} bucket per room ceiling. Colour: ${room.ceiling_colour}. Area: ${ceilingArea.toFixed(2)} m²`,
+      detail: `FRELUX rule: ${ceilingQtyBuckets} bucket per room ceiling. Colour: ${room.ceiling_colour}. Ceiling area: ${ceilingArea.toFixed(2)} m².`,
     });
   } else {
     steps.push({
@@ -524,7 +643,7 @@ export function calculateRoom(
   steps.push({
     label: 'Total Theoretical Quantity',
     value: `${theoreticalTotalLitres.toFixed(2)} L (${theoreticalTotalBuckets.toFixed(4)} buckets)`,
-    detail: 'Wall + Ceiling theoretical quantities.',
+    detail: 'Wall + Ceiling theoretical quantities (before purchase rounding).',
   });
 
   // Practical purchase quantity (rounding)
@@ -639,6 +758,7 @@ export function calculateRoom(
     include_ceiling: room.include_ceiling,
     ceiling_colour: room.ceiling_colour,
     ceiling_quantity_buckets: room.include_ceiling ? theoreticalCeilingBuckets : 0,
+    height_adjustment: heightAdjustment,
     warnings,
     recommendations,
     valid: errors.length === 0,
@@ -677,16 +797,24 @@ export function checkProductionEligibility(
   if (customerLocation === 'owerri') {
     return {
       eligible: true,
-      message: 'FRELUX production is available with no minimum quantity for clients in Owerri.',
+      message: 'FRELUX production is available in Owerri with no minimum quantity.',
       min_required: 0,
     };
   }
 
-  // For outside Owerri or unknown, check applicable minimum
-  const locationRule = customerLocation === 'outside_owerri' ? 'outside_owerri' : 'outside_owerri';
+  if (customerLocation === 'unknown') {
+    return {
+      eligible: true,
+      message: 'FRELUX production eligibility depends on location. Please confirm your location for accurate production availability.',
+      min_required: 0,
+    };
+  }
 
-  // Find quality-specific rule first, then product-general rule
-  let rule: ProductionRuleRow | undefined = productionRules.find(
+  // Outside Owerri — check production rules
+  const locationRule = 'outside_owerri';
+
+  // Try quality-specific rule first, then fall back to product-wide rule
+  let rule = productionRules.find(
     (r) =>
       r.product_category === productCategory &&
       r.quality_slug === qualitySlug &&
@@ -746,6 +874,8 @@ export function calculatePaintingProject(
   const ceilingRule = config.calcRules.get('ceiling_quantity_per_room') ?? null;
   const packSizeRule = config.calcRules.get('pack_size_bucket_litres') ?? null;
   const roundingRule = config.calcRules.get('purchase_rounding_rule') ?? null;
+  const standardHeightRule = config.calcRules.get('standard_room_height') ?? null;
+  const heightAdjustmentRule = config.calcRules.get('height_adjustment_rule') ?? null;
 
   const roomResults: PaintingRoomCalcResult[] = [];
 
@@ -765,6 +895,8 @@ export function calculatePaintingProject(
       roundingRule,
       colourConditions: config.colourConditions,
       surfaceConditions: config.surfaceConditions,
+      standardHeightRule,
+      heightAdjustmentRule,
     });
 
     roomResults.push(roomResult);

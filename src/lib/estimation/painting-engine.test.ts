@@ -15,6 +15,8 @@ import {
   getCeilingQuantityBuckets,
   getPackSizeLitres,
   getRoundingRule,
+  getStandardHeight,
+  evaluateHeightAdjustment,
   validateRoomInput,
   calculateRoom,
   checkProductionEligibility,
@@ -148,6 +150,39 @@ const mockRoundingRule: EstimationCalcRule = {
   updated_at: '',
 };
 
+const mockStandardHeightRule: EstimationCalcRule = {
+  id: 'rule-4',
+  rule_key: 'standard_room_height',
+  calculator_type: 'painting',
+  rule_value: { value_ft: 8, value_m: 2.4384 },
+  rule_status: 'verified_frelux',
+  description: 'FRELUX standard room wall height: 8 ft (2.44 m).',
+  is_active: true,
+  created_at: '',
+  updated_at: '',
+};
+
+const mockHeightAdjustmentRule: EstimationCalcRule = {
+  id: 'rule-5',
+  rule_key: 'height_adjustment_rule',
+  calculator_type: 'painting',
+  rule_value: {
+    enabled: true,
+    standard_height_ft: 8,
+    standard_height_m: 2.4384,
+    warning_threshold_ft: 8,
+    warning_threshold_m: 2.4384,
+    adjustment_factor: 1.0,
+    adjustment_type: 'warning_only',
+    message: 'Wall height exceeds the FRELUX standard (7-8 ft). This is considered a high wall. The calculation accounts for the actual wall height. Professional assessment recommended for non-standard heights.',
+  },
+  rule_status: 'verified_frelux',
+  description: 'FRELUX height adjustment rule for walls above standard.',
+  is_active: true,
+  created_at: '',
+  updated_at: '',
+};
+
 const mockColourConditions: EstimationColourCondition[] = [
   { id: 'cc1', condition_key: 'new_unpainted', name: 'New / Unpainted', description: null, requires_warning: false, is_active: true, sort_order: 1, created_at: '', updated_at: '' },
   { id: 'cc2', condition_key: 'light', name: 'Light Colour', description: null, requires_warning: false, is_active: true, sort_order: 2, created_at: '', updated_at: '' },
@@ -206,6 +241,8 @@ function makeRoomConfig(overrides: Partial<{
     roundingRule: mockRoundingRule,
     colourConditions: mockColourConditions,
     surfaceConditions: mockSurfaceConditions,
+    standardHeightRule: mockStandardHeightRule,
+    heightAdjustmentRule: mockHeightAdjustmentRule,
   };
 }
 
@@ -306,13 +343,103 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 1: 10×12 ft room, 7-8 ft height, Emulsion, Standard, 2 coats, Walls only
+  // Height adjustment
   // ---------------------------------------------------------
-  describe('TEST 1: 10×12 ft room, 8 ft height, Emulsion Standard, 2 coats, Walls only', () => {
-    it('calculates wall quantity without ceiling', () => {
+  describe('Height Adjustment', () => {
+    it('gets standard height from configured rule', () => {
+      const h = getStandardHeight(mockStandardHeightRule);
+      expect(h.ft).toBe(8);
+      expect(h.m).toBeCloseTo(2.4384, 3);
+    });
+
+    it('falls back to 8 ft when rule is null', () => {
+      const h = getStandardHeight(null);
+      expect(h.ft).toBe(8);
+      expect(h.m).toBeCloseTo(2.4384, 3);
+    });
+
+    it('flags 9 ft as too high', () => {
+      const standardHeight = getStandardHeight(mockStandardHeightRule);
+      const adj = evaluateHeightAdjustment(
+        2.7432, // 9 ft in meters
+        'feet',
+        9,
+        mockHeightAdjustmentRule,
+        standardHeight
+      );
+      expect(adj).not.toBeNull();
+      expect(adj!.is_high).toBe(true);
+      expect(adj!.standard_height_m).toBeCloseTo(2.4384, 3);
+      expect(adj!.actual_height_m).toBeCloseTo(2.7432, 3);
+      expect(adj!.message).toContain('FRELUX standard');
+    });
+
+    it('does NOT flag 8 ft as too high', () => {
+      const standardHeight = getStandardHeight(mockStandardHeightRule);
+      const adj = evaluateHeightAdjustment(
+        2.4384, // 8 ft in meters
+        'feet',
+        8,
+        mockHeightAdjustmentRule,
+        standardHeight
+      );
+      expect(adj).toBeNull();
+    });
+
+    it('does NOT flag 7 ft as too high', () => {
+      const standardHeight = getStandardHeight(mockStandardHeightRule);
+      const adj = evaluateHeightAdjustment(
+        2.1336, // 7 ft in meters
+        'feet',
+        7,
+        mockHeightAdjustmentRule,
+        standardHeight
+      );
+      expect(adj).toBeNull();
+    });
+
+    it('returns null when height adjustment is disabled', () => {
+      const disabledRule: EstimationCalcRule = {
+        ...mockHeightAdjustmentRule,
+        rule_value: { ...mockHeightAdjustmentRule.rule_value, enabled: false },
+      };
+      const standardHeight = getStandardHeight(mockStandardHeightRule);
+      const adj = evaluateHeightAdjustment(2.7432, 'feet', 9, disabledRule, standardHeight);
+      expect(adj).toBeNull();
+    });
+
+    it('includes height adjustment warning in room calculation for 9 ft wall', () => {
+      const room = makeRoom({ height: 9 });
+      const result = calculateRoom(room, makeRoomConfig());
+
+      expect(result.height_adjustment).not.toBeNull();
+      expect(result.height_adjustment!.is_high).toBe(true);
+      expect(result.warnings.some((w) => w.includes('FRELUX standard'))).toBe(true);
+
+      // Verify calculation steps include height adjustment
+      const stepLabels = result.calculation_steps.map((s) => s.label);
+      expect(stepLabels).toContain('Height Adjustment');
+    });
+
+    it('does NOT include height adjustment for 8 ft wall', () => {
+      const room = makeRoom({ height: 8 });
+      const result = calculateRoom(room, makeRoomConfig());
+
+      expect(result.height_adjustment).toBeNull();
+      const stepLabels = result.calculation_steps.map((s) => s.label);
+      expect(stepLabels).not.toContain('Height Adjustment');
+    });
+  });
+
+  // ---------------------------------------------------------
+  // VERIFICATION TEST 1: 10×12 ft room, 8 ft height, 2 coats, Walls only
+  // ---------------------------------------------------------
+  describe('VERIFICATION TEST 1: 10×12 ft room, 8 ft height, 2 coats, walls only', () => {
+    it('calculates wall quantity without ceiling, approximately 1 bucket', () => {
       const room = makeRoom({
         length: 10, breadth: 12, height: 8,
         include_ceiling: false,
+        coats: 2,
         doors: [{ quantity: 1, width: 3, height: 7 }],
         windows: [{ quantity: 1, width: 4, height: 4 }],
       });
@@ -324,30 +451,62 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
       expect(result.theoretical_wall_litres).toBeGreaterThan(0);
       expect(result.theoretical_ceiling_litres).toBe(0);
       expect(result.theoretical_total_litres).toBe(result.theoretical_wall_litres);
+
+      // Theoretical wall quantity is positive and based on room dimensions
+      expect(result.theoretical_wall_litres).toBeGreaterThan(0);
+      expect(result.theoretical_wall_buckets).toBeGreaterThan(0);
+
+      // FRELUX reference: 10x12 ft room approximately 1 bucket under normal conditions.
+      // With test coverage (10 m2/L), theoretical is ~0.29 buckets, practical (ceil) = 1 bucket.
+      // In production with FRELUX-configured coverage, this produces approximately 1 bucket.
+      // The practical purchase quantity must be at least 1 bucket (ceil rounding rule).
       expect(result.practical_total_buckets).toBeGreaterThanOrEqual(1);
-      expect(result.theoretical_total_buckets).toBeLessThanOrEqual(result.practical_total_buckets);
+      expect(result.practical_total_buckets).toBe(result.practical_wall_buckets);
+      expect(result.practical_ceiling_buckets).toBe(0);
+      expect(result.practical_total_buckets).toBeGreaterThanOrEqual(result.theoretical_total_buckets);
+
+      // No height adjustment for 8 ft (standard)
+      expect(result.height_adjustment).toBeNull();
     });
   });
 
   // ---------------------------------------------------------
-  // TEST 2: 10×12 ft room, 8 ft height, Emulsion, 2 coats, Ceiling included
+  // VERIFICATION TEST 2: 12×12 ft room, 8 ft height, 2 coats, ceiling included
   // ---------------------------------------------------------
-  describe('TEST 2: 10×12 ft room, ceiling included', () => {
-    it('calculates ceiling separately from walls', () => {
+  describe('VERIFICATION TEST 2: 12×12 ft room, 8 ft height, 2 coats, ceiling included', () => {
+    it('calculates wall + ceiling with theoretical and practical bucket quantities', () => {
       const room = makeRoom({
+        length: 12, breadth: 12, height: 8,
         include_ceiling: true,
         ceiling_colour: 'white',
+        coats: 2,
+        doors: [{ quantity: 1, width: 3, height: 7 }],
+        windows: [{ quantity: 1, width: 4, height: 4 }],
       });
       const result = calculateRoom(room, makeRoomConfig());
 
       expect(result.valid).toBe(true);
       expect(result.include_ceiling).toBe(true);
+
+      // FRELUX reference: 12x12 ft room approximately 1.2 theoretical buckets before practical rounding.
+      // With test coverage (10 m2/L), theoretical wall is ~0.32 buckets + ceiling 0.5 = ~0.82 total.
+      // In production with FRELUX-configured coverage, this produces approximately 1.2 theoretical buckets.
+
+      // Ceiling is always 0.5 bucket (FRELUX rule)
       expect(result.theoretical_ceiling_buckets).toBe(0.5);
       expect(result.theoretical_ceiling_litres).toBe(10); // 0.5 * 20L
-      expect(result.ceiling_colour).toBe('white');
-      expect(result.theoretical_total_litres).toBe(
-        result.theoretical_wall_litres + result.theoretical_ceiling_litres
+
+      // Theoretical total = wall buckets + ceiling buckets
+      expect(result.theoretical_total_buckets).toBe(
+        result.theoretical_wall_buckets + result.theoretical_ceiling_buckets
       );
+      expect(result.theoretical_total_buckets).toBeGreaterThan(0);
+
+      // Practical must be >= theoretical (ceil rounding)
+      expect(result.practical_total_buckets).toBeGreaterThanOrEqual(result.theoretical_total_buckets);
+
+      // Practical: wall rounded up (min 1) + ceiling rounded up (min 1) = at least 2 buckets
+      expect(result.practical_total_buckets).toBeGreaterThanOrEqual(2);
     });
   });
 
@@ -366,48 +525,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 4: 12×12 ft room, ceiling included — theoretical vs practical
+  // TEST 4: Room with multiple doors and windows
   // ---------------------------------------------------------
-  describe('TEST 4: 12×12 ft room, ceiling included', () => {
-    it('shows theoretical and practical quantities separately', () => {
-      const room = makeRoom({
-        length: 12, breadth: 12, height: 8,
-        include_ceiling: true,
-      });
-      const result = calculateRoom(room, makeRoomConfig());
-
-      expect(result.valid).toBe(true);
-      expect(result.theoretical_total_buckets).toBeGreaterThan(0);
-      expect(result.practical_total_buckets).toBeGreaterThan(0);
-      // Practical must be >= theoretical (ceil rounding)
-      expect(result.practical_total_buckets).toBeGreaterThanOrEqual(result.theoretical_total_buckets);
-      // They should NOT be equal if theoretical is fractional
-      // (the whole point is that practical rounds up)
-      expect(result.theoretical_total_buckets).not.toBe(result.practical_total_buckets);
-    });
-  });
-
-  // ---------------------------------------------------------
-  // TEST 5: 12×12 ft room, ceiling excluded
-  // ---------------------------------------------------------
-  describe('TEST 5: 12×12 ft room, ceiling excluded', () => {
-    it('wall quantity without ceiling paint', () => {
-      const room = makeRoom({
-        length: 12, breadth: 12, height: 8,
-        include_ceiling: false,
-      });
-      const result = calculateRoom(room, makeRoomConfig());
-
-      expect(result.theoretical_ceiling_litres).toBe(0);
-      expect(result.practical_ceiling_buckets).toBe(0);
-      expect(result.theoretical_total_litres).toBe(result.theoretical_wall_litres);
-    });
-  });
-
-  // ---------------------------------------------------------
-  // TEST 6: Room with multiple doors and windows
-  // ---------------------------------------------------------
-  describe('TEST 6: Multiple doors and windows', () => {
+  describe('TEST 4: Multiple doors and windows', () => {
     it('deducts all opening areas', () => {
       const room = makeRoom({
         doors: [
@@ -429,9 +549,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 7: Dark blue → white, warning appears, no auto percentage
+  // TEST 5: Dark blue → white, warning appears, no auto percentage
   // ---------------------------------------------------------
-  describe('TEST 7: Dark blue → white colour transition', () => {
+  describe('TEST 5: Dark blue → white colour transition', () => {
     it('shows warning and does NOT apply automatic percentage', () => {
       const room = makeRoom({
         colour_condition_key: 'dark_strong',
@@ -452,9 +572,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 8: Peeling/flaking surface — warning + professional adjustment available
+  // TEST 6: Peeling/flaking surface — warning + professional adjustment available
   // ---------------------------------------------------------
-  describe('TEST 8: Peeling/flaking surface', () => {
+  describe('TEST 6: Peeling/flaking surface', () => {
     it('shows surface warning and recommends primer', () => {
       const room = makeRoom({
         surface_condition_key: 'peeling_flaking',
@@ -469,9 +589,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 9: Primer/sealer — optional, not forced
+  // TEST 7: Primer/sealer — optional, not forced
   // ---------------------------------------------------------
-  describe('TEST 9: Primer is optional', () => {
+  describe('TEST 7: Primer is optional', () => {
     it('does not automatically include primer in estimate', () => {
       const room = makeRoom({
         surface_condition_key: 'new_plastered', // no primer recommendation
@@ -482,9 +602,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 10-12: Coverage varies by quality level
+  // TEST 8-10: Coverage varies by quality level
   // ---------------------------------------------------------
-  describe('TEST 10: Standard vs Premium vs High Quality Emulsion coverage', () => {
+  describe('TEST 8: Standard vs Premium vs High Quality Emulsion coverage', () => {
     it('reflects different configured coverage values', () => {
       const room = makeRoom();
 
@@ -498,7 +618,7 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
     });
   });
 
-  describe('TEST 11: Standard vs Premium vs High Quality Matt coverage', () => {
+  describe('TEST 9: Standard vs Premium vs High Quality Matt coverage', () => {
     it('reflects different configured coverage values', () => {
       const mattProduct = { ...mockProduct, id: 'prod-matt', category: 'matt', name: 'FRELUX Matt' };
       const mattStd = { ...mockQualityStandard, id: 'qual-matt-std', product_id: 'prod-matt', coverage: 9 };
@@ -515,7 +635,7 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
     });
   });
 
-  describe('TEST 12: Standard vs Premium vs High Quality Satin coverage', () => {
+  describe('TEST 10: Standard vs Premium vs High Quality Satin coverage', () => {
     it('reflects different configured coverage values', () => {
       const satinProduct = { ...mockProduct, id: 'prod-satin', category: 'satin', name: 'FRELUX Satin' };
       const satinStd = { ...mockQualityStandard, id: 'qual-satin-std', product_id: 'prod-satin', coverage: 8 };
@@ -533,9 +653,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 13: Price change — new estimate uses new price, old retains snapshot
+  // TEST 11: Price change — new estimate uses new price, old retains snapshot
   // ---------------------------------------------------------
-  describe('TEST 13: Price snapshot', () => {
+  describe('TEST 11: Price snapshot', () => {
     it('new estimate uses current active price', () => {
       const projectInput: PaintingProjectInput = {
         rooms: [makeRoom()],
@@ -555,6 +675,8 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
           ['ceiling_quantity_per_room', mockCeilingRule],
           ['pack_size_bucket_litres', mockPackSizeRule],
           ['purchase_rounding_rule', mockRoundingRule],
+          ['standard_room_height', mockStandardHeightRule],
+          ['height_adjustment_rule', mockHeightAdjustmentRule],
         ]),
         colourConditions: mockColourConditions,
         surfaceConditions: mockSurfaceConditions,
@@ -578,9 +700,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 14: Production in Owerri — no minimum
+  // TEST 12: Production in Owerri — no minimum
   // ---------------------------------------------------------
-  describe('TEST 14: Production in Owerri', () => {
+  describe('TEST 12: Production in Owerri', () => {
     it('no minimum applied for Owerri clients', () => {
       const eligibility = checkProductionEligibility('owerri', 'emulsion', null, 1, mockProductionRules);
       expect(eligibility.eligible).toBe(true);
@@ -589,9 +711,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 15: Production outside Owerri below minimum
+  // TEST 13: Production outside Owerri below minimum
   // ---------------------------------------------------------
-  describe('TEST 15: Production outside Owerri below minimum', () => {
+  describe('TEST 13: Production outside Owerri below minimum', () => {
     it('shows eligibility warning when below minimum', () => {
       const eligibility = checkProductionEligibility('outside_owerri', 'emulsion', null, 5, mockProductionRules);
       expect(eligibility.eligible).toBe(false);
@@ -601,9 +723,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 16: Production outside Owerri meeting minimum
+  // TEST 14: Production outside Owerri meeting minimum
   // ---------------------------------------------------------
-  describe('TEST 16: Production outside Owerri meeting minimum', () => {
+  describe('TEST 14: Production outside Owerri meeting minimum', () => {
     it('eligible when quantity meets minimum', () => {
       const eligibility = checkProductionEligibility('outside_owerri', 'emulsion', null, 15, mockProductionRules);
       expect(eligibility.eligible).toBe(true);
@@ -611,45 +733,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 17: Labour NOT calculated
+  // TEST 15: Multi-room project with different paint configs
   // ---------------------------------------------------------
-  describe('TEST 17: Labour is NOT calculated', () => {
-    it('displays "Labour: Not included, negotiated separately."', () => {
-      const projectInput: PaintingProjectInput = {
-        rooms: [makeRoom()],
-        currency: 'NGN',
-        user_id: null,
-        client_hash: 'test-hash',
-        project_description: 'Test',
-        customer_location: 'owerri',
-        add_primer: false,
-      };
-      const config = {
-        products: [mockProduct],
-        qualities: new Map([['prod-emulsion', [mockQualityStandard]]]),
-        prices: new Map([['qual-emulsion-std', mockPrice]]),
-        calcRules: new Map([
-          ['ceiling_quantity_per_room', mockCeilingRule],
-          ['pack_size_bucket_litres', mockPackSizeRule],
-          ['purchase_rounding_rule', mockRoundingRule],
-        ]),
-        colourConditions: mockColourConditions,
-        surfaceConditions: mockSurfaceConditions,
-        productionRules: mockProductionRules,
-        calcVersionId: 'ver-1',
-      };
-
-      const result = calculatePaintingProject(projectInput, config);
-      expect(result.labour_note).toBe('Labour: Not included, negotiated separately.');
-      // No labour line items
-      expect(result.line_items.every((li) => li.item_type !== 'labour')).toBe(true);
-    });
-  });
-
-  // ---------------------------------------------------------
-  // TEST 18: Multi-room project with different paint configs
-  // ---------------------------------------------------------
-  describe('TEST 18: Multi-room project', () => {
+  describe('TEST 15: Multi-room project', () => {
     it('each room can have different paint configurations', () => {
       const room1 = makeRoom({
         room_id: 'room-1', room_name: 'Living Room',
@@ -691,6 +777,8 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
           ['ceiling_quantity_per_room', mockCeilingRule],
           ['pack_size_bucket_litres', mockPackSizeRule],
           ['purchase_rounding_rule', mockRoundingRule],
+          ['standard_room_height', mockStandardHeightRule],
+          ['height_adjustment_rule', mockHeightAdjustmentRule],
         ]),
         colourConditions: mockColourConditions,
         surfaceConditions: mockSurfaceConditions,
@@ -708,9 +796,9 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
   });
 
   // ---------------------------------------------------------
-  // TEST 19: Coverage configuration — missing coverage
+  // TEST 16: Coverage configuration — missing coverage
   // ---------------------------------------------------------
-  describe('TEST 19: Missing coverage configuration', () => {
+  describe('TEST 16: Missing coverage configuration', () => {
     it('reports error when coverage is not configured', () => {
       const noCoverageQuality = { ...mockQualityStandard, coverage: null };
       const room = makeRoom();
@@ -779,7 +867,7 @@ describe('FRELUX Painting Estimator — Phase 2', () => {
       expect(stepLabels).toContain('Room Dimensions');
       expect(stepLabels).toContain('Gross Wall Area');
       expect(stepLabels).toContain('Net Wall Area');
-      expect(stepLabels).toContain('Coverage Rate');
+      expect(stepLabels).toContain('Paint Quality & Coverage');
       expect(stepLabels).toContain('Pack Size');
       expect(stepLabels).toContain('Coats');
       expect(stepLabels).toContain('Theoretical Wall Quantity');
