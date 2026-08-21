@@ -13,10 +13,10 @@ import type { DbPaintColor, DbColorFamily, DbColorCategory, DbColorCombination }
 import { classNames } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { PaintMatcher } from '@/components/ui/PaintMatcher';
-import { trackColorView, trackCalculation } from '@/lib/achievements';
+import { trackColorView } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { ColorsPageSeo } from '@/components/seo/SeoContent';
 type Tab = 'colors' | 'palettes';
 type Status = 'loading' | 'error' | 'ready';
@@ -214,7 +214,7 @@ export default function Colors() {
                 </div>
                 {/* Bar chart */}
                 <div className="flex h-10 overflow-hidden rounded-xl border border-neutral-200/60">
-                  {families.map((f, i) => {
+                  {families.map((f, _i) => {
                     const segmentWidth = `${100 / families.length}%`;
                     const swatch = familySwatchColors[f.name] || '#CCCCCC';
                     return (
@@ -304,7 +304,7 @@ export default function Colors() {
 
             {/* Color grid — premium cards */}
             {colors.length > 0 ? (
-              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {colors.map((c) => (
                   <ColorCard key={c.id} color={c} isFavorited={favIds.includes(c.id)} onToggleFavorite={user ? handleToggleFav : undefined} />
                 ))}

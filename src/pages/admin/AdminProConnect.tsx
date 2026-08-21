@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ShieldCheck, Ban, Eye, Star, Search, Clock, AlertCircle, Check, X, FileWarning, Award } from 'lucide-react';
+import { Ban, Eye, Star, Search, Check, X, FileWarning, Award } from 'lucide-react';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
-import type { DbProVerificationLog } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
   adminApproveVerification, adminRejectVerification, adminRequestMoreInfo,
@@ -589,7 +588,7 @@ function AdminSettingsTab() {
       {/* Pro Level requirements */}
       <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">FRELUX Pro Eligibility Requirements</h3>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum reviews</span>
             <input

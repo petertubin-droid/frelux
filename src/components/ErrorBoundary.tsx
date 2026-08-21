@@ -45,7 +45,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     // Log to console in dev
     if (import.meta.env.DEV) {
-      console.error('[ErrorBoundary]', boundary, error, errorInfo);
+      if (import.meta.env.DEV) console.error('[ErrorBoundary]', boundary, error, errorInfo);
     }
 
     // Fire-and-forget to Supabase error_logs table

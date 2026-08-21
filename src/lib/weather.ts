@@ -6,6 +6,14 @@
 
 import { useState, useEffect } from 'react';
 
+interface ForecastEntry {
+  main: { temp: number; humidity: number };
+  wind: { speed: number };
+  rain?: { '3h'?: number };
+  dt_txt: string;
+  weather: { main: string; description: string; icon: string }[];
+}
+
 export interface WeatherDay {
   date: string;
   dayName: string;
@@ -69,7 +77,7 @@ export function usePaintingWeather(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
         const days: WeatherDay[] = [];
 
         // Group by day (API returns 3-hour intervals)
-        const dayMap = new Map<string, any[]>();
+        const dayMap = new Map<string, ForecastEntry[]>();
         for (const item of json.list) {
           const date = item.dt_txt.split(' ')[0];
           if (!dayMap.has(date)) dayMap.set(date, []);
@@ -77,16 +85,15 @@ export function usePaintingWeather(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
         }
 
         for (const [date, entries] of Array.from(dayMap.entries()).slice(0, 5)) {
-          const temps = entries.map((e: any) => e.main.temp);
-          const humidities = entries.map((e: any) => e.main.humidity);
-          const precip = entries.reduce((sum: number, e: any) => sum + (e.rain?.['3h'] ?? 0), 0);
-          const winds = entries.map((e: any) => e.wind.speed);
+          const temps = entries.map((e: ForecastEntry) => e.main.temp);
+          const humidities = entries.map((e: ForecastEntry) => e.main.humidity);
+          const precip = entries.reduce((sum: number, e: ForecastEntry) => sum + (e.rain?.['3h'] ?? 0), 0);
+          const winds = entries.map((e: ForecastEntry) => e.wind.speed);
           const midday = entries[Math.floor(entries.length / 2)];
 
           const humidity = Math.round(humidities.reduce((a: number, b: number) => a + b, 0) / humidities.length);
           const windSpeed = Math.round(winds.reduce((a: number, b: number) => a + b, 0) / winds.length);
           const condition = midday.weather[0].main;
-          const icon = midday.weather[0].icon;
 
           days.push({
             date,
@@ -109,7 +116,7 @@ export function usePaintingWeather(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
           loading: false,
           error: null,
         });
-      } catch (err) {
+      } catch (_err) {
         setData({
           city: 'Lagos',
           days: generateEstimatedWeather(),

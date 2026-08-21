@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Loader2, ChevronRight, ArrowRight, Calculator, AlertCircle, Layers } from 'lucide-react';
 import { useSeo } from '@/lib/seo';
 import Breadcrumbs from '@/components/ui/Breadcrumbs';
-import { getPublicTemplateBySlug, getRelatedPublicTemplates, calculatorLabel, calculatorPath, CALCULATOR_META } from '@/lib/templates';
+import { getPublicTemplateBySlug, getRelatedPublicTemplates, calculatorLabel, CALCULATOR_META } from '@/lib/templates';
 import type { DbCalculatorTemplate } from '@/types/database';
 
 export default function TemplateDetail() {
@@ -39,7 +39,6 @@ export default function TemplateDetail() {
   const seoMeta = useMemo(() => {
     if (!template) return null;
     const calcLabel = calculatorLabel(template.calculator_type);
-    const calcRoute = calculatorPath(template.calculator_type);
     return {
       title: template.seo_title ?? `${template.name}: ${calcLabel} Template`,
       description: template.seo_description ?? `Use the ${template.name} template with the FRELUX ${calcLabel} calculator. Pre-configured for Nigerian construction projects with real material prices.`,
@@ -163,7 +162,7 @@ export default function TemplateDetail() {
           <Layers className="h-4 w-4 text-brand-purple" />
           Template Configuration
         </h2>
-        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">
+        <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
           {inputSummary.map((item) => (
             <div key={item.label} className="flex flex-col">
               <dt className="text-[11px] font-medium uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{item.label}</dt>
@@ -233,7 +232,7 @@ export default function TemplateDetail() {
       {related.length > 0 && (
         <div className="mt-10">
           <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-white">Related Templates</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             {related.map((t) => (
               <Link
                 key={t.id}

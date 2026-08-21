@@ -207,7 +207,7 @@ function MaterialForm({ item, onSave, onClose }: { item: DbMaterialCatalog | nul
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AdminField label="Name"><input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Category">
               <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value as MaterialCatalogCategory })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
@@ -227,21 +227,21 @@ function MaterialForm({ item, onSave, onClose }: { item: DbMaterialCatalog | nul
 
           <AdminField label="Description"><textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
 
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <AdminField label="Economy Price"><input type="number" value={form.economy_price} onChange={e => setForm({ ...form, economy_price: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Standard Price"><input type="number" value={form.standard_price} onChange={e => setForm({ ...form, standard_price: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Premium Price"><input type="number" value={form.premium_price} onChange={e => setForm({ ...form, premium_price: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Luxury Price"><input type="number" value={form.luxury_price} onChange={e => setForm({ ...form, luxury_price: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <AdminField label="Coverage Rate"><input type="number" value={form.coverage_rate} onChange={e => setForm({ ...form, coverage_rate: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Coverage Unit"><input value={form.coverage_unit} onChange={e => setForm({ ...form, coverage_unit: e.target.value })} placeholder="m2_per_liter" className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Package Size"><input type="number" value={form.package_size} onChange={e => setForm({ ...form, package_size: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
             <AdminField label="Package Unit"><input value={form.package_unit} onChange={e => setForm({ ...form, package_unit: e.target.value })} placeholder="kg, liters" className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <AdminField label="Durability">
               <select value={form.durability_rating} onChange={e => setForm({ ...form, durability_rating: e.target.value as 'low' | 'medium' | 'high' | 'premium' })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
                 <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="premium">Premium</option>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save, Wand2 } from 'lucide-react';
+import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import MultiStepProgress from '@/components/ui/MultiStepProgress';
 import TemplatePicker from '@/components/ui/TemplatePicker';
@@ -24,7 +24,6 @@ import type { DbPaintType } from '@/types/database';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
-import type { DbCalculatorTemplate } from '@/types/database';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import { sharePaintCalcOnWhatsApp } from '@/lib/share';
 import { VoiceInputButton } from '@/components/ui/VoiceInputButton';
@@ -124,7 +123,7 @@ export default function PaintCalculator() {
   const [typesError, setTypesError] = useState<string | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
-  const [wizardMode, setWizardMode] = useState(false);
+  const [_wizardMode, _setWizardMode] = useState(false);
 
   useEffect(() => {
     async function loadTypes() {
@@ -466,7 +465,6 @@ function Step2({
   errors: Record<string, string>;
 }) {
   const { t } = useLanguage();
-  const voiceLabel = input.unit === 'meters' ? 'length in meters' : 'length in feet';
   const unitLabel = input.unit === 'meters' ? 'm' : 'ft';
   const isFence = input.projectType === 'fence';
   const isExterior = input.projectType === 'exterior';
@@ -589,7 +587,7 @@ function Step3({
               Custom door dimensions
             </button>
             {showDoorDims && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="Door width (m)">
                   <input type="number" min={0} step="0.01" value={input.doorDims.width || ''} onChange={(e) => updateDoorDim('width', Number(e.target.value))} className="input-field text-sm" />
                 </Field>
@@ -608,7 +606,7 @@ function Step3({
               Custom window dimensions
             </button>
             {showWindowDims && (
-              <div className="mt-2 grid grid-cols-2 gap-2">
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Field label="Window width (m)">
                   <input type="number" min={0} step="0.01" value={input.windowDims.width || ''} onChange={(e) => updateWindowDim('width', Number(e.target.value))} className="input-field text-sm" />
                 </Field>
@@ -682,7 +680,6 @@ function ResultCard({
   onAgain,
   onStartOver,
   onSave,
-  onExport,
   onShare,
   onAskAi: _onAskAi,
   onShoppingList,
@@ -748,7 +745,7 @@ function ResultCard({
       </div>
 
       {/* Smart action buttons */}
-      <div className="grid grid-cols-2 gap-3 border-t border-neutral-100 p-6 sm:grid-cols-4 sm:p-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-neutral-100 p-6 sm:grid-cols-4 sm:p-8">
         <button type="button" onClick={onShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
           <MessageCircle className="h-5 w-5 text-accent-green" />
           <span className="text-xs font-semibold text-accent-green">WhatsApp</span>

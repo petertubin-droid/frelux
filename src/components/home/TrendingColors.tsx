@@ -64,7 +64,7 @@ function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; titl
         </span>
         <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white">{title}</h3>
       </div>
-      <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:grid-cols-6">
         {colors.map((c) => (
           <Link
             key={c.id}

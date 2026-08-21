@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Loader2, Star, Bookmark, ChevronRight, LogIn, Upload, Download } from 'lucide-react';
+import { Search, Loader2, Bookmark, ChevronRight, LogIn, Upload, Download } from 'lucide-react';
 import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import { useUserTemplates } from '@/lib/useTemplates';
@@ -259,7 +259,7 @@ export default function MyTemplates() {
           </div>
         </div>
       ) : (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((t) => (
             <TemplateCard
               key={t.id}

@@ -20,7 +20,7 @@ export default function NotFound() {
             <Home className="h-4 w-4" />
             Back to home
           </Link>
-          <Link to="/paint-calculator" className="btn-secondary">
+          <Link to="/painting-estimator" className="btn-secondary">
             <ArrowLeft className="h-4 w-4" />
             Try the calculator
           </Link>

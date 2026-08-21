@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, X } from 'lucide-react';
-import { fetchCategories, fetchServices, fetchLocations, searchProfessionals, getProProfileServices, getProProfileLocations } from '@/lib/pro-connect';
+import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { fetchCategories, fetchServices, fetchLocations, searchProfessionals, getProProfileServices } from '@/lib/pro-connect';
 import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import ProfessionalCard from '@/components/pro-connect/ProfessionalCard';
 import { classNames } from '@/lib/utils';
@@ -15,7 +15,7 @@ export default function ProConnectDirectory() {
     ogType: 'website',
   });
   const { categorySlug } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [_searchParams, _setSearchParams] = useSearchParams();
 
   const [categories, setCategories] = useState<DbProCategory[]>([]);
   const [services, setServices] = useState<DbProService[]>([]);
@@ -23,7 +23,7 @@ export default function ProConnectDirectory() {
   const [profiles, setProfiles] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const [_page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -169,7 +169,7 @@ export default function ProConnectDirectory() {
       {/* Filters panel */}
       {showFilters && (
         <div className="mb-6 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Category */}
             <div>
               <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Category</label>
@@ -233,7 +233,7 @@ export default function ProConnectDirectory() {
           </div>
 
           {/* Availability + Rating filters */}
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Availability</label>
               <select
@@ -318,7 +318,7 @@ export default function ProConnectDirectory() {
 
       {/* Results grid */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-64 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-brand-navy-mid" />
           ))}
@@ -337,7 +337,7 @@ export default function ProConnectDirectory() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {profiles.map((p) => (
               <ProfessionalCard
                 key={p.id}

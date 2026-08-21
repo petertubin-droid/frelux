@@ -19,7 +19,6 @@ import {
   AdminCard,
   AdminButton,
   AdminField,
-  Toggle,
 } from '@/components/admin/AdminUi';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
@@ -480,7 +479,7 @@ export default function AdminTyroleneConfig() {
                 When actual partition dimensions differ, the system calculates equivalent standard partitions.
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AdminField label="Standard Partition Width (m)">
                 <input
                   type="number"

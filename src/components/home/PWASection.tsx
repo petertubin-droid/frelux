@@ -70,7 +70,7 @@ export default function PWASection() {
 
             <div className="mt-8">
               <Link
-                to="/paint-calculator"
+                to="/painting-estimator"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Try on your phone
@@ -145,7 +145,7 @@ export default function PWASection() {
                   </div>
 
                   {/* Other calculators */}
-                  <div className="mt-3 grid grid-cols-3 gap-2">
+                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="rounded-lg border border-white/5 bg-white/[0.02] p-2.5 text-center">
                       <Square className="mx-auto h-4 w-4 text-accent-cyan" />
                       <p className="mt-1 text-[9px] text-white/50">Screeding</p>

@@ -5,15 +5,11 @@ import { useAuth } from '@/lib/auth';
 import {
   getMyProProfile, getProProfileServices, getProProfileLocations,
   getProPortfolio, getProReviews, addPortfolioItem, deletePortfolioItem,
-  updateProProfile, getMyConversations, getUnreadCount,
 } from '@/lib/pro-connect';
 import type { DbProProfile, DbProService, DbProLocation, DbProPortfolioItem, DbProReview, DbProConversation } from '@/types/pro-connect';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
-import { VerificationBadge } from '@/components/pro-connect/VerificationBadge';
-import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
 import {
-  createVerificationRequest, getMyVerificationRequests,
   checkProLevelEligibility,
 } from '@/lib/pro-connect';
 import type { DbProVerificationRequest } from '@/types/pro-connect';
@@ -114,7 +110,7 @@ export default function ProConnectDashboard() {
       </div>
 
       {/* Stats */}
-      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
             <Star className="h-4 w-4" />
@@ -366,7 +362,7 @@ export default function ProConnectDashboard() {
             No portfolio items yet. Add your first project to showcase your work.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3">
             {portfolio.map((item) => (
               <div key={item.id} className="group relative overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5">
                 {item.image_urls[0] && (
@@ -497,7 +493,7 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
       const { data } = supabase.storage.from('pro-portfolio').getPublicUrl(filePath);
       setImageUrls([...imageUrls, data.publicUrl]);
     } else {
-      console.error('Upload error:', error.message);
+      if (import.meta.env.DEV) console.error('Upload error:', error.message);
     }
     setUploading(false);
   }

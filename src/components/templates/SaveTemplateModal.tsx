@@ -14,8 +14,6 @@ interface SaveTemplateModalProps {
 export default function SaveTemplateModal({
   open,
   onClose,
-  calculatorType,
-  inputData,
   onSave,
   defaultName,
 }: SaveTemplateModalProps) {

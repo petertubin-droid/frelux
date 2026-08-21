@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft, Briefcase, Home as HomeIcon, Chrome, Zap } from 'lucide-react';
+import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft, Briefcase, Home as HomeIcon, Zap } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
@@ -162,7 +162,7 @@ export default function Login() {
           {mode === 'signup' && (
             <div className="mt-1">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">I am a…</span>
-              <div className="mt-2 grid grid-cols-2 gap-3">
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setAccountType('client')}

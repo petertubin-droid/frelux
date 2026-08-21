@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 import { useVoiceInput, parseSpokenNumber } from '@/lib/voice-input';
 import { classNames } from '@/lib/utils';
 

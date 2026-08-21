@@ -24,7 +24,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const isSupported = typeof window !== 'undefined' &&
     (('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window));
@@ -38,7 +38,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
     setError(null);
     setTranscript(null);
 
-    const SpeechRecognitionClass = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognitionClass = (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
     const recognition = new SpeechRecognitionClass();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -47,7 +47,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
-    recognition.onerror = (e: any) => {
+    recognition.onerror = (e: Event) => {
       setIsListening(false);
       if (e.error === 'not-allowed') {
         setError('Microphone access denied. Please allow microphone access in your browser.');
@@ -57,7 +57,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
         setError(`Voice input error: ${e.error}`);
       }
     };
-    recognition.onresult = (e: any) => {
+    recognition.onresult = (e: Event) => {
       const result: SpeechRecognitionResult = {
         transcript: e.results[0][0].transcript,
         confidence: e.results[0][0].confidence,

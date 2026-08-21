@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-  MapPin, Star, ShieldCheck, Clock, Briefcase, Globe,
-  MessageSquare, Flag, ChevronLeft, Image as ImageIcon,
+  MapPin, Star, ShieldCheck, Briefcase, Globe,
+  MessageSquare, Flag, ChevronLeft,
 } from 'lucide-react';
 import {
   getProProfileBySlug,
@@ -19,9 +19,8 @@ import type {
 } from '@/types/pro-connect';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
 import { useSeo } from '@/lib/seo';
-import { VerificationBadge, VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
+import { VerificationBadge } from '@/components/pro-connect/VerificationBadge';
 import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
 import { getPublicCredentials, fetchProSettings as getProSettings } from '@/lib/pro-connect';
 import type { DbProCredentialPublic, DbProSettings } from '@/types/pro-connect';
@@ -120,7 +119,6 @@ export default function ProConnectProfile() {
   }
 
   const avail = availabilityConfig[profile.availability];
-  const isVerified = profile.verification_status === 'verified';
   const isOwner = user?.id === profile.user_id;
 
   return (
@@ -325,7 +323,7 @@ export default function ProConnectProfile() {
       {portfolio.length > 0 && (
         <section className="mt-8">
           <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Portfolio</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {portfolio.map((item) =>
               item.image_urls.map((url, i) => (
                 <button

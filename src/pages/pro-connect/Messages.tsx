@@ -6,7 +6,6 @@ import type { DbProConversation, DbProMessage } from '@/types/pro-connect';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
-import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
 
 export default function Messages() {
   const { conversationId } = useParams();
@@ -108,7 +107,7 @@ export default function Messages() {
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
       <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">Messages</h1>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 lg:grid-cols-3">
         {/* Conversation list */}
         <div className={classNames(
           'rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid',

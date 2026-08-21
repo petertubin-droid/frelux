@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AdminHeader, AdminCard } from '@/components/admin/AdminUi';
-import { Search, FileText, Image, Code, CheckCircle2, XCircle, ExternalLink, Globe, Map, Bot } from 'lucide-react';
+import { FileText, Image, Code, CheckCircle2, XCircle, ExternalLink, Globe, Map, Bot } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface SeoPageStatus {

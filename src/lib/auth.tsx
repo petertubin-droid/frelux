@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('id', userId)
       .maybeSingle();
     if (error) {
-      console.error('[auth] Failed to load profile:', error.message);
+      if (import.meta.env.DEV) console.error('[auth] Failed to load profile:', error.message);
       return null;
     }
     return data as DbProfile | null;
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(async ({ data, error }) => {
       if (!mounted) return;
       if (error) {
-        console.error('[auth] getSession error:', error.message);
+        if (import.meta.env.DEV) console.error('[auth] getSession error:', error.message);
         setState({ session: null, user: null, profile: null, isAdmin: false, loading: false, configured: true });
         return;
       }
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
       setState({ session, user, profile, isAdmin: profile?.role === 'admin', loading: false, configured: true });
     }).catch((err) => {
-      console.error('[auth] getSession threw:', err);
+      if (import.meta.env.DEV) console.error('[auth] getSession threw:', err);
       if (mounted) setState((s) => ({ ...s, loading: false }));
     });
 

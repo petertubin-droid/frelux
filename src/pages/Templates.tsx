@@ -6,7 +6,7 @@ import { getPublicTemplates, calculatorLabel } from '@/lib/templates';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
 
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 const CATEGORY_TABS: { key: CalculatorType | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'paint', label: 'Painting' },
@@ -140,7 +140,7 @@ export default function Templates() {
                 <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                 Featured Templates
               </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {featured.map((t) => (
                   <PublicTemplateCard key={t.id} template={t} />
                 ))}
@@ -152,7 +152,7 @@ export default function Templates() {
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                 All Templates
               </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {rest.map((t) => (
                   <PublicTemplateCard key={t.id} template={t} />
                 ))}

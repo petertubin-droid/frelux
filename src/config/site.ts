@@ -58,15 +58,15 @@ export const navWorkspaces: NavWorkspace[] = [
   },
   {
     label: 'Calculators',
-    path: '/paint-calculator',
+    path: '/painting-estimator',
     children: [
-      { label: 'Paint Calculator', path: '/paint-calculator' },
+      { label: 'Painting Estimator', path: '/painting-estimator' },
       { label: 'Screeding Calculator', path: '/screeding-calculator' },
       { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
       { label: 'Tile Calculator', path: '/tile-calculator' },
-      { label: 'Painting Estimator', path: '/painting-estimator' },
       { label: 'Tyrolene Estimator', path: '/tyrolene-estimator' },
       { label: 'Finish Estimator', path: '/finish-estimator' },
+      { label: 'Paint Calculator (Legacy)', path: '/paint-calculator' },
       { label: 'Calculator Templates', path: '/templates' },
     ],
   },
@@ -110,14 +110,6 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Contact', path: '/contact' },
       { label: 'About', path: '/about' },
     ],
-  },
-  {
-    label: 'Projects',
-    path: '/my-projects',
-  },
-  {
-    label: 'Learn',
-    path: '/learn',
   },
 ];
 

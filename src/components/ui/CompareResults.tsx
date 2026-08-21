@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { X, ArrowLeftRight } from 'lucide-react';
-import { getRecentTools } from '@/lib/smart-defaults';
 
 interface CompareEntry {
   id: string;

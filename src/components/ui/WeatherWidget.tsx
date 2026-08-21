@@ -1,6 +1,6 @@
 import { usePaintingWeather, type WeatherDay } from '@/lib/weather';
 import { classNames } from '@/lib/utils';
-import { CloudRain, Sun, Wind, Droplets, Thermometer, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { CloudRain, Sun, Droplets, Thermometer, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function WeatherWidget() {
@@ -42,7 +42,7 @@ export function WeatherWidget() {
         </div>
       </div>
 
-      <div className="grid grid-cols-5 gap-1 p-3">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-1 p-3">
         {days.map((day) => (
           <WeatherDayCard key={day.date} day={day} />
         ))}

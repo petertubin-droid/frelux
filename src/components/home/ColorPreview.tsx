@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import Container from '@/components/ui/Container';
+
 import SectionHeading from '@/components/ui/SectionHeading';
 import { fetchColorCombinations, fetchColorCategories } from '@/lib/queries';
 import type { DbColorCombination, DbColorCategory } from '@/types/database';

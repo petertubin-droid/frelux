@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Accessibility, ChevronDown, Contrast, Type, Zap, Check } from 'lucide-react';
+import { Accessibility, Contrast, Type, Zap, Check } from 'lucide-react';
 import { useAccessibility } from '@/lib/accessibility';
 import { classNames } from '@/lib/utils';
 

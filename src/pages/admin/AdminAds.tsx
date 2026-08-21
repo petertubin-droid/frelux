@@ -654,7 +654,7 @@ function AnalyticsTab() {
       </div>
 
       {/* Summary cards */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
           { label: 'Impressions', value: totalImpressions.toLocaleString() },
           { label: 'Clicks', value: totalClicks.toLocaleString() },

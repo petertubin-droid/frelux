@@ -25,8 +25,6 @@ import {
   calculateTheoreticalMaterialQuantity,
   parseMaterialRatio,
   parseStandardPartition,
-  getRoundingRule,
-  validateTyroleneInput,
   checkTyroleneProductionEligibility,
   formatTyroleneCurrency,
   type TyroleneProjectInput,
@@ -161,7 +159,6 @@ const VERIFIED_RATIO = {
 /** Standard partition: 3m × 3m = 9m² (admin-configurable) */
 const STANDARD_WIDTH = 3;
 const STANDARD_HEIGHT = 3;
-const STANDARD_AREA = 9;
 
 function makeConfig(overrides: Partial<TyroleneCalcConfig> = {}): TyroleneCalcConfig {
   const materials = [

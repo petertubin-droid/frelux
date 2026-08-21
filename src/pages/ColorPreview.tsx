@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import PageHeader from '@/components/ui/PageHeader';
 import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
-import { Loader2, Upload, X, Sparkles, Eye, Download } from 'lucide-react';
+import { Loader2, Upload, X, Sparkles, Eye } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 
 export default function ColorPreview() {

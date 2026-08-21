@@ -74,7 +74,7 @@ export default function ResultCard({
 
         {children}
 
-        <div className="mt-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {onSave && (
             <button type="button" onClick={onSave} className="btn-primary press-scale">
               <Save className="h-4 w-4" />

@@ -71,7 +71,7 @@ const navModules: NavModule[] = [
   {
     heading: 'Calculators',
     items: [
-      { label: 'Paint Calculator', to: '/admin/paint-types', icon: Calculator },
+      { label: 'Paint Calculator (Legacy)', to: '/admin/paint-types', icon: Calculator },
       { label: 'Wall Screeding', to: '/admin/screeding', icon: Layers },
       { label: 'POP Ceiling', to: '/admin/pop-materials', icon: Layers },
       { label: 'Tile Library', to: '/admin/tile-materials', icon: Layers },

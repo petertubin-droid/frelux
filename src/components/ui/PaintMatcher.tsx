@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, Loader2, X, Palette, Sparkles } from 'lucide-react';
+import { Camera, Loader2, X, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { matchPaintColor, type ColorMatchResult } from '@/lib/color-matcher';
 import { fetchPaintColors } from '@/lib/queries';

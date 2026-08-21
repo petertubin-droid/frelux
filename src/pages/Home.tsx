@@ -15,7 +15,7 @@ import { WeatherWidget } from '@/components/ui/WeatherWidget';
 import { RecentlyUsed } from '@/components/ui/RecentlyUsed';
 import { AchievementBadges } from '@/components/ui/AchievementBadges';
 import ProConnectHomeSection from '@/components/pro-connect/ProConnectHomeSection';
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSeo } from '@/lib/seo';
 import { getPublicTemplates } from '@/lib/templates';
 

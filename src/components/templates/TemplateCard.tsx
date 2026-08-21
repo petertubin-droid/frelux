@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 'lucide-react';
-import { calculatorLabel, calculatorPath } from '@/lib/templates';
+import { calculatorLabel } from '@/lib/templates';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
 

@@ -13,8 +13,6 @@ import {
   calculateMaterialCost,
   calculateLaborCost,
   calculateEstimatedTotal,
-  DEFAULT_COVERAGE_M2_PER_LITER,
-  DEFAULT_CONTAINER_SIZES_LITERS,
 } from './calc';
 import type { CalculatorInput, CostEstimateInput } from '@/types';
 

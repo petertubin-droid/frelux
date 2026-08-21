@@ -20,7 +20,6 @@ import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
-import type { DbCalculatorTemplate } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
@@ -312,7 +311,7 @@ function OpeningsSection({
             Custom door dimensions
           </button>
           {showDoorDims && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Field label="Door width (m)">
                 <input type="number" min={0} step="0.01" value={input.doorDims.width || ''} onChange={(e) => updateDoorDim('width', Number(e.target.value))} className="input-field text-sm" />
               </Field>
@@ -331,7 +330,7 @@ function OpeningsSection({
             Custom window dimensions
           </button>
           {showWindowDims && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
               <Field label="Window width (m)">
                 <input type="number" min={0} step="0.01" value={input.windowDims.width || ''} onChange={(e) => updateWindowDim('width', Number(e.target.value))} className="input-field text-sm" />
               </Field>

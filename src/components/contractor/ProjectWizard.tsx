@@ -359,7 +359,7 @@ export default function ProjectWizard() {
 
   const renderProjectTypeStep = () => (
     <WizardStep step={0} title="Select Project Type" subtitle="What kind of project are you estimating?">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
         {PROJECT_TYPES.map((opt) => (
           <OptionButton
             key={opt.value}
@@ -380,7 +380,7 @@ export default function ProjectWizard() {
       <div className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Building Type</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {BUILDING_TYPES.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -395,7 +395,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Surface Location</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {SURFACE_LOCATIONS.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -410,7 +410,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Construction Type</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {CONSTRUCTION_TYPES.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -425,7 +425,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Finish Quality</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -467,7 +467,7 @@ export default function ProjectWizard() {
       <div className="space-y-6">
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Budget Level</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -483,7 +483,7 @@ export default function ProjectWizard() {
 
         <fieldset>
           <legend className="mb-2 text-sm font-semibold text-gray-700">Material Quality</legend>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
                 key={opt.value}
@@ -536,7 +536,7 @@ export default function ProjectWizard() {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Client name */}
           <div>
             <label htmlFor="pw-client-name" className="mb-1.5 block text-sm font-semibold text-gray-700">

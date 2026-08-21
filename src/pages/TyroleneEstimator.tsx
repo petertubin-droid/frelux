@@ -11,8 +11,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import {
-  Plus, Trash2, ChevronDown, ChevronUp, AlertCircle, CheckCircle2,
-  Calculator, Save, RotateCcw, Ruler, Shield, Info, MapPin, Loader2,
+  Plus, Trash2, AlertCircle, CheckCircle2,
+  Calculator, Save, RotateCcw, Shield, Info, MapPin, Loader2,
   Layers, Building2, Eye, EyeOff, Package, Box,
 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -37,7 +37,6 @@ import type {
   EstimationPrice,
   EstimationCalcRule,
   EstimationPackSize,
-  EstimateLineItemInput,
 } from '@/types/estimation';
 import {
   fetchEstimationProducts,
@@ -625,7 +624,7 @@ export default function TyroleneEstimator() {
                 </p>
               )}
 
-              {partitionTypes.map((pt, idx) => (
+              {partitionTypes.map((pt, _idx) => (
                 <div key={pt.id} className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
@@ -640,7 +639,7 @@ export default function TyroleneEstimator() {
                       </button>
                     )}
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
                       <label className="block text-xs text-neutral-400 mb-1">Qty</label>
                       <input
@@ -824,7 +823,7 @@ export default function TyroleneEstimator() {
                                 {m.rounding_rule} · pack {m.pack_size}
                               </span>
                             </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                               <div>
                                 <span className="text-neutral-400">Theoretical: </span>
                                 <span className="font-medium text-neutral-900 dark:text-white">
@@ -902,7 +901,7 @@ export default function TyroleneEstimator() {
                     </div>
 
                     {/* Customer Trust Indicators */}
-                    <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="rounded-md bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2">
                         <span className="text-neutral-400">CALCULATED:</span>{' '}
                         <span className="text-neutral-900 dark:text-white">FRELUX Engine</span>

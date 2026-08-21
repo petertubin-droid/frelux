@@ -71,7 +71,7 @@ function clearLocalExpiry(toolKey: string): void {
   localStorage.removeItem(STORAGE_PREFIX + toolKey);
 }
 
-function endOfDayISO(): string {
+function _endOfDayISO(): string {
   const now = new Date();
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
   return end.toISOString();

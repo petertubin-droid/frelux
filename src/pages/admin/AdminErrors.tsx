@@ -46,7 +46,7 @@ export default function AdminErrors() {
 
     const { data, error } = await query;
     if (error) {
-      console.error('Failed to fetch error logs:', error);
+      if (import.meta.env.DEV) console.error('Failed to fetch error logs:', error);
       setErrors([]);
     } else {
       setErrors((data ?? []) as unknown as ErrorLog[]);
@@ -116,7 +116,7 @@ export default function AdminErrors() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-4">
         <StatCard label="Total Errors" value={stats.total} />
         <StatCard label="Unresolved" value={stats.unresolved} accent="text-orange-600" />
         <StatCard label="Critical (unresolved)" value={stats.critical} accent="text-red-600" />

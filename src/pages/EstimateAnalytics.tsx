@@ -4,7 +4,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { getEstimateHistory } from '@/lib/crm';
 import type { DbEstimateHistory } from '@/types/database';
 import { downloadCsv } from '@/lib/export-utils';
-import { Loader2, Download, TrendingUp, TrendingDown, BarChart3, Calendar, DollarSign, Calculator, Brain } from 'lucide-react';
+import { Loader2, Download, TrendingUp, TrendingDown, BarChart3, Calendar, DollarSign, Calculator } from 'lucide-react';
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: 'Painting',

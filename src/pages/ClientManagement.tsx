@@ -242,7 +242,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
       setCommunications(comms);
       setProjects(projs as typeof projects);
     } catch (e) {
-      console.error('Failed to load client details:', e);
+      if (import.meta.env.DEV) console.error('Failed to load client details:', e);
     } finally {
       setLoading(false);
     }
@@ -258,7 +258,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
       setShowCommForm(false);
       await load();
     } catch (e) {
-      console.error('Failed to add communication:', e);
+      if (import.meta.env.DEV) console.error('Failed to add communication:', e);
     }
   }
 
@@ -267,7 +267,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
       await deleteClientCommunication(id, userId);
       await load();
     } catch (e) {
-      console.error('Failed to delete:', e);
+      if (import.meta.env.DEV) console.error('Failed to delete:', e);
     }
   }
 

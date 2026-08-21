@@ -263,7 +263,7 @@ export async function adminDeleteTemplate(templateId: string): Promise<void> {
 // Calculator type metadata
 // =========================================================
 export const CALCULATOR_META: Record<CalculatorType, { label: string; path: string; icon: string }> = {
-  paint: { label: 'Painting', path: '/paint-calculator', icon: 'paint' },
+  paint: { label: 'Painting', path: '/painting-estimator', icon: 'paint' },
   tile: { label: 'Tiling', path: '/tile-calculator', icon: 'tile' },
   pop: { label: 'POP Ceiling', path: '/pop-ceiling-calculator', icon: 'pop' },
   screeding: { label: 'Wall Screeding', path: '/screeding-calculator', icon: 'screeding' },

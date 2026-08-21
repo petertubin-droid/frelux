@@ -39,7 +39,7 @@ export default function FeaturedTemplates() {
           title="Popular Calculator Templates"
           subtitle="Pre-configured scenarios for common Nigerian construction projects. Pick one to start calculating instantly."
         />
-        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="h-40 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/10 dark:bg-white/5" />
           ))}
@@ -62,7 +62,7 @@ export default function FeaturedTemplates() {
       />
 
       <nav aria-label="Featured templates" className="mt-8">
-        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {templates.map((template) => {
             const meta = CALCULATOR_META[template.calculator_type as CalculatorType];
             const href = template.slug ? `/templates/${template.slug}` : meta?.path ?? '/templates';

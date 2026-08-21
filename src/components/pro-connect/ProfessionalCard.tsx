@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Clock, Briefcase, MessageSquare } from 'lucide-react';
+import { Star, Briefcase } from 'lucide-react';
 import type { DbProProfile, DbProCategory, DbProService } from '@/types/pro-connect';
 import { ProAvailability } from '@/types/pro-connect';
 import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';

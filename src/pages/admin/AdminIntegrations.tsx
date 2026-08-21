@@ -290,7 +290,7 @@ export default function AdminIntegrations() {
 
                     {configFields.length > 0 && (
                       <div className="mt-4 space-y-3">
-                        {configFields.map(([key, value]) => (
+                        {configFields.map(([key, _value]) => (
                           <div key={key}>
                             <label className="text-xs font-medium text-muted-foreground">
                               {key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}

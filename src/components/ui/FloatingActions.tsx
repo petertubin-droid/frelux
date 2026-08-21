@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator, ArrowLeftRight } from "lucide-react";
+import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator } from "lucide-react";
 import { classNames } from '@/lib/utils';
 
 const actions = [

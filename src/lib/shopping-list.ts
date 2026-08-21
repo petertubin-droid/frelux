@@ -3,7 +3,7 @@
  * Compiles all materials from a calculation into a checklist format.
  */
 
-import type { CalculatorResult, CostEstimateResult, CalculatorInput, CostEstimateInput, ContainerRecommendation } from '@/types';
+import type { CalculatorResult, CostEstimateResult, CalculatorInput, CostEstimateInput } from '@/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 
 export interface ShoppingListItem {

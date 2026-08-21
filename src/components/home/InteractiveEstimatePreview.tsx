@@ -155,7 +155,7 @@ export default function InteractiveEstimatePreview() {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">Wall height: {preset.height} ft</p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
                     <Layers className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">{preset.coats}</p>

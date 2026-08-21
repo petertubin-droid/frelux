@@ -9,7 +9,6 @@ import {
   Building2,
   Palette,
   Square,
-  Hammer,
   type LucideIcon,
 } from 'lucide-react';
 import Container from '@/components/ui/Container';

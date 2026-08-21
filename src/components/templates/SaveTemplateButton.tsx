@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bookmark, Loader2 } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useUserTemplates } from '@/lib/useTemplates';
 import SaveTemplateModal from './SaveTemplateModal';

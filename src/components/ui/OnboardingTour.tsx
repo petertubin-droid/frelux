@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
 import { TOUR_STEPS, completeOnboarding } from '@/lib/onboarding';
 import { classNames } from '@/lib/utils';
@@ -8,7 +7,6 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
   const [position, setPosition] = useState({ top: 0, left: 0, placement: 'below' as 'below' | 'above' | 'center' });
   const overlayRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   const currentTour = TOUR_STEPS[step];
 
   useEffect(() => {

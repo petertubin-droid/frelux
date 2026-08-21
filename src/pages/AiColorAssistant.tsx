@@ -37,7 +37,6 @@ import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
 import type { AiRecommendation, AiConsultMode, AiRequestStatus } from '@/types/ai';
 import type { DbColorCombination, DbPaintColor } from '@/types/database';
-import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
@@ -840,7 +839,7 @@ function ResultPanel({
         <div className="border-t border-neutral-100 bg-accent-green/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-green">Matching FRELUX paint colors</p>
           <p className="mt-1 text-xs text-neutral-500">Closest matches from our color library, tap to view full details.</p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {matchedPaintColors.map((pc) => (
               <Link
                 key={pc.id}

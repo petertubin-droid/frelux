@@ -119,7 +119,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                   <p className="mt-2">No images yet. Upload one to get started.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
                   {items.map((item) => (
                     <div key={item.id} className={classNames('group relative overflow-hidden rounded-lg border-2 transition-all', selected?.id === item.id ? 'border-brand-purple ring-2 ring-brand-purple/20' : 'border-transparent hover:border-neutral-200')}>
                       <button type="button" onClick={() => setSelected(item)} className="block w-full">

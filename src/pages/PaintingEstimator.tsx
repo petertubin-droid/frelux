@@ -416,7 +416,7 @@ export default function PaintingEstimator() {
       });
 
       if (estError || !estimate) {
-        console.error('Failed to save estimate:', estError);
+        if (import.meta.env.DEV) console.error('Failed to save estimate:', estError);
         return;
       }
 
@@ -475,7 +475,7 @@ export default function PaintingEstimator() {
 
       setSaved(true);
     } catch (err) {
-      console.error('Save failed:', err);
+      if (import.meta.env.DEV) console.error('Save failed:', err);
     }
   }, [result, rooms, projectDescription, customerLocation, addPrimer, calcVersionId, adjustments]);
 
@@ -737,7 +737,7 @@ function RoomCard({
         <div className="border-t border-neutral-100 px-5 py-5 dark:border-white/5">
           {/* Dimensions */}
           <Section icon={<Square className="h-4 w-4" />} title="Room Dimensions">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
               <NumberField label="Length" value={room.length} onChange={(v) => onUpdate({ length: v })} unit={room.unit} />
               <NumberField label="Breadth" value={room.breadth} onChange={(v) => onUpdate({ breadth: v })} unit={room.unit} />
               <NumberField label="Wall Height" value={room.height} onChange={(v) => onUpdate({ height: v })} unit={room.unit} />
@@ -998,7 +998,7 @@ function EstimateResult({
           <div className="p-5">
             {/* Customer-facing summary — painter language */}
             <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
                 <div><span className="text-neutral-400 dark:text-neutral-500">Room Size:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.room_size}</span></div>
                 <div><span className="text-neutral-400 dark:text-neutral-500">Wall Height:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.wall_height}</span></div>
                 <div><span className="text-neutral-400 dark:text-neutral-500">Paint:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.paint}</span></div>
@@ -1026,7 +1026,7 @@ function EstimateResult({
             )}
 
             {/* Professional detail stats (supplementary, not primary) */}
-            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
               <StatBox label="Theoretical Qty" value={`${room.theoretical_total_litres.toFixed(2)} L`} highlight />
               <StatBox label="Purchase Qty" value={`${room.practical_total_buckets} bucket(s)`} highlight />
               <StatBox label="Net Wall Area" value={`${room.net_wall_area_m2.toFixed(2)} m²`} />
@@ -1095,7 +1095,7 @@ function EstimateResult({
         </div>
         <div className="p-5 space-y-4">
           {/* Combined quantities */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
             <StatBox label="Total Theoretical" value={`${result.combined_theoretical_litres.toFixed(2)} L`} />
             <StatBox label="Total Theoretical" value={`${result.combined_theoretical_buckets.toFixed(2)} buckets`} />
             <StatBox label="Total Purchase" value={`${result.combined_practical_buckets} buckets`} highlight />

@@ -40,7 +40,7 @@ export default function StudioOverview() {
       </div>
 
       {/* Stats */}
-      <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
           <div key={s.label} className="rounded-lg border border-neutral-200 bg-white p-4">
             <p className="text-2xl font-bold text-brand-navy">{s.value}</p>

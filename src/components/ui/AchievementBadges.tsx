@@ -56,7 +56,7 @@ export function AchievementBadges({ compact = false }: Props) {
 
       {/* Stats grid */}
       {stats && (
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:grid-cols-4">
           <StatTile label="Calculations" value={stats.totalCalculations} />
           <StatTile label="Colors viewed" value={stats.colorsViewed} />
           <StatTile label="Projects saved" value={stats.projectsSaved} />
@@ -65,7 +65,7 @@ export function AchievementBadges({ compact = false }: Props) {
       )}
 
       {/* Badges grid */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:grid-cols-3">
         {ACHIEVEMENTS.map(ach => {
           const isUnlocked = unlockedIds.has(ach.id);
           return (

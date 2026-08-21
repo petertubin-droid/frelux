@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Save, CheckCircle2, RotateCcw, Search, X, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
@@ -14,7 +14,7 @@ import {
   type TypographyArea,
   type TypographyConfig,
 } from '@/lib/font-library';
-import { loadFont, preloadFontForPreview, clearDynamicFonts } from '@/lib/font-loader';
+import { preloadFontForPreview, clearDynamicFonts } from '@/lib/font-loader';
 import { previewTypography, resetPreview } from '@/lib/useTypography';
 
 type Status = 'loading' | 'ready' | 'error' | 'saving';

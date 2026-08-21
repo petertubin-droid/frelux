@@ -4,7 +4,6 @@
  * The user can save as PDF from the print dialog — no external library needed.
  */
 
-import type { CalculatorResult, CostEstimateResult, CalculatorInput, CostEstimateInput } from '@/types';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 
 interface QuoteExportData {

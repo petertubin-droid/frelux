@@ -7,7 +7,6 @@ import { SkeletonCard } from '@/components/ui/Skeleton';
 import ColorSwatch from '@/components/ui/ColorSwatch';
 import { fetchUserProjects, fetchFavoriteColors, fetchRecentlyViewedColors } from '@/lib/queries';
 import { useAuth } from '@/lib/auth';
-import NotificationSettings from '@/components/NotificationSettings';
 import { getAccountType, upgradeToProWorker, getMyProProfile } from '@/lib/pro-connect';
 import type { AccountType, DbProProfile } from '@/types/pro-connect';
 import { useSeo } from '@/lib/seo';
@@ -170,7 +169,7 @@ export default function Dashboard() {
                   <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">View all</Link>
                 </div>
                 {favColors.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
                     {favColors.slice(0, 6).map((c) => (
                       <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                         <ColorSwatch hex={c.hex_code} size="md" />
@@ -201,7 +200,7 @@ export default function Dashboard() {
                   <Link to="/my-projects" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">View all</Link>
                 </div>
                 {recentColors.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
                     {recentColors.slice(0, 6).map((c) => (
                       <Link key={c.id} to={`/colors/paint/${c.slug}`} className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                         <ColorSwatch hex={c.hex_code} size="md" />

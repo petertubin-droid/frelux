@@ -71,7 +71,7 @@ function reportVital(name: string, value: number): void {
   });
 
   if (import.meta.env.DEV) {
-    console.debug(`[WebVitals] ${name}: ${value.toFixed(2)} (${rating})`);
+    if (import.meta.env.DEV) console.debug(`[WebVitals] ${name}: ${value.toFixed(2)} (${rating})`);
   }
 }
 

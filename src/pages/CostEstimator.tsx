@@ -417,7 +417,7 @@ export default function CostEstimator() {
 
               {/* Smart action buttons */}
               {result && (
-                <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 sm:grid-cols-4">
                   <button type="button" onClick={handleWhatsAppShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
                     <MessageCircle className="h-5 w-5 text-accent-green" />
                     <span className="text-xs font-semibold text-accent-green">WhatsApp</span>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Loader2, Edit2, Trash2, Copy, Star, Eye, EyeOff, Save, X, Search, ChevronDown } from 'lucide-react';
+import { Plus, Loader2, Edit2, Trash2, Copy, Star, Eye, EyeOff, Save, X, Search } from 'lucide-react';
 import {
   adminGetAllTemplates,
   adminCreateTemplate,
@@ -301,7 +301,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           </div>
 
           {/* SEO fields */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">URL Slug</label>
               <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />

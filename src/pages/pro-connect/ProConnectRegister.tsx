@@ -36,7 +36,7 @@ export default function ProConnectRegister() {
   const [availability, setAvailability] = useState<'available' | 'busy' | 'unavailable'>('available');
   const [profileId, setProfileId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [accountType, setAccountType] = useState<AccountType>('client');
+  const [_accountType, _setAccountType] = useState<AccountType>('client');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -170,7 +170,6 @@ export default function ProConnectRegister() {
     setStep(4);
   }
 
-  const totalSteps = 4;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -255,7 +254,7 @@ export default function ProConnectRegister() {
               className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Years of Experience</label>
               <input
@@ -339,7 +338,7 @@ export default function ProConnectRegister() {
 
           {states.map((state) => {
             const stateLocations = locations.filter((l) => l.state === state);
-            const selectedInState = selectedLocations.filter((id) =>
+            const _selectedInState = selectedLocations.filter((id) =>
               stateLocations.some((l) => l.id === id)
             );
             return (
@@ -373,7 +372,7 @@ export default function ProConnectRegister() {
 
           <div>
             <label className="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Availability Status</label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(['available', 'busy', 'unavailable'] as const).map((a) => (
                 <button
                   key={a}

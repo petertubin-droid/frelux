@@ -11,10 +11,7 @@ import type {
   DbProProfileLocation,
   DbProPortfolioItem,
   ProAvailability,
-  ProVerificationStatus,
-  ProDirectoryResult,
 } from '@/types/pro-connect';
-import { useAuth } from '@/lib/auth';
 import { sendPushToUser } from '@/lib/push-notifications';
 
 // =========================================================
@@ -33,7 +30,7 @@ export async function fetchCategories(): Promise<DbProCategory[]> {
     .eq('is_active', true)
     .order('sort_order');
   if (error) {
-    console.error('[pro-connect] fetchCategories:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchCategories:', error.message);
     return [];
   }
   return data as DbProCategory[];
@@ -45,7 +42,7 @@ export async function fetchServices(categoryId?: string): Promise<DbProService[]
   if (categoryId) query = query.eq('category_id', categoryId);
   const { data, error } = await query;
   if (error) {
-    console.error('[pro-connect] fetchServices:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchServices:', error.message);
     return [];
   }
   return data as DbProService[];
@@ -59,7 +56,7 @@ export async function fetchLocations(): Promise<DbProLocation[]> {
     .eq('is_active', true)
     .order('state, city, sort_order');
   if (error) {
-    console.error('[pro-connect] fetchLocations:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', error.message);
     return [];
   }
   return data as DbProLocation[];
@@ -85,7 +82,7 @@ export async function getMyProProfile(userId: string): Promise<DbProProfile | nu
     .eq('user_id', userId)
     .maybeSingle();
   if (error) {
-    console.error('[pro-connect] getMyProProfile:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getMyProProfile:', error.message);
     return null;
   }
   return data as DbProProfile | null;
@@ -99,7 +96,7 @@ export async function getProProfileBySlug(slug: string): Promise<DbProProfile | 
     .eq('slug', slug)
     .maybeSingle();
   if (error) {
-    console.error('[pro-connect] getProProfileBySlug:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileBySlug:', error.message);
     return null;
   }
   return data as DbProProfile | null;
@@ -112,7 +109,7 @@ export async function getProProfileServices(profileId: string): Promise<DbProPro
     .select('*, service:pro_services(*)')
     .eq('profile_id', profileId);
   if (error) {
-    console.error('[pro-connect] getProProfileServices:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileServices:', error.message);
     return [];
   }
   return data as DbProProfileService[];
@@ -125,7 +122,7 @@ export async function getProProfileLocations(profileId: string): Promise<DbProPr
     .select('*, location:pro_locations(*)')
     .eq('profile_id', profileId);
   if (error) {
-    console.error('[pro-connect] getProProfileLocations:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileLocations:', error.message);
     return [];
   }
   return data as DbProProfileLocation[];
@@ -139,7 +136,7 @@ export async function getProPortfolio(profileId: string): Promise<DbProPortfolio
     .eq('profile_id', profileId)
     .order('sort_order, created_at DESC');
   if (error) {
-    console.error('[pro-connect] getProPortfolio:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getProPortfolio:', error.message);
     return [];
   }
   return data as DbProPortfolioItem[];
@@ -154,7 +151,7 @@ export async function getProReviews(professionalId: string): Promise<DbProReview
     .eq('is_hidden', false)
     .order('created_at DESC');
   if (error) {
-    console.error('[pro-connect] getProReviews:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getProReviews:', error.message);
     return [];
   }
   return data as DbProReview[];
@@ -235,7 +232,7 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
   const { data, error, count } = await query;
 
   if (error) {
-    console.error('[pro-connect] searchProfessionals:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] searchProfessionals:', error.message);
     return { profiles: [], total: 0, hasMore: false };
   }
 
@@ -261,7 +258,7 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
   if (params.state || params.city) {
     const profileIds = filteredProfiles.map((p) => p.id);
     if (profileIds.length > 0) {
-      let locQuery = supabase
+      const locQuery = supabase
         .from('pro_profile_locations')
         .select('profile_id, location:pro_locations(state, city)')
         .in('profile_id', profileIds);
@@ -320,7 +317,7 @@ export async function createProProfile(profile: {
     .select('*')
     .single();
   if (error) {
-    console.error('[pro-connect] createProProfile:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] createProProfile:', error.message);
     return null;
   }
   return data as DbProProfile;
@@ -329,13 +326,13 @@ export async function createProProfile(profile: {
 export async function updateProProfile(profileId: string, updates: Partial<DbProProfile>): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   // Strip fields that shouldn't be user-editable
-  const { rating_avg, rating_count, verification_status, created_at, updated_at, id, user_id, ...safeUpdates } = updates;
+  const { ...safeUpdates } = updates;
   const { error } = await supabase
     .from('pro_profiles')
     .update(safeUpdates)
     .eq('id', profileId);
   if (error) {
-    console.error('[pro-connect] updateProProfile:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] updateProProfile:', error.message);
     return false;
   }
   return true;
@@ -349,7 +346,7 @@ export async function updateProfileServices(profileId: string, serviceIds: strin
     const inserts = serviceIds.map((service_id) => ({ profile_id: profileId, service_id }));
     const { error } = await supabase.from('pro_profile_services').insert(inserts);
     if (error) {
-      console.error('[pro-connect] updateProfileServices:', error.message);
+      if (import.meta.env.DEV) console.error('[pro-connect] updateProfileServices:', error.message);
       return false;
     }
   }
@@ -363,7 +360,7 @@ export async function updateProfileLocations(profileId: string, locationIds: str
     const inserts = locationIds.map((location_id) => ({ profile_id: profileId, location_id }));
     const { error } = await supabase.from('pro_profile_locations').insert(inserts);
     if (error) {
-      console.error('[pro-connect] updateProfileLocations:', error.message);
+      if (import.meta.env.DEV) console.error('[pro-connect] updateProfileLocations:', error.message);
       return false;
     }
   }
@@ -391,7 +388,7 @@ export async function addPortfolioItem(profileId: string, item: {
       completed_date: item.completed_date || null,
     });
   if (error) {
-    console.error('[pro-connect] addPortfolioItem:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] addPortfolioItem:', error.message);
     return false;
   }
   return true;
@@ -401,7 +398,7 @@ export async function deletePortfolioItem(itemId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase.from('pro_portfolio_items').delete().eq('id', itemId);
   if (error) {
-    console.error('[pro-connect] deletePortfolioItem:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] deletePortfolioItem:', error.message);
     return false;
   }
   return true;
@@ -432,7 +429,7 @@ export async function createReview(professionalId: string, rating: number, revie
       project_ref: projectRef || null,
     });
   if (error) {
-    console.error('[pro-connect] createReview:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] createReview:', error.message);
     return false;
   }
   return true;
@@ -448,7 +445,7 @@ export async function respondToReview(reviewId: string, response: string): Promi
     })
     .eq('id', reviewId);
   if (error) {
-    console.error('[pro-connect] respondToReview:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] respondToReview:', error.message);
     return false;
   }
   return true;
@@ -487,7 +484,7 @@ export async function getOrCreateConversation(professionalId: string, projectRef
     .select('*, professional:pro_profiles(*)')
     .single();
   if (error) {
-    console.error('[pro-connect] getOrCreateConversation:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getOrCreateConversation:', error.message);
     return null;
   }
   return data as DbProConversation;
@@ -523,7 +520,7 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   }
 
   if (err1) {
-    console.error('[pro-connect] getMyConversations:', err1.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getMyConversations:', err1.message);
     return [];
   }
 
@@ -546,7 +543,7 @@ export async function getMessages(conversationId: string): Promise<DbProMessage[
     .eq('conversation_id', conversationId)
     .order('created_at ASC');
   if (error) {
-    console.error('[pro-connect] getMessages:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getMessages:', error.message);
     return [];
   }
   return data as DbProMessage[];
@@ -566,7 +563,7 @@ export async function sendMessage(conversationId: string, body: string, attachme
       attachment_url: attachmentUrl || null,
     });
   if (error) {
-    console.error('[pro-connect] sendMessage:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] sendMessage:', error.message);
     return false;
   }
 
@@ -612,7 +609,7 @@ export async function sendMessage(conversationId: string, body: string, attachme
       }
     }
   } catch (err) {
-    console.error('[pro-connect] Push notification failed:', err);
+    if (import.meta.env.DEV) console.error('[pro-connect] Push notification failed:', err);
     // Don't fail the message send if push fails
   }
 
@@ -631,7 +628,7 @@ export async function markMessagesRead(conversationId: string): Promise<boolean>
     .neq('sender_id', user.id)
     .eq('is_read', false);
   if (error) {
-    console.error('[pro-connect] markMessagesRead:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] markMessagesRead:', error.message);
     return false;
   }
   return true;
@@ -698,7 +695,7 @@ export async function createReport(report: {
       description: report.description || null,
     });
   if (error) {
-    console.error('[pro-connect] createReport:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] createReport:', error.message);
     return false;
   }
   return true;
@@ -760,10 +757,9 @@ import type {
   DbProCredentialPublic,
   DbProSettings,
   VerificationRequestType,
-  VerificationTier,
   AccountType,
 } from '@/types/pro-connect';
-import { getVerificationTier, DbProVerificationLog } from '@/types/pro-connect';
+import { DbProVerificationLog } from '@/types/pro-connect';
 
 // -- Account Type --
 
@@ -783,7 +779,7 @@ export async function upgradeToProWorker(): Promise<boolean> {
   if (!user) return false;
   const { error } = await supabase.rpc('upgrade_account_type', { target_user: user.id });
   if (error) {
-    console.error('[pro-connect] upgradeToProWorker:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] upgradeToProWorker:', error.message);
     return false;
   }
   return true;
@@ -796,7 +792,7 @@ export async function updateAccountType(userId: string, accountType: AccountType
     .update({ account_type: accountType })
     .eq('id', userId);
   if (error) {
-    console.error('[pro-connect] updateAccountType:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] updateAccountType:', error.message);
     return false;
   }
   return true;
@@ -812,7 +808,7 @@ export async function fetchProSettings(): Promise<DbProSettings | null> {
     .eq('id', 1)
     .maybeSingle();
   if (error) {
-    console.error('[pro-connect] fetchProSettings:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchProSettings:', error.message);
     return null;
   }
   return data as DbProSettings;
@@ -825,7 +821,7 @@ export async function updateProSettings(updates: Partial<DbProSettings>): Promis
     .update(updates)
     .eq('id', 1);
   if (error) {
-    console.error('[pro-connect] updateProSettings:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] updateProSettings:', error.message);
     return false;
   }
   return true;
@@ -860,7 +856,7 @@ export async function createVerificationRequest(profileId: string, request: {
     .select('*')
     .single();
   if (error) {
-    console.error('[pro-connect] createVerificationRequest:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] createVerificationRequest:', error.message);
     return null;
   }
 
@@ -881,7 +877,7 @@ export async function getMyVerificationRequests(profileId: string): Promise<DbPr
     .eq('profile_id', profileId)
     .order('created_at DESC');
   if (error) {
-    console.error('[pro-connect] getMyVerificationRequests:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getMyVerificationRequests:', error.message);
     return [];
   }
   return data as DbProVerificationRequest[];
@@ -896,7 +892,7 @@ export async function getAllVerificationRequests(status?: string): Promise<DbPro
   if (status) query = query.eq('status', status);
   const { data, error } = await query;
   if (error) {
-    console.error('[pro-connect] getAllVerificationRequests:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getAllVerificationRequests:', error.message);
     return [];
   }
   return data as unknown as DbProVerificationRequest[];
@@ -909,7 +905,7 @@ export async function withdrawVerificationRequest(requestId: string): Promise<bo
     .update({ status: 'withdrawn' })
     .eq('id', requestId);
   if (error) {
-    console.error('[pro-connect] withdrawVerificationRequest:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] withdrawVerificationRequest:', error.message);
     return false;
   }
   return true;
@@ -925,7 +921,7 @@ export async function adminApproveVerification(profileId: string, requestId: str
     admin_notes: notes || null,
   });
   if (error) {
-    console.error('[pro-connect] adminApproveVerification:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminApproveVerification:', error.message);
     return false;
   }
   return true;
@@ -940,7 +936,7 @@ export async function adminRejectVerification(profileId: string, requestId: stri
     admin_notes: notes || null,
   });
   if (error) {
-    console.error('[pro-connect] adminRejectVerification:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminRejectVerification:', error.message);
     return false;
   }
   return true;
@@ -955,7 +951,7 @@ export async function adminRequestMoreInfo(profileId: string, requestId: string,
     admin_notes: notes || null,
   });
   if (error) {
-    console.error('[pro-connect] adminRequestMoreInfo:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminRequestMoreInfo:', error.message);
     return false;
   }
   return true;
@@ -968,7 +964,7 @@ export async function adminSuspendVerification(profileId: string, reason?: strin
     reason: reason || null,
   });
   if (error) {
-    console.error('[pro-connect] adminSuspendVerification:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminSuspendVerification:', error.message);
     return false;
   }
   return true;
@@ -981,7 +977,7 @@ export async function adminReinstateVerification(profileId: string, notes?: stri
     admin_notes: notes || null,
   });
   if (error) {
-    console.error('[pro-connect] adminReinstateVerification:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminReinstateVerification:', error.message);
     return false;
   }
   return true;
@@ -991,7 +987,7 @@ export async function adminAwardProLevel(profileId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase.rpc('award_pro_level', { profile_uuid: profileId });
   if (error) {
-    console.error('[pro-connect] adminAwardProLevel:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminAwardProLevel:', error.message);
     return false;
   }
   return true;
@@ -1001,7 +997,7 @@ export async function adminRevokeProLevel(profileId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase.rpc('revoke_pro_level', { profile_uuid: profileId });
   if (error) {
-    console.error('[pro-connect] adminRevokeProLevel:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminRevokeProLevel:', error.message);
     return false;
   }
   return true;
@@ -1011,7 +1007,7 @@ export async function checkProLevelEligibility(profileId: string): Promise<boole
   if (!isSupabaseConfigured) return false;
   const { data, error } = await supabase.rpc('check_pro_level_eligibility', { profile_uuid: profileId });
   if (error) {
-    console.error('[pro-connect] checkProLevelEligibility:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] checkProLevelEligibility:', error.message);
     return false;
   }
   return data as boolean;
@@ -1027,7 +1023,7 @@ export async function getVerificationLogs(profileId: string): Promise<DbProVerif
     .eq('profile_id', profileId)
     .order('created_at DESC');
   if (error) {
-    console.error('[pro-connect] getVerificationLogs:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getVerificationLogs:', error.message);
     return [];
   }
   return data as DbProVerificationLog[];
@@ -1043,7 +1039,7 @@ export async function getCredentials(profileId: string): Promise<DbProCredential
     .eq('profile_id', profileId)
     .order('created_at DESC');
   if (error) {
-    console.error('[pro-connect] getCredentials:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getCredentials:', error.message);
     return [];
   }
   return data as DbProCredential[];
@@ -1056,7 +1052,7 @@ export async function getPublicCredentials(profileId: string): Promise<DbProCred
     .select('*')
     .eq('profile_id', profileId);
   if (error) {
-    console.error('[pro-connect] getPublicCredentials:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getPublicCredentials:', error.message);
     return [];
   }
   return data as DbProCredentialPublic[];
@@ -1081,7 +1077,7 @@ export async function addCredential(profileId: string, credential: {
       document_path: credential.document_path || null,
     });
   if (error) {
-    console.error('[pro-connect] addCredential:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] addCredential:', error.message);
     return false;
   }
   return true;
@@ -1091,7 +1087,7 @@ export async function deleteCredential(credentialId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase.from('pro_credentials').delete().eq('id', credentialId);
   if (error) {
-    console.error('[pro-connect] deleteCredential:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] deleteCredential:', error.message);
     return false;
   }
   return true;
@@ -1110,7 +1106,7 @@ export async function adminVerifyCredential(credentialId: string): Promise<boole
     })
     .eq('id', credentialId);
   if (error) {
-    console.error('[pro-connect] adminVerifyCredential:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminVerifyCredential:', error.message);
     return false;
   }
   return true;
@@ -1123,7 +1119,7 @@ export async function adminRejectCredential(credentialId: string): Promise<boole
     .update({ verification_status: 'rejected' })
     .eq('id', credentialId);
   if (error) {
-    console.error('[pro-connect] adminRejectCredential:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] adminRejectCredential:', error.message);
     return false;
   }
   return true;
@@ -1149,7 +1145,7 @@ export async function uploadVerificationDocument(
     .upload(path, file);
 
   if (uploadError) {
-    console.error('[pro-connect] uploadVerificationDocument:', uploadError.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] uploadVerificationDocument:', uploadError.message);
     return null;
   }
 
@@ -1166,7 +1162,7 @@ export async function uploadVerificationDocument(
     });
 
   if (error) {
-    console.error('[pro-connect] uploadVerificationDocument record:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] uploadVerificationDocument record:', error.message);
   }
 
   return path;
@@ -1180,7 +1176,7 @@ export async function getVerificationDocuments(profileId: string): Promise<DbPro
     .eq('profile_id', profileId)
     .order('uploaded_at DESC');
   if (error) {
-    console.error('[pro-connect] getVerificationDocuments:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] getVerificationDocuments:', error.message);
     return [];
   }
   return data as DbProVerificationDocument[];
@@ -1192,7 +1188,7 @@ export async function createSignedUrlForDocument(storagePath: string): Promise<s
     .from('pro-verification')
     .createSignedUrl(storagePath, 300); // 5-minute expiry
   if (error) {
-    console.error('[pro-connect] createSignedUrlForDocument:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] createSignedUrlForDocument:', error.message);
     return null;
   }
   return data?.signedUrl || null;
@@ -1206,7 +1202,7 @@ export async function deleteVerificationDocument(docId: string, storagePath: str
     .delete()
     .eq('id', docId);
   if (error) {
-    console.error('[pro-connect] deleteVerificationDocument:', error.message);
+    if (import.meta.env.DEV) console.error('[pro-connect] deleteVerificationDocument:', error.message);
     return false;
   }
   return true;

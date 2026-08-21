@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search, Home, Calculator, Palette, DollarSign, Layers, Grid3x3,
-  FolderOpen, FileText, Bot, Book, ArrowRight, Clock, Zap, X,
+  FolderOpen, FileText, Bot, Book, ArrowRight, Clock, Zap,
 } from 'lucide-react';
 import { getRecentTools } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';

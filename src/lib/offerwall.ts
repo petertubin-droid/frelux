@@ -28,7 +28,7 @@ export interface OfferwallConfig {
 export function generateOfferwallUrl(
   provider: DbAdProvider,
   clientHash: string,
-  toolKey: string,
+  _toolKey: string,
 ): OfferwallConfig | null {
   const creds = provider.credentials ?? {};
   const slug = provider.slug;

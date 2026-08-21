@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight, RotateCcw, Save, ChevronDown, Info } from 'lucide-react';
+import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight, ChevronDown, Info } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ResultCard from '@/components/ui/ResultCard';
 import { calculateFinish, getFinishTypeLabel, getFinishTypeDescription, getDefaultCoats, dbToFinishMaterialConfig, type FinishType, type FinishCalcResult, type FinishMaterialConfig } from '@/lib/finish-calc';
@@ -7,7 +7,7 @@ import { fetchFinishTypes, fetchSiteSettings, saveUserProject, logAnalyticsEvent
 import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber, DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { useSeo } from '@/lib/seo';
-import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
+import type { ScreedingCalcInput, ScreedingCalcResult, OpeningDimensions } from '@/types';
 import type { DbFinishType, DbSiteSettings } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
@@ -63,7 +63,7 @@ export default function FinishEstimator() {
   // Grafitex-specific state
   const [grafitexBucketPrice, setGrafitexBucketPrice] = useState(20000); // Admin-configurable, default ₦20,000
   const [grafitexPartitionCount, setGrafitexPartitionCount] = useState(4);
-  const [grafitexUsePartitions, setGrafitexUsePartitions] = useState(true);
+  const [grafitexUsePartitions, _setGrafitexUsePartitions] = useState(true);
 
   const currencySymbol = settings?.default_currency_symbol ?? '₦';
   const currency = settings?.default_currency ?? 'NGN';
@@ -368,7 +368,7 @@ export default function FinishEstimator() {
 
                   {areaInput.method === 'full_room' ? (
                     <>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <label className="section-label">Room Length ({areaInput.unit})</label>
                           <input
@@ -457,7 +457,7 @@ export default function FinishEstimator() {
 
                   {/* Doors & Windows (full room only) */}
                   {areaInput.method === 'full_room' && (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="section-label">Doors</label>
                         <input
@@ -482,7 +482,7 @@ export default function FinishEstimator() {
                   )}
 
                   {/* Coats & Waste */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="section-label">Coats</label>
                       <input

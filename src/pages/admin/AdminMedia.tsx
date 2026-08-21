@@ -96,7 +96,7 @@ export default function AdminMedia() {
           ) : items.length === 0 ? (
             <StateMessage type="empty" title="No images found" message="Upload your first image to get started." />
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {items.map((item) => (
                 <AdminCard key={item.id} className="group overflow-hidden p-0">
                   <div className="relative aspect-square overflow-hidden bg-neutral-100">

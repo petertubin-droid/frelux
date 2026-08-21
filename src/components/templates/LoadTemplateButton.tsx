@@ -12,7 +12,7 @@ interface LoadTemplateButtonProps {
 
 export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTemplateButtonProps) {
   const { user } = useAuth();
-  const { templates, loading, toggleFavorite } = useUserTemplates(calculatorType);
+  const { templates, loading } = useUserTemplates(calculatorType);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

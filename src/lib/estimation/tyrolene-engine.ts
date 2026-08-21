@@ -32,9 +32,7 @@ import type {
 import {
   validateQuantity,
   validateDimensions,
-  validatePrice,
   createValidationResult,
-  formatConfigWarning,
 } from './validation';
 
 import { roundPackQuantity } from './pack-sizing';

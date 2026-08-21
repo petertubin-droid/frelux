@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
-  Sun, Moon, LayoutDashboard, UserCircle, ClipboardList, FileStack, Heart,
+  Sun, Moon, LayoutDashboard, UserCircle, ClipboardList, FileStack,
   Users, BarChart3, Search,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
@@ -255,7 +255,7 @@ export default function Navbar() {
 
             {/* Primary CTA — Start Calculating */}
             <Link
-              to="/paint-calculator"
+              to="/painting-estimator"
               className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-brand-purple dark:hover:bg-brand-purple-dark"
             >
               <Calculator className="h-4 w-4" />
@@ -390,7 +390,7 @@ export default function Navbar() {
 
             {/* Primary CTA */}
             <Link
-              to="/paint-calculator"
+              to="/painting-estimator"
               onClick={() => setMobileOpen(false)}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark active:scale-[0.98]"
             >

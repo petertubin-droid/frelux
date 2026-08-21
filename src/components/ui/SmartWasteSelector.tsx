@@ -54,7 +54,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
           {/* Surface condition */}
           <div className="mb-3">
             <label className="block text-xs font-semibold text-neutral-500">Surface condition</label>
-            <div className="mt-1.5 grid grid-cols-3 gap-2">
+            <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['smooth', 'textured', 'rough'] as SurfaceCondition[]).map((s) => (
                 <button
                   key={s}
@@ -76,7 +76,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
           {/* Application method */}
           <div className="mb-3">
             <label className="block text-xs font-semibold text-neutral-500">Application method</label>
-            <div className="mt-1.5 grid grid-cols-3 gap-2">
+            <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['brush', 'roller', 'spray'] as ApplicationMethod[]).map((m) => (
                 <button
                   key={m}

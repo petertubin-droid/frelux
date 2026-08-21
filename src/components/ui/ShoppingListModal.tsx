@@ -51,7 +51,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
         <h1>📋 ${title}</h1>
         <p style="color:#666;margin-bottom:20px;">Generated ${new Date().toLocaleDateString()}</p>
         <ul>
-          ${items.map((item, i) => `<li class="${item.checked ? 'checked' : ''}">${item.checked ? '✅' : '☐'} ${item.quantity}, ${item.name}${item.detail ? ` <em>(${item.detail})</em>` : ''}</li>`).join('')}
+          ${items.map((item, _i) => `<li class="${item.checked ? 'checked' : ''}">${item.checked ? '✅' : '☐'} ${item.quantity}, ${item.name}${item.detail ? ` <em>(${item.detail})</em>` : ''}</li>`).join('')}
         </ul>
       </body></html>`;
     const w = window.open('', '_blank');

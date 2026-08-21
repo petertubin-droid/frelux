@@ -5,7 +5,6 @@
  */
 
 import type { DbPaintColor } from '@/types/database';
-import { normalizeHex } from '@/lib/colors';
 
 export interface ColorMatchResult {
   color: DbPaintColor;

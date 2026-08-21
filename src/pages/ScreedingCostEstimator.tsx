@@ -201,7 +201,7 @@ export default function ScreedingCostEstimator() {
 
               <Section title="Mix Configuration (Admin Managed)">
                 <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                  <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
                       <span className="block text-neutral-400">Paint coverage</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{config.paintCoverageRateM2PerL} m²/L</span>
@@ -223,7 +223,7 @@ export default function ScreedingCostEstimator() {
               </Section>
 
               <Section title="Pricing">
-                <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="rounded-lg border border-neutral-200 p-3">
                     <span className="block text-neutral-400">Screeding Paint (20L bucket)</span>
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.paintPricePerBucket, currencySymbol)}</span>

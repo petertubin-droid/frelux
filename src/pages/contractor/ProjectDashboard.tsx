@@ -903,7 +903,7 @@ function OverviewTab(props: OverviewTabProps) {
   return (
     <div className="space-y-6">
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {stats.map(stat => {
           const Icon = stat.icon;
           return (
@@ -938,7 +938,7 @@ function OverviewTab(props: OverviewTabProps) {
       </div>
 
       {/* Quick stats grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {[
           { label: 'Rooms', value: props.roomCount, icon: Package },
           { label: 'Labour Roles', value: props.labourCount, icon: Users },
@@ -961,7 +961,7 @@ function OverviewTab(props: OverviewTabProps) {
       {/* Client info */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h3 className="text-base font-semibold text-gray-900">Client Information</h3>
-        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <p className="text-xs font-medium uppercase text-gray-500">Client Name</p>
             <p className="mt-1 text-sm font-medium text-gray-900">{props.project.client_name ?? 'N/A'}</p>
@@ -1030,7 +1030,7 @@ function RoomsTab(props: RoomsTabProps) {
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Name */}
             <div>
               <label className="block text-xs font-medium text-gray-600">Room Name</label>
@@ -1184,7 +1184,7 @@ function RoomsTab(props: RoomsTabProps) {
           <p className="text-sm text-gray-500">No rooms yet. Add your first room to get started.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {rooms.map(room => {
             const dims = [
               room.length_m != null ? `L: ${room.length_m}${room.unit === 'meters' ? 'm' : 'ft'}` : null,
@@ -1222,7 +1222,7 @@ function RoomsTab(props: RoomsTabProps) {
                   </span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-gray-100 pt-3">
                   <div>
                     <p className="text-xs text-gray-500">Material</p>
                     <p className="text-sm font-semibold text-gray-900">{currencySymbol}{room.material_cost.toLocaleString('en-NG')}</p>
@@ -1293,7 +1293,7 @@ function LabourTab(props: LabourTabProps) {
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label className="block text-xs font-medium text-gray-600">Role</label>
               <select
@@ -1447,7 +1447,7 @@ function LabourTab(props: LabourTabProps) {
                   </div>
                 </div>
                 {item.notes && <p className="mt-1 text-xs text-gray-500">{item.notes}</p>}
-                <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+                <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-2 text-center">
                   <div>
                     <p className="text-xs text-gray-500">Workers</p>
                     <p className="text-sm font-semibold text-gray-900">{item.worker_count}</p>
@@ -1546,7 +1546,7 @@ function ShoppingTab(props: ShoppingTabProps) {
 
       {/* Summary bar */}
       {shoppingList.length > 0 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-lg border border-gray-200 bg-white p-4">
             <p className="text-xs uppercase text-gray-500">Total Items</p>
             <p className="mt-1 text-lg font-bold text-gray-900">{shoppingList.length}</p>
@@ -1652,7 +1652,7 @@ function QuotationTab(props: QuotationTabProps) {
         <h3 className="text-base font-semibold text-gray-900">Generate New Quotation</h3>
         <p className="mt-1 text-sm text-gray-500">Adjust markup, profit, tax, and additional costs to generate a quotation.</p>
 
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <div>
             <label className="block text-xs font-medium text-gray-600">Markup %</label>
             <input
@@ -1758,7 +1758,7 @@ function QuotationTab(props: QuotationTabProps) {
               </div>
 
               {/* Cost breakdown */}
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:grid-cols-4">
                 <div className="rounded-lg bg-gray-50 p-3">
                   <p className="text-xs text-gray-500">Materials</p>
                   <p className="text-sm font-semibold text-gray-900">{currencySymbol}{quot.material_cost.toLocaleString('en-NG')}</p>

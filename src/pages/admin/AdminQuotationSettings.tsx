@@ -63,7 +63,7 @@ export default function AdminQuotationSettings() {
       <div className="space-y-6">
         <AdminCard>
           <h3 className="mb-4 font-semibold text-neutral-800 dark:text-white">Company Branding</h3>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Company Name</span>
               <input value={settings.company_name ?? ''} onChange={e => setSettings({ ...settings, company_name: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
@@ -89,7 +89,7 @@ export default function AdminQuotationSettings() {
 
         <AdminCard>
           <h3 className="mb-4 font-semibold text-neutral-800 dark:text-white">Default Pricing</h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Markup (%)</span>
               <input type="number" value={settings.default_markup_percentage} onChange={e => setSettings({ ...settings, default_markup_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
@@ -111,7 +111,7 @@ export default function AdminQuotationSettings() {
             <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Terms & Conditions</span>
             <textarea value={settings.default_terms_conditions} onChange={e => setSettings({ ...settings, default_terms_conditions: e.target.value })} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
           </label>
-          <div className="mt-4 grid grid-cols-2 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Payment Terms</span>
               <input value={settings.default_payment_terms} onChange={e => setSettings({ ...settings, default_payment_terms: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />

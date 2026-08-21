@@ -34,7 +34,7 @@ export default function FinalCTA() {
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:flex-wrap">
               <Link
-                to="/paint-calculator"
+                to="/painting-estimator"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-8 py-4 text-base font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <Calculator className="h-5 w-5" />

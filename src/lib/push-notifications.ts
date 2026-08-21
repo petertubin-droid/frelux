@@ -22,7 +22,7 @@ export function getNotificationPermission(): NotificationPermission {
  */
 export async function subscribeToPush(): Promise<boolean> {
   if (!isPushSupported() || !isSupabaseConfigured || !VAPID_PUBLIC_KEY) {
-    console.warn('[push] Push not supported or VAPID key not configured');
+    if (import.meta.env.DEV) console.warn('[push] Push not supported or VAPID key not configured');
     return false;
   }
 
@@ -55,13 +55,13 @@ export async function subscribeToPush(): Promise<boolean> {
     }, { onConflict: 'endpoint' });
 
     if (error) {
-      console.error('[push] Failed to store subscription:', error.message);
+      if (import.meta.env.DEV) console.error('[push] Failed to store subscription:', error.message);
       return false;
     }
 
     return true;
   } catch (err) {
-    console.error('[push] Subscription error:', err);
+    if (import.meta.env.DEV) console.error('[push] Subscription error:', err);
     return false;
   }
 }
@@ -90,7 +90,7 @@ export async function unsubscribeFromPush(): Promise<boolean> {
 
     return true;
   } catch (err) {
-    console.error('[push] Unsubscribe error:', err);
+    if (import.meta.env.DEV) console.error('[push] Unsubscribe error:', err);
     return false;
   }
 }
@@ -125,7 +125,7 @@ export async function sendPushToUser(userId: string, title: string, body: string
   });
 
   if (error) {
-    console.error('[push] Failed to send push:', error.message);
+    if (import.meta.env.DEV) console.error('[push] Failed to send push:', error.message);
     return false;
   }
 

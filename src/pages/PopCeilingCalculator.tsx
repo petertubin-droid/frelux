@@ -15,7 +15,6 @@ import type { DbPopMaterial, DbPopWorkflow, DbSiteSettings } from '@/types/datab
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
-import type { DbCalculatorTemplate } from '@/types/database';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 

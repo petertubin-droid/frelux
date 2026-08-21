@@ -278,7 +278,7 @@ export default function MyProjects() {
         {/* Favorite colors tab */}
         {tab === 'colors' && (
           favColors.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
               {favColors.map((c) => (
                 <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md">
                   <div className="aspect-square" style={{ background: c.hex_code }}>
@@ -414,7 +414,7 @@ export default function MyProjects() {
                     <Trash2 className="h-4 w-4" /> Clear History
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                   {recentlyViewed.map((c) => (
                     <div key={c.id} className="group relative overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md">
                       <button type="button" onClick={() => handlePinRecent(c.id)} className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-neutral-500 dark:bg-brand-navy/80 dark:text-neutral-400 hover:text-brand-purple" title="Pin/Unpin">
