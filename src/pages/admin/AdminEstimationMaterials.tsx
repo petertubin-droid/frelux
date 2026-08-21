@@ -253,7 +253,7 @@ function MaterialForm({
       category: category.trim() || 'general',
       description: description.trim() || null,
       unit_id: unitId || null,
-      pack_size: packSize !== '' && !isNaN(Number(packSize)) ? Number(packSize) : null,
+      pack_size: packSize !== '' && !isNaN(Number(packSize)) ? Math.max(1, Number(packSize)) : null,
       pack_unit_id: packUnitId || null,
       supplier: supplier.trim() || null,
       notes: notes.trim() || null,

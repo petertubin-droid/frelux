@@ -236,7 +236,7 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
       description: description.trim() || null,
       product_type: productType,
       calculation_method: calcMethod,
-      standard_pack_size: standardPackSize ? Number(standardPackSize) : null,
+      standard_pack_size: standardPackSize ? Math.max(1, Number(standardPackSize) || 1) : null,
       recommended_surface: recommendedSurface.trim() || null,
       finish: finish.trim() || null,
       texture: texture.trim() || null,

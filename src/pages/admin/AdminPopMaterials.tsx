@@ -29,10 +29,16 @@ export default function AdminPopMaterials() {
   }
 
   async function handleSave(mat: Partial<DbPopMaterial>) {
+    // Validate numeric fields before saving
+    const validated = { ...mat };
+    if ('coverage_rate' in validated) validated.coverage_rate = Math.max(0.1, Number(validated.coverage_rate) || 0.1);
+    if ('package_size' in validated) validated.package_size = Math.max(1, Number(validated.package_size) || 1);
+    if ('unit_price' in validated) validated.unit_price = Math.max(0, Number(validated.unit_price) || 0);
+    if ('labour_rate_per_sqm' in validated) validated.labour_rate_per_sqm = Math.max(0, Number(validated.labour_rate_per_sqm) || 0);
     if (editing) {
-      await supabase.from('pop_materials').update({ ...mat, updated_at: new Date().toISOString() }).eq('id', editing.id);
+      await supabase.from('pop_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editing.id);
     } else {
-      await supabase.from('pop_materials').insert(mat);
+      await supabase.from('pop_materials').insert(validated);
     }
     setShowEditor(false); setEditing(null); load();
   }
