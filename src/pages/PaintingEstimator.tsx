@@ -996,12 +996,24 @@ function EstimateResult({
             </p>
           </div>
           <div className="p-5">
-            {/* Stats grid — room-based quantities first, m² as supplementary */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatBox label="Theoretical Qty" value={`${room.theoretical_total_litres.toFixed(2)} L`} highlight />
-              <StatBox label="Purchase Qty" value={`${room.practical_total_buckets} bucket(s)`} highlight />
-              <StatBox label="Room Size" value={`${room.length_m.toFixed(2)} × ${room.breadth_m.toFixed(2)} × ${room.height_m.toFixed(2)} m`} />
-              <StatBox label="Paint Quality" value={room.quality?.name ?? 'N/A'} />
+            {/* Customer-facing summary — painter language */}
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+                <div><span className="text-neutral-400 dark:text-neutral-500">Room Size:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.room_size}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Wall Height:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.wall_height}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Paint:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.paint}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Coats:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.coats}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Ceiling:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.ceiling}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Doors:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.doors}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Windows:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.windows}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Requirement:</span> <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">{room.customer_summary.calculated_requirement}</span></div>
+                <div><span className="text-neutral-400 dark:text-neutral-500">Purchase:</span> <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">{room.customer_summary.practical_purchase}</span></div>
+              </div>
+              {room.customer_summary.material_cost !== 'Not configured' && (
+                <div className="mt-2 border-t border-neutral-200 pt-2 dark:border-white/10">
+                  <span className="text-neutral-400 dark:text-neutral-500">Material Cost:</span> <span className="font-bold text-neutral-900 dark:text-white">{room.customer_summary.material_cost}</span>
+                </div>
+              )}
             </div>
 
             {/* Height adjustment warning */}
@@ -1012,6 +1024,14 @@ function EstimateResult({
                 </p>
               </div>
             )}
+
+            {/* Professional detail stats (supplementary, not primary) */}
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatBox label="Theoretical Qty" value={`${room.theoretical_total_litres.toFixed(2)} L`} highlight />
+              <StatBox label="Purchase Qty" value={`${room.practical_total_buckets} bucket(s)`} highlight />
+              <StatBox label="Net Wall Area" value={`${room.net_wall_area_m2.toFixed(2)} m²`} />
+              <StatBox label="Coverage" value={room.coverage_m2_per_liter ? `${room.coverage_m2_per_liter} m²/L` : 'N/A'} />
+            </div>
 
             {/* Ceiling info */}
             {room.include_ceiling && (
@@ -1103,6 +1123,33 @@ function EstimateResult({
               )}
             </p>
             <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">{result.production_message}</p>
+          </div>
+
+          {/* Breakdown by paint type/quality */}
+          {result.breakdown.length > 0 && (
+            <div>
+              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Breakdown by Paint Type & Quality</h4>
+              <div className="space-y-2">
+                {result.breakdown.map((entry, i) => (
+                  <div key={i} className="flex flex-wrap justify-between gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-white/5">
+                    <div>
+                      <span className="font-semibold text-neutral-700 dark:text-neutral-200">{entry.label}</span>
+                      <span className="ml-2 text-neutral-400 dark:text-neutral-500">{entry.room_count} room(s)</span>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="text-neutral-500 dark:text-neutral-400">{entry.theoretical_litres.toFixed(2)} L theoretical</span>
+                      <span className="font-medium text-neutral-700 dark:text-neutral-200">{entry.practical_buckets} buckets</span>
+                      <span className="font-semibold text-neutral-900 dark:text-white">{formatCurrency(entry.material_cost, result.currency)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Total rooms */}
+          <div className="text-xs text-neutral-500 dark:text-neutral-400">
+            Total rooms: {result.rooms.length}
           </div>
 
           {/* Material cost */}

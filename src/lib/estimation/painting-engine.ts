@@ -16,6 +16,14 @@
  * - All business values come from database configuration
  * - Height adjustment: walls above 8 ft (FRELUX standard) are "too high" and trigger
  *   a customer-facing warning plus an optional admin-configurable adjustment factor
+ * - Opening deduction: admin-configurable percentage (default 100% = full deduction)
+ *
+ * Calculation flow (per spec section 23):
+ * ROOM DIMENSIONS → WALL GEOMETRY → CEILING → DOOR/WINDOW ADJUSTMENT →
+ * HEIGHT RULE → SURFACE CONDITION → COLOUR CHANGE → PAINT TYPE →
+ * QUALITY → COATS → FRELUX ROOM-BASED CALIBRATION →
+ * THEORETICAL BUCKET REQUIREMENT → PRACTICAL PURCHASE QUANTITY →
+ * PRICE → TOTAL MATERIAL COST
  */
 
 import type {
@@ -86,11 +94,33 @@ export interface PaintingProjectInput {
 }
 
 export interface HeightAdjustmentInfo {
-  is_high: boolean;               // true if wall height exceeds FRELUX standard
-  standard_height_m: number;       // the configured standard height in metres
-  actual_height_m: number;         // the actual wall height in metres
-  adjustment_factor: number;       // admin-configured factor (1.0 = no change, default warning-only)
-  message: string;                // customer-facing message
+  is_high: boolean;
+  standard_height_m: number;
+  actual_height_m: number;
+  adjustment_factor: number;
+  message: string;
+}
+
+export interface OpeningDeductionInfo {
+  deduction_percentage: number;  // 100 = full deduction, 50 = half, 0 = no deduction
+  total_opening_area_m2: number;
+  deducted_area_m2: number;
+}
+
+/** Customer-facing room summary — painter language, not m² */
+export interface RoomCustomerSummary {
+  room_name: string;
+  room_size: string;           // "12 ft × 14 ft"
+  wall_height: string;         // "8 ft"
+  paint: string;               // "Premium Emulsion"
+  coats: string;               // "2"
+  ceiling: string;             // "Included" or "Not included"
+  doors: string;               // "2" or "Not provided"
+  windows: string;             // "3" or "Not provided"
+  calculated_requirement: string; // "X buckets"
+  practical_purchase: string;    // "X × 20-L buckets"
+  material_cost: string;        // "₦XX,XXX" or "Not configured"
+  height_notice: string | null;  // height warning if applicable
 }
 
 export interface PaintingRoomCalcResult {
@@ -106,6 +136,8 @@ export interface PaintingRoomCalcResult {
   window_area_m2: number;
   net_wall_area_m2: number;
   ceiling_area_m2: number;
+  // Opening deduction
+  opening_deduction: OpeningDeductionInfo | null;
   // Product info
   product: EstimationProduct | null;
   quality: EstimationProductQuality | null;
@@ -130,6 +162,8 @@ export interface PaintingRoomCalcResult {
   ceiling_quantity_buckets: number;
   // Height adjustment
   height_adjustment: HeightAdjustmentInfo | null;
+  // Customer-facing summary
+  customer_summary: RoomCustomerSummary;
   // Warnings
   warnings: string[];
   recommendations: string[];
@@ -151,6 +185,17 @@ export interface PaintingCalcStep {
   detail?: string;
 }
 
+/** Breakdown entry for multi-room summary */
+export interface SummaryBreakdownEntry {
+  label: string;          // e.g. "Emulsion (Standard)"
+  product_name: string;
+  quality_name: string | null;
+  room_count: number;
+  theoretical_litres: number;
+  practical_buckets: number;
+  material_cost: number;
+}
+
 export interface PaintingEstimateResult {
   rooms: PaintingRoomCalcResult[];
   // Combined totals
@@ -162,6 +207,8 @@ export interface PaintingEstimateResult {
   currency: string;
   // Line items
   line_items: EstimateLineItemInput[];
+  // Breakdown by paint type/quality
+  breakdown: SummaryBreakdownEntry[];
   // Warnings (all rooms combined)
   warnings: string[];
   recommendations: string[];
@@ -184,7 +231,6 @@ export interface PaintingEstimateResult {
 
 const CALCULATOR_TYPE = 'painting';
 
-// FRELUX standard wall height fallbacks (admin-configurable via calc rules)
 const FALLBACK_STANDARD_HEIGHT_FT = 8;
 const FALLBACK_STANDARD_HEIGHT_M = 2.4384;
 
@@ -192,30 +238,20 @@ const FALLBACK_STANDARD_HEIGHT_M = 2.4384;
 // Core Calculation Functions
 // =========================================================
 
-/**
- * Converts room dimensions to meters.
- */
 function toMeters(value: number, unit: 'feet' | 'meters'): number {
   return unit === 'feet' ? feetToMeters(value) : value;
 }
 
-/**
- * Calculates gross wall area: perimeter × height.
- */
 export function calculateWallArea(lengthM: number, breadthM: number, heightM: number): number {
   const safeL = Math.max(0, lengthM);
   const safeB = Math.max(0, breadthM);
   const safeH = Math.max(0, heightM);
   if (safeL === 0 || safeH === 0) return 0;
-  // If breadth is 0, calculate only two walls (length × height × 2)
   if (safeB === 0) return 2 * safeL * safeH;
   const perimeter = 2 * (safeL + safeB);
   return Math.round(perimeter * safeH * 100) / 100;
 }
 
-/**
- * Calculates total opening area for a list of openings.
- */
 export function calculateOpeningArea(openings: OpeningInput[], unit: 'feet' | 'meters' = 'feet'): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
@@ -228,17 +264,12 @@ export function calculateOpeningArea(openings: OpeningInput[], unit: 'feet' | 'm
   return Math.round(total * 100) / 100;
 }
 
-/**
- * Calculates ceiling area: length × breadth.
- */
 export function calculateCeilingArea(lengthM: number, breadthM: number): number {
   return Math.round(Math.max(0, lengthM) * Math.max(0, breadthM) * 100) / 100;
 }
 
 /**
- * Calculates theoretical paint required in litres for a given area, coverage, and coats.
  * Internal calculation — NOT shown as the primary FRELUX methodology to the customer.
- * The customer-facing explanation uses room dimensions, height, coats, and quality.
  */
 export function calculateTheoreticalLitres(
   areaM2: number,
@@ -251,60 +282,40 @@ export function calculateTheoreticalLitres(
   return Math.round((safeArea * safeCoats) / coverageM2PerLiter * 100) / 100;
 }
 
-/**
- * Converts litres to buckets given a pack size.
- */
 export function litresToBuckets(litres: number, packSizeLitres: number): number {
   if (packSizeLitres <= 0) return 0;
   return Math.round((Math.max(0, litres) / packSizeLitres) * 10000) / 10000;
 }
 
-/**
- * FRELUX ceiling rule: ceiling uses 0.5 bucket per room (from calc rules, not hardcoded).
- * Falls back to the rule_value from estimation_calc_rules.
- */
 export function getCeilingQuantityBuckets(ceilingRule: EstimationCalcRule | null): number {
-  if (!ceilingRule || !ceilingRule.rule_value) return 0.5; // fallback to verified FRELUX rule
+  if (!ceilingRule || !ceilingRule.rule_value) return 0.5;
   const buckets = (ceilingRule.rule_value as Record<string, unknown>).buckets;
   if (typeof buckets === 'number' && buckets >= 0) return buckets;
-  return 0.5; // fallback
+  return 0.5;
 }
 
-/**
- * Gets the pack size in litres from calc rules or product.
- */
 export function getPackSizeLitres(
   product: EstimationProduct | null,
   packSizeRule: EstimationCalcRule | null
 ): number {
-  // Try product's standard_pack_size first
   if (product?.standard_pack_size && product.standard_pack_size > 0) {
     return product.standard_pack_size;
   }
-  // Try calc rule
   if (packSizeRule?.rule_value) {
     const litres = (packSizeRule.rule_value as Record<string, unknown>).litres;
     if (typeof litres === 'number' && litres > 0) return litres;
   }
-  // Fallback to verified FRELUX standard: 20L
   return 20;
 }
 
-/**
- * Gets the purchase rounding rule from calc rules.
- */
 export function getRoundingRule(roundingRule: EstimationCalcRule | null): string {
   if (roundingRule?.rule_value) {
     const rule = (roundingRule.rule_value as Record<string, unknown>).rule;
     if (typeof rule === 'string') return rule;
   }
-  return 'ceil'; // FRELUX default: round up
+  return 'ceil';
 }
 
-/**
- * Gets the FRELUX standard wall height from calc rules.
- * Falls back to 8 ft (2.4384 m) — the verified FRELUX standard.
- */
 export function getStandardHeight(
   standardHeightRule: EstimationCalcRule | null
 ): { ft: number; m: number } {
@@ -325,16 +336,6 @@ export function getStandardHeight(
   return { ft: FALLBACK_STANDARD_HEIGHT_FT, m: FALLBACK_STANDARD_HEIGHT_M };
 }
 
-/**
- * Evaluates whether the wall height exceeds the FRELUX standard and returns
- * height adjustment information including the admin-configurable adjustment factor.
- *
- * FRELUX rule: Walls above 8 ft (2.44 m) are considered "too high".
- * Default adjustment is warning-only (factor 1.0) — the engine already uses
- * the actual wall height in the area calculation, so the warning ensures the
- * customer is aware their walls exceed the FRELUX standard. Admin can configure
- * a higher adjustment_factor if additional paint allowance is needed.
- */
 export function evaluateHeightAdjustment(
   heightM: number,
   unit: 'feet' | 'meters',
@@ -343,15 +344,12 @@ export function evaluateHeightAdjustment(
   standardHeight: { ft: number; m: number }
 ): HeightAdjustmentInfo | null {
   const rv = heightAdjustmentRule?.rule_value as Record<string, unknown> | null;
-
   const enabled = rv ? rv.enabled !== false : true;
   if (!enabled) return null;
 
-  const thresholdM = rv?.warning_threshold_m as number | undefined
-    ?? standardHeight.m;
+  const thresholdM = rv?.warning_threshold_m as number | undefined ?? standardHeight.m;
   const adjustmentFactor = typeof rv?.adjustment_factor === 'number'
-    ? (rv.adjustment_factor as number)
-    : 1.0;
+    ? (rv.adjustment_factor as number) : 1.0;
   const message = typeof rv?.message === 'string'
     ? (rv.message as string)
     : `Wall height exceeds the FRELUX standard (${standardHeight.ft} ft / ${standardHeight.m.toFixed(2)} m). This is considered a high wall. Professional assessment recommended for non-standard heights.`;
@@ -365,8 +363,22 @@ export function evaluateHeightAdjustment(
       message,
     };
   }
-
   return null;
+}
+
+/**
+ * Gets the opening deduction percentage from calc rules.
+ * Default: 100 (full deduction of door/window areas from gross wall area).
+ * Admin can configure a different percentage (e.g., 50 for half deduction).
+ * 0 means no deduction at all.
+ */
+export function getOpeningDeductionRule(
+  openingDeductionRule: EstimationCalcRule | null
+): number {
+  if (!openingDeductionRule?.rule_value) return 100;
+  const pct = (openingDeductionRule.rule_value as Record<string, unknown>).deduction_percentage;
+  if (typeof pct === 'number' && pct >= 0 && pct <= 100) return pct;
+  return 100;
 }
 
 // =========================================================
@@ -381,30 +393,22 @@ export function validateRoomInput(
   const errors: string[] = [];
   const warnings: string[] = [];
 
-  // Validate dimensions
   const dimValidation = validateDimensions({
     length: room.length,
     breadth: room.breadth,
     height: room.height,
   });
-  if (!dimValidation.valid) {
-    errors.push(...dimValidation.errors);
-  }
+  if (!dimValidation.valid) errors.push(...dimValidation.errors);
 
-  // Validate product
   const productValidation = validateProduct(product);
-  if (!productValidation.valid) {
-    errors.push(...productValidation.errors);
-  }
+  if (!productValidation.valid) errors.push(...productValidation.errors);
 
-  // Validate quality
   if (!quality) {
     errors.push('Quality level is required.');
   } else if (!quality.is_active) {
     errors.push(`Quality level '${quality.name}' is inactive.`);
   }
 
-  // Validate coverage
   if (quality && (quality.coverage === null || quality.coverage === undefined)) {
     warnings.push(
       `Coverage has not been configured for ${product?.name ?? 'product'}, ${quality.name}. ` +
@@ -412,13 +416,9 @@ export function validateRoomInput(
     );
   }
 
-  // Validate coats
   const coatsValidation = validateQuantity(room.coats, 'Coats', false);
-  if (!coatsValidation.valid) {
-    errors.push(...coatsValidation.errors);
-  }
+  if (!coatsValidation.valid) errors.push(...coatsValidation.errors);
 
-  // Door/window validation
   for (const [i, door] of room.doors.entries()) {
     const doorValidation = validateQuantity(door.quantity, `Door ${i + 1} quantity`, true);
     if (!doorValidation.valid) errors.push(...doorValidation.errors);
@@ -437,15 +437,19 @@ export function validateRoomInput(
     }
   }
 
-  // Unknown openings warning
-  if (room.doors_unknown) {
-    warnings.push('Door dimensions not provided, estimate may be less precise.');
-  }
-  if (room.windows_unknown) {
-    warnings.push('Window dimensions not provided, estimate may be less precise.');
-  }
+  if (room.doors_unknown) warnings.push('Door dimensions not provided, estimate may be less precise.');
+  if (room.windows_unknown) warnings.push('Window dimensions not provided, estimate may be less precise.');
 
   return createValidationResult(errors.length === 0, errors, warnings);
+}
+
+// =========================================================
+// Helper: count total openings
+// =========================================================
+function countOpenings(openings: OpeningInput[], unknown: boolean): string {
+  if (unknown) return 'Not provided';
+  const total = openings.reduce((sum, o) => sum + Math.max(0, o.quantity), 0);
+  return String(total);
 }
 
 // =========================================================
@@ -465,6 +469,7 @@ export function calculateRoom(
     surfaceConditions: EstimationSurfaceCondition[];
     standardHeightRule?: EstimationCalcRule | null;
     heightAdjustmentRule?: EstimationCalcRule | null;
+    openingDeductionRule?: EstimationCalcRule | null;
   }
 ): PaintingRoomCalcResult {
   const steps: PaintingCalcStep[] = [];
@@ -474,9 +479,7 @@ export function calculateRoom(
 
   // Validate
   const validation = validateRoomInput(room, config.product, config.quality);
-  if (!validation.valid) {
-    errors.push(...validation.errors);
-  }
+  if (!validation.valid) errors.push(...validation.errors);
   warnings.push(...validation.warnings);
 
   // Convert to meters
@@ -484,22 +487,49 @@ export function calculateRoom(
   const breadthM = toMeters(room.breadth, room.unit);
   const heightM = toMeters(room.height, room.unit);
 
+  // ── STEP 1: ROOM DIMENSIONS ──
   steps.push({
     label: 'Room Dimensions',
     value: `${room.length} × ${room.breadth} × ${room.height} ${room.unit}`,
     detail: `Converted to ${lengthM.toFixed(2)} × ${breadthM.toFixed(2)} × ${heightM.toFixed(2)} m`,
   });
 
-  // Wall area
+  // ── STEP 2: WALL GEOMETRY ──
   const grossWallArea = calculateWallArea(lengthM, breadthM, heightM);
   steps.push({
-    label: 'Gross Wall Area',
+    label: 'Wall Geometry',
     value: `${grossWallArea.toFixed(2)} m²`,
-    detail: `Perimeter × Height = 2 × (${lengthM.toFixed(2)} + ${breadthM.toFixed(2)}) × ${heightM.toFixed(2)}`,
+    detail: `2 × (${lengthM.toFixed(2)} + ${breadthM.toFixed(2)}) × ${heightM.toFixed(2)} = perimeter × height`,
   });
 
-  // Door deductions
+  // ── STEP 3: CEILING (if selected) ──
+  let ceilingArea = 0;
+  let theoreticalCeilingLitres = 0;
+  let theoreticalCeilingBuckets = 0;
+
+  if (room.include_ceiling) {
+    ceilingArea = calculateCeilingArea(lengthM, breadthM);
+    const ceilingQtyBuckets = getCeilingQuantityBuckets(config.ceilingRule);
+    theoreticalCeilingBuckets = ceilingQtyBuckets;
+    theoreticalCeilingLitres = ceilingQtyBuckets * 20; // will use packSizeLitres later
+    steps.push({
+      label: 'Ceiling',
+      value: `${theoreticalCeilingBuckets} bucket(s)`,
+      detail: `FRELUX rule: ${ceilingQtyBuckets} bucket per room. Colour: ${room.ceiling_colour}. Area: ${ceilingArea.toFixed(2)} m². Calculated separately from walls.`,
+    });
+  } else {
+    steps.push({
+      label: 'Ceiling',
+      value: 'Not included',
+      detail: 'Ceiling excluded — ceiling quantity = 0.',
+    });
+  }
+
+  // ── STEP 4: DOOR/WINDOW ADJUSTMENT ──
   let doorArea = 0;
+  let windowArea = 0;
+  let openingDeduction: OpeningDeductionInfo | null = null;
+
   if (room.doors_unknown) {
     steps.push({
       label: 'Door Openings',
@@ -510,14 +540,12 @@ export function calculateRoom(
     doorArea = calculateOpeningArea(room.doors, room.unit);
     if (doorArea > 0) {
       steps.push({
-        label: 'Door Opening Area (deducted)',
+        label: 'Door Opening Area',
         value: `${doorArea.toFixed(2)} m²`,
       });
     }
   }
 
-  // Window deductions
-  let windowArea = 0;
   if (room.windows_unknown) {
     steps.push({
       label: 'Window Openings',
@@ -528,43 +556,105 @@ export function calculateRoom(
     windowArea = calculateOpeningArea(room.windows, room.unit);
     if (windowArea > 0) {
       steps.push({
-        label: 'Window Opening Area (deducted)',
+        label: 'Window Opening Area',
         value: `${windowArea.toFixed(2)} m²`,
       });
     }
   }
 
-  // Net wall area
-  const netWallArea = Math.max(0, grossWallArea - doorArea - windowArea);
+  const totalOpeningArea = doorArea + windowArea;
+  const deductionPct = getOpeningDeductionRule(config.openingDeductionRule ?? null);
+  const deductedArea = Math.round(totalOpeningArea * deductionPct / 100 * 100) / 100;
+  const netWallArea = Math.max(0, grossWallArea - deductedArea);
+
+  if (totalOpeningArea > 0) {
+    openingDeduction = {
+      deduction_percentage: deductionPct,
+      total_opening_area_m2: totalOpeningArea,
+      deducted_area_m2: deductedArea,
+    };
+    steps.push({
+      label: 'Opening Deduction',
+      value: `−${deductedArea.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
+      detail: deductionPct === 100
+        ? 'Full deduction (FRELUX default). Admin can configure a different percentage.'
+        : `Admin-configured deduction: ${deductionPct}%.`,
+    });
+  }
+
   steps.push({
     label: 'Net Wall Area',
     value: `${netWallArea.toFixed(2)} m²`,
-    detail: `Gross Wall Area − Door Area − Window Area = ${grossWallArea.toFixed(2)} − ${doorArea.toFixed(2)} − ${windowArea.toFixed(2)}`,
+    detail: `Gross Wall Area − Deducted Opening Area = ${grossWallArea.toFixed(2)} − ${deductedArea.toFixed(2)}`,
   });
 
-  // ---- Height adjustment (FRELUX rule: walls above 8 ft are "too high") ----
+  // ── STEP 5: HEIGHT RULE ──
   const standardHeight = getStandardHeight(config.standardHeightRule ?? null);
   const heightAdjustment = evaluateHeightAdjustment(
-    heightM,
-    room.unit,
-    room.height,
-    config.heightAdjustmentRule ?? null,
-    standardHeight
+    heightM, room.unit, room.height,
+    config.heightAdjustmentRule ?? null, standardHeight
   );
 
   if (heightAdjustment) {
     warnings.push(heightAdjustment.message);
     steps.push({
-      label: 'Height Adjustment',
+      label: 'Height Rule',
       value: `${room.height} ${room.unit} (above FRELUX standard of ${standardHeight.ft} ft)`,
       detail: heightAdjustment.message +
         (heightAdjustment.adjustment_factor !== 1.0
           ? ` Adjustment factor: ${heightAdjustment.adjustment_factor}.`
-          : ' No additional factor applied — actual height is already used in the wall area calculation.'),
+          : ' Actual height is used in wall area calculation — no additional factor applied.'),
+    });
+  } else {
+    steps.push({
+      label: 'Height Rule',
+      value: `${room.height} ${room.unit}`,
+      detail: room.height <= standardHeight.ft
+        ? `Within FRELUX standard (7–${standardHeight.ft} ft).`
+        : undefined,
     });
   }
 
-  // Coverage from quality
+  // ── STEP 6: SURFACE CONDITION ──
+  const surfaceCondition = config.surfaceConditions.find(
+    (s) => s.condition_key === room.surface_condition_key
+  ) ?? null;
+  let primerRecommended = false;
+
+  if (surfaceCondition?.requires_preparation) {
+    const warningMsg = `${surfaceCondition.name} detected. Surface preparation may be required before painting.`;
+    warnings.push(warningMsg);
+    steps.push({ label: 'Surface Condition', value: surfaceCondition.name, detail: warningMsg });
+  } else if (surfaceCondition) {
+    steps.push({ label: 'Surface Condition', value: surfaceCondition.name });
+  }
+
+  if (surfaceCondition?.primer_recommended) {
+    primerRecommended = true;
+    recommendations.push(`${surfaceCondition.name}: Primer/sealer is recommended. You can add it as a separate line item.`);
+  }
+
+  // ── STEP 7: COLOUR CHANGE ──
+  const colourCondition = config.colourConditions.find(
+    (c) => c.condition_key === room.colour_condition_key
+  ) ?? null;
+
+  if (colourCondition?.requires_warning) {
+    const warningMsg = 'Strong colour transition detected. Additional preparation or paint may be required. Professional adjustment recommended.';
+    warnings.push(warningMsg);
+    steps.push({ label: 'Colour Condition', value: colourCondition.name, detail: warningMsg });
+  } else if (colourCondition) {
+    steps.push({ label: 'Colour Condition', value: colourCondition.name });
+  }
+
+  // ── STEP 8: PAINT TYPE ──
+  steps.push({
+    label: 'Paint Type',
+    value: config.product?.name ?? 'N/A',
+    detail: config.product ? `Category: ${config.product.category}. ${config.product.has_quality_levels ? 'Has quality levels.' : 'No quality levels.'}` : undefined,
+  });
+
+  // ── STEP 9: QUALITY ──
   const coverage = config.quality?.coverage ?? null;
   if (coverage === null || coverage === undefined) {
     errors.push(
@@ -578,34 +668,36 @@ export function calculateRoom(
       ? `${config.quality?.name ?? 'N/A'} — ${coverage} m²/L per coat`
       : `${config.quality?.name ?? 'N/A'} — NOT CONFIGURED`,
     detail: coverage
-      ? `Coverage rate configured for ${config.quality?.name ?? 'this quality'} level.`
+      ? `Coverage rate configured for ${config.quality?.name ?? 'this quality'} level. This feeds the FRELUX room-based engine.`
       : 'Admin must configure coverage before accurate calculation.',
   });
 
-  // Pack size
-  const packSizeLitres = getPackSizeLitres(config.product, config.packSizeRule);
-  steps.push({
-    label: 'Pack Size',
-    value: `${packSizeLitres} L per bucket`,
-    detail: config.product?.standard_pack_size
-      ? 'From product configuration'
-      : 'From FRELUX standard rule (20L)',
-  });
-
-  // Coats
+  // ── STEP 10: COATS ──
   const coats = room.coats;
   steps.push({
     label: 'Coats',
     value: `${coats} coat(s)`,
-    detail: coats === 2 ? 'FRELUX standard: 2 coats.' : undefined,
+    detail: coats === 2 ? 'FRELUX standard: 2 coats.' : `${coats} coats selected.`,
   });
 
-  // Theoretical wall litres — internal calculation using room dimensions
-  // The customer-facing explanation uses room dimensions, height, quality, and coats
+  // ── STEP 11: FRELUX ROOM-BASED CALIBRATION → THEORETICAL ──
+  const packSizeLitres = getPackSizeLitres(config.product, config.packSizeRule);
+  steps.push({
+    label: 'Bucket Size',
+    value: `${packSizeLitres} L per bucket`,
+    detail: 'FRELUX standard: 20-L buckets.',
+  });
+
+  // Recalculate ceiling litres with correct pack size
+  if (room.include_ceiling) {
+    theoreticalCeilingLitres = theoreticalCeilingBuckets * packSizeLitres;
+  }
+
   const theoreticalWallLitres = coverage ? calculateTheoreticalLitres(netWallArea, coats, coverage) : 0;
   const theoreticalWallBuckets = litresToBuckets(theoreticalWallLitres, packSizeLitres);
+
   steps.push({
-    label: 'Theoretical Wall Quantity',
+    label: 'Theoretical Wall Requirement',
     value: coverage
       ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
       : 'Cannot calculate — coverage not configured',
@@ -614,30 +706,7 @@ export function calculateRoom(
       : undefined,
   });
 
-  // Ceiling
-  let theoreticalCeilingLitres = 0;
-  let theoreticalCeilingBuckets = 0;
-  let ceilingArea = 0;
-
-  if (room.include_ceiling) {
-    ceilingArea = calculateCeilingArea(lengthM, breadthM);
-    const ceilingQtyBuckets = getCeilingQuantityBuckets(config.ceilingRule);
-    theoreticalCeilingBuckets = ceilingQtyBuckets;
-    theoreticalCeilingLitres = ceilingQtyBuckets * packSizeLitres;
-    steps.push({
-      label: 'Ceiling',
-      value: `${theoreticalCeilingBuckets} bucket(s) (${theoreticalCeilingLitres.toFixed(2)} L)`,
-      detail: `FRELUX rule: ${ceilingQtyBuckets} bucket per room ceiling. Colour: ${room.ceiling_colour}. Ceiling area: ${ceilingArea.toFixed(2)} m².`,
-    });
-  } else {
-    steps.push({
-      label: 'Ceiling',
-      value: 'Not included',
-      detail: 'Ceiling excluded, ceiling quantity = 0.',
-    });
-  }
-
-  // Total theoretical
+  // ── STEP 12: TOTAL THEORETICAL ──
   const theoreticalTotalLitres = theoreticalWallLitres + theoreticalCeilingLitres;
   const theoreticalTotalBuckets = theoreticalWallBuckets + theoreticalCeilingBuckets;
   steps.push({
@@ -646,7 +715,7 @@ export function calculateRoom(
     detail: 'Wall + Ceiling theoretical quantities (before purchase rounding).',
   });
 
-  // Practical purchase quantity (rounding)
+  // ── STEP 13: PRACTICAL PURCHASE QUANTITY ──
   const roundingRule = getRoundingRule(config.roundingRule);
   const wallRounding = roundPackQuantity(theoreticalWallLitres, packSizeLitres, roundingRule);
   const ceilingRounding = room.include_ceiling
@@ -662,7 +731,7 @@ export function calculateRoom(
   steps.push({
     label: 'Practical Purchase Quantity',
     value: `${practicalTotalBuckets} bucket(s) (${practicalTotalLitres.toFixed(2)} L)`,
-    detail: `Theoretical ${theoreticalTotalBuckets.toFixed(4)} buckets → rounded up to ${practicalTotalBuckets} full buckets (${roundingRule} rule).`,
+    detail: `Theoretical ${theoreticalTotalBuckets.toFixed(4)} buckets → rounded up to ${practicalTotalBuckets} full ${packSizeLitres}-L buckets (${roundingRule} rule).`,
   });
 
   if (leftoverLitres > 0) {
@@ -673,61 +742,32 @@ export function calculateRoom(
     });
   }
 
-  // Colour condition
-  const colourCondition = config.colourConditions.find(
-    (c) => c.condition_key === room.colour_condition_key
-  ) ?? null;
-
-  if (colourCondition?.requires_warning) {
-    const warningMsg = 'Strong colour transition detected. Additional preparation or paint may be required. Professional adjustment recommended.';
-    warnings.push(warningMsg);
-    steps.push({
-      label: 'Colour Condition',
-      value: colourCondition.name,
-      detail: warningMsg,
-    });
-  } else if (colourCondition) {
-    steps.push({
-      label: 'Colour Condition',
-      value: colourCondition.name,
-    });
-  }
-
-  // Surface condition
-  const surfaceCondition = config.surfaceConditions.find(
-    (s) => s.condition_key === room.surface_condition_key
-  ) ?? null;
-
-  let primerRecommended = false;
-  if (surfaceCondition?.requires_preparation) {
-    const warningMsg = `${surfaceCondition.name} detected. Surface preparation may be required before painting.`;
-    warnings.push(warningMsg);
-    steps.push({
-      label: 'Surface Condition',
-      value: surfaceCondition.name,
-      detail: warningMsg,
-    });
-  } else if (surfaceCondition) {
-    steps.push({
-      label: 'Surface Condition',
-      value: surfaceCondition.name,
-    });
-  }
-
-  if (surfaceCondition?.primer_recommended) {
-    primerRecommended = true;
-    recommendations.push(
-      `${surfaceCondition.name}: Primer/sealer is recommended. You can add it as a separate line item.`
-    );
-  }
-
-  // Price validation
+  // ── STEP 14: PRICE ──
   if (!config.price || !isPriceConfigured(config.price?.price)) {
     warnings.push(
       `Price has not been configured for ${config.product?.name ?? 'product'}, ${config.quality?.name ?? 'quality'}. ` +
       'Material cost cannot be calculated until pricing is configured.'
     );
   }
+
+  const unitPrice = config.price?.price ?? 0;
+  const lineTotal = unitPrice > 0 ? calculateLineTotal(unitPrice, practicalTotalLitres) : 0;
+
+  // ── Build customer-facing summary ──
+  const customerSummary: RoomCustomerSummary = {
+    room_name: room.room_name,
+    room_size: `${room.length} × ${room.breadth} ${room.unit}`,
+    wall_height: `${room.height} ${room.unit}`,
+    paint: `${config.quality?.name ?? ''} ${config.product?.name ?? 'Paint'}`.trim(),
+    coats: String(coats),
+    ceiling: room.include_ceiling ? 'Included' : 'Not included',
+    doors: countOpenings(room.doors, room.doors_unknown),
+    windows: countOpenings(room.windows, room.windows_unknown),
+    calculated_requirement: `${theoreticalTotalBuckets.toFixed(2)} buckets (${theoreticalTotalLitres.toFixed(2)} L)`,
+    practical_purchase: `${practicalTotalBuckets} × ${packSizeLitres}-L buckets`,
+    material_cost: unitPrice > 0 ? formatCurrency(lineTotal, config.price?.currency ?? 'NGN') : 'Not configured',
+    height_notice: heightAdjustment?.message ?? null,
+  };
 
   return {
     room_id: room.room_id,
@@ -740,6 +780,7 @@ export function calculateRoom(
     window_area_m2: windowArea,
     net_wall_area_m2: netWallArea,
     ceiling_area_m2: ceilingArea,
+    opening_deduction: openingDeduction,
     product: config.product,
     quality: config.quality,
     coverage_m2_per_liter: coverage,
@@ -759,6 +800,7 @@ export function calculateRoom(
     ceiling_colour: room.ceiling_colour,
     ceiling_quantity_buckets: room.include_ceiling ? theoreticalCeilingBuckets : 0,
     height_adjustment: heightAdjustment,
+    customer_summary: customerSummary,
     warnings,
     recommendations,
     valid: errors.length === 0,
@@ -793,7 +835,6 @@ export function checkProductionEligibility(
   message: string;
   min_required: number;
 } {
-  // If customer is in Owerri, no minimum under current FRELUX rule
   if (customerLocation === 'owerri') {
     return {
       eligible: true,
@@ -810,29 +851,16 @@ export function checkProductionEligibility(
     };
   }
 
-  // Outside Owerri — check production rules
   const locationRule = 'outside_owerri';
-
-  // Try quality-specific rule first, then fall back to product-wide rule
   let rule = productionRules.find(
-    (r) =>
-      r.product_category === productCategory &&
-      r.quality_slug === qualitySlug &&
-      r.location_rule === locationRule &&
-      r.is_active
+    (r) => r.product_category === productCategory && r.quality_slug === qualitySlug && r.location_rule === locationRule && r.is_active
   );
-
   if (!rule) {
     rule = productionRules.find(
-      (r) =>
-        r.product_category === productCategory &&
-        r.quality_slug === null &&
-        r.location_rule === locationRule &&
-        r.is_active
+      (r) => r.product_category === productCategory && r.quality_slug === null && r.location_rule === locationRule && r.is_active
     );
   }
-
-  const minRequired = rule ? rule.min_quantity : 10; // fallback default
+  const minRequired = rule ? rule.min_quantity : 10;
 
   if (requiredBuckets >= minRequired) {
     return {
@@ -870,14 +898,15 @@ export function calculatePaintingProject(
   const allRecommendations: string[] = [];
   const allErrors: string[] = [];
   const lineItems: EstimateLineItemInput[] = [];
+  const roomResults: PaintingRoomCalcResult[] = [];
+  const breakdownMap = new Map<string, SummaryBreakdownEntry>();
 
   const ceilingRule = config.calcRules.get('ceiling_quantity_per_room') ?? null;
   const packSizeRule = config.calcRules.get('pack_size_bucket_litres') ?? null;
   const roundingRule = config.calcRules.get('purchase_rounding_rule') ?? null;
   const standardHeightRule = config.calcRules.get('standard_room_height') ?? null;
   const heightAdjustmentRule = config.calcRules.get('height_adjustment_rule') ?? null;
-
-  const roomResults: PaintingRoomCalcResult[] = [];
+  const openingDeductionRule = config.calcRules.get('opening_deduction_rule') ?? null;
 
   for (const room of input.rooms) {
     const product = config.products.find((p) => p.id === room.product_id) ?? null;
@@ -887,16 +916,10 @@ export function calculatePaintingProject(
     const price = config.prices.get(priceKey) ?? null;
 
     const roomResult = calculateRoom(room, {
-      product,
-      quality,
-      price,
-      ceilingRule,
-      packSizeRule,
-      roundingRule,
+      product, quality, price, ceilingRule, packSizeRule, roundingRule,
       colourConditions: config.colourConditions,
       surfaceConditions: config.surfaceConditions,
-      standardHeightRule,
-      heightAdjustmentRule,
+      standardHeightRule, heightAdjustmentRule, openingDeductionRule,
     });
 
     roomResults.push(roomResult);
@@ -904,22 +927,15 @@ export function calculatePaintingProject(
     allRecommendations.push(...roomResult.recommendations);
     allErrors.push(...roomResult.errors);
 
-    // Create line item for this room's paint
+    // Create line item
     if (roomResult.valid && price && isPriceConfigured(price.price)) {
       const priceSnapshot = createPriceSnapshot(
-        price.price,
-        product?.name ?? 'Unknown Product',
-        roomResult.pack_size_litres,
-        'L',
-        {
-          priceType: price.price_type,
-          refId: price.ref_id,
-          currency: input.currency,
-          priceId: price.id,
-          effectiveDate: price.effective_date,
-        }
+        price.price, product?.name ?? 'Unknown Product',
+        roomResult.pack_size_litres, 'L',
+        { priceType: price.price_type, refId: price.ref_id, currency: input.currency, priceId: price.id, effectiveDate: price.effective_date }
       );
 
+      const itemTotal = calculateLineTotal(price.price, roomResult.practical_total_buckets * roomResult.pack_size_litres);
       lineItems.push({
         item_name: `${room.room_name}, ${product?.name ?? 'Paint'} (${quality?.name ?? 'N/A'})`,
         item_type: 'product',
@@ -930,11 +946,31 @@ export function calculatePaintingProject(
         unit: 'L',
         pack_size: roomResult.pack_size_litres,
         unit_price: price.price,
-        total_price: calculateLineTotal(price.price, roomResult.practical_total_buckets * roomResult.pack_size_litres),
+        total_price: itemTotal,
         price_snapshot: priceSnapshot,
         calculation_source: 'calculated',
         notes: `${roomResult.practical_total_buckets} bucket(s) × ${roomResult.pack_size_litres}L`,
       });
+
+      // Build breakdown entry
+      const breakdownKey = `${product?.name ?? 'Unknown'}|${quality?.name ?? 'N/A'}`;
+      const existing = breakdownMap.get(breakdownKey);
+      if (existing) {
+        existing.room_count += 1;
+        existing.theoretical_litres += roomResult.theoretical_total_litres;
+        existing.practical_buckets += roomResult.practical_total_buckets;
+        existing.material_cost += itemTotal;
+      } else {
+        breakdownMap.set(breakdownKey, {
+          label: `${product?.name ?? 'Unknown'} (${quality?.name ?? 'N/A'})`,
+          product_name: product?.name ?? 'Unknown',
+          quality_name: quality?.name ?? null,
+          room_count: 1,
+          theoretical_litres: roomResult.theoretical_total_litres,
+          practical_buckets: roomResult.practical_total_buckets,
+          material_cost: itemTotal,
+        });
+      }
     }
   }
 
@@ -943,11 +979,9 @@ export function calculatePaintingProject(
   const combinedTheoreticalBuckets = roomResults.reduce((sum, r) => sum + r.theoretical_total_buckets, 0);
   const combinedPracticalBuckets = roomResults.reduce((sum, r) => sum + r.practical_total_buckets, 0);
   const combinedLeftoverLitres = roomResults.reduce((sum, r) => sum + r.leftover_litres, 0);
-
-  // Material cost
   const totalMaterialCost = lineItems.reduce((sum, item) => sum + item.total_price, 0);
 
-  // Production eligibility (check for each room's product)
+  // Production eligibility
   let productionEligible = false;
   let productionMessage = '';
   let productionMinRequired = 0;
@@ -957,19 +991,15 @@ export function calculatePaintingProject(
     const productCategory = firstRoom.product?.category ?? '';
     const qualitySlug = firstRoom.quality?.slug ?? null;
     const eligibility = checkProductionEligibility(
-      input.customer_location,
-      productCategory,
-      qualitySlug,
-      combinedPracticalBuckets,
-      config.productionRules
+      input.customer_location, productCategory, qualitySlug,
+      combinedPracticalBuckets, config.productionRules
     );
     productionEligible = eligibility.eligible;
     productionMessage = eligibility.message;
     productionMinRequired = eligibility.min_required;
   }
 
-  // Labour note (never calculated)
-  const labourNote = 'Labour: Not included, negotiated separately.';
+  const labourNote = 'Labour: Not included — negotiated separately.';
 
   return {
     rooms: roomResults,
@@ -980,6 +1010,7 @@ export function calculatePaintingProject(
     total_material_cost: Math.round(totalMaterialCost * 100) / 100,
     currency: input.currency,
     line_items: lineItems,
+    breakdown: Array.from(breakdownMap.values()),
     warnings: [...new Set(allWarnings)],
     recommendations: [...new Set(allRecommendations)],
     labour_note: labourNote,

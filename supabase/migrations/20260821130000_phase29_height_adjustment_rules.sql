@@ -46,3 +46,18 @@ VALUES (
   'FRELUX rule: Walls exceeding 8 ft (2.44 m) are considered too high. An admin-configurable adjustment factor may be applied. Default is warning-only (factor 1.0) - the engine already calculates wall area using the actual height, so the warning ensures the customer is aware their walls are above standard.'
 )
 ON CONFLICT (rule_key, calculator_type) DO NOTHING;
+
+-- =========================================================
+-- 3. Add opening deduction rule (admin-configurable)
+-- =========================================================
+-- Default: 100% deduction (full door/window area subtracted from gross wall area)
+-- Admin can configure a different percentage (e.g., 50 for half deduction)
+INSERT INTO estimation_calc_rules (rule_key, calculator_type, rule_value, rule_status, description)
+VALUES (
+  'opening_deduction_rule',
+  'painting',
+  '{"deduction_percentage": 100}'::jsonb,
+  'verified_frelux',
+  'FRELUX rule: Door and window opening areas are fully deducted (100%) from the gross wall area. Admin can configure a different deduction percentage if needed.'
+)
+ON CONFLICT (rule_key, calculator_type) DO NOTHING;
