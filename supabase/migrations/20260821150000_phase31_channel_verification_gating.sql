@@ -371,3 +371,382 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION get_user_verification_tier TO authenticated;
+
+-- =========================================================
+-- 11. NIN verification audit log (for reports against workers)
+-- =========================================================
+CREATE TABLE IF NOT EXISTS pro_nin_verification_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  profile_id UUID NOT NULL REFERENCES pro_profiles(id) ON DELETE CASCADE,
+  nin_number TEXT NOT NULL,
+  verified_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  verified_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  status TEXT NOT NULL DEFAULT 'approved' CHECK (status IN ('approved', 'rejected', 'revoked')),
+  notes TEXT,
+  -- Snapshot of profile state at verification time (for reference)
+  display_name_snapshot TEXT,
+  business_name_snapshot TEXT,
+  phone_number_snapshot TEXT,
+  mobile_number_snapshot TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_nin_log_profile ON pro_nin_verification_log(profile_id);
+
+-- RLS: only admins can read the NIN verification log
+ALTER TABLE pro_nin_verification_log ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "nin_log_admin_read" ON pro_nin_verification_log FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+);
+CREATE POLICY "nin_log_admin_all" ON pro_nin_verification_log FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON pro_nin_verification_log TO authenticated;
+GRANT USAGE ON SEQUENCE pro_nin_verification_log_id_seq TO authenticated;
+
+-- =========================================================
+-- 12. Update admin_approve_nin to also log to verification log
+-- =========================================================
+CREATE OR REPLACE FUNCTION admin_approve_nin(
+  p_profile_id UUID,
+  p_admin_id UUID
+)
+RETURNS TABLE (
+  success BOOLEAN,
+  message TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_nin TEXT;
+  v_display_name TEXT;
+  v_business_name TEXT;
+  v_phone TEXT;
+  v_mobile TEXT;
+BEGIN
+  -- Verify admin
+  PERFORM 1 FROM profiles WHERE id = p_admin_id AND role = 'admin';
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT false, 'Only admins can approve NIN'::TEXT;
+    RETURN;
+  END IF;
+
+  -- Get current profile data for snapshot
+  SELECT nin_number, display_name, business_name, phone_number, mobile_number
+  INTO v_nin, v_display_name, v_business_name, v_phone, v_mobile
+  FROM pro_profiles WHERE id = p_profile_id;
+
+  IF v_nin IS NULL THEN
+    RETURN QUERY SELECT false, 'No NIN on file for this profile'::TEXT;
+    RETURN;
+  END IF;
+
+  -- Update profile to verified
+  UPDATE pro_profiles
+  SET nin_verified = true,
+      nin_verified_at = now(),
+      identity_verified_at = now(),
+      verification_status = 'verified'
+  WHERE id = p_profile_id;
+
+  -- Approve pending verification requests
+  UPDATE pro_verification_requests
+  SET status = 'approved',
+      reviewed_by = p_admin_id,
+      reviewed_at = now()
+  WHERE profile_id = p_profile_id
+    AND request_type = 'identity'
+    AND status = 'pending';
+
+  -- Log to NIN verification audit log (for future reference / reports)
+  INSERT INTO pro_nin_verification_log (
+    profile_id, nin_number, verified_by, status,
+    display_name_snapshot, business_name_snapshot,
+    phone_number_snapshot, mobile_number_snapshot
+  ) VALUES (
+    p_profile_id, v_nin, p_admin_id, 'approved',
+    v_display_name, v_business_name, v_phone, v_mobile
+  );
+
+  RETURN QUERY SELECT true, 'NIN verified and logged successfully'::TEXT;
+END;
+$$;
+
+-- =========================================================
+-- 13. RPC: Admin rejects NIN
+-- =========================================================
+CREATE OR REPLACE FUNCTION admin_reject_nin(
+  p_profile_id UUID,
+  p_admin_id UUID,
+  p_reason TEXT
+)
+RETURNS TABLE (
+  success BOOLEAN,
+  message TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_nin TEXT;
+BEGIN
+  PERFORM 1 FROM profiles WHERE id = p_admin_id AND role = 'admin';
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT false, 'Only admins can reject NIN'::TEXT;
+    RETURN;
+  END IF;
+
+  SELECT nin_number INTO v_nin FROM pro_profiles WHERE id = p_profile_id;
+  IF v_nin IS NULL THEN
+    RETURN QUERY SELECT false, 'No NIN on file'::TEXT;
+    RETURN;
+  END IF;
+
+  -- Update profile
+  UPDATE pro_profiles
+  SET nin_verified = false,
+      verification_status = 'rejected'
+  WHERE id = p_profile_id;
+
+  -- Update verification requests
+  UPDATE pro_verification_requests
+  SET status = 'rejected',
+      reviewed_by = p_admin_id,
+      reviewed_at = now(),
+      admin_notes = p_reason
+  WHERE profile_id = p_profile_id
+    AND request_type = 'identity'
+    AND status = 'pending';
+
+  -- Log rejection
+  INSERT INTO pro_nin_verification_log (profile_id, nin_number, verified_by, status, notes)
+  VALUES (p_profile_id, v_nin, p_admin_id, 'rejected', p_reason);
+
+  RETURN QUERY SELECT true, 'NIN rejected'::TEXT;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION admin_reject_nin TO authenticated;
+
+-- =========================================================
+-- 14. RPC: Admin fetches NIN submissions (for review panel)
+-- =========================================================
+CREATE OR REPLACE FUNCTION admin_get_nin_submissions(
+  p_status TEXT DEFAULT 'pending'
+)
+RETURNS TABLE (
+  profile_id UUID,
+  display_name TEXT,
+  business_name TEXT,
+  slug TEXT,
+  nin_number TEXT,
+  nin_verified BOOLEAN,
+  phone_number TEXT,
+  mobile_number TEXT,
+  mobile_otp_verified BOOLEAN,
+  verification_status TEXT,
+  created_at TIMESTAMPTZ,
+  category_name TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  PERFORM 1 FROM profiles WHERE id = auth.uid() AND role = 'admin';
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    pp.id AS profile_id,
+    pp.display_name,
+    pp.business_name,
+    pp.slug,
+    pp.nin_number,
+    pp.nin_verified,
+    pp.phone_number,
+    pp.mobile_number,
+    pp.mobile_otp_verified,
+    pp.verification_status,
+    pp.created_at,
+    (pc.name) AS category_name
+  FROM pro_profiles pp
+  LEFT JOIN pro_categories pc ON pp.category_id = pc.id
+  WHERE pp.nin_number IS NOT NULL
+    AND (
+      p_status = 'all' OR
+      (p_status = 'pending' AND pp.nin_verified = false AND pp.verification_status IN ('pending', 'unverified')) OR
+      (p_status = 'verified' AND pp.nin_verified = true) OR
+      (p_status = 'rejected' AND pp.verification_status = 'rejected')
+    )
+  ORDER BY pp.created_at DESC;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION admin_get_nin_submissions TO authenticated;
+
+-- =========================================================
+-- 15. RPC: Get NIN verification history (for report cases)
+-- =========================================================
+CREATE OR REPLACE FUNCTION admin_get_nin_history(
+  p_profile_id UUID
+)
+RETURNS TABLE (
+  id UUID,
+  nin_number TEXT,
+  verified_by UUID,
+  verified_at TIMESTAMPTZ,
+  status TEXT,
+  notes TEXT,
+  display_name_snapshot TEXT,
+  business_name_snapshot TEXT,
+  phone_number_snapshot TEXT,
+  mobile_number_snapshot TEXT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  PERFORM 1 FROM profiles WHERE id = auth.uid() AND role = 'admin';
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    l.id, l.nin_number, l.verified_by, l.verified_at, l.status, l.notes,
+    l.display_name_snapshot, l.business_name_snapshot,
+    l.phone_number_snapshot, l.mobile_number_snapshot
+  FROM pro_nin_verification_log l
+  WHERE l.profile_id = p_profile_id
+  ORDER BY l.verified_at DESC;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION admin_get_nin_history TO authenticated;
+
+-- =========================================================
+-- 16. Update send_mobile_otp to also trigger SMS via edge function
+-- =========================================================
+-- Note: The edge function call happens from the client side
+-- (after the RPC returns the OTP code) to avoid requiring pg_net
+-- extension. The client calls supabase.functions.invoke('send-sms-otp')
+-- This keeps the architecture simple and doesn't require DB extensions.
+
+-- =========================================================
+-- 17. Worker report table (for reports against workers,
+--     references NIN verification log)
+-- =========================================================
+CREATE TABLE IF NOT EXISTS worker_reports (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  reporter_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  reported_user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  channel_id UUID REFERENCES worker_channels(id) ON DELETE SET NULL,
+  message_id UUID REFERENCES worker_channel_messages(id) ON DELETE SET NULL,
+  reason TEXT NOT NULL CHECK (reason IN ('spam', 'harassment', 'scam', 'misinformation', 'offensive', 'other')),
+  description TEXT,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewing', 'resolved', 'dismissed')),
+  admin_notes TEXT,
+  resolved_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  resolved_at TIMESTAMPTZ,
+  -- Link to NIN verification data for reference
+  nin_verified_at_report_time TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_worker_reports_reported ON worker_reports(reported_user_id);
+CREATE INDEX IF NOT EXISTS idx_worker_reports_status ON worker_reports(status);
+
+ALTER TABLE worker_reports ENABLE ROW LEVEL SECURITY;
+
+-- Users can create reports about others
+CREATE POLICY "worker_reports_insert_self" ON worker_reports FOR INSERT WITH CHECK (
+  reporter_id = auth.uid()
+);
+
+-- Admins can read and update all reports
+CREATE POLICY "worker_reports_admin_read" ON worker_reports FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+);
+CREATE POLICY "worker_reports_admin_update" ON worker_reports FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
+);
+
+-- Reporters can see their own reports
+CREATE POLICY "worker_reports_self_read" ON worker_reports FOR SELECT USING (
+  reporter_id = auth.uid()
+);
+
+GRANT SELECT, INSERT, UPDATE ON worker_reports TO authenticated;
+GRANT USAGE ON SEQUENCE worker_reports_id_seq TO authenticated;
+
+-- =========================================================
+-- 18. RPC: Get worker report details with NIN reference
+-- =========================================================
+CREATE OR REPLACE FUNCTION admin_get_worker_report_details(
+  p_report_id UUID
+)
+RETURNS TABLE (
+  report_id UUID,
+  reporter_name TEXT,
+  reported_user_id UUID,
+  reported_name TEXT,
+  reason TEXT,
+  description TEXT,
+  status TEXT,
+  created_at TIMESTAMPTZ,
+  nin_number TEXT,
+  nin_verified BOOLEAN,
+  nin_verified_at TIMESTAMPTZ,
+  nin_history JSON
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_reported_user UUID;
+BEGIN
+  PERFORM 1 FROM profiles WHERE id = auth.uid() AND role = 'admin';
+  IF NOT FOUND THEN
+    RETURN;
+  END IF;
+
+  SELECT reported_user_id INTO v_reported_user
+  FROM worker_reports WHERE id = p_report_id;
+  IF v_reported_user IS NULL THEN
+    RETURN;
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    wr.id AS report_id,
+    (rp.display_name) AS reporter_name,
+    wr.reported_user_id,
+    (wp.display_name) AS reported_name,
+    wr.reason,
+    wr.description,
+    wr.status,
+    wr.created_at,
+    pp.nin_number,
+    pp.nin_verified,
+    pp.nin_verified_at,
+    (
+      SELECT COALESCE(json_agg(row_to_json(l)), '[]'::json)
+      FROM (
+        SELECT id, nin_number, verified_at, status, notes
+        FROM pro_nin_verification_log
+        WHERE profile_id = pp.id
+        ORDER BY verified_at DESC
+      ) l
+    ) AS nin_history
+  FROM worker_reports wr
+  LEFT JOIN pro_profiles rp ON rp.user_id = wr.reporter_id
+  LEFT JOIN pro_profiles wp ON wp.user_id = wr.reported_user_id
+  LEFT JOIN pro_profiles pp ON pp.user_id = wr.reported_user_id
+  WHERE wr.id = p_report_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION admin_get_worker_report_details TO authenticated;

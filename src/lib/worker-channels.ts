@@ -505,3 +505,148 @@ export async function submitNIN(ninNumber: string, userId: string): Promise<{ su
     message: result?.message ?? 'NIN submission failed',
   };
 }
+
+// =========================================================
+// Admin: NIN Review Functions
+// =========================================================
+
+export interface NinSubmission {
+  profile_id: string;
+  display_name: string;
+  business_name: string | null;
+  slug: string;
+  nin_number: string;
+  nin_verified: boolean;
+  phone_number: string | null;
+  mobile_number: string | null;
+  mobile_otp_verified: boolean;
+  verification_status: string;
+  created_at: string;
+  category_name: string | null;
+}
+
+export interface NinHistoryEntry {
+  id: string;
+  nin_number: string;
+  verified_by: string | null;
+  verified_at: string;
+  status: string;
+  notes: string | null;
+  display_name_snapshot: string | null;
+  business_name_snapshot: string | null;
+  phone_number_snapshot: string | null;
+  mobile_number_snapshot: string | null;
+}
+
+export async function adminGetNinSubmissions(status: string = 'pending'): Promise<NinSubmission[]> {
+  const { data, error } = await supabase.rpc('admin_get_nin_submissions', { p_status: status });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] adminGetNinSubmissions:', error.message);
+    return [];
+  }
+  return (data ?? []) as NinSubmission[];
+}
+
+export async function adminApproveNin(profileId: string): Promise<{ success: boolean; message: string }> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: 'Not authenticated' };
+
+  const { data, error } = await supabase.rpc('admin_approve_nin', {
+    p_profile_id: profileId,
+    p_admin_id: user.id,
+  });
+  if (error) return { success: false, message: error.message };
+  const result = data as { success: boolean; message: string } | null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? 'Approval failed',
+  };
+}
+
+export async function adminRejectNin(profileId: string, reason: string): Promise<{ success: boolean; message: string }> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: 'Not authenticated' };
+
+  const { data, error } = await supabase.rpc('admin_reject_nin', {
+    p_profile_id: profileId,
+    p_admin_id: user.id,
+    p_reason: reason,
+  });
+  if (error) return { success: false, message: error.message };
+  const result = data as { success: boolean; message: string } | null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? 'Rejection failed',
+  };
+}
+
+export async function adminGetNinHistory(profileId: string): Promise<NinHistoryEntry[]> {
+  const { data, error } = await supabase.rpc('admin_get_nin_history', { p_profile_id: profileId });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] adminGetNinHistory:', error.message);
+    return [];
+  }
+  return (data ?? []) as NinHistoryEntry[];
+}
+
+// =========================================================
+// SMS Gateway: Termii (Nigerian SMS provider)
+// =========================================================
+
+export async function sendSmsOTP(phoneNumber: string, otpCode: string): Promise<{ success: boolean; message: string }> {
+  const termiiKey = import.meta.env.VITE_TERMII_API_KEY ?? '';
+  const termiiSender = import.meta.env.VITE_TERMII_SENDER_ID ?? 'FRELUX';
+
+  if (!termiiKey) {
+    // No API key configured — return success (dev mode, OTP shown in UI)
+    if (import.meta.env.DEV) {
+      console.log('[sms] Termii key not configured — dev mode, OTP:', otpCode);
+      return { success: true, message: 'Dev mode: OTP shown in UI' };
+    }
+    return { success: false, message: 'SMS gateway not configured' };
+  }
+
+  // Format phone number for Nigeria (strip leading 0, add +234)
+  let formattedPhone = phoneNumber.replace(/\s/g, '');
+  if (formattedPhone.startsWith('0')) {
+    formattedPhone = '234' + formattedPhone.slice(1);
+  } else if (formattedPhone.startsWith('+234')) {
+    formattedPhone = formattedPhone.slice(1);
+  } else if (!formattedPhone.startsWith('234')) {
+    formattedPhone = '234' + formattedPhone;
+  }
+
+  const message = `FRELUX: Your verification code is ${otpCode}. Do not share this code with anyone.`;
+
+  try {
+    const response = await fetch('https://api.ng.termii.com/api/sms/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: termiiKey,
+        to: formattedPhone,
+        from: termiiSender,
+        sms: message,
+        type: 'plain',
+        channel: 'generic',
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[sms] Termii error:', errText);
+      return { success: false, message: 'SMS delivery failed' };
+    }
+
+    const result = await response.json();
+    if (result.code && result.code !== 'ok') {
+      console.error('[sms] Termii API error:', result.message ?? result);
+      return { success: false, message: result.message ?? 'SMS delivery failed' };
+    }
+
+    return { success: true, message: 'OTP sent via SMS' };
+  } catch (err) {
+    console.error('[sms] Network error:', err);
+    return { success: false, message: 'Network error sending SMS' };
+  }
+}

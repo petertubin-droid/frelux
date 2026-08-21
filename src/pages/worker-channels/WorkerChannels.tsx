@@ -40,6 +40,12 @@ export default function WorkerChannels() {
   const [modConfig, setModConfig] = useState<DbWorkerModerationConfig | null>(null);
   const [viewingProfile, setViewingProfile] = useState<ChatUserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDesc, setReportDesc] = useState('');
+  const [reportingUserId, setReportingUserId] = useState<string | null>(null);
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportResult, setReportResult] = useState('');
   const [showPriceUpdate, setShowPriceUpdate] = useState(false);
   const [priceForm, setPriceForm] = useState({ item: '', amount: '', location: '', store: '' });
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -65,6 +71,34 @@ export default function WorkerChannels() {
     const profile = await fetchChatUserProfile(userId);
     setViewingProfile(profile);
     setProfileLoading(false);
+  }
+
+  function openReportModal(userId: string) {
+    setReportingUserId(userId);
+    setShowReportModal(true);
+    setReportReason('');
+    setReportDesc('');
+    setReportResult('');
+  }
+
+  async function handleSubmitReport() {
+    if (!user || !reportingUserId || !reportReason) return;
+    setReportSubmitting(true);
+    setReportResult('');
+    const { error } = await supabase.from('worker_reports').insert({
+      reporter_id: user.id,
+      reported_user_id: reportingUserId,
+      channel_id: activeChannel?.id ?? null,
+      reason: reportReason,
+      description: reportDesc.trim() || null,
+    });
+    setReportSubmitting(false);
+    if (error) {
+      setReportResult('Error: ' + error.message);
+    } else {
+      setReportResult('Report submitted. An admin will review it shortly.');
+      setTimeout(() => { setShowReportModal(false); setViewingProfile(null); }, 2000);
+    }
   }
 
   // Load categories
@@ -588,6 +622,75 @@ export default function WorkerChannels() {
             >
               View Full Profile
             </Link>
+            {viewingProfile.id && (
+              <button
+                onClick={() => viewingProfile && openReportModal(viewingProfile.id)}
+                className="mt-2 w-full rounded-lg border border-red-200 py-2 text-center text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
+              >
+                Report This User
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Report User Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4" onClick={() => setShowReportModal(false)}>
+          <div className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-brand-navy dark:text-white">Report User</h3>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+              Report inappropriate behavior. The user's NIN and verification data will be referenced during admin review.
+            </p>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Reason *</label>
+                <select
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
+                >
+                  <option value="">Select a reason</option>
+                  <option value="spam">Spam</option>
+                  <option value="harassment">Harassment</option>
+                  <option value="scam">Scam / Fraud</option>
+                  <option value="misinformation">Misinformation</option>
+                  <option value="offensive">Offensive Content</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Description (optional)</label>
+                <textarea
+                  value={reportDesc}
+                  onChange={(e) => setReportDesc(e.target.value)}
+                  placeholder="Provide additional details..."
+                  rows={3}
+                  className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
+                />
+              </div>
+
+              {reportResult && (
+                <p className={\`text-sm \${reportResult.startsWith('Error') ? 'text-red-500' : 'text-emerald-500'}\`}>{reportResult}</p>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="flex-1 rounded-lg border border-neutral-200 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitReport}
+                  disabled={reportSubmitting || !reportReason}
+                  className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

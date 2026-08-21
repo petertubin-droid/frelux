@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Ban, Eye, Star, Search, Check, X, FileWarning, Award } from 'lucide-react';
+import { Ban, Eye, Star, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle } from 'lucide-react';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -9,8 +9,12 @@ import {
   adminAwardProLevel, adminRevokeProLevel,
   getAllVerificationRequests, fetchProSettings, updateProSettings,
 } from '@/lib/pro-connect';
+import {
+  adminGetNinSubmissions, adminApproveNin, adminRejectNin,
+  type NinSubmission,
+} from '@/lib/worker-channels';
 
-type Tab = 'professionals' | 'verification' | 'reports' | 'reviews' | 'settings';
+type Tab = 'professionals' | 'verification' | 'kyc' | 'reports' | 'reviews' | 'settings';
 
 export default function AdminProConnect() {
   const [tab, setTab] = useState<Tab>('professionals');
@@ -24,6 +28,7 @@ export default function AdminProConnect() {
         {([
           ['professionals', 'Professionals'],
           ['verification', 'Verification'],
+          ['kyc', 'KYC / NIN'],
           ['reports', 'Reports'],
           ['reviews', 'Reviews'],
           ['settings', 'Settings'],
@@ -45,6 +50,7 @@ export default function AdminProConnect() {
 
       {tab === 'professionals' && <AdminProfessionalsTab />}
       {tab === 'verification' && <AdminVerificationTab />}
+      {tab === 'kyc' && <AdminKycTab />}
       {tab === 'reports' && <AdminReportsTab />}
       {tab === 'reviews' && <AdminReviewsTab />}
       {tab === 'settings' && <AdminSettingsTab />}
@@ -392,22 +398,256 @@ function AdminVerificationTab() {
 }
 
 // =========================================================
+// KYC / NIN TAB
+// =========================================================
+function AdminKycTab() {
+  const [submissions, setSubmissions] = useState<NinSubmission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('pending');
+  const [selectedNin, setSelectedNin] = useState<NinSubmission | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [processing, setProcessing] = useState(false);
+  const [resultMsg, setResultMsg] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const data = await adminGetNinSubmissions(filter);
+    setSubmissions(data);
+    setLoading(false);
+  }, [filter]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleApprove(profileId: string) {
+    setProcessing(true);
+    setResultMsg('');
+    const result = await adminApproveNin(profileId);
+    setProcessing(false);
+    if (result.success) {
+      setResultMsg('NIN approved — worker auto-verified to Tier 2!');
+      setSelectedNin(null);
+      load();
+    } else {
+      setResultMsg('Error: ' + result.message);
+    }
+  }
+
+  async function handleReject(profileId: string) {
+    if (!rejectReason.trim()) return;
+    setProcessing(true);
+    setResultMsg('');
+    const result = await adminRejectNin(profileId, rejectReason.trim());
+    setProcessing(false);
+    if (result.success) {
+      setResultMsg('NIN rejected');
+      setRejectReason('');
+      setSelectedNin(null);
+      load();
+    } else {
+      setResultMsg('Error: ' + result.message);
+    }
+  }
+
+  return (
+    <div>
+      {/* Info banner */}
+      <div className="mb-4 flex items-start gap-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 text-sm">
+        <Shield className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
+        <div>
+          <p className="font-medium text-brand-navy dark:text-white">NIN Verification Review</p>
+          <p className="mt-1 text-neutral-600 dark:text-neutral-300">
+            Review NIN submissions from workers. Approving auto-verifies them to Tier 2 (FRELUX Verified) and logs the NIN with a profile snapshot for future reference in case of reports.
+          </p>
+        </div>
+      </div>
+
+      {resultMsg && (
+        <div className={\`mb-4 rounded-lg p-3 text-sm \${resultMsg.startsWith('Error') ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'}\`}>
+          {resultMsg}
+        </div>
+      )}
+
+      {/* Filter */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        {['pending', 'verified', 'rejected', 'all'].map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={classNames(
+              'rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors',
+              filter === f ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-400'
+            )}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-28 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />)}</div>
+      ) : submissions.length === 0 ? (
+        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+          No NIN submissions found.
+        </p>
+      ) : (
+        <div className="space-y-4">
+          {submissions.map((sub) => (
+            <div key={sub.profile_id} className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <KeyRound className="h-4 w-4 text-brand-purple" />
+                    <span className="font-medium text-neutral-900 dark:text-white">{sub.display_name}</span>
+                    {sub.business_name && (
+                      <span className="text-sm text-neutral-500">· {sub.business_name}</span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-neutral-400">NIN:</span>
+                      <span className="font-mono text-sm font-bold text-neutral-900 dark:text-white">{sub.nin_number}</span>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-neutral-400">Category:</span>
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.category_name ?? 'N/A'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
+                      <Phone className="h-3.5 w-3.5 text-neutral-400" />
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.mobile_number ?? sub.phone_number ?? 'N/A'}</span>
+                      {sub.mobile_otp_verified && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-neutral-400">Registered:</span>
+                      <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                        {new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className={classNames(
+                      'rounded-full px-2 py-0.5 text-xs font-medium',
+                      sub.nin_verified
+                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
+                        : sub.verification_status === 'rejected'
+                        ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
+                        : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
+                    )}>
+                      {sub.nin_verified ? 'NIN Verified' : sub.verification_status === 'rejected' ? 'Rejected' : 'Pending Review'}
+                    </span>
+                    {sub.mobile_otp_verified && (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                        Mobile Verified
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <a
+                  href={`/pro-connect/${sub.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple"
+                >
+                  <Eye className="h-4 w-4" />
+                </a>
+              </div>
+
+              {/* Actions for pending */}
+              {!sub.nin_verified && sub.verification_status !== 'rejected' && (
+                <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+                  {selectedNin?.profile_id === sub.profile_id ? (
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        placeholder="Rejection reason (if rejecting)"
+                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => handleApprove(sub.profile_id)}
+                          disabled={processing}
+                          className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          <Check className="mr-1 inline h-3.5 w-3.5" />
+                          {processing ? 'Processing...' : 'Confirm & Auto-Verify'}
+                        </button>
+                        <button
+                          onClick={() => handleReject(sub.profile_id)}
+                          disabled={processing || !rejectReason.trim()}
+                          className="rounded-lg bg-red-500 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          <X className="mr-1 inline h-3.5 w-3.5" />
+                          Reject NIN
+                        </button>
+                        <button
+                          onClick={() => { setSelectedNin(null); setRejectReason(''); }}
+                          className="rounded-lg border border-neutral-200 px-4 py-2 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                      <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <p>Approving will auto-verify this worker to Tier 2 and save their NIN + profile snapshot to the audit log for future reference.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setSelectedNin(sub)}
+                      className="rounded-lg border border-brand-purple/30 px-4 py-2 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5"
+                    >
+                      Review NIN →
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Already verified badge */}
+              {sub.nin_verified && (
+                <div className="mt-4 border-t border-neutral-100 pt-3 dark:border-white/5">
+                  <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                    <Check className="h-4 w-4" />
+                    <span>NIN verified — worker has Tier 2 access. NIN + profile snapshot saved to audit log.</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================================================
 // REPORTS TAB
 // =========================================================
 function AdminReportsTab() {
   const [reports, setReports] = useState<DbProReport[]>([]);
+  const [workerReports, setWorkerReports] = useState<{ id: string; reporter_id: string; reported_user_id: string; channel_id: string | null; reason: string; description: string | null; status: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [reportSubTab, setReportSubTab] = useState<'pro' | 'worker'>('pro');
+  const [ninDetail, setNinDetail] = useState<Record<string, unknown> | null>(null);
+  const [ninDetailLoading, setNinDetailLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const { data } = await supabase.from('pro_reports').select('*').order('created_at DESC');
-      setReports((data || []) as DbProReport[]);
+      const [proData, workerData] = await Promise.all([
+        supabase.from('pro_reports').select('*').order('created_at DESC'),
+        supabase.from('worker_reports').select('*').order('created_at DESC'),
+      ]);
+      setReports((proData.data || []) as DbProReport[]);
+      setWorkerReports((workerData.data || []) as typeof workerReports);
       setLoading(false);
     })();
   }, []);
 
-  async function resolveReport(reportId: string, status: 'resolved' | 'dismissed') {
+  async function resolveProReport(reportId: string, status: 'resolved' | 'dismissed') {
     const { data: { user } } = await supabase.auth.getUser();
     await supabase.from('pro_reports').update({
       status,
@@ -418,44 +658,154 @@ function AdminReportsTab() {
     setReports((data || []) as DbProReport[]);
   }
 
-  if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />)}</div>;
-
-  if (reports.length === 0) {
-    return <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">No reports filed.</p>;
+  async function resolveWorkerReport(reportId: string, status: 'resolved' | 'dismissed') {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('worker_reports').update({
+      status,
+      resolved_by: user?.id,
+      resolved_at: new Date().toISOString(),
+    }).eq('id', reportId);
+    const { data } = await supabase.from('worker_reports').select('*').order('created_at DESC');
+    setWorkerReports((data || []) as typeof workerReports);
   }
 
+  async function viewNinDetails(reportId: string) {
+    setNinDetailLoading(true);
+    setNinDetail(null);
+    const { data } = await supabase.rpc('admin_get_worker_report_details', { p_report_id: reportId });
+    setNinDetail(data as Record<string, unknown> | null);
+    setNinDetailLoading(false);
+  }
+
+  if (loading) return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />)}</div>;
+
   return (
-    <div className="space-y-3">
-      {reports.map((r) => (
-        <div key={r.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-start justify-between">
-            <div>
-              <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium capitalize text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
-                {r.report_type}
-              </span>
-              <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">{r.reason}</p>
-              {r.description && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{r.description}</p>}
-              <p className="mt-2 text-xs text-neutral-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
+    <div>
+      {/* Sub-tabs */}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => setReportSubTab('pro')}
+          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'pro' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
+        >
+          Pro Connect Reports ({reports.length})
+        </button>
+        <button
+          onClick={() => setReportSubTab('worker')}
+          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'worker' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
+        >
+          Worker Channel Reports ({workerReports.length})
+        </button>
+      </div>
+
+      {reportSubTab === 'pro' && reports.length === 0 && (
+        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">No Pro Connect reports filed.</p>
+      )}
+
+      {reportSubTab === 'pro' && reports.length > 0 && (
+        <div className="space-y-3">
+          {reports.map((r) => (
+            <div key={r.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium capitalize text-neutral-600 dark:bg-white/5 dark:text-neutral-300">{r.report_type}</span>
+                  <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">{r.reason}</p>
+                  {r.description && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{r.description}</p>}
+                  <p className="mt-2 text-xs text-neutral-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={classNames('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', r.status === 'open' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : r.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}>{r.status}</span>
+                  {r.status === 'open' && (
+                    <>
+                      <button onClick={() => resolveProReport(r.id, 'resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-medium text-white">Resolve</button>
+                      <button onClick={() => resolveProReport(r.id, 'dismissed')} className="rounded-lg border border-neutral-200 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">Dismiss</button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className={classNames(
-                'rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
-                r.status === 'open' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' :
-                r.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
-              )}>
-                {r.status}
-              </span>
-              {r.status === 'open' && (
-                <>
-                  <button onClick={() => resolveReport(r.id, 'resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-medium text-white">Resolve</button>
-                  <button onClick={() => resolveReport(r.id, 'dismissed')} className="rounded-lg border border-neutral-200 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">Dismiss</button>
-                </>
+          ))}
+        </div>
+      )}
+
+      {reportSubTab === 'worker' && workerReports.length === 0 && (
+        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">No worker channel reports filed.</p>
+      )}
+
+      {reportSubTab === 'worker' && workerReports.length > 0 && (
+        <div className="space-y-3">
+          {workerReports.map((wr) => (
+            <div key={wr.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium capitalize text-red-600 dark:bg-red-500/10 dark:text-red-400">{wr.reason}</span>
+                    <span className={classNames('rounded-full px-2 py-0.5 text-xs font-medium capitalize', wr.status === 'pending' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' : wr.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}>{wr.status}</span>
+                  </div>
+                  {wr.description && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{wr.description}</p>}
+                  <p className="mt-2 text-xs text-neutral-400">{new Date(wr.created_at).toLocaleDateString('en-GB')}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => viewNinDetails(wr.id)}
+                    className="rounded-lg border border-brand-purple/30 px-3 py-1 text-xs font-medium text-brand-purple hover:bg-brand-purple/5"
+                  >
+                    View NIN Details
+                  </button>
+                  {wr.status === 'pending' && (
+                    <>
+                      <button onClick={() => resolveWorkerReport(wr.id, 'resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-medium text-white">Resolve</button>
+                      <button onClick={() => resolveWorkerReport(wr.id, 'dismissed')} className="rounded-lg border border-neutral-200 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">Dismiss</button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* NIN details popover */}
+              {ninDetail && (ninDetail as Record<string, unknown>).report_id === wr.id && (
+                <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+                  {ninDetailLoading ? (
+                    <p className="text-sm text-neutral-400">Loading...</p>
+                  ) : (
+                    <>
+                      <p className="mb-2 text-sm font-semibold text-brand-purple">NIN Verification Reference</p>
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs text-neutral-400">Reported User</p>
+                          <p className="font-medium text-neutral-900 dark:text-white">{String((ninDetail as Record<string, unknown>).reported_name ?? 'N/A')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">NIN</p>
+                          <p className="font-mono font-bold text-neutral-900 dark:text-white">{String((ninDetail as Record<string, unknown>).nin_number ?? 'Not on file')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">NIN Verified</p>
+                          <p className="font-medium">{(ninDetail as Record<string, unknown>).nin_verified ? '✓ Yes' : '✗ No'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-neutral-400">Verified At</p>
+                          <p className="font-medium text-neutral-700 dark:text-neutral-300">
+                            {(ninDetail as Record<string, unknown>).nin_verified_at
+                              ? new Date(String((ninDetail as Record<string, unknown>).nin_verified_at)).toLocaleDateString('en-GB')
+                              : 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                      {(ninDetail as Record<string, unknown>).nin_history && (
+                        <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-white/10">
+                          <p className="mb-1 text-xs font-semibold text-neutral-500">Verification History:</p>
+                          <pre className="overflow-x-auto text-xs text-neutral-500 dark:text-neutral-400">
+                            {JSON.stringify((ninDetail as Record<string, unknown>).nin_history, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
               )}
             </div>
-          </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Check, Phone, Shield, KeyRound, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { sendMobileOTP, verifyMobileOTP, submitNIN } from '@/lib/worker-channels';
+import { supabase } from '@/lib/supabase';
 import {
   fetchCategories, fetchServices, fetchLocations,
   createProProfile, updateProProfile, updateProfileServices, updateProfileLocations,
