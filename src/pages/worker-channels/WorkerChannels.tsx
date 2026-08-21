@@ -10,6 +10,8 @@ import {
   fetchMessages, sendMessage, deleteMessage, toggleReaction,
   subscribeToChannelMessages, fetchChannelCategories,
   fetchModerationConfig, isWorkerAccount,
+  getUserVerificationTier, canAccessChannels,
+  fetchChatUserProfile, type ChatUserProfile,
 } from '@/lib/worker-channels';
 import type {
   DbWorkerChannel, DbWorkerChannelCategory, DbWorkerChannelMessage,
@@ -33,7 +35,11 @@ export default function WorkerChannels() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isWorker, setIsWorker] = useState(false);
+  const [verificationTier, setVerificationTier] = useState(0);
+  const [tierChecked, setTierChecked] = useState(false);
   const [modConfig, setModConfig] = useState<DbWorkerModerationConfig | null>(null);
+  const [viewingProfile, setViewingProfile] = useState<ChatUserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   const [showPriceUpdate, setShowPriceUpdate] = useState(false);
   const [priceForm, setPriceForm] = useState({ item: '', amount: '', location: '', store: '' });
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -41,11 +47,25 @@ export default function WorkerChannels() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const realtimeRef = useRef<ReturnType<typeof subscribeToChannelMessages> | null>(null);
 
-  // Check if user has a worker account
+  // Check if user has a worker account + verification tier
   useEffect(() => {
     if (!user) return;
-    isWorkerAccount(user.id).then(setIsWorker);
+    (async () => {
+      const worker = await isWorkerAccount(user.id);
+      setIsWorker(worker);
+      const tier = await getUserVerificationTier(user.id);
+      setVerificationTier(tier);
+      setTierChecked(true);
+    })();
   }, [user]);
+
+  // Fetch user profile when viewing
+  async function handleViewProfile(userId: string) {
+    setProfileLoading(true);
+    const profile = await fetchChatUserProfile(userId);
+    setViewingProfile(profile);
+    setProfileLoading(false);
+  }
 
   // Load categories
   useEffect(() => {
@@ -126,6 +146,13 @@ export default function WorkerChannels() {
   function getAuthorName(msg: DbWorkerChannelMessage): string {
     if (msg.message_type === 'system' || msg.message_type === 'moderation') return 'FRELUX';
     return msg.author_name ?? 'Worker';
+  }
+
+  function getTierBadge(tier: number): { label: string; color: string } | null {
+    if (tier === 3) return { label: 'FRELUX Pro', color: 'text-amber-500 bg-amber-500/10' };
+    if (tier === 2) return { label: 'Verified', color: 'text-emerald-500 bg-emerald-500/10' };
+    if (tier === 1) return { label: 'Contact Verified', color: 'text-blue-500 bg-blue-500/10' };
+    return null;
   }
 
   async function handleSendMessage() {
@@ -238,10 +265,36 @@ export default function WorkerChannels() {
         <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Worker Access Only</h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          These channels are exclusive to FRELUX worker accounts. Upgrade your account to join the conversation.
+          These channels are exclusive to FRELUX worker accounts. Register as a professional to join the conversation.
         </p>
         <Link to="/pro-connect/register" className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white">
           Become a Professional
+        </Link>
+      </div>
+    );
+  }
+
+  // Worker but not verified (tier < 2)
+  if (tierChecked && isWorker && !canAccessChannels(verificationTier)) {
+    const tierLabels: Record<number, string> = {
+      0: 'Unverified',
+      1: 'Contact Verified',
+    };
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Verification Required</h1>
+        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+          Worker Channels are available to <strong>FRELUX Verified</strong> (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
+        </p>
+        <p className="mt-1 text-sm text-neutral-400">
+          Your current tier: <span className="font-semibold text-amber-500">{tierLabels[verificationTier] ?? 'Tier ' + verificationTier}</span>
+        </p>
+        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+          Complete mobile number verification and NIN (National ID) verification to reach Tier 2 and unlock channel access.
+        </p>
+        <Link to="/pro-connect/register" className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white">
+          Complete Verification
         </Link>
       </div>
     );
@@ -346,6 +399,7 @@ export default function WorkerChannels() {
                     onReact={handleReaction}
                     onDelete={handleDeleteMessage}
                     onReply={(id) => setReplyingTo(id)}
+                    onProfileView={() => msg.user_id && handleViewProfile(msg.user_id)}
                     replyTo={replyingTo}
                   />
                 ))}
@@ -454,6 +508,89 @@ export default function WorkerChannels() {
           )}
         </div>
       </div>
+
+      {/* User Profile Modal */}
+      {profileLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setProfileLoading(false)}>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
+        </div>
+      )}
+      {viewingProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setViewingProfile(null)}>
+          <div className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                {viewingProfile.profile_image_url ? (
+                  <img src={viewingProfile.profile_image_url} alt={viewingProfile.display_name} className="h-14 w-14 rounded-full object-cover" />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/10 text-lg font-bold text-brand-purple">
+                    {viewingProfile.display_name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">{viewingProfile.display_name}</h3>
+                  {viewingProfile.business_name && (
+                    <p className="text-sm text-neutral-500">{viewingProfile.business_name}</p>
+                  )}
+                </div>
+              </div>
+              <button onClick={() => setViewingProfile(null)} className="text-neutral-400 hover:text-neutral-600">
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {(() => {
+                const badge = getTierBadge(viewingProfile.verification_tier);
+                if (badge) return <span className={\`rounded-full px-3 py-1 text-xs font-semibold \${badge.color}\`}>{badge.label}</span>;
+                return null;
+              })()}
+              {viewingProfile.category_name && (
+                <span className="rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple">{viewingProfile.category_name}</span>
+              )}
+            </div>
+
+            {viewingProfile.bio && (
+              <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">{viewingProfile.bio}</p>
+            )}
+
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              {viewingProfile.years_experience != null && (
+                <div>
+                  <p className="text-xs text-neutral-400">Experience</p>
+                  <p className="font-semibold text-brand-navy dark:text-white">{viewingProfile.years_experience} years</p>
+                </div>
+              )}
+              <div>
+                <p className="text-xs text-neutral-400">Phone Verified</p>
+                <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-neutral-400'}">
+                  {viewingProfile.phone_verified ? '✓ Yes' : '✗ No'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-neutral-400">NIN Verified</p>
+                <p className={\`font-semibold \${viewingProfile.nin_verified ? 'text-emerald-500' : 'text-neutral-400'}\`}>
+                  {viewingProfile.nin_verified ? '✓ Yes' : '✗ No'}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-neutral-400">Mobile OTP</p>
+                <p className={\`font-semibold \${viewingProfile.mobile_otp_verified ? 'text-emerald-500' : 'text-neutral-400'}\`}>
+                  {viewingProfile.mobile_otp_verified ? '✓ Yes' : '✗ No'}
+                </p>
+              </div>
+            </div>
+
+            <Link
+              to={\`/pro-connect/\${viewingProfile.slug}\`}
+              onClick={() => setViewingProfile(null)}
+              className="mt-5 block w-full rounded-lg bg-brand-purple py-2.5 text-center text-sm font-semibold text-white"
+            >
+              View Full Profile
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -468,6 +605,7 @@ function MessageBubble({
   onReact,
   onDelete,
   onReply,
+  onProfileView,
   replyTo,
 }: {
   message: DbWorkerChannelMessage;
@@ -476,6 +614,7 @@ function MessageBubble({
   onReact: (messageId: string, emoji: string) => void;
   onDelete: (messageId: string) => void;
   onReply: (messageId: string) => void;
+  onProfileView: () => void;
   replyTo: string | null;
 }) {
   const [showReactions, setShowReactions] = useState(false);
@@ -497,7 +636,12 @@ function MessageBubble({
     <div className={classNames('group relative flex gap-2', isOwn && 'flex-row-reverse')}>
       <div className={classNames('max-w-[75%] rounded-2xl px-3.5 py-2.5', isOwn ? 'bg-brand-purple text-white' : 'bg-neutral-100 dark:bg-white/5 dark:text-neutral-100')}>
         {!isOwn && (
-          <div className="mb-0.5 text-xs font-semibold text-brand-purple">{authorName}</div>
+          <button
+            onClick={onProfileView}
+            className="mb-0.5 text-xs font-semibold text-brand-purple hover:underline"
+          >
+            {authorName}
+          </button>
         )}
 
         {message.reply_to && replyTo !== message.reply_to && (

@@ -81,6 +81,13 @@ export interface DbProProfile {
   pro_level_awarded_at: string | null;
   phone_verified: boolean;
   phone_number: string | null;
+  // Phase 31: KYC + mobile verification
+  nin_number: string | null;
+  nin_verified: boolean;
+  nin_verified_at: string | null;
+  mobile_otp_verified: boolean;
+  mobile_otp_verified_at: string | null;
+  mobile_number: string | null;
   is_profile_complete: boolean;
   is_listed: boolean;
   contact_email_public: boolean;

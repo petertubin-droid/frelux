@@ -357,3 +357,151 @@ export async function isWorkerAccount(userId: string): Promise<boolean> {
     .maybeSingle();
   return (data as { account_type?: string })?.account_type === 'pro_worker';
 }
+
+// =========================================================
+// Verification Tier Check (for channel access gating)
+// =========================================================
+
+export async function getUserVerificationTier(userId: string): Promise<number> {
+  const { data, error } = await supabase.rpc('get_user_verification_tier', { p_user_id: userId });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] getUserVerificationTier:', error.message);
+    return 0;
+  }
+  return (data as number) ?? 0;
+}
+
+export function canAccessChannels(tier: number): boolean {
+  return tier >= 2; // Tier 2 (FRELUX verified) and Tier 3 (FRELUX Pro)
+}
+
+// =========================================================
+// Fetch user profile for display in chat
+// =========================================================
+
+export interface ChatUserProfile {
+  id: string;
+  display_name: string;
+  business_name: string | null;
+  bio: string | null;
+  category_name: string | null;
+  years_experience: number | null;
+  verification_tier: number;
+  verification_status: string;
+  profile_image_url: string | null;
+  slug: string;
+  phone_verified: boolean;
+  nin_verified: boolean;
+  mobile_otp_verified: boolean;
+  pro_level: boolean;
+}
+
+export async function fetchChatUserProfile(userId: string): Promise<ChatUserProfile | null> {
+  const { data, error } = await supabase
+    .from('pro_profiles')
+    .select(`
+      id,
+      display_name,
+      business_name,
+      bio,
+      years_experience,
+      verification_status,
+      profile_image_url,
+      slug,
+      phone_verified,
+      nin_verified,
+      mobile_otp_verified,
+      pro_level,
+      identity_verified_at,
+      contact_verified_at,
+      category:pro_categories(name)
+    `)
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error || !data) {
+    if (import.meta.env.DEV && error) console.error('[worker-channels] fetchChatUserProfile:', error.message);
+    return null;
+  }
+
+  const p = data as Record<string, unknown>;
+  let tier = 0;
+  if (p.pro_level) tier = 3;
+  else if (p.identity_verified_at) tier = 2;
+  else if (p.contact_verified_at) tier = 1;
+
+  return {
+    id: p.id as string,
+    display_name: p.display_name as string,
+    business_name: p.business_name as string | null,
+    bio: p.bio as string | null,
+    category_name: (p.category as { name: string } | null)?.name ?? null,
+    years_experience: p.years_experience as number | null,
+    verification_tier: tier,
+    verification_status: p.verification_status as string,
+    profile_image_url: p.profile_image_url as string | null,
+    slug: p.slug as string,
+    phone_verified: p.phone_verified as boolean,
+    nin_verified: p.nin_verified as boolean,
+    mobile_otp_verified: p.mobile_otp_verified as boolean,
+    pro_level: p.pro_level as boolean,
+  };
+}
+
+// =========================================================
+// Mobile OTP + NIN verification functions
+// =========================================================
+
+export async function sendMobileOTP(phoneNumber: string, userId: string): Promise<{ success: boolean; message: string; otpCode?: string }> {
+  const { data, error } = await supabase.rpc('send_mobile_otp', {
+    p_phone_number: phoneNumber,
+    p_user_id: userId,
+  });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] sendMobileOTP:', error.message);
+    return { success: false, message: error.message };
+  }
+  const result = data as { success: boolean; otp_code: string | null; message: string } | null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? 'Failed to send OTP',
+    otpCode: result?.otp_code ?? undefined,
+  };
+}
+
+export async function verifyMobileOTP(
+  phoneNumber: string,
+  otpCode: string,
+  userId: string
+): Promise<{ success: boolean; message: string }> {
+  const { data, error } = await supabase.rpc('verify_mobile_otp', {
+    p_phone_number: phoneNumber,
+    p_otp_code: otpCode,
+    p_user_id: userId,
+  });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] verifyMobileOTP:', error.message);
+    return { success: false, message: error.message };
+  }
+  const result = data as { success: boolean; message: string } | null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? 'Verification failed',
+  };
+}
+
+export async function submitNIN(ninNumber: string, userId: string): Promise<{ success: boolean; message: string }> {
+  const { data, error } = await supabase.rpc('submit_nin_verification', {
+    p_nin_number: ninNumber,
+    p_user_id: userId,
+  });
+  if (error) {
+    if (import.meta.env.DEV) console.error('[worker-channels] submitNIN:', error.message);
+    return { success: false, message: error.message };
+  }
+  const result = data as { success: boolean; message: string } | null;
+  return {
+    success: result?.success ?? false,
+    message: result?.message ?? 'NIN submission failed',
+  };
+}
