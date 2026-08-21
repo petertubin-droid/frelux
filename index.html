@@ -2,9 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <script>
-      (function(){try{var t=localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}if(t==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})();
-    </script>
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -12,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://freluxpaintcalc.com" />
+    <link rel="canonical" href="https://freluxtools.netlify.app" />
 
     <!-- Security Headers -->
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
@@ -21,7 +18,7 @@
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
 
     <!-- Primary SEO Meta -->
-    <meta name="description" content="Know exactly what materials your construction project needs. Free Nigerian calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices." />
+    <meta name="description" content="FRELUX PAINT CALC — Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes." />
     <meta name="author" content="FRELUX PAINT CALC" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -47,27 +44,26 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="FRELUX PAINT CALC" />
-    <meta property="og:title" content="FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs" />
-    <meta property="og:description" content="Know exactly what materials your construction project needs. Free Nigerian calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices." />
-    <meta property="og:url" content="https://freluxpaintcalc.com" />
-    <meta property="og:image" content="https://freluxpaintcalc.com/og-image.png" />
+    <meta property="og:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
+    <meta property="og:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate estimates and curated colors." />
+    <meta property="og:url" content="https://freluxtools.netlify.app" />
+    <meta property="og:image" content="https://freluxtools.netlify.app/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="FRELUX PAINT CALC: Paint calculators, cost estimators, and AI color tools" />
+    <meta property="og:image:alt" content="FRELUX PAINT CALC — Paint calculators, cost estimators, and AI color tools" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="en_GB" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs" />
+    <meta name="twitter:title" content="FRELUX PAINT CALC — Plan Your Perfect Paint Project" />
     <meta name="twitter:description" content="Free online paint calculator, screeding calculator, cost estimator, and AI color assistant." />
-    <meta name="twitter:image" content="https://freluxpaintcalc.com/og-image.png" />
-    <meta name="twitter:image:alt" content="FRELUX PAINT CALC: Paint calculators and AI color tools" />
+    <meta name="twitter:image" content="https://freluxtools.netlify.app/og-image.png" />
+    <meta name="twitter:image:alt" content="FRELUX PAINT CALC — Paint calculators and AI color tools" />
 
     <!-- DNS Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" as="style" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://freluxpaintcalc.supabase.co" crossorigin />
     <link rel="dns-prefetch" href="https://freluxpaintcalc.supabase.co" />
@@ -78,37 +74,13 @@
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap"
       rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
     />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
-    </noscript>
 
     <!-- Resource Preloading -->
     <link rel="preload" href="/favicon-32.png" as="image" type="image/png" />
     <link rel="preload" href="/manifest.json" as="fetch" crossorigin />
 
-    <title>FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs</title>
-
-    <!-- WebSite Schema (enables sitelinks search box) -->
-    <script type="application/ld+json" id="website-structured-data">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "FRELUX PAINT CALC",
-      "url": "https://freluxpaintcalc.com",
-      "description": "Free online paint calculator, screeding calculator, cost estimator, and AI color assistant.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://freluxpaintcalc.com/colors?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      }
-    }
-    </script>
+    <title>FRELUX PAINT CALC — Plan Your Perfect Paint Project</title>
 
     <!-- Organization Structured Data -->
     <script type="application/ld+json" id="org-structured-data">
@@ -117,7 +89,7 @@
       "@type": "WebApplication",
       "name": "FRELUX PAINT CALC",
       "alternateName": "FRELUX Paint",
-      "url": "https://freluxpaintcalc.com",
+      "url": "https://freluxtools.netlify.app",
       "description": "Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes.",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
@@ -135,10 +107,10 @@
       "publisher": {
         "@type": "Organization",
         "name": "FRELUX PAINT CALC",
-        "url": "https://freluxpaintcalc.com",
+        "url": "https://freluxtools.netlify.app",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://freluxpaintcalc.com/logo-mark.png",
+          "url": "https://freluxtools.netlify.app/logo-mark.png",
           "width": 512,
           "height": 512
         }
@@ -206,114 +178,51 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://freluxpaintcalc.com"
+          "item": "https://freluxtools.netlify.app"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Paint Calculator",
-          "item": "https://freluxpaintcalc.com/paint-calculator"
+          "item": "https://freluxtools.netlify.app/paint-calculator"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": "Cost Estimator",
-          "item": "https://freluxpaintcalc.com/cost-estimator"
+          "item": "https://freluxtools.netlify.app/cost-estimator"
         },
         {
           "@type": "ListItem",
           "position": 4,
           "name": "Colors",
-          "item": "https://freluxpaintcalc.com/colors"
+          "item": "https://freluxtools.netlify.app/colors"
         }
       ]
-    }
-    </script>
-
-    <!-- LocalBusiness Structured Data -->
-    <script type="application/ld+json" id="localbusiness-structured-data">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "FRELUX PAINT CALC",
-      "description": "Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.",
-      "url": "https://freluxpaintcalc.com",
-      "areaServed": "Nigeria",
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "NG"
-      },
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "contactType": "customer support",
-        "email": "hello@freluxpaintcalc.com",
-        "availableLanguage": "English"
-      }
     }
     </script>
 
     <!-- Inline critical CSS -->
     <style>
       html { scroll-behavior: smooth; }
-      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #ffffff; }
-      html.dark body { background-color: #0A0A1A; }
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
       #root { min-height: 100vh; width: 100%; }
-      .page-loader { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .page-loader > div {
-        width: 36px; height: 36px;
-        border: 3px solid #e2e8f0;
-        border-top-color: #7C3AED;
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-      }
-      html.dark .page-loader > div {
-        border-color: #1E1E3A;
-        border-top-color: #A78BFA;
-      }
+      .page-loader { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
     </style>
   </head>
   <body>
     <div id="root">
-      <div class="page-loader"><div></div></div>
+      <div class="page-loader">
+        <div style="width:32px;height:32px;border:2px solid #e2e8f0;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     </div>
     <noscript>
-      <div style="max-width:800px;margin:0 auto;padding:2rem;font-family:system-ui,sans-serif;color:#1e293b;">
-        <h1 style="font-size:1.75rem;margin-bottom:0.75rem;">FRELUX PAINT CALC: Calculate Materials &amp; Estimate Construction Costs</h1>
-        <p style="font-size:1rem;color:#475569;margin-bottom:1.5rem;">Know exactly what materials your construction project needs. Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing materials with real market prices.</p>
-
-        <h2 style="font-size:1.25rem;margin-bottom:0.5rem;">Calculators</h2>
-        <ul style="list-style:disc;padding-left:1.5rem;margin-bottom:1.5rem;color:#475569;">
-          <li><a href="/paint-calculator" style="color:#7C3AED;">Paint Calculator</a> — Estimate paint quantity in litres based on room dimensions, doors, windows, and coats</li>
-          <li><a href="/screeding-calculator" style="color:#7C3AED;">Screeding Calculator</a> — Calculate wall screeding area with cement, sand, and bonding agent quantities</li>
-          <li><a href="/pop-ceiling-calculator" style="color:#7C3AED;">POP Ceiling Calculator</a> — Estimate POP cement, fibreglass mesh, and materials for ceiling projects</li>
-          <li><a href="/tile-calculator" style="color:#7C3AED;">Tile Calculator</a> — Calculate tile count, boxes, adhesive, and grout for floors and walls</li>
-          <li><a href="/painting-estimator" style="color:#7C3AED;">Painting Estimator</a> — Room-based paint quantity and cost estimation using FRELUX methodology</li>
-          <li><a href="/tyrolene-estimator" style="color:#7C3AED;">Tyrolene Estimator</a> — Exterior wall finish material calculator with cement, sand, and acrylic bond</li>
-          <li><a href="/finish-estimator" style="color:#7C3AED;">Finish Estimator</a> — Compare painting, Tyrolene, and Grafitex finishes side by side with costs</li>
-        </ul>
-
-        <h2 style="font-size:1.25rem;margin-bottom:0.5rem;">Cost Estimators</h2>
-        <ul style="list-style:disc;padding-left:1.5rem;margin-bottom:1.5rem;color:#475569;">
-          <li><a href="/cost-estimator" style="color:#7C3AED;">Paint Cost Estimator</a> — Full painting project cost breakdown with real product prices</li>
-          <li><a href="/screeding-cost-estimator" style="color:#7C3AED;">Screeding Cost Estimator</a> — Estimate screeding material costs including cement and sand</li>
-          <li><a href="/pop-ceiling-cost-estimator" style="color:#7C3AED;">POP Ceiling Cost Estimator</a> — Estimate POP ceiling material costs and quantities</li>
-          <li><a href="/tile-cost-estimator" style="color:#7C3AED;">Tile Cost Estimator</a> — Estimate tiling costs including tiles, adhesive, grout, and labour</li>
-        </ul>
-
-        <h2 style="font-size:1.25rem;margin-bottom:0.5rem;">Colors &amp; Templates</h2>
-        <ul style="list-style:disc;padding-left:1.5rem;margin-bottom:1.5rem;color:#475569;">
-          <li><a href="/colors" style="color:#7C3AED;">Color Library</a> — Browse hundreds of professional paint colors and curated palettes</li>
-          <li><a href="/colors/compare" style="color:#7C3AED;">Compare Colors</a> — Side-by-side color comparison tool</li>
-          <li><a href="/ai-color-assistant" style="color:#7C3AED;">Smart Color Assistant</a> — AI-powered color recommendations for any room</li>
-          <li><a href="/templates" style="color:#7C3AED;">Calculator Templates</a> — Pre-configured project templates for common Nigerian construction scenarios</li>
-          <li><a href="/learn" style="color:#7C3AED;">Learn Hub</a> — Painting guides, tutorials, and expert tips</li>
-        </ul>
-
-        <h2 style="font-size:1.25rem;margin-bottom:0.5rem;">About FRELUX</h2>
-        <p style="font-size:0.9rem;color:#475569;margin-bottom:1.5rem;">FRELUX PAINT CALC is a free online platform built for Nigerian construction projects. It calculates material quantities using Nigerian coverage rates, real product sizes, and configurable market prices. All calculators are free with no sign-up required.</p>
-
-        <p style="font-size:0.875rem;color:#94a3b8;margin-top:1.5rem;">FRELUX PAINT CALC needs JavaScript for interactive calculators. Please enable it for full functionality. The links above will take you to each calculator page.</p>
+      <div style="display:flex;min-height:100vh;align-items:center;justify-content:center;text-align:center;padding:2rem;font-family:system-ui,sans-serif;">
+        <div>
+          <h1 style="font-size:1.5rem;margin-bottom:0.5rem;color:#1e293b;">JavaScript Required</h1>
+          <p style="color:#64748b;">FRELUX PAINT CALC needs JavaScript to run. Please enable it in your browser settings.</p>
+        </div>
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

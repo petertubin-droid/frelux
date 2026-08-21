@@ -9,7 +9,7 @@ export const siteConfig = {
   // International format without "+" for wa.me links
   whatsappNumber: '2349063612439',
   whatsappDisplay: '+234 906 361 2439',
-  email: 'hello@freluxpaintcalc.com',
+  email: 'hello@freluxtools.netlify.app',
   // AdSense — leave empty until approved; ads component renders nothing when unset.
   adsense: {
     publisherId: '', // e.g. 'ca-pub-XXXXXXXXXXXXXXXX'

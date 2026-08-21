@@ -46,7 +46,7 @@ function buildPaintCalcMessage(data: PaintCalcShareData): string {
   lines.push('');
   lines.push('_Estimate only. Actual amounts may vary by surface and application._');
   lines.push('');
-  lines.push('🔗 https://freluxpaintcalc.com/paint-calculator');
+  lines.push('🔗 https://freluxtools.netlify.app/paint-calculator');
 
   return lines.join('\n');
 }
@@ -82,7 +82,7 @@ function buildCostEstimateMessage(data: CostEstimateShareData): string {
   lines.push('');
   lines.push('_Estimate only. Actual costs may vary._');
   lines.push('');
-  lines.push('🔗 https://freluxpaintcalc.com/cost-estimator');
+  lines.push('🔗 https://freluxtools.netlify.app/cost-estimator');
 
   return lines.join('\n');
 }

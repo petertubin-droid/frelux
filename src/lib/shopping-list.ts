@@ -140,6 +140,6 @@ export function shoppingListToText(items: ShoppingListItem[]): string {
     if (item.detail) lines.push(`    ${item.detail}`);
   }
   lines.push('');
-  lines.push('🔗 https://freluxpaintcalc.com');
+  lines.push('🔗 https://freluxtools.netlify.app');
   return lines.join('\n');
 }

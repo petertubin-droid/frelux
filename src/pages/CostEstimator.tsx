@@ -13,8 +13,6 @@ import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/s
 import { exportPdfQuote } from '@/lib/pdf-export';
 import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
-import { calculateLabourCost } from '@/lib/labour';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -31,44 +29,23 @@ import { useSeo } from '@/lib/seo';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import { CostEstimatorSeo } from '@/components/seo/SeoContent';
 export default function CostEstimator() {
   useSeo({
-    title: 'Cost Estimator: Estimate Your Painting Project Cost',
+    title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
-    keywords: 'paint cost estimator, painting cost calculator, paint price calculator, paint budget, project cost estimate',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'FRELUX Cost Estimator',
-        applicationCategory: 'CalculatorApplication',
-        operatingSystem: 'Web',
-        description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices.',
-        url: 'https://freluxtools.netlify.app/cost-estimator',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Cost Estimator', item: 'https://freluxtools.netlify.app/cost-estimator' },
-        ],
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          { '@type': 'Question', name: 'How much does it cost to paint a room?', acceptedAnswer: { '@type': 'Answer', text: 'The cost depends on room size, paint type, and materials. Use the Cost Estimator with your paint quantity for a practical estimate.' } },
-          { '@type': 'Question', name: 'Does the cost estimator include labour?', acceptedAnswer: { '@type': 'Answer', text: 'The standard Cost Estimator covers materials only. Use the Painting Estimator for labour-inclusive estimates.' } },
-        ],
-      },
-    ],
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Cost Estimator',
+      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
+      url: 'https://freluxtools.netlify.app/cost-estimator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const location = useLocation();
@@ -111,17 +88,12 @@ export default function CostEstimator() {
     rollersCost: 0,
     includeOther: false,
     otherMaterialsCost: 0,
-    // Labor
-    laborMode: 'perSqm',
-    laborRatePerSqm: 0,
-    laborTotal: 0,
     currency,
     currencySymbol,
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('paint');
 
   useEffect(() => {
     async function loadAll() {
@@ -220,12 +192,11 @@ export default function CostEstimator() {
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Cost Estimate: ${input.projectType}, ${formatCurrency(result.total, currencySymbol)}`;
+    const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
     saveLocalProject(name, 'cost_estimate', { input, result });
   }
 
   function compute() {
-    const labourCost = calculateLabourCost(labourConfig, input.paintableArea);
     const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
     const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
     setResult(r);
@@ -248,7 +219,7 @@ export default function CostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Paint Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Paint Cost Estimator' }]} />
+        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." backTo="/" backLabel="Home" />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading pricing data…
         </div>
@@ -260,9 +231,10 @@ export default function CostEstimator() {
     <>
       <PageHeader
         eyebrow="Tool"
-        title="Paint Cost Estimator"
+        title="Cost Estimator"
         subtitle="Get a practical estimate for materials and painting labor. Prices are editable so you can match local rates."
-        breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Paint Cost Estimator' }]}
+        backTo="/"
+        backLabel="Home"
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -476,21 +448,6 @@ export default function CostEstimator() {
           />
         )}
       </div>
-
-      <CostEstimatorSeo />
-
-      <FaqSection faqs={[
-        { question: "How much does it cost to paint a room?", answer: <span>The cost depends on room size, paint type, number of coats, and materials. Use the Cost Estimator with your paint quantity to get a practical cost estimate based on real product prices.</span> },
-        { question: "Does the cost estimator include labour?", answer: <span>The standard Cost Estimator covers materials only. For labour-inclusive estimates, use the Finish Estimator or Painting Estimator which include configurable labour rates.</span> },
-        { question: "Are the prices up to date?", answer: <span>Prices are loaded from the FRELUX database and managed by administrators. They reflect real product prices but may not capture every market fluctuation.</span> },
-      ]} />
-
-      <RelatedTools links={[
-        CALC_LINKS.paintCalculator,
-        CALC_LINKS.paintingEstimator,
-        CALC_LINKS.finishEstimator,
-        CALC_LINKS.screedingCost,
-      ]} />
     </>
   );
 }

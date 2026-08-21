@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import { PaintCalculatorSeo } from '@/components/seo/SeoContent';
 import { Link } from 'react-router-dom';
 import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown, MessageCircle, ShoppingBag, Save, Wand2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -71,48 +69,26 @@ const ADVANCED_FEATURES = [
 
 
 import { useSeo } from '@/lib/seo';
-import { saveEstimateHistory } from '@/lib/crm';
-import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 
 export default function PaintCalculator() {
   const { toast } = useToast();
   const { user } = useAuth();
   useSeo({
-    title: 'Paint Calculator: How Much Paint Do I Need?',
+    title: 'Paint Calculator — How Much Paint Do I Need?',
     description:
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
     canonicalPath: '/paint-calculator',
     ogType: 'website',
-    keywords: 'paint calculator, how much paint do i need, paint quantity calculator, wall paint calculator, room paint calculator, paint estimation',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'FRELUX Paint Calculator',
-        applicationCategory: 'CalculatorApplication',
-        operatingSystem: 'Web',
-        description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
-        url: 'https://freluxtools.netlify.app/paint-calculator',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', item: 'https://freluxtools.netlify.app/paint-calculator' },
-        ],
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          { '@type': 'Question', name: 'How do I calculate how much paint I need?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length, width, and wall height into the FRELUX Paint Calculator. Deduct doors and windows, select the number of coats, and the calculator estimates paint quantity in litres based on standard coverage rates.' } },
-          { '@type': 'Question', name: 'How accurate is the paint calculator?', acceptedAnswer: { '@type': 'Answer', text: 'The calculator uses standard paint coverage rates and factors in wall area, openings, and coats. Results are estimates for planning, not a guarantee of final quantity.' } },
-          { '@type': 'Question', name: 'Should I account for waste when buying paint?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Add 5–10% extra paint to account for spillage, touch-ups, and surface texture. The calculator includes a waste percentage selector.' } },
-        ],
-      },
-    ],
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Paint Calculator',
+      description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
+      url: 'https://freluxtools.netlify.app/paint-calculator',
+      applicationCategory: 'CalculatorApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    },
   });
 
   const [step, setStep] = useState(1);
@@ -238,7 +214,6 @@ export default function PaintCalculator() {
     trackCalculation('paint');
     savePaintCalcDefaults({ unit: input.unit, projectType: input.projectType, coats: input.coats, wasteMargin: input.wasteMargin });
     track('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
-    void saveEstimateHistory(user?.id ?? null, { calculator_type: 'paint', project_name: `Paint: ${input.projectType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
   }
 
@@ -272,7 +247,7 @@ export default function PaintCalculator() {
       toast({ type: 'warning', title: 'Sign in required', message: 'Sign in to save your calculations.' });
       return;
     }
-    const name = `Paint: ${input.projectType}, ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
     const { error } = await saveUserProject(name, 'paint_calc', { input, result }, undefined);
     if (error) {
       toast({ type: 'error', title: 'Failed to save', message: error });
@@ -296,9 +271,9 @@ export default function PaintCalculator() {
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Paint: ${input.projectType}, ${formatNumber(result.paintableArea)} m²`;
+    const name = `Paint: ${input.projectType} — ${formatNumber(result.paintableArea)} m²`;
     saveLocalProject(name, 'paint_calc', { input, result });
-    toast({ type: 'success', title: 'Saved to device', message: 'Find it later: no login needed.' });
+    toast({ type: 'success', title: 'Saved to device', message: 'Find it later — no login needed.' });
   }
 
   async function handleShare() {
@@ -317,7 +292,8 @@ export default function PaintCalculator() {
         eyebrow="Tool"
         title="Paint Calculator"
         subtitle="Estimate how much paint your project may require, step by step."
-        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Paint Calculator' }]}
+        backTo="/"
+        backLabel="Home"
         useCalcTitle
       />
 
@@ -435,24 +411,7 @@ export default function PaintCalculator() {
             )}
           </RewardedFeatureGate>
         )}
-
-      <PaintCalculatorSeo />
-
-      <FaqSection faqs={[
-        { question: "How do I calculate how much paint I need?", answer: <span>Enter your room length, width, and wall height into the calculator above. Deduct doors and windows, select the number of coats, and choose a paint type. The calculator estimates paint quantity in litres based on standard coverage rates.</span> },
-        { question: "How accurate is the paint calculator?", answer: <span>The calculator uses standard paint coverage rates (typically 10–12 m² per litre per coat) and factors in your wall area, openings, and number of coats. Results are estimates for planning purposes, not a guarantee of final quantity.</span> },
-        { question: "Should I account for waste?", answer: <span>Yes. Add 5–10% extra paint to account for spillage, touch-ups, and surface texture. The calculator includes a waste percentage selector for this purpose.</span> },
-        { question: "Can I estimate paint for an entire house?", answer: <span>Yes. Set the project type to House and enter the total wall area, or calculate each room separately and add the results together.</span> },
-      ]} />
-
-      <RelatedTools links={[
-        CALC_LINKS.costEstimator,
-        CALC_LINKS.screedingCalc,
-        CALC_LINKS.paintingEstimator,
-        CALC_LINKS.aiColor,
-      ]} />
       </div>
-      <ProConnectCTA calculatorType="paint" />
     </>
   );
 }
