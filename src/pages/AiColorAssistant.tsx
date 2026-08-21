@@ -193,7 +193,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
           <MessageSquare className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Describe my space</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white dark:text-white">Describe my space</h2>
           <p className="mt-1 text-sm text-neutral-500">
             Tell us about your room, furniture, lighting, and the mood you want. The AI suggests a tailored color palette.
           </p>
@@ -213,7 +213,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
           <ImageIcon className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Upload a room image</h2>
+          <h2 className="text-lg font-bold text-brand-navy dark:text-white dark:text-white">Upload a room image</h2>
           <p className="mt-1 text-sm text-neutral-500">
             Share a photo of your room. The AI analyzes wall color, furniture, and lighting to recommend colors.
           </p>
@@ -395,7 +395,7 @@ function TextConsultation({ config, usage, onUsageConsumed }: { config: AiAccess
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Describe your space</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white dark:text-white">Describe your space</h2>
         <p className="mt-1 text-sm text-neutral-500">
           The more detail you give, the better the recommendation. Mention room type, furniture, current colors, lighting,
           and the mood or style you want.
@@ -411,7 +411,7 @@ function TextConsultation({ config, usage, onUsageConsumed }: { config: AiAccess
                 if (status === 'error' || status === 'success') reset();
               }}
               rows={6}
-              className="input-field mt-1.5 resize-y"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-1.5 resize-y"
               placeholder="I have a small living room with grey furniture and limited natural light. I want it to feel brighter and more spacious."
               disabled={status === 'generating' || !decision.allowed}
             />
@@ -584,7 +584,7 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Upload a room image</h2>
+        <h2 className="text-lg font-bold text-brand-navy dark:text-white dark:text-white">Upload a room image</h2>
         <p className="mt-1 text-sm text-neutral-500">
           Share a clear photo of your room. JPG, PNG, or WebP up to 5 MB. You can optionally add a description for better results.
         </p>
@@ -628,7 +628,7 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
                 if (status === 'error' || status === 'success') reset();
               }}
               rows={3}
-              className="input-field mt-1.5 resize-y"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-1.5 resize-y"
               placeholder="e.g. I want this bedroom to feel calm and relaxing."
               disabled={status === 'analyzing' || !decision.allowed}
             />

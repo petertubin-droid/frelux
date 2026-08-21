@@ -17,7 +17,7 @@ export default function AdminRewardedAccess() {
         title="Rewarded Ads Manager"
         subtitle="Configure rewarded ad providers, feature unlock durations, daily limits, cooldowns, and reward rules. Track unlock analytics and ad performance."
       />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
         {([
           { key: 'features', label: 'Feature Config', icon: Settings2 },
           { key: 'tools', label: 'Tool Config', icon: Gift },
@@ -126,7 +126,7 @@ function FeatureConfigTab() {
                   <select
                     value={feat.primary_provider_id ?? ''}
                     onChange={(e) => updateFeature(feat.id, { primary_provider_id: e.target.value || null })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   >
                     <option value="">None</option>
                     {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -136,7 +136,7 @@ function FeatureConfigTab() {
                   <select
                     value={feat.fallback_provider_id ?? ''}
                     onChange={(e) => updateFeature(feat.id, { fallback_provider_id: e.target.value || null })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   >
                     <option value="">None</option>
                     {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -148,7 +148,7 @@ function FeatureConfigTab() {
                     min={1}
                     value={feat.unlock_duration_minutes}
                     onChange={(e) => updateFeature(feat.id, { unlock_duration_minutes: Number(e.target.value) })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Daily Usage Limit" hint="0 = unlimited">
@@ -157,7 +157,7 @@ function FeatureConfigTab() {
                     min={0}
                     value={feat.daily_usage_limit}
                     onChange={(e) => updateFeature(feat.id, { daily_usage_limit: Number(e.target.value) })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Cooldown (minutes)" hint="Wait time between unlocks">
@@ -166,7 +166,7 @@ function FeatureConfigTab() {
                     min={0}
                     value={feat.cooldown_minutes}
                     onChange={(e) => updateFeature(feat.id, { cooldown_minutes: Number(e.target.value) })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
               </div>
@@ -180,7 +180,7 @@ function FeatureConfigTab() {
                       type="text"
                       value={feat.reward_rules?.success_message ?? ''}
                       onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, success_message: e.target.value } })}
-                      className="input-field"
+                      className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                       placeholder="Feature unlocked! Enjoy your premium access."
                     />
                   </AdminField>
@@ -189,7 +189,7 @@ function FeatureConfigTab() {
                       type="text"
                       value={feat.reward_rules?.failure_message ?? ''}
                       onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, failure_message: e.target.value } })}
-                      className="input-field"
+                      className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                       placeholder="Unable to load ad. Please try again."
                     />
                   </AdminField>
@@ -291,7 +291,7 @@ function ToolConfigTab() {
                 <select
                   value={cfg.primary_provider_id ?? ''}
                   onChange={(e) => updateConfig(cfg.id, { primary_provider_id: e.target.value || null })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 >
                   <option value="">Use legacy ad_provider</option>
                   {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -301,7 +301,7 @@ function ToolConfigTab() {
                 <select
                   value={cfg.fallback_provider_id ?? ''}
                   onChange={(e) => updateConfig(cfg.id, { fallback_provider_id: e.target.value || null })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 >
                   <option value="">None</option>
                   {rewardedProviders.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -311,7 +311,7 @@ function ToolConfigTab() {
                 <select
                   value={cfg.ad_provider}
                   onChange={(e) => updateConfig(cfg.id, { ad_provider: e.target.value })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 >
                   <option value="adsense">Google AdSense</option>
                   <option value="admob">Google AdMob</option>
@@ -325,7 +325,7 @@ function ToolConfigTab() {
                   type="text"
                   value={cfg.ad_unit_id ?? ''}
                   onChange={(e) => updateConfig(cfg.id, { ad_unit_id: e.target.value })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   placeholder="ca app pub xxx"
                 />
               </AdminField>
@@ -336,7 +336,7 @@ function ToolConfigTab() {
                   max={168}
                   value={cfg.unlock_duration_hours}
                   onChange={(e) => updateConfig(cfg.id, { unlock_duration_hours: Number(e.target.value) })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Daily Usage Limit" hint="0 = unlimited">
@@ -345,7 +345,7 @@ function ToolConfigTab() {
                   min={0}
                   value={cfg.daily_usage_limit}
                   onChange={(e) => updateConfig(cfg.id, { daily_usage_limit: Number(e.target.value) })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Cooldown (minutes)">
@@ -354,7 +354,7 @@ function ToolConfigTab() {
                   min={0}
                   value={cfg.cooldown_minutes}
                   onChange={(e) => updateConfig(cfg.id, { cooldown_minutes: Number(e.target.value) })}
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>
             </div>
@@ -495,7 +495,7 @@ function AnalyticsTab() {
 
 function StatCard({ icon: Icon, label, value, color }: { icon: typeof Users; label: string; value: string; color: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4 dark:border-neutral-700 dark:bg-neutral-900">
+    <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-4 dark:border-neutral-700 dark:bg-neutral-900">
       <div className="flex items-center gap-2">
         <Icon className={`h-4 w-4 ${color}`} />
         <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{label}</span>

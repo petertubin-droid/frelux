@@ -456,7 +456,7 @@ function ProjectCard({
   const progress = Math.max(0, Math.min(100, project.progress_percentage ?? 0));
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5 transition hover:shadow-md">
       {/* Top row: badges + menu */}
       <div className="flex items-start justify-between px-5 pt-5">
         <div className="flex flex-wrap items-center gap-2">

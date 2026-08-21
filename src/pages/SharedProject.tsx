@@ -18,7 +18,7 @@ export default function SharedProject() {
 
   useSeo({
     title: 'Shared Project',
-    description: 'A shared FRELUX project, colors, calculations, and estimates.',
+    description: 'A shared FRELUX project — colors, calculations, and estimates.',
     noIndex: true,
   });
 
@@ -73,7 +73,7 @@ export default function SharedProject() {
 
   return (
     <>
-      <PageHeader eyebrow="Shared" title={project?.name ?? 'Shared Project'} subtitle={project?.description ?? undefined} breadcrumbs={[{ label: 'Shared Project' }]} />
+      <PageHeader eyebrow="Shared" title={project?.name ?? 'Shared Project'} subtitle={project?.description ?? undefined} />
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-accent-blue/20 bg-accent-blue/5 p-3 text-sm text-neutral-600">
@@ -92,14 +92,14 @@ export default function SharedProject() {
             {/* Saved colors */}
             {colors.length > 0 && (
               <div>
-                <h2 className="text-lg font-bold text-brand-navy">Colors</h2>
-                <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+                <h2 className="text-lg font-bold text-brand-navy dark:text-white">Colors</h2>
+                <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                   {colors.map((c) => (
                     <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-md">
                       <div className="aspect-square" style={{ background: c.hex_code }}>
                         <span className="flex h-full items-center justify-center text-xs font-bold uppercase" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
                       </div>
-                      <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy">{c.name}</p></div>
+                      <div className="p-2"><p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p></div>
                     </Link>
                   ))}
                 </div>
@@ -109,14 +109,14 @@ export default function SharedProject() {
             {/* Project data as JSON-like display */}
             {projectData && (
               <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
-                <h2 className="text-sm font-bold text-brand-navy">Project Details</h2>
+                <h2 className="text-sm font-bold text-brand-navy dark:text-white">Project Details</h2>
                 <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                   {Object.entries(projectData)
                     .filter(([key]) => !['id', 'user_id', 'created_at', 'updated_at', 'name', 'description', 'saved_colors'].includes(key))
                     .map(([key, value]) => (
                       <div key={key}>
                         <dt className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{key.replace(/_/g, ' ')}</dt>
-                        <dd className="mt-0.5 text-sm text-neutral-700">{value === null || value === undefined ? 'N/A' : typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
+                        <dd className="mt-0.5 text-sm text-neutral-700 dark:text-neutral-200">{value === null || value === undefined ? 'N/A' : typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
                       </div>
                     ))}
                 </dl>

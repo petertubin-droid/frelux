@@ -54,7 +54,7 @@ export default function LearnCategory() {
         <PageHeader eyebrow="Learn" title="Category not found" subtitle="" breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: 'Loading…' }]} />
         <div className="mx-auto max-w-md py-20 text-center">
           <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
-          <p className="mt-3 text-sm text-neutral-500">This category doesn't exist or has been removed.</p>
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">This category doesn't exist or has been removed.</p>
           <Link to="/learn" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to Learn</Link>
         </div>
       </>
@@ -72,23 +72,23 @@ export default function LearnCategory() {
             <IconComponent className="h-7 w-7" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-brand-navy">{category.name}</h2>
-            {category.description && <p className="text-sm text-neutral-500">{category.description}</p>}
+            <h2 className="text-lg font-bold text-brand-navy dark:text-white">{category.name}</h2>
+            {category.description && <p className="text-sm text-neutral-500 dark:text-neutral-400">{category.description}</p>}
           </div>
         </div>
 
         {articles.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {articles.map((article) => (
-              <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
+              <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:-translate-y-1 hover:shadow-lg">
                 {article.cover_image_url && (
                   <div className="aspect-[16/9] overflow-hidden">
                     <img src={article.cover_image_url} alt={article.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                   </div>
                 )}
                 <div className="p-5">
-                  <h3 className="text-base font-bold text-brand-navy">{article.title}</h3>
-                  {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{article.excerpt}</p>}
+                  <h3 className="text-base font-bold text-brand-navy dark:text-white">{article.title}</h3>
+                  {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{article.excerpt}</p>}
                   <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
                     {article.author && <span>{article.author}</span>}
                     {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}

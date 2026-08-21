@@ -68,19 +68,25 @@ export function SkeletonGrid({ count = 6, className }: { count?: number; classNa
   );
 }
 
-export function SkeletonList({ count = 5, className }: { count?: number; className?: string }) {
+/* Premium stat skeleton — for dashboards and result areas */
+export function SkeletonStat({ className }: { className?: string }) {
   return (
-    <div className={classNames('space-y-3', className)}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 p-4 border border-neutral-200 rounded-xl dark:border-white/5 dark:border-white/5">
-          <Skeleton variant="circle" width="2.5rem" height="2.5rem" />
-          <div className="flex-1 space-y-2">
-            <Skeleton variant="text" className="w-1/3" />
-            <Skeleton variant="text" className="w-1/2" />
-          </div>
-          <Skeleton variant="text" className="w-16" />
-        </div>
-      ))}
+    <div className={classNames('stat-card space-y-3', className)}>
+      <Skeleton variant="text" className="w-1/3" />
+      <Skeleton variant="text" className="w-2/3 h-6" />
+    </div>
+  );
+}
+
+/* Premium color swatch skeleton */
+export function SkeletonColorCard({ className }: { className?: string }) {
+  return (
+    <div className={classNames('rounded-2xl border border-neutral-200/60 overflow-hidden dark:border-white/5', className)}>
+      <Skeleton variant="rect" className="w-full aspect-[4/5]" />
+      <div className="p-3.5 space-y-2">
+        <Skeleton variant="text" className="w-2/3" />
+        <Skeleton variant="text" className="w-1/3 h-3" />
+      </div>
     </div>
   );
 }

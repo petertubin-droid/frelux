@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Save, FileDown, Share2, MessageCircle, RotateCcw } from 'lucide-react';
+import { Save, FileDown, Share2, MessageCircle, RotateCcw, Sparkles } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 export interface ResultStat {
@@ -36,9 +36,16 @@ export default function ResultCard({
 }) {
   return (
     <div className="card overflow-hidden animate-fade-in-up dark:border-white/5">
-      <div className="bg-gradient-to-br from-brand-navy to-brand-purple px-6 py-5 text-white">
-        <h3 className="text-lg font-bold">{title}</h3>
-        {subtitle && <p className="mt-1 text-sm text-white/70">{subtitle}</p>}
+      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple px-6 py-5 text-white">
+        {/* Shimmer accent */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-1/2 -right-10 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
+        </div>
+        <div className="relative flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-brand-purple-light" />
+          <h3 className="text-lg font-bold">{title}</h3>
+        </div>
+        {subtitle && <p className="relative mt-1 text-sm text-white/70">{subtitle}</p>}
       </div>
 
       <div className="p-6 dark:bg-brand-navy-mid">
@@ -47,26 +54,30 @@ export default function ResultCard({
             <div
               key={i}
               className={classNames(
-                'rounded-xl border p-4 transition-all',
+                'rounded-xl border p-4 transition-all duration-300 animate-fade-in-up',
                 stat.highlight
-                  ? 'border-brand-purple/30 bg-brand-purple/5 dark:border-brand-purple/40 dark:bg-brand-purple/10'
-                  : 'border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5',
+                  ? 'stat-card-highlight'
+                  : 'stat-card',
               )}
+              style={{ animationDelay: `${i * 0.05}s` }}
             >
               <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 {stat.icon}
                 {stat.label}
               </div>
-              <p className={classNames('mt-1.5 text-lg font-bold', stat.highlight ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-brand-navy dark:text-white')}>
+              <p className={classNames('mt-1.5 text-lg font-bold tabular-nums', stat.highlight ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-brand-navy dark:text-white')}>
                 {stat.value}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-6 rounded-2xl bg-gradient-to-br from-brand-purple/10 to-accent-orange/10 p-6 text-center dark:from-brand-purple/15 dark:to-accent-orange/5">
-          <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Grand Total</p>
-          <p className="mt-1 text-3xl font-extrabold text-brand-navy sm:text-4xl dark:text-white">
+        <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple/10 to-accent-orange/10 p-6 text-center dark:from-brand-purple/15 dark:to-accent-orange/5">
+          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+            <div className="absolute -top-1/2 left-1/2 h-32 w-64 -translate-x-1/2 rounded-full bg-brand-purple/5 blur-3xl" />
+          </div>
+          <p className="relative text-sm font-medium text-neutral-500 dark:text-neutral-400">Grand Total</p>
+          <p className="relative mt-1 text-3xl font-extrabold text-brand-navy sm:text-4xl dark:text-white animate-count-glow">
             {currencySymbol}
             <span className="tabular-nums">{grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
           </p>

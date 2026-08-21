@@ -275,7 +275,7 @@ export default function CompareColors() {
                 <p className="mt-1 text-sm text-neutral-500">Color combinations featuring your selected colors.</p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {coordinatedPalettes.map((p) => (
-                    <Link key={p.id} to={`/colors/${p.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg">
+                    <Link key={p.id} to={`/colors/${p.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg">
                       <div className="relative aspect-[4/3] overflow-hidden">
                         <img src={p.image_url} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                         <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">

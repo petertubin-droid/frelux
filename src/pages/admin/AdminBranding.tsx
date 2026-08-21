@@ -107,13 +107,13 @@ export default function AdminBranding() {
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <AdminField label="Website Name">
-            <input type="text" className="input-field" value={websiteName} onChange={(e) => setWebsiteName(e.target.value)} />
+            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={websiteName} onChange={(e) => setWebsiteName(e.target.value)} />
           </AdminField>
           <AdminField label="Website Tagline">
-            <input type="text" className="input-field" value={websiteTagline} onChange={(e) => setWebsiteTagline(e.target.value)} />
+            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={websiteTagline} onChange={(e) => setWebsiteTagline(e.target.value)} />
           </AdminField>
           <AdminField label="Browser Title" hint="Shown in the browser tab">
-            <input type="text" className="input-field" value={browserTitle} onChange={(e) => setBrowserTitle(e.target.value)} />
+            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={browserTitle} onChange={(e) => setBrowserTitle(e.target.value)} />
           </AdminField>
         </div>
       </AdminCard>
@@ -144,19 +144,19 @@ export default function AdminBranding() {
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
               <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
+              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Secondary Color">
             <div className="flex items-center gap-2">
               <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
+              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Accent Color">
             <div className="flex items-center gap-2">
               <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
+              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
             </div>
           </AdminField>
         </div>

@@ -121,7 +121,7 @@ export default function AdminMaterialCatalog() {
             </thead>
             <tbody>
               {filtered.map(item => (
-                <tr key={item.id} className="border-b border-neutral-100 hover:bg-neutral-50">
+                <tr key={item.id} className="border-b border-neutral-100 hover:bg-neutral-50 dark:bg-white/5">
                   <td className="py-2 pr-4 font-medium text-neutral-800">{item.name}</td>
                   <td className="py-2 pr-4 capitalize text-neutral-600">{item.category.replace(/_/g, ' ')}</td>
                   <td className="py-2 pr-4 text-neutral-600">{item.brand ?? '-'}</td>

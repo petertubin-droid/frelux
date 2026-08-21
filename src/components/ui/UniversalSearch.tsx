@@ -42,7 +42,7 @@ export default function UniversalSearch({
   return (
     <div ref={ref} className={classNames('relative', className)}>
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
         <input
           type="text"
           value={query}
@@ -53,7 +53,7 @@ export default function UniversalSearch({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
-          className="w-full rounded-xl border border-neutral-200 bg-white py-2.5 pl-10 pr-9 text-sm text-neutral-700 placeholder:text-neutral-400 transition-colors focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+          className="w-full rounded-xl border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid py-2.5 pl-10 pr-9 text-sm text-neutral-700 dark:text-neutral-200 placeholder:text-neutral-400 dark:text-neutral-500 transition-colors focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
         />
         {query && (
           <button
@@ -61,7 +61,7 @@ export default function UniversalSearch({
               setQuery('');
               onQueryChange?.('');
             }}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:text-neutral-300"
             aria-label="Clear search"
           >
             <X className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function UniversalSearch({
         )}
       </div>
       {open && filtered.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-72 overflow-y-auto rounded-xl border border-neutral-200 bg-white py-1 shadow-xl animate-tooltip-in">
+        <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-72 overflow-y-auto rounded-xl border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid py-1 shadow-xl animate-tooltip-in">
           {filtered.map((item) => (
             <button
               key={item.id}
@@ -78,14 +78,14 @@ export default function UniversalSearch({
                 setOpen(false);
                 setQuery('');
               }}
-              className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-neutral-50"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-neutral-50 dark:bg-white/5"
             >
               {item.hex && (
                 <span className="h-5 w-5 shrink-0 rounded-md ring-1 ring-black/5" style={{ backgroundColor: item.hex }} />
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-neutral-800">{item.label}</p>
-                {item.sublabel && <p className="truncate text-xs text-neutral-400">{item.sublabel}</p>}
+                <p className="truncate text-sm font-medium text-neutral-800 dark:text-neutral-100">{item.label}</p>
+                {item.sublabel && <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">{item.sublabel}</p>}
               </div>
             </button>
           ))}

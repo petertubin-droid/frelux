@@ -296,7 +296,7 @@ function MaterialForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Name">
               <input
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={name}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -310,7 +310,7 @@ function MaterialForm({
             </AdminField>
             <AdminField label="Slug" hint="Auto-generated if left blank">
               <input
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="e.g. wall-putty"
@@ -321,7 +321,7 @@ function MaterialForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Category">
               <input
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="e.g. primer, filler, putty"
@@ -341,7 +341,7 @@ function MaterialForm({
             </AdminField>
             <AdminField label="Supplier">
               <input
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={supplier}
                 onChange={(e) => setSupplier(e.target.value)}
                 placeholder="e.g. Berger Paints"
@@ -351,7 +351,7 @@ function MaterialForm({
 
           <AdminField label="Description">
             <textarea
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -362,7 +362,7 @@ function MaterialForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Base unit">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={unitId}
                 onChange={(e) => setUnitId(e.target.value)}
               >
@@ -379,7 +379,7 @@ function MaterialForm({
                 type="number"
                 step="any"
                 min={0}
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={packSize}
                 onChange={(e) => setPackSize(e.target.value)}
                 placeholder="e.g. 20"
@@ -390,7 +390,7 @@ function MaterialForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Pack unit">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={packUnitId}
                 onChange={(e) => setPackUnitId(e.target.value)}
               >
@@ -405,7 +405,7 @@ function MaterialForm({
             <AdminField label="Effective date">
               <input
                 type="date"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={effectiveDate}
                 onChange={(e) => setEffectiveDate(e.target.value)}
               />
@@ -414,7 +414,7 @@ function MaterialForm({
 
           <AdminField label="Notes">
             <textarea
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -426,7 +426,7 @@ function MaterialForm({
             <AdminField label="Sort order">
               <input
                 type="number"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />

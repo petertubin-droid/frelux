@@ -136,10 +136,10 @@ export default function PopCeilingCostEstimator() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
-          <div className="card p-6 sm:p-8 lg:col-span-3">
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
             <Section title="Workflow">
               <Field label="POP ceiling workflow">
-                <select value={input.workflow} onChange={(e) => update('workflow', e.target.value as 'nigeria' | 'international')} className="input-field">
+                <select value={input.workflow} onChange={(e) => update('workflow', e.target.value as 'nigeria' | 'international')} className="input-field dark:bg-brand-navy-mid dark:border-white/10">
                   <option value="nigeria">Nigeria (POP cement, fibre, surface board)</option>
                   <option value="international">International (gypsum board, framework)</option>
                 </select>
@@ -147,20 +147,20 @@ export default function PopCeilingCostEstimator() {
             </Section>
 
             <Section title="Dimensions">
-              <div className="inline-flex rounded-lg border border-neutral-200 p-1">
+              <div className="inline-flex rounded-lg border border-neutral-200 dark:border-white/5 p-1">
                 {(['meters', 'feet'] as Unit[]).map((u) => (
                   <button key={u} type="button" onClick={() => update('unit', u)}
-                    className={'rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all ' + (input.unit === u ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
+                    className={'rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all ' + (input.unit === u ? 'bg-brand-purple text-white' : 'text-neutral-600 dark:text-neutral-300 hover:text-brand-purple')}>
                     {u}
                   </button>
                 ))}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field label="Room length" suffix={input.unit === 'meters' ? 'm' : 'ft'}>
-                  <input type="number" min={0} step="0.01" value={input.roomLength || ''} onChange={(e) => update('roomLength', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  <input type="number" min={0} step="0.01" value={input.roomLength || ''} onChange={(e) => update('roomLength', Number(e.target.value))} className="input-field dark:bg-brand-navy-mid dark:border-white/10" placeholder="0.00" />
                 </Field>
                 <Field label="Room width" suffix={input.unit === 'meters' ? 'm' : 'ft'}>
-                  <input type="number" min={0} step="0.01" value={input.roomWidth || ''} onChange={(e) => update('roomWidth', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  <input type="number" min={0} step="0.01" value={input.roomWidth || ''} onChange={(e) => update('roomWidth', Number(e.target.value))} className="input-field dark:bg-brand-navy-mid dark:border-white/10" placeholder="0.00" />
                 </Field>
               </div>
             </Section>
@@ -176,7 +176,7 @@ export default function PopCeilingCostEstimator() {
               <div className="flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
                   <button key={w} type="button" onClick={() => update('wasteMargin', w)}
-                    className={'rounded-lg border px-4 py-2 text-sm font-semibold transition-all ' + (input.wasteMargin === w ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>
+                    className={'rounded-lg border px-4 py-2 text-sm font-semibold transition-all ' + (input.wasteMargin === w ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 dark:text-neutral-300 hover:border-neutral-300')}>
                     {w}%
                   </button>
                 ))}
@@ -200,7 +200,7 @@ export default function PopCeilingCostEstimator() {
           {/* Results panel */}
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
-              <div className="bg-brand-navy p-6 text-white">
+              <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
                 <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Estimated total</p>
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.grandTotal, currencySymbol)}</p>
@@ -219,7 +219,7 @@ export default function PopCeilingCostEstimator() {
                     <div className="border-t border-neutral-100 pt-2">
                       <Row label="Grand total" value={formatCurrency(result.grandTotal, currencySymbol)} strong />
                     </div>
-                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                       {input.workflow === 'nigeria' ? 'Nigeria' : 'International'} workflow with {input.wasteMargin}% waste margin.
                     </div>
@@ -234,7 +234,7 @@ export default function PopCeilingCostEstimator() {
                   <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>
                 )}
               </div>
-              <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
+              <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
                 Estimate only. Actual costs may vary depending on materials, location, and market prices.
               </div>
             </div>
@@ -271,7 +271,7 @@ function Section({ title, children, last }: { title: string; children: ReactNode
 function Field({ label, hint, suffix, children }: { label: string; hint?: string; suffix?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">{label}</span>
+      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
       {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
       <div className="relative mt-1.5">
         {children}
@@ -292,14 +292,14 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 
 function ToggleRow({ checked, onChange, label, hint }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3">
+    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 dark:border-white/5 p-3">
       <button type="button" onClick={() => onChange(!checked)}
         className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
         aria-pressed={checked}>
         <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
       </button>
       <div>
-        <p className="text-sm font-semibold text-neutral-700">{label}</p>
+        <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</p>
         {hint && <p className="text-xs text-neutral-400">{hint}</p>}
       </div>
     </div>

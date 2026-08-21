@@ -237,7 +237,7 @@ export default function MyProjects() {
         {(tab === 'projects' || tab === 'collections') && (
           <div className="relative mb-4 w-full sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-            <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${tab}…`} className="input-field pl-9" />
+            <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${tab}…`} className="input-field pl-9 dark:bg-brand-navy-mid dark:border-white/10" />
           </div>
         )}
 
@@ -246,7 +246,7 @@ export default function MyProjects() {
           filteredProjects.length > 0 ? (
             <div className="space-y-3">
               {filteredProjects.map((p) => (
-                <div key={p.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+                <div key={p.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid">
                   <div className="flex items-start gap-3">
                     {projectIcon(p.project_type)}
                     <div>
@@ -340,7 +340,7 @@ export default function MyProjects() {
             {filteredCollections.length > 0 ? (
               <div className="space-y-4">
                 {filteredCollections.map((c) => (
-                  <div key={c.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+                  <div key={c.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
                         {renamingId === c.id ? (

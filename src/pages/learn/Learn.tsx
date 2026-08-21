@@ -78,7 +78,7 @@ export default function Learn() {
             <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Featured</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featured.map((article) => (
-                <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:-translate-y-1 hover:shadow-lg">
                   {article.cover_image_url && (
                     <div className="aspect-[16/9] overflow-hidden">
                       <img src={article.cover_image_url} alt={article.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
@@ -89,8 +89,8 @@ export default function Learn() {
                       <Award className="h-3.5 w-3.5 text-accent-orange" />
                       <span className="text-xs font-semibold uppercase tracking-widest text-accent-orange">Featured</span>
                     </div>
-                    <h3 className="mt-2 text-lg font-bold text-brand-navy">{article.title}</h3>
-                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{article.excerpt}</p>}
+                    <h3 className="mt-2 text-lg font-bold text-brand-navy dark:text-white">{article.title}</h3>
+                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{article.excerpt}</p>}
                     <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
                       {article.author && <span>{article.author}</span>}
                       {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}
@@ -109,13 +109,13 @@ export default function Learn() {
             {categories.map((cat) => {
               const IconComponent = getIcon(cat.icon);
               return (
-                <Link key={cat.id} to={`/learn/category/${cat.slug}`} className="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md">
+                <Link key={cat.id} to={`/learn/category/${cat.slug}`} className="group flex items-start gap-4 rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-5 transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md">
                   <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
                     <IconComponent className="h-6 w-6" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold text-brand-navy">{cat.name}</h3>
-                    {cat.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500 line-clamp-2">{cat.description}</p>}
+                    <h3 className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</h3>
+                    {cat.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{cat.description}</p>}
                     <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple">
                       Explore <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
@@ -132,7 +132,7 @@ export default function Learn() {
             <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Latest articles</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((article) => (
-                <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all hover:-translate-y-1 hover:shadow-lg">
+                <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:-translate-y-1 hover:shadow-lg">
                   {article.cover_image_url && (
                     <div className="aspect-[16/9] overflow-hidden">
                       <img src={article.cover_image_url} alt={article.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
@@ -140,8 +140,8 @@ export default function Learn() {
                   )}
                   <div className="p-5">
                     <span className="text-xs font-semibold uppercase tracking-widest text-brand-purple">{article.category_slug.replace(/-/g, ' ')}</span>
-                    <h3 className="mt-2 text-base font-bold text-brand-navy">{article.title}</h3>
-                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{article.excerpt}</p>}
+                    <h3 className="mt-2 text-base font-bold text-brand-navy dark:text-white">{article.title}</h3>
+                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{article.excerpt}</p>}
                     <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
                       {article.author && <span>{article.author}</span>}
                       {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}

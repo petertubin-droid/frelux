@@ -30,14 +30,14 @@ export default function MultiStepProgress({
                     'flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:text-sm',
                     isComplete && 'bg-brand-purple text-white',
                     isCurrent && 'bg-brand-purple text-white ring-4 ring-brand-purple/20 animate-success-pop',
-                    !isComplete && !isCurrent && 'bg-neutral-200 dark:bg-white/10 text-neutral-400 dark:bg-white/10 dark:text-neutral-500',
+                    !isComplete && !isCurrent && 'bg-neutral-200 text-neutral-400 dark:bg-white/10 dark:text-neutral-500',
                   )}
                 >
                   {isComplete ? <Check className="h-4 w-4" /> : i + 1}
                 </div>
                 <span
                   className={classNames(
-                    'hidden text-[11px] font-medium sm:block sm:text-xs',
+                    'hidden text-[11px] font-medium sm:block sm:text-xs transition-colors',
                     isCurrent ? 'text-brand-purple' : isComplete ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400',
                   )}
                 >
@@ -45,7 +45,7 @@ export default function MultiStepProgress({
                 </span>
                 <span
                   className={classNames(
-                    'block text-[10px] font-medium sm:hidden',
+                    'block text-[10px] font-medium sm:hidden transition-colors',
                     isCurrent ? 'text-brand-purple' : 'text-neutral-400',
                   )}
                 >

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
-
+import Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { fetchColorCombinations, fetchColorCategories } from '@/lib/queries';
 import type { DbColorCombination, DbColorCategory } from '@/types/database';
@@ -26,7 +26,7 @@ export default function ColorPreview() {
   }
 
   return (
-    <section data-tour="colors" className="bg-white py-24 sm:py-28 dark:bg-brand-navy">
+    <section className="relative bg-white py-24 sm:py-28 dark:bg-brand-navy">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
@@ -61,8 +61,6 @@ export default function ColorPreview() {
                 <img
                   src={c.image_url}
                   alt={c.title}
-                  width={400}
-                  height={300}
                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   loading="lazy"
                 />
@@ -83,8 +81,8 @@ export default function ColorPreview() {
                     {catName(c.category_ids[0])}
                   </p>
                 )}
-                <h3 className="mt-1.5 font-display text-lg font-bold text-neutral-900">{c.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2">{c.description}</p>
+                <h3 className="mt-1.5 font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{c.description}</p>
               </div>
             </Link>
           ))}

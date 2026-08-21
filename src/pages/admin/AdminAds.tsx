@@ -20,7 +20,7 @@ export default function AdminAds() {
         title="Ad Management Center"
         subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes."
       />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
         {([
           { key: 'providers', label: 'Providers', icon: Megaphone },
           { key: 'placements', label: 'Placements', icon: Layers },
@@ -219,7 +219,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
           )}
           {!initial && !useCustomSchema && (
             <AdminField label="Select Built in Provider">
-              <select className="input-field" value={slug} onChange={(e) => {
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => {
                 setSlug(e.target.value);
                 const s = BUILTIN_PROVIDERS.find((p) => p.slug === e.target.value);
                 if (s) { setName(s.name); setProviderType(s.provider_type as AdProviderType); }
@@ -230,12 +230,12 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
             </AdminField>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Provider Name"><input className="input-field" value={name} onChange={(e) => setName(e.target.value)} disabled={!!initial && initial.is_system} /></AdminField>
-            <AdminField label="Slug" hint="Machine identifier"><input className="input-field" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" disabled={!!initial} /></AdminField>
+            <AdminField label="Provider Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} disabled={!!initial && initial.is_system} /></AdminField>
+            <AdminField label="Slug" hint="Machine identifier"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" disabled={!!initial} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Type">
-              <select className="input-field" value={providerType} onChange={(e) => setProviderType(e.target.value as AdProviderType)}>
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={providerType} onChange={(e) => setProviderType(e.target.value as AdProviderType)}>
                 <option value="display">Display</option>
                 <option value="rewarded">Rewarded</option>
                 <option value="interstitial">Interstitial</option>
@@ -243,7 +243,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
                 <option value="mixed">Mixed</option>
               </select>
             </AdminField>
-            <AdminField label="Priority" hint="Lower = higher priority"><input type="number" className="input-field" value={priority} onChange={(e) => setPriority(Number(e.target.value))} /></AdminField>
+            <AdminField label="Priority" hint="Lower = higher priority"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={priority} onChange={(e) => setPriority(Number(e.target.value))} /></AdminField>
             <AdminField label="Active">
               <div className="pt-2"><Toggle checked={isActive} onChange={setIsActive} /></div>
             </AdminField>
@@ -257,7 +257,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
                 <AdminField key={field.key} label={field.label}>
                   <input
                     type={field.type}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                     value={credentials[field.key] ?? ''}
                     onChange={(e) => setCredentials({ ...credentials, [field.key]: e.target.value })}
                     placeholder={field.placeholder}
@@ -279,7 +279,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
                     ) : (
                       <input
                         type={field.type}
-                        className="input-field"
+                        className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                         value={String(settings[field.key] ?? field.default)}
                         onChange={(e) => setSettings({ ...settings, [field.key]: field.type === 'number' ? Number(e.target.value) : e.target.value })}
                       />
@@ -345,9 +345,9 @@ function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
         </div>
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
-        <textarea className="input-field mt-3 font-mono text-sm" rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder='[{"name":"...","slug":"..."}]' />
+        <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-3 font-mono text-sm" rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder='[{"name":"...","slug":"..."}]' />
         {result && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-800">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-800">
             <p className="font-semibold text-brand-navy dark:text-white">Added/Updated: {result.added}</p>
             {result.errors.length > 0 && <p className="mt-1 text-red-600">{result.errors.join(', ')}</p>}
           </div>
@@ -512,17 +512,17 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
         </div>
         <div className="mt-5 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Placement Name"><input className="input-field" value={placementName} onChange={(e) => setPlacementName(e.target.value)} /></AdminField>
-            <AdminField label="Placement Key" hint="URL friendly identifier"><input className="input-field" value={placementKey} onChange={(e) => setPlacementKey(e.target.value)} placeholder="auto from name" disabled={!!initial} /></AdminField>
+            <AdminField label="Placement Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementName} onChange={(e) => setPlacementName(e.target.value)} /></AdminField>
+            <AdminField label="Placement Key" hint="URL friendly identifier"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementKey} onChange={(e) => setPlacementKey(e.target.value)} placeholder="auto from name" disabled={!!initial} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Type">
-              <select className="input-field" value={placementType} onChange={(e) => setPlacementType(e.target.value as typeof placementType)}>
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementType} onChange={(e) => setPlacementType(e.target.value as typeof placementType)}>
                 {Object.entries(PLACEMENT_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </AdminField>
             <AdminField label="Page Target">
-              <select className="input-field" value={pageTarget} onChange={(e) => setPageTarget(e.target.value as typeof pageTarget)}>
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={pageTarget} onChange={(e) => setPageTarget(e.target.value as typeof pageTarget)}>
                 {Object.entries(PAGE_TARGET_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </AdminField>
@@ -537,8 +537,8 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
             <div className="grid gap-4 sm:grid-cols-2">
               <AdminField label="Show on Mobile"><div className="pt-2"><Toggle checked={displayRules.mobile} onChange={(v) => setDisplayRules({ ...displayRules, mobile: v })} /></div></AdminField>
               <AdminField label="Show on Desktop"><div className="pt-2"><Toggle checked={displayRules.desktop} onChange={(v) => setDisplayRules({ ...displayRules, desktop: v })} /></div></AdminField>
-              <AdminField label="Refresh (seconds)" hint="0 = no refresh"><input type="number" className="input-field" value={displayRules.refresh_seconds} onChange={(e) => setDisplayRules({ ...displayRules, refresh_seconds: Number(e.target.value) })} /></AdminField>
-              <AdminField label="Min Height (px)"><input type="number" className="input-field" value={displayRules.min_height} onChange={(e) => setDisplayRules({ ...displayRules, min_height: Number(e.target.value) })} /></AdminField>
+              <AdminField label="Refresh (seconds)" hint="0 = no refresh"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={displayRules.refresh_seconds} onChange={(e) => setDisplayRules({ ...displayRules, refresh_seconds: Number(e.target.value) })} /></AdminField>
+              <AdminField label="Min Height (px)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={displayRules.min_height} onChange={(e) => setDisplayRules({ ...displayRules, min_height: Number(e.target.value) })} /></AdminField>
             </div>
           </div>
 
@@ -561,7 +561,7 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
                       {isSelected && (
                         <input
                           type="text"
-                          className="input-field mt-1.5 text-xs"
+                          className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-1.5 text-xs"
                           value={adUnitIds[prov.id] ?? ''}
                           onChange={(e) => setAdUnitIds({ ...adUnitIds, [prov.id]: e.target.value })}
                           placeholder={`Ad unit ID for ${prov.name}`}

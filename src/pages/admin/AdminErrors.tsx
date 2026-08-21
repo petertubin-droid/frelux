@@ -109,7 +109,7 @@ export default function AdminErrors() {
           type="button"
           onClick={resolveAll}
           disabled={stats.unresolved === 0}
-          className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 disabled:opacity-50"
+          className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:bg-white/5 disabled:opacity-50"
         >
           Resolve all ({stats.unresolved})
         </button>
@@ -131,7 +131,7 @@ export default function AdminErrors() {
             type="button"
             onClick={() => setFilter(sev)}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
-              filter === sev ? 'bg-neutral-900 text-white' : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+              filter === sev ? 'bg-neutral-900 text-white' : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:bg-white/5'
             }`}
           >
             {sev}
@@ -150,7 +150,7 @@ export default function AdminErrors() {
             <div
               key={err.id}
               className={`rounded-lg border p-4 transition-colors ${
-                err.is_resolved ? 'border-neutral-100 bg-neutral-50 opacity-60' : 'border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid hover:bg-neutral-50'
+                err.is_resolved ? 'border-neutral-100 bg-neutral-50 dark:bg-white/5 opacity-60' : 'border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid hover:bg-neutral-50 dark:bg-white/5'
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -174,7 +174,7 @@ export default function AdminErrors() {
                   <button
                     type="button"
                     onClick={() => setSelectedError(err)}
-                    className="rounded-lg border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50"
+                    className="rounded-lg border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:bg-white/5"
                   >
                     Details
                   </button>
@@ -233,7 +233,7 @@ export default function AdminErrors() {
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+    <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-4">
       <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent ?? 'text-neutral-900'}`}>{formatNumber(value, 0)}</p>
     </div>

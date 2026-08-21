@@ -105,7 +105,7 @@ function GenerationTool({ toolSlug, tool }: { toolSlug: string; tool: ReturnType
       <ToolHeader icon={Icon} title={tool.label} description={tool.description} />
 
       <div className="space-y-6">
-        <div className="rounded-xl border border-neutral-200 bg-white p-5">
+        <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-5">
           <PromptInput
             placeholder={PLACEHOLDERS[toolSlug] ?? 'Describe what you want to generate…'}
             loading={loading}
@@ -242,7 +242,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
           </button>
           <div className="max-h-96 space-y-1 overflow-y-auto">
             {sessions.map((s) => (
-              <div key={s.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-3 py-2 hover:border-brand-purple">
+              <div key={s.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid px-3 py-2 hover:border-brand-purple">
                 <button
                   type="button"
                   onClick={() => setActiveSession(s.id)}
@@ -259,7 +259,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
         </div>
 
         {/* Chat area */}
-        <div className="flex flex-col rounded-xl border border-neutral-200 bg-white">
+        <div className="flex flex-col rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
           <div ref={scrollRef} className="max-h-[55vh] flex-1 space-y-4 overflow-y-auto p-4">
             {messages.length === 0 && !loading && (
               <div className="flex h-full items-center justify-center text-center">

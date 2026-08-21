@@ -97,11 +97,11 @@ export default function AdminAiLearningAssistant() {
             <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Input</h2>
 
             <AdminField label="Topic" hint="Enter a topic or title for the AI to work with">
-              <input className="input-field" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
             </AdminField>
 
             <AdminField label="Content" hint="Paste existing content to expand, rewrite, or optimize">
-              <textarea className="input-field font-mono text-sm" rows={6} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Paste content here…" />
+              <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-sm" rows={6} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Paste content here…" />
             </AdminField>
 
             {error && (
@@ -124,7 +124,7 @@ export default function AdminAiLearningAssistant() {
                   <Send className="h-3 w-3" /> Copy
                 </button>
               </div>
-              <div className="max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4">
+              <div className="max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-4">
                 <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">{result}</pre>
               </div>
             </AdminCard>

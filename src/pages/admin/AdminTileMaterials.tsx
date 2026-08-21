@@ -104,7 +104,7 @@ export default function AdminTileMaterials() {
         }
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['sizes', 'materials'] as Tab[]).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
@@ -204,14 +204,14 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
-      <AdminField label="Name"><input className="input-field" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
+      <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Width (mm)"><input type="number" className="input-field" value={form.width_mm} onChange={(e) => setForm({ ...form, width_mm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Height (mm)"><input type="number" className="input-field" value={form.height_mm} onChange={(e) => setForm({ ...form, height_mm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Tiles per box"><input type="number" min={1} className="input-field" value={form.tiles_per_box} onChange={(e) => setForm({ ...form, tiles_per_box: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Width (mm)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.width_mm} onChange={(e) => setForm({ ...form, width_mm: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Height (mm)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.height_mm} onChange={(e) => setForm({ ...form, height_mm: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Tiles per box"><input type="number" min={1} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.tiles_per_box} onChange={(e) => setForm({ ...form, tiles_per_box: Number(e.target.value) })} /></AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Sort Order"><input type="number" className="input-field" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Sort Order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><input type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Standard</label>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
       </div>
@@ -244,26 +244,26 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
         <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Name"><input className="input-field" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
+        <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
         <AdminField label="Category">
-          <select className="input-field" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as TileMaterialCategory })}>
+          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as TileMaterialCategory })}>
             {tileCategories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Coverage Rate"><input type="number" step="0.1" className="input-field" value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Coverage Unit"><input className="input-field" value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit"><input className="input-field" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
+        <AdminField label="Coverage Rate"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Coverage Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Package Size"><input type="number" step="0.1" className="input-field" value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Package Unit"><input className="input-field" value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit Price (₦)"><input type="number" className="input-field" value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Package Size"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Package Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit Price (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Labour Rate/m² (₦)"><input type="number" className="input-field" value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Sort Order"><input type="number" className="input-field" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Labour Rate/m² (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Sort Order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
       </div>
       <label className="flex items-center gap-2 text-sm text-neutral-600"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
       <div className="flex justify-end gap-3">

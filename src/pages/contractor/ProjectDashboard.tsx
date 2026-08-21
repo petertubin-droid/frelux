@@ -1385,7 +1385,7 @@ function LabourTab(props: LabourTabProps) {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm md:block">
+          <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5 md:block">
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
@@ -1573,7 +1573,7 @@ function ShoppingTab(props: ShoppingTabProps) {
           {categories.map(([category, items]) => {
             const categoryTotal = items.reduce((sum, i) => sum + i.total_price, 0);
             return (
-              <div key={category} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+              <div key={category} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5">
                 <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
                   <h3 className="text-sm font-semibold capitalize text-gray-700">{prettify(category)}</h3>
                   <span className="text-sm font-semibold text-violet-600">{currencySymbol}{categoryTotal.toLocaleString('en-NG')}</span>

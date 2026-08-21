@@ -79,7 +79,7 @@ export default function AdminPopMaterials() {
         </div>}
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {workflows.map((wf) => (
           <button key={wf} type="button" onClick={() => setFilterWf(wf)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', filterWf === wf ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
@@ -162,34 +162,34 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Name"><input className="input-field" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
+        <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
         <AdminField label="Workflow">
-          <select className="input-field" value={form.workflow} onChange={(e) => setForm({ ...form, workflow: e.target.value as PopWorkflowType })}>
+          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.workflow} onChange={(e) => setForm({ ...form, workflow: e.target.value as PopWorkflowType })}>
             {workflows.map((w) => <option key={w} value={w} className="capitalize">{w}</option>)}
           </select>
         </AdminField>
         <AdminField label="Category">
-          <select className="input-field" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as PopMaterialCategory })}>
+          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as PopMaterialCategory })}>
             {categories.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
           </select>
         </AdminField>
-        <AdminField label="Unit"><input className="input-field" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Coverage Rate"><input type="number" step="0.1" className="input-field" value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Coverage Unit"><input className="input-field" value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
-        <AdminField label="Package Size"><input type="number" step="0.1" className="input-field" value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Coverage Rate"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Coverage Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
+        <AdminField label="Package Size"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Package Unit"><input className="input-field" value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit Price (₦)"><input type="number" className="input-field" value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Labour Rate/m² (₦)"><input type="number" className="input-field" value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Package Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit Price (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Labour Rate/m² (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Sort Order"><input type="number" className="input-field" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Sort Order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
           <input type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Optional
         </label>

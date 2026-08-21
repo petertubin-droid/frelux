@@ -101,16 +101,16 @@ export function StatCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold text-brand-navy tabular-nums">
+          <p className="mt-2 text-2xl font-bold text-brand-navy dark:text-white tabular-nums">
             {prefix}
             {formatted}
             {suffix}
           </p>
           {sublabel && (
-            <p className="mt-1 text-xs text-neutral-400">{sublabel}</p>
+            <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{sublabel}</p>
           )}
         </div>
         <div
@@ -154,7 +154,7 @@ export function SkeletonList({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 rounded-xl border border-neutral-200 p-4"
+          className="flex items-center gap-4 rounded-xl border border-neutral-200 dark:border-white/5 p-4"
         >
           <div className="h-10 w-10 shrink-0 animate-skeleton-pulse rounded-full bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
           <div className="flex-1 space-y-2">
@@ -206,8 +206,8 @@ export function EmptyState({
       >
         <Icon className="h-10 w-10" />
       </div>
-      <h3 className="text-xl font-bold text-brand-navy">{title}</h3>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500">
+      <h3 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h3>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
         {description}
       </p>
       {actionLabel && onAction && (
@@ -249,10 +249,10 @@ export function SuccessScreen({
         </div>
       </div>
 
-      <h3 className="text-2xl font-bold text-brand-navy animate-fade-in-up">
+      <h3 className="text-2xl font-bold text-brand-navy dark:text-white animate-fade-in-up">
         {title}
       </h3>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500 animate-fade-in-up">
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 animate-fade-in-up">
         {message}
       </p>
 
@@ -299,12 +299,12 @@ export function ProgressTracker({
       {(label || showValue) && (
         <div className="mb-1.5 flex items-center justify-between">
           {label && (
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
               {label}
             </span>
           )}
           {showValue && (
-            <span className="text-sm font-bold tabular-nums text-brand-navy">
+            <span className="text-sm font-bold tabular-nums text-brand-navy dark:text-white">
               {clamped}%
             </span>
           )}
@@ -361,7 +361,7 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
                       'bg-brand-purple text-white ring-4 ring-brand-purple/20 animate-success-pop',
                     !isComplete &&
                       !isCurrent &&
-                      'bg-neutral-200 text-neutral-400',
+                      'bg-neutral-200 text-neutral-400 dark:text-neutral-500',
                   )}
                 >
                   {isComplete ? (
@@ -376,8 +376,8 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
                     isCurrent
                       ? 'text-brand-purple'
                       : isComplete
-                        ? 'text-neutral-700'
-                        : 'text-neutral-400',
+                        ? 'text-neutral-700 dark:text-neutral-200'
+                        : 'text-neutral-400 dark:text-neutral-500',
                   )}
                 >
                   {step}
@@ -421,14 +421,14 @@ export function SectionCard({
     <section
       className={classNames('card overflow-hidden', className)}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4">
+      <header className="flex items-center justify-between gap-3 border-b border-neutral-200 dark:border-white/5 px-5 py-4">
         <div className="flex items-center gap-2.5">
           {Icon && (
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
               <Icon className="h-4.5 w-4.5 text-brand-purple" />
             </div>
           )}
-          <h3 className="text-sm font-bold uppercase tracking-wide text-brand-navy">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-brand-navy dark:text-white">
             {title}
           </h3>
         </div>
@@ -457,7 +457,7 @@ export interface BadgeProps {
 }
 
 const badgeVariantMap: Record<BadgeVariant, string> = {
-  default: 'bg-neutral-100 text-neutral-600',
+  default: 'bg-neutral-100 text-neutral-600 dark:text-neutral-300',
   success: 'bg-accent-green/10 text-accent-green',
   warning: 'bg-accent-yellow/10 text-accent-yellow',
   error: 'bg-red-500/10 text-red-600',
@@ -527,13 +527,13 @@ export function Toggle({
       >
         <span
           className={classNames(
-            'inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-all duration-300',
+            'inline-block h-5 w-5 transform rounded-full bg-white dark:bg-brand-navy-mid shadow-sm transition-all duration-300',
             checked ? 'translate-x-5' : 'translate-x-0.5',
           )}
         />
       </button>
       {label && (
-        <span className="text-sm font-medium text-brand-navy">{label}</span>
+        <span className="text-sm font-medium text-brand-navy dark:text-white">{label}</span>
       )}
     </label>
   );

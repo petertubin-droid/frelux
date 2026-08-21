@@ -234,7 +234,7 @@ export default function TileCalculator() {
         </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
-          <div className="card p-6 sm:p-8">
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
             {/* Surface type */}
             <h2 className="text-lg font-bold text-brand-navy dark:text-white">Surface type</h2>
             <p className="mt-1 text-sm text-neutral-500">Are you tiling a floor or a wall?</p>
@@ -453,8 +453,8 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
   saveMsg: string;
 }) {
   return (
-    <div className="mt-8 card overflow-hidden">
-      <div className="bg-brand-navy p-6 text-white sm:p-8">
+    <div className="mt-8 card overflow-hidden dark:border-white/5">
+      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">Your Tile Estimate</span>
@@ -466,7 +466,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
         <p className="mt-1 text-sm text-white/60">{result.tilesNeeded} tiles needed</p>
       </div>
 
-      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8">
+      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
         <Stat label="Surface area" value={`${formatNumber(result.surfaceArea)} m²`} />
         <Stat label="Tile area" value={`${formatNumber(result.tileArea, 3)} m²`} />
         <Stat label="Tiles needed" value={`${result.tilesNeeded}`} />
@@ -516,9 +516,9 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white">{value}</p>
+    <div className="stat-card dark:border-white/5 dark:bg-brand-navy-mid">
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{label}</p>
+      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white dark:text-white">{value}</p>
     </div>
   );
 }

@@ -79,7 +79,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={t.id}
               className={classNames(
-                'pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-xl border px-4 py-3 shadow-lg animate-toast-in',
+                'pointer-events-auto relative flex w-full max-w-sm items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-lg animate-toast-in',
                 styles[t.type],
               )}
               role="alert"
@@ -96,6 +96,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               >
                 <X className="h-4 w-4" />
               </button>
+              {/* Auto-dismiss progress bar */}
+              {t.duration > 0 && (
+                <div className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30" style={{
+                  animation: `toast-progress ${t.duration}ms linear forwards`,
+                }} />
+                )}
             </div>
           );
         })}
@@ -110,3 +116,5 @@ export function useToast() {
   if (!ctx) throw new Error('useToast must be used within ToastProvider');
   return ctx;
 }
+
+

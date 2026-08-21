@@ -89,7 +89,7 @@ export default function AdminContactMessages() {
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">From:</span> {viewing.name} ({viewing.email})</p>
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
             </div>
-            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-neutral-50 dark:bg-white/5 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">{viewing.message}</div>
+            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-neutral-50 dark:bg-white/5 dark:bg-white/5 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">{viewing.message}</div>
             <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
               <a href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject)}`}>
                 <AdminButton variant="secondary"><Mail className="h-4 w-4" /> Reply by email</AdminButton>

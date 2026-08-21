@@ -3,6 +3,8 @@ import { useLocation, Link } from 'react-router-dom';
 import { CheckCircle2, Info, AlertCircle, Loader2, Calculator } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { calculateScreedingMix } from '@/lib/calc';
+import { calculateLabourCost } from '@/lib/labour';
+import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchScreedingMixConfig } from '@/lib/queries';
@@ -12,10 +14,6 @@ import { useSeo } from '@/lib/seo';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import { ScreedingCostEstimatorSeo } from '@/components/seo/SeoContent';
-import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
-import { calculateLabourCost } from '@/lib/labour';
 interface PassedState {
   netScreedingArea?: number;
   method?: string;
@@ -57,46 +55,27 @@ function dbToConfig(db: DbScreedingMixConfig): ScreedingMixConfig {
 
 export default function ScreedingCostEstimator() {
   useSeo({
-    title: 'Wall Screeding Cost Estimator: Paint + Cement Mix Calculator',
+    title: 'Wall Screeding Cost Estimator — Paint + Cement Mix Calculator',
     description:
       'Estimate wall screeding costs with real-world mix calculations. Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, VAT, and a professional quotation.',
     canonicalPath: '/screeding-cost-estimator',
     ogType: 'website',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: 'FRELUX Wall Screeding Cost Estimator',
-        applicationCategory: 'BusinessApplication',
-        operatingSystem: 'Web',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Cost Estimators', item: 'https://freluxtools.netlify.app/cost-estimator' },
-          { '@type': 'ListItem', position: 3, name: 'Screeding Cost Estimator', item: 'https://freluxtools.netlify.app/screeding-cost-estimator' },
-        ],
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          { '@type': 'Question', name: 'How much does wall screeding cost?', acceptedAnswer: { '@type': 'Answer', text: 'Wall screeding cost depends on the area, mix ratio, and current material prices. Use the FRELUX Screeding Cost Estimator to calculate the total cost of screeding paint, white cement, and bonding agents.' } },
-          { '@type': 'Question', name: 'What materials are needed for wall screeding?', acceptedAnswer: { '@type': 'Answer', text: 'Screeding paint (20L buckets), white cement (40kg bags), bonding agents, and optionally fibreglass mesh for large wall areas.' } },
-        ],
-      },
-    ],
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'FRELUX Wall Screeding Cost Estimator',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+    },
   });
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
 
   const [config, setConfig] = useState<ScreedingMixConfig | null>(null);
-  const [loading, setLoading] = useState(true);
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('screeding');
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [result, setResult] = useState<ScreedingMixResult | null>(null);
@@ -125,10 +104,10 @@ export default function ScreedingCostEstimator() {
     }
     const rawResult = calculateScreedingMix(netArea, { ...config, labourRatePerSqm: 0 });
     const labourCost = calculateLabourCost(labourConfig, netArea);
-    const subtotal = rawResult.materialCost;
+    const subtotal = rawResult.materialCost + labourCost;
     const taxFraction = Math.max(0, Math.min(100, config.taxVatPercentage)) / 100;
     const taxAmount = subtotal * taxFraction;
-    const grandTotal = subtotal + taxAmount + labourCost;
+    const grandTotal = subtotal + taxAmount;
     const r: ScreedingMixResult = { ...rawResult, labourCost, taxAmount, grandTotal };
     setResult(r);
     track('screeding_mix_estimate_generated', { area: netArea, total: r.grandTotal });
@@ -138,7 +117,7 @@ export default function ScreedingCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material costs for your wall screeding project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Screeding Cost Estimator' }]} />
+        <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material and labour costs for your wall screeding project." backTo="/" backLabel="Home" />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading configuration…
         </div>
@@ -153,8 +132,9 @@ export default function ScreedingCostEstimator() {
       <PageHeader
         eyebrow="Tool"
         title="Screeding Cost Estimator"
-        subtitle="Real world screeding cost: Screeding Paint (20L buckets) + White Cement (40kg bags), waste, and VAT. Labour not included."
-        breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'Screeding Cost Estimator' }]}
+        subtitle="Real world screeding cost: Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, and VAT."
+        backTo="/"
+        backLabel="Home"
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -179,7 +159,7 @@ export default function ScreedingCostEstimator() {
         {config && (
           <div className="grid gap-6 lg:grid-cols-5">
             {/* Input panel */}
-            <div className="card p-6 sm:p-8 lg:col-span-3">
+            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
               <Section title="Screeding Area">
                 <Field label="Net screeding area (m²)" hint="From the calculator or enter manually">
                   <input
@@ -188,7 +168,7 @@ export default function ScreedingCostEstimator() {
                     step="0.01"
                     value={netArea || ''}
                     onChange={(e) => setNetArea(Number(e.target.value))}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                     placeholder="0.00"
                   />
                 </Field>
@@ -201,7 +181,7 @@ export default function ScreedingCostEstimator() {
 
               <Section title="Mix Configuration (Admin Managed)">
                 <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
                       <span className="block text-neutral-400">Paint coverage</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{config.paintCoverageRateM2PerL} m²/L</span>
@@ -215,20 +195,20 @@ export default function ScreedingCostEstimator() {
                       <span className="font-semibold text-brand-navy dark:text-white">{config.defaultMixRatio}</span>
                     </div>
                     <div>
-                      <span className="block text-neutral-400">Labour</span>
-                      <span className="font-semibold text-brand-navy dark:text-white">Not included, negotiated separately</span>
+                      <span className="block text-neutral-400">Suggested labour rate</span>
+                      <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.labourRatePerSqm, currencySymbol)}/m²</span>
                     </div>
                   </div>
                 </div>
               </Section>
 
               <Section title="Pricing">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-lg border border-neutral-200 p-3">
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
                     <span className="block text-neutral-400">Screeding Paint (20L bucket)</span>
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.paintPricePerBucket, currencySymbol)}</span>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 p-3">
+                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
                     <span className="block text-neutral-400">White Cement (40kg bag)</span>
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.cementPricePerBag, currencySymbol)}</span>
                   </div>
@@ -248,7 +228,7 @@ export default function ScreedingCostEstimator() {
             {/* Results panel */}
             <div className="lg:col-span-2">
               <div className="card sticky top-20 overflow-hidden">
-                <div className="bg-brand-navy p-6 text-white">
+                <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
                   <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Estimated grand total</p>
                   {result ? (
                     <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.grandTotal, currencySymbol)}</p>
@@ -261,7 +241,7 @@ export default function ScreedingCostEstimator() {
                   {result ? (
                     <>
                       {/* Screeding Paint */}
-                      <div className="rounded-lg border border-neutral-200 p-3">
+                      <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
                         <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">Screeding Paint (20L Buckets)</p>
                         <div className="mt-2 space-y-1 text-sm">
                           <Row label="Quantity required" value={`${formatNumber(result.paintRequiredLiters, 1)} L`} />
@@ -272,7 +252,7 @@ export default function ScreedingCostEstimator() {
                       </div>
 
                       {/* White Cement */}
-                      <div className="rounded-lg border border-neutral-200 p-3">
+                      <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
                         <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">White Cement (40kg Bags)</p>
                         <div className="mt-2 space-y-1 text-sm">
                           <Row label="Quantity required" value={`${formatNumber(result.cementRequiredKg, 1)} kg`} />
@@ -283,7 +263,7 @@ export default function ScreedingCostEstimator() {
                       </div>
 
                       {/* Cost breakdown */}
-                      <div className="rounded-lg bg-neutral-50 p-3">
+                      <div className="rounded-lg bg-neutral-50 dark:bg-white/5 p-3">
                         <div className="space-y-1 text-sm">
                           <Row label="Material cost" value={formatCurrency(result.materialCost, currencySymbol)} />
                           {labourConfig.includeLabour && <Row label="Labour cost" value={formatCurrency(result.labourCost, currencySymbol)} />}
@@ -295,7 +275,7 @@ export default function ScreedingCostEstimator() {
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
+                      <div className="flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
                         <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                         Based on {formatNumber(netArea)} m² screeding area, {result.wasteAllowance}% waste, and {config.taxVatPercentage}% VAT.
                       </div>
@@ -304,7 +284,7 @@ export default function ScreedingCostEstimator() {
                     <p className="text-xs text-neutral-400">Enter the screeding area to see your estimate.</p>
                   )}
                 </div>
-                <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
+                <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
                   Screeding Paint is measured in litres (m²/L). White Cement is measured in kg (kg per L of paint).
                 </div>
               </div>
@@ -331,7 +311,7 @@ export default function ScreedingCostEstimator() {
 
         {/* Navigation to next step */}
         {netArea > 0 && (
-          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-brand-navy dark:text-white">Next step: Paint Calculator</p>
               <p className="mt-0.5 text-xs text-neutral-500">Once your walls are screeded, calculate how much paint you'll need.</p>
@@ -350,20 +330,6 @@ export default function ScreedingCostEstimator() {
           </div>
         )}
       </div>
-
-      <ScreedingCostEstimatorSeo />
-
-      <FaqSection faqs={[
-        { question: "How much does wall screeding cost?", answer: <span>Screeding cost depends on wall area, cement and sand prices, and labour rates. Enter your wall area from the Screeding Calculator to get a practical cost estimate.</span> },
-        { question: "What materials are needed for screeding?", answer: <span>The main materials are cement, sand, and sometimes a bonding agent. The estimator calculates quantities based on your wall area and local material prices.</span> },
-      ]} />
-
-      <RelatedTools links={[
-        CALC_LINKS.screedingCalc,
-        CALC_LINKS.costEstimator,
-        CALC_LINKS.popCeilingCost,
-        CALC_LINKS.finishEstimator,
-      ]} />
     </>
   );
 }
@@ -389,7 +355,7 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">{label}</span>
+      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
       {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
       <div className="mt-1.5">{children}</div>
     </label>

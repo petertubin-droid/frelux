@@ -41,7 +41,7 @@ export default function FloatingActions() {
         onClick={() => setOpen((v) => !v)}
         className={classNames(
           'flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 press-scale sm:h-14 sm:w-14',
-          open ? 'bg-neutral-700 text-white rotate-45 dark:bg-neutral-600' : 'bg-brand-purple text-white hover:bg-brand-purple/90',
+          open ? 'bg-neutral-700 text-white rotate-45 dark:bg-neutral-600 shadow-lg' : 'bg-brand-purple text-white hover:bg-brand-purple/90 shadow-lg shadow-brand-purple/20 hover:shadow-brand-purple/30',
         )}
         aria-label={open ? 'Close quick actions' : 'Open quick actions'}
         aria-expanded={open}

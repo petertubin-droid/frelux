@@ -56,7 +56,7 @@ export default function LearnArticle() {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
-        <p className="mt-3 text-sm text-neutral-500">This article doesn't exist or hasn't been published yet.</p>
+        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">This article doesn't exist or hasn't been published yet.</p>
         <Link to="/learn" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to Learn</Link>
       </div>
     );
@@ -80,8 +80,8 @@ export default function LearnArticle() {
 
       {/* Header */}
       <header className="mb-8">
-        <h1 className="text-3xl font-bold leading-tight text-brand-navy sm:text-4xl">{article.title}</h1>
-        {article.excerpt && <p className="mt-3 text-lg leading-relaxed text-neutral-500">{article.excerpt}</p>}
+        <h1 className="text-3xl font-bold leading-tight text-brand-navy dark:text-white sm:text-4xl">{article.title}</h1>
+        {article.excerpt && <p className="mt-3 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">{article.excerpt}</p>}
         <div className="mt-4 flex items-center gap-4 text-xs text-neutral-400">
           {article.author && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" /> {article.author}</span>}
           {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {article.read_time_minutes} min read</span>}
@@ -140,11 +140,11 @@ function RenderedMarkdown({ content }: { content: string }) {
 
     // Headings
     if (line.startsWith('### ')) {
-      elements.push(<h3 key={key++} className="mt-6 text-lg font-bold text-brand-navy">{line.slice(4)}</h3>);
+      elements.push(<h3 key={key++} className="mt-6 text-lg font-bold text-brand-navy dark:text-white">{line.slice(4)}</h3>);
     } else if (line.startsWith('## ')) {
-      elements.push(<h2 key={key++} className="mt-8 text-xl font-bold text-brand-navy">{line.slice(3)}</h2>);
+      elements.push(<h2 key={key++} className="mt-8 text-xl font-bold text-brand-navy dark:text-white">{line.slice(3)}</h2>);
     } else if (line.startsWith('# ')) {
-      elements.push(<h1 key={key++} className="mt-8 text-2xl font-bold text-brand-navy">{line.slice(2)}</h1>);
+      elements.push(<h1 key={key++} className="mt-8 text-2xl font-bold text-brand-navy dark:text-white">{line.slice(2)}</h1>);
     } else if (line.startsWith('- ') || line.startsWith('* ')) {
       // List items — collect consecutive
       const items: string[] = [];
@@ -154,14 +154,14 @@ function RenderedMarkdown({ content }: { content: string }) {
       }
       elements.push(
         <ul key={key++} className="mt-3 space-y-1.5 pl-6">
-          {items.map((item, idx) => <li key={idx} className="text-sm leading-relaxed text-neutral-700 list-disc">{renderInline(item)}</li>)}
+          {items.map((item, idx) => <li key={idx} className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-200 list-disc">{renderInline(item)}</li>)}
         </ul>
       );
       continue;
     } else if (line.trim() === '') {
       // Skip empty lines
     } else {
-      elements.push(<p key={key++} className="mt-3 text-sm leading-relaxed text-neutral-700 sm:text-base">{renderInline(line)}</p>);
+      elements.push(<p key={key++} className="mt-3 text-sm leading-relaxed text-neutral-700 dark:text-neutral-200 sm:text-base">{renderInline(line)}</p>);
     }
     i++;
   }
@@ -174,7 +174,7 @@ function renderInline(text: string): React.ReactNode {
   const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="font-semibold text-brand-navy">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="font-semibold text-brand-navy dark:text-white">{part.slice(2, -2)}</strong>;
     }
     const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
     if (linkMatch) {

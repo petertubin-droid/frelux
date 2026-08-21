@@ -69,6 +69,8 @@ export default function EmptyState({
   actionLabel,
   actionTo,
   onAction,
+  secondaryLabel,
+  secondaryTo,
   className,
 }: {
   illustration?: EmptyIllustration;
@@ -77,27 +79,36 @@ export default function EmptyState({
   actionLabel?: string;
   actionTo?: string;
   onAction?: () => void;
+  secondaryLabel?: string;
+  secondaryTo?: string;
   className?: string;
 }) {
   return (
     <div className={classNames('flex flex-col items-center justify-center px-6 py-16 text-center', className)}>
-      <div className={classNames('mb-6', colorByType[illustration])}>
+      <div className={classNames('mb-6 relative', colorByType[illustration])}>
+        <div className="absolute inset-0 -z-10 scale-150 rounded-full bg-current opacity-[0.03] blur-2xl" aria-hidden="true" />
         <svg width="120" height="120" viewBox="0 0 48 48" fill="none" className="animate-fade-in-up">
           {illustrationPaths[illustration]}
         </svg>
       </div>
-      <h3 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h3>
-      <p className="mt-2 max-w-md text-sm text-neutral-500 leading-relaxed dark:text-neutral-400">{description}</p>
-      {actionLabel && (actionTo || onAction) && (
-        <div className="mt-6">
-          {actionTo ? (
-            <Link to={actionTo} className="btn-primary animate-fade-in-up">
+      <h3 className="text-xl font-bold text-brand-navy dark:text-white animate-fade-in-up" style={{ animationDelay: '0.05s' }}>{title}</h3>
+      <p className="mt-2 max-w-md text-sm text-neutral-500 leading-relaxed dark:text-neutral-400 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{description}</p>
+      {(actionLabel || secondaryLabel) && (
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+          {actionLabel && actionTo && (
+            <Link to={actionTo} className="btn-primary">
               {actionLabel}
             </Link>
-          ) : (
-            <button type="button" onClick={onAction} className="btn-primary animate-fade-in-up">
+          )}
+          {actionLabel && !actionTo && onAction && (
+            <button type="button" onClick={onAction} className="btn-primary">
               {actionLabel}
             </button>
+          )}
+          {secondaryLabel && secondaryTo && (
+            <Link to={secondaryTo} className="btn-secondary">
+              {secondaryLabel}
+            </Link>
           )}
         </div>
       )}

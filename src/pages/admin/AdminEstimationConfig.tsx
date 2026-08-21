@@ -69,7 +69,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'units'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:bg-white/5 hover:text-brand-purple'
           )}
         >
           Units
@@ -81,7 +81,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'pack_sizes'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:bg-white/5 hover:text-brand-purple'
           )}
         >
           Pack Sizes
@@ -93,7 +93,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_rules'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:bg-white/5 hover:text-brand-purple'
           )}
         >
           Calc Rules
@@ -105,7 +105,7 @@ export default function AdminEstimationConfig() {
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_versions'
               ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 hover:text-brand-purple'
+              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:bg-white/5 hover:text-brand-purple'
           )}
         >
           Calc Versions
@@ -324,7 +324,7 @@ function UnitForm({
         <div className="mt-5 space-y-4">
           <AdminField label="Name">
             <input
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. litres, kilograms, bags"
@@ -333,7 +333,7 @@ function UnitForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Symbol">
               <input
-                className="input-field font-mono"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value)}
                 placeholder="e.g. L, kg, bag"
@@ -341,7 +341,7 @@ function UnitForm({
             </AdminField>
             <AdminField label="Category">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -358,7 +358,7 @@ function UnitForm({
             <AdminField label="Sort order">
               <input
                 type="number"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />
@@ -691,7 +691,7 @@ function PackSizeForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Reference Type">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={refType}
                 onChange={(e) => {
                   setRefType(e.target.value as 'product' | 'material' | 'quality');
@@ -709,7 +709,7 @@ function PackSizeForm({
                 <div className="py-2 text-xs text-neutral-400 dark:text-neutral-500">Loading items…</div>
               ) : refOptions.length > 0 ? (
                 <select
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                 >
@@ -722,7 +722,7 @@ function PackSizeForm({
                 </select>
               ) : (
                 <input
-                  className="input-field font-mono"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                   placeholder="UUID of target item"
@@ -737,7 +737,7 @@ function PackSizeForm({
                 type="number"
                 step="any"
                 min="0.001"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={packSize}
                 onChange={(e) => setPackSize(Number(e.target.value))}
               />
@@ -745,7 +745,7 @@ function PackSizeForm({
 
             <AdminField label="Pack Unit">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={packUnitId}
                 onChange={(e) => setPackUnitId(e.target.value)}
               >
@@ -762,7 +762,7 @@ function PackSizeForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Purchase Rule">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={purchaseRule}
                 onChange={(e) => setPurchaseRule(e.target.value)}
               >
@@ -779,7 +779,7 @@ function PackSizeForm({
                 type="number"
                 step="any"
                 min="0"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={minQuantity}
                 onChange={(e) => setMinQuantity(Number(e.target.value))}
               />
@@ -789,7 +789,7 @@ function PackSizeForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Rounding Rule">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={roundingRule}
                 onChange={(e) => setRoundingRule(e.target.value)}
               >
@@ -804,7 +804,7 @@ function PackSizeForm({
             <AdminField label="Sort Order">
               <input
                 type="number"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />
@@ -985,7 +985,7 @@ function CalcRulesTab() {
                   <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{rule.description}</p>
                 )}
 
-                <div className="mt-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-2.5 border border-neutral-200">
+                <div className="mt-2 rounded-lg bg-neutral-50 dark:bg-white/5 dark:bg-white/5 p-2.5 border border-neutral-200">
                   <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
                     Rule Value (JSON)
                   </span>
@@ -1110,7 +1110,7 @@ function CalcRuleForm({
         <div className="mt-5 space-y-4">
           <AdminField label="Rule Key">
             <input
-              className="input-field font-mono"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
               value={ruleKey}
               onChange={(e) => setRuleKey(e.target.value)}
               placeholder="e.g. standard_room_height"
@@ -1120,7 +1120,7 @@ function CalcRuleForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Calculator Type">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={calculatorType}
                 onChange={(e) => setCalculatorType(e.target.value)}
               >
@@ -1135,7 +1135,7 @@ function CalcRuleForm({
 
             <AdminField label="Rule Status">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={ruleStatus}
                 onChange={(e) => setRuleStatus(e.target.value as RuleStatus)}
               >
@@ -1150,7 +1150,7 @@ function CalcRuleForm({
 
           <AdminField label="Rule Value (JSON text input)" hint="Must be valid JSON formatting">
             <textarea
-              className="input-field font-mono text-xs"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-xs"
               rows={4}
               value={ruleValueStr}
               onChange={(e) => setRuleValueStr(e.target.value)}
@@ -1160,7 +1160,7 @@ function CalcRuleForm({
 
           <AdminField label="Description">
             <textarea
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -1418,7 +1418,7 @@ function CalcVersionForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Calculator Type">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={calculatorType}
                 onChange={(e) => setCalculatorType(e.target.value)}
               >
@@ -1435,7 +1435,7 @@ function CalcVersionForm({
                 type="number"
                 min="1"
                 step="1"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={versionNumber}
                 onChange={(e) => setVersionNumber(Number(e.target.value))}
               />
@@ -1444,7 +1444,7 @@ function CalcVersionForm({
 
           <AdminField label="Version Label" hint="Optional, e.g. 'v1.0' or 'Beta release'">
             <input
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               value={versionLabel}
               onChange={(e) => setVersionLabel(e.target.value)}
               placeholder="e.g. v1.0"
@@ -1453,7 +1453,7 @@ function CalcVersionForm({
 
           <AdminField label="Description">
             <textarea
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}

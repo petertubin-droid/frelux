@@ -69,10 +69,10 @@ function PluginManager() {
           <AdminCard key={p.id} className="flex flex-col">
             <div className="flex items-start justify-between">
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Puzzle className="h-5 w-5" /></div>
-              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', p.status === 'enabled' ? 'bg-accent-green/15 text-accent-green' : p.status === 'installed' ? 'bg-accent-blue/15 text-accent-blue' : 'bg-neutral-100 text-neutral-500')}>{p.status}</span>
+              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', p.status === 'enabled' ? 'bg-accent-green/15 text-accent-green' : p.status === 'installed' ? 'bg-accent-blue/15 text-accent-blue' : 'bg-neutral-100 text-neutral-500 dark:text-neutral-400')}>{p.status}</span>
             </div>
-            <h3 className="mt-3 text-sm font-bold text-brand-navy">{p.name}</h3>
-            <p className="mt-1 flex-1 text-xs text-neutral-500">{p.description}</p>
+            <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white">{p.name}</h3>
+            <p className="mt-1 flex-1 text-xs text-neutral-500 dark:text-neutral-400">{p.description}</p>
             <div className="mt-3 flex items-center justify-between">
               <span className="text-xs text-neutral-400">v{p.version}{p.author && ` · ${p.author}`}</span>
               {p.is_official && <span className="rounded bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">Official</span>}
@@ -83,7 +83,7 @@ function PluginManager() {
               ) : (
                 <div className="flex flex-1 items-center justify-between">
                   <Toggle checked={p.status === 'enabled'} onChange={() => handleToggle(p)} />
-                  <span className="text-xs text-neutral-500">{p.status === 'enabled' ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs text-neutral-500 dark:text-neutral-400">{p.status === 'enabled' ? 'Enabled' : 'Disabled'}</span>
                 </div>
               )}
             </div>
@@ -153,13 +153,13 @@ function PromptLibrary() {
           <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400">{cat}</h3>
           <div className="space-y-2">
             {prompts.filter((p) => p.category === cat).map((p) => (
-              <div key={p.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4">
+              <div key={p.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-brand-navy">{p.title}</p>
-                    {p.is_builtin && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-500">Built in</span>}
+                    <p className="text-sm font-semibold text-brand-navy dark:text-white">{p.title}</p>
+                    {p.is_builtin && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400">Built in</span>}
                   </div>
-                  {p.description && <p className="mt-0.5 text-xs text-neutral-500">{p.description}</p>}
+                  {p.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{p.description}</p>}
                 </div>
                 {!p.is_builtin && (
                   <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
@@ -231,16 +231,16 @@ function IntegrationCenter() {
         {integrations.length === 0 ? (
           <StateMessage type="empty" title="No integrations" message="Add your first integration to get started." />
         ) : integrations.map((i) => (
-          <div key={i.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4">
+          <div key={i.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
             <div className="flex items-center gap-3">
               <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Plug className="h-5 w-5" /></div>
               <div>
-                <p className="text-sm font-semibold text-brand-navy">{i.name}</p>
-                <p className="text-xs text-neutral-500">{i.service_type} · {i.health_status}</p>
+                <p className="text-sm font-semibold text-brand-navy dark:text-white">{i.name}</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">{i.service_type} · {i.health_status}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>{i.status}</span>
+              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:text-neutral-400')}>{i.status}</span>
               <Toggle checked={i.status === 'connected'} onChange={() => handleToggle(i)} />
               <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
             </div>
@@ -284,11 +284,11 @@ function FeatureManagement() {
           <AdminCard key={f.id} className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-brand-navy">{f.label}</p>
-                <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">{f.feature_key}</code>
-                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500">{f.category}</span>
+                <p className="text-sm font-bold text-brand-navy dark:text-white">{f.label}</p>
+                <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">{f.feature_key}</code>
+                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">{f.category}</span>
               </div>
-              {f.description && <p className="mt-0.5 text-xs text-neutral-500">{f.description}</p>}
+              {f.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{f.description}</p>}
               <div className="mt-2 flex items-center gap-2">
                 <label className="text-xs text-neutral-400">Rollout:</label>
                 <input type="range" min={0} max={100} step={10} value={f.rollout_percentage} onChange={(e) => handleRollout(f, Number(e.target.value))} className="h-1 w-32 cursor-pointer accent-brand-purple" />
@@ -359,10 +359,10 @@ function RoleManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-brand-navy">{r.role_name}</p>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">{r.role_name}</p>
                   {r.is_system && <span className="rounded bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">System</span>}
                 </div>
-                {r.description && <p className="mt-0.5 text-xs text-neutral-500">{r.description}</p>}
+                {r.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{r.description}</p>}
                 <div className="mt-2 flex flex-wrap gap-1">
                   {r.permissions.map((perm, i) => (
                     <span key={i} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-mono text-neutral-600">{perm}</span>
@@ -407,9 +407,9 @@ function SystemMonitoring() {
               <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400">{cat}</h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {metrics.filter((m) => m.category === cat).map((m) => (
-                  <div key={m.id} className="rounded-lg border border-neutral-200 bg-white p-4">
-                    <p className="text-xs text-neutral-500">{m.metric_name}</p>
-                    <p className="mt-1 text-xl font-bold text-brand-navy">{m.metric_value.toLocaleString()}{m.unit && ` ${m.unit}`}</p>
+                  <div key={m.id} className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400">{m.metric_name}</p>
+                    <p className="mt-1 text-xl font-bold text-brand-navy dark:text-white">{m.metric_value.toLocaleString()}{m.unit && ` ${m.unit}`}</p>
                     <p className="mt-0.5 text-[10px] text-neutral-400">{new Date(m.recorded_at).toLocaleString()}</p>
                   </div>
                 ))}
@@ -464,7 +464,7 @@ function VersionHistory() {
               className={classNames('flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors', selected === a.id ? 'border-brand-purple bg-brand-purple/5' : 'border-neutral-200 bg-white hover:border-neutral-300')}
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-brand-navy">{a.title}</p>
+                <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{a.title}</p>
                 <p className="text-xs text-neutral-400">{a.artifact_type} · v{a.version_number}</p>
               </div>
               <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
@@ -475,9 +475,9 @@ function VersionHistory() {
           {selected && versions.length > 0 ? (
             <div className="space-y-3">
               {versions.map((v) => (
-                <div key={v.id} className="rounded-lg border border-neutral-200 bg-white p-4">
+                <div key={v.id} className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-brand-navy">Version {v.version_number}</span>
+                    <span className="text-sm font-semibold text-brand-navy dark:text-white">Version {v.version_number}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-neutral-400">{new Date(v.created_at).toLocaleString()}</span>
                       <button
@@ -497,8 +497,8 @@ function VersionHistory() {
                       </button>
                     </div>
                   </div>
-                  {v.change_summary && <p className="mt-1 text-xs text-neutral-500">{v.change_summary}</p>}
-                  <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700"><code>{v.content.slice(0, 500)}{v.content.length > 500 ? '...' : ''}</code></pre>
+                  {v.change_summary && <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{v.change_summary}</p>}
+                  <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700 dark:text-neutral-200"><code>{v.content.slice(0, 500)}{v.content.length > 500 ? '...' : ''}</code></pre>
                 </div>
               ))}
             </div>
@@ -553,7 +553,7 @@ function ProjectExplorer() {
   return (
     <div>
       <ToolHeader icon={FolderTree} title="Project Explorer" description="Browse the project structure and file organization." />
-      <div className="rounded-xl border border-neutral-200 bg-white p-4">
+      <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
         <div className="space-y-1">
           {tree.map((node) => <TreeNode key={node.path} node={node} depth={0} />)}
         </div>
@@ -580,7 +580,7 @@ function TreeNode({ node, depth }: { node: { name: string; path: string; type: s
         ) : (
           <FolderTree className="h-4 w-4 text-neutral-400" />
         )}
-        <span className={isDir ? 'font-semibold text-brand-navy' : 'text-neutral-600'}>{node.name}</span>
+        <span className={isDir ? 'font-semibold text-brand-navy dark:text-white' : 'text-neutral-600'}>{node.name}</span>
       </button>
       {isDir && open && children && (
         <div>
@@ -627,10 +627,10 @@ function FileManager() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => (
-            <div key={a.id} className="group rounded-lg border border-neutral-200 bg-white p-4">
+            <div key={a.id} className="group rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-brand-navy">{a.title}</p>
+                  <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{a.title}</p>
                   <p className="text-xs text-neutral-400">{a.artifact_type} · {a.language}</p>
                   <p className="mt-0.5 text-[10px] text-neutral-400">{new Date(a.updated_at).toLocaleDateString()}</p>
                 </div>

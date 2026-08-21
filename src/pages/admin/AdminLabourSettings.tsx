@@ -23,7 +23,7 @@ export default function AdminLabourSettings() {
         title="Labour Settings"
         subtitle="Configure labour estimation globally or per estimator. Set suggested rates, default pricing methods, and manage labour categories. Users can always override any suggested rate from the frontend."
       />
-      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
         {([
           { key: 'settings', label: 'Estimator Settings', icon: HardHat },
           { key: 'categories', label: 'Labour Categories', icon: Plus },
@@ -116,7 +116,7 @@ function SettingsTab() {
                   <select
                     value={setting.default_pricing_method}
                     onChange={(e) => updateSetting(setting.id, { default_pricing_method: e.target.value as LabourPricingMethod })}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   >
                     {Object.entries(PRICING_METHOD_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>{v}</option>
@@ -129,7 +129,7 @@ function SettingsTab() {
                     min={0}
                     value={setting.suggested_rates.fixed}
                     onChange={(e) => updateRate(setting.id, 'fixed', Number(e.target.value))}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per m²" hint="Per square metre">
@@ -138,7 +138,7 @@ function SettingsTab() {
                     min={0}
                     value={setting.suggested_rates.per_sqm}
                     onChange={(e) => updateRate(setting.id, 'per_sqm', Number(e.target.value))}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per Room" hint="Per room">
@@ -147,7 +147,7 @@ function SettingsTab() {
                     min={0}
                     value={setting.suggested_rates.per_room}
                     onChange={(e) => updateRate(setting.id, 'per_room', Number(e.target.value))}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Daily Rate" hint="Per working day">
@@ -156,7 +156,7 @@ function SettingsTab() {
                     min={0}
                     value={setting.suggested_rates.daily}
                     onChange={(e) => updateRate(setting.id, 'daily', Number(e.target.value))}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
               </div>
@@ -309,22 +309,22 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
         </div>
         <div className="mt-5 space-y-4">
           <AdminField label="Estimator">
-            <select className="input-field" value={estimatorKey} onChange={(e) => setEstimatorKey(e.target.value as LabourEstimatorKey)}>
+            <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={estimatorKey} onChange={(e) => setEstimatorKey(e.target.value as LabourEstimatorKey)}>
               {(['paint', 'screeding', 'pop_ceiling', 'tile'] as LabourEstimatorKey[]).map((k) => <option key={k} value={k}>{ESTIMATOR_LABELS[k]}</option>)}
             </select>
           </AdminField>
-          <AdminField label="Category Name"><input className="input-field" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="e.g. Skilled Painter" /></AdminField>
-          <AdminField label="Description (optional)"><input className="input-field" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Category Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="e.g. Skilled Painter" /></AdminField>
+          <AdminField label="Description (optional)"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Suggested Rate"><input type="number" min={0} className="input-field" value={suggestedRate} onChange={(e) => setSuggestedRate(Number(e.target.value))} /></AdminField>
+            <AdminField label="Suggested Rate"><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={suggestedRate} onChange={(e) => setSuggestedRate(Number(e.target.value))} /></AdminField>
             <AdminField label="Rate Unit">
-              <select className="input-field" value={rateUnit} onChange={(e) => setRateUnit(e.target.value as LabourPricingMethod)}>
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={rateUnit} onChange={(e) => setRateUnit(e.target.value as LabourPricingMethod)}>
                 {Object.entries(PRICING_METHOD_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
               </select>
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort Order"><input type="number" min={0} className="input-field" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort Order"><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <AdminField label="Active"><div className="pt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

@@ -157,7 +157,7 @@ export default function PopCeilingCalculator() {
         </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
-          <div className="card p-6 sm:p-8">
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
             {/* Workflow selection */}
             <h2 className="text-lg font-bold text-brand-navy dark:text-white">Choose workflow</h2>
             <p className="mt-1 text-sm text-neutral-500">Select the POP ceiling method that matches your region.</p>
@@ -289,8 +289,8 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
   };
 
   return (
-    <div className="mt-8 card overflow-hidden">
-      <div className="bg-brand-navy p-6 text-white sm:p-8">
+    <div className="mt-8 card overflow-hidden dark:border-white/5">
+      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">Your POP Ceiling Estimate</span>

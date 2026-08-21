@@ -174,7 +174,7 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
                   'flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors',
                   idx < step && 'border-purple-700 bg-purple-700 text-white',
                   idx === step && 'border-purple-700 bg-purple-50 text-purple-700',
-                  idx > step && 'border-gray-300 bg-white text-gray-400',
+                  idx > step && 'border-gray-300 bg-white dark:bg-brand-navy-mid text-gray-400',
                 )}
                 aria-current={idx === step ? 'step' : undefined}
               >
@@ -230,7 +230,7 @@ function OptionButton<T extends string>({
         'group flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200',
         selected
           ? 'border-2 border-purple-700 bg-purple-50 shadow-sm'
-          : 'border border-gray-200 bg-white hover:border-purple-300 hover:bg-purple-50/50',
+          : 'border border-gray-200 bg-white dark:bg-brand-navy-mid hover:border-purple-300 hover:bg-purple-50/50',
       )}
     >
       {Icon && (
@@ -450,7 +450,7 @@ export default function ProjectWizard() {
               {recommendation.workflow.map((phase, idx) => (
                 <span
                   key={phase}
-                  className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-200"
+                  className="inline-flex items-center gap-1 rounded-full bg-white dark:bg-brand-navy-mid px-2.5 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-200"
                 >
                   {idx + 1}. {phase}
                 </span>
@@ -636,7 +636,7 @@ export default function ProjectWizard() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
-      <div className="rounded-2xl bg-white p-6 shadow-lg ring-1 ring-gray-100 sm:p-8">
+      <div className="rounded-2xl bg-white dark:bg-brand-navy-mid p-6 shadow-lg ring-1 ring-gray-100 sm:p-8">
         {stepContent}
 
         {error && (

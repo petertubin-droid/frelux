@@ -115,8 +115,6 @@ CREATE POLICY "worker_messages_insert" ON worker_channel_messages FOR INSERT WIT
 -- 5. Grant permissions on new tables
 -- =========================================================
 GRANT SELECT, INSERT, UPDATE ON pro_mobile_otp_log TO authenticated;
-GRANT USAGE ON SEQUENCE pro_mobile_otp_log_id_seq TO authenticated;
-
 -- =========================================================
 -- 6. RPC: Send mobile OTP (generates + stores 6-digit code)
 -- =========================================================
@@ -402,8 +400,6 @@ CREATE POLICY "nin_log_admin_all" ON pro_nin_verification_log FOR ALL USING (
 );
 
 GRANT SELECT, INSERT, UPDATE, DELETE ON pro_nin_verification_log TO authenticated;
-GRANT USAGE ON SEQUENCE pro_nin_verification_log_id_seq TO authenticated;
-
 -- =========================================================
 -- 12. Update admin_approve_nin to also log to verification log
 -- =========================================================
@@ -680,8 +676,6 @@ CREATE POLICY "worker_reports_self_read" ON worker_reports FOR SELECT USING (
 );
 
 GRANT SELECT, INSERT, UPDATE ON worker_reports TO authenticated;
-GRANT USAGE ON SEQUENCE worker_reports_id_seq TO authenticated;
-
 -- =========================================================
 -- 18. RPC: Get worker report details with NIN reference
 -- =========================================================

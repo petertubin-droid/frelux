@@ -257,7 +257,7 @@ export default function CostEstimator() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-5">
-          <div className="card p-6 sm:p-8 lg:col-span-3">
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
             {/* Project summary */}
             <Section title="Project summary">
               <div className="grid gap-4 sm:grid-cols-3">
@@ -376,7 +376,7 @@ export default function CostEstimator() {
           {/* Results panel */}
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
-              <div className="bg-brand-navy p-6 text-white">
+              <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
                 <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Estimated total</p>
                 {result ? (
                   <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.total, currencySymbol)}</p>

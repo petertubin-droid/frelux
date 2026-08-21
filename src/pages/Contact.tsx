@@ -68,13 +68,13 @@ export default function Contact() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <form onSubmit={onSubmit} className="card p-6 sm:p-8" noValidate>
+            <form onSubmit={onSubmit} className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid" noValidate>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Your name" error={errors.name}>
                   <input
                     value={form.name}
                     onChange={(e) => update('name', e.target.value)}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                     placeholder="Jane Doe"
                   />
                 </Field>
@@ -83,7 +83,7 @@ export default function Contact() {
                     type="email"
                     value={form.email}
                     onChange={(e) => update('email', e.target.value)}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                     placeholder="you@example.com"
                   />
                 </Field>
@@ -93,7 +93,7 @@ export default function Contact() {
                   <input
                     value={form.subject}
                     onChange={(e) => update('subject', e.target.value)}
-                    className="input-field"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                     placeholder="How can we help?"
                   />
                 </Field>
@@ -104,7 +104,7 @@ export default function Contact() {
                     value={form.message}
                     onChange={(e) => update('message', e.target.value)}
                     rows={5}
-                    className="input-field resize-y"
+                    className="input-field dark:bg-brand-navy-mid dark:border-white/10 resize-y"
                     placeholder="Tell us a bit about your project…"
                   />
                 </Field>
@@ -139,7 +139,7 @@ export default function Contact() {
 
           {/* Support info */}
           <div className="lg:col-span-2">
-            <div className="card p-6 sm:p-8">
+            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
               <h2 className="font-display text-lg font-bold text-neutral-900 dark:text-white">Other ways to reach us</h2>
               <ul className="mt-4 space-y-4 text-sm">
                 <li>

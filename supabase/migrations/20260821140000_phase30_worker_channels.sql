@@ -343,10 +343,6 @@ GRANT SELECT, INSERT, UPDATE ON worker_channel_messages TO authenticated;
 GRANT SELECT, INSERT, DELETE ON worker_channel_reactions TO authenticated;
 GRANT SELECT ON worker_moderation_config TO anon, authenticated;
 GRANT SELECT ON worker_moderation_log TO authenticated;
-GRANT USAGE ON SEQUENCE worker_channel_members_id_seq TO authenticated;
-GRANT USAGE ON SEQUENCE worker_channel_messages_id_seq TO authenticated;
-GRANT USAGE ON SEQUENCE worker_channel_reactions_id_seq TO authenticated;
-
 -- =========================================================
 -- RPC: Price Update Summaries (aggregated price data)
 -- =========================================================

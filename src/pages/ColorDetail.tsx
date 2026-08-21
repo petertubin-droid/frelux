@@ -132,7 +132,7 @@ export default function ColorDetail() {
                   style={{ background: s.hex }}
                 />
                 <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{s.label}</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{s.label}</p>
                   <p className="text-sm font-semibold text-brand-navy dark:text-white">{s.name}</p>
                 </div>
                 <button
@@ -198,8 +198,8 @@ export default function ColorDetail() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
+    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-white/5 dark:border-white/5 dark:bg-brand-navy-mid">
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{label}</p>
       <p className="mt-1 text-sm text-neutral-700">{value}</p>
     </div>
   );

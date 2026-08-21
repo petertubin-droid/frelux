@@ -14,7 +14,7 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
   const textColor = readableTextColor(color.hex_code);
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200">
+    <div className="group relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200 dark:hover:border-white/10 animate-fade-in-up">
       <Link to={`/colors/paint/${color.slug}`} className="block">
         {/* Color swatch — large, premium */}
         <div
@@ -62,8 +62,9 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
             isFavorited ? 'bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500' : 'bg-white/60 text-neutral-400 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400'
           )}
           aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          aria-pressed={isFavorited}
         >
-          <Heart className={classNames('h-4 w-4', isFavorited && 'fill-current')} />
+          <Heart className={classNames('h-4 w-4 transition-transform', isFavorited && 'fill-current scale-110')} />
         </button>
       )}
 

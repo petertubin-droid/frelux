@@ -129,7 +129,7 @@ export default function AdminEstimationAudit() {
           <Filter className="h-4 w-4 text-neutral-400" />
           <span className="text-xs font-semibold text-neutral-600">Filter Entity:</span>
           <select
-            className="input-field text-xs py-1.5 w-48"
+            className="input-field dark:bg-brand-navy-mid dark:border-white/10 text-xs py-1.5 w-48"
             value={selectedEntityType}
             onChange={(e) => setSelectedEntityType(e.target.value)}
           >
@@ -236,7 +236,7 @@ export default function AdminEstimationAudit() {
                             {JSON.stringify(entry.old_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-neutral-400 italic">
+                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3 text-neutral-400 italic">
                             None (Initial creation)
                           </div>
                         )}
@@ -251,7 +251,7 @@ export default function AdminEstimationAudit() {
                             {JSON.stringify(entry.new_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-neutral-400 italic">
+                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3 text-neutral-400 italic">
                             None (Record deleted)
                           </div>
                         )}

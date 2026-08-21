@@ -140,10 +140,10 @@ export default function AdminAiMonetization() {
           <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">This limit is shared across all AI features (text consultation, image analysis). Only successful generations consume a use.</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Daily free AI uses" hint="Default: 3. Shared across all AI features.">
-              <input type="number" min={0} max={100} className="input-field" value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
+              <input type="number" min={0} max={100} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
             </AdminField>
             <AdminField label="Usage reset period">
-              <select className="input-field" value={settings.ai_reset_period} onChange={(e) => update('ai_reset_period', e.target.value)}>
+              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.ai_reset_period} onChange={(e) => update('ai_reset_period', e.target.value)}>
                 <option value="daily">Daily (midnight reset)</option>
                 <option value="hourly">Hourly</option>
               </select>
@@ -191,7 +191,7 @@ export default function AdminAiMonetization() {
                 type="number"
                 min={0}
                 step="0.01"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={settings.ai_paid_price}
                 onChange={(e) => update('ai_paid_price', Number(e.target.value))}
                 disabled={!paymentProviderConfigured}
@@ -199,7 +199,7 @@ export default function AdminAiMonetization() {
             </AdminField>
             <AdminField label="Currency">
               <input
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={settings.ai_paid_currency}
                 onChange={(e) => update('ai_paid_currency', e.target.value)}
                 disabled={!paymentProviderConfigured}

@@ -56,32 +56,32 @@ export default function AdminSettings() {
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Brand</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Site name"><input className="input-field" value={settings.site_name} onChange={(e) => update('site_name', e.target.value)} /></AdminField>
-            <AdminField label="Short name"><input className="input-field" value={settings.short_name} onChange={(e) => update('short_name', e.target.value)} /></AdminField>
+            <AdminField label="Site name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.site_name} onChange={(e) => update('site_name', e.target.value)} /></AdminField>
+            <AdminField label="Short name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.short_name} onChange={(e) => update('short_name', e.target.value)} /></AdminField>
           </div>
-          <div className="mt-4"><AdminField label="Tagline"><input className="input-field" value={settings.tagline} onChange={(e) => update('tagline', e.target.value)} /></AdminField></div>
-          <div className="mt-4"><AdminField label="Description"><textarea className="input-field" rows={2} value={settings.description} onChange={(e) => update('description', e.target.value)} /></AdminField></div>
+          <div className="mt-4"><AdminField label="Tagline"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.tagline} onChange={(e) => update('tagline', e.target.value)} /></AdminField></div>
+          <div className="mt-4"><AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.description} onChange={(e) => update('description', e.target.value)} /></AdminField></div>
           <div className="mt-4"><MediaUploader label="Logo" value={settings.logo_url} onChange={(url) => update('logo_url', url || null)} folder="branding" /></div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Contact</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Contact email"><input className="input-field" value={settings.contact_email} onChange={(e) => update('contact_email', e.target.value)} /></AdminField>
-            <AdminField label="WhatsApp number" hint="International format without +"><input className="input-field" value={settings.whatsapp_number} onChange={(e) => update('whatsapp_number', e.target.value)} /></AdminField>
+            <AdminField label="Contact email"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.contact_email} onChange={(e) => update('contact_email', e.target.value)} /></AdminField>
+            <AdminField label="WhatsApp number" hint="International format without +"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.whatsapp_number} onChange={(e) => update('whatsapp_number', e.target.value)} /></AdminField>
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Defaults</h2>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Default currency"><input className="input-field" value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
-            <AdminField label="Currency symbol"><input className="input-field" value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
-            <AdminField label="Default unit"><select className="input-field" value={settings.default_unit} onChange={(e) => update('default_unit', e.target.value as 'meters' | 'feet')}><option value="meters">Meters</option><option value="feet">Feet</option></select></AdminField>
+            <AdminField label="Default currency"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
+            <AdminField label="Currency symbol"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
+            <AdminField label="Default unit"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_unit} onChange={(e) => update('default_unit', e.target.value as 'meters' | 'feet')}><option value="meters">Meters</option><option value="feet">Feet</option></select></AdminField>
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">SEO</h2>
-          <AdminField label="SEO title" hint="Optional"><input className="input-field" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
-          <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
+          <AdminField label="SEO title" hint="Optional"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
+          <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Maintenance</h2>

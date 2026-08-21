@@ -219,7 +219,7 @@ export default function AdminEstimationPricing() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-neutral-400" />
-          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
+          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <button
                 key={type}
@@ -244,7 +244,7 @@ export default function AdminEstimationPricing() {
             placeholder="Search price items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field pl-9 text-xs"
+            className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9 text-xs"
           />
         </div>
       </div>
@@ -484,7 +484,7 @@ function PricingForm({
         <div className="mt-5 space-y-4">
           <AdminField label="Price Type">
             <select
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               value={priceType}
               onChange={(e) => setPriceType(e.target.value as 'product' | 'quality' | 'material')}
             >
@@ -498,7 +498,7 @@ function PricingForm({
             {!useCustomRef && filteredRefOptions.length > 0 ? (
               <div className="space-y-1.5">
                 <select
-                  className="input-field"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                 >
@@ -521,7 +521,7 @@ function PricingForm({
                 <input
                   type="text"
                   placeholder="Paste UUID ref_id"
-                  className="input-field font-mono text-xs"
+                  className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-xs"
                   value={useCustomRef ? customRefId : refId}
                   onChange={(e) =>
                     useCustomRef ? setCustomRefId(e.target.value) : setRefId(e.target.value)
@@ -546,7 +546,7 @@ function PricingForm({
                 type="number"
                 min="0"
                 step="0.01"
-                className="input-field font-semibold"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-semibold"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
               />
@@ -554,7 +554,7 @@ function PricingForm({
 
             <AdminField label="Currency">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
@@ -569,7 +569,7 @@ function PricingForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Pack Size (Optional)">
               <select
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={packSizeId}
                 onChange={(e) => setPackSizeId(e.target.value)}
               >
@@ -585,7 +585,7 @@ function PricingForm({
             <AdminField label="Effective Date">
               <input
                 type="date"
-                className="input-field"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
                 value={effectiveDate}
                 onChange={(e) => setEffectiveDate(e.target.value)}
               />
@@ -594,7 +594,7 @@ function PricingForm({
 
           <AdminField label="Notes / Comments">
             <textarea
-              className="input-field"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
               rows={2}
               placeholder="e.g. Standard wholesale pricing updated for Q3"
               value={notes}
@@ -703,7 +703,7 @@ function PriceHistoryModal({
           ) : (
             <div className="space-y-3">
               {history.map((h) => (
-                <div key={h.id} className="rounded-lg border border-neutral-200 p-3 text-xs bg-neutral-50">
+                <div key={h.id} className="rounded-lg border border-neutral-200 p-3 text-xs bg-neutral-50 dark:bg-white/5">
                   <div className="flex items-center justify-between font-medium text-neutral-800">
                     <span className="flex items-center gap-2">
                       <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
