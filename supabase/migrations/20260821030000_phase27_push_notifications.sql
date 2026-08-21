@@ -1,5 +1,8 @@
 -- Phase 27: Push notification subscriptions + Google OAuth / email OTP support
 -- This migration creates the push_subscriptions table for storing web push subscriptions.
+-- NOTE: uses public.set_updated_at() — the shared trigger function already defined
+-- in phase5_contractor_experience.sql. (Do NOT reference update_updated_at_column —
+-- that function does not exist in this project.)
 
 -- Push subscriptions table
 CREATE TABLE IF NOT EXISTS public.push_subscriptions (
@@ -26,13 +29,15 @@ CREATE INDEX IF NOT EXISTS push_subscriptions_user_id_idx
 ALTER TABLE public.push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- Users can only manage their own subscriptions
+DROP POLICY IF EXISTS "Users can manage own push subscriptions" ON public.push_subscriptions;
 CREATE POLICY "Users can manage own push subscriptions" ON public.push_subscriptions
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
--- Updated_at trigger
+-- Updated_at trigger (idempotent — safe to re-run)
+DROP TRIGGER IF EXISTS set_push_subscriptions_updated_at ON public.push_subscriptions;
 CREATE TRIGGER set_push_subscriptions_updated_at
   BEFORE UPDATE ON public.push_subscriptions
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- =============================================
 -- NOTIFICATION HELPERS
@@ -102,9 +107,11 @@ CREATE TABLE IF NOT EXISTS public.notification_preferences (
 
 ALTER TABLE public.notification_preferences ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage own notification prefs" ON public.notification_preferences;
 CREATE POLICY "Users can manage own notification prefs" ON public.notification_preferences
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
+DROP TRIGGER IF EXISTS set_notification_preferences_updated_at ON public.notification_preferences;
 CREATE TRIGGER set_notification_preferences_updated_at
   BEFORE UPDATE ON public.notification_preferences
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
