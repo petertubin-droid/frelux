@@ -25,6 +25,7 @@ import {
   restoreContractorProject,
 } from '@/lib/contractor';
 import type { DbContractorProject } from '@/types/database';
+import { useSeo } from '@/lib/seo';
 
 // ============================================================
 // Constants
@@ -115,6 +116,7 @@ function cn(...classes: (string | false | null | undefined)[]): string {
 // ============================================================
 
 export default function ContractorProjects() {
+  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState<DbContractorProject[]>([]);

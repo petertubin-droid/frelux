@@ -32,7 +32,7 @@ export default function PopCeilingCostEstimator() {
       '@type': 'WebApplication',
       name: 'FRELUX POP Ceiling Cost Estimator',
       description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
-      url: 'https://freluxpaintcalc.com/pop-ceiling-cost-estimator',
+      url: 'https://freluxtools.netlify.app/pop-ceiling-cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

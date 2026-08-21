@@ -59,7 +59,7 @@ export default function AiColorAssistant() {
       '@type': 'WebApplication',
       name: 'FRELUX Smart Color Assistant',
       description: 'Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture.',
-      url: 'https://freluxpaintcalc.com/ai-color-assistant',
+      url: 'https://freluxtools.netlify.app/ai-color-assistant',
       applicationCategory: 'DesignApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

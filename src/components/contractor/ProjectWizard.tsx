@@ -47,6 +47,7 @@ import type {
   FinishQuality,
 } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { useSeo } from '@/lib/seo';
 
 // NOTE: lucide-react@0.344.0 does not export `Trowel`, so `Paintbrush2` is used
 // as the icon for the screeding project type instead.
@@ -259,6 +260,7 @@ function OptionButton<T extends string>({
 
 export default function ProjectWizard() {
   const navigate = useNavigate();
+  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
   const [step, setStep] = useState(0);
   const [state, setState] = useState<WizardState>(initialState);
   const [submitting, setSubmitting] = useState(false);

@@ -4,9 +4,11 @@ import { LogIn, AlertCircle, Lock, Mail, UserPlus } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import Logo from '@/components/brand/Logo';
+import { useSeo } from '@/lib/seo';
 
 export default function AdminLogin() {
   const { signIn, user, isAdmin, configured } = useAuth();
+  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
   const navigate = useNavigate();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');

@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const SITE_URL = "https://freluxpaintcalc.com";
+const SITE_URL = "https://freluxtools.netlify.app";
 
 function escapeXml(str: string): string {
   return str
@@ -32,31 +32,26 @@ Deno.serve(async (req: Request) => {
       "Content-Type": "application/json",
     };
 
-    // Fetch all active paint colors, published palettes, and learn articles
-    const [colorsRes, palettesRes, articlesRes, categoriesRes] = await Promise.all([
-      fetch(`${supabaseUrl}/rest/v1/paint_colors?select=slug,updated_at&is_active=eq.true&order=slug.asc`, { headers }),
-      fetch(`${supabaseUrl}/rest/v1/color_combinations?select=slug,updated_at&is_published=eq.true&order=slug.asc`, { headers }),
-      fetch(`${supabaseUrl}/rest/v1/learn_articles?select=slug,updated_at,published_at,category_slug&status=eq.published&order=published_at.desc`, { headers }),
-      fetch(`${supabaseUrl}/rest/v1/learn_categories?select=slug,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
-    ]);
-
-    const colors = await colorsRes.json() as { slug: string; updated_at: string }[];
-    const palettes = await palettesRes.json() as { slug: string; updated_at: string }[];
-    const articles = await articlesRes.json() as { slug: string; updated_at: string; published_at: string; category_slug: string }[];
-    const categories = await categoriesRes.json() as { slug: string }[];
-
+    // Static public routes — only real routes that exist in App.tsx
+    // No private, auth, admin, dashboard, or nonexistent URLs
     const staticUrls = [
       { loc: "/", priority: "1.0", changefreq: "weekly" },
       { loc: "/paint-calculator", priority: "0.9", changefreq: "monthly" },
       { loc: "/cost-estimator", priority: "0.9", changefreq: "monthly" },
       { loc: "/screeding-calculator", priority: "0.9", changefreq: "monthly" },
-      { loc: "/screeding-cost-estimator", priority: "0.9", changefreq: "monthly" },
-      { loc: "/colors", priority: "0.9", changefreq: "weekly" },
-      { loc: "/colors/compare", priority: "0.8", changefreq: "monthly" },
-      { loc: "/ai-color-assistant", priority: "0.8", changefreq: "monthly" },
-      { loc: "/learn", priority: "0.9", changefreq: "weekly" },
+      { loc: "/screeding-cost-estimator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/pop-ceiling-calculator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/pop-ceiling-cost-estimator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/tile-calculator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/tile-cost-estimator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/finish-estimator", priority: "0.7", changefreq: "monthly" },
+      { loc: "/colors", priority: "0.8", changefreq: "weekly" },
+      { loc: "/colors/compare", priority: "0.7", changefreq: "monthly" },
+      { loc: "/ai-color-assistant", priority: "0.7", changefreq: "monthly" },
+      { loc: "/learn", priority: "0.8", changefreq: "weekly" },
+      { loc: "/templates", priority: "0.8", changefreq: "weekly" },
       { loc: "/contact", priority: "0.5", changefreq: "monthly" },
-      { loc: "/about", priority: "0.4", changefreq: "monthly" },
+      { loc: "/about", priority: "0.5", changefreq: "monthly" },
       { loc: "/privacy-policy", priority: "0.3", changefreq: "yearly" },
       { loc: "/terms", priority: "0.3", changefreq: "yearly" },
       { loc: "/cookie-policy", priority: "0.3", changefreq: "yearly" },
@@ -66,6 +61,7 @@ Deno.serve(async (req: Request) => {
 
     const urls: string[] = [];
 
+    // Add static URLs
     for (const u of staticUrls) {
       urls.push(`  <url>
     <loc>${SITE_URL}${escapeXml(u.loc)}</loc>
@@ -74,26 +70,43 @@ Deno.serve(async (req: Request) => {
   </url>`);
     }
 
+    // Fetch dynamic public content in parallel
+    const [colorsRes, palettesRes, articlesRes, categoriesRes, templatesRes] = await Promise.all([
+      fetch(`${supabaseUrl}/rest/v1/paint_colors?select=slug,updated_at&is_active=eq.true&order=slug.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/color_combinations?select=slug,updated_at&is_published=eq.true&order=slug.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/learn_articles?select=slug,updated_at,published_at&status=eq.published&order=published_at.desc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/learn_categories?select=slug,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/calculator_templates?select=slug,updated_at&visibility=eq.public&is_published=eq.true&order=slug.asc`, { headers }),
+    ]);
+
+    // Add active paint colors — /colors/paint/{slug}
+    const colors = await colorsRes.json() as { slug: string; updated_at: string }[];
     for (const c of colors) {
       const slug = escapeXml(c.slug);
+      const lastmod = new Date(c.updated_at).toISOString().split("T")[0];
       urls.push(`  <url>
     <loc>${SITE_URL}/colors/paint/${slug}</loc>
-    <lastmod>${new Date(c.updated_at).toISOString().split("T")[0]}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`);
     }
 
+    // Add published color palettes — /colors/{slug}
+    const palettes = await palettesRes.json() as { slug: string; updated_at: string }[];
     for (const p of palettes) {
       const slug = escapeXml(p.slug);
+      const lastmod = new Date(p.updated_at).toISOString().split("T")[0];
       urls.push(`  <url>
     <loc>${SITE_URL}/colors/${slug}</loc>
-    <lastmod>${new Date(p.updated_at).toISOString().split("T")[0]}</lastmod>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`);
     }
 
+    // Add active learn categories — /learn/category/{slug}
+    const categories = await categoriesRes.json() as { slug: string }[];
     for (const cat of categories) {
       const slug = escapeXml(cat.slug);
       urls.push(`  <url>
@@ -103,6 +116,8 @@ Deno.serve(async (req: Request) => {
   </url>`);
     }
 
+    // Add published learn articles — /learn/{slug}
+    const articles = await articlesRes.json() as { slug: string; updated_at: string; published_at: string }[];
     for (const a of articles) {
       const slug = escapeXml(a.slug);
       const lastmod = escapeXml((a.published_at ?? a.updated_at).split("T")[0]);
@@ -111,6 +126,20 @@ Deno.serve(async (req: Request) => {
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>`);
+    }
+
+    // Add published public templates — /templates/{slug}
+    const templates = await templatesRes.json() as { slug: string; updated_at: string }[];
+    for (const t of templates) {
+      const slug = escapeXml(t.slug);
+      if (!slug) continue; // skip templates without slugs
+      const lastmod = new Date(t.updated_at).toISOString().split("T")[0];
+      urls.push(`  <url>
+    <loc>${SITE_URL}/templates/${slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>`);
     }
 

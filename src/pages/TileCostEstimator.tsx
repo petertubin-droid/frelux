@@ -32,7 +32,7 @@ export default function TileCostEstimator() {
       '@type': 'WebApplication',
       name: 'FRELUX Tile Cost Estimator',
       description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, and waste. Labour not included.',
-      url: 'https://freluxpaintcalc.com/tile-cost-estimator',
+      url: 'https://freluxtools.netlify.app/tile-cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },

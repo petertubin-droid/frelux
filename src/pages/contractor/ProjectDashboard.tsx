@@ -30,6 +30,7 @@ import type {
   SurfaceCondition, SurfaceType, WallSmoothness, Porosity,
   RoomType, RoomCalcType, LabourRole, TimelinePhase,
 } from '@/types/database';
+import { useSeo } from '@/lib/seo';
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -157,6 +158,7 @@ const emptyLabourForm: LabourFormData = {
 
 export default function ProjectDashboard() {
   const { id } = useParams<{ id: string }>();
+  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
   const navigate = useNavigate();
 
   // ── State ──

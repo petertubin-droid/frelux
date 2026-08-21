@@ -4,8 +4,10 @@ import { ArrowLeft, Menu, X, Code } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 
+import { useSeo } from '@/lib/seo';
 export default function StudioLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  useSeo({ title: 'FRELUX Studio', description: 'FRELUX Studio', noIndex: true });
 
   return (
     <div className="min-h-screen bg-neutral-100">

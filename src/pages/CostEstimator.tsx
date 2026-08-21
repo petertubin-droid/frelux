@@ -49,15 +49,15 @@ export default function CostEstimator() {
         applicationCategory: 'CalculatorApplication',
         operatingSystem: 'Web',
         description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices.',
-        url: 'https://freluxpaintcalc.com/cost-estimator',
+        url: 'https://freluxtools.netlify.app/cost-estimator',
         offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
       },
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
-          { '@type': 'ListItem', position: 2, name: 'Cost Estimator', item: 'https://freluxpaintcalc.com/cost-estimator' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', position: 2, name: 'Cost Estimator', item: 'https://freluxtools.netlify.app/cost-estimator' },
         ],
       },
       {
