@@ -151,11 +151,11 @@ CREATE POLICY "worker_categories_admin_write" ON worker_channel_categories FOR A
 
 -- Channels: pro_workers can read active channels; admins can do everything
 CREATE POLICY "worker_channels_read_pro" ON worker_channels FOR SELECT USING (
-  is_active = true AND EXISTS (
+  (is_active = true AND EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.account_type = 'pro_worker'
+  )) OR EXISTS (
+    SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
   )
-) OR EXISTS (
-  SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
 );
 
 CREATE POLICY "worker_channels_admin_write" ON worker_channels FOR ALL USING (
