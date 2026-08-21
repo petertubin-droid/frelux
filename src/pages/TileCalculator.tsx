@@ -197,7 +197,7 @@ export default function TileCalculator() {
     trackCalculation('tile');
     setResult(r);
     track('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
-    void saveEstimateHistory(null, { calculator_type: 'tile', project_name: `Tile: ${input.surfaceType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
+    void saveEstimateHistory(user?.id ?? null, { calculator_type: 'tile', project_name: `Tile: ${input.surfaceType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});
     logAnalyticsEvent('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
   }
 
