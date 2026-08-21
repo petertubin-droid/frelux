@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Check, Phone, Shield, KeyRound, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
@@ -49,6 +49,8 @@ export default function ProConnectRegister() {
   const [otpSending, setOtpSending] = useState(false);
   const [otpError, setOtpError] = useState('');
   const [otpSuccess, setOtpSuccess] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Phase 31: NIN KYC verification state
   const [ninNumber, setNinNumber] = useState('');
@@ -491,10 +493,12 @@ export default function ProConnectRegister() {
                   </div>
                   <button
                     onClick={handleSendOTP}
-                    disabled={otpSending}
-                    className="w-full text-center text-xs text-brand-purple hover:underline"
+                    disabled={otpSending || resendCooldown > 0}
+                    className={\`w-full text-center text-xs \${resendCooldown > 0 ? 'text-neutral-400' : 'text-brand-purple hover:underline'}\`}
                   >
-                    Resend OTP
+                    {resendCooldown > 0
+                      ? \`Resend OTP in \${resendCooldown}s\`
+                      : otpSending ? 'Sending...' : 'Resend OTP'}
                   </button>
                 </>
               )}
