@@ -121,7 +121,7 @@ export default function AdminEstimationProducts() {
     <>
       <AdminHeader
         title="Estimation Products"
-        subtitle="Manage the unified product catalogue and quality levels for the estimation engine."
+        subtitle="Manage paint types and quality levels. Coverage settings here feed the FRELUX ROOM-BASED estimation engine — not an m² calculator."
         action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add product</AdminButton>}
       />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
