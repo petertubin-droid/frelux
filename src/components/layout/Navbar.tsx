@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
   Sun, Moon, LayoutDashboard, UserCircle, ClipboardList, FileStack, Heart,
-  Search,
+  Users, BarChart3, Search,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces } from '@/config/site';
@@ -20,7 +20,7 @@ export default function Navbar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { theme, toggle } = useTheme();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -39,9 +39,10 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  // Close dropdown when clicking outside the entire nav
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setOpenDropdown(null);
       }
     }
@@ -50,10 +51,12 @@ export default function Navbar() {
   }, []);
 
   const accountMenuItems = [
+    { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
     { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
-    { label: 'Favorites', to: '/dashboard', icon: Heart },
-    { label: 'Profile', to: '/dashboard', icon: LayoutDashboard },
+    { label: 'My Projects', to: '/contractor', icon: FileStack },
+    { label: 'Clients', to: '/clients', icon: Users },
+    { label: 'Analytics', to: '/analytics', icon: BarChart3 },
   ];
 
   return (
@@ -66,7 +69,7 @@ export default function Navbar() {
             : 'bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-brand-navy/50 dark:border-transparent'
         )}
       >
-        <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <nav ref={navRef} className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo — left */}
           <div className="flex items-center gap-3">
             {/* Hamburger — left side on mobile (before logo) */}
@@ -85,7 +88,7 @@ export default function Navbar() {
           </div>
 
           {/* Desktop nav with workspace dropdowns */}
-          <div ref={dropdownRef} className="hidden items-center gap-1 lg:flex">
+          <div className="hidden items-center gap-1 lg:flex">
             {navWorkspaces.map((workspace) => (
               <div key={workspace.label} className="relative">
                 {workspace.children ? (
@@ -194,7 +197,6 @@ export default function Navbar() {
                 <div
                   className="absolute right-0 top-full z-50 min-w-[220px] rounded-xl border border-neutral-200/40 bg-white/90 py-1.5 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/90"
                   style={{ animationDuration: '0.15s' }}
-                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
@@ -263,34 +265,37 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* Mobile drawer — slides from LEFT */}
+      {/* ===== Mobile drawer ===== */}
       <div
-        className={classNames('fixed inset-0 z-50 lg:hidden', mobileOpen ? 'pointer-events-auto' : 'pointer-events-none')}
-        aria-hidden={!mobileOpen}
+        className={classNames(
+          'fixed inset-0 z-50 lg:hidden',
+          mobileOpen ? 'pointer-events-auto' : 'pointer-events-none'
+        )}
       >
-        {/* Backdrop */}
+        {/* Scrim */}
         <div
           className={classNames(
-            'absolute inset-0 bg-brand-navy/60 backdrop-blur-sm transition-opacity duration-300',
+            'absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity duration-300',
             mobileOpen ? 'opacity-100' : 'opacity-0'
           )}
           onClick={() => setMobileOpen(false)}
         />
-
-        {/* Drawer panel — left side */}
+        {/* Drawer */}
         <div
           className={classNames(
-            'absolute left-0 top-0 h-full w-[320px] max-w-[85vw] overflow-y-auto bg-white shadow-premium-lg transition-transform duration-300 dark:bg-brand-navy',
+            'absolute left-0 top-0 h-full w-[85%] max-w-sm overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy',
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
           {/* Drawer header */}
-          <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 dark:border-white/5">
-            <Logo />
+          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-white/5">
+            <Link to="/" onClick={() => setMobileOpen(false)}>
+              <Logo />
+            </Link>
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-100 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -343,6 +348,7 @@ export default function Navbar() {
                       <Link
                         key={item.label}
                         to={item.to}
+                        onClick={() => setMobileOpen(false)}
                         className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
                       >
                         <Icon className="h-4 w-4" />
