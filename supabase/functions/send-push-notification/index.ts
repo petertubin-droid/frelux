@@ -61,7 +61,7 @@ async function createVapidJWT(publicKey: string, privateKey: string, endpoint: s
   const payload = {
     aud: origin,
     exp: now + 12 * 3600,
-    sub: 'mailto:admin@freluxpaintcalc.com',
+    sub: 'mailto:admin@freluxtools.netlify.app',
   };
   const payloadB64 = base64UrlEncode(JSON.stringify(payload));
 
