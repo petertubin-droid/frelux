@@ -1,7 +1,7 @@
-// FRELUX PAINT CALC — Service Worker v2
-// Cache-first for static assets, network-first for navigation, offline calculator support
+// FRELUX PAINT CALC — Service Worker v3
+// Cache-first for static assets, network-first for navigation, offline calculator support, push notifications
 
-const CACHE_VERSION = 'frelux-v2';
+const CACHE_VERSION = 'frelux-v3';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 const CALCULATOR_CACHE = `${CACHE_VERSION}-calculators`;
@@ -82,7 +82,6 @@ self.addEventListener('fetch', (event) => {
       fetch(request)
         .then((response) => {
           const clone = response.clone();
-          // Cache calculator pages in their own cache
           const cacheName = CALCULATOR_PAGES.some((p) => url.pathname.startsWith(p))
             ? CALCULATOR_CACHE
             : RUNTIME_CACHE;
@@ -90,7 +89,6 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Try runtime cache first, then calculator cache, then index.html
           return caches.match(request)
             .then((cached) => cached || caches.match('/index.html'));
         })
@@ -118,4 +116,83 @@ self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
   }
+});
+
+// =========================================================
+// PUSH NOTIFICATIONS
+// =========================================================
+
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: 'FRELUX', body: event.data.text() };
+  }
+
+  const title = payload.title || 'FRELUX PAINT CALC';
+  const body = payload.body || '';
+  const url = payload.url || '/messages';
+  const icon = payload.icon || '/icon-192.png';
+  const badge = payload.badge || '/icon-192.png';
+  const tag = payload.tag || 'frelux-message';
+
+  const options: NotificationOptions = {
+    body,
+    icon,
+    badge,
+    tag,
+    data: { url },
+    requireInteraction: payload.requireInteraction || false,
+    actions: payload.actions || [
+      { action: 'view', title: 'View' },
+      { action: 'dismiss', title: 'Dismiss' },
+    ],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Handle notification click — focus or open the relevant page
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/messages';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      // If a client is already open, focus it and navigate
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.postMessage({ type: 'NOTIFICATION_CLICK', url: targetUrl });
+          return;
+        }
+      }
+      // Otherwise open a new window
+      return self.clients.openWindow(targetUrl);
+    })
+  );
+});
+
+// Handle notification action buttons
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  if (event.action === 'dismiss') return;
+
+  const targetUrl = event.notification.data?.url || '/messages';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url.includes(self.location.origin)) {
+          client.focus();
+          client.postMessage({ type: 'NOTIFICATION_CLICK', url: targetUrl });
+          return;
+        }
+      }
+      return self.clients.openWindow(targetUrl);
+    })
+  );
 });

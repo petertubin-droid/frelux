@@ -15,6 +15,7 @@ import type {
   ProDirectoryResult,
 } from '@/types/pro-connect';
 import { useAuth } from '@/lib/auth';
+import { sendPushToUser } from '@/lib/push-notifications';
 
 // =========================================================
 // PRO CONNECT — Data access layer
@@ -574,6 +575,47 @@ export async function sendMessage(conversationId: string, body: string, attachme
     .from('pro_conversations')
     .update({ last_message_at: new Date().toISOString() })
     .eq('id', conversationId);
+
+  // Send push notification to the recipient
+  try {
+    // Get conversation to find recipient
+    const { data: convo } = await supabase
+      .from('pro_conversations')
+      .select('client_id, professional_id, pro_profiles(display_name)')
+      .eq('id', conversationId)
+      .maybeSingle();
+
+    if (convo) {
+      const recipientId = convo.client_id === user.id ? convo.professional_id : null;
+      // If sender is the pro, recipient is the client; if sender is the client, recipient is the pro
+      let pushRecipientId: string | null = null;
+      if (convo.client_id === user.id) {
+        // Sender is client — notify the professional's user_id
+        const { data: profProfile } = await supabase
+          .from('pro_profiles')
+          .select('user_id')
+          .eq('id', convo.professional_id)
+          .maybeSingle();
+        pushRecipientId = profProfile?.user_id || null;
+      } else {
+        pushRecipientId = convo.client_id;
+      }
+
+      if (pushRecipientId) {
+        const senderName = convo.pro_profiles?.display_name || 'Someone';
+        const pushBody = body.length > 50 ? body.slice(0, 50) + '…' : body;
+        await sendPushToUser(
+          pushRecipientId,
+          `New message from ${senderName}`,
+          pushBody,
+          `/messages/${conversationId}`
+        );
+      }
+    }
+  } catch (err) {
+    console.error('[pro-connect] Push notification failed:', err);
+    // Don't fail the message send if push fails
+  }
 
   return true;
 }

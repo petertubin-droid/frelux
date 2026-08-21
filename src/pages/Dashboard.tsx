@@ -7,6 +7,7 @@ import { SkeletonCard } from '@/components/ui/Skeleton';
 import ColorSwatch from '@/components/ui/ColorSwatch';
 import { fetchUserProjects, fetchFavoriteColors, fetchRecentlyViewedColors } from '@/lib/queries';
 import { useAuth } from '@/lib/auth';
+import NotificationSettings from '@/components/NotificationSettings';
 import { getAccountType, upgradeToProWorker, getMyProProfile } from '@/lib/pro-connect';
 import type { AccountType, DbProProfile } from '@/types/pro-connect';
 import { useSeo } from '@/lib/seo';

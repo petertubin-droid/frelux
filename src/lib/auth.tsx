@@ -15,6 +15,8 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean } | { error: null; needsConfirmation: boolean }>;
+  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signInWithOtp: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
@@ -92,10 +94,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUp: async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return { error: error.message, needsConfirmation: false };
-        // Email confirmation is OFF by default, so a session may be returned
-        // immediately. If no session, the user should sign in.
         const needsConfirmation = !data.session;
         return { error: null, needsConfirmation };
+      },
+      signInWithGoogle: async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: `${window.location.origin}/login?redirect=/dashboard`,
+          },
+        });
+        return { error: error ? error.message : null };
+      },
+      signInWithOtp: async (email) => {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: `${window.location.origin}/login?redirect=/dashboard`,
+          },
+        });
+        return { error: error ? error.message : null };
       },
       signOut: async () => {
         await supabase.auth.signOut();

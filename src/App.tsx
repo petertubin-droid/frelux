@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useEffect, lazy, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
 import { ToastProvider } from '@/components/ui/Toast';
@@ -127,6 +128,23 @@ function PageLoader() {
   );
 }
 
+
+
+// Handle notification clicks from the service worker
+function NotificationClickHandler() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'NOTIFICATION_CLICK' && event.data?.url) {
+        navigate(event.data.url);
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handler);
+    return () => navigator.serviceWorker?.removeEventListener('message', handler);
+  }, [navigate]);
+  return null;
+}
+
 export default function App() {
   useTypography();
   useWebVitals();
@@ -138,6 +156,7 @@ export default function App() {
           <AdBlockNotice />
           <BrowserRouter>
             <ScrollToTop />
+            <NotificationClickHandler />
             <Routes>
           {/* ─────────────────────────────────────────────────────── */}
           {/* PUBLIC SITE — all public-facing pages under Layout */}

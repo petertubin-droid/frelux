@@ -1307,3 +1307,15 @@ export interface DbEstimateHistory {
   result_data: Record<string, unknown>;
   created_at: string;
 }
+
+// Push notification subscriptions
+export interface DbPushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh_key: string | null;
+  auth_key: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
