@@ -5,7 +5,7 @@
  */
 import { writeFileSync, mkdirSync } from 'fs';
 
-const SITE_URL = 'https://freluxpaintcalc.com';
+const SITE_URL = 'https://freluxtools.netlify.app';
 const today = new Date().toISOString().split('T')[0];
 
 const routes = [

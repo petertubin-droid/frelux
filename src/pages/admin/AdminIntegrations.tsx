@@ -60,18 +60,18 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   adgate_media: {
     gateway_id: 'Your AdGate Media gateway ID. Register at adgatemedia.com.',
     api_key: 'Your AdGate API key for postback verification.',
-    postback_url: 'Set this in your AdGate dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/adgate_media',
+    postback_url: 'Set this in your AdGate dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/adgate_media',
   },
   offertoro: {
     app_id: 'Your OfferToro app ID. Register at offertoro.com.',
     pub_id: 'Your OfferToro publisher ID.',
     secret: 'Your OfferToro secret key for postback verification.',
-    postback_url: 'Set this in your OfferToro dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/offertoro',
+    postback_url: 'Set this in your OfferToro dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/offertoro',
   },
   adgem: {
     placement_id: 'Your AdGem placement ID. Register at adgem.com.',
     api_key: 'Your AdGem API key for postback verification.',
-    postback_url: 'Set this in your AdGem dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/adgem',
+    postback_url: 'Set this in your AdGem dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/adgem',
   },
   cpx_research: {
     app_id: 'Your CPX Research app ID. Register at cpx-research.com.',
@@ -81,12 +81,12 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   ayet_studios: {
     app_id: 'Your Ayet Studios app ID. Register at ayetstudios.com.',
     api_key: 'Your Ayet Studios API key for postback verification.',
-    postback_url: 'Set this in your Ayet Studios dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/ayet_studios',
+    postback_url: 'Set this in your Ayet Studios dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/ayet_studios',
   },
   revu: {
     api_key: 'Your RevU API key for postback verification.',
     placement_id: 'Your RevU placement ID.',
-    postback_url: 'Set this in your RevU dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/revu',
+    postback_url: 'Set this in your RevU dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/revu',
   },
 };
 
@@ -341,12 +341,12 @@ export default function AdminIntegrations() {
           Google Search Console Setup Guide
         </h3>
         <ol className="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-300/80">
-          <li>1. Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="underline">search.google.com/search-console</a> and add your property (freluxpaintcalc.com)</li>
+          <li>1. Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="underline">search.google.com/search-console</a> and add your property (freluxtools.netlify.app)</li>
           <li>2. Choose the "HTML tag" verification method</li>
           <li>3. Copy the token value from the meta tag (just the content attribute value)</li>
           <li>4. Enable "Google Search Console" above, paste the token in the verification field, and save</li>
           <li>5. Click "Verify" back in Search Console — the meta tag is auto-injected on page load</li>
-          <li>6. Your sitemap is at <a href="https://freluxpaintcalc.com/sitemap.xml" target="_blank" rel="noopener noreferrer" className="underline">freluxpaintcalc.com/sitemap.xml</a> — submit it in Search Console</li>
+          <li>6. Your sitemap is at <a href="https://freluxtools.netlify.app/sitemap.xml" target="_blank" rel="noopener noreferrer" className="underline">freluxtools.netlify.app/sitemap.xml</a> — submit it in Search Console</li>
         </ol>
       </div>
     </div>

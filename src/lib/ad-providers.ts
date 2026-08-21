@@ -201,7 +201,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-adgate-api-key' },
     ],
     setting_fields: [
-      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/adgate-postback' },
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/adgate-postback' },
     ],
   },
   {
@@ -215,7 +215,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'secret', label: 'Secret Key', type: 'password', required: true, placeholder: 'your-secret-key' },
     ],
     setting_fields: [
-      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/offertoro-postback' },
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/offertoro-postback' },
     ],
   },
   {
@@ -228,7 +228,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-adgem-api-key' },
     ],
     setting_fields: [
-      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/adgem-postback' },
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/adgem-postback' },
     ],
   },
   {
@@ -254,7 +254,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-ayet-api-key' },
     ],
     setting_fields: [
-      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/ayet-postback' },
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/ayet-postback' },
     ],
   },
   {
@@ -267,7 +267,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'placement_id', label: 'Placement ID', type: 'text', required: true, placeholder: '12345' },
     ],
     setting_fields: [
-      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/revu-postback' },
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/revu-postback' },
     ],
   },
 ];

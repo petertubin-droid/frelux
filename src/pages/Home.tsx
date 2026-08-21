@@ -47,7 +47,7 @@ export default function Home() {
             '@type': 'ListItem',
             position: i + 1,
             name: t.name,
-            url: `https://freluxpaintcalc.com/templates/${t.slug}`,
+            url: `https://freluxtools.netlify.app/templates/${t.slug}`,
           })),
         }
       : {}),

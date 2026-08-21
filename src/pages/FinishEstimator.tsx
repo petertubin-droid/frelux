@@ -43,8 +43,8 @@ export default function FinishEstimator() {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
-          { '@type': 'ListItem', position: 2, name: 'Finish Estimator', item: 'https://freluxpaintcalc.com/finish-estimator' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', position: 2, name: 'Finish Estimator', item: 'https://freluxtools.netlify.app/finish-estimator' },
         ],
       },
     ],

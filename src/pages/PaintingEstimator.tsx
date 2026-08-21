@@ -87,8 +87,8 @@ export default function PaintingEstimator() {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
-          { '@type': 'ListItem', position: 2, name: 'Painting Estimator', item: 'https://freluxpaintcalc.com/painting-estimator' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', position: 2, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' },
         ],
       },
       {

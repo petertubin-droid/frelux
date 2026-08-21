@@ -85,8 +85,8 @@ export default function TyroleneEstimator() {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
-          { '@type': 'ListItem', position: 2, name: 'Tyrolene Estimator', item: 'https://freluxpaintcalc.com/tyrolene-estimator' },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', position: 2, name: 'Tyrolene Estimator', item: 'https://freluxtools.netlify.app/tyrolene-estimator' },
         ],
       },
       {

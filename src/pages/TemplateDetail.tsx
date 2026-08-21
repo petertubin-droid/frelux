@@ -53,15 +53,15 @@ export default function TemplateDetail() {
           description: template.seo_description ?? template.description ?? '',
           author: { '@type': 'Organization', name: 'FRELUX PAINT CALC' },
           publisher: { '@type': 'Organization', name: 'FRELUX PAINT CALC' },
-          url: `https://freluxpaintcalc.com/templates/${template.slug}`,
+          url: `https://freluxtools.netlify.app/templates/${template.slug}`,
         },
         {
           '@context': 'https://schema.org',
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxpaintcalc.com' },
-            { '@type': 'ListItem', position: 2, name: 'Templates', item: 'https://freluxpaintcalc.com/templates' },
-            { '@type': 'ListItem', position: 3, name: template.name, item: `https://freluxpaintcalc.com/templates/${template.slug}` },
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+            { '@type': 'ListItem', position: 2, name: 'Templates', item: 'https://freluxtools.netlify.app/templates' },
+            { '@type': 'ListItem', position: 3, name: template.name, item: `https://freluxtools.netlify.app/templates/${template.slug}` },
           ],
         },
         {

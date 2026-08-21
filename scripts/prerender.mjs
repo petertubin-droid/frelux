@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { seoContentMap } from './seo-content-map.mjs';
 
-const SITE_URL = 'https://freluxpaintcalc.com';
+const SITE_URL = 'https://freluxtools.netlify.app';
 const distDir = 'dist';
 const ogImage = `${SITE_URL}/og-image.png`;
 
