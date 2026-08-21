@@ -13,6 +13,8 @@ import {
   calculateMaterialCost,
   calculateLaborCost,
   calculateEstimatedTotal,
+  calculateAdvancedEstimate,
+  calculateScreedingMix,
 } from './calc';
 import type { CalculatorInput, CostEstimateInput } from '@/types';
 
@@ -429,5 +431,195 @@ describe('calculateEstimatedTotal', () => {
     expect(result.brushesCost).toBe(2000);
     expect(result.laborCost).toBe(40000);
     expect(result.total).toBe(78000);
+  });
+});
+
+// =========================================================
+// Advanced Calculator Tests — verifies waste is NOT double-counted
+// =========================================================
+
+describe('calculateAdvancedEstimate', () => {
+  it('should not double-count waste in subtotal and grandTotal', () => {
+    const input = {
+      netArea: 50,
+      thickness: 10,
+      coats: 2,
+      mixRatio: '1:3',
+      paintCoverageRateM2PerL: 5,
+      paintBucketSizeL: 20,
+      paintPricePerBucket: 25000,
+      cementRatioKgPerL: 2,
+      cementBagSizeKg: 40,
+      cementPricePerBag: 5000,
+      labourRatePerSqm: 0,
+      transportCost: 5000,
+      wastePercentage: 20,
+      markupPercentage: 10,
+      profitPercentage: 5,
+      taxPercentage: 7.5,
+      currency: 'NGN',
+      currencySymbol: '₦',
+    };
+
+    const result = calculateAdvancedEstimate(input);
+
+    // basePaintLiters = (50 × 2 × 1.0) / 5 = 20L
+    // paintLiters = 20 × 1.2 = 24L
+    // paintBuckets = ceil(24 / 20) = 2
+    // paintCost = 2 × 25000 = 50000
+    expect(result.paintLiters).toBe(24);
+    expect(result.paintBuckets).toBe(2);
+
+    // cementKg = 24 × 2 = 48kg
+    // cementBags = ceil(48 / 40) = 2
+    // cementCost = 2 × 5000 = 10000
+    expect(result.cementKg).toBe(48);
+    expect(result.cementBags).toBe(2);
+
+    // materialCost = 50000 + 10000 = 60000 (ALREADY includes waste)
+    expect(result.materialCost).toBe(60000);
+
+    // wasteAmount should be informational only:
+    // wasteFraction = 0.2, wasteAmount = 60000 × (0.2 / 1.2) = 10000
+    expect(result.wasteAmount).toBe(10000);
+
+    // subtotal = materialCost + transportCost = 60000 + 5000 = 65000
+    // NOT 65000 + 10000 = 75000 (which would be the double-counting bug)
+    // markupAmount = 65000 × 0.10 = 6500
+    // profitAmount = (65000 + 6500) × 0.05 = 3575
+    // preTax = 65000 + 6500 + 3575 = 75075
+    // taxAmount = 75075 × 0.075 = 5630.625 → round = 5630.63
+    // grandTotal = 75075 + 5630.63 = 80705.63
+
+    // If the bug existed: subtotal would be 75000, grandTotal would be ~92392
+    expect(result.grandTotal).toBeLessThan(90000); // guard against double-counting
+    expect(result.grandTotal).toBeCloseTo(80705.63, 1);
+  });
+
+  it('should handle zero waste correctly', () => {
+    const input = {
+      netArea: 50,
+      thickness: 10,
+      coats: 2,
+      mixRatio: '1:3',
+      paintCoverageRateM2PerL: 5,
+      paintBucketSizeL: 20,
+      paintPricePerBucket: 25000,
+      cementRatioKgPerL: 2,
+      cementBagSizeKg: 40,
+      cementPricePerBag: 5000,
+      labourRatePerSqm: 0,
+      transportCost: 0,
+      wastePercentage: 0,
+      markupPercentage: 0,
+      profitPercentage: 0,
+      taxPercentage: 0,
+      currency: 'NGN',
+      currencySymbol: '₦',
+    };
+
+    const result = calculateAdvancedEstimate(input);
+    // basePaintLiters = 20L, no waste → 20L
+    // buckets = ceil(20/20) = 1
+    // paintCost = 25000
+    // cementKg = 40, bags = 1, cementCost = 5000
+    // materialCost = 30000
+    // wasteAmount = 0
+    // subtotal = 30000
+    expect(result.paintLiters).toBe(20);
+    expect(result.paintBuckets).toBe(1);
+    expect(result.materialCost).toBe(30000);
+    expect(result.wasteAmount).toBe(0);
+    expect(result.grandTotal).toBe(30000);
+  });
+
+  it('should apply thickness factor for >10mm applications', () => {
+    const input = {
+      netArea: 50,
+      thickness: 15, // 15mm → factor = 1.5
+      coats: 2,
+      mixRatio: '1:3',
+      paintCoverageRateM2PerL: 5,
+      paintBucketSizeL: 20,
+      paintPricePerBucket: 25000,
+      cementRatioKgPerL: 2,
+      cementBagSizeKg: 40,
+      cementPricePerBag: 5000,
+      labourRatePerSqm: 0,
+      transportCost: 0,
+      wastePercentage: 0,
+      markupPercentage: 0,
+      profitPercentage: 0,
+      taxPercentage: 0,
+      currency: 'NGN',
+      currencySymbol: '₦',
+    };
+
+    const result = calculateAdvancedEstimate(input);
+    // basePaintLiters = (50 × 2 × 1.5) / 5 = 30L
+    // buckets = ceil(30/20) = 2
+    // paintCost = 50000
+    expect(result.paintLiters).toBe(30);
+    expect(result.paintBuckets).toBe(2);
+  });
+});
+
+// =========================================================
+// Edge case tests for existing calculators
+// =========================================================
+
+describe('Edge cases: container recommendation', () => {
+  it('should return empty array for 0 liters', () => {
+    expect(recommendContainerCombination(0, [20, 4, 1])).toEqual([]);
+  });
+
+  it('should return exactly one 20L for exactly 20 liters', () => {
+    expect(recommendContainerCombination(20, [20, 4, 1])).toEqual([
+      { size: 20, count: 1 },
+    ]);
+  });
+
+  it('should handle fractional liters by rounding up to smallest', () => {
+    const result = recommendContainerCombination(0.5, [20, 4, 1]);
+    expect(result).toEqual([{ size: 1, count: 1 }]);
+  });
+
+  it('should prefer larger containers when possible', () => {
+    const result = recommendContainerCombination(24, [20, 4, 1]);
+    // 1 × 20L + 1 × 4L = 24L
+    expect(result).toContainEqual({ size: 20, count: 1 });
+    expect(result).toContainEqual({ size: 4, count: 1 });
+  });
+});
+
+describe('Edge cases: screeding mix waste', () => {
+  it('should not double-count waste in grandTotal', () => {
+    const config = {
+      paintCoverageRateM2PerL: 5,
+      wastePercentage: 10,
+      taxVatPercentage: 0,
+      paintBucketSizeL: 20,
+      paintPricePerBucket: 25000,
+      cementConsumptionRatioKgPerL: 2,
+      cementBagSizeKg: 40,
+      cementPricePerBag: 5000,
+      currency: 'NGN',
+      currencySymbol: '₦',
+    };
+
+    const result = calculateScreedingMix(50, config);
+    // paintRequired = 50/5 = 10L
+    // paintWithWaste = 10 × 1.1 = 11L
+    // buckets = ceil(11/20) = 1
+    // paintCost = 25000
+    // cementKg = 11 × 2 = 22kg
+    // cementBags = ceil(22/40) = 1
+    // cementCost = 5000
+    // materialCost = 30000
+    // taxAmount = 0
+    // grandTotal = 30000 (NOT 30000 + wasteAllowance)
+    expect(result.grandTotal).toBe(30000);
+    // wasteAllowance is informational: 30000 × (0.1/1.1) ≈ 2727.27
+    expect(result.wasteAmount).toBeCloseTo(2727.27, 0);
   });
 });

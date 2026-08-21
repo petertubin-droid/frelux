@@ -28,7 +28,8 @@ export function calculatePopCeiling(
   const widthM = toSqm(input.roomWidth, input.unit);
   const ceilingArea = lengthM * widthM;
 
-  const wasteMultiplier = 1 + input.wasteMargin / 100;
+  const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
+  const wasteMultiplier = 1 + wastePct / 100;
   const adjustedArea = ceilingArea * wasteMultiplier;
 
   const materialResults: PopMaterialResult[] = [];
@@ -111,7 +112,8 @@ export function calculateTile(
     surfaceArea = lengthM * widthM;
   }
 
-  const wasteMultiplier = 1 + input.wasteMargin / 100;
+  const wastePct = Math.min(100, Math.max(0, input.wasteMargin));
+  const wasteMultiplier = 1 + wastePct / 100;
   const adjustedArea = surfaceArea * wasteMultiplier;
 
   // --- Tiles (always calculated) ---

@@ -1441,7 +1441,7 @@ export function explainCalculation(
       const paintableArea = (result.paintableArea ?? 0) as number;
       const coats = (input.coats ?? 2) as number;
       const coverageRate = (input.coverageRate ?? 10) as number;
-      const wasteMargin = (input.wasteMargin ?? 10) as number;
+      const wasteMargin = Math.min(100, Math.max(0, (input.wasteMargin ?? 10) as number));
       const baseLiters = paintableArea * coats / coverageRate;
       const adjustedLiters = baseLiters * (1 + wasteMargin / 100);
 
@@ -1470,7 +1470,7 @@ export function explainCalculation(
     case 'screeding': {
       const netArea = (result.netScreedingArea ?? 0) as number;
       const coverageRate = (input.coverageRate ?? 5) as number;
-      const wasteMargin = (input.wasteMargin ?? 10) as number;
+      const wasteMargin = Math.min(100, Math.max(0, (input.wasteMargin ?? 10) as number));
       const materialRequired = netArea / coverageRate * (1 + wasteMargin / 100);
 
       assumptions.push(`Coverage rate: ${coverageRate} m² per unit`);
@@ -1495,7 +1495,7 @@ export function explainCalculation(
 
     case 'pop_ceiling': {
       const ceilingArea = (result.ceilingArea ?? 0) as number;
-      const wasteMargin = (input.wasteMargin ?? 10) as number;
+      const wasteMargin = Math.min(100, Math.max(0, (input.wasteMargin ?? 10) as number));
       const adjustedArea = ceilingArea * (1 + wasteMargin / 100);
 
       assumptions.push(`Waste margin: ${wasteMargin}%`);
@@ -1521,7 +1521,7 @@ export function explainCalculation(
 
     case 'tiling': {
       const surfaceArea = (result.surfaceArea ?? 0) as number;
-      const wasteMargin = (input.wasteMargin ?? 10) as number;
+      const wasteMargin = Math.min(100, Math.max(0, (input.wasteMargin ?? 10) as number));
       const adjustedArea = surfaceArea * (1 + wasteMargin / 100);
       const tileWidth = (input.tileWidthMm ?? 300) as number;
       const tileHeight = (input.tileHeightMm ?? 300) as number;

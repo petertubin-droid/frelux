@@ -511,7 +511,7 @@ export function calculateRoom(
     ceilingArea = calculateCeilingArea(lengthM, breadthM);
     const ceilingQtyBuckets = getCeilingQuantityBuckets(config.ceilingRule);
     theoreticalCeilingBuckets = ceilingQtyBuckets;
-    theoreticalCeilingLitres = ceilingQtyBuckets * 20; // will use packSizeLitres later
+    theoreticalCeilingLitres = ceilingQtyBuckets * 20; // placeholder — recalculated with actual packSizeLitres in Step 11
     steps.push({
       label: 'Ceiling',
       value: `${theoreticalCeilingBuckets} bucket(s)`,
@@ -595,6 +595,9 @@ export function calculateRoom(
     config.heightAdjustmentRule ?? null, standardHeight
   );
 
+  // NOTE: Per FRELUX rules, height adjustment_factor is informational only.
+  // It warns the customer about high walls but does NOT auto-adjust the calculation.
+  // The actual wall height is used directly in the wall area calculation.
   if (heightAdjustment) {
     warnings.push(heightAdjustment.message);
     steps.push({

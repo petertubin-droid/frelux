@@ -303,7 +303,7 @@ export function calculateScreedingMix(
   // Costs
   const materialCost = paintTotalCost + cementTotalCost;
   const labourCost = 0; // Labour not included — negotiated separately
-  const wasteAllowance = materialCost * wasteFraction;
+  const wasteAllowance = materialCost * (wasteFraction / (1 + wasteFraction)); // informational: waste portion of materialCost (already baked into quantities)
   const subtotal = materialCost;
   const taxAmount = subtotal * taxFraction;
   const grandTotal = subtotal + taxAmount;
@@ -376,8 +376,12 @@ export function calculateAdvancedEstimate(input: AdvancedCalcInput): AdvancedEst
   const materialCost = paintCost + cementCost;
   const labourCost = 0; // Labour not included — negotiated separately
   const transportCost = Math.max(0, input.transportCost);
-  const wasteAmount = materialCost * wasteFraction;
-  const subtotal = materialCost + transportCost + wasteAmount;
+  // Extract the waste portion from the already-waste-adjusted materialCost.
+  // wasteAmount = materialCost × (wasteFraction / (1 + wasteFraction))
+  const wasteAmount = materialCost * (wasteFraction / (1 + wasteFraction));
+  // materialCost already includes waste (paintLiters = base × 1+waste%).
+  // wasteAmount is informational only — represents the waste portion of materialCost.
+  const subtotal = materialCost + transportCost;
   const markupAmount = subtotal * markupFraction;
   const profitAmount = (subtotal + markupAmount) * profitFraction;
   const preTax = subtotal + markupAmount + profitAmount;

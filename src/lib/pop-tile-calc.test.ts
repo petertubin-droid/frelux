@@ -569,3 +569,82 @@ describe('calculateTile', () => {
     expect(result.grandTotal).toBe(grandTotal);
   });
 });
+
+// =========================================================
+// Waste margin edge case tests
+// =========================================================
+
+describe('Waste margin clamping', () => {
+  it('should clamp negative waste margin to 0 for POP', () => {
+    const input: PopCalcInput = {
+      roomLength: 4,
+      roomWidth: 4,
+      wasteMargin: -10, // negative — should be clamped to 0
+      workflow: 'basic',
+      includeDecorative: false,
+      includeOptional: false,
+      unit: 'meters',
+    };
+    const materials: DbPopMaterial[] = [
+      { id: 'm1', workflow: 'basic', category: 'powder', name: 'POP Powder', coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1 },
+    ];
+    const result = calculatePopCeiling(input, materials, 'NGN', '₦');
+    // With 0% waste: area = 16, adjusted = 16
+    // quantity = 16/2 = 8, packages = ceil(8/5) = 2, cost = 6000
+    expect(result.ceilingArea).toBe(16);
+    expect(result.wasteAmount).toBe(0); // no waste applied
+  });
+
+  it('should clamp waste margin > 100 to 100 for POP', () => {
+    const input: PopCalcInput = {
+      roomLength: 4,
+      roomWidth: 4,
+      wasteMargin: 200, // > 100 — should be clamped to 100
+      workflow: 'basic',
+      includeDecorative: false,
+      includeOptional: false,
+      unit: 'meters',
+    };
+    const materials: DbPopMaterial[] = [
+      { id: 'm1', workflow: 'basic', category: 'powder', name: 'POP Powder', coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1 },
+    ];
+    const result = calculatePopCeiling(input, materials, 'NGN', '₦');
+    // With 100% waste: area = 16, adjusted = 32
+    // quantity = 32/2 = 16, packages = ceil(16/5) = 4, cost = 12000
+    expect(result.wasteAmount).toBe(16); // 32 - 16 = 16
+  });
+
+  it('should clamp negative waste margin to 0 for Tile', () => {
+    const input: TileCalcInput = {
+      surfaceType: 'floor',
+      length: 3,
+      width: 4,
+      height: 0,
+      unit: 'meters',
+      tileWidthMm: 600,
+      tileHeightMm: 600,
+      tilesPerBox: 4,
+      tilePricePerBox: 5000,
+      method: 'adhesive',
+      adhesiveCoverageRate: 5,
+      adhesivePricePerBag: 3000,
+      cementCoverageRate: 0,
+      cementPackageSize: 0,
+      cementPricePerBag: 0,
+      sandCoverageRate: 0,
+      sandPackageSize: 0,
+      sandPricePerBag: 0,
+      groutCoverageRate: 5,
+      groutPricePerKg: 1000,
+      spacerCoverageRate: 0,
+      spacerPackageSize: 0,
+      spacerPricePerPack: 0,
+      wasteMargin: -20, // negative — should be clamped to 0
+    };
+    const materials: DbTileMaterial[] = [];
+    const result = calculateTile(input, materials, 'NGN', '₦');
+    // With 0% waste: area = 12
+    expect(result.surfaceArea).toBe(12);
+    expect(result.wasteAmount).toBe(0);
+  });
+});
