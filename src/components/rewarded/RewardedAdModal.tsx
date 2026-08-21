@@ -41,11 +41,14 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
           {/* Offerwall iframe */}
           <div className="flex-1 overflow-hidden">
+            {/* Sandbox: allow-scripts + allow-same-origin required for provider cookies/tracking.
+              allow-popups needed for offer completion redirects.
+              Removed allow-popups-to-escape-sandbox to prevent un sandboxed popups. */}
             <iframe
               src={offerwallUrl}
               className="h-full w-full border-0"
               title={`${offerwallProviderName ?? 'Rewarded'} Offerwall`}
-              sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             />
           </div>
 

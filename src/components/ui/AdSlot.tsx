@@ -42,6 +42,19 @@ export default function AdSlot({
   const pushRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Dedup impressions within the same page session to avoid
+  // re-mount double-counting when navigating between pages
+  function hasLoggedImpressionThisSession(key: string): boolean {
+    try {
+      const seen = sessionStorage.getItem('frelux_ad_impression_' + key);
+      if (seen) return true;
+      sessionStorage.setItem('frelux_ad_impression_' + key, '1');
+      return false;
+    } catch {
+      return false; // sessionStorage may be unavailable (private mode)
+    }
+  }
+
   useEffect(() => {
     let cancelled = false;
     fetchAdConfig().then(({ providers, placements }) => {
@@ -61,7 +74,7 @@ export default function AdSlot({
         const adUnitId = getAdUnitId(placement, provider.id);
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
-          if (!loggedRef.current) {
+          if (!loggedRef.current && !hasLoggedImpressionThisSession(slotKey)) {
             loggedRef.current = true;
             logAdEvent({
               event_type: 'impression',

@@ -443,7 +443,7 @@ function PricingForm({
     const payload = {
       price_type: priceType,
       ref_id: finalRefId,
-      price: Number(price),
+      price: Math.max(0, Number(price) || 0),
       currency: currency.trim().toUpperCase(),
       pack_size_id: packSizeId.trim() || null,
       effective_date: effectiveDate,

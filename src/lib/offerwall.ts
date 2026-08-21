@@ -24,6 +24,12 @@ export interface OfferwallConfig {
 /**
  * Generate an offerwall URL for a rewarded ad provider.
  * Returns null if the provider doesn't support offerwall embedding.
+ *
+ * SECURITY NOTE: Some providers (CPX Research, RevU) include an API key or
+ * secure hash in the offerwall URL. This is by design — these values are
+ * app-level identifiers, not server secrets. The actual security boundary
+ * is the server-to-server postback verification, which uses a separate
+ * secret key stored only in the edge function environment.
  */
 export function generateOfferwallUrl(
   provider: DbAdProvider,

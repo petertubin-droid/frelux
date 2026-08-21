@@ -139,6 +139,8 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const [dailyUnlockCount, setDailyUnlockCount] = useState(0);
   const [isCooldownActive, setIsCooldownActive] = useState(false);
   const clientHashRef = useRef<string>('');
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     clientHashRef.current = getClientHash();
@@ -234,6 +236,14 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     return () => clearInterval(interval);
   }, [isCooldownActive, toolKey]);
 
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (pollTimeoutRef.current) clearTimeout(pollTimeoutRef.current);
+    };
+  }, []);
+
   const requestUnlock = useCallback(() => {
     if (isUnlocked) return;
     // Client-side hint checks (server enforces for real)
@@ -271,6 +281,8 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       setError('This feature is currently disabled.');
       return;
     }
+    // Guard against double-clicks / rapid repeated calls
+    if (adLoading) return;
     setAdLoading(true);
     setError(null);
 
@@ -305,10 +317,11 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
         // Start polling for unlock status — the provider's postback
         // will trigger the edge function to grant the unlock
-        const pollInterval = setInterval(async () => {
+        pollIntervalRef.current = setInterval(async () => {
           const unlockRes = await checkRewardedUnlock(toolKey, clientHash);
           if (unlockRes.unlocked && unlockRes.expiresAt) {
-            clearInterval(pollInterval);
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
             const expiry = unlockRes.expiresAt;
             const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
 
@@ -340,7 +353,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
         }, 5000); // Poll every 5 seconds
 
         // Stop polling after 10 minutes max
-        setTimeout(() => clearInterval(pollInterval), 10 * 60 * 1000);
+        pollTimeoutRef.current = setTimeout(() => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); pollIntervalRef.current = null; }, 10 * 60 * 1000);
         return;
       }
     }

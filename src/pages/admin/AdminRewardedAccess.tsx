@@ -69,15 +69,26 @@ function FeatureConfigTab() {
   useEffect(() => { load(); }, [load]);
 
   async function updateFeature(id: string, updates: Partial<DbRewardedFeatureConfig>) {
+    // Validate numeric fields
+    const validated: Partial<DbRewardedFeatureConfig> = { ...updates };
+    if ('unlock_duration_minutes' in validated) {
+      validated.unlock_duration_minutes = Math.max(1, Math.floor(Number(validated.unlock_duration_minutes) || 1));
+    }
+    if ('daily_usage_limit' in validated) {
+      validated.daily_usage_limit = Math.max(0, Math.floor(Number(validated.daily_usage_limit) || 0));
+    }
+    if ('cooldown_minutes' in validated) {
+      validated.cooldown_minutes = Math.max(0, Math.floor(Number(validated.cooldown_minutes) || 0));
+    }
     setSaving(id);
     const { error: updateError } = await supabase
       .from('rewarded_feature_config')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...validated, updated_at: new Date().toISOString() })
       .eq('id', id);
     if (updateError) {
       setError(updateError.message);
     } else {
-      setFeatures((prev) => prev.map((f) => (f.id === id ? { ...f, ...updates } : f)));
+      setFeatures((prev) => prev.map((f) => (f.id === id ? { ...f, ...validated } : f)));
     }
     setSaving(null);
   }
@@ -223,15 +234,26 @@ function ToolConfigTab() {
   useEffect(() => { load(); }, [load]);
 
   async function updateConfig(id: string, updates: Partial<DbRewardedToolConfig>) {
+    // Validate numeric fields
+    const validated: Partial<DbRewardedToolConfig> = { ...updates };
+    if ('unlock_duration_minutes' in validated) {
+      validated.unlock_duration_minutes = Math.max(1, Math.floor(Number(validated.unlock_duration_minutes) || 1));
+    }
+    if ('daily_usage_limit' in validated) {
+      validated.daily_usage_limit = Math.max(0, Math.floor(Number(validated.daily_usage_limit) || 0));
+    }
+    if ('cooldown_minutes' in validated) {
+      validated.cooldown_minutes = Math.max(0, Math.floor(Number(validated.cooldown_minutes) || 0));
+    }
     setSaving(id);
     const { error: updateError } = await supabase
       .from('rewarded_tool_config')
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...validated, updated_at: new Date().toISOString() })
       .eq('id', id);
     if (updateError) {
       setError(updateError.message);
     } else {
-      setConfigs((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)));
+      setConfigs((prev) => prev.map((c) => (c.id === id ? { ...c, ...validated } : c)));
     }
     setSaving(null);
   }
