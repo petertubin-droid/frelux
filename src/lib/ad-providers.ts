@@ -111,6 +111,165 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'test_mode', label: 'Test Mode', type: 'boolean', default: false },
     ],
   },
+  // ─────────────────────────────────────────────────────────
+  // Web display ad providers (work in browsers, not mobile-only)
+  // ─────────────────────────────────────────────────────────
+  {
+    slug: 'media_net',
+    name: 'Media.net',
+    provider_type: 'display',
+    icon: 'medianet',
+    credential_fields: [
+      { key: 'cid', label: 'Customer ID (CID)', type: 'text', required: true, placeholder: '8CXXXXXXX' },
+      { key: 'crids', label: 'CRIDs (comma-separated)', type: 'text', required: false, placeholder: '1234567,2345678' },
+    ],
+    setting_fields: [
+      { key: 'async', label: 'Async Loading', type: 'boolean', default: true },
+    ],
+  },
+  {
+    slug: 'adsterra',
+    name: 'Adsterra',
+    provider_type: 'display',
+    icon: 'adsterra',
+    credential_fields: [
+      { key: 'key', label: 'Ad Zone Key', type: 'text', required: true, placeholder: 'e.g. abc123def456' },
+      { key: 'placement_id', label: 'Placement ID', type: 'text', required: false, placeholder: 'banner_1' },
+    ],
+    setting_fields: [
+      { key: 'format', label: 'Ad Format', type: 'text', default: 'banner' },
+    ],
+  },
+  {
+    slug: 'buysellads',
+    name: 'BuySellAds',
+    provider_type: 'display',
+    icon: 'buysellads',
+    credential_fields: [
+      { key: 'site_key', label: 'Site Key', type: 'text', required: true, placeholder: 'frelux' },
+      { key: 'zone_keys', label: 'Zone Keys (comma-separated)', type: 'text', required: false, placeholder: 'zone1,zone2' },
+    ],
+    setting_fields: [
+      { key: 'passback', label: 'Enable Passback', type: 'boolean', default: true },
+    ],
+  },
+  {
+    slug: 'taboola',
+    name: 'Taboola',
+    provider_type: 'native',
+    icon: 'taboola',
+    credential_fields: [
+      { key: 'publisher_id', label: 'Publisher ID', type: 'text', required: true, placeholder: 'frelux-publisher' },
+      { key: 'placement', label: 'Placement Name', type: 'text', required: true, placeholder: 'Below Article Thumbnails' },
+    ],
+    setting_fields: [
+      { key: 'mode', label: 'Mode', type: 'text', default: 'thumbnails-r' },
+    ],
+  },
+  {
+    slug: 'outbrain',
+    name: 'Outbrain',
+    provider_type: 'native',
+    icon: 'outbrain',
+    credential_fields: [
+      { key: 'widget_id', label: 'Widget ID', type: 'text', required: true, placeholder: 'AR_1' },
+      { key: 'publisher_key', label: 'Publisher Key', type: 'text', required: true, placeholder: 'FRELUX' },
+    ],
+    setting_fields: [],
+  },
+  {
+    slug: 'propellerads',
+    name: 'PropellerAds',
+    provider_type: 'display',
+    icon: 'propeller',
+    credential_fields: [
+      { key: 'zone_id', label: 'Zone ID', type: 'text', required: true, placeholder: '1234567' },
+      { key: 'format', label: 'Ad Format', type: 'text', required: false, placeholder: 'push, banner, native' },
+    ],
+    setting_fields: [],
+  },
+  // ─────────────────────────────────────────────────────────
+  // Web rewarded ad providers (offerwall / rewarded API based)
+  // ─────────────────────────────────────────────────────────
+  {
+    slug: 'adgate_media',
+    name: 'AdGate Media',
+    provider_type: 'rewarded',
+    icon: 'adgate',
+    credential_fields: [
+      { key: 'gateway_id', label: 'Gateway ID', type: 'text', required: true, placeholder: '1234' },
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-adgate-api-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/adgate-postback' },
+    ],
+  },
+  {
+    slug: 'offertoro',
+    name: 'OfferToro',
+    provider_type: 'rewarded',
+    icon: 'offertoro',
+    credential_fields: [
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'pub_id', label: 'Publisher ID', type: 'text', required: true, placeholder: 'pub_XXXX' },
+      { key: 'secret', label: 'Secret Key', type: 'password', required: true, placeholder: 'your-secret-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/offertoro-postback' },
+    ],
+  },
+  {
+    slug: 'adgem',
+    name: 'AdGem',
+    provider_type: 'rewarded',
+    icon: 'adgem',
+    credential_fields: [
+      { key: 'placement_id', label: 'Placement ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-adgem-api-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/adgem-postback' },
+    ],
+  },
+  {
+    slug: 'cpx_research',
+    name: 'CPX Research',
+    provider_type: 'rewarded',
+    icon: 'cpx',
+    credential_fields: [
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'secure_hash', label: 'Secure Hash', type: 'password', required: true, placeholder: 'your-secure-hash' },
+    ],
+    setting_fields: [
+      { key: 'survey_mode', label: 'Survey Mode', type: 'text', default: 'full' },
+    ],
+  },
+  {
+    slug: 'ayet_studios',
+    name: 'Ayet Studios',
+    provider_type: 'rewarded',
+    icon: 'ayet',
+    credential_fields: [
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-ayet-api-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/ayet-postback' },
+    ],
+  },
+  {
+    slug: 'revu',
+    name: 'RevU',
+    provider_type: 'rewarded',
+    icon: 'revu',
+    credential_fields: [
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-revu-api-key' },
+      { key: 'placement_id', label: 'Placement ID', type: 'text', required: true, placeholder: '12345' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxpaintcalc.com/api/revu-postback' },
+    ],
+  },
 ];
 
 /**

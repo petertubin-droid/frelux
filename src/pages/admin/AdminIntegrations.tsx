@@ -33,12 +33,79 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   google_search_console: {
     verification_token: 'The verification token from Google Search Console. Get it at search.google.com/search-console → Add property → HTML tag method. Paste only the token content, not the full meta tag.',
   },
+  media_net: {
+    cid: 'Your Media.net Customer ID (CID). Find it in your Media.net dashboard.',
+    crids: 'Optional — comma-separated CRIDs for specific ad zones.',
+  },
+  adsterra: {
+    key: 'Your Adsterra ad zone key. Create a zone in Adsterra dashboard → Ad Units.',
+    placement_id: 'Optional — a label for this placement (for your reference).',
+  },
+  buysellads: {
+    site_key: 'Your BuySellAds site key. Register at buysellads.com and add your site.',
+    zone_keys: 'Comma-separated zone keys for different ad sizes.',
+  },
+  taboola: {
+    publisher_id: 'Your Taboola publisher ID. Register at taboola.com.',
+    placement: 'Placement name (e.g. "Below Article Thumbnails").',
+  },
+  outbrain: {
+    widget_id: 'Your Outbrain widget ID (e.g. AR_1). Register at outbrain.com.',
+    publisher_key: 'Your publisher key for Outbrain.',
+  },
+  propellerads: {
+    zone_id: 'Your PropellerAds zone ID. Create a zone in the PropellerAds dashboard.',
+    format: 'Ad format: push, banner, or native.',
+  },
+  adgate_media: {
+    gateway_id: 'Your AdGate Media gateway ID. Register at adgatemedia.com.',
+    api_key: 'Your AdGate API key for postback verification.',
+    postback_url: 'Set this in your AdGate dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/adgate_media',
+  },
+  offertoro: {
+    app_id: 'Your OfferToro app ID. Register at offertoro.com.',
+    pub_id: 'Your OfferToro publisher ID.',
+    secret: 'Your OfferToro secret key for postback verification.',
+    postback_url: 'Set this in your OfferToro dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/offertoro',
+  },
+  adgem: {
+    placement_id: 'Your AdGem placement ID. Register at adgem.com.',
+    api_key: 'Your AdGem API key for postback verification.',
+    postback_url: 'Set this in your AdGem dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/adgem',
+  },
+  cpx_research: {
+    app_id: 'Your CPX Research app ID. Register at cpx-research.com.',
+    secure_hash: 'Your CPX Research secure hash for postback verification.',
+    survey_mode: 'Survey mode: "full" for complete surveys, "quick" for shorter ones.',
+  },
+  ayet_studios: {
+    app_id: 'Your Ayet Studios app ID. Register at ayetstudios.com.',
+    api_key: 'Your Ayet Studios API key for postback verification.',
+    postback_url: 'Set this in your Ayet Studios dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/ayet_studios',
+  },
+  revu: {
+    api_key: 'Your RevU API key for postback verification.',
+    placement_id: 'Your RevU placement ID.',
+    postback_url: 'Set this in your RevU dashboard: https://freluxpaintcalc.com/functions/v1/rewarded-postback/revu',
+  },
 };
 
 const INTEGRATION_LINKS: Record<string, { label: string; url: string }> = {
   google_analytics: { label: 'Open Google Analytics', url: 'https://analytics.google.com' },
   google_adsense: { label: 'Open Google AdSense', url: 'https://www.google.com/adsense' },
   google_search_console: { label: 'Open Search Console', url: 'https://search.google.com/search-console' },
+  media_net: { label: 'Open Media.net', url: 'https://www.media.net' },
+  adsterra: { label: 'Open Adsterra', url: 'https://adsterra.com' },
+  buysellads: { label: 'Open BuySellAds', url: 'https://www.buysellads.com' },
+  taboola: { label: 'Open Taboola', url: 'https://www.taboola.com' },
+  outbrain: { label: 'Open Outbrain', url: 'https://www.outbrain.com' },
+  propellerads: { label: 'Open PropellerAds', url: 'https://propellerads.com' },
+  adgate_media: { label: 'Open AdGate Media', url: 'https://adgatemedia.com' },
+  offertoro: { label: 'Open OfferToro', url: 'https://www.offertoro.com' },
+  adgem: { label: 'Open AdGem', url: 'https://adgem.com' },
+  cpx_research: { label: 'Open CPX Research', url: 'https://www.cpx-research.com' },
+  ayet_studios: { label: 'Open Ayet Studios', url: 'https://ayetstudios.com' },
+  revu: { label: 'Open RevU', url: 'https://revu.tv' },
 };
 
 export default function AdminIntegrations() {

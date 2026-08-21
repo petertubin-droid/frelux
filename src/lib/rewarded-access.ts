@@ -6,6 +6,7 @@ import {
 import { supabase } from '@/lib/supabase';
 import { logAdEvent } from '@/lib/ad-config';
 import type { DbRewardedToolConfig, DbAdProvider, DbRewardedFeatureConfig } from '@/types/database';
+import { generateOfferwallUrl, supportsOfferwall } from '@/lib/offerwall';
 
 export interface RewardedAccessState {
   toolKey: string;
@@ -20,6 +21,8 @@ export interface RewardedAccessState {
   showAdModal: boolean;
   adLoading: boolean;
   adProviderUsed: string | null;
+  offerwallUrl: string | null;
+  offerwallProviderName: string | null;
   clientHash: string;
   dailyUnlockCount: number;
   isCooldownActive: boolean;
@@ -29,6 +32,7 @@ export interface RewardedAccessActions {
   requestUnlock: () => void;
   cancelUnlock: () => void;
   watchAd: () => Promise<void>;
+  closeOfferwall: () => void;
   refresh: () => Promise<void>;
 }
 
@@ -130,6 +134,8 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const [showAdModal, setShowAdModal] = useState(false);
   const [adLoading, setAdLoading] = useState(false);
   const [adProviderUsed, setAdProviderUsed] = useState<string | null>(null);
+  const [offerwallUrl, setOfferwallUrl] = useState<string | null>(null);
+  const [offerwallProviderName, setOfferwallProviderName] = useState<string | null>(null);
   const [dailyUnlockCount, setDailyUnlockCount] = useState(0);
   const [isCooldownActive, setIsCooldownActive] = useState(false);
   const clientHashRef = useRef<string>('');
@@ -250,6 +256,14 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const cancelUnlock = useCallback(() => {
     setShowAdModal(false);
     setAdLoading(false);
+    setOfferwallUrl(null);
+    setOfferwallProviderName(null);
+  }, []);
+
+  const closeOfferwall = useCallback(() => {
+    setOfferwallUrl(null);
+    setOfferwallProviderName(null);
+    setAdLoading(false);
   }, []);
 
   const watchAd = useCallback(async () => {
@@ -273,6 +287,63 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       client_hash: clientHash,
       metadata: { ad_unit_id: adUnitId, provider_slug: primaryProvider?.slug },
     });
+
+    // ──────────────────────────────────────────────────────
+    // Web rewarded ad providers (AdGate, OfferToro, AdGem, etc.)
+    // use an offerwall iframe model. We generate the offerwall URL
+    // and show it in the modal. The provider sends a server-to-server
+    // postback when the user completes offers. The client polls for
+    // unlock status while the offerwall is open.
+    // ──────────────────────────────────────────────────────
+    const activeProvider = primaryProvider ?? fallbackProvider;
+    if (activeProvider && supportsOfferwall(activeProvider)) {
+      const offerwall = generateOfferwallUrl(activeProvider, clientHash, toolKey);
+      if (offerwall) {
+        setOfferwallUrl(offerwall.url);
+        setOfferwallProviderName(offerwall.providerName);
+        setAdProviderUsed(offerwall.providerName);
+
+        // Start polling for unlock status — the provider's postback
+        // will trigger the edge function to grant the unlock
+        const pollInterval = setInterval(async () => {
+          const unlockRes = await checkRewardedUnlock(toolKey, clientHash);
+          if (unlockRes.unlocked && unlockRes.expiresAt) {
+            clearInterval(pollInterval);
+            const expiry = unlockRes.expiresAt;
+            const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
+
+            await logAdEvent({
+              event_type: 'reward',
+              provider_id: providerId,
+              tool_key: toolKey,
+              client_hash: clientHash,
+              revenue_estimated: revenueEstimate,
+              metadata: { ad_unit_id: adUnitId, expires_at: expiry, offerwall: true },
+            });
+
+            setLocalExpiry(toolKey, expiry);
+            setIsUnlocked(true);
+            setExpiresAt(expiry);
+            setShowAdModal(false);
+            setAdLoading(false);
+            setOfferwallUrl(null);
+            setOfferwallProviderName(null);
+
+            const newCount = incrementDailyUnlockCount(toolKey);
+            setDailyUnlockCount(newCount);
+            const cooldownMinutes = featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+            if (cooldownMinutes > 0) {
+              setCooldownExpiry(toolKey, cooldownMinutes);
+              setIsCooldownActive(true);
+            }
+          }
+        }, 5000); // Poll every 5 seconds
+
+        // Stop polling after 10 minutes max
+        setTimeout(() => clearInterval(pollInterval), 10 * 60 * 1000);
+        return;
+      }
+    }
 
     // ──────────────────────────────────────────────────────
     // Issue #1 fix: Call the server-side edge function to verify
@@ -363,11 +434,14 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     showAdModal,
     adLoading,
     adProviderUsed,
+    offerwallUrl,
+    offerwallProviderName,
     clientHash: clientHashRef.current,
     dailyUnlockCount,
     isCooldownActive,
     requestUnlock,
     cancelUnlock,
+    closeOfferwall,
     watchAd,
     refresh,
   };
