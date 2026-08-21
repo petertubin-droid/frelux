@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Star, Eye, Plus, Trash2, Briefcase, MapPin, Settings } from 'lucide-react';
+import { MessageSquare, Star, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import {
   getMyProProfile, getProProfileServices, getProProfileLocations,
@@ -94,6 +94,18 @@ export default function ProConnectDashboard() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      {/* Quick Links */}
+      <div className="mb-6 flex flex-wrap gap-2">
+        <Link to="/worker-channels" className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-brand-purple/10">
+          <Hash className="h-4 w-4" />
+          Worker Channels
+        </Link>
+        <Link to="/messages" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
+          <MessageSquare className="h-4 w-4" />
+          Messages
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

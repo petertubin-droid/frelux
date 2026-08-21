@@ -108,6 +108,7 @@ const ProConnectProfile = lazy(() => import('@/pages/pro-connect/ProConnectProfi
 const ProConnectRegister = lazy(() => import('@/pages/pro-connect/ProConnectRegister'));
 const ProConnectDashboard = lazy(() => import('@/pages/pro-connect/ProConnectDashboard'));
 const Messages = lazy(() => import('@/pages/pro-connect/Messages'));
+const WorkerChannels = lazy(() => import('@/pages/worker-channels/WorkerChannels'));
 
 // Admin Pro Connect
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
@@ -231,6 +232,8 @@ export default function App() {
             <Route path="/pro-connect/:slug" element={<Suspense fallback={<PageLoader />}><ProConnectProfile /></Suspense>} />
             <Route path="/messages" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
             <Route path="/messages/:conversationId" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
+            <Route path="/worker-channels" element={<Suspense fallback={<PageLoader />}><WorkerChannels /></Suspense>} />
+            <Route path="/worker-channels/:channelSlug" element={<Suspense fallback={<PageLoader />}><WorkerChannels /></Suspense>} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
