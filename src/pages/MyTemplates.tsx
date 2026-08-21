@@ -77,9 +77,7 @@ export default function MyTemplates() {
     setImportStatus('Importing...');
     setImportError(null);
     try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      const result = await importTemplate(data, user.id);
+      const result = await importTemplate(user.id, file);
       setImportStatus(`Imported "${result.name}" successfully!`);
       await refresh();
     } catch (err) {

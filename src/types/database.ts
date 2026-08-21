@@ -828,7 +828,7 @@ export interface AdProviderSchema {
   name: string;
   provider_type: AdProviderType;
   credential_fields: { key: string; label: string; type: 'text' | 'password'; required: boolean; placeholder?: string }[];
-  setting_fields: { key: string; label: string; type: 'text' | 'number' | 'boolean'; default: string | number | boolean }[];
+  setting_fields: { key: string; label: string; type: 'text' | 'number' | 'boolean'; default?: string | number | boolean; required?: boolean; placeholder?: string }[];
   icon: string;
 }
 

@@ -269,7 +269,7 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
       const validIds = new Set(
         (locLinks || [])
           .filter((link) => {
-            const loc = (link as { location: DbProLocation | null }).location;
+            const loc = (link as unknown as { location: DbProLocation[] }).location?.[0] ?? null;
             if (!loc) return false;
             if (params.state && loc.state !== params.state) return false;
             if (params.city && loc.city !== params.city) return false;
@@ -601,7 +601,7 @@ export async function sendMessage(conversationId: string, body: string, attachme
       }
 
       if (pushRecipientId) {
-        const senderName = convo.pro_profiles?.display_name || 'Someone';
+        const senderName = convo.pro_profiles?.[0]?.display_name || 'Someone';
         const pushBody = body.length > 50 ? body.slice(0, 50) + '…' : body;
         await sendPushToUser(
           pushRecipientId,
@@ -763,7 +763,7 @@ import type {
   VerificationTier,
   AccountType,
 } from '@/types/pro-connect';
-import { getVerificationTier } from '@/types/pro-connect';
+import { getVerificationTier, DbProVerificationLog } from '@/types/pro-connect';
 
 // -- Account Type --
 

@@ -5,6 +5,7 @@ import type {
   TemplateCreateInput,
   TemplateUpdateInput,
   CalculatorType,
+  TemplateVisibility,
 } from '@/types/database';
 
 // =========================================================
@@ -390,7 +391,7 @@ export async function getTemplatesByCategory(
     .eq('is_published', true)
     .eq('category', category);
 
-  if (options?.calculatorType) q = q.eq('calculator_type', options.calculator_type);
+  if (options?.calculatorType) q = q.eq('calculator_type', options.calculatorType);
 
   q = q.order('display_order', { ascending: true });
   const { data, error } = await q;
@@ -410,7 +411,7 @@ export async function getTemplatesByBuildingType(
     .eq('is_published', true)
     .eq('building_type', buildingType);
 
-  if (options?.calculatorType) q = q.eq('calculator_type', options.calculator_type);
+  if (options?.calculatorType) q = q.eq('calculator_type', options.calculatorType);
 
   q = q.order('display_order', { ascending: true });
   const { data, error } = await q;

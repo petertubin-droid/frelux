@@ -4,6 +4,7 @@ import { Home, RectangleHorizontal, RotateCcw, ArrowRight, CheckCircle2, AlertCi
 import PageHeader from '@/components/ui/PageHeader';
 import { calculateScreedingArea, validateScreedingInput } from '@/lib/utils';
 import { track } from '@/lib/analytics';
+import { useAuth } from '@/lib/auth';
 import { logAnalyticsEvent } from '@/lib/queries';
 import { formatNumber } from '@/lib/utils';
 import {
@@ -29,6 +30,7 @@ const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height
 const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
 
 export default function ScreedingCalculator() {
+  const { user } = useAuth();
   useSeo({
     title: 'Wall Screeding Calculator: How Much Screeding Do I Need?',
     description:

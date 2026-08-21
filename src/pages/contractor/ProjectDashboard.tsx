@@ -852,19 +852,19 @@ export default function ProjectDashboard() {
             budget_level: project.budget_level,
             status: project.status,
             rooms: rooms.map(r => ({
-              name: r.room_name,
+              name: r.name,
               calculation_type: r.calculation_type,
-              surface_area: r.surface_area ?? 0,
+              surface_area: (r.calculation_result as Record<string, unknown>)?.totalArea as number ?? 0,
               material_cost: r.material_cost ?? 0,
               labour_cost: r.labour_cost ?? 0,
-              input_data: r.input_data,
+              input_data: r.calculation_input,
             })),
             total_material_cost: project.total_material_cost,
             total_labour_cost: project.total_labour_cost,
             total_project_cost: project.total_project_cost,
             currency: project.currency,
             currency_symbol: project.currency_symbol,
-            notes: project.notes,
+            notes: project.notes ?? undefined,
           }} />
         )}
       </div>
