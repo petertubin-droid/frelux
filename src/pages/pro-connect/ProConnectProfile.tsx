@@ -20,6 +20,11 @@ import type {
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { useSeo } from '@/lib/seo';
+import { VerificationBadge, VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
+import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
+import { getPublicCredentials, fetchProSettings as getProSettings } from '@/lib/pro-connect';
+import type { DbProCredentialPublic, DbProSettings } from '@/types/pro-connect';
 
 const availabilityConfig = {
   available: { label: 'Available for work', color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
@@ -41,6 +46,8 @@ export default function ProConnectProfile() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [activeImage, setActiveImage] = useState<string | null>(null);
+  const [credentials, setCredentials] = useState<DbProCredentialPublic[]>([]);
+  const [proSettings, setProSettings] = useState<DbProSettings | null>(null);
 
   useEffect(() => {
     if (!slug) return;
@@ -62,6 +69,13 @@ export default function ProConnectProfile() {
       setLocations(loc.map((l) => l.location).filter(Boolean) as DbProLocation[]);
       setPortfolio(port);
       setReviews(rev);
+      // Load public credentials and settings
+      const [creds, settings] = await Promise.all([
+        getPublicCredentials(p.id),
+        getProSettings(),
+      ]);
+      setCredentials(creds);
+      setProSettings(settings);
       setLoading(false);
     })();
   }, [slug]);
@@ -77,6 +91,13 @@ export default function ProConnectProfile() {
       navigate(`/messages/${convo.id}`);
     }
   }
+
+  useSeo({
+    title: profile ? `${profile.display_name}${profile.business_name ? ' — ' + profile.business_name : ''} | FRELUX Pro Connect` : 'Professional Profile | FRELUX Pro Connect',
+    description: profile?.bio?.slice(0, 160) || 'View this professional\'s profile on FRELUX Pro Connect — services, portfolio, reviews, and contact information.',
+    canonicalPath: profile ? `/pro-connect/${profile.slug}` : '/pro-connect',
+    ogType: 'profile',
+  });
 
   if (loading) {
     return (
@@ -126,9 +147,11 @@ export default function ProConnectProfile() {
                 {profile.display_name.charAt(0).toUpperCase()}
               </div>
             )}
-            {isVerified && (
+            {getVerificationTier(profile) > 0 && (
               <div className="absolute -bottom-2 -right-2 rounded-full bg-white p-1 dark:bg-brand-navy-mid">
-                <ShieldCheck className="h-6 w-6 text-emerald-500" />
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'shield' && <ShieldCheck className="h-6 w-6 text-blue-500" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'star' && <Star className="h-6 w-6 fill-amber-400 text-amber-400" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'check' && <ShieldCheck className="h-6 w-6 text-emerald-500" />}
               </div>
             )}
           </div>
@@ -141,12 +164,9 @@ export default function ProConnectProfile() {
                 {profile.business_name && (
                   <p className="mt-1 text-neutral-500 dark:text-neutral-400">{profile.business_name}</p>
                 )}
-                {isVerified && (
-                  <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    Verified Professional
-                  </span>
-                )}
+                <div className="mt-2">
+                  <VerificationBadge profile={profile} size="md" />
+                </div>
               </div>
               {!isOwner && (
                 <button
@@ -218,6 +238,66 @@ export default function ProConnectProfile() {
           </div>
         </div>
       </div>
+
+      {/* Verification & Trust */}
+      {getVerificationTier(profile) > 0 && (
+        <section className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Verification</h2>
+          <div className="flex flex-wrap items-start gap-4">
+            {profile.contact_verified_at && (
+              <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 dark:bg-emerald-500/10">
+                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Contact Verified</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Email & phone confirmed</p>
+                </div>
+              </div>
+            )}
+            {profile.identity_verified_at && (
+              <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 dark:bg-blue-500/10">
+                <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <p className="text-sm font-medium text-blue-700 dark:text-blue-400">FRELUX Verified</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Identity & profile reviewed</p>
+                </div>
+              </div>
+            )}
+            {profile.pro_level && (
+              <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 dark:bg-amber-500/10">
+                <Star className="h-4 w-4 fill-amber-400 text-amber-600 dark:text-amber-400" />
+                <div>
+                  <p className="text-sm font-medium text-amber-700 dark:text-amber-400">FRELUX Pro</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Top-rated professional</p>
+                </div>
+              </div>
+            )}
+          </div>
+          {proSettings?.verification_disclaimer && (
+            <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-500 italic">{proSettings.verification_disclaimer}</p>
+          )}
+        </section>
+      )}
+
+      {/* Credentials (regulated professions) */}
+      {credentials.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-3 text-lg font-semibold text-neutral-900 dark:text-white">Professional Credentials</h2>
+          <div className="space-y-2">
+            {credentials.map((cred) => (
+              <div key={cred.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3 dark:border-white/5 dark:bg-brand-navy-mid">
+                <div>
+                  <p className="text-sm font-medium text-neutral-900 dark:text-white">{cred.professional_body}</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">{cred.credential_type}</p>
+                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Verified
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* About */}
       {profile.bio && (
@@ -308,6 +388,12 @@ export default function ProConnectProfile() {
                   <span className="text-xs text-neutral-400">
                     {new Date(review.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
+                  {review.is_verified_review && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                      <ShieldCheck className="h-3 w-3" />
+                      Verified Project Review
+                    </span>
+                  )}
                 </div>
                 {review.review_text && (
                   <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{review.review_text}</p>

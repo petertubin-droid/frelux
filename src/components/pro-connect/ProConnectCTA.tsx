@@ -16,16 +16,16 @@ const categoryLabels: Record<string, string> = {
 };
 
 const ctaTexts: Record<string, { title: string; subtitle: string }> = {
-  paint: { title: 'Need a professional painter?', subtitle: 'Find verified painters in your area' },
-  painting: { title: 'Need a professional painter?', subtitle: 'Find verified painters in your area' },
-  tile: { title: 'Need a professional tiler?', subtitle: 'Find verified tilers in your area' },
-  tiling: { title: 'Need a professional tiler?', subtitle: 'Find verified tilers in your area' },
-  screeding: { title: 'Need a screeding professional?', subtitle: 'Find wall screeders in your area' },
-  pop: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area' },
-  pop_ceiling: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area' },
-  finish: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists' },
-  tyrolene: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists' },
-  contractor: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists' },
+  paint: { title: 'Need a professional painter?', subtitle: 'Find painters serving your location.' },
+  painting: { title: 'Need a professional painter?', subtitle: 'Find painters serving your location.' },
+  tile: { title: 'Need a professional tiler?', subtitle: 'Find tilers serving your location.' },
+  tiling: { title: 'Need a professional tiler?', subtitle: 'Find tilers serving your location.' },
+  screeding: { title: 'Need a screeding professional?', subtitle: 'Find relevant professionals in your area.' },
+  pop: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area.' },
+  pop_ceiling: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area.' },
+  finish: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists for your project.' },
+  tyrolene: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists for your project.' },
+  contractor: { title: 'Need professionals for this project?', subtitle: 'Find matching professionals.' },
 };
 
 export default function ProConnectCTA({ calculatorType, className = '' }: ProConnectCTAProps) {

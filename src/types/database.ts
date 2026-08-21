@@ -4,6 +4,7 @@ export interface DbProfile {
   id: string;
   email: string;
   role: 'admin' | 'user';
+  account_type: 'client' | 'pro_worker';
   created_at: string;
   updated_at: string;
 }

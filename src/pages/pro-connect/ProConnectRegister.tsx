@@ -6,7 +6,9 @@ import {
   fetchCategories, fetchServices, fetchLocations,
   createProProfile, updateProProfile, updateProfileServices, updateProfileLocations,
   getMyProProfile, generateProSlug, isSlugAvailable,
+  upgradeToProWorker, getAccountType,
 } from '@/lib/pro-connect';
+import type { AccountType } from '@/types/pro-connect';
 import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 
@@ -34,6 +36,7 @@ export default function ProConnectRegister() {
   const [availability, setAvailability] = useState<'available' | 'busy' | 'unavailable'>('available');
   const [profileId, setProfileId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [accountType, setAccountType] = useState<AccountType>('client');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,6 +61,16 @@ export default function ProConnectRegister() {
       setCategories(cats);
       setServices(svcs);
       setLocations(locs);
+
+      // Check account type and upgrade to pro_worker if needed
+      if (user) {
+        const acct = await getAccountType(user.id);
+        setAccountType(acct);
+        if (acct === 'client') {
+          await upgradeToProWorker();
+          setAccountType('pro_worker');
+        }
+      }
 
       // Check for existing profile
       if (user) {

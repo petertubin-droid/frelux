@@ -10,6 +10,13 @@ import {
 import type { DbProProfile, DbProService, DbProLocation, DbProPortfolioItem, DbProReview, DbProConversation } from '@/types/pro-connect';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
+import { VerificationBadge } from '@/components/pro-connect/VerificationBadge';
+import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
+import {
+  createVerificationRequest, getMyVerificationRequests,
+  checkProLevelEligibility,
+} from '@/lib/pro-connect';
+import type { DbProVerificationRequest } from '@/types/pro-connect';
 
 export default function ProConnectDashboard() {
   const { user } = useAuth();
@@ -22,6 +29,9 @@ export default function ProConnectDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showPortfolioForm, setShowPortfolioForm] = useState(false);
+  const [verificationRequests, setVerificationRequests] = useState<DbProVerificationRequest[]>([]);
+  const [proLevelEligible, setProLevelEligible] = useState(false);
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -47,6 +57,12 @@ export default function ProConnectDashboard() {
       setReviews(rev);
       setConversations(convos);
       setUnreadCount(unread);
+      const [verifReqs, eligible] = await Promise.all([
+        getMyVerificationRequests(p.id),
+        checkProLevelEligibility(p.id),
+      ]);
+      setVerificationRequests(verifReqs);
+      setProLevelEligible(eligible);
       setLoading(false);
     })();
   }, [user]);
@@ -201,6 +217,121 @@ export default function ProConnectDashboard() {
               ))}
             </div>
           </div>
+        )}
+      </div>
+
+
+      {/* Verification Status */}
+      <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <h2 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Verification Status</h2>
+        <div className="flex flex-wrap items-start gap-4">
+          {/* Contact Verified */}
+          <div className={classNames(
+            'flex items-center gap-2 rounded-lg px-3 py-2',
+            profile.contact_verified_at
+              ? 'bg-emerald-50 dark:bg-emerald-500/10'
+              : 'bg-neutral-50 dark:bg-white/5'
+          )}>
+            <div className={classNames(
+              'flex h-8 w-8 items-center justify-center rounded-full',
+              profile.contact_verified_at ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
+            )}>
+              <span className="text-xs font-bold">{profile.contact_verified_at ? '✓' : '1'}</span>
+            </div>
+            <div>
+              <p className={classNames('text-sm font-medium', profile.contact_verified_at ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400')}>
+                Contact Verified
+              </p>
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                {profile.contact_verified_at ? 'Verified ' + new Date(profile.contact_verified_at).toLocaleDateString('en-GB') : 'Email & phone confirmation'}
+              </p>
+            </div>
+          </div>
+
+          {/* FRELUX Verified */}
+          <div className={classNames(
+            'flex items-center gap-2 rounded-lg px-3 py-2',
+            profile.identity_verified_at
+              ? 'bg-blue-50 dark:bg-blue-500/10'
+              : 'bg-neutral-50 dark:bg-white/5'
+          )}>
+            <div className={classNames(
+              'flex h-8 w-8 items-center justify-center rounded-full',
+              profile.identity_verified_at ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
+            )}>
+              <span className="text-xs font-bold">{profile.identity_verified_at ? '✓' : '2'}</span>
+            </div>
+            <div>
+              <p className={classNames('text-sm font-medium', profile.identity_verified_at ? 'text-blue-700 dark:text-blue-400' : 'text-neutral-500 dark:text-neutral-400')}>
+                FRELUX Verified
+              </p>
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                {profile.identity_verified_at ? 'Identity verified' : 'Identity & profile review'}
+              </p>
+            </div>
+          </div>
+
+          {/* FRELUX Pro */}
+          <div className={classNames(
+            'flex items-center gap-2 rounded-lg px-3 py-2',
+            profile.pro_level
+              ? 'bg-amber-50 dark:bg-amber-500/10'
+              : 'bg-neutral-50 dark:bg-white/5'
+          )}>
+            <div className={classNames(
+              'flex h-8 w-8 items-center justify-center rounded-full',
+              profile.pro_level ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
+            )}>
+              <span className="text-xs font-bold">{profile.pro_level ? '★' : '3'}</span>
+            </div>
+            <div>
+              <p className={classNames('text-sm font-medium', profile.pro_level ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500 dark:text-neutral-400')}>
+                FRELUX Pro
+              </p>
+              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                {profile.pro_level ? 'Top professional' : proLevelEligible ? 'Eligible — contact admin' : 'Build your reputation'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Verification status message */}
+        <div className="mt-4">
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            Status: <span className={classNames(
+              'font-medium capitalize',
+              profile.verification_status === 'verified' ? 'text-emerald-600 dark:text-emerald-400' :
+              profile.verification_status === 'pending' ? 'text-amber-600 dark:text-amber-400' :
+              profile.verification_status === 'rejected' ? 'text-red-600 dark:text-red-400' :
+              profile.verification_status === 'more_info' ? 'text-blue-600 dark:text-blue-400' :
+              profile.verification_status === 'suspended' ? 'text-red-600 dark:text-red-400' :
+              'text-neutral-500'
+            )}>{profile.verification_status.replace('_', ' ')}</span>
+          </p>
+          {profile.verification_status === 'more_info' && verificationRequests[0]?.more_info_request && (
+            <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
+              <p className="text-sm text-blue-700 dark:text-blue-400">
+                <strong>Action needed:</strong> {verificationRequests[0].more_info_request}
+              </p>
+            </div>
+          )}
+          {profile.verification_status === 'rejected' && verificationRequests[0]?.rejection_reason && (
+            <div className="mt-2 rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
+              <p className="text-sm text-red-700 dark:text-red-400">
+                <strong>Reason:</strong> {verificationRequests[0].rejection_reason}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Request verification button */}
+        {(profile.verification_status === 'unverified' || profile.verification_status === 'rejected' || profile.verification_status === 'more_info') && (
+          <button
+            onClick={() => setShowVerificationForm(!showVerificationForm)}
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            Request Verification
+          </button>
         )}
       </div>
 

@@ -14,7 +14,8 @@ import AdSlot from '@/components/ui/AdSlot';
 import { WeatherWidget } from '@/components/ui/WeatherWidget';
 import { RecentlyUsed } from '@/components/ui/RecentlyUsed';
 import { AchievementBadges } from '@/components/ui/AchievementBadges';
-import { useState, useEffect, useMemo } from 'react';
+import ProConnectHomeSection from '@/components/pro-connect/ProConnectHomeSection';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { useSeo } from '@/lib/seo';
 import { getPublicTemplates } from '@/lib/templates';
 
@@ -87,6 +88,9 @@ export default function Home() {
 
       {/* All calculators organized by trade — premium product cards */}
       <ToolsSection />
+
+      {/* FRELUX Pro Connect — find the right professional */}
+      <ProConnectHomeSection />
 
       {/* Trust signals + why FRELUX */}
       <FeaturesSection />

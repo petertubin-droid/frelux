@@ -1,6 +1,7 @@
 
 // =========================================================
 // FRELUX Pro Connect — Database Types
+// Phase 25 + Phase 26 (Verification System)
 // =========================================================
 
 export interface DbProCategory {
@@ -39,7 +40,26 @@ export interface DbProLocation {
 }
 
 export type ProAvailability = 'available' | 'busy' | 'unavailable';
-export type ProVerificationStatus = 'unverified' | 'pending' | 'verified' | 'suspended';
+
+// Phase 26: Extended verification statuses
+export type ProVerificationStatus =
+  | 'unverified'
+  | 'pending'
+  | 'verified'
+  | 'rejected'
+  | 'more_info'
+  | 'suspended';
+
+// Phase 26: Verification tier levels
+export type VerificationTier = 0 | 1 | 2 | 3;
+// 0 = unverified, 1 = contact verified, 2 = FRELUX verified, 3 = FRELUX Pro
+
+// Phase 26: Account types
+export type AccountType = 'client' | 'pro_worker';
+
+// Phase 26: Verification request types
+export type VerificationRequestType = 'contact' | 'identity' | 'pro_level';
+export type VerificationRequestStatus = 'pending' | 'approved' | 'rejected' | 'more_info' | 'withdrawn';
 
 export interface DbProProfile {
   id: string;
@@ -54,6 +74,13 @@ export interface DbProProfile {
   years_experience: number | null;
   availability: ProAvailability;
   verification_status: ProVerificationStatus;
+  // Phase 26: Tiered verification columns
+  contact_verified_at: string | null;
+  identity_verified_at: string | null;
+  pro_level: boolean;
+  pro_level_awarded_at: string | null;
+  phone_verified: boolean;
+  phone_number: string | null;
   is_profile_complete: boolean;
   is_listed: boolean;
   contact_email_public: boolean;
@@ -109,6 +136,7 @@ export interface DbProReview {
   professional_response_at: string | null;
   is_hidden: boolean;
   is_flagged: boolean;
+  is_verified_review: boolean; // Phase 26: "Verified Project Review"
   created_at: string;
   updated_at: string;
   reviewer_email?: string;
@@ -172,6 +200,91 @@ export interface DbProVerificationLog {
   created_at: string;
 }
 
+// Phase 26: Verification Request
+export interface DbProVerificationRequest {
+  id: string;
+  profile_id: string;
+  request_type: VerificationRequestType;
+  status: VerificationRequestStatus;
+  professional_name: string | null;
+  business_name: string | null;
+  category_id: string | null;
+  service_locations: string[] | null;
+  years_experience: number | null;
+  identity_document_type: string | null;
+  identity_document_number: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  admin_notes: string | null;
+  rejection_reason: string | null;
+  more_info_request: string | null;
+  submitted_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// Phase 26: Verification Document (private)
+export interface DbProVerificationDocument {
+  id: string;
+  profile_id: string;
+  request_id: string | null;
+  document_type: string;
+  storage_path: string;
+  file_name: string | null;
+  file_size: number | null;
+  mime_type: string | null;
+  uploaded_at: string;
+  created_at: string;
+}
+
+// Phase 26: Professional Credential (regulated professions)
+export type CredentialVerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected' | 'expired';
+
+export interface DbProCredential {
+  id: string;
+  profile_id: string;
+  professional_body: string;
+  registration_number: string;
+  credential_type: string;
+  verification_status: CredentialVerificationStatus;
+  verified_by: string | null;
+  verified_at: string | null;
+  expires_at: string | null;
+  document_path: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Phase 26: Public credential view (no sensitive fields)
+export interface DbProCredentialPublic {
+  id: string;
+  profile_id: string;
+  professional_body: string;
+  credential_type: string;
+  verification_status: CredentialVerificationStatus;
+  verified_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
+// Phase 26: Pro Settings (admin-configurable)
+export interface DbProSettings {
+  id: number;
+  contact_verified_description: string;
+  frelux_verified_description: string;
+  pro_level_description: string;
+  verification_disclaimer: string;
+  pro_level_min_reviews: number;
+  pro_level_min_rating: number;
+  pro_level_min_portfolio_items: number;
+  pro_level_min_profile_age_days: number;
+  verified_boost_in_search: boolean;
+  auto_publish_reviews: boolean;
+  require_review_approval: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // Composite type for directory search results (joined data)
 export interface ProDirectoryResult {
   profile: DbProProfile;
@@ -180,3 +293,24 @@ export interface ProDirectoryResult {
   locations: DbProLocation[];
   portfolio_count: number;
 }
+
+// Phase 26: Helper to compute verification tier from profile
+export function getVerificationTier(profile: DbProProfile): VerificationTier {
+  if (profile.pro_level) return 3;
+  if (profile.identity_verified_at) return 2;
+  if (profile.contact_verified_at) return 1;
+  return 0;
+}
+
+// Phase 26: Verification tier display info
+export const verificationTierInfo: Record<VerificationTier, {
+  label: string;
+  shortLabel: string;
+  icon: 'check' | 'shield' | 'star';
+  color: string;
+}> = {
+  0: { label: 'Unverified', shortLabel: 'Unverified', icon: 'check', color: 'neutral' },
+  1: { label: 'Contact Verified', shortLabel: 'Contact Verified', icon: 'check', color: 'emerald' },
+  2: { label: 'FRELUX Verified', shortLabel: 'Verified', icon: 'shield', color: 'blue' },
+  3: { label: 'FRELUX Pro', shortLabel: 'Pro', icon: 'star', color: 'amber' },
+};

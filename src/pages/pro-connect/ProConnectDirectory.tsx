@@ -5,8 +5,15 @@ import { fetchCategories, fetchServices, fetchLocations, searchProfessionals, ge
 import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import ProfessionalCard from '@/components/pro-connect/ProfessionalCard';
 import { classNames } from '@/lib/utils';
+import { useSeo } from '@/lib/seo';
 
 export default function ProConnectDirectory() {
+  useSeo({
+    title: 'FRELUX Pro Connect: Find Construction Professionals in Nigeria',
+    description: 'Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.',
+    canonicalPath: '/pro-connect',
+    ogType: 'website',
+  });
   const { categorySlug } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -31,6 +38,8 @@ export default function ProConnectDirectory() {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const [minRating, setMinRating] = useState<number | null>(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState<string | null>(null);
 
   // Resolve category from URL slug
   useEffect(() => {
@@ -65,6 +74,8 @@ export default function ProConnectDirectory() {
         state: selectedState || undefined,
         city: selectedCity || undefined,
         verifiedOnly: verifiedOnly || undefined,
+        minRating: minRating || undefined,
+        availability: (availabilityFilter as 'available' | 'busy' | undefined) || undefined,
         searchQuery: searchQuery || undefined,
         page: 1,
         pageSize: 12,
@@ -88,7 +99,7 @@ export default function ProConnectDirectory() {
       setProfileServices(svcMap);
       setProfileCategories(catMap);
     })();
-  }, [selectedCategory, selectedService, selectedState, selectedCity, verifiedOnly, searchQuery, categories]);
+  }, [selectedCategory, selectedService, selectedState, selectedCity, verifiedOnly, minRating, availabilityFilter, searchQuery, categories]);
 
   const states = [...new Set(locations.map((l) => l.state))].sort();
   const cities = selectedState
@@ -105,10 +116,12 @@ export default function ProConnectDirectory() {
     setSelectedState(null);
     setSelectedCity(null);
     setVerifiedOnly(false);
+    setMinRating(null);
+    setAvailabilityFilter(null);
     setSearchQuery('');
   }
 
-  const hasActiveFilters = selectedCategory || selectedService || selectedState || selectedCity || verifiedOnly || searchQuery;
+  const hasActiveFilters = selectedCategory || selectedService || selectedState || selectedCity || verifiedOnly || minRating || availabilityFilter || searchQuery;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -215,6 +228,35 @@ export default function ProConnectDirectory() {
                 {cities.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Availability + Rating filters */}
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Availability</label>
+              <select
+                value={availabilityFilter || ''}
+                onChange={(e) => setAvailabilityFilter(e.target.value || null)}
+                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              >
+                <option value="">Any availability</option>
+                <option value="available">Available now</option>
+                <option value="busy">Currently busy</option>
+              </select>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum Rating</label>
+              <select
+                value={minRating?.toString() || ''}
+                onChange={(e) => setMinRating(e.target.value ? parseFloat(e.target.value) : null)}
+                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              >
+                <option value="">Any rating</option>
+                <option value="3">3.0+ ★</option>
+                <option value="4">4.0+ ★</option>
+                <option value="4.5">4.5+ ★</option>
               </select>
             </div>
           </div>

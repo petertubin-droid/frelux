@@ -1,24 +1,26 @@
 import { useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft, Briefcase, Home as HomeIcon } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-
+import { supabase } from '@/lib/supabase';
+import { classNames } from '@/lib/utils';
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
 
 type Mode = 'signin' | 'signup' | 'reset';
+type AccountType = 'client' | 'pro_worker';
 
 export default function Login() {
   const { signIn, signUp, resetPassword, user, configured } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  // Default to /dashboard after sign-in (was /ai-color-assistant which was confusing)
   const redirectTo = searchParams.get('redirect') ?? '/dashboard';
 
   const initialMode = (searchParams.get('mode') as Mode) || 'signin';
   const [mode, setMode] = useState<Mode>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accountType, setAccountType] = useState<AccountType>('client');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [info, setInfo] = useState<string | null>(null);
@@ -30,7 +32,6 @@ export default function Login() {
     noIndex: true,
   });
 
-  // If already signed in, redirect
   if (user) {
     return <Navigate to={redirectTo} replace />;
   }
@@ -58,8 +59,11 @@ export default function Login() {
         setMode('signin');
         setPassword('');
       } else {
-        // Auto-signed in — redirect
-        navigate(redirectTo);
+        // Auto-signed in — set account type via metadata update
+        if (supabase) {
+          await supabase.auth.updateUser({ data: { account_type: accountType } });
+        }
+        navigate(accountType === 'pro_worker' ? '/pro-connect/register' : redirectTo);
       }
       return;
     }
@@ -105,6 +109,43 @@ export default function Login() {
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
               <p>{info}</p>
+            </div>
+          )}
+
+          {/* Account type selection — shown during signup */}
+          {mode === 'signup' && (
+            <div className="mt-5">
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">I am a…</span>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setAccountType('client')}
+                  className={classNames(
+                    'flex flex-col items-start rounded-xl border p-4 text-left transition-all',
+                    accountType === 'client'
+                      ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20'
+                      : 'border-neutral-200 hover:border-brand-purple/30 dark:border-white/10 dark:hover:border-brand-purple-lighter/30'
+                  )}
+                >
+                  <HomeIcon className={classNames('h-5 w-5 mb-2', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400')} />
+                  <span className="text-sm font-semibold text-neutral-900 dark:text-white">Client</span>
+                  <span className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">Calculate, estimate, find professionals</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAccountType('pro_worker')}
+                  className={classNames(
+                    'flex flex-col items-start rounded-xl border p-4 text-left transition-all',
+                    accountType === 'pro_worker'
+                      ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20'
+                      : 'border-neutral-200 hover:border-brand-purple/30 dark:border-white/10 dark:hover:border-brand-purple-lighter/30'
+                  )}
+                >
+                  <Briefcase className={classNames('h-5 w-5 mb-2', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400')} />
+                  <span className="text-sm font-semibold text-neutral-900 dark:text-white">Pro Worker</span>
+                  <span className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">List services, get verified, receive enquiries</span>
+                </button>
+              </div>
             </div>
           )}
 

@@ -7,6 +7,8 @@ import { SkeletonCard } from '@/components/ui/Skeleton';
 import ColorSwatch from '@/components/ui/ColorSwatch';
 import { fetchUserProjects, fetchFavoriteColors, fetchRecentlyViewedColors } from '@/lib/queries';
 import { useAuth } from '@/lib/auth';
+import { getAccountType, upgradeToProWorker, getMyProProfile } from '@/lib/pro-connect';
+import type { AccountType, DbProProfile } from '@/types/pro-connect';
 import { useSeo } from '@/lib/seo';
 import type { DbUserProject, DbPaintColor } from '@/types/database';
 
@@ -35,6 +37,8 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<DbUserProject[]>([]);
   const [favColors, setFavColors] = useState<DbPaintColor[]>([]);
   const [recentColors, setRecentColors] = useState<DbPaintColor[]>([]);
+  const [accountType, setAccountType] = useState<AccountType>('client');
+  const [proProfile, setProProfile] = useState<DbProProfile | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -42,7 +46,18 @@ export default function Dashboard() {
       return;
     }
     loadAll();
+    loadAccountInfo();
   }, [user]);
+
+  async function loadAccountInfo() {
+    if (!user) return;
+    const [acctType, proProf] = await Promise.all([
+      getAccountType(user.id),
+      getMyProProfile(user.id),
+    ]);
+    setAccountType(acctType);
+    setProProfile(proProf);
+  }
 
   async function loadAll() {
     setLoading(true);
@@ -227,6 +242,73 @@ export default function Dashboard() {
                 </div>
               </div>
             </section>
+
+            {/* Pro Connect — become a pro worker or manage professional profile */}
+            {accountType === 'client' && (
+              <section>
+                <div className="mb-4">
+                  <h2 className="text-lg font-bold text-brand-navy dark:text-white">FRELUX Pro Connect</h2>
+                </div>
+                <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white p-6 dark:from-brand-purple/10 dark:to-brand-navy-mid">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <h3 className="text-base font-bold text-brand-navy dark:text-white">Become a Pro Worker</h3>
+                      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">List your services, get verified, and connect with clients on FRELUX.</p>
+                    </div>
+                    <button
+                      onClick={async () => { await upgradeToProWorker(); setAccountType('pro_worker'); }}
+                      className="btn-primary press-scale shrink-0"
+                    >
+                      Upgrade to Pro Worker
+                    </button>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {accountType === 'pro_worker' && (
+              <section>
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-brand-navy dark:text-white">Professional Profile</h2>
+                  {proProfile && (
+                    <Link to="/pro-connect/dashboard" className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
+                      Go to Pro Dashboard
+                    </Link>
+                  )}
+                </div>
+                {proProfile ? (
+                  <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white p-6 dark:from-brand-purple/10 dark:to-brand-navy-mid">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/10 text-lg font-semibold text-brand-purple dark:text-brand-purple-lighter">
+                        {proProfile.display_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-brand-navy dark:text-white">{proProfile.display_name}</h3>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                          {proProfile.verification_status === 'verified' ? '✓ Verified' :
+                           proProfile.verification_status === 'pending' ? 'Pending verification' :
+                           proProfile.verification_status === 'more_info' ? 'Action needed' :
+                           proProfile.verification_status === 'rejected' ? 'Verification rejected' :
+                           'Unverified'} · {proProfile.rating_avg.toFixed(1)} ★ ({proProfile.rating_count} reviews)
+                        </p>
+                      </div>
+                    </div>
+                    <Link to="/pro-connect/dashboard" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-purple dark:text-brand-purple-lighter">
+                      Manage your professional profile <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white p-6 dark:from-brand-purple/10 dark:to-brand-navy-mid">
+                    <h3 className="text-base font-bold text-brand-navy dark:text-white">Create your professional profile</h3>
+                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">List your services, set your service areas, and start receiving client enquiries.</p>
+                    <Link to="/pro-connect/register" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white">
+                      Create Professional Profile <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                )}
+              </section>
+            )}
+
           </div>
         )}
       </div>

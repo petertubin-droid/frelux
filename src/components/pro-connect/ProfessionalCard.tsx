@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Star, ShieldCheck, Clock, Briefcase } from 'lucide-react';
+import { MapPin, Star, Clock, Briefcase, MessageSquare } from 'lucide-react';
 import type { DbProProfile, DbProCategory, DbProService } from '@/types/pro-connect';
-import { ProAvailability, ProVerificationStatus } from '@/types/pro-connect';
+import { ProAvailability } from '@/types/pro-connect';
+import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
 import { classNames } from '@/lib/utils';
 
 interface ProfessionalCardProps {
@@ -18,7 +19,6 @@ const availabilityConfig: Record<ProAvailability, { label: string; color: string
 
 export default function ProfessionalCard({ profile, category, services }: ProfessionalCardProps) {
   const avail = availabilityConfig[profile.availability];
-  const isVerified = profile.verification_status === 'verified';
 
   return (
     <Link
@@ -40,11 +40,6 @@ export default function ProfessionalCard({ profile, category, services }: Profes
               {profile.display_name.charAt(0).toUpperCase()}
             </div>
           )}
-          {isVerified && (
-            <div className="absolute -bottom-1 -right-1 rounded-full bg-white p-0.5 dark:bg-brand-navy-mid">
-              <ShieldCheck className="h-4 w-4 text-emerald-500" />
-            </div>
-          )}
         </div>
 
         <div className="min-w-0 flex-1">
@@ -61,6 +56,10 @@ export default function ProfessionalCard({ profile, category, services }: Profes
               {category.name}
             </p>
           )}
+          {/* Verification badge */}
+          <div className="mt-1.5">
+            <VerificationBadgeInline profile={profile} />
+          </div>
         </div>
       </div>
 

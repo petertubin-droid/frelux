@@ -6,6 +6,7 @@ import type { DbProConversation, DbProMessage } from '@/types/pro-connect';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
+import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
 
 export default function Messages() {
   const { conversationId } = useParams();

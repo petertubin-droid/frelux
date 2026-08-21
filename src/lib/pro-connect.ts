@@ -707,3 +707,470 @@ export async function isSlugAvailable(slug: string): Promise<boolean> {
   if (error) return true;
   return !data;
 }
+
+// =========================================================
+// PHASE 26: Verification System API
+// =========================================================
+
+import type {
+  DbProVerificationRequest,
+  DbProVerificationDocument,
+  DbProCredential,
+  DbProCredentialPublic,
+  DbProSettings,
+  VerificationRequestType,
+  VerificationTier,
+  AccountType,
+} from '@/types/pro-connect';
+import { getVerificationTier } from '@/types/pro-connect';
+
+// -- Account Type --
+
+export async function getAccountType(userId: string): Promise<AccountType> {
+  if (!isSupabaseConfigured) return 'client';
+  const { data } = await supabase
+    .from('profiles')
+    .select('account_type')
+    .eq('id', userId)
+    .maybeSingle();
+  return (data as { account_type?: AccountType })?.account_type || 'client';
+}
+
+export async function upgradeToProWorker(): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { error } = await supabase.rpc('upgrade_account_type', { target_user: user.id });
+  if (error) {
+    console.error('[pro-connect] upgradeToProWorker:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function updateAccountType(userId: string, accountType: AccountType): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('profiles')
+    .update({ account_type: accountType })
+    .eq('id', userId);
+  if (error) {
+    console.error('[pro-connect] updateAccountType:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// -- Verification Settings (public) --
+
+export async function fetchProSettings(): Promise<DbProSettings | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('pro_settings')
+    .select('*')
+    .eq('id', 1)
+    .maybeSingle();
+  if (error) {
+    console.error('[pro-connect] fetchProSettings:', error.message);
+    return null;
+  }
+  return data as DbProSettings;
+}
+
+export async function updateProSettings(updates: Partial<DbProSettings>): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('pro_settings')
+    .update(updates)
+    .eq('id', 1);
+  if (error) {
+    console.error('[pro-connect] updateProSettings:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// -- Verification Requests --
+
+export async function createVerificationRequest(profileId: string, request: {
+  request_type: VerificationRequestType;
+  professional_name?: string;
+  business_name?: string;
+  category_id?: string;
+  service_locations?: string[];
+  years_experience?: number;
+  identity_document_type?: string;
+  identity_document_number?: string;
+}): Promise<DbProVerificationRequest | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('pro_verification_requests')
+    .insert({
+      profile_id: profileId,
+      request_type: request.request_type,
+      professional_name: request.professional_name || null,
+      business_name: request.business_name || null,
+      category_id: request.category_id || null,
+      service_locations: request.service_locations || null,
+      years_experience: request.years_experience || null,
+      identity_document_type: request.identity_document_type || null,
+      identity_document_number: request.identity_document_number || null,
+    })
+    .select('*')
+    .single();
+  if (error) {
+    console.error('[pro-connect] createVerificationRequest:', error.message);
+    return null;
+  }
+
+  // Update profile verification_status to 'pending'
+  await supabase
+    .from('pro_profiles')
+    .update({ verification_status: 'pending' })
+    .eq('id', profileId);
+
+  return data as DbProVerificationRequest;
+}
+
+export async function getMyVerificationRequests(profileId: string): Promise<DbProVerificationRequest[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('pro_verification_requests')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('created_at DESC');
+  if (error) {
+    console.error('[pro-connect] getMyVerificationRequests:', error.message);
+    return [];
+  }
+  return data as DbProVerificationRequest[];
+}
+
+export async function getAllVerificationRequests(status?: string): Promise<DbProVerificationRequest[]> {
+  if (!isSupabaseConfigured) return [];
+  let query = supabase
+    .from('pro_verification_requests')
+    .select('*, profile:pro_profiles(display_name, slug, business_name, category_id)')
+    .order('created_at DESC');
+  if (status) query = query.eq('status', status);
+  const { data, error } = await query;
+  if (error) {
+    console.error('[pro-connect] getAllVerificationRequests:', error.message);
+    return [];
+  }
+  return data as unknown as DbProVerificationRequest[];
+}
+
+export async function withdrawVerificationRequest(requestId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('pro_verification_requests')
+    .update({ status: 'withdrawn' })
+    .eq('id', requestId);
+  if (error) {
+    console.error('[pro-connect] withdrawVerificationRequest:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// -- Admin verification actions (via RPC functions) --
+
+export async function adminApproveVerification(profileId: string, requestId: string, notes?: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('approve_verification', {
+    profile_uuid: profileId,
+    request_uuid: requestId,
+    admin_notes: notes || null,
+  });
+  if (error) {
+    console.error('[pro-connect] adminApproveVerification:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminRejectVerification(profileId: string, requestId: string, reason?: string, notes?: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('reject_verification', {
+    profile_uuid: profileId,
+    request_uuid: requestId,
+    rejection_reason: reason || null,
+    admin_notes: notes || null,
+  });
+  if (error) {
+    console.error('[pro-connect] adminRejectVerification:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminRequestMoreInfo(profileId: string, requestId: string, infoRequest: string, notes?: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('request_more_info_verification', {
+    profile_uuid: profileId,
+    request_uuid: requestId,
+    info_request: infoRequest,
+    admin_notes: notes || null,
+  });
+  if (error) {
+    console.error('[pro-connect] adminRequestMoreInfo:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminSuspendVerification(profileId: string, reason?: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('suspend_verification', {
+    profile_uuid: profileId,
+    reason: reason || null,
+  });
+  if (error) {
+    console.error('[pro-connect] adminSuspendVerification:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminReinstateVerification(profileId: string, notes?: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('reinstate_verification', {
+    profile_uuid: profileId,
+    admin_notes: notes || null,
+  });
+  if (error) {
+    console.error('[pro-connect] adminReinstateVerification:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminAwardProLevel(profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('award_pro_level', { profile_uuid: profileId });
+  if (error) {
+    console.error('[pro-connect] adminAwardProLevel:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminRevokeProLevel(profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.rpc('revoke_pro_level', { profile_uuid: profileId });
+  if (error) {
+    console.error('[pro-connect] adminRevokeProLevel:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function checkProLevelEligibility(profileId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { data, error } = await supabase.rpc('check_pro_level_eligibility', { profile_uuid: profileId });
+  if (error) {
+    console.error('[pro-connect] checkProLevelEligibility:', error.message);
+    return false;
+  }
+  return data as boolean;
+}
+
+// -- Verification Logs --
+
+export async function getVerificationLogs(profileId: string): Promise<DbProVerificationLog[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('pro_verification_logs')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('created_at DESC');
+  if (error) {
+    console.error('[pro-connect] getVerificationLogs:', error.message);
+    return [];
+  }
+  return data as DbProVerificationLog[];
+}
+
+// -- Credentials (regulated professions) --
+
+export async function getCredentials(profileId: string): Promise<DbProCredential[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('pro_credentials')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('created_at DESC');
+  if (error) {
+    console.error('[pro-connect] getCredentials:', error.message);
+    return [];
+  }
+  return data as DbProCredential[];
+}
+
+export async function getPublicCredentials(profileId: string): Promise<DbProCredentialPublic[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('pro_credentials_public')
+    .select('*')
+    .eq('profile_id', profileId);
+  if (error) {
+    console.error('[pro-connect] getPublicCredentials:', error.message);
+    return [];
+  }
+  return data as DbProCredentialPublic[];
+}
+
+export async function addCredential(profileId: string, credential: {
+  professional_body: string;
+  registration_number: string;
+  credential_type: string;
+  expires_at?: string;
+  document_path?: string;
+}): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('pro_credentials')
+    .insert({
+      profile_id: profileId,
+      professional_body: credential.professional_body,
+      registration_number: credential.registration_number,
+      credential_type: credential.credential_type,
+      expires_at: credential.expires_at || null,
+      document_path: credential.document_path || null,
+    });
+  if (error) {
+    console.error('[pro-connect] addCredential:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function deleteCredential(credentialId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.from('pro_credentials').delete().eq('id', credentialId);
+  if (error) {
+    console.error('[pro-connect] deleteCredential:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminVerifyCredential(credentialId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { error } = await supabase
+    .from('pro_credentials')
+    .update({
+      verification_status: 'verified',
+      verified_by: user.id,
+      verified_at: new Date().toISOString(),
+    })
+    .eq('id', credentialId);
+  if (error) {
+    console.error('[pro-connect] adminVerifyCredential:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function adminRejectCredential(credentialId: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('pro_credentials')
+    .update({ verification_status: 'rejected' })
+    .eq('id', credentialId);
+  if (error) {
+    console.error('[pro-connect] adminRejectCredential:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// -- Verification Documents (private storage) --
+
+export async function uploadVerificationDocument(
+  profileId: string,
+  requestId: string | null,
+  file: File,
+  documentType: string
+): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = `${user.id}/${profileId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('pro-verification')
+    .upload(path, file);
+
+  if (uploadError) {
+    console.error('[pro-connect] uploadVerificationDocument:', uploadError.message);
+    return null;
+  }
+
+  const { error } = await supabase
+    .from('pro_verification_documents')
+    .insert({
+      profile_id: profileId,
+      request_id: requestId,
+      document_type: documentType,
+      storage_path: path,
+      file_name: file.name,
+      file_size: file.size,
+      mime_type: file.type,
+    });
+
+  if (error) {
+    console.error('[pro-connect] uploadVerificationDocument record:', error.message);
+  }
+
+  return path;
+}
+
+export async function getVerificationDocuments(profileId: string): Promise<DbProVerificationDocument[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('pro_verification_documents')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('uploaded_at DESC');
+  if (error) {
+    console.error('[pro-connect] getVerificationDocuments:', error.message);
+    return [];
+  }
+  return data as DbProVerificationDocument[];
+}
+
+export async function createSignedUrlForDocument(storagePath: string): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase.storage
+    .from('pro-verification')
+    .createSignedUrl(storagePath, 300); // 5-minute expiry
+  if (error) {
+    console.error('[pro-connect] createSignedUrlForDocument:', error.message);
+    return null;
+  }
+  return data?.signedUrl || null;
+}
+
+export async function deleteVerificationDocument(docId: string, storagePath: string): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  await supabase.storage.from('pro-verification').remove([storagePath]);
+  const { error } = await supabase
+    .from('pro_verification_documents')
+    .delete()
+    .eq('id', docId);
+  if (error) {
+    console.error('[pro-connect] deleteVerificationDocument:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// -- Verification tier helper re-export --
+export { getVerificationTier } from '@/types/pro-connect';
+export type { VerificationTier } from '@/types/pro-connect';
