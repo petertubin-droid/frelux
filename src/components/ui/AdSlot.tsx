@@ -8,7 +8,8 @@ import type { DbAdProvider, DbAdPlacement } from '@/types/database';
  * Supports fallback chains — if the primary provider has no ad unit configured
  * for this placement, the next provider in the chain is tried.
  *
- * For Google AdSense, renders the standard <ins class="adsbygoogle"> tag.
+ * For Google AdSense, renders the standard <ins class="adsbygoogle"> tag
+ * and calls (adsbygoogle = window.adsbygoogle || []).push({}) to activate it.
  * For other providers, renders a reserved container that the provider SDK
  * can fill (or a placeholder when no SDK is loaded).
  *
@@ -32,6 +33,7 @@ export default function AdSlot({
 }) {
   const [resolved, setResolved] = useState<ResolvedAd | null | 'none'>(null);
   const loggedRef = useRef(false);
+  const pushRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +84,20 @@ export default function AdSlot({
     });
     return () => { cancelled = true; };
   }, [slotKey]);
+
+  // Push to adsbygoogle after the <ins> element is in the DOM
+  useEffect(() => {
+    if (resolved && resolved !== 'none' && resolved.provider.slug === 'google_adsense' && !pushRef.current) {
+      pushRef.current = true;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const w = window as any;
+        (w.adsbygoogle = w.adsbygoogle || []).push({});
+      } catch {
+        // AdSense not loaded yet — script will handle it when ready
+      }
+    }
+  }, [resolved]);
 
   if (resolved === null) return null;
   if (resolved === 'none') {

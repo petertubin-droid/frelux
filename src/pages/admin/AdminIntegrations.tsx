@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getIntegrationSettings, updateIntegrationSetting } from '@/lib/crm';
 import type { DbIntegrationSetting } from '@/types/database';
-import { Loader2, Check, X, CreditCard, BarChart3, MessageSquare, MapPin, Cloud, Megaphone, Save } from 'lucide-react';
+import { Loader2, Check, X, CreditCard, BarChart3, MessageSquare, MapPin, Cloud, Megaphone, Save, ExternalLink, Search } from 'lucide-react';
 
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
   payment: CreditCard,
@@ -21,11 +21,32 @@ const CATEGORY_LABELS: Record<string, string> = {
   advertising: 'Advertising',
 };
 
+// Field descriptions for specific integrations
+const FIELD_HELP: Record<string, Record<string, string>> = {
+  google_analytics: {
+    measurement_id: 'Your GA4 Measurement ID (e.g. G-XXXXXXXXXX). Find it in GA4 → Admin → Data Streams.',
+  },
+  google_adsense: {
+    publisher_id: 'Your AdSense Publisher ID (e.g. ca-pub-XXXXXXXXXXXXXXXX). Find it in AdSense → Account → Account information.',
+    client_id: 'Same as publisher_id — the ca-pub-XXXX ID used to load the AdSense script.',
+  },
+  google_search_console: {
+    verification_token: 'The verification token from Google Search Console. Get it at search.google.com/search-console → Add property → HTML tag method. Paste only the token content, not the full meta tag.',
+  },
+};
+
+const INTEGRATION_LINKS: Record<string, { label: string; url: string }> = {
+  google_analytics: { label: 'Open Google Analytics', url: 'https://analytics.google.com' },
+  google_adsense: { label: 'Open Google AdSense', url: 'https://www.google.com/adsense' },
+  google_search_console: { label: 'Open Search Console', url: 'https://search.google.com/search-console' },
+};
+
 export default function AdminIntegrations() {
   const [integrations, setIntegrations] = useState<DbIntegrationSetting[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
+  const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
 
   const load = useCallback(async () => {
@@ -69,6 +90,7 @@ export default function AdminIntegrations() {
 
   async function handleSaveConfig(integration: DbIntegrationSetting) {
     setSaving(integration.integration_key);
+    setSavedKeys((prev) => { const n = new Set(prev); n.delete(integration.integration_key); return n; });
     try {
       const configValues = editValues[integration.integration_key] ?? {};
       const newConfig: Record<string, unknown> = { ...integration.config };
@@ -77,6 +99,10 @@ export default function AdminIntegrations() {
       }
       await updateIntegrationSetting(integration.integration_key, { config: newConfig });
       await load();
+      setSavedKeys((prev) => new Set(prev).add(integration.integration_key));
+      setTimeout(() => {
+        setSavedKeys((prev) => { const n = new Set(prev); n.delete(integration.integration_key); return n; });
+      }, 3000);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save');
     } finally {
@@ -97,13 +123,47 @@ export default function AdminIntegrations() {
 
   const categories = [...new Set(integrations.map((i) => i.category))];
 
+  // Check if a Google integration is properly configured
+  function isConfigured(integration: DbIntegrationSetting): boolean {
+    if (!integration.is_enabled) return false;
+    const config = integration.config as Record<string, unknown>;
+    return Object.values(config).some((v) => typeof v === 'string' && v.length > 0);
+  }
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Integration Center</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Configure and manage third-party integrations. All integrations can be toggled on/off and configured here.
+          Configure and manage third-party integrations. Toggle each integration on, enter your credentials, and save. Changes take effect on the next page load.
         </p>
+      </div>
+
+      {/* Google integrations status summary */}
+      <div className="grid gap-3 sm:grid-cols-3">
+        {['google_analytics', 'google_adsense', 'google_search_console'].map((key) => {
+          const integ = integrations.find((i) => i.integration_key === key);
+          if (!integ) return null;
+          const configured = isConfigured(integ as DbIntegrationSetting);
+          const Icon = key === 'google_analytics' ? BarChart3 : key === 'google_adsense' ? Megaphone : Search;
+          return (
+            <div key={key} className={`rounded-lg border p-4 ${configured ? 'border-emerald-200 dark:border-emerald-800' : 'border-neutral-200 dark:border-white/10'}`}>
+              <div className="flex items-center gap-2">
+                <Icon className={`h-4 w-4 ${configured ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                <span className="text-sm font-medium">{(integ as DbIntegrationSetting).display_name}</span>
+              </div>
+              <div className="mt-2 flex items-center gap-1.5">
+                {configured ? (
+                  <><Check className="h-3.5 w-3.5 text-emerald-600" /><span className="text-xs text-emerald-600">Configured & active</span></>
+                ) : (integ as DbIntegrationSetting).is_enabled ? (
+                  <><Loader2 className="h-3.5 w-3.5 text-amber-500" /><span className="text-xs text-amber-500">Enabled — needs credentials</span></>
+                ) : (
+                  <><X className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs text-muted-foreground">Not configured</span></>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {error && (
@@ -124,8 +184,10 @@ export default function AdminIntegrations() {
             </h2>
             <div className="grid gap-4 md:grid-cols-2">
               {categoryIntegrations.map((integration) => {
-                const isSecret = (key: string) => key.includes('secret') || key.includes('token') || key.includes('password');
+                const isSecret = (key: string) => key.includes('secret') || key.includes('token') || key.includes('password') || key.includes('api_key');
                 const configFields = Object.entries(integration.config).filter(([k]) => k !== 'id');
+                const link = INTEGRATION_LINKS[integration.integration_key];
+                const justSaved = savedKeys.has(integration.integration_key);
                 return (
                   <div key={integration.id} className="rounded-lg border p-5">
                     <div className="flex items-center justify-between">
@@ -140,13 +202,27 @@ export default function AdminIntegrations() {
                         onClick={() => handleToggle(integration)}
                         disabled={saving === integration.integration_key}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${integration.is_enabled ? 'bg-brand-purple' : 'bg-muted'}`}
+                        aria-label="Toggle integration"
                       >
                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${integration.is_enabled ? 'translate-x-6' : 'translate-x-1'}`} />
                       </button>
                     </div>
 
+                    {/* External link for Google integrations */}
+                    {link && (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 text-xs text-brand-purple hover:underline"
+                      >
+                        {link.label}
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+
                     {configFields.length > 0 && (
-                      <div className="mt-4 space-y-2">
+                      <div className="mt-4 space-y-3">
                         {configFields.map(([key, value]) => (
                           <div key={key}>
                             <label className="text-xs font-medium text-muted-foreground">
@@ -159,16 +235,28 @@ export default function AdminIntegrations() {
                               placeholder={isSecret(key) ? '••••••••' : ''}
                               className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm"
                             />
+                            {FIELD_HELP[integration.integration_key]?.[key] && (
+                              <p className="mt-1 text-[11px] text-muted-foreground/70 leading-relaxed">
+                                {FIELD_HELP[integration.integration_key][key]}
+                              </p>
+                            )}
                           </div>
                         ))}
-                        <button
-                          onClick={() => handleSaveConfig(integration)}
-                          disabled={saving === integration.integration_key}
-                          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
-                        >
-                          {saving === integration.integration_key ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                          Save Config
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleSaveConfig(integration)}
+                            disabled={saving === integration.integration_key}
+                            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+                          >
+                            {saving === integration.integration_key ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+                            Save Config
+                          </button>
+                          {justSaved && (
+                            <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
+                              <Check className="h-3 w-3" /> Saved
+                            </span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -178,6 +266,22 @@ export default function AdminIntegrations() {
           </div>
         );
       })}
+
+      {/* Google Search Console verification note */}
+      <div className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <h3 className="flex items-center gap-2 text-sm font-semibold text-blue-900 dark:text-blue-200">
+          <Search className="h-4 w-4" />
+          Google Search Console Setup Guide
+        </h3>
+        <ol className="mt-2 space-y-1 text-xs text-blue-800 dark:text-blue-300/80">
+          <li>1. Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer" className="underline">search.google.com/search-console</a> and add your property (freluxpaintcalc.com)</li>
+          <li>2. Choose the "HTML tag" verification method</li>
+          <li>3. Copy the token value from the meta tag (just the content attribute value)</li>
+          <li>4. Enable "Google Search Console" above, paste the token in the verification field, and save</li>
+          <li>5. Click "Verify" back in Search Console — the meta tag is auto-injected on page load</li>
+          <li>6. Your sitemap is at <a href="https://freluxpaintcalc.com/sitemap.xml" target="_blank" rel="noopener noreferrer" className="underline">freluxpaintcalc.com/sitemap.xml</a> — submit it in Search Console</li>
+        </ol>
+      </div>
     </div>
   );
 }

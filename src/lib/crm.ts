@@ -252,5 +252,35 @@ export async function updateIntegrationSetting(
     .select()
     .single();
   if (error) throw error;
+
+  // Sync Google integrations to site_settings for backward compatibility
+  // (AnalyticsScripts and AdSlot legacy fallback read from site_settings)
+  if (updates.config && data) {
+    syncToSiteSettings(integrationKey, data).catch(() => {});
+  }
+
   return data;
+}
+
+/**
+ * Sync integration_settings changes to site_settings so legacy code paths
+ * that read from site_settings (e.g. AdSlot legacy fallback) stay in sync.
+ */
+async function syncToSiteSettings(integrationKey: string, integration: { config: Record<string, unknown>; is_enabled: boolean }) {
+  if (!isSupabaseConfigured) return;
+  const cfg = integration.config;
+  const updates: Record<string, unknown> = {};
+
+  if (integrationKey === 'google_analytics') {
+    updates.ga_measurement_id = (cfg.measurement_id as string) ?? '';
+  } else if (integrationKey === 'google_adsense') {
+    updates.adsense_publisher_id = (cfg.publisher_id as string) ?? (cfg.client_id as string) ?? '';
+    updates.ads_enabled = integration.is_enabled && !!(cfg.publisher_id ?? cfg.client_id);
+  } else if (integrationKey === 'google_search_console') {
+    updates.google_site_verification = (cfg.verification_token as string) ?? '';
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await supabase.from('site_settings').update(updates).neq('id', '00000000-0000-0000-0000-000000000000');
+  }
 }

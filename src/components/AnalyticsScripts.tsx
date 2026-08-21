@@ -6,67 +6,87 @@ import { supabase } from '@/lib/supabase';
  * Injects third-party analytics and ad scripts into <head> when configured.
  * Renders nothing to the DOM — side-effect only.
  *
- * GA4, Meta Pixel, and AdSense scripts are only loaded when their respective
- * IDs are present. IDs can come from:
- * - siteConfig (static, from src/config/site.ts) — always available
- * - site_settings (dynamic, from admin panel) — overrides siteConfig when set
+ * Reads from two sources (integration_settings takes priority over site_settings
+ * and static siteConfig):
+ * 1. integration_settings table (admin Integration Center) — primary source
+ * 2. site_settings table (legacy admin panel) — fallback
+ * 3. siteConfig (static, from src/config/site.ts) — last resort
  *
- * Issue #5 fix: AdSense publisher ID is now read from the database admin panel
- * in addition to the static siteConfig. This allows configuring ads without
- * a code deploy.
+ * Supports: Google Analytics 4, Google AdSense, Meta Pixel, Google Search Console verification.
  */
 export default function AnalyticsScripts() {
   useEffect(() => {
-    // Fetch dynamic config from database (non-blocking)
-    let dbPublisherId: string | null = null;
-    let dbGaId: string | null = null;
-    let dbPixelId: string | null = null;
+    async function loadAndInject() {
+      // Fetch from integration_settings (admin Integration Center)
+      let gaId = '';
+      let publisherId = '';
+      let pixelId = '';
+      let searchConsoleToken = '';
 
-    Promise.resolve(supabase
-      .from('site_settings')
-      .select('adsense_publisher_id, ga_measurement_id, meta_pixel_id')
-      .limit(1)
-      .maybeSingle()
-      .then((res: { data: Record<string, unknown> | null }) => {
-        const data = res.data;
-        if (data?.adsense_publisher_id) dbPublisherId = data.adsense_publisher_id as string;
-        if (data?.ga_measurement_id) dbGaId = data.ga_measurement_id as string;
-        if (data?.meta_pixel_id) dbPixelId = data.meta_pixel_id as string;
+      try {
+        const { data: integrations } = await supabase
+          .from('integration_settings')
+          .select('integration_key, is_enabled, config')
+          .in('integration_key', ['google_analytics', 'google_adsense', 'google_search_console']);
 
-        // Inject scripts that weren't already injected from static config
-        const effectiveGaId = dbGaId || siteConfig.analytics.gaMeasurementId;
-        const effectivePixelId = dbPixelId || siteConfig.metaPixel.pixelId;
-        const effectivePublisherId = dbPublisherId || siteConfig.adsense.publisherId;
-
-        if (effectiveGaId && !document.querySelector('script[src*="googletagmanager"]')) {
-          injectGtag(effectiveGaId);
+        if (integrations) {
+          for (const row of integrations) {
+            if (!row.is_enabled) continue;
+            const cfg = (row.config as Record<string, unknown>) ?? {};
+            if (row.integration_key === 'google_analytics') {
+              gaId = (cfg.measurement_id as string) ?? '';
+            } else if (row.integration_key === 'google_adsense') {
+              publisherId = (cfg.publisher_id as string) ?? (cfg.client_id as string) ?? '';
+            } else if (row.integration_key === 'google_search_console') {
+              searchConsoleToken = (cfg.verification_token as string) ?? '';
+            }
+          }
         }
-        if (effectivePixelId && !document.querySelector('script[src*="connect.facebook.net"]')) {
-          injectPixel(effectivePixelId);
-        }
-        if (effectivePublisherId && !document.querySelector('script[src*="adsbygoogle.js"]')) {
-          injectAdsense(effectivePublisherId);
-        }
-      })
-      ).catch(() => {
-        // Fall back to static config only if DB fetch fails
-      });
+      } catch {
+        // Fall through to site_settings / static config
+      }
 
-    // Also inject from static config immediately (non-blocking)
-    const gaId = siteConfig.analytics.gaMeasurementId;
-    if (gaId) {
-      injectGtag(gaId);
+      // Fallback: site_settings table (legacy)
+      if (!gaId || !publisherId || !pixelId) {
+        try {
+          const { data: settings } = await supabase
+            .from('site_settings')
+            .select('adsense_publisher_id, ga_measurement_id, meta_pixel_id, google_site_verification')
+            .limit(1)
+            .maybeSingle();
+
+          if (settings) {
+            if (!gaId && settings.ga_measurement_id) gaId = settings.ga_measurement_id;
+            if (!publisherId && settings.adsense_publisher_id) publisherId = settings.adsense_publisher_id;
+            if (!pixelId && settings.meta_pixel_id) pixelId = settings.meta_pixel_id;
+            if (!searchConsoleToken && settings.google_site_verification) searchConsoleToken = settings.google_site_verification;
+          }
+        } catch {
+          // Fall through to static config
+        }
+      }
+
+      // Fallback: static config from siteConfig
+      if (!gaId) gaId = siteConfig.analytics.gaMeasurementId;
+      if (!publisherId) publisherId = siteConfig.adsense.publisherId;
+      if (!pixelId) pixelId = siteConfig.metaPixel.pixelId;
+
+      // Inject scripts (deduped — each function checks if already loaded)
+      if (gaId && !document.querySelector('script[src*="googletagmanager"]')) {
+        injectGtag(gaId);
+      }
+      if (pixelId && !document.querySelector('script[src*="connect.facebook.net"]')) {
+        injectPixel(pixelId);
+      }
+      if (publisherId && !document.querySelector('script[src*="adsbygoogle.js"]')) {
+        injectAdsense(publisherId);
+      }
+      if (searchConsoleToken) {
+        injectSearchConsoleVerification(searchConsoleToken);
+      }
     }
 
-    const pixelId = siteConfig.metaPixel.pixelId;
-    if (pixelId) {
-      injectPixel(pixelId);
-    }
-
-    const publisherId = siteConfig.adsense.publisherId;
-    if (publisherId) {
-      injectAdsense(publisherId);
-    }
+    loadAndInject();
   }, []);
 
   return null;
@@ -87,6 +107,17 @@ function injectPixel(pixelId: string) {
 
 function injectAdsense(publisherId: string) {
   injectScript(`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${publisherId}`, true, { crossOrigin: 'anonymous' });
+}
+
+function injectSearchConsoleVerification(token: string) {
+  // Check if the meta tag already exists
+  let el = document.head.querySelector('meta[name="google-site-verification"]') as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute('name', 'google-site-verification');
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', token);
 }
 
 function injectScript(src: string, async: boolean, attrs?: Record<string, string>) {
