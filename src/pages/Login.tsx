@@ -63,7 +63,7 @@ export default function Login() {
       setLoading(false);
       if (result.error) { setError(result.error); return; }
       if (result.needsConfirmation) {
-        setInfo('Your account has been created. Please sign in to continue.');
+        setInfo('Account created! You can sign in now with your email and password.');
         setMode('signin');
         setPassword('');
       } else {
