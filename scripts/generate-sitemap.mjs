@@ -23,6 +23,7 @@ const routes = [
   { path: '/tyrolene-estimator', priority: '0.7', changefreq: 'monthly' },
   { path: '/colors', priority: '0.8', changefreq: 'weekly' },
   { path: '/colors/compare', priority: '0.7', changefreq: 'monthly' },
+  { path: '/achievements', priority: '0.7', changefreq: 'weekly' },
   { path: '/ai-color-assistant', priority: '0.7', changefreq: 'monthly' },
   { path: '/learn', priority: '0.8', changefreq: 'weekly' },
   { path: '/templates', priority: '0.6', changefreq: 'weekly' },

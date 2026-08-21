@@ -86,6 +86,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://freluxtools.netlify.app/achievements</loc>
+    <lastmod>2026-08-21</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freluxtools.netlify.app/ai-color-assistant</loc>
     <lastmod>2026-08-21</lastmod>
     <changefreq>monthly</changefreq>

@@ -109,6 +109,7 @@ const ProConnectRegister = lazy(() => import('@/pages/pro-connect/ProConnectRegi
 const ProConnectDashboard = lazy(() => import('@/pages/pro-connect/ProConnectDashboard'));
 const Messages = lazy(() => import('@/pages/pro-connect/Messages'));
 const WorkerChannels = lazy(() => import('@/pages/worker-channels/WorkerChannels'));
+const Achievements = lazy(() => import("@/pages/Achievements"));
 
 // Admin Pro Connect
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
@@ -201,6 +202,7 @@ export default function App() {
 
             {/* Dashboard */}
             <Route path="/dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+            <Route path="/achievements" element={<Suspense fallback={<PageLoader />}><Achievements /></Suspense>} />
 
             {/* Contractor Experience */}
             <Route path="/contractor" element={<Suspense fallback={<PageLoader />}><ContractorProjects /></Suspense>} />
