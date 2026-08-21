@@ -494,10 +494,10 @@ export default function ProConnectRegister() {
                   <button
                     onClick={handleSendOTP}
                     disabled={otpSending || resendCooldown > 0}
-                    className={\`w-full text-center text-xs \${resendCooldown > 0 ? 'text-neutral-400' : 'text-brand-purple hover:underline'}\`}
+                    className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-neutral-400' : 'text-brand-purple hover:underline'}`}
                   >
                     {resendCooldown > 0
-                      ? \`Resend OTP in \${resendCooldown}s\`
+                      ? `Resend OTP in ${resendCooldown}s`
                       : otpSending ? 'Sending...' : 'Resend OTP'}
                   </button>
                 </>

@@ -462,7 +462,7 @@ function AdminKycTab() {
       </div>
 
       {resultMsg && (
-        <div className={\`mb-4 rounded-lg p-3 text-sm \${resultMsg.startsWith('Error') ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'}\`}>
+        <div className={`mb-4 rounded-lg p-3 text-sm ${resultMsg.startsWith('Error') ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'}`}>
           {resultMsg}
         </div>
       )}

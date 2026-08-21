@@ -576,7 +576,7 @@ export default function WorkerChannels() {
             <div className="mt-4 flex flex-wrap gap-2">
               {(() => {
                 const badge = getTierBadge(viewingProfile.verification_tier);
-                if (badge) return <span className={\`rounded-full px-3 py-1 text-xs font-semibold \${badge.color}\`}>{badge.label}</span>;
+                if (badge) return <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badge.color}`}>{badge.label}</span>;
                 return null;
               })()}
               {viewingProfile.category_name && (
@@ -603,20 +603,20 @@ export default function WorkerChannels() {
               </div>
               <div>
                 <p className="text-xs text-neutral-400">NIN Verified</p>
-                <p className={\`font-semibold \${viewingProfile.nin_verified ? 'text-emerald-500' : 'text-neutral-400'}\`}>
+                <p className={`font-semibold ${viewingProfile.nin_verified ? 'text-emerald-500' : 'text-neutral-400'}`}>
                   {viewingProfile.nin_verified ? '✓ Yes' : '✗ No'}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-neutral-400">Mobile OTP</p>
-                <p className={\`font-semibold \${viewingProfile.mobile_otp_verified ? 'text-emerald-500' : 'text-neutral-400'}\`}>
+                <p className={`font-semibold ${viewingProfile.mobile_otp_verified ? 'text-emerald-500' : 'text-neutral-400'}`}>
                   {viewingProfile.mobile_otp_verified ? '✓ Yes' : '✗ No'}
                 </p>
               </div>
             </div>
 
             <Link
-              to={\`/pro-connect/\${viewingProfile.slug}\`}
+              to={`/pro-connect/${viewingProfile.slug}`}
               onClick={() => setViewingProfile(null)}
               className="mt-5 block w-full rounded-lg bg-brand-purple py-2.5 text-center text-sm font-semibold text-white"
             >
@@ -672,7 +672,7 @@ export default function WorkerChannels() {
               </div>
 
               {reportResult && (
-                <p className={\`text-sm \${reportResult.startsWith('Error') ? 'text-red-500' : 'text-emerald-500'}\`}>{reportResult}</p>
+                <p className={`text-sm ${reportResult.startsWith('Error') ? 'text-red-500' : 'text-emerald-500'}`}>{reportResult}</p>
               )}
 
               <div className="flex gap-2">
