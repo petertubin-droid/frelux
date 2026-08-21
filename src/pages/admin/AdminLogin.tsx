@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { LogIn, AlertCircle, Lock, Mail, UserPlus } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +9,6 @@ import { useSeo } from '@/lib/seo';
 export default function AdminLogin() {
   const { signIn, user, isAdmin, configured } = useAuth();
   useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
-  const navigate = useNavigate();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +16,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const [signedUpEmail, setSignedUpEmail] = useState<string | null>(null);
 
+  // If already logged in as admin, redirect to admin dashboard
   if (user && isAdmin) return <Navigate to="/admin" replace />;
 
   async function onSubmit(e: React.FormEvent) {
@@ -30,10 +30,14 @@ export default function AdminLogin() {
       if (data.user) setSignedUpEmail(email.trim());
       return;
     }
-    const { error } = await signIn(email.trim(), password);
+    const { error: signInError, isAdmin: adminOk } = await signIn(email.trim(), password);
     setLoading(false);
-    if (error) { setError(error); return; }
-    navigate('/admin');
+    if (signInError) { setError(signInError); return; }
+    // signIn eagerly updates auth state. If admin, the render will redirect via the check above.
+    // If not admin, show a clear error message.
+    if (!adminOk) {
+      setError("Your account doesn't have admin access. Contact an administrator if you believe this is a mistake.");
+    }
   }
 
   return (
@@ -48,7 +52,7 @@ export default function AdminLogin() {
           {!configured && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-neutral-700 dark:text-neutral-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
-              <p>Supabase isn’t configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable admin access.</p>
+              <p>Supabase isn't configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable admin access.</p>
             </div>
           )}
           {signedUpEmail ? (

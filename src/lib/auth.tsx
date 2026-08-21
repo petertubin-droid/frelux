@@ -12,8 +12,13 @@ interface AuthState {
   configured: boolean;
 }
 
+interface SignInResult {
+  error: string | null;
+  isAdmin: boolean;
+}
+
 interface AuthContextValue extends AuthState {
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signIn: (email: string, password: string) => Promise<SignInResult>;
   signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean } | { error: null; needsConfirmation: boolean }>;
   signInWithGoogle: () => Promise<{ error: string | null }>;
   signInWithOtp: (email: string) => Promise<{ error: string | null }>;
@@ -61,12 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let mounted = true;
 
-    supabase.auth.getSession().then(async ({ data }) => {
+    supabase.auth.getSession().then(async ({ data, error }) => {
       if (!mounted) return;
+      if (error) {
+        console.error('[auth] getSession error:', error.message);
+        setState({ session: null, user: null, profile: null, isAdmin: false, loading: false, configured: true });
+        return;
+      }
       const session = data.session;
       const user = session?.user ?? null;
       const profile = user ? await loadProfile(user.id) : null;
+      if (!mounted) return;
       setState({ session, user, profile, isAdmin: profile?.role === 'admin', loading: false, configured: true });
+    }).catch((err) => {
+      console.error('[auth] getSession threw:', err);
+      if (mounted) setState((s) => ({ ...s, loading: false }));
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
@@ -88,8 +102,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       ...state,
       signIn: async (email, password) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return { error: error ? error.message : null };
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return { error: error.message, isAdmin: false };
+        // Eagerly update state so RequireAdmin sees the user immediately
+        const user = data.user;
+        const profile = user ? await loadProfile(user.id) : null;
+        const isAdmin = profile?.role === 'admin';
+        setState((s) => ({
+          ...s,
+          session: data.session,
+          user,
+          profile,
+          isAdmin,
+          loading: false,
+        }));
+        return { error: null, isAdmin };
       },
       signUp: async (email, password) => {
         const { data, error } = await supabase.auth.signUp({ email, password });
