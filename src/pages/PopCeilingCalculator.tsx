@@ -9,6 +9,7 @@ import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
 import { saveEstimateHistory } from '@/lib/crm';
+import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbPopWorkflow, DbSiteSettings } from '@/types/database';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -257,6 +258,7 @@ export default function PopCeilingCalculator() {
         CALC_LINKS.screedingCalc,
         CALC_LINKS.tileCalc,
       ]} />
+      <ProConnectCTA calculatorType="pop-ceiling" />
     </>
   );
 }

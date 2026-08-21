@@ -72,6 +72,7 @@ const ADVANCED_FEATURES = [
 
 import { useSeo } from '@/lib/seo';
 import { saveEstimateHistory } from '@/lib/crm';
+import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 
 export default function PaintCalculator() {
   const { toast } = useToast();
@@ -451,6 +452,7 @@ export default function PaintCalculator() {
         CALC_LINKS.aiColor,
       ]} />
       </div>
+      <ProConnectCTA calculatorType="paint" />
     </>
   );
 }

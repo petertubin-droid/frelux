@@ -101,6 +101,16 @@ const StudioOverview = lazy(() => import('@/pages/studio/StudioOverview'));
 const StudioTool = lazy(() => import('@/pages/studio/StudioTool'));
 const StudioManagement = lazy(() => import('@/pages/studio/StudioManagement'));
 
+// Pro Connect pages — professional network
+const ProConnectDirectory = lazy(() => import('@/pages/pro-connect/ProConnectDirectory'));
+const ProConnectProfile = lazy(() => import('@/pages/pro-connect/ProConnectProfile'));
+const ProConnectRegister = lazy(() => import('@/pages/pro-connect/ProConnectRegister'));
+const ProConnectDashboard = lazy(() => import('@/pages/pro-connect/ProConnectDashboard'));
+const Messages = lazy(() => import('@/pages/pro-connect/Messages'));
+
+// Admin Pro Connect
+const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
+
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -195,6 +205,13 @@ export default function App() {
             <Route path="/disclaimer" element={<Suspense fallback={<PageLoader />}><Disclaimer /></Suspense>} />
             <Route path="/ai-disclaimer" element={<Suspense fallback={<PageLoader />}><AiDisclaimer /></Suspense>} />
 
+            {/* Pro Connect — Professional Network */}
+            <Route path="/pro-connect" element={<Suspense fallback={<PageLoader />}><ProConnectDirectory /></Suspense>} />
+            <Route path="/pro-connect/register" element={<Suspense fallback={<PageLoader />}><ProConnectRegister /></Suspense>} />
+            <Route path="/pro-connect/dashboard" element={<Suspense fallback={<PageLoader />}><ProConnectDashboard /></Suspense>} />
+            <Route path="/pro-connect/:slug" element={<Suspense fallback={<PageLoader />}><ProConnectProfile /></Suspense>} />
+            <Route path="/messages" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
+            <Route path="/messages/:conversationId" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
             <Route path="*" element={<NotFound />} />
           </Route>
 
@@ -267,6 +284,8 @@ export default function App() {
 
             {/* Error Monitor */}
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
+            {/* Pro Connect */}
+            <Route path="pro-connect" element={<AdminProConnect />} />
 
             {/* Contractor Config */}
             <Route path="material-catalog" element={<Suspense fallback={<PageLoader />}><AdminMaterialCatalog /></Suspense>} />

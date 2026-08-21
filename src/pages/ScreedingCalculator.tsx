@@ -15,6 +15,7 @@ import {
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
 import { saveEstimateHistory } from '@/lib/crm';
+import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -271,6 +272,7 @@ export default function ScreedingCalculator() {
         CALC_LINKS.popCeilingCalc,
         CALC_LINKS.tileCalc,
       ]} />
+      <ProConnectCTA calculatorType="screeding" />
     </>
   );
 }

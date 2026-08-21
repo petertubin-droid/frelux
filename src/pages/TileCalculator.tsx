@@ -9,6 +9,7 @@ import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
 import { saveEstimateHistory } from '@/lib/crm';
+import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
@@ -436,6 +437,7 @@ export default function TileCalculator() {
         CALC_LINKS.screedingCalc,
         CALC_LINKS.popCeilingCalc,
       ]} />
+      <ProConnectCTA calculatorType="tile" />
     </>
   );
 }

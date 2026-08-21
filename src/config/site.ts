@@ -26,8 +26,6 @@ export const siteConfig = {
 } as const;
 
 // =========================================================
-// Public navigation — organized into logical workspaces
-// =========================================================
 // Each workspace is a top-level nav item. Workspaces with children
 // render as dropdown menus on desktop and expandable sections on mobile.
 // No admin links appear anywhere in the public navigation.
@@ -47,6 +45,16 @@ export const navWorkspaces: NavWorkspace[] = [
   {
     label: 'Home',
     path: '/',
+  },
+  {
+    label: 'Pro Connect',
+    path: '/pro-connect',
+    children: [
+      { label: 'Find Professionals', path: '/pro-connect' },
+      { label: 'Become a Professional', path: '/pro-connect/register' },
+      { label: 'Professional Dashboard', path: '/pro-connect/dashboard' },
+      { label: 'Messages', path: '/messages' },
+    ],
   },
   {
     label: 'Calculators',
@@ -107,7 +115,10 @@ export const navWorkspaces: NavWorkspace[] = [
     label: 'Projects',
     path: '/my-projects',
   },
-
+  {
+    label: 'Learn',
+    path: '/learn',
+  },
 ];
 
 // Legacy export kept for backward compatibility (footer uses similar structure)
