@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Minus, Loader2, Phone, ChevronRight } from 'lucide-react';
+import { X, Send, Minus, Loader2, MessageCircle, ChevronRight, Phone } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
@@ -34,6 +34,7 @@ export default function SupportChatWidget() {
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -63,6 +64,7 @@ export default function SupportChatWidget() {
     setDraft('');
     setLoading(true);
     setHasInteracted(true);
+    setHasError(false);
 
     try {
       const clientId = getClientId();
@@ -76,7 +78,7 @@ export default function SupportChatWidget() {
       if (fnError) throw new Error(fnError.message);
       if (!data) throw new Error('No response from AI.');
 
-      const responseText = data.result || data.error || 'Sorry, I couldn\'t answer that right now. Try asking in a different way, or reach us on WhatsApp.';
+      const responseText = data.result || data.error || 'Sorry, I couldn\'t answer that right now. Try asking in a different way.';
       setMessages((m) => [...m, {
         id: Date.now() + 1,
         from: 'assistant',
@@ -84,6 +86,7 @@ export default function SupportChatWidget() {
         timestamp: Date.now(),
       }]);
     } catch {
+      setHasError(true);
       setMessages((m) => [...m, {
         id: Date.now() + 1,
         from: 'assistant',
@@ -101,20 +104,15 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button — uses a proper icon, not an image */}
       {!open && (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-40 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          className="fixed bottom-20 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Open support chat"
         >
-          <img
-            src="/assets/chat-assistant-avatar.jpg"
-            alt="FRELUX AI Assistant"
-            className="h-full w-full object-cover"
-            loading="eager"
-          />
+          <MessageCircle className="h-7 w-7" strokeWidth={1.8} />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
@@ -134,18 +132,14 @@ export default function SupportChatWidget() {
             <button
               type="button"
               onClick={() => setMinimized(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-brand-purple pl-1.5 pr-4 py-1.5 text-sm font-semibold text-white shadow-lg"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-purple pl-3 pr-4 py-2 text-sm font-semibold text-white shadow-lg"
             >
-              <img
-                src="/assets/chat-assistant-avatar.jpg"
-                alt=""
-                className="h-7 w-7 rounded-full object-cover"
-              />
+              <MessageCircle className="h-5 w-5" strokeWidth={1.8} />
               Chat with FRELUX AI
             </button>
           ) : (
             <>
-              {/* Header */}
+              {/* Header — avatar image only shown here, inside the chat */}
               <div className="flex items-center justify-between bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-white">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
@@ -235,18 +229,20 @@ export default function SupportChatWidget() {
                 )}
               </div>
 
-              {/* WhatsApp fallback bar */}
-              <div className="border-t border-neutral-100 bg-white px-4 py-2 dark:border-white/5 dark:bg-brand-navy-mid">
-                <a
-                  href={whatsappUrl('Hello FRELUX, I need help with my paint project.')}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  Still need help? Chat on WhatsApp →
-                </a>
-              </div>
+              {/* WhatsApp fallback bar — only shown when the AI chat has errored */}
+              {hasError && (
+                <div className="border-t border-neutral-100 bg-white px-4 py-2 dark:border-white/5 dark:bg-brand-navy-mid">
+                  <a
+                    href={whatsappUrl('Hello FRELUX, I need help with my paint project.')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    Still need help? Chat on WhatsApp →
+                  </a>
+                </div>
+              )}
 
               {/* Input */}
               <form
