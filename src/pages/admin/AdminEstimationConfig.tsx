@@ -3,7 +3,6 @@ import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
   AdminHeader,
-  AdminCard,
   AdminButton,
   AdminField,
   StateMessage,
@@ -201,12 +200,9 @@ function UnitsTab() {
           message="Add your first estimation unit to get started."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <AdminCard
-              key={item.id}
-              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <div key={item.id} className="card p-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
@@ -238,7 +234,7 @@ function UnitsTab() {
                   <Trash2 className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
-            </AdminCard>
+            </div>
           ))}
         </div>
       )}
@@ -502,16 +498,13 @@ function PackSizesTab() {
           message="Add your first pack size to get started."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {packSizes.map((item) => {
             const unit = item.pack_unit_id ? unitMap.get(item.pack_unit_id) : null;
             const refName = refMap[item.ref_id] ?? item.ref_id;
 
             return (
-              <AdminCard
-                key={item.id}
-                className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-              >
+              <div key={item.id} className="card p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700 capitalize">
@@ -554,7 +547,7 @@ function PackSizesTab() {
                     <Trash2 className="h-3.5 w-3.5" />
                   </AdminButton>
                 </div>
-              </AdminCard>
+              </div>
             );
           })}
         </div>
@@ -959,12 +952,9 @@ function CalcRulesTab() {
           message="Add your first calculation rule to get started."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {rules.map((rule) => (
-            <AdminCard
-              key={rule.id}
-              className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-            >
+            <div key={rule.id} className="card p-4">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="font-mono text-base font-bold text-brand-navy dark:text-white">
@@ -1010,7 +1000,7 @@ function CalcRulesTab() {
                   <Trash2 className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
-            </AdminCard>
+            </div>
           ))}
         </div>
       )}
@@ -1281,12 +1271,9 @@ function CalcVersionsTab() {
           message="Add your first calculation version to get started."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {versions.map((ver) => (
-            <AdminCard
-              key={ver.id}
-              className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-            >
+            <div key={ver.id} className="card p-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 capitalize">
@@ -1321,7 +1308,7 @@ function CalcVersionsTab() {
                   <Trash2 className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
-            </AdminCard>
+            </div>
           ))}
         </div>
       )}

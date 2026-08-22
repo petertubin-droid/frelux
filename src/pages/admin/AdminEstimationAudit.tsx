@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Filter, User, Calendar, Database, RefreshCw } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import { AdminHeader, AdminButton, StateMessage } from '@/components/admin/AdminUi';
 
 interface AuditLogEntry {
   id: string;
@@ -169,12 +169,12 @@ export default function AdminEstimationAudit() {
           }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
           {entries.map((entry) => {
             const isExpanded = expandedId === entry.id;
 
             return (
-              <AdminCard key={entry.id} className="transition-all">
+              <div key={entry.id} className="card transition-all">
                 <div
                   className="flex cursor-pointer flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                   onClick={() => toggleExpand(entry.id)}
@@ -259,7 +259,7 @@ export default function AdminEstimationAudit() {
                     </div>
                   </div>
                 )}
-              </AdminCard>
+              </div>
             );
           })}
 

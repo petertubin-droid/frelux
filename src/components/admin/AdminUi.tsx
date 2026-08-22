@@ -1,15 +1,15 @@
 import type { ReactNode } from 'react';
 import { classNames } from '@/lib/utils';
 
-export function AdminCard({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={classNames('card p-5 sm:p-6', className)}>{children}</div>;
+export function AdminCard({ children, className, compact }: { children: ReactNode; className?: string; compact?: boolean }) {
+  return <div className={classNames('card', compact ? 'p-3' : 'p-5 sm:p-6', className)}>{children}</div>;
 }
 
 export function AdminHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">{title}</h1>
+        <h1 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{subtitle}</p>}
       </div>
       {action}
@@ -27,7 +27,7 @@ export function AdminButton({
   disabled?: boolean;
   className?: string;
 }) {
-  const base = 'inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-all active:scale-95 disabled:opacity-50';
+  const base = 'inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all active:scale-95 disabled:opacity-50';
   const variants = {
     primary: 'bg-brand-purple text-white hover:bg-brand-purple-dark',
     secondary: 'bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 dark:bg-brand-navy-mid dark:text-neutral-200 dark:border-white/5 dark:hover:bg-white/5',
@@ -109,7 +109,7 @@ export function CollapsibleGroup({
         {preview && <div className="hidden shrink-0 items-center gap-1 sm:flex">{preview}</div>}
       </button>
       {isOpen && (
-        <div className="space-y-2 border-t border-neutral-200 bg-neutral-50/60 p-3 dark:border-white/5 dark:bg-white/[0.02]">
+        <div className="border-t border-neutral-200 bg-neutral-50/60 p-3 dark:border-white/5 dark:bg-white/[0.02]">
           {children}
         </div>
       )}

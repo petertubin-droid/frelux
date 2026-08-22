@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Mail, Trash2, X, CheckCircle2, Archive } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import { AdminHeader, AdminButton, StateMessage } from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 
 interface ContactMessage {
@@ -57,9 +57,9 @@ export default function AdminContactMessages() {
       {loading ? <StateMessage type="loading" title="Loading…" message="Fetching contact messages." />
         : items.length === 0 ? <StateMessage type="empty" title="No messages" message="Contact form submissions will appear here." />
         : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
-              <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div key={item.id} className="card p-3">
                 <div className="flex min-w-0 items-start gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
                   <div className="min-w-0">
@@ -74,7 +74,7 @@ export default function AdminContactMessages() {
                   <AdminButton variant="secondary" onClick={() => { setViewing(item); if (item.status === 'new') updateStatus(item.id, 'read'); }}><Mail className="h-3.5 w-3.5" /> View</AdminButton>
                   <button type="button" onClick={() => del(item.id)} className="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
                 </div>
-              </AdminCard>
+              </div>
             ))}
           </div>
         )}

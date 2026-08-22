@@ -267,11 +267,11 @@ function AdminVerificationTab() {
           No verification requests found.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {requests.map((req) => {
             const profile = (req as unknown as { profile?: { display_name: string; slug: string; business_name: string | null } }).profile;
             return (
-              <div key={req.id} className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div key={req.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
@@ -498,9 +498,9 @@ function AdminKycTab() {
           No NIN submissions found.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {submissions.map((sub) => (
-            <div key={sub.profile_id} className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+            <div key={sub.profile_id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -710,9 +710,9 @@ function AdminReportsTab() {
       )}
 
       {reportSubTab === 'pro' && reports.length > 0 && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {reports.map((r) => (
-            <div key={r.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+            <div key={r.id} className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
               <div className="flex items-start justify-between">
                 <div>
                   <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium capitalize text-neutral-600 dark:bg-white/5 dark:text-neutral-300">{r.report_type}</span>
@@ -740,9 +740,9 @@ function AdminReportsTab() {
       )}
 
       {reportSubTab === 'worker' && workerReports.length > 0 && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {workerReports.map((wr) => (
-            <div key={wr.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+            <div key={wr.id} className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">

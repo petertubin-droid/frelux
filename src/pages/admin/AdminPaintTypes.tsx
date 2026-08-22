@@ -40,9 +40,9 @@ export default function AdminPaintTypes() {
       {loading ? <StateMessage type="loading" title="Loading…" message="Fetching paint types." />
         : items.length === 0 ? <StateMessage type="empty" title="No paint types yet" message="Add your first paint type to get started." />
         : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {items.map((item) => (
-              <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div key={item.id} className="card p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
@@ -56,7 +56,7 @@ export default function AdminPaintTypes() {
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /> Edit</AdminButton>
                   <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
                 </div>
-              </AdminCard>
+              </div>
             ))}
           </div>
         )}

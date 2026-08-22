@@ -121,32 +121,39 @@ function ProvidersTab() {
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {[...providers].sort((a, b) => a.priority - b.priority).map((prov, idx, arr) => (
-          <AdminCard key={prov.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                <Megaphone className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{prov.name}</h3>
-                  <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', prov.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
-                    {prov.is_active ? 'Active' : 'Disabled'}
-                  </span>
-                  {prov.is_system && <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">Built in</span>}
+          <div key={prov.id} className="card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                  <Megaphone className="h-4 w-4" />
                 </div>
-                <p className="text-xs text-neutral-400 capitalize">{prov.provider_type} · Priority {prov.priority} · /{prov.slug}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{prov.name}</h3>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 capitalize">{prov.provider_type} · /{prov.slug}</p>
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', prov.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
+                  {prov.is_active ? 'On' : 'Off'}
+                </span>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <button type="button" onClick={() => movePriority(prov, -1)} disabled={idx === 0} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-neutral-800" aria-label="Move up"><ArrowUp className="h-4 w-4" /></button>
-              <button type="button" onClick={() => movePriority(prov, 1)} disabled={idx === arr.length - 1} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-neutral-800" aria-label="Move down"><ArrowDown className="h-4 w-4" /></button>
-              <Toggle checked={prov.is_active} onChange={() => toggleActive(prov)} />
-              <AdminButton variant="secondary" onClick={() => { setEditing(prov); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-              {!prov.is_system && <AdminButton variant="danger" onClick={() => remove(prov)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>}
+            <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+              <div className="flex items-center gap-0.5">
+                <button type="button" onClick={() => movePriority(prov, -1)} disabled={idx === 0} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-white/10" aria-label="Move up"><ArrowUp className="h-3 w-3" /></button>
+                <button type="button" onClick={() => movePriority(prov, 1)} disabled={idx === arr.length - 1} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-white/10" aria-label="Move down"><ArrowDown className="h-3 w-3" /></button>
+                <Toggle checked={prov.is_active} onChange={() => toggleActive(prov)} />
+              </div>
+              <div className="flex items-center gap-0.5">
+                <button type="button" onClick={() => { setEditing(prov); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                {!prov.is_system && <button type="button" onClick={() => remove(prov)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>}
+              </div>
             </div>
-          </AdminCard>
+          </div>
         ))}
       </div>
 
@@ -410,38 +417,38 @@ function PlacementsTab() {
         <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{placements.length} placements · {placements.filter(p => p.is_active).length} active</p>
         <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Placement</AdminButton>
       </div>
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {placements.map((pl) => {
           const assignedProviders = (pl.provider_ids as string[]).map(pid => providers.find(p => p.id === pid)).filter(Boolean) as DbAdProvider[];
           return (
-            <AdminCard key={pl.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                  <Layers className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{pl.placement_name}</h3>
-                    <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', pl.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
-                      {pl.is_active ? 'Active' : 'Disabled'}
-                    </span>
+            <div key={pl.id} className="card p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                    <Layers className="h-4 w-4" />
                   </div>
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                    {PLACEMENT_TYPE_LABELS[pl.placement_type] ?? pl.placement_type} · {PAGE_TARGET_LABELS[pl.page_target] ?? pl.page_target} · /{pl.placement_key}
-                  </p>
-                  {assignedProviders.length > 0 && (
-                    <p className="mt-0.5 text-[11px] text-brand-purple">
-                      Providers: {assignedProviders.map(p => p.name).join(' → ')}
+                  <div className="min-w-0">
+                    <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{pl.placement_name}</h3>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
+                      {PLACEMENT_TYPE_LABELS[pl.placement_type] ?? pl.placement_type} · /{pl.placement_key}
                     </p>
-                  )}
+                  </div>
+                </div>
+                <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', pl.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
+                  {pl.is_active ? 'On' : 'Off'}
+                </span>
+              </div>
+              {assignedProviders.length > 0 && (
+                <p className="mt-1.5 text-[10px] text-brand-purple">{assignedProviders.map(p => p.name).join(' → ')}</p>
+              )}
+              <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                <Toggle checked={pl.is_active} onChange={() => toggleActive(pl)} />
+                <div className="flex items-center gap-0.5">
+                  <button type="button" onClick={() => { setEditing(pl); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                  <button type="button" onClick={() => remove(pl)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
                 </div>
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <Toggle checked={pl.is_active} onChange={() => toggleActive(pl)} />
-                <AdminButton variant="secondary" onClick={() => { setEditing(pl); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(pl)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
-              </div>
-            </AdminCard>
+            </div>
           );
         })}
       </div>

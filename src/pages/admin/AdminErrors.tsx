@@ -145,11 +145,11 @@ export default function AdminErrors() {
       ) : errors.length === 0 ? (
         <div className="py-12 text-center text-sm text-neutral-400 dark:text-neutral-500">No errors found 🎉</div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {errors.map(err => (
             <div
               key={err.id}
-              className={`rounded-lg border p-4 transition-colors ${
+              className={`rounded-lg border p-3 transition-colors ${
                 err.is_resolved ? 'border-neutral-100 bg-neutral-50 dark:bg-white/5 opacity-60' : 'border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid hover:bg-neutral-50 dark:bg-white/5'
               }`}
             >

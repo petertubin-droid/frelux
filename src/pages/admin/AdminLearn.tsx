@@ -116,11 +116,11 @@ export default function AdminLearn() {
 
       {/* Articles tab */}
       {tab === 'articles' && !showEditor && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {articles.length === 0 ? (
             <StateMessage type="empty" title="No articles yet" message="Create your first article to publish in the Learn section." action={<AdminButton onClick={() => setShowEditor(true)}><Plus className="h-4 w-4" /> New Article</AdminButton>} />
           ) : articles.map((article) => (
-            <AdminCard key={article.id} className="flex items-center justify-between">
+            <div key={article.id} className="card p-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 shrink-0 text-neutral-400" />
@@ -135,7 +135,7 @@ export default function AdminLearn() {
                 <button type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></button>
                 <button type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
               </div>
-            </AdminCard>
+            </div>
           ))}
         </div>
       )}
@@ -152,9 +152,9 @@ export default function AdminLearn() {
 
       {/* Categories tab */}
       {tab === 'categories' && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat) => (
-            <AdminCard key={cat.id} className="flex items-center justify-between">
+            <div key={cat.id} className="card p-3">
               <div className="flex items-center gap-3">
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><BookOpen className="h-5 w-5" /></div>
                 <div>
@@ -166,7 +166,7 @@ export default function AdminLearn() {
                 <span className="text-xs text-neutral-400 dark:text-neutral-500">{cat.is_active ? 'Active' : 'Inactive'}</span>
                 <Toggle checked={cat.is_active} onChange={() => handleToggleCategoryActive(cat)} />
               </div>
-            </AdminCard>
+            </div>
           ))}
         </div>
       )}

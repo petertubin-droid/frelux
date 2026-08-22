@@ -234,33 +234,32 @@ function CategoriesTab() {
         <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Category</AdminButton>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.length === 0 && <p className="text-sm text-neutral-400 dark:text-neutral-500">No categories for this estimator yet.</p>}
         {filtered.map((cat) => (
-          <AdminCard key={cat.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                <HardHat className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{cat.category_name}</h3>
-                  <span className={'rounded-full px-2 py-0.5 text-[10px] font-semibold ' + (cat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
-                    {cat.is_active ? 'Active' : 'Disabled'}
-                  </span>
+          <div key={cat.id} className="card p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                  <HardHat className="h-4 w-4" />
                 </div>
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                  {PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · Suggested: {Number(cat.suggested_rate).toLocaleString()}/{cat.rate_unit === 'per_sqm' ? 'm²' : cat.rate_unit === 'per_room' ? 'room' : cat.rate_unit === 'daily' ? 'day' : 'project'}
-                  {cat.description && ` · ${cat.description}`}
-                </p>
+                <div className="min-w-0">
+                  <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{cat.category_name}</h3>
+                  <p className="text-[10px] text-neutral-400">{PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦{Number(cat.suggested_rate).toLocaleString()}</p>
+                </div>
+              </div>
+              <span className={'rounded-full px-1.5 py-0.5 text-[9px] font-semibold ' + (cat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
+                {cat.is_active ? 'On' : 'Off'}
+              </span>
+            </div>
+            <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+              <Toggle checked={cat.is_active} onChange={() => toggleActive(cat)} />
+              <div className="flex items-center gap-0.5">
+                <button type="button" onClick={() => { setEditing(cat); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                <button type="button" onClick={() => remove(cat)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-1.5">
-              <Toggle checked={cat.is_active} onChange={() => toggleActive(cat)} />
-              <AdminButton variant="secondary" onClick={() => { setEditing(cat); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-              <AdminButton variant="danger" onClick={() => remove(cat)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
-            </div>
-          </AdminCard>
+          </div>
         ))}
       </div>
 

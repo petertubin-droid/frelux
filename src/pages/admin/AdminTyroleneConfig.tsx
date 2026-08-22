@@ -582,9 +582,9 @@ export default function AdminTyroleneConfig() {
             {materials.length === 0 ? (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">No Tyrolene materials found. Run the Tyrolene database migration first.</div>
             ) : (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {materials.map(mat => (
-                  <div key={mat.id} className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3">
+                  <div key={mat.id} className="flex items-center gap-2 rounded-lg border border-neutral-200 p-2.5">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-neutral-900">{mat.name}</p>
                       <p className="text-xs text-neutral-400">{mat.slug} · {mat.category}</p>

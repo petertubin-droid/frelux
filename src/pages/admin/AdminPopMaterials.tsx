@@ -98,27 +98,31 @@ export default function AdminPopMaterials() {
             return (
               <div key={cat}>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat.replace(/_/g, ' ')}</h3>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {catItems.map((mat) => (
-                    <AdminCard key={mat.id} className="flex items-center justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-bold text-brand-navy dark:text-white">{mat.name}</p>
-                          {mat.is_optional && <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Optional</span>}
-                          <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', mat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
-                            {mat.is_active ? 'Active' : 'Inactive'}
-                          </span>
+                    <div key={mat.id} className="card p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{mat.name}</p>
+                            {mat.is_optional && <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-500">Opt</span>}
+                          </div>
+                          <p className="mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                            {mat.coverage_rate} {mat.coverage_unit} · {mat.package_size}{mat.package_unit} · ₦{mat.unit_price}
+                          </p>
                         </div>
-                        <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
-                          {mat.coverage_rate} {mat.coverage_unit} coverage · {mat.package_size} {mat.package_unit} pkg · ₦{mat.unit_price} · Labour ₦{mat.labour_rate_per_sqm}/m²
-                        </p>
+                        <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', mat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
+                          {mat.is_active ? 'On' : 'Off'}
+                        </span>
                       </div>
-                      <div className="flex shrink-0 items-center gap-2">
+                      <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                         <Toggle checked={mat.is_active} onChange={() => handleToggleActive(mat)} />
-                        <button type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => handleDelete(mat.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                        <div className="flex items-center gap-0.5">
+                          <button type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                          <button type="button" onClick={() => handleDelete(mat.id)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                        </div>
                       </div>
-                    </AdminCard>
+                    </div>
                   ))}
                 </div>
               </div>

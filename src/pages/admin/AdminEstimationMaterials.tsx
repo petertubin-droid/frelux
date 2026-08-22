@@ -194,60 +194,38 @@ export default function AdminEstimationMaterials() {
               isOpen={isGroupOpen(group.key)}
               onToggle={() => toggleGroup(group.key)}
             >
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((item) => {
                 const baseUnit = item.unit_id ? unitMap[item.unit_id] : null;
                 const packUnit = item.pack_unit_id ? unitMap[item.pack_unit_id] : null;
 
                 return (
-                  <AdminCard
-                    key={item.id}
-                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                        {!item.is_active && (
-                          <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
-                            Inactive
-                          </span>
-                        )}
-                      </div>
-                      {item.description && (
-                        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
-                      )}
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
-                        {baseUnit && (
-                          <span>
-                            Unit: {baseUnit.name} ({baseUnit.symbol})
-                          </span>
-                        )}
-                        {item.pack_size !== null && item.pack_size !== undefined && (
-                          <span>
-                            Pack Size: {item.pack_size} {packUnit ? packUnit.symbol : ''}
-                          </span>
-                        )}
-                        {item.supplier && <span>Supplier: {item.supplier}</span>}
-                        {item.effective_date && <span>Effective: {item.effective_date}</span>}
+                  <div key={item.id} className="card p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                          {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                        </div>
+                        {item.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-400">{item.description}</p>}
+                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                          {baseUnit && <span>{baseUnit.symbol}</span>}
+                          {item.pack_size != null && <span>· {item.pack_size}{packUnit ? packUnit.symbol : ''}</span>}
+                          {item.supplier && <span>· {item.supplier}</span>}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-3">
+                    <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                       <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-                      <AdminButton
-                        variant="secondary"
-                        onClick={() => {
-                          setEditing(item);
-                          setShowForm(true);
-                        }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" /> Edit
-                      </AdminButton>
-                      <AdminButton variant="danger" onClick={() => remove(item)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </AdminButton>
+                      <div className="flex items-center gap-0.5">
+                        <button type="button" onClick={() => { setEditing(item); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                        <button type="button" onClick={() => remove(item)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                      </div>
                     </div>
-                  </AdminCard>
+                  </div>
                 );
               })}
+              </div>
             </CollapsibleGroup>
           ))}
         </div>

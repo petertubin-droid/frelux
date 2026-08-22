@@ -258,81 +258,44 @@ export default function AdminEstimationPricing() {
           message={searchQuery || typeFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Add your first price record to configure calculation pricing.'}
         />
       ) : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item) => {
             const refInfo = refMap[item.ref_id];
             const packSizeVal = item.pack_size_id ? packSizeMap[item.pack_size_id] : null;
 
             return (
-              <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}>
-                      {item.price_type}
-                    </span>
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">
-                      {refInfo ? refInfo.name : `Ref: ${item.ref_id.slice(0, 8)}...`}
-                    </h3>
-                    {!item.is_active && (
-                      <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
-                        Inactive
+              <div key={item.id} className="card p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}>
+                        {item.price_type}
                       </span>
-                    )}
+                      <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">
+                        {refInfo ? refInfo.name : `Ref: ${item.ref_id.slice(0, 8)}...`}
+                      </h3>
+                      {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                      {packSizeVal && <span>Pack: {packSizeVal}</span>}
+                      <span className="inline-flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{item.effective_date}</span>
+                    </div>
+                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-neutral-400">{item.notes}</p>}
                   </div>
-
-                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
-                    <span className="font-mono text-neutral-400 dark:text-neutral-500">ID: {item.ref_id}</span>
-                    {packSizeVal && (
-                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 font-medium text-neutral-700 dark:text-neutral-200">
-                        Pack size: {packSizeVal}
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
-                      <Calendar className="h-3 w-3" /> Effective: {item.effective_date}
-                    </span>
-                  </div>
-
-                  {item.notes && <p className="mt-1 text-xs italic text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.notes}</p>}
                 </div>
-
-                <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
-                  <div className="text-right">
-                    <span className="text-lg font-extrabold text-brand-navy dark:text-white">
-                      {formatCurrency(item.price, item.currency)}
-                    </span>
-                    <p className="text-[10px] uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{item.currency}</p>
-                  </div>
-
+                <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                   <div className="flex items-center gap-2">
+                    <span className="text-sm font-extrabold text-brand-navy dark:text-white">{formatCurrency(item.price, item.currency)}</span>
+                    <span className="text-[9px] uppercase text-neutral-400">{item.currency}</span>
+                  </div>
+                  <div className="flex items-center gap-0.5">
                     <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-
-                    <AdminButton
-                      variant="secondary"
-                      onClick={() => setHistoryItem(item)}
-                      className="px-2.5 py-1.5"
-                    >
-                      <History className="h-3.5 w-3.5" />
-                      <span className="hidden sm:inline">History</span>
-                    </AdminButton>
-
-                    <AdminButton
-                      variant="secondary"
-                      onClick={() => { setEditing(item); setShowForm(true); }}
-                      className="px-2.5 py-1.5"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </AdminButton>
-
-                    <AdminButton
-                      variant="danger"
-                      onClick={() => remove(item)}
-                      className="px-2.5 py-1.5"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </AdminButton>
+                    <button type="button" onClick={() => setHistoryItem(item)} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10" title="History"><History className="h-3 w-3" /></button>
+                    <button type="button" onClick={() => { setEditing(item); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                    <button type="button" onClick={() => remove(item)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
                   </div>
                 </div>
-              </AdminCard>
+              </div>
             );
           })}
         </div>

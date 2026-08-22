@@ -181,35 +181,39 @@ export default function AdminEstimationProducts() {
                       isOpen={isOpen}
                       onToggle={() => setCollapsed(prev => { const next = new Set(prev); if (next.has(cat)) next.delete(cat); else next.add(cat); return next; })}
                     >
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {catItems.map(p => (
-                        <div key={p.id}>
-                          <AdminCard className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div key={p.id} className="card p-3">
+                          <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <h3 className="text-base font-bold text-brand-navy dark:text-white">{p.name}</h3>
-                                {!p.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
-                                {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700">Quality tiers</span>}
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{p.name}</h3>
+                                {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">Tiers</span>}
+                                {!p.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                               </div>
-                              {p.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{p.description}</p>}
-                              <div className="mt-1 flex flex-wrap gap-2 text-xs text-neutral-400 dark:text-neutral-500">
-                                <span>Type: {p.product_type}</span>
+                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-400">{p.description}</p>}
+                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+                                <span>{p.product_type}</span>
                                 <span>·</span>
-                                <span>Method: {p.calculation_method}</span>
-                                {p.standard_pack_size && <><span>·</span><span>Pack: {p.standard_pack_size}</span></>}
+                                <span>{p.calculation_method}</span>
+                                {p.standard_pack_size && <><span>·</span><span>{p.standard_pack_size}</span></>}
                               </div>
                             </div>
-                            <div className="flex shrink-0 items-center gap-2">
+                          </div>
+                          <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                            <div className="flex items-center gap-1">
                               {p.has_quality_levels && (
-                                <AdminButton variant="secondary" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
-                                  {expandedId === p.id ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                                  {qualityMap[p.id]?.length ?? 0} levels
-                                </AdminButton>
+                                <button type="button" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-[10px] font-semibold text-brand-purple hover:underline">
+                                  {qualityMap[p.id]?.length ?? 0} tiers
+                                </button>
                               )}
                               <Toggle checked={p.is_active} onChange={() => toggleActive(p)} />
-                              <AdminButton variant="secondary" onClick={() => { setEditing(p); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                              <AdminButton variant="danger" onClick={() => remove(p)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
                             </div>
-                          </AdminCard>
+                            <div className="flex items-center gap-0.5">
+                              <button type="button" onClick={() => { setEditing(p); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
+                              <button type="button" onClick={() => remove(p)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                            </div>
+                          </div>
                           {expandedId === p.id && p.has_quality_levels && (
                             <div className="ml-4 mt-1 space-y-2">
                               {(qualityMap[p.id] ?? []).map(q => (
@@ -234,6 +238,7 @@ export default function AdminEstimationProducts() {
                           )}
                         </div>
                       ))}
+                      </div>
                     </CollapsibleGroup>
                   );
                 })}

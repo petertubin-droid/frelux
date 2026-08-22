@@ -101,12 +101,12 @@ function FeatureConfigTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feat) => {
           const featureMeta = REWARDED_FEATURES.find(f => f.key === feat.feature_key);
           void featureMeta;
           return (
-            <AdminCard key={feat.id} className="p-5">
+            <AdminCard key={feat.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -269,9 +269,9 @@ function ToolConfigTab() {
       <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
         These are tool-level configs that link specific tools to rewarded ad providers. Feature-level configs in the Feature Config tab take priority when both are set.
       </p>
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {configs.map((cfg) => (
-          <AdminCard key={cfg.id} className="p-5">
+          <AdminCard key={cfg.id} className="p-4">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">

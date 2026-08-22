@@ -593,28 +593,30 @@ function CombinationsTab() {
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add combination</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No combinations yet" message="Add your first color combination." /> : (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
             const cats = categories.filter((c) => item.category_ids?.includes(c.id));
             return (
-              <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-start gap-4">
-                  <img src={item.image_url} alt={item.title} className="h-16 w-16 shrink-0 rounded-lg object-cover" loading="lazy" />
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="truncate text-base font-bold text-brand-navy dark:text-white">{item.title}</h3>
-                      {!item.is_published ? <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Draft</span> : <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-semibold text-accent-green">Published</span>}
-                    </div>
-                    <p className="mt-0.5 truncate text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
-                    {cats.length > 0 && <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{cats.map((c) => c.name).join(', ')}</p>}
+              <div key={item.id} className="card group overflow-hidden p-0">
+                <div className="relative aspect-video overflow-hidden">
+                  <img src={item.image_url} alt={item.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" loading="lazy" />
+                  <div className="absolute right-2 top-2">
+                    {!item.is_published ? <span className="rounded-full bg-neutral-900/70 px-2 py-0.5 text-[10px] font-semibold text-white">Draft</span> : <span className="rounded-full bg-accent-green/90 px-2 py-0.5 text-[10px] font-semibold text-white">Published</span>}
                   </div>
                 </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <Toggle checked={item.is_published} onChange={() => togglePublished(item)} />
-                  <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                <div className="p-3">
+                  <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.title}</h3>
+                  <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">{item.description}</p>
+                  {cats.length > 0 && <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">{cats.map((c) => c.name).join(' · ')}</p>}
+                  <div className="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-2.5 dark:border-white/5">
+                    <Toggle checked={item.is_published} onChange={() => togglePublished(item)} />
+                    <div className="flex items-center gap-1">
+                      <button type="button" onClick={() => { setEditing(item); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3.5 w-3.5" /></button>
+                      <button type="button" onClick={() => remove(item)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                    </div>
+                  </div>
                 </div>
-              </AdminCard>
+              </div>
             );
           })}
         </div>
