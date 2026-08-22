@@ -3,6 +3,8 @@ import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import type { DbProfile } from '@/types/database';
 
+export type AccountType = 'client' | 'pro_worker';
+
 interface AuthState {
   session: Session | null;
   user: User | null;
@@ -12,6 +14,11 @@ interface AuthState {
   configured: boolean;
 }
 
+interface SignUpResult {
+  error: string | null;
+  needsConfirmation: boolean;
+}
+
 interface SignInResult {
   error: string | null;
   isAdmin: boolean;
@@ -19,8 +26,8 @@ interface SignInResult {
 
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<SignInResult>;
-  signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean } | { error: null; needsConfirmation: boolean }>;
-  signInWithGoogle: () => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, accountType?: AccountType) => Promise<SignUpResult>;
+  signInWithGoogle: (accountType?: AccountType) => Promise<{ error: string | null }>;
   signInWithOtp: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -56,6 +63,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!state.user) return;
     const profile = await loadProfile(state.user.id);
     setState((s) => ({ ...s, profile, isAdmin: profile?.role === 'admin' }));
+  }
+
+  /**
+   * Set account_type on the user's profile row after signup.
+   * Falls back to upsert if the profile row doesn't exist yet (trigger may not have fired).
+   */
+  async function setAccountType(userId: string, email: string, accountType: AccountType) {
+    // First try to update existing row
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ account_type: accountType })
+      .eq('id', userId);
+    if (updateError) {
+      // Row might not exist yet — try upsert
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({ id: userId, email, role: 'user', account_type: accountType }, { onConflict: 'id' });
+      if (upsertError && import.meta.env.DEV) {
+        console.error('[auth] setAccountType upsert failed:', upsertError.message);
+      }
+    }
   }
 
   useEffect(() => {
@@ -104,7 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn: async (email, password) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return { error: error.message, isAdmin: false };
-        // Eagerly update state so RequireAdmin sees the user immediately
         const user = data.user;
         const profile = user ? await loadProfile(user.id) : null;
         const isAdmin = profile?.role === 'admin';
@@ -118,13 +145,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }));
         return { error: null, isAdmin };
       },
-      signUp: async (email, password) => {
+      signUp: async (email, password, accountType = 'client') => {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return { error: error.message, needsConfirmation: false };
         const needsConfirmation = !data.session;
+        // If auto-signed-in, set account type on profile immediately
+        if (data.user && !needsConfirmation) {
+          await setAccountType(data.user.id, email, accountType);
+          const profile = await loadProfile(data.user.id);
+          setState((s) => ({ ...s, session: data.session, user: data.user, profile, isAdmin: false, loading: false }));
+        }
         return { error: null, needsConfirmation };
       },
-      signInWithGoogle: async () => {
+      signInWithGoogle: async (accountType = 'client') => {
+        // Store selected account type in localStorage so we can set it after OAuth redirect
+        if (accountType) localStorage.setItem('frelux_pending_account_type', accountType);
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {

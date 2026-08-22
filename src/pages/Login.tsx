@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+import { LogIn, AlertCircle, Lock, Mail, UserPlus, KeyRound, CheckCircle2, ArrowLeft, User, HardHat, Loader2 } from 'lucide-react';
+import { useAuth, type AccountType } from '@/lib/auth';
 
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
+import { classNames } from '@/lib/utils';
 
 type Mode = 'signin' | 'signup' | 'reset';
 
@@ -28,19 +29,33 @@ export default function Login() {
   const [mode, setMode] = useState<Mode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accountType, setAccountType] = useState<AccountType>('client');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [info, setInfo] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useSeo({
     title: 'Sign In or Create Account',
-    description: 'Sign in to your FRELUX PAINT CALC account or create a new one. Accounts enable AI features and future premium access.',
+    description: 'Sign in to your FRELUX PAINT CALC account or create a new one.',
     canonicalPath: '/login',
     noIndex: true,
   });
 
-  if (user) {
+  useEffect(() => {
+    const pending = localStorage.getItem('frelux_pending_account_type');
+    if (pending && user) {
+      (async () => {
+        const { supabase } = await import('@/lib/supabase');
+        await supabase.from('profiles').update({ account_type: pending }).eq('id', user.id);
+        localStorage.removeItem('frelux_pending_account_type');
+        setShowSuccess(true);
+      })();
+    }
+  }, [user]);
+
+  if (user && !showSuccess) {
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -59,7 +74,7 @@ export default function Login() {
     }
 
     if (mode === 'signup') {
-      const result = await signUp(email.trim(), password);
+      const result = await signUp(email.trim(), password, accountType);
       setLoading(false);
       if (result.error) { setError(result.error); return; }
       if (result.needsConfirmation) {
@@ -67,7 +82,8 @@ export default function Login() {
         setMode('signin');
         setPassword('');
       } else {
-        navigate(redirectTo);
+        setShowSuccess(true);
+        setTimeout(() => navigate(redirectTo), 2500);
       }
       return;
     }
@@ -81,18 +97,47 @@ export default function Login() {
   async function handleGoogleSignIn() {
     setError(null);
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
+    const { error } = await signInWithGoogle(mode === 'signup' ? accountType : 'client');
     if (error) {
       setError(error);
       setGoogleLoading(false);
     }
   }
 
+  if (showSuccess) {
+    return (
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10 dark:bg-brand-navy">
+        <div className="pointer-events-none absolute inset-0 bg-grid" aria-hidden="true" />
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/8 blur-[120px]" aria-hidden="true" />
+        <div className="relative w-full max-w-sm text-center animate-fade-in-up">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/15">
+            <CheckCircle2 className="h-10 w-10 text-emerald-500 dark:text-emerald-400" />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">Account Created Successfully!</h1>
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+            Welcome to FRELUX. Your <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">{accountType === 'pro_worker' ? 'Worker' : 'Client'}</span> account is ready.
+          </p>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-brand-purple dark:text-brand-purple-lighter" />
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Redirecting to your dashboard...</p>
+          </div>
+          <div className="mt-8">
+            <Link to={redirectTo} className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
+              Click here if not redirected
+            </Link>
+          </div>
+          <div className="mt-8 flex justify-center">
+            <Logo />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10 dark:bg-brand-navy">
       <div className="pointer-events-none absolute inset-0 bg-grid" aria-hidden="true" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/8 blur-[120px]" aria-hidden="true" />
-
       <div className="relative w-full max-w-sm animate-fade-in-up">
         <div className="mb-6 flex justify-center">
           <Logo />
@@ -102,115 +147,93 @@ export default function Login() {
             {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
           </h1>
           <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
-            {mode === 'signin'
-              ? 'Sign in to access your projects, saved estimates, and AI features.'
-              : mode === 'signup'
-              ? 'Create an account to save estimates and access premium features.'
-              : 'Enter your email and we will send you reset instructions.'}
+            {mode === 'signin' ? 'Sign in to access your projects, saved estimates, and AI features.' : mode === 'signup' ? 'Create an account to save estimates and access premium features.' : 'Enter your email and we will send you reset instructions.'}
           </p>
-
           {!configured && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-neutral-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <p>Authentication is not configured. Please check back later.</p>
             </div>
           )}
-
           {info && (
             <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
               <p>{info}</p>
             </div>
           )}
-
+          {mode === 'signup' && (
+            <div className="mt-5">
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Account type</span>
+              <div className="mt-2 grid grid-cols-2 gap-3">
+                <button type="button" onClick={() => setAccountType('client')} className={classNames('flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all', accountType === 'client' ? 'border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15' : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20')}>
+                  <User className={classNames('h-6 w-6', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400 dark:text-neutral-500')} />
+                  <div className="text-center">
+                    <p className={classNames('text-sm font-bold', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-700 dark:text-neutral-200')}>Client</p>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Estimate and save projects</p>
+                  </div>
+                </button>
+                <button type="button" onClick={() => setAccountType('pro_worker')} className={classNames('flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all', accountType === 'pro_worker' ? 'border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15' : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20')}>
+                  <HardHat className={classNames('h-6 w-6', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400 dark:text-neutral-500')} />
+                  <div className="text-center">
+                    <p className={classNames('text-sm font-bold', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-700 dark:text-neutral-200')}>Worker</p>
+                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Offer your services</p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
           {mode !== 'reset' && (
-            <>
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                disabled={googleLoading || !configured}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-brand-navy dark:text-neutral-200 dark:hover:bg-white/5"
-              >
+            <div>
+              <button type="button" onClick={handleGoogleSignIn} disabled={googleLoading || !configured} className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-brand-navy dark:text-neutral-200 dark:hover:bg-white/5">
                 <GoogleIcon />
                 {googleLoading ? 'Connecting...' : 'Continue with Google'}
               </button>
-
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
                 <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500">or</span>
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
               </div>
-            </>
+            </div>
           )}
-
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
               <div className="relative mt-1.5">
                 <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-9"
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  required
-                />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field pl-9" placeholder="you@example.com" autoComplete="email" required />
               </div>
             </label>
-
             {mode !== 'reset' && (
               <label className="block">
                 <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                 <div className="relative mt-1.5">
                   <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-field pl-9"
-                    placeholder="--------"
-                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                    minLength={6}
-                    required
-                  />
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                 </div>
               </label>
             )}
-
             {error && (
               <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
                 <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>{error}</p>
               </div>
             )}
-
             <button type="submit" disabled={loading || !configured} className="btn-primary press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed">
               {mode === 'signin' ? <LogIn className="h-4 w-4" /> : mode === 'signup' ? <UserPlus className="h-4 w-4" /> : <KeyRound className="h-4 w-4" />}
               {loading ? 'Please wait...' : mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Send reset link'}
             </button>
-
             <div className="flex flex-col items-center gap-2 text-xs">
               {mode === 'signin' && (
-                <>
-                  <button type="button" onClick={() => { setMode('signup'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
-                    Need an account? Sign up
-                  </button>
-                  <button type="button" onClick={() => { setMode('reset'); setError(null); setInfo(null); }} className="text-neutral-500 hover:text-brand-purple hover:underline dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
-                    Forgot your password?
-                  </button>
-                </>
+                <div className="flex flex-col items-center gap-2">
+                  <button type="button" onClick={() => { setMode('signup'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">Need an account? Sign up</button>
+                  <button type="button" onClick={() => { setMode('reset'); setError(null); setInfo(null); }} className="text-neutral-500 hover:text-brand-purple hover:underline dark:text-neutral-400 dark:hover:text-brand-purple-lighter">Forgot your password?</button>
+                </div>
               )}
               {mode === 'signup' && (
-                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
-                  Already have an account? Sign in
-                </button>
+                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">Already have an account? Sign in</button>
               )}
               {mode === 'reset' && (
-                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
-                  Back to sign in
-                </button>
+                <button type="button" onClick={() => { setMode('signin'); setError(null); setInfo(null); }} className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">Back to sign in</button>
               )}
             </div>
           </form>
