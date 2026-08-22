@@ -111,11 +111,19 @@ const ProConnectProfile = lazy(() => import('@/pages/pro-connect/ProConnectProfi
 const ProConnectRegister = lazy(() => import('@/pages/pro-connect/ProConnectRegister'));
 const ProConnectDashboard = lazy(() => import('@/pages/pro-connect/ProConnectDashboard'));
 const Messages = lazy(() => import('@/pages/pro-connect/Messages'));
+
+// Marketplace
+const MarketplaceHome = lazy(() => import('@/pages/marketplace/MarketplaceHome'));
+const ListingDetail = lazy(() => import('@/pages/marketplace/ListingDetail'));
+const PostListing = lazy(() => import('@/pages/marketplace/PostListing'));
+const MyListings = lazy(() => import('@/pages/marketplace/MyListings'));
+const OrderDetail = lazy(() => import('@/pages/marketplace/OrderDetail'));
 const WorkerChannels = lazy(() => import('@/pages/worker-channels/WorkerChannels'));
 const Achievements = lazy(() => import("@/pages/Achievements"));
 
 // Admin Pro Connect
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
+const AdminMarketplace = lazy(() => import('@/pages/admin/AdminMarketplace'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -238,6 +246,13 @@ export default function App() {
             <Route path="/pro-connect/register" element={<Suspense fallback={<PageLoader />}><ProConnectRegister /></Suspense>} />
             <Route path="/pro-connect/dashboard" element={<Suspense fallback={<PageLoader />}><ProConnectDashboard /></Suspense>} />
             <Route path="/pro-connect/:slug" element={<Suspense fallback={<PageLoader />}><ProConnectProfile /></Suspense>} />
+
+            {/* Marketplace */}
+            <Route path="/marketplace" element={<Suspense fallback={<PageLoader />}><MarketplaceHome /></Suspense>} />
+            <Route path="/marketplace/post" element={<Suspense fallback={<PageLoader />}><PostListing /></Suspense>} />
+            <Route path="/marketplace/my-listings" element={<Suspense fallback={<PageLoader />}><MyListings /></Suspense>} />
+            <Route path="/marketplace/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
+            <Route path="/marketplace/orders/:id" element={<Suspense fallback={<PageLoader />}><OrderDetail /></Suspense>} />
             <Route path="/messages" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
             <Route path="/messages/:conversationId" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
             <Route path="/worker-channels" element={<Suspense fallback={<PageLoader />}><WorkerChannels /></Suspense>} />
@@ -316,6 +331,7 @@ export default function App() {
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
             {/* Pro Connect */}
             <Route path="pro-connect" element={<AdminProConnect />} />
+            <Route path="marketplace" element={<AdminMarketplace />} />
 
             {/* Contractor Config */}
             <Route path="material-catalog" element={<Suspense fallback={<PageLoader />}><AdminMaterialCatalog /></Suspense>} />

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calculator, Palette, FolderOpen, Trophy, Hash } from 'lucide-react';
+import { Home, Calculator, ShoppingBag, Palette, FolderOpen, Trophy, Hash } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { getAchievements } from '@/lib/achievements';
 import { useEffect, useState } from 'react';
@@ -16,7 +16,7 @@ export default function MobileBottomNav() {
   const navItems = [
     { to: '/', label: 'Home', icon: Home },
     { to: '/paint-calculator', label: 'Calculate', icon: Calculator },
-    { to: '/worker-channels', label: 'Channels', icon: Hash },
+    { to: '/marketplace', label: 'Market', icon: ShoppingBag },
     { to: '/my-projects', label: 'Projects', icon: FolderOpen },
     { to: '/achievements', label: 'Rewards', icon: Trophy, badge: unlockedCount },
   ];
