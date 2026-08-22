@@ -83,6 +83,9 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     api_key: 'Your Ayet Studios API key for postback verification.',
     postback_url: 'Set this in your Ayet Studios dashboard: https://freluxtools.netlify.app/functions/v1/rewarded-postback/ayet_studios',
   },
+  meta_pixel: {
+    pixel_id: 'Your Meta/Facebook Pixel ID (e.g. 123456789012345). Find it in Meta Events Manager → Data Sources → Pixel.',
+  },
   revu: {
     api_key: 'Your RevU API key for postback verification.',
     placement_id: 'Your RevU placement ID.',
@@ -105,6 +108,10 @@ const INTEGRATION_LINKS: Record<string, { label: string; url: string }> = {
   adgem: { label: 'Open AdGem', url: 'https://adgem.com' },
   cpx_research: { label: 'Open CPX Research', url: 'https://www.cpx-research.com' },
   ayet_studios: { label: 'Open Ayet Studios', url: 'https://ayetstudios.com' },
+  meta_pixel: {
+    pixel_id: 'Your Meta/Facebook Pixel ID (e.g. 123456789012345). Find it in Meta Events Manager → Data Sources → Pixel.',
+  },
+  meta_pixel: { label: 'Open Meta Events Manager', url: 'https://business.facebook.com/events_manager' },
   revu: { label: 'Open RevU', url: 'https://revu.tv' },
 };
 

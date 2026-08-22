@@ -14,11 +14,11 @@ export default function Terms() {
     <LegalLayout
       slug="terms"
       title="Terms of Service"
-      updated="2026-07-26"
+      updated="2026-08-22"
       intro={
         <p>
-          These are draft terms for FRELUX PAINT CALC. They will be finalized before launch and do not yet represent
-          a binding agreement.
+          By accessing or using FRELUX PAINT CALC (the "Service"), you agree to be bound by these Terms of Service.
+          If you do not agree to these terms, please discontinue use of the Service.
         </p>
       }
       sections={[
@@ -26,9 +26,11 @@ export default function Terms() {
           heading: 'Use of the tools',
           body: (
             <p>
-              The paint calculator, cost estimator, and color tools are provided to help you plan projects. You are
-              responsible for verifying measurements, prices, and product suitability before making purchases or
-              starting work.
+              The paint calculator, cost estimator, color tools, and other features on this website are provided
+              to help you plan construction and finishing projects. You are responsible for verifying all
+              measurements, prices, and product suitability before making purchases or starting work. The Service
+              is available to users in Nigeria and internationally, but pricing and product data are calibrated
+              for the Nigerian market.
             </p>
           ),
         },
@@ -37,8 +39,42 @@ export default function Terms() {
           body: (
             <p>
               All quantities, areas, and costs produced by the tools are estimates. Actual results vary based on
-              surface condition, application method, product, and local rates. The estimates are not a guarantee of
-              final cost or quantity.
+              surface condition, application method, product, and local rates. The estimates are not a guarantee
+              of final cost or quantity. FRELUX PAINT CALC does not warrant that any estimate will match the actual
+              materials required or the final cost of your project.
+            </p>
+          ),
+        },
+        {
+          heading: 'Accounts',
+          body: (
+            <p>
+              Some features require an account. You are responsible for maintaining the security of your account
+              credentials and for all activity under your account. You must provide accurate information when
+              registering. We reserve the right to suspend or terminate accounts that violate these terms or
+              applicable law.
+            </p>
+          ),
+        },
+        {
+          heading: 'Pro Connect and Worker Channels',
+          body: (
+            <p>
+              Pro Connect and Worker Channels allow professionals and workers to communicate, share price updates,
+              and connect with clients. Messages are subject to automated AI moderation. You agree not to post
+              fraudulent, offensive, spam, off-platform solicitation, or illegal content. We reserve the right to
+              remove messages, restrict access, or ban users who violate these rules. Content posted in these
+              channels reflects the views of the sender, not FRELUX PAINT CALC.
+            </p>
+          ),
+        },
+        {
+          heading: 'AI features',
+          body: (
+            <p>
+              The Service includes AI-powered features such as the Smart Color Assistant, AI Color Preview, and
+              the live chat assistant. AI-generated recommendations are suggestions for inspiration only and are
+              not professional advice. See our AI Disclaimer page for full details on AI feature limitations.
             </p>
           ),
         },
@@ -46,17 +82,58 @@ export default function Terms() {
           heading: 'Acceptable use',
           body: (
             <p>
-              You agree not to misuse the site, attempt to disrupt it, or use it for unlawful purposes. Automated
-              access that harms the service is not permitted.
+              You agree not to misuse the Service, attempt to disrupt it, reverse-engineer its code, or use it for
+              unlawful purposes. Automated access that harms the Service, including scraping at a rate that
+              degrades performance, is not permitted. You may not use the Service to distribute malware, phishing
+              content, or any material that violates Nigerian law or the laws of your jurisdiction.
             </p>
           ),
         },
         {
-          heading: 'Changes',
+          heading: 'Intellectual property',
           body: (
             <p>
-              We may update these terms and the tools over time. Final change-management and notice details will be
-              added before launch.
+              The FRELUX PAINT CALC name, logo, design, calculator methodology, and website content are owned by
+              FRELUX PAINT CALC. You may not copy, modify, or redistribute our content without permission.
+              Calculator templates and estimates you create remain your intellectual property.
+            </p>
+          ),
+        },
+        {
+          heading: 'Limitation of liability',
+          body: (
+            <p>
+              FRELUX PAINT CALC is provided "as is" without warranties of any kind, express or implied. To the
+              maximum extent permitted by law, FRELUX PAINT CALC shall not be liable for any damages arising from
+              the use of, or inability to use, the Service, including but not limited to direct, indirect,
+              incidental, or consequential damages.
+            </p>
+          ),
+        },
+        {
+          heading: 'Privacy',
+          body: (
+            <p>
+              We handle your data in accordance with our Privacy Policy. By using the Service, you consent to the
+              data practices described therein.
+            </p>
+          ),
+        },
+        {
+          heading: 'Changes to these terms',
+          body: (
+            <p>
+              We may update these Terms of Service from time to time. Material changes will be posted on this page
+              with an updated date. Continued use of the Service after changes constitutes acceptance of the
+              revised terms.
+            </p>
+          ),
+        },
+        {
+          heading: 'Contact',
+          body: (
+            <p>
+              Questions about these terms? Contact us at frenzyanthony39@gmail.com or via the Contact page.
             </p>
           ),
         },

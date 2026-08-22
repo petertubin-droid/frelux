@@ -278,6 +278,8 @@ async function syncToSiteSettings(integrationKey: string, integration: { config:
     updates.ads_enabled = integration.is_enabled && !!(cfg.publisher_id ?? cfg.client_id);
   } else if (integrationKey === 'google_search_console') {
     updates.google_site_verification = (cfg.verification_token as string) ?? '';
+  } else if (integrationKey === 'meta_pixel') {
+    updates.meta_pixel_id = (cfg.pixel_id as string) ?? '';
   }
 
   if (Object.keys(updates).length > 0) {

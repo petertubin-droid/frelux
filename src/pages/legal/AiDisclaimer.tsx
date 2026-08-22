@@ -47,7 +47,7 @@ export default function AiDisclaimer() {
           body: (
             <p>
               When you use the Smart Color Assistant, your text description and any uploaded image are sent to our secure
-              backend and then to a third-party AI provider (Google AI) to generate recommendations. Image data is used only
+              backend and then to a third-party AI provider (OpenAI and Google AI) to generate recommendations. Image data is used only
               to produce your recommendation and is not stored long-term. We do not store your full description or image in
               our analytics, only anonymous event counts (for example, that a text consultation was submitted).
             </p>

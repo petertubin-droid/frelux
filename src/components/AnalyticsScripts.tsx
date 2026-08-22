@@ -27,7 +27,7 @@ export default function AnalyticsScripts() {
         const { data: integrations } = await supabase
           .from('integration_settings')
           .select('integration_key, is_enabled, config')
-          .in('integration_key', ['google_analytics', 'google_adsense', 'google_search_console']);
+          .in('integration_key', ['google_analytics', 'google_adsense', 'google_search_console', 'meta_pixel']);
 
         if (integrations) {
           for (const row of integrations) {
@@ -39,6 +39,8 @@ export default function AnalyticsScripts() {
               publisherId = (cfg.publisher_id as string) ?? (cfg.client_id as string) ?? '';
             } else if (row.integration_key === 'google_search_console') {
               searchConsoleToken = (cfg.verification_token as string) ?? '';
+            } else if (row.integration_key === 'meta_pixel') {
+              pixelId = (cfg.pixel_id as string) ?? '';
             }
           }
         }
