@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { FolderOpen, ChevronDown, Loader2, Star } from 'lucide-react';
+import { FolderOpen, ChevronDown, Loader2, Bookmark } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useUserTemplates } from '@/lib/useTemplates';
 import type { CalculatorType, DbCalculatorTemplate } from '@/types/database';
@@ -76,7 +76,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
                       </p>
                     )}
                   </div>
-                  {t.is_favorite && <Star className="h-3 w-3 shrink-0 text-amber-500" fill="currentColor" />}
+                  {t.is_favorite && <Bookmark className="h-3 w-3 shrink-0 text-amber-500" fill="currentColor" />}
                 </button>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Loader2, Edit2, Trash2, Copy, Star, Eye, EyeOff, Save, X, Search } from 'lucide-react';
+import { Plus, Loader2, Edit2, Trash2, Copy, BadgeCheck, Eye, EyeOff, Save, X, Search, ChevronDown } from 'lucide-react';
 import {
   adminGetAllTemplates,
   adminCreateTemplate,
@@ -152,7 +152,7 @@ export default function AdminTemplates() {
                   </td>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleFeatured(t)}>
-                      <Star className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-neutral-300 dark:text-neutral-600')} fill={t.is_featured ? 'currentColor' : 'none'} />
+                      <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-neutral-300 dark:text-neutral-600')} fill={t.is_featured ? 'currentColor' : 'none'} />
                     </button>
                   </td>
                   <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.slug ?? '-'}</td>

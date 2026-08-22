@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Loader2, Sparkles, Calculator, ChevronRight } from 'lucide-react';
+import { Search, Loader2, BadgeCheck, Calculator, ChevronRight } from 'lucide-react';
 import { useSeo } from '@/lib/seo';
 import { getPublicTemplates, calculatorLabel } from '@/lib/templates';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
@@ -128,7 +128,7 @@ export default function Templates() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center dark:border-white/10 dark:bg-white/5">
-          <Sparkles className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
+          <BadgeCheck className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
           <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates found</p>
           <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Try a different search or category filter.</p>
         </div>
@@ -137,7 +137,7 @@ export default function Templates() {
           {featured.length > 0 && (
             <div>
               <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                 Featured Templates
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -200,7 +200,7 @@ function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
           <Calculator className="h-3 w-3" />
           {calculatorLabel(template.calculator_type)}
         </span>
-        {template.is_featured && <Sparkles className="h-3.5 w-3.5 text-amber-500" />}
+        {template.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />}
       </div>
       <h3 className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white">{template.name}</h3>
       {template.description && (

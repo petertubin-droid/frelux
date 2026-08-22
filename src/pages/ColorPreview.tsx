@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import PageHeader from '@/components/ui/PageHeader';
 import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
-import { Loader2, Upload, X, Sparkles, Eye } from 'lucide-react';
+import { Loader2, Upload, X, Wand2, Eye, Download } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 
 export default function ColorPreview() {
@@ -250,7 +250,7 @@ export default function ColorPreview() {
           {imagePreview && (
             <div>
               <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Sparkles className="h-5 w-5 text-brand-purple" /> Before & After
+                <Wand2 className="h-5 w-5 text-brand-purple" /> Before & After
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>

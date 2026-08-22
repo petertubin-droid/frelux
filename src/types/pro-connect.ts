@@ -317,11 +317,11 @@ export function getVerificationTier(profile: DbProProfile): VerificationTier {
 export const verificationTierInfo: Record<VerificationTier, {
   label: string;
   shortLabel: string;
-  icon: 'check' | 'shield' | 'star';
+  icon: 'check' | 'shield' | 'award';
   color: string;
 }> = {
   0: { label: 'Unverified', shortLabel: 'Unverified', icon: 'check', color: 'neutral' },
   1: { label: 'Contact Verified', shortLabel: 'Contact Verified', icon: 'check', color: 'emerald' },
   2: { label: 'FRELUX Verified', shortLabel: 'Verified', icon: 'shield', color: 'blue' },
-  3: { label: 'FRELUX Pro', shortLabel: 'Pro', icon: 'star', color: 'amber' },
+  3: { label: 'FRELUX Pro', shortLabel: 'Pro', icon: 'award', color: 'amber' },
 };

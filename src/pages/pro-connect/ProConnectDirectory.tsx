@@ -254,9 +254,9 @@ export default function ProConnectDirectory() {
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">Any rating</option>
-                <option value="3">3.0+ ★</option>
-                <option value="4">4.0+ ★</option>
-                <option value="4.5">4.5+ ★</option>
+                <option value="3">3.0+</option>
+                <option value="4">4.0+</option>
+                <option value="4.5">4.5+</option>
               </select>
             </div>
           </div>

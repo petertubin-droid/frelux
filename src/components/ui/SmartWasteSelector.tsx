@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, Wand2, ChevronDown } from 'lucide-react';
+import { Lightbulb, Wand2, ChevronDown } from 'lucide-react';
 import { calculateSmartWaste, type SurfaceCondition, type ApplicationMethod } from '@/lib/smart-waste';
 import type { ProjectType } from '@/types';
 import { classNames } from '@/lib/utils';
@@ -115,7 +115,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <div className="mt-3 rounded-lg bg-brand-purple/5 p-3">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-purple">
-                  <Sparkles className="h-4 w-4" />
+                  <Lightbulb className="h-4 w-4" />
                   Recommended: {result.wasteMargin}% waste
                 </span>
                 <span className="text-xs text-neutral-400">Current: {currentWaste}%</span>

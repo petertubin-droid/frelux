@@ -182,7 +182,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
               <h4 className="mb-2 text-sm font-semibold text-foreground">Best Practices</h4>
               <ul className="space-y-1">
                 {parsed.bestPractices.map((s: string, i: number) => (
-                  <li key={i} className="text-sm text-muted-foreground">★ {s}</li>
+                  <li key={i} className="text-sm text-muted-foreground">• {s}</li>
                 ))}
               </ul>
             </div>

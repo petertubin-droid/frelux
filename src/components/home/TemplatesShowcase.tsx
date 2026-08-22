@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Save, Copy, Heart, Share2, FileText, ArrowRight, Star, FolderOpen } from 'lucide-react';
+import { Save, Copy, Heart, Share2, FileText, ArrowRight, Bookmark, FolderOpen } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
@@ -22,7 +22,7 @@ const templateActions = [
   {
     icon: Heart,
     title: 'Favorite',
-    description: 'Star your most-used estimates',
+    description: 'Bookmark your most-used estimates',
   },
   {
     icon: Share2,
@@ -92,7 +92,7 @@ export default function TemplatesShowcase() {
                   Painting
                 </span>
                 <span className="flex items-center gap-0.5 text-xs text-amber-500">
-                  <Star className="h-3 w-3 fill-amber-500" />
+                  <Bookmark className="h-3 w-3 fill-amber-500" />
                 </span>
               </div>
               <span className="text-xs text-neutral-400">3 months ago</span>

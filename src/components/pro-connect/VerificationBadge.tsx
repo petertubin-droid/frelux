@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Check, ShieldCheck, Star, Info } from 'lucide-react';
+import { Check, ShieldCheck, Award, Info } from 'lucide-react';
 import type { DbProProfile } from '@/types/pro-connect';
 import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
@@ -14,7 +14,7 @@ interface VerificationBadgeProps {
 const iconMap = {
   check: Check,
   shield: ShieldCheck,
-  star: Star,
+  award: Award,
 };
 
 const colorMap = {

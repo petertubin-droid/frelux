@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { TOUR_STEPS, completeOnboarding } from '@/lib/onboarding';
 import { classNames } from '@/lib/utils';
 
@@ -145,7 +145,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
             >
               {isLast ? (
                 <>
-                  <Sparkles className="h-4 w-4" /> Got it!
+                  <Check className="h-4 w-4" /> Got it!
                 </>
               ) : (
                 <>

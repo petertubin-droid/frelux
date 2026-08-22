@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Star, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 'lucide-react';
-import { calculatorLabel } from '@/lib/templates';
+import { Bookmark, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 'lucide-react';
+import { calculatorLabel, calculatorPath } from '@/lib/templates';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
 
@@ -52,7 +52,7 @@ export default function TemplateCard({
             )}
             aria-label={template.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
           >
-            <Star className="h-4 w-4" fill={template.is_favorite ? 'currentColor' : 'none'} />
+            <Bookmark className="h-4 w-4" fill={template.is_favorite ? 'currentColor' : 'none'} />
           </button>
         )}
       </div>

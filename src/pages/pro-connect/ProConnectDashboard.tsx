@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Star, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash } from 'lucide-react';
+import { MessageSquare, ThumbsUp, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import {
   getMyProProfile, getProProfileServices, getProProfileLocations,
@@ -125,7 +125,7 @@ export default function ProConnectDashboard() {
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
-            <Star className="h-4 w-4" />
+            <ThumbsUp className="h-4 w-4" />
             <span className="text-xs">Rating</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
@@ -290,7 +290,7 @@ export default function ProConnectDashboard() {
               'flex h-8 w-8 items-center justify-center rounded-full',
               profile.pro_level ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
             )}>
-              <span className="text-xs font-bold">{profile.pro_level ? '★' : '3'}</span>
+              <span className="text-xs font-bold">{profile.pro_level ? '✓' : '3'}</span>
             </div>
             <div>
               <p className={classNames('text-sm font-medium', profile.pro_level ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500 dark:text-neutral-400')}>
@@ -443,7 +443,7 @@ export default function ProConnectDashboard() {
               <div key={review.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((s) => (
-                    <span key={s} className={s <= review.rating ? 'text-amber-400' : 'text-neutral-200 dark:text-neutral-700'}>★</span>
+                    <span key={s} className={s <= review.rating ? 'text-amber-400' : 'text-neutral-200 dark:text-neutral-700'}>●</span>
                   ))}
                   <span className="text-xs text-neutral-400">{new Date(review.created_at).toLocaleDateString('en-GB')}</span>
                 </div>

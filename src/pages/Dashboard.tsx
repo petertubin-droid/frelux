@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, Heart, Lightbulb, Calculator, ArrowRight, TrendingUp, Sparkles, FolderOpen } from 'lucide-react';
+import { Clock, Heart, Lightbulb, Calculator, ArrowRight, TrendingUp, Wand2, FolderOpen } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import { SkeletonCard } from '@/components/ui/Skeleton';
@@ -25,7 +25,7 @@ const PROJECT_ROUTES: Record<string, string> = {
 const QUICK_ACTIONS = [
   { to: '/paint-calculator', label: 'Paint Calc', icon: Calculator, color: 'text-brand-purple bg-brand-purple/8' },
   { to: '/cost-estimator', label: 'Cost Est', icon: TrendingUp, color: 'text-accent-green bg-accent-green/8' },
-  { to: '/ai-color-assistant', label: 'AI Color', icon: Sparkles, color: 'text-accent-orange bg-accent-orange/8' },
+  { to: '/ai-color-assistant', label: 'AI Color', icon: Wand2, color: 'text-accent-orange bg-accent-orange/8' },
   { to: '/colors', label: 'Colors', icon: Heart, color: 'text-rose-400 bg-rose-400/8' },
 ];
 

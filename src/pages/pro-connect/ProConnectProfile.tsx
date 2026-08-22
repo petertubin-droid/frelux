@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
-  MapPin, Star, ShieldCheck, Briefcase, Globe,
+  MapPin, ThumbsUp, Award, ShieldCheck, Briefcase, Globe,
   MessageSquare, Flag, ChevronLeft,
 } from 'lucide-react';
 import {
@@ -148,7 +148,7 @@ export default function ProConnectProfile() {
             {getVerificationTier(profile) > 0 && (
               <div className="absolute -bottom-2 -right-2 rounded-full bg-white p-1 dark:bg-brand-navy-mid">
                 {verificationTierInfo[getVerificationTier(profile)].icon === 'shield' && <ShieldCheck className="h-6 w-6 text-blue-500" />}
-                {verificationTierInfo[getVerificationTier(profile)].icon === 'star' && <Star className="h-6 w-6 fill-amber-400 text-amber-400" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'award' && <Award className="h-6 w-6 fill-amber-400 text-amber-400" />}
                 {verificationTierInfo[getVerificationTier(profile)].icon === 'check' && <ShieldCheck className="h-6 w-6 text-emerald-500" />}
               </div>
             )}
@@ -181,7 +181,7 @@ export default function ProConnectProfile() {
             <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
               {profile.rating_count > 0 && (
                 <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <ThumbsUp className="h-4 w-4 fill-amber-400 text-amber-400" />
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
                     {profile.rating_avg.toFixed(1)}
                   </span>
@@ -262,7 +262,7 @@ export default function ProConnectProfile() {
             )}
             {profile.pro_level && (
               <div className="flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 dark:bg-amber-500/10">
-                <Star className="h-4 w-4 fill-amber-400 text-amber-600 dark:text-amber-400" />
+                <ThumbsUp className="h-4 w-4 fill-amber-400 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="text-sm font-medium text-amber-700 dark:text-amber-400">FRELUX Pro</p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">Top-rated professional</p>
@@ -374,7 +374,7 @@ export default function ProConnectProfile() {
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-0.5">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
+                      <ThumbsUp
                         key={s}
                         className={classNames(
                           'h-4 w-4',
@@ -553,7 +553,7 @@ function ReviewModal({ professionalId, onClose, onSubmitted }: {
                   onClick={() => setRating(s)}
                   className="p-1"
                 >
-                  <Star
+                  <ThumbsUp
                     className={classNames(
                       'h-7 w-7 transition-colors',
                       s <= rating ? 'fill-amber-400 text-amber-400' : 'text-neutral-300 dark:text-neutral-600'

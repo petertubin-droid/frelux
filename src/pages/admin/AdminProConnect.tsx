@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Ban, Eye, Star, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
+import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -137,8 +137,8 @@ function AdminProfessionalsTab() {
               <div>
                 <p className="text-sm font-medium text-neutral-900 dark:text-white">{p.display_name}</p>
                 <p className="text-xs text-neutral-400">
-                  {p.business_name || 'No business'} · {p.rating_avg.toFixed(1)} ★ ({p.rating_count})
-                  {p.pro_level && <span className="ml-2 text-amber-500">★ FRELUX Pro</span>}
+                  {p.business_name || 'No business'} · {p.rating_avg.toFixed(1)} / 5 ({p.rating_count})
+                  {p.pro_level && <span className="ml-2 text-amber-500">• FRELUX Pro</span>}
                 </p>
               </div>
             </div>
@@ -849,7 +849,7 @@ function AdminReviewsTab() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} className={s <= r.rating ? 'h-4 w-4 fill-amber-400 text-amber-400' : 'h-4 w-4 text-neutral-200 dark:text-neutral-700'} />
+                  <ThumbsUp key={s} className={s <= r.rating ? 'h-4 w-4 fill-amber-400 text-amber-400' : 'h-4 w-4 text-neutral-200 dark:text-neutral-700'} />
                 ))}
                 <span className="text-xs text-neutral-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</span>
                 {r.is_hidden && <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">Hidden</span>}

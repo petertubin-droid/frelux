@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calculator, Sparkles } from 'lucide-react';
+import { ArrowRight, Calculator, BadgeCheck } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { getPublicTemplates, calculatorLabel } from '@/lib/templates';
 import { CALCULATOR_META } from '@/lib/templates';
@@ -77,7 +77,7 @@ export default function FeaturedTemplates() {
                     </span>
                     {template.is_featured && (
                       <span className="inline-flex items-center gap-1 text-xs text-amber-500" title="Featured">
-                        <Sparkles className="h-3 w-3" />
+                        <BadgeCheck className="h-3 w-3" />
                       </span>
                     )}
                   </div>

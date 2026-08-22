@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Camera, Loader2, X, Sparkles } from 'lucide-react';
+import { Camera, Loader2, X, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { matchPaintColor, type ColorMatchResult } from '@/lib/color-matcher';
 import { fetchPaintColors } from '@/lib/queries';
@@ -71,7 +71,7 @@ export function PaintMatcher() {
     <div className="card overflow-hidden">
       <div className="bg-gradient-to-r from-brand-purple to-brand-purple-light p-5 text-white">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
+          <Wand2 className="h-5 w-5" />
           <h3 className="text-sm font-bold">AI Paint Matcher</h3>
         </div>
         <p className="mt-1 text-xs text-white/70">

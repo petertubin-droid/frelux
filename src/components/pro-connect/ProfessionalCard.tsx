@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Star, Briefcase } from 'lucide-react';
+import { ThumbsUp, Briefcase } from 'lucide-react';
 import type { DbProProfile, DbProCategory, DbProService } from '@/types/pro-connect';
 import { ProAvailability } from '@/types/pro-connect';
 import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
@@ -67,7 +67,7 @@ export default function ProfessionalCard({ profile, category, services }: Profes
       <div className="mt-4 flex items-center gap-4 text-sm">
         {profile.rating_count > 0 ? (
           <div className="flex items-center gap-1">
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+            <ThumbsUp className="h-4 w-4 fill-amber-400 text-amber-400" />
             <span className="font-medium text-neutral-700 dark:text-neutral-200">
               {profile.rating_avg.toFixed(1)}
             </span>
