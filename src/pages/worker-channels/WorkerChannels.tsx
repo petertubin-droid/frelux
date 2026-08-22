@@ -375,7 +375,7 @@ export default function WorkerChannels() {
               )}
             >
               <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-xs">
-                {ch.is_official ? '★' : '#'}
+                {ch.is_official ? '✓' : '#'}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{ch.name.trim()}</div>

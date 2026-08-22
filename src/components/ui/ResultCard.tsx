@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Save, FileDown, Share2, MessageCircle, RotateCcw, Sparkles } from 'lucide-react';
+import { Save, FileDown, Share2, MessageCircle, RotateCcw, Wand2 } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 export interface ResultStat {
@@ -42,7 +42,7 @@ export default function ResultCard({
           <div className="absolute -top-1/2 -right-10 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
         </div>
         <div className="relative flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-brand-purple-light" />
+          <Wand2 className="h-4 w-4 text-brand-purple-light" />
           <h3 className="text-lg font-bold">{title}</h3>
         </div>
         {subtitle && <p className="relative mt-1 text-sm text-white/70">{subtitle}</p>}
