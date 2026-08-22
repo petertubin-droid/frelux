@@ -76,3 +76,54 @@ export function AdminField({ label, hint, error, children }: { label: string; hi
     </label>
   );
 }
+
+// =========================================================
+// CollapsibleGroup — used to break long flat admin lists
+// (colors, materials, products, …) into organized, collapsible
+// sections grouped by category/family instead of one endless scroll.
+// =========================================================
+
+export function CollapsibleGroup({
+  title, count, isOpen, onToggle, children, preview,
+}: {
+  title: string;
+  count: number;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+  preview?: ReactNode;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between gap-3 bg-white px-4 py-3 text-left transition-colors hover:bg-neutral-50 dark:bg-brand-navy-mid dark:hover:bg-white/5"
+      >
+        <div className="flex min-w-0 items-center gap-3">
+          <svg className={classNames('h-4 w-4 shrink-0 text-neutral-400 transition-transform', isOpen && 'rotate-90')} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+          <span className="truncate text-sm font-bold text-brand-navy dark:text-white">{title}</span>
+          <span className="shrink-0 rounded-full bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-500 dark:bg-white/10 dark:text-neutral-400">{count}</span>
+        </div>
+        {preview && <div className="hidden shrink-0 items-center gap-1 sm:flex">{preview}</div>}
+      </button>
+      {isOpen && (
+        <div className="space-y-2 border-t border-neutral-200 bg-neutral-50/60 p-3 dark:border-white/5 dark:bg-white/[0.02]">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function GroupControls({ onExpandAll, onCollapseAll, groupLabel = 'groups' }: { onExpandAll: () => void; onCollapseAll: () => void; groupLabel?: string }) {
+  return (
+    <div className="flex items-center gap-3 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+      <span>Organized into {groupLabel}</span>
+      <button type="button" onClick={onExpandAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Expand all</button>
+      <span className="text-neutral-300 dark:text-neutral-600">·</span>
+      <button type="button" onClick={onCollapseAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Collapse all</button>
+    </div>
+  );
+}

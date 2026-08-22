@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, X, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { classNames } from '@/lib/utils';
 import { readableTextColor } from '@/lib/colors';
@@ -41,6 +41,7 @@ function PaintColorsTab() {
   const [showForm, setShowForm] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   async function load() {
     setLoading(true); setError(null);
@@ -90,6 +91,40 @@ function PaintColorsTab() {
     ? items.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()) || c.hex_code.toLowerCase().includes(search.toLowerCase()))
     : items;
 
+  // Group colors by family so the panel is a set of organized,
+  // collapsible sections instead of one long flat scroll.
+  const groups: { key: string; label: string; sortOrder: number; items: DbPaintColor[] }[] = [];
+  const groupIndex = new Map<string, number>();
+  for (const item of filtered) {
+    const fam = families.find((f) => f.id === item.color_family_id);
+    const key = fam?.id ?? '__none__';
+    const label = fam?.name ?? 'Uncategorized';
+    const sortOrder = fam?.sort_order ?? Number.MAX_SAFE_INTEGER;
+    let idx = groupIndex.get(key);
+    if (idx === undefined) {
+      idx = groups.length;
+      groupIndex.set(key, idx);
+      groups.push({ key, label, sortOrder, items: [] });
+    }
+    groups[idx].items.push(item);
+  }
+  groups.sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label));
+
+  function isOpen(key: string) {
+    // While searching, auto-expand every group that has a match so results are visible.
+    if (search) return true;
+    return !collapsed.has(key);
+  }
+  function toggleGroup(key: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
+  function expandAll() { setCollapsed(new Set()); }
+  function collapseAll() { setCollapsed(new Set(groups.map((g) => g.key))); }
+
   if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching paint colors." />;
 
   return (
@@ -106,39 +141,57 @@ function PaintColorsTab() {
           <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add color</AdminButton>
         </div>
       </div>
-      <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{filtered.length} of {items.length} colors</p>
+      <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">{filtered.length} of {items.length} colors</p>
+        {!search && groups.length > 1 && <GroupControls onExpandAll={expandAll} onCollapseAll={collapseAll} groupLabel={`${groups.length} color families`} />}
+      </div>
       {filtered.length === 0 ? <StateMessage type="empty" title="No colors found" message="Add your first paint color or adjust your search." /> : (
-        <div className="space-y-2">
-          {filtered.map((item) => {
-            const fam = families.find((f) => f.id === item.color_family_id);
-            return (
-              <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex min-w-0 items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/5" style={{ background: item.hex_code }}>
-                    <span className="text-[9px] font-bold" style={{ color: readableTextColor(item.hex_code) }}>{item.hex_code}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                      {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
-                      {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
-                      {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
+        <div className="space-y-3">
+          {groups.map((group) => (
+            <CollapsibleGroup
+              key={group.key}
+              title={group.label}
+              count={group.items.length}
+              isOpen={isOpen(group.key)}
+              onToggle={() => toggleGroup(group.key)}
+              preview={
+                <div className="flex items-center -space-x-1.5">
+                  {group.items.slice(0, 6).map((c) => (
+                    <div key={c.id} className="h-5 w-5 rounded-full ring-2 ring-white dark:ring-brand-navy-mid" style={{ background: c.hex_code }} title={c.name} />
+                  ))}
+                  {group.items.length > 6 && <span className="ml-2 text-[11px] font-semibold text-neutral-400">+{group.items.length - 6}</span>}
+                </div>
+              }
+            >
+              {group.items.map((item) => (
+                <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/5" style={{ background: item.hex_code }}>
+                      <span className="text-[9px] font-bold" style={{ color: readableTextColor(item.hex_code) }}>{item.hex_code}</span>
                     </div>
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">{fam?.name ?? '—'} · {item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                        {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
+                        {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
+                        {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
+                      </div>
+                      <p className="text-xs text-neutral-400 dark:text-neutral-500">{item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <ToggleChip active={item.is_featured} onClick={() => toggleField(item, 'is_featured')} label="Feat" />
-                    <ToggleChip active={item.is_trending} onClick={() => toggleField(item, 'is_trending')} label="Trend" />
-                    <ToggleChip active={item.is_active} onClick={() => toggleField(item, 'is_active')} label="Active" />
+                  <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <ToggleChip active={item.is_featured} onClick={() => toggleField(item, 'is_featured')} label="Feat" />
+                      <ToggleChip active={item.is_trending} onClick={() => toggleField(item, 'is_trending')} label="Trend" />
+                      <ToggleChip active={item.is_active} onClick={() => toggleField(item, 'is_active')} label="Active" />
+                    </div>
+                    <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
+                    <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
                   </div>
-                  <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
-                </div>
-              </AdminCard>
-            );
-          })}
+                </AdminCard>
+              ))}
+            </CollapsibleGroup>
+          ))}
         </div>
       )}
       {showForm && <PaintColorForm initial={editing} families={families} categories={categories} onClose={() => setShowForm(false)} onSaved={() => { setShowForm(false); load(); }} />}

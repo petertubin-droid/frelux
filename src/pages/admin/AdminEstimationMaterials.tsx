@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { EstimationMaterial, EstimationUnit } from '@/types/estimation';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
 
 function slugify(s: string): string {
   return s
@@ -19,6 +19,8 @@ export default function AdminEstimationMaterials() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<EstimationMaterial | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -93,6 +95,36 @@ export default function AdminEstimationMaterials() {
     return acc;
   }, {});
 
+  const filtered = search
+    ? items.filter((m) => m.name.toLowerCase().includes(search.toLowerCase()) || m.category.toLowerCase().includes(search.toLowerCase()))
+    : items;
+
+  // Group materials by category so the list reads as organized sections
+  // instead of one long flat scroll.
+  const groupOrder: string[] = [];
+  const groupMap = new Map<string, EstimationMaterial[]>();
+  for (const item of filtered) {
+    const key = item.category || 'general';
+    if (!groupMap.has(key)) { groupMap.set(key, []); groupOrder.push(key); }
+    groupMap.get(key)!.push(item);
+  }
+  groupOrder.sort((a, b) => a.localeCompare(b));
+  const groups = groupOrder.map((key) => ({ key, items: groupMap.get(key)! }));
+
+  function isGroupOpen(key: string) {
+    if (search) return true;
+    return !collapsed.has(key);
+  }
+  function toggleGroup(key: string) {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
+  function expandAll() { setCollapsed(new Set()); }
+  function collapseAll() { setCollapsed(new Set(groups.map((g) => g.key))); }
+
   return (
     <>
       <AdminHeader
@@ -116,6 +148,24 @@ export default function AdminEstimationMaterials() {
         </div>
       )}
 
+      {!loading && items.length > 0 && (
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name or category…"
+              className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9"
+            />
+          </div>
+          {!search && groups.length > 1 && (
+            <GroupControls onExpandAll={expandAll} onCollapseAll={collapseAll} groupLabel={`${groups.length} categories`} />
+          )}
+        </div>
+      )}
+
       {loading ? (
         <StateMessage
           type="loading"
@@ -128,65 +178,78 @@ export default function AdminEstimationMaterials() {
           title="No estimation materials yet"
           message="Add your first estimation material to get started."
         />
+      ) : filtered.length === 0 ? (
+        <StateMessage
+          type="empty"
+          title="No materials found"
+          message="Adjust your search to see results."
+        />
       ) : (
         <div className="space-y-3">
-          {items.map((item) => {
-            const baseUnit = item.unit_id ? unitMap[item.unit_id] : null;
-            const packUnit = item.pack_unit_id ? unitMap[item.pack_unit_id] : null;
+          {groups.map((group) => (
+            <CollapsibleGroup
+              key={group.key}
+              title={group.key.replace(/_/g, ' ')}
+              count={group.items.length}
+              isOpen={isGroupOpen(group.key)}
+              onToggle={() => toggleGroup(group.key)}
+            >
+              {group.items.map((item) => {
+                const baseUnit = item.unit_id ? unitMap[item.unit_id] : null;
+                const packUnit = item.pack_unit_id ? unitMap[item.pack_unit_id] : null;
 
-            return (
-              <AdminCard
-                key={item.id}
-                className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                    <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700 capitalize">
-                      {item.category}
-                    </span>
-                    {!item.is_active && (
-                      <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
-                        Inactive
-                      </span>
-                    )}
-                  </div>
-                  {item.description && (
-                    <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
-                  )}
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
-                    {baseUnit && (
-                      <span>
-                        Unit: {baseUnit.name} ({baseUnit.symbol})
-                      </span>
-                    )}
-                    {item.pack_size !== null && item.pack_size !== undefined && (
-                      <span>
-                        Pack Size: {item.pack_size} {packUnit ? packUnit.symbol : ''}
-                      </span>
-                    )}
-                    {item.supplier && <span>Supplier: {item.supplier}</span>}
-                    {item.effective_date && <span>Effective: {item.effective_date}</span>}
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-                  <AdminButton
-                    variant="secondary"
-                    onClick={() => {
-                      setEditing(item);
-                      setShowForm(true);
-                    }}
+                return (
+                  <AdminCard
+                    key={item.id}
+                    className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </AdminButton>
-                </div>
-              </AdminCard>
-            );
-          })}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                        {!item.is_active && (
+                          <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                      {item.description && (
+                        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>
+                      )}
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
+                        {baseUnit && (
+                          <span>
+                            Unit: {baseUnit.name} ({baseUnit.symbol})
+                          </span>
+                        )}
+                        {item.pack_size !== null && item.pack_size !== undefined && (
+                          <span>
+                            Pack Size: {item.pack_size} {packUnit ? packUnit.symbol : ''}
+                          </span>
+                        )}
+                        {item.supplier && <span>Supplier: {item.supplier}</span>}
+                        {item.effective_date && <span>Effective: {item.effective_date}</span>}
+                      </div>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                      <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
+                      <AdminButton
+                        variant="secondary"
+                        onClick={() => {
+                          setEditing(item);
+                          setShowForm(true);
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </AdminButton>
+                      <AdminButton variant="danger" onClick={() => remove(item)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </AdminButton>
+                    </div>
+                  </AdminCard>
+                );
+              })}
+            </CollapsibleGroup>
+          ))}
         </div>
       )}
 

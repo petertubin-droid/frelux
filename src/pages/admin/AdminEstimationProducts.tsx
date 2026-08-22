@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, ChevronDown, ChevronRight, Tag, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
 
 // ─────────────────────────────────────────────────────────
 // Types (inline — matches DB columns from estimation_products)
@@ -63,6 +63,8 @@ export default function AdminEstimationProducts() {
   const [editing, setEditing] = useState<EstProduct | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [editingQuality, setEditingQuality] = useState<EstQuality | null>(null);
   const [showQualityForm, setShowQualityForm] = useState(false);
   const [qualityProductId, setQualityProductId] = useState<string | null>(null);
@@ -130,63 +132,115 @@ export default function AdminEstimationProducts() {
       ) : products.length === 0 ? (
         <StateMessage type="empty" title="No products yet" message="Add your first estimation product to get started." />
       ) : (
-        <div className="space-y-3">
-          {products.map(p => (
-            <div key={p.id}>
-              <AdminCard className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{p.name}</h3>
-                    {!p.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
-                    {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700">Quality tiers</span>}
-                  </div>
-                  {p.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{p.description}</p>}
-                  <div className="mt-1 flex flex-wrap gap-2 text-xs text-neutral-400 dark:text-neutral-500">
-                    <span>Category: {p.category}</span>
-                    <span>·</span>
-                    <span>Type: {p.product_type}</span>
-                    <span>·</span>
-                    <span>Method: {p.calculation_method}</span>
-                    {p.standard_pack_size && <><span>·</span><span>Pack: {p.standard_pack_size}</span></>}
-                  </div>
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  {p.has_quality_levels && (
-                    <AdminButton variant="secondary" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
-                      {expandedId === p.id ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
-                      {qualityMap[p.id]?.length ?? 0} levels
-                    </AdminButton>
-                  )}
-                  <Toggle checked={p.is_active} onChange={() => toggleActive(p)} />
-                  <AdminButton variant="secondary" onClick={() => { setEditing(p); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(p)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
-                </div>
-              </AdminCard>
-              {expandedId === p.id && p.has_quality_levels && (
-                <div className="ml-4 mt-1 space-y-2">
-                  {(qualityMap[p.id] ?? []).map(q => (
-                    <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 px-4 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <Tag className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
-                        {q.coverage && <span className="text-xs text-neutral-400 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
-                        {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Toggle checked={q.is_active} onChange={() => toggleQualityActive(q)} />
-                        <AdminButton variant="secondary" onClick={() => { setEditingQuality(q); setQualityProductId(p.id); setShowQualityForm(true); }}><Pencil className="h-3 w-3" /></AdminButton>
-                        <AdminButton variant="danger" onClick={() => removeQuality(q)}><Trash2 className="h-3 w-3" /></AdminButton>
-                      </div>
-                    </div>
-                  ))}
-                  <AdminButton variant="secondary" onClick={() => { setEditingQuality(null); setQualityProductId(p.id); setShowQualityForm(true); }}>
-                    <Plus className="h-3.5 w-3.5" /> Add quality level
-                  </AdminButton>
-                </div>
-              )}
+        <>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name or category…"
+                className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9"
+              />
             </div>
-          ))}
-        </div>
+            {!search && (() => {
+              const groupOrder: string[] = [];
+              const groupMap = new Map<string, EstProduct[]>();
+              for (const p of products) {
+                const key = p.category || 'other';
+                if (!groupMap.has(key)) { groupMap.set(key, []); groupOrder.push(key); }
+                groupMap.get(key)!.push(p);
+              }
+              return groupOrder.length > 1 ? <GroupControls onExpandAll={() => setCollapsed(new Set())} onCollapseAll={() => setCollapsed(new Set(groupOrder))} groupLabel={`${groupOrder.length} categories`} /> : null;
+            })()}
+          </div>
+          {(() => {
+            const filtered = search
+              ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()))
+              : products;
+            const groupOrder: string[] = [];
+            const groupMap = new Map<string, EstProduct[]>();
+            for (const p of filtered) {
+              const key = p.category || 'other';
+              if (!groupMap.has(key)) { groupMap.set(key, []); groupOrder.push(key); }
+              groupMap.get(key)!.push(p);
+            }
+            groupOrder.sort((a, b) => a.localeCompare(b));
+            if (filtered.length === 0) return <StateMessage type="empty" title="No products found" message="Adjust your search to see results." />;
+            return (
+              <div className="space-y-3">
+                {groupOrder.map((cat) => {
+                  const catItems = groupMap.get(cat)!;
+                  const isOpen = search || !collapsed.has(cat);
+                  return (
+                    <CollapsibleGroup
+                      key={cat}
+                      title={cat.replace(/_/g, ' ')}
+                      count={catItems.length}
+                      isOpen={isOpen}
+                      onToggle={() => setCollapsed(prev => { const next = new Set(prev); if (next.has(cat)) next.delete(cat); else next.add(cat); return next; })}
+                    >
+                      {catItems.map(p => (
+                        <div key={p.id}>
+                          <AdminCard className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <h3 className="text-base font-bold text-brand-navy dark:text-white">{p.name}</h3>
+                                {!p.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
+                                {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-semibold text-purple-700">Quality tiers</span>}
+                              </div>
+                              {p.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{p.description}</p>}
+                              <div className="mt-1 flex flex-wrap gap-2 text-xs text-neutral-400 dark:text-neutral-500">
+                                <span>Type: {p.product_type}</span>
+                                <span>·</span>
+                                <span>Method: {p.calculation_method}</span>
+                                {p.standard_pack_size && <><span>·</span><span>Pack: {p.standard_pack_size}</span></>}
+                              </div>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                              {p.has_quality_levels && (
+                                <AdminButton variant="secondary" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}>
+                                  {expandedId === p.id ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                                  {qualityMap[p.id]?.length ?? 0} levels
+                                </AdminButton>
+                              )}
+                              <Toggle checked={p.is_active} onChange={() => toggleActive(p)} />
+                              <AdminButton variant="secondary" onClick={() => { setEditing(p); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
+                              <AdminButton variant="danger" onClick={() => remove(p)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                            </div>
+                          </AdminCard>
+                          {expandedId === p.id && p.has_quality_levels && (
+                            <div className="ml-4 mt-1 space-y-2">
+                              {(qualityMap[p.id] ?? []).map(q => (
+                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 px-4 py-2.5">
+                                  <div className="flex items-center gap-2">
+                                    <Tag className="h-4 w-4 text-purple-500" />
+                                    <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
+                                    {q.coverage && <span className="text-xs text-neutral-400 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
+                                    {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Toggle checked={q.is_active} onChange={() => toggleQualityActive(q)} />
+                                    <AdminButton variant="secondary" onClick={() => { setEditingQuality(q); setQualityProductId(p.id); setShowQualityForm(true); }}><Pencil className="h-3 w-3" /></AdminButton>
+                                    <AdminButton variant="danger" onClick={() => removeQuality(q)}><Trash2 className="h-3 w-3" /></AdminButton>
+                                  </div>
+                                </div>
+                              ))}
+                              <AdminButton variant="secondary" onClick={() => { setEditingQuality(null); setQualityProductId(p.id); setShowQualityForm(true); }}>
+                                <Plus className="h-3.5 w-3.5" /> Add quality level
+                              </AdminButton>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </CollapsibleGroup>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </>
       )}
       {showForm && <ProductForm initial={editing} onClose={() => setShowForm(false)} onSaved={() => { setShowForm(false); load(); }} />}
       {showQualityForm && qualityProductId && (
