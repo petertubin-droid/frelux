@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
+import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
@@ -36,9 +37,13 @@ export default function AdminSettings() {
       whatsapp_number: settings.whatsapp_number, default_currency: settings.default_currency,
       default_currency_symbol: settings.default_currency_symbol, default_unit: settings.default_unit,
       maintenance_mode: settings.maintenance_mode, seo_title: settings.seo_title, seo_description: settings.seo_description,
+      hero_headline: settings.hero_headline, hero_subheadline: settings.hero_subheadline,
+      hero_cta_primary_label: settings.hero_cta_primary_label, hero_cta_primary_href: settings.hero_cta_primary_href,
+      hero_cta_secondary_label: settings.hero_cta_secondary_label, hero_cta_secondary_href: settings.hero_cta_secondary_href,
     }).eq('id', settings.id);
     setSaving(false);
     if (error) { setError(error.message); return; }
+    invalidateHeroContentCache();
     setSavedAt(Date.now());
     window.setTimeout(() => setSavedAt(null), 3000);
   }
@@ -82,6 +87,37 @@ export default function AdminSettings() {
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">SEO</h2>
           <AdminField label="SEO title" hint="Optional"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
           <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
+        </AdminCard>
+        <AdminCard>
+          <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Homepage Hero</h2>
+          <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
+            This is the approved, client-controlled copy shown on the homepage hero section.
+            Changes here take effect immediately on save. Use <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">#calculators</code> for in-page anchors or <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">/screeding-calculator</code> for routes.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminField label="Headline" hint="Main hero headline">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_headline ?? ''} onChange={(e) => update('hero_headline', e.target.value || null)} placeholder="Know Exactly What Materials Your Project Needs." />
+            </AdminField>
+            <AdminField label="Subheadline" hint="Supporting text below the headline">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_subheadline ?? ''} onChange={(e) => update('hero_subheadline', e.target.value || null)} placeholder="Calculate materials and estimate project costs..." />
+            </AdminField>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <AdminField label="Primary CTA label" hint="Button text">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_primary_label ?? ''} onChange={(e) => update('hero_cta_primary_label', e.target.value || null)} placeholder="Start Calculating" />
+            </AdminField>
+            <AdminField label="Primary CTA link" hint="Route or anchor">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_primary_href ?? ''} onChange={(e) => update('hero_cta_primary_href', e.target.value || null)} placeholder="/screeding-calculator" />
+            </AdminField>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <AdminField label="Secondary CTA label" hint="Button text">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_secondary_label ?? ''} onChange={(e) => update('hero_cta_secondary_label', e.target.value || null)} placeholder="Explore Calculators" />
+            </AdminField>
+            <AdminField label="Secondary CTA link" hint="Route or anchor">
+              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_secondary_href ?? ''} onChange={(e) => update('hero_cta_secondary_href', e.target.value || null)} placeholder="#calculators" />
+            </AdminField>
+          </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Maintenance</h2>

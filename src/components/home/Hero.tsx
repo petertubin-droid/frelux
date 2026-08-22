@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Sparkles } from 'lucide-react';
 import Container from '@/components/ui/Container';
+import { useHeroContent } from '@/lib/useHeroContent';
 
 const heroSteps = [
   { icon: Layers, label: 'Screeding', to: '/screeding-calculator' },
@@ -16,6 +17,8 @@ const trustPoints = [
 ];
 
 export default function Hero() {
+  const { content: hero } = useHeroContent();
+
   return (
     <section className="relative overflow-hidden bg-mesh text-white">
       {/* Grid pattern */}
@@ -58,31 +61,52 @@ export default function Hero() {
 
           {/* Headline */}
           <h1 className="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
-            Know Exactly What Materials Your Project Needs.
+            {hero.headline}
           </h1>
 
           {/* Subheadline */}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/55 text-balance">
-            Calculate materials and estimate project costs using FRELUX&rsquo;s Nigerian-focused construction and finishing calculators.
+            {hero.subheadline}
           </p>
 
           {/* CTAs */}
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link
-              to="/screeding-calculator"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
-            >
-              <Layers className="h-4 w-4" />
-              Start Calculating
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-            <a
-              href="#calculators"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
-            >
-              <Calculator className="h-4 w-4" />
-              Explore Calculators
-            </a>
+            {hero.ctaPrimaryHref.startsWith('#') ? (
+              <a
+                href={hero.ctaPrimaryHref}
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+              >
+                <Layers className="h-4 w-4" />
+                {hero.ctaPrimaryLabel}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+            ) : (
+              <Link
+                to={hero.ctaPrimaryHref}
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+              >
+                <Layers className="h-4 w-4" />
+                {hero.ctaPrimaryLabel}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            )}
+            {hero.ctaSecondaryHref.startsWith('#') ? (
+              <a
+                href={hero.ctaSecondaryHref}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+              >
+                <Calculator className="h-4 w-4" />
+                {hero.ctaSecondaryLabel}
+              </a>
+            ) : (
+              <Link
+                to={hero.ctaSecondaryHref}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+              >
+                <Calculator className="h-4 w-4" />
+                {hero.ctaSecondaryLabel}
+              </Link>
+            )}
           </div>
 
           {/* Trust points */}

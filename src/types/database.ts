@@ -75,6 +75,13 @@ export interface DbSiteSettings {
   meta_pixel_id: string | null;
   // Typography
   typography_config: TypographyConfig;
+  // Homepage hero content (CMS-managed, Phase 35)
+  hero_headline: string | null;
+  hero_subheadline: string | null;
+  hero_cta_primary_label: string | null;
+  hero_cta_primary_href: string | null;
+  hero_cta_secondary_label: string | null;
+  hero_cta_secondary_href: string | null;
   updated_at: string;
 }
 
