@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageSquare, X, Send, Minus, Loader2, Sparkles, Phone, ChevronRight } from 'lucide-react';
+import { X, Send, Minus, Loader2, Phone, ChevronRight } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
 import { supabase } from '@/lib/supabase';
@@ -106,13 +106,18 @@ export default function SupportChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-40 inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          className="fixed bottom-20 right-4 z-40 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Open support chat"
         >
-          <MessageSquare className="h-5 w-5" />
-          <span className="absolute -right-0.5 -top-0.5 flex h-3 w-3">
+          <img
+            src="/assets/chat-assistant-avatar.jpg"
+            alt="FRELUX AI Assistant"
+            className="h-full w-full object-cover"
+            loading="eager"
+          />
+          <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
-            <span className="relative inline-flex h-3 w-3 rounded-full bg-accent-green" />
+            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
           </span>
         </button>
       )}
@@ -129,9 +134,13 @@ export default function SupportChatWidget() {
             <button
               type="button"
               onClick={() => setMinimized(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white shadow-lg"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-purple pl-1.5 pr-4 py-1.5 text-sm font-semibold text-white shadow-lg"
             >
-              <MessageSquare className="h-4 w-4" />
+              <img
+                src="/assets/chat-assistant-avatar.jpg"
+                alt=""
+                className="h-7 w-7 rounded-full object-cover"
+              />
               Chat with FRELUX AI
             </button>
           ) : (
@@ -139,8 +148,12 @@ export default function SupportChatWidget() {
               {/* Header */}
               <div className="flex items-center justify-between bg-gradient-to-r from-brand-purple to-brand-purple-dark px-4 py-3 text-white">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15">
-                    <Sparkles className="h-4 w-4" />
+                  <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
+                    <img
+                      src="/assets/chat-assistant-avatar.jpg"
+                      alt="FRELUX AI Assistant"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                   <div className="leading-tight">
                     <p className="text-sm font-semibold">FRELUX AI Assistant</p>

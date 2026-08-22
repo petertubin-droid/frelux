@@ -68,7 +68,7 @@ export default function Home() {
       <Hero />
 
       {/* Choose Your Project — 6 calculator cards immediately below hero */}
-      <div className="bg-white dark:bg-brand-navy">
+      <div id="calculators" className="bg-white dark:bg-brand-navy">
         <ChooseProject />
       </div>
 
