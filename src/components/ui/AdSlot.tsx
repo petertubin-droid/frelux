@@ -203,6 +203,85 @@ export default function AdSlot({
         }
         break;
       }
+      case 'ezoic': {
+        if (!creds.site_id) break;
+        if (!document.querySelector('script[src*="ezoic"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.setAttribute('data-cfasync', 'false');
+          s.src = `https://www.ezoic.com/ezoic.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'snigel': {
+        if (!creds.site_id) break;
+        if (!document.querySelector('script[src*="snigelweb"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = `https://cdn.snigelweb.com/spc/${encodeURIComponent(creds.site_id)}.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'monumetric': {
+        if (!creds.client_id) break;
+        if (!document.querySelector('script[src*="monu"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.setAttribute('data-cfasync', 'false');
+          s.src = `https://serve.monumetric.com/pt/${encodeURIComponent(creds.client_id)}/inview.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'carbon_ads': {
+        if (!document.querySelector('script[src*="srv.carbonads"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.id = '_carbonads_js';
+          s.src = `https://srv.carbonads.net/ads/${encodeURIComponent(creds.serve || '')}.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'ethical_ads': {
+        if (!document.querySelector('script[src*="ethicalads"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://media.ethicalads.io/media/client/ethicalads.min.js';
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'amazon_publisher': {
+        if (!document.querySelector('script[src*="c.amazon-adsystem"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = `https://c.amazon-adsystem.com/aax2/apstag.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'yllix': {
+        if (!creds.publisher_id) break;
+        if (!document.querySelector('script[src*="yllix"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = `https://cdn.yllix.net/ads/ads.js`;
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case 'revcontent': {
+        if (!document.querySelector('script[src*="revcontent"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://assets.revcontent.com/revcontent/js/deliver.js';
+          document.head.appendChild(s);
+        }
+        break;
+      }
     }
   }, [resolved]);
 
@@ -310,6 +389,80 @@ export default function AdSlot({
     if (!creds.zone_id) return null;
     return (
       <div ref={containerRef} className={className} data-ad-provider="propellerads" data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // Ezoic rendering
+  if (provider.slug === 'ezoic') {
+    if (!creds.site_id) return null;
+    return (
+      <div ref={containerRef} className={className} data-ad-provider="ezoic" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // Snigel rendering
+  if (provider.slug === 'snigel') {
+    if (!creds.site_id) return null;
+    return (
+      <div ref={containerRef} className={className} data-ad-provider="snigel" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // Monumetric rendering
+  if (provider.slug === 'monumetric') {
+    if (!creds.client_id) return null;
+    return (
+      <div ref={containerRef} className={className} data-ad-provider="monumetric" data-client-id={creds.client_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // Carbon Ads rendering
+  if (provider.slug === 'carbon_ads') {
+    if (!creds.serve) return null;
+    return (
+      <div ref={containerRef} className={className}>
+        <div data-ad-provider="carbon-ads" data-serve={creds.serve} data-placement={creds.placement || slotKey} />
+      </div>
+    );
+  }
+
+  // EthicalAds rendering
+  if (provider.slug === 'ethical_ads') {
+    if (!creds.publisher_id) return null;
+    return (
+      <div ref={containerRef} className={className}>
+        <div
+          data-ad-provider="ethical-ads"
+          data-ea-publisher={creds.publisher_id}
+          data-ea-type={creds.placement || 'image-text'}
+        />
+      </div>
+    );
+  }
+
+  // Amazon Publisher (APS) rendering
+  if (provider.slug === 'amazon_publisher') {
+    if (!creds.publisher_id) return null;
+    return (
+      <div ref={containerRef} className={className} data-ad-provider="amazon" data-publisher-id={creds.publisher_id} data-slot-id={creds.slot_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // YlliX rendering
+  if (provider.slug === 'yllix') {
+    if (!creds.publisher_id) return null;
+    return (
+      <div ref={containerRef} className={className} data-ad-provider="yllix" data-publisher-id={creds.publisher_id} data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+    );
+  }
+
+  // RevContent rendering
+  if (provider.slug === 'revcontent') {
+    if (!creds.widget_id) return null;
+    return (
+      <div ref={containerRef} className={className}>
+        <div data-ad-provider="revcontent" data-widget-id={creds.widget_id} data-sub-id={creds.sub_id || ''} />
+      </div>
     );
   }
 

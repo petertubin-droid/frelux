@@ -148,6 +148,99 @@ export function generateOfferwallUrl(
       };
     }
 
+    case 'wannads': {
+      if (!creds.api_key || !creds.sub_id) return null;
+      const params = new URLSearchParams({
+        key: creds.api_key,
+        subid: creds.sub_id,
+        userid: clientHash,
+      });
+      return {
+        url: `https://www.wannads.com/wall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
+    case 'my_lead': {
+      if (!creds.app_id) return null;
+      const params = new URLSearchParams({
+        app: creds.app_id,
+        uid: clientHash,
+      });
+      return {
+        url: `https://www.mylead.com/offerwall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
+    case 'adwork_media': {
+      if (!creds.campaign_id) return null;
+      const params = new URLSearchParams({
+        camp: creds.campaign_id,
+        uid: clientHash,
+      });
+      return {
+        url: `https://www.adworkmedia.com/offerwall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
+    case 'revenuehits': {
+      if (!creds.client_id || !creds.placement_id) return null;
+      const params = new URLSearchParams({
+        client: creds.client_id,
+        placement: creds.placement_id,
+        user: clientHash,
+      });
+      return {
+        url: `https://www.revenuehits.com/offerwall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
+    case 'notik': {
+      if (!creds.api_key || !creds.app_id) return null;
+      const params = new URLSearchParams({
+        app: creds.app_id,
+        key: creds.api_key,
+        user: clientHash,
+      });
+      return {
+        url: `https://notik.com/offerwall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
+    case 'bitcot': {
+      if (!creds.app_id) return null;
+      const params = new URLSearchParams({
+        app: creds.app_id,
+        user: clientHash,
+      });
+      return {
+        url: `https://rewards.bitcot.com/offerwall?${params.toString()}`,
+        providerSlug: slug,
+        providerName: provider.name,
+        width: '100%',
+        height: '600px',
+      };
+    }
+
     default:
       // For Google AdMob and other mobile SDK providers, we can't embed an offerwall on web.
       // Fall back to the existing edge function approach (dev mode / SDK integration).
@@ -166,5 +259,11 @@ export function supportsOfferwall(provider: DbAdProvider): boolean {
     'cpx_research',
     'ayet_studios',
     'revu',
+    'wannads',
+    'my_lead',
+    'adwork_media',
+    'revenuehits',
+    'notik',
+    'bitcot',
   ].includes(provider.slug);
 }

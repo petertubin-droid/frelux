@@ -270,6 +270,187 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
       { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/revu-postback' },
     ],
   },
+  // ─────────────────────────────────────────────────────────
+  // Additional web display ad providers
+  // ─────────────────────────────────────────────────────────
+  {
+    slug: 'ezoic',
+    name: 'Ezoic',
+    provider_type: 'display',
+    icon: 'ezoic',
+    credential_fields: [
+      { key: 'site_id', label: 'Site ID', type: 'text', required: true, placeholder: '1234567' },
+      { key: 'ad_test', label: 'Ad Tester ID (optional)', type: 'text', required: false, placeholder: 'tester-1' },
+    ],
+    setting_fields: [
+      { key: 'lazy_load', label: 'Lazy Load', type: 'boolean', default: true },
+      { key: 'mediation', label: 'Header Bidding', type: 'boolean', default: true },
+    ],
+  },
+  {
+    slug: 'snigel',
+    name: 'Snigel',
+    provider_type: 'display',
+    icon: 'snigel',
+    credential_fields: [
+      { key: 'site_id', label: 'Site ID', type: 'text', required: true, placeholder: 'frelux' },
+      { key: 'adserver', label: 'Ad Server', type: 'text', required: false, placeholder: 'gam' },
+    ],
+    setting_fields: [
+      { key: 'lazy_load', label: 'Lazy Load', type: 'boolean', default: true },
+    ],
+  },
+  {
+    slug: 'monumetric',
+    name: 'Monumetric',
+    provider_type: 'display',
+    icon: 'monumetric',
+    credential_fields: [
+      { key: 'client_id', label: 'Client ID', type: 'text', required: true, placeholder: 'S-XXXX-XXXX' },
+      { key: 'zone_id', label: 'Zone ID', type: 'text', required: false, placeholder: '1234567' },
+    ],
+    setting_fields: [],
+  },
+  {
+    slug: 'carbon_ads',
+    name: 'Carbon Ads',
+    provider_type: 'native',
+    icon: 'carbon',
+    credential_fields: [
+      { key: 'serve', label: 'Serve ID', type: 'text', required: true, placeholder: 'CKYI42QM' },
+      { key: 'placement', label: 'Placement', type: 'text', required: true, placeholder: 'freluxcom' },
+    ],
+    setting_fields: [],
+  },
+  {
+    slug: 'ethical_ads',
+    name: 'EthicalAds',
+    provider_type: 'native',
+    icon: 'ethical',
+    credential_fields: [
+      { key: 'publisher_id', label: 'Publisher ID', type: 'text', required: true, placeholder: 'frelux' },
+      { key: 'placement', label: 'Placement', type: 'text', required: false, placeholder: 'sidebar' },
+    ],
+    setting_fields: [
+      { key: 'format', label: 'Format', type: 'text', default: 'image-text' },
+    ],
+  },
+  {
+    slug: 'amazon_publisher',
+    name: 'Amazon Publisher (APS)',
+    provider_type: 'display',
+    icon: 'amazon',
+    credential_fields: [
+      { key: 'publisher_id', label: 'Publisher ID', type: 'text', required: true, placeholder: 'frelux-1234' },
+      { key: 'slot_id', label: 'Slot ID', type: 'text', required: true, placeholder: '12345' },
+    ],
+    setting_fields: [],
+  },
+  {
+    slug: 'yllix',
+    name: 'YlliX',
+    provider_type: 'display',
+    icon: 'yllix',
+    credential_fields: [
+      { key: 'publisher_id', label: 'Publisher ID', type: 'text', required: true, placeholder: '1234567890123456' },
+      { key: 'zone_id', label: 'Zone ID', type: 'text', required: true, placeholder: '1234567' },
+    ],
+    setting_fields: [
+      { key: 'format', label: 'Ad Format', type: 'text', default: 'banner' },
+    ],
+  },
+  {
+    slug: 'revcontent',
+    name: 'RevContent',
+    provider_type: 'native',
+    icon: 'revcontent',
+    credential_fields: [
+      { key: 'widget_id', label: 'Widget ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'sub_id', label: 'Sub ID (optional)', type: 'text', required: false, placeholder: 'sub-1' },
+    ],
+    setting_fields: [],
+  },
+  // ─────────────────────────────────────────────────────────
+  // Additional web rewarded ad providers
+  // ─────────────────────────────────────────────────────────
+  {
+    slug: 'wannads',
+    name: 'Wannads',
+    provider_type: 'rewarded',
+    icon: 'wannads',
+    credential_fields: [
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-wannads-api-key' },
+      { key: 'sub_id', label: 'Sub ID', type: 'text', required: true, placeholder: '12345' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/wannads-postback' },
+    ],
+  },
+  {
+    slug: 'my_lead',
+    name: 'MyLead',
+    provider_type: 'rewarded',
+    icon: 'mylead',
+    credential_fields: [
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-mylead-api-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/mylead-postback' },
+    ],
+  },
+  {
+    slug: 'adwork_media',
+    name: 'AdWork Media',
+    provider_type: 'rewarded',
+    icon: 'adwork',
+    credential_fields: [
+      { key: 'campaign_id', label: 'Campaign ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-adwork-api-key' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/adwork-postback' },
+    ],
+  },
+  {
+    slug: 'revenuehits',
+    name: 'RevenueHits',
+    provider_type: 'rewarded',
+    icon: 'revenuehits',
+    credential_fields: [
+      { key: 'client_id', label: 'Client ID', type: 'text', required: true, placeholder: 'cl-XXXX' },
+      { key: 'placement_id', label: 'Placement ID', type: 'text', required: true, placeholder: '12345' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/revenuehits-postback' },
+    ],
+  },
+  {
+    slug: 'notik',
+    name: 'Notik',
+    provider_type: 'rewarded',
+    icon: 'notik',
+    credential_fields: [
+      { key: 'api_key', label: 'API Key', type: 'password', required: true, placeholder: 'your-notik-api-key' },
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/notik-postback' },
+    ],
+  },
+  {
+    slug: 'bitcot',
+    name: 'Bitcot Rewards',
+    provider_type: 'rewarded',
+    icon: 'bitcot',
+    credential_fields: [
+      { key: 'app_id', label: 'App ID', type: 'text', required: true, placeholder: '12345' },
+      { key: 'secret', label: 'Secret Key', type: 'password', required: true, placeholder: 'your-bitcot-secret' },
+    ],
+    setting_fields: [
+      { key: 'postback_url', label: 'Postback URL', type: 'text', required: false, placeholder: 'https://freluxtools.netlify.app/api/bitcot-postback' },
+    ],
+  },
 ];
 
 /**

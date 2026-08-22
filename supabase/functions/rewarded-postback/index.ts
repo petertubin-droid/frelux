@@ -17,7 +17,8 @@ function jsonResponse(body: unknown, status = 200): Response {
  * Rewarded Ad Postback Handler
  *
  * Receives server-to-server postback callbacks from web rewarded ad providers
- * (AdGate Media, OfferToro, AdGem, CPX Research, Ayet Studios, RevU).
+ * (AdGate Media, OfferToro, AdGem, CPX Research, Ayet Studios, RevU,
+ * Wannads, MyLead, AdWork Media, RevenueHits, Notik, Bitcot Rewards).
  *
  * Each provider sends a different callback format. This function:
  * 1. Identifies the provider from the URL path or query params
@@ -151,6 +152,102 @@ Deno.serve(async (req: Request) => {
         .eq('is_active', true)
         .maybeSingle();
       if (provider?.credentials?.placement_id === placementId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'wannads') {
+      // Wannads postback
+      clientHash = url.searchParams.get('userid') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('amount') ?? '0');
+      providerName = 'Wannads';
+      const subId = url.searchParams.get('subid') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'wannads')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.sub_id === subId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'my_lead') {
+      // MyLead postback
+      clientHash = url.searchParams.get('uid') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('payout') ?? '0');
+      providerName = 'MyLead';
+      const appId = url.searchParams.get('app') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'my_lead')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.app_id === appId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'adwork_media') {
+      // AdWork Media postback
+      clientHash = url.searchParams.get('uid') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('amount') ?? '0');
+      providerName = 'AdWork Media';
+      const campId = url.searchParams.get('camp') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'adwork_media')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.campaign_id === campId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'revenuehits') {
+      // RevenueHits postback
+      clientHash = url.searchParams.get('user') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('amount') ?? '0');
+      providerName = 'RevenueHits';
+      const clientId = url.searchParams.get('client') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'revenuehits')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.client_id === clientId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'notik') {
+      // Notik postback
+      clientHash = url.searchParams.get('user') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('amount') ?? '0');
+      providerName = 'Notik';
+      const appId = url.searchParams.get('app') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'notik')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.app_id === appId) {
+        isValid = true;
+      }
+      toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
+    } else if (providerSlug === 'bitcot') {
+      // Bitcot postback
+      clientHash = url.searchParams.get('user') ?? '';
+      rewardAmount = parseFloat(url.searchParams.get('amount') ?? '0');
+      providerName = 'Bitcot Rewards';
+      const appId = url.searchParams.get('app') ?? '';
+      const { data: provider } = await supabase
+        .from('ad_providers')
+        .select('credentials')
+        .eq('slug', 'bitcot')
+        .eq('is_active', true)
+        .maybeSingle();
+      if (provider?.credentials?.app_id === appId) {
         isValid = true;
       }
       toolKey = url.searchParams.get('tool_key') ?? 'advanced_calculator';
