@@ -167,10 +167,10 @@ export default function App() {
         <ToastProvider>
           <AnalyticsScripts />
           <AdBlockNotice />
-          <CookieBanner />
           <BrowserRouter>
             <ScrollToTop />
             <NotificationClickHandler />
+            <CookieBanner />
             <Routes>
           {/* ─────────────────────────────────────────────────────── */}
           {/* PUBLIC SITE — all public-facing pages under Layout */}
