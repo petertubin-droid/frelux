@@ -6,6 +6,7 @@ import { AuthProvider } from '@/lib/auth';
 import { ToastProvider } from '@/components/ui/Toast';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
 import { AdBlockNotice } from '@/components/ui/AdBlockNotice';
+import { CookieBanner } from '@/components/ui/CookieBanner';
 import Layout from '@/components/layout/Layout';
 import Home from '@/pages/Home';
 const Colors = lazy(() => import('@/pages/Colors'));
@@ -157,6 +158,7 @@ export default function App() {
         <ToastProvider>
           <AnalyticsScripts />
           <AdBlockNotice />
+          <CookieBanner />
           <BrowserRouter>
             <ScrollToTop />
             <NotificationClickHandler />

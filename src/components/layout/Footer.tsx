@@ -3,6 +3,7 @@ import { MessageCircle } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
+import { withdrawConsent } from '@/lib/cookie-consent';
 
 const calculateLinks = [
   { label: 'Wall Screeding Calculator', path: '/screeding-calculator' },
@@ -76,12 +77,20 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
-          <p className="text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
           <p className="text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
             Estimates are for guidance only and not a guarantee of final cost or quantity.
           </p>
+          </div>
+          <button
+            onClick={() => withdrawConsent()}
+            className="text-xs text-neutral-400 hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter transition-colors"
+          >
+            Cookie Preferences
+          </button>
         </div>
       </div>
     </footer>
