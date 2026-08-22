@@ -3,10 +3,10 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
   Sun, Moon, LayoutDashboard, UserCircle, ClipboardList, FileStack,
-  Users, BarChart3, Search,
+  Users, BarChart3, Search, ChevronRight,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
-import { navWorkspaces } from '@/config/site';
+import { navWorkspaces, type NavChild } from '@/config/site';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/lib/theme';
@@ -17,6 +17,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const location = useLocation();
   const { user, signOut } = useAuth();
   const { theme, toggle } = useTheme();
@@ -25,6 +26,7 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenDropdown(null);
+    setMobileExpanded(null);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -39,7 +41,6 @@ export default function Navbar() {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
-  // Close dropdown when clicking outside the entire nav
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
@@ -59,6 +60,29 @@ export default function Navbar() {
     { label: 'Analytics', to: '/analytics', icon: BarChart3 },
   ];
 
+  // Group children by section for premium dropdown rendering
+  function groupBySection(children: NavChild[]): { section: string | null; items: NavChild[] }[] {
+    const groups: { section: string | null; items: NavChild[] }[] = [];
+    let currentSection: string | null = null;
+    let currentGroup: NavChild[] = [];
+
+    for (const child of children) {
+      const sec = child.section ?? null;
+      if (sec !== currentSection) {
+        if (currentGroup.length > 0) {
+          groups.push({ section: currentSection, items: currentGroup });
+        }
+        currentSection = sec;
+        currentGroup = [];
+      }
+      currentGroup.push(child);
+    }
+    if (currentGroup.length > 0) {
+      groups.push({ section: currentSection, items: currentGroup });
+    }
+    return groups;
+  }
+
   return (
     <>
       <header
@@ -72,7 +96,6 @@ export default function Navbar() {
         <nav ref={navRef} className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo — left */}
           <div className="flex items-center gap-3">
-            {/* Hamburger — left side on mobile (before logo) */}
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
@@ -87,7 +110,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop nav with workspace dropdowns */}
+          {/* Desktop nav with premium grouped dropdowns */}
           <div className="hidden items-center gap-1 lg:flex">
             {navWorkspaces.map((workspace) => (
               <div key={workspace.label} className="relative">
@@ -109,28 +132,62 @@ export default function Navbar() {
                     </button>
                     {openDropdown === workspace.label && (
                       <div
-                        className="absolute left-0 top-full z-50 min-w-[240px] rounded-xl border border-neutral-200/40 bg-white/90 py-1.5 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/90"
+                        className="absolute left-0 top-full z-50 min-w-[320px] max-w-[400px] rounded-2xl border border-neutral-200/40 bg-white/95 py-2 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
                         style={{ animationDuration: '0.15s' }}
                         onMouseLeave={() => setOpenDropdown(null)}
                       >
-                        <NavLink
-                          to={workspace.path}
-                          className="block px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-                        >
-                          {workspace.label} Home
-                        </NavLink>
-                        <div className="my-1 border-t border-neutral-100 dark:border-white/5" />
-                        {workspace.children.map((child) => (
+                        {/* Dropdown header */}
+                        <div className="px-4 py-2">
                           <NavLink
-                            key={child.path}
-                            to={child.path}
-                            className={({ isActive }) => classNames(
-                              'block px-4 py-2 text-sm transition-colors',
-                              isActive ? 'font-semibold text-brand-purple dark:text-brand-purple-lighter bg-brand-purple/5' : 'text-neutral-600 hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter'
-                            )}
+                            to={workspace.path}
+                            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400 transition-colors hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter"
                           >
-                            {child.label}
+                            {workspace.label}
+                            <ChevronRight className="h-3 w-3" />
                           </NavLink>
+                        </div>
+                        {/* Grouped sections */}
+                        {groupBySection(workspace.children).map((group, gi) => (
+                          <div key={gi}>
+                            {group.section && (
+                              <div className="px-4 pb-1.5 pt-3">
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                                  {group.section}
+                                </p>
+                              </div>
+                            )}
+                            {group.items.map((child) => (
+                              <NavLink
+                                key={child.path}
+                                to={child.path}
+                                className={({ isActive }) => classNames(
+                                  'group flex items-start gap-3 rounded-lg px-4 py-2 transition-all',
+                                  isActive
+                                    ? 'bg-brand-purple/5'
+                                    : 'hover:bg-brand-purple/5'
+                                )}
+                              >
+                                <div className="min-w-0 flex-1">
+                                  <p className={classNames(
+                                    'text-sm font-medium transition-colors',
+                                    location.pathname === child.path
+                                      ? 'text-brand-purple dark:text-brand-purple-lighter'
+                                      : 'text-neutral-700 group-hover:text-brand-purple dark:text-neutral-200 dark:group-hover:text-brand-purple-lighter'
+                                  )}>
+                                    {child.label}
+                                  </p>
+                                  {child.description && (
+                                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+                                      {child.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </NavLink>
+                            ))}
+                            {gi < groupBySection(workspace.children).length - 1 && (
+                              <div className="mx-4 my-1 border-t border-neutral-100 dark:border-white/5" />
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
@@ -195,30 +252,31 @@ export default function Navbar() {
 
               {openDropdown === 'account' && (
                 <div
-                  className="absolute right-0 top-full z-50 min-w-[220px] rounded-xl border border-neutral-200/40 bg-white/90 py-1.5 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/90"
+                  className="absolute right-0 top-full z-50 min-w-[240px] rounded-2xl border border-neutral-200/40 bg-white/95 py-2 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
                   style={{ animationDuration: '0.15s' }}
                 >
                   {user ? (
                     <>
-                      {/* User email header */}
                       <div className="px-4 py-2.5 border-b border-neutral-100 dark:border-white/5">
                         <p className="text-xs text-neutral-400 dark:text-neutral-500">Signed in as</p>
                         <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{user.email}</p>
                       </div>
-                      {accountMenuItems.map((item) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={item.label}
-                            to={item.to}
-                            onClick={() => setOpenDropdown(null)}
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-                          >
-                            <Icon className="h-4 w-4 shrink-0" />
-                            {item.label}
-                          </Link>
-                        );
-                      })}
+                      <div className="py-1">
+                        {accountMenuItems.map((item) => {
+                          const Icon = item.icon;
+                          return (
+                            <Link
+                              key={item.label}
+                              to={item.to}
+                              onClick={() => setOpenDropdown(null)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                            >
+                              <Icon className="h-4 w-4 shrink-0" />
+                              {item.label}
+                            </Link>
+                          );
+                        })}
+                      </div>
                       <div className="my-1 border-t border-neutral-100 dark:border-white/5" />
                       <button
                         type="button"
@@ -265,7 +323,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ===== Mobile drawer ===== */}
+      {/* ===== Mobile drawer — premium collapsible sections ===== */}
       <div
         className={classNames(
           'fixed inset-0 z-50 lg:hidden',
@@ -302,42 +360,74 @@ export default function Navbar() {
             </button>
           </div>
 
-          {/* Drawer nav */}
+          {/* Drawer nav — collapsible sections */}
           <div className="px-3 py-4">
             {navWorkspaces.map((workspace) => (
               <div key={workspace.label} className="mb-1">
-                <NavLink
-                  to={workspace.path}
-                  className={({ isActive }) => classNames(
-                    'block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
-                    isActive ? 'bg-brand-purple/8 text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter' : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
-                  )}
-                >
-                  {workspace.label}
-                </NavLink>
-                {workspace.children && (
-                  <div className="ml-3 mt-1 border-l border-neutral-100 pl-3 dark:border-white/5">
-                    {workspace.children.map((child) => (
-                      <NavLink
-                        key={child.path}
-                        to={child.path}
-                        className={({ isActive }) => classNames(
-                          'block rounded-lg px-3 py-2 text-sm transition-colors',
-                          isActive ? 'font-medium text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter'
-                        )}
-                      >
-                        {child.label}
-                      </NavLink>
-                    ))}
-                  </div>
+                {workspace.children ? (
+                  <>
+                    <button
+                      onClick={() => setMobileExpanded(mobileExpanded === workspace.label ? null : workspace.label)}
+                      className={classNames(
+                        'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
+                        location.pathname.startsWith(workspace.path)
+                          ? 'bg-brand-purple/8 text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter'
+                          : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
+                      )}
+                    >
+                      {workspace.label}
+                      <ChevronDown className={classNames(
+                        'h-4 w-4 transition-transform duration-200',
+                        mobileExpanded === workspace.label && 'rotate-180'
+                      )} />
+                    </button>
+                    {mobileExpanded === workspace.label && (
+                      <div className="ml-3 mt-1 border-l border-neutral-100 pl-3 dark:border-white/10">
+                        {groupBySection(workspace.children).map((group, gi) => (
+                          <div key={gi}>
+                            {group.section && (
+                              <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                                {group.section}
+                              </p>
+                            )}
+                            {group.items.map((child) => (
+                              <NavLink
+                                key={child.path}
+                                to={child.path}
+                                className={({ isActive }) => classNames(
+                                  'block rounded-lg px-3 py-2 text-sm transition-colors',
+                                  isActive ? 'font-medium text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter'
+                                )}
+                              >
+                                {child.label}
+                              </NavLink>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <NavLink
+                    to={workspace.path}
+                    className={({ isActive }) => classNames(
+                      'block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors',
+                      isActive ? 'bg-brand-purple/8 text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter' : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
+                    )}
+                  >
+                    {workspace.label}
+                  </NavLink>
                 )}
               </div>
             ))}
 
             {/* Account section */}
             <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+              <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                Account
+              </p>
               {user ? (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <div className="px-3 py-1.5">
                     <p className="text-xs text-neutral-400 dark:text-neutral-500">Signed in as</p>
                     <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{user.email}</p>
@@ -366,7 +456,7 @@ export default function Navbar() {
                   </button>
                 </div>
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   <Link to="/login" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
                     <LogIn className="h-4 w-4" />
                     Sign in
