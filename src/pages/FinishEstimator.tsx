@@ -7,11 +7,12 @@ import { fetchFinishTypes, fetchSiteSettings, saveUserProject, logAnalyticsEvent
 import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber, DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import type { DbFinishType, DbSiteSettings } from '@/types/database';
 
-const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
-const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
+// Default door/window dims now from admin calc rules via useCalcDefaults
 
 const finishTypeMeta: Record<FinishType, { icon: typeof Paintbrush; color: string }> = {
   painting: { icon: Paintbrush, color: 'text-blue-600' },
@@ -20,6 +21,9 @@ const finishTypeMeta: Record<FinishType, { icon: typeof Paintbrush; color: strin
 };
 
 export default function FinishEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('finish');
+  const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
+  const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
   useSeo({
     title: 'Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator',
     description: 'Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes.',
@@ -487,6 +491,22 @@ export default function FinishEstimator() {
                 <p>{errors.save}</p>
               </div>
             )}
+
+            <HowCalculatedSection
+              methodologyText={(calcDefaults.howCalculatedText as string) || ''}
+              assumptions={[
+                { label: 'Finish type', value: getFinishTypeLabel(result.finishType) },
+                { label: 'Coats', value: `${result.coats}` },
+                { label: 'Waste margin', value: `${result.wasteMargin}%` },
+                { label: 'Surface area', value: `${formatNumber(result.area)} m²` },
+              ]}
+            />
+            <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+            <ReportCalculationIssue
+              calculatorType="finish"
+              userInput={{ finishType: result.finishType, coats: result.coats, wasteMargin: result.wasteMargin }}
+              actualResult={{ area: result.area, materialCost: result.materialCost, totalCost: result.totalCost }}
+            />
           </div>
         )}
 

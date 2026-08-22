@@ -43,6 +43,8 @@ import { classNames } from '@/lib/utils';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PaintingEstimatorSeo } from '@/components/seo/SeoContent';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 // =========================================================
 // Types
 // =========================================================
@@ -60,14 +62,17 @@ interface AdminAdjustmentState {
 // =========================================================
 
 const PAINT_CATEGORIES = ['emulsion', 'matt', 'satin'];
-const DEFAULT_CEILING_COLOUR = 'white';
-const DEFAULT_COATS = 2;
+// DEFAULT_CEILING_COLOUR and DEFAULT_COATS are now fetched from admin calc rules
+// via useCalcDefaults hook in the component
 
 // =========================================================
 // Component
 // =========================================================
 
 export default function PaintingEstimator() {
+  const { defaults: calcDefaults, rules: defaultCalcRules } = useCalcDefaults('painting');
+  const DEFAULT_CEILING_COLOUR = (defaultCalcRules['ceiling_default_colour']?.rule_value as Record<string, unknown>)?.colour as string ?? 'white';
+  const DEFAULT_COATS = (defaultCalcRules['standard_coat_count']?.rule_value as Record<string, unknown>)?.count as number ?? 2;
   useSeo({
     title: 'FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator',
     description: 'Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.',
@@ -1217,6 +1222,13 @@ function EstimateResult({
             <TrustBadge label="CONFIGURED" value="FRELUX Admin" />
             <TrustBadge label="NEGOTIATED" value="Labour (separate)" />
           </div>
+
+          <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+          <ReportCalculationIssue
+            calculatorType="painting"
+            userInput={{ rooms: result.rooms.length, totalTheoreticalLitres: result.combined_theoretical_litres }}
+            actualResult={{ totalMaterialCost: result.total_material_cost, totalBuckets: result.combined_practical_buckets }}
+          />
         </div>
       </div>
     </div>

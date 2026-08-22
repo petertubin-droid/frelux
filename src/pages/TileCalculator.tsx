@@ -8,6 +8,8 @@ import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSetting
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -21,6 +23,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { TileCalculatorSeo } from '@/components/seo/SeoContent';
 export default function TileCalculator() {
+  const { defaults: calcDefaults } = useCalcDefaults('tile');
   useSeo({
     title: 'Tile Calculator: How Many Tiles Do I Need?',
     description: 'Free tile calculator. Enter your floor or wall dimensions and tile size to calculate tile quantity, boxes, adhesive, grout, and labour cost.',
@@ -418,7 +421,8 @@ export default function TileCalculator() {
         {result && (
           <TileResultCard result={result} input={input} currencySymbol={currencySymbol}
             onAgain={() => setResult(null)} onStartOver={startOver}
-            user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
+            user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg}
+            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }} />
         )}
       </div>
 
@@ -441,7 +445,7 @@ export default function TileCalculator() {
   );
 }
 
-function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg }: {
+function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults }: {
   result: TileCalcResult;
   input: TileCalcInput;
   currencySymbol: string;
@@ -451,6 +455,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
   onSave: () => void;
   saving: boolean;
   saveMsg: string;
+  calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
@@ -492,6 +497,22 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
       </div>
 
       {saveMsg && <p className="px-6 pb-2 text-sm text-brand-purple sm:px-8">{saveMsg}</p>}
+
+      <HowCalculatedSection
+        methodologyText={calcDefaults.howCalculatedText}
+        assumptions={[
+          { label: 'Surface type', value: input.surfaceType },
+          { label: 'Tile size', value: `${input.tileWidthMm}×${input.tileHeightMm}mm` },
+          { label: 'Waste margin', value: `${input.wasteMargin}%` },
+          { label: 'Method', value: input.method },
+        ]}
+      />
+      <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+      <ReportCalculationIssue
+        calculatorType="tile"
+        userInput={{ surfaceType: input.surfaceType, tileWidthMm: input.tileWidthMm, tileHeightMm: input.tileHeightMm, wasteMargin: input.wasteMargin, method: input.method }}
+        actualResult={{ surfaceArea: result.surfaceArea, tilesNeeded: result.tilesNeeded, boxesNeeded: result.boxesNeeded, grandTotal: result.grandTotal }}
+      />
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <button type="button" onClick={onAgain} className="btn-secondary">

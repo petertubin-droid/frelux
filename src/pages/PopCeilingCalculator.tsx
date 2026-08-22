@@ -8,6 +8,8 @@ import { logAnalyticsEvent, fetchPopMaterials, fetchPopWorkflows, fetchSiteSetti
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
@@ -21,6 +23,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
 export default function PopCeilingCalculator() {
+  const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling');
   useSeo({
     title: 'POP Ceiling Calculator: How Much POP Cement Do I Need?',
     description: 'Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for both Nigerian and international POP ceiling workflows.',
@@ -239,6 +242,7 @@ export default function PopCeilingCalculator() {
         {result && (
           <PopResultCard result={result} input={input} currencySymbol={currencySymbol}
             onAgain={() => setResult(null)} onStartOver={startOver}
+            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }}
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
         )}
       </div>
@@ -262,7 +266,7 @@ export default function PopCeilingCalculator() {
   );
 }
 
-function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg }: {
+function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults }: {
   result: PopCalcResult;
   input: PopCalcInput;
   currencySymbol: string;
@@ -272,6 +276,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
   onSave: () => void;
   saving: boolean;
   saveMsg: string;
+  calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
 }) {
   const grouped = result.materials.reduce<Record<string, typeof result.materials>>((acc, m) => {
     (acc[m.category] ??= []).push(m);
@@ -330,6 +335,21 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
         </div>
 
         {saveMsg && <p className="mt-3 text-sm text-brand-purple">{saveMsg}</p>}
+
+        <HowCalculatedSection
+          methodologyText={(calcDefaults.howCalculatedText as string) || ''}
+          assumptions={[
+            { label: 'Ceiling area', value: `${formatNumber(result.ceilingArea)} m²` },
+            { label: 'Waste margin', value: `${input.wasteMargin}%` },
+            { label: 'Workflow', value: input.workflow },
+          ]}
+        />
+        <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+        <ReportCalculationIssue
+          calculatorType="pop_ceiling"
+          userInput={{ roomLength: input.roomLength, roomWidth: input.roomWidth, unit: input.unit, wasteMargin: input.wasteMargin, workflow: input.workflow }}
+          actualResult={{ ceilingArea: result.ceilingArea, materialCost: result.materialCost, grandTotal: result.grandTotal }}
+        />
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button type="button" onClick={onAgain} className="btn-secondary">

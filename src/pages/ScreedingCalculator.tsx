@@ -1,25 +1,22 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, RectangleHorizontal, AlertCircle, ChevronDown } from 'lucide-react';
+import { Home, RectangleHorizontal, AlertCircle, ChevronDown, CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ResultDisplay from '@/components/ui/ResultDisplay';
-import { calculateScreedingArea, validateScreedingInput } from '@/lib/utils';
+import { calculateScreedingArea, validateScreedingInput, formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent } from '@/lib/queries';
-import { formatNumber } from '@/lib/utils';
-import {
-  DEFAULT_DOOR_WIDTH_M,
-  DEFAULT_DOOR_HEIGHT_M,
-  DEFAULT_WINDOW_WIDTH_M,
-  DEFAULT_WINDOW_HEIGHT_M,
-} from '@/lib/utils';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
 
-const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
-const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
+// Default door/window dims are now fetched from admin calc rules via useCalcDefaults
 
 export default function ScreedingCalculator() {
+  const { defaults: calcDefaults } = useCalcDefaults('screeding');
+  const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
+  const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
   useSeo({
     title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
     description:
@@ -213,6 +210,7 @@ export default function ScreedingCalculator() {
             input={input}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
+            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }}
           />
         )}
       </div>
@@ -311,5 +309,89 @@ function Field({
       </div>
       {error && <span className="mt-1 block text-xs text-red-600 dark:text-red-400">{error}</span>}
     </label>
+  );
+}
+
+
+function ScreedingResultCard({
+  result,
+  input,
+  onAgain,
+  onStartOver,
+  calcDefaults,
+}: {
+  result: ScreedingCalcResult;
+  input: ScreedingCalcInput;
+  onAgain: () => void;
+  onStartOver: () => void;
+  calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
+}) {
+  return (
+    <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up">
+      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
+        <div className="relative flex items-center gap-2 text-accent-green">
+          <CheckCircle2 className="h-5 w-5" />
+          <span className="text-sm font-semibold uppercase tracking-widest">Your screeding area</span>
+        </div>
+        <p className="relative mt-3 text-sm text-white/60">
+          {input.method === 'full_room' ? 'Full room' : 'Individual walls'} · {input.unit}
+        </p>
+        <p className="relative mt-1 text-4xl font-bold sm:text-5xl animate-count-glow">{formatNumber(result.netScreedingArea)} m²</p>
+        <p className="relative mt-1 text-sm text-white/60">net screeding area (after deductions)</p>
+      </div>
+
+      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
+        <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/5">
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Gross wall area</p>
+          <p className="mt-1.5 text-xl font-bold tabular-nums text-brand-navy dark:text-white">{formatNumber(result.grossWallArea)} m²</p>
+        </div>
+        <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/5">
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Total deductions</p>
+          <p className="mt-1.5 text-xl font-bold tabular-nums text-brand-navy dark:text-white">{formatNumber(result.totalDeduction)} m²</p>
+        </div>
+      </div>
+
+      <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
+        Door area: {formatNumber(result.doorArea)} m² · Window area: {formatNumber(result.windowArea)} m²
+        <br />
+        Net area = Gross wall area − Door area − Window area
+      </div>
+
+      <div className="px-6 pb-2 sm:px-8">
+        <HowCalculatedSection
+          methodologyText={calcDefaults.howCalculatedText}
+          assumptions={[
+            { label: 'Door dimensions', value: `${input.doorDims.width}m × ${input.doorDims.height}m` },
+            { label: 'Window dimensions', value: `${input.windowDims.width}m × ${input.windowDims.height}m` },
+          ]}
+        />
+        <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+        <ReportCalculationIssue
+          calculatorType="screeding"
+          userInput={{ method: input.method, length: input.length, width: input.width, height: input.height, unit: input.unit }}
+          actualResult={{ grossWallArea: result.grossWallArea, netScreedingArea: result.netScreedingArea }}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+        <button type="button" onClick={onAgain} className="btn-secondary press-scale">
+          <RotateCcw className="h-4 w-4" />
+          Calculate Again
+        </button>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button type="button" onClick={onStartOver} className="btn-secondary press-scale">
+            Start Over
+          </button>
+          <Link
+            to="/screeding-cost-estimator"
+            state={{ netArea: result.netScreedingArea }}
+            className="btn-primary press-scale group"
+          >
+            Continue to Cost Estimate
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

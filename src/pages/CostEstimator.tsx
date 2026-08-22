@@ -13,6 +13,8 @@ import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/s
 import { exportPdfQuote } from '@/lib/pdf-export';
 import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -30,6 +32,7 @@ import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 export default function CostEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('cost');
   useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
@@ -435,6 +438,17 @@ export default function CostEstimator() {
                     <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Save to Device</span>
                   </button>
                 </div>
+              )}
+
+              {result && (
+                <>
+                  <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                  <ReportCalculationIssue
+                    calculatorType="cost"
+                    userInput={{ projectType: input.projectType, area: input.area, coats: input.coats, includePrimer: input.includePrimer }}
+                    actualResult={{ total: result.total, materialCost: result.total - result.laborCost, laborCost: result.laborCost }}
+                  />
+                </>
               )}
             </div>
           </div>

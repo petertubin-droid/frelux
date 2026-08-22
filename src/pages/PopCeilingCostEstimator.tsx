@@ -8,6 +8,8 @@ import { logAnalyticsEvent, fetchPopMaterials, fetchSiteSettings, saveUserProjec
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbSiteSettings } from '@/types/database';
 
@@ -22,6 +24,7 @@ interface PassedState {
 }
 
 export default function PopCeilingCostEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling_cost');
   useSeo({
     title: 'POP Ceiling Cost Estimator: Estimate POP Ceiling Project Cost',
     description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
@@ -234,6 +237,16 @@ export default function PopCeilingCostEstimator() {
                   <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>
                 )}
               </div>
+              {result && (
+                <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                  <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                  <ReportCalculationIssue
+                    calculatorType="pop_ceiling_cost"
+                    userInput={{ workflow: input.workflow, ceilingArea: input.ceilingArea, wasteMargin: input.wasteMargin }}
+                    actualResult={{ materialCost: result.materialCost, grandTotal: result.grandTotal, ceilingArea: result.ceilingArea }}
+                  />
+                </div>
+              )}
               <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
                 Estimate only. Actual costs may vary depending on materials, location, and market prices.
               </div>

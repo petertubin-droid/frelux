@@ -20,6 +20,8 @@ import Container from '@/components/ui/Container';
 import { supabase } from '@/lib/supabase';
 import { formatCurrency } from '@/lib/estimation/pricing';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import { track } from '@/lib/analytics';
 import {
   calculateTyroleneProject,
@@ -65,6 +67,7 @@ const CALCULATOR_TYPE = 'tyrolene';
 // =========================================================
 
 export default function TyroleneEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('tyrolene');
   useSeo({
     title: 'FRELUX Tyrolene Estimator: Partition-Based Exterior Finishing Calculator',
     description: 'Professional Tyrolene estimator. Calculate cement, sand, acrylic bond, water seal, and anti-fungal requirements based on partition count. Exterior only. FRELUX production methodology.',
@@ -940,6 +943,21 @@ export default function TyroleneEstimator() {
                         ))}
                       </div>
                     )}
+
+                    <HowCalculatedSection
+                      methodologyText={(calcDefaults.howCalculatedText as string) || ''}
+                      assumptions={[
+                        { label: 'Standard partition', value: `${result.standard_partition_width}m × ${result.standard_partition_height}m` },
+                        { label: 'Partitions', value: `${result.equivalent_standard_partitions}` },
+                        { label: 'Dimensional adjustment', value: result.has_dimensional_adjustment ? 'Yes' : 'No' },
+                      ]}
+                    />
+                    <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                    <ReportCalculationIssue
+                      calculatorType="tyrolene"
+                      userInput={{ partitions: result.equivalent_standard_partitions, hasAdjustment: result.has_dimensional_adjustment }}
+                      actualResult={{ theoreticalCost: result.theoretical_material_cost, practicalCost: result.practical_purchase_cost }}
+                    />
 
                     {/* Save Button */}
                     <div className="flex gap-3 pt-2">

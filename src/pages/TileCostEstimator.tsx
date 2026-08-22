@@ -10,6 +10,8 @@ import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSetting
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 
@@ -20,6 +22,7 @@ interface PassedState {
 }
 
 export default function TileCostEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('tile_cost');
   useSeo({
     title: 'Tile Cost Estimator — Estimate Tile Installation Cost',
     description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
@@ -285,6 +288,16 @@ export default function TileCostEstimator() {
                   <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>
                 )}
               </div>
+              {result && (
+                <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                  <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                  <ReportCalculationIssue
+                    calculatorType="tile_cost"
+                    userInput={{ surfaceType: input.surfaceType, surfaceArea: input.surfaceArea, wasteMargin: input.wasteMargin }}
+                    actualResult={{ materialCost: result.materialCost, grandTotal: result.grandTotal }}
+                  />
+                </div>
+              )}
               <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
                 Estimate only. Actual costs may vary depending on materials, location, and market prices.
               </div>

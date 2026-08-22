@@ -11,6 +11,8 @@ import { logAnalyticsEvent, fetchScreedingMixConfig } from '@/lib/queries';
 import type { ScreedingMixConfig, ScreedingMixResult } from '@/types';
 import type { DbScreedingMixConfig } from '@/types/database';
 import { useSeo } from '@/lib/seo';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
@@ -54,6 +56,7 @@ function dbToConfig(db: DbScreedingMixConfig): ScreedingMixConfig {
 }
 
 export default function ScreedingCostEstimator() {
+  const { defaults: calcDefaults } = useCalcDefaults('screeding_cost');
   useSeo({
     title: 'Wall Screeding Cost Estimator — Paint + Cement Mix Calculator',
     description:
@@ -284,6 +287,16 @@ export default function ScreedingCostEstimator() {
                     <p className="text-xs text-neutral-400">Enter the screeding area to see your estimate.</p>
                   )}
                 </div>
+                {result && (
+                  <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                    <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+                    <ReportCalculationIssue
+                      calculatorType="screeding_cost"
+                      userInput={{ netArea, wasteAllowance: result.wasteAllowance }}
+                      actualResult={{ materialCost: result.materialCost, grandTotal: result.grandTotal }}
+                    />
+                  </div>
+                )}
                 <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
                   Screeding Paint is measured in litres (m²/L). White Cement is measured in kg (kg per L of paint).
                 </div>

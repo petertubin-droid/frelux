@@ -12,12 +12,8 @@ import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
 import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
-import {
-  DEFAULT_DOOR_WIDTH_M,
-  DEFAULT_DOOR_HEIGHT_M,
-  DEFAULT_WINDOW_WIDTH_M,
-  DEFAULT_WINDOW_HEIGHT_M,
-} from '@/types';
+import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig } from '@/types';
 import type { DbPaintType } from '@/types/database';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
@@ -30,10 +26,8 @@ const projectTypes: { value: ProjectType; label: string; description: string; ic
   { value: 'fence', label: 'Fence or Gate', description: 'Fence, gate, or railing', icon: Fence },
 ];
 
-const WASTE_OPTIONS = [0, 5, 10, 15];
-
-const defaultDoorDims: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
-const defaultWindowDims: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
+// Defaults are fetched from admin-configured calc rules via useCalcDefaults
+// WASTE_OPTIONS and defaultDoorDims/defaultWindowDims are set dynamically in the component
 
 const ADVANCED_FEATURES = [
   'Advanced material breakdown with line items',
@@ -55,6 +49,10 @@ const ADVANCED_FEATURES = [
 import { useSeo } from '@/lib/seo';
 
 export default function PaintCalculator() {
+  const { defaults: calcDefaults, rules: calcRules } = useCalcDefaults('painting');
+  const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [0, 5, 10, 15];
+  const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
+  const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
   const { toast } = useToast();
   const { user } = useAuth();
   useSeo({
@@ -656,6 +654,26 @@ function ResultCard({
         <br />
         Coverage ~{formatNumber(result.coverageRate, 1)} m² per liter per coat. Final amounts vary by surface texture,
         application method, and product.
+      </div>
+
+      <div className="px-6 pb-2 sm:px-8">
+        <HowCalculatedSection
+          methodologyText={(calcDefaults.howCalculatedText as string) || ''}
+          assumptions={[
+            { label: 'Coverage rate', value: `${formatNumber(result.coverageRate, 1)} m²/L per coat` },
+            { label: 'Coats', value: `${input.coats}` },
+            { label: 'Waste margin', value: `${input.wasteMargin}%` },
+            { label: 'Container sizes', value: `${(calcDefaults.containerSizes as number[])?.join(', ') ?? '1, 4, 20'} L` },
+            { label: 'Door dimensions', value: `${calcDefaults.doorWidthM}m × ${calcDefaults.doorHeightM}m` },
+            { label: 'Window dimensions', value: `${calcDefaults.windowWidthM}m × ${calcDefaults.windowHeightM}m` },
+          ]}
+        />
+        <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+        <ReportCalculationIssue
+          calculatorType="painting"
+          userInput={{ projectType: input.projectType, length: input.length, width: input.width, wallHeight: input.wallHeight, coats: input.coats, unit: input.unit }}
+          actualResult={{ paintRequiredLiters: result.paintRequiredLiters, adjustedLiters: result.adjustedLiters, totalRecommendedLiters: result.totalRecommendedLiters }}
+        />
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
