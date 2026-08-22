@@ -68,10 +68,10 @@ export default function PaintCalculator() {
       '@type': 'WebApplication',
       name: 'FRELUX Paint Calculator',
       description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
-      url: 'https://freluxpaintcalc.com/paint-calculator',
+      url: 'https://freluxtools.netlify.app/paint-calculator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
 

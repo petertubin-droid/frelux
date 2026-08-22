@@ -44,7 +44,7 @@ export default function CostEstimator() {
       url: 'https://freluxtools.netlify.app/cost-estimator',
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
 

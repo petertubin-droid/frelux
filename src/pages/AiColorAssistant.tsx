@@ -61,7 +61,7 @@ export default function AiColorAssistant() {
       url: 'https://freluxtools.netlify.app/ai-color-assistant',
       applicationCategory: 'DesignApplication',
       operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
 

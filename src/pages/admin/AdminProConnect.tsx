@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Ban, Eye, Star, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle } from 'lucide-react';
+import { Ban, Eye, Star, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -11,10 +11,14 @@ import {
 } from '@/lib/pro-connect';
 import {
   adminGetNinSubmissions, adminApproveNin, adminRejectNin,
+  fetchChannelCategories, fetchChannels,
   type NinSubmission,
 } from '@/lib/worker-channels';
+import type {
+  DbWorkerChannel, DbWorkerChannelCategory, DbWorkerModerationConfig,
+} from '@/types/worker-channels';
 
-type Tab = 'professionals' | 'verification' | 'kyc' | 'reports' | 'reviews' | 'settings';
+type Tab = 'professionals' | 'verification' | 'kyc' | 'reports' | 'reviews' | 'channels' | 'moderation' | 'settings';
 
 export default function AdminProConnect() {
   const [tab, setTab] = useState<Tab>('professionals');
@@ -31,6 +35,8 @@ export default function AdminProConnect() {
           ['kyc', 'KYC / NIN'],
           ['reports', 'Reports'],
           ['reviews', 'Reviews'],
+          ['channels', 'Channels'],
+          ['moderation', 'Moderation'],
           ['settings', 'Settings'],
         ] as const).map(([key, label]) => (
           <button
@@ -53,6 +59,8 @@ export default function AdminProConnect() {
       {tab === 'kyc' && <AdminKycTab />}
       {tab === 'reports' && <AdminReportsTab />}
       {tab === 'reviews' && <AdminReviewsTab />}
+      {tab === 'channels' && <AdminChannelsTab />}
+      {tab === 'moderation' && <AdminModerationTab />}
       {tab === 'settings' && <AdminSettingsTab />}
     </div>
   );
@@ -986,6 +994,552 @@ function AdminSettingsTab() {
         className="rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Settings'}
+      </button>
+    </div>
+  );
+}
+
+// =========================================================
+// CHANNELS TAB — Manage worker channels & categories
+// =========================================================
+function AdminChannelsTab() {
+  const [categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
+  const [channels, setChannels] = useState<DbWorkerChannel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showChannelForm, setShowChannelForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [editingChannel, setEditingChannel] = useState<DbWorkerChannel | null>(null);
+  const [editingCategory, setEditingCategory] = useState<DbWorkerChannelCategory | null>(null);
+
+  const [channelForm, setChannelForm] = useState({
+    name: '', slug: '', description: '', region: 'National', icon: 'Hash',
+    is_official: false, is_active: true, category_id: '', sort_order: 0,
+  });
+  const [categoryForm, setCategoryForm] = useState({
+    name: '', slug: '', description: '', icon: 'MessageSquareWarning', is_active: true, sort_order: 0,
+  });
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [cats, chs] = await Promise.all([
+      fetchChannelCategories(),
+      fetchChannels(),
+    ]);
+    setCategories(cats);
+    setChannels(chs);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  function startEditChannel(ch: DbWorkerChannel) {
+    setEditingChannel(ch);
+    setChannelForm({
+      name: ch.name, slug: ch.slug, description: ch.description || '', region: ch.region || 'National',
+      icon: ch.icon || 'Hash', is_official: ch.is_official, is_active: ch.is_active,
+      category_id: ch.category_id || '', sort_order: ch.sort_order,
+    });
+    setShowChannelForm(true);
+  }
+
+  function startNewChannel() {
+    setEditingChannel(null);
+    setChannelForm({
+      name: '', slug: '', description: '', region: 'National', icon: 'Hash',
+      is_official: false, is_active: true, category_id: categories[0]?.id || '', sort_order: channels.length,
+    });
+    setShowChannelForm(true);
+  }
+
+  async function saveChannel() {
+    const slug = channelForm.slug || channelForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const payload = {
+      name: channelForm.name.trim(),
+      slug,
+      description: channelForm.description.trim() || null,
+      region: channelForm.region.trim() || null,
+      icon: channelForm.icon.trim() || null,
+      is_official: channelForm.is_official,
+      is_active: channelForm.is_active,
+      category_id: channelForm.category_id || null,
+      sort_order: channelForm.sort_order,
+    };
+    if (editingChannel) {
+      const { error } = await supabase.from('worker_channels').update(payload).eq('id', editingChannel.id);
+      if (error) { console.error('Update channel error:', error.message); return; }
+    } else {
+      const { error } = await supabase.from('worker_channels').insert(payload);
+      if (error) { console.error('Insert channel error:', error.message); return; }
+    }
+    setShowChannelForm(false);
+    setEditingChannel(null);
+    load();
+  }
+
+  async function deleteChannel(id: string) {
+    if (!confirm('Delete this channel? All messages and members will be removed.')) return;
+    const { error } = await supabase.from('worker_channels').delete().eq('id', id);
+    if (error) { console.error('Delete channel error:', error.message); return; }
+    load();
+  }
+
+  function startEditCategory(cat: DbWorkerChannelCategory) {
+    setEditingCategory(cat);
+    setCategoryForm({
+      name: cat.name, slug: cat.slug, description: cat.description || '',
+      icon: cat.icon || 'MessageSquareWarning', is_active: cat.is_active, sort_order: cat.sort_order,
+    });
+    setShowCategoryForm(true);
+  }
+
+  function startNewCategory() {
+    setEditingCategory(null);
+    setCategoryForm({
+      name: '', slug: '', description: '', icon: 'MessageSquareWarning',
+      is_active: true, sort_order: categories.length,
+    });
+    setShowCategoryForm(true);
+  }
+
+  async function saveCategory() {
+    const slug = categoryForm.slug || categoryForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const payload = {
+      name: categoryForm.name.trim(),
+      slug,
+      description: categoryForm.description.trim() || null,
+      icon: categoryForm.icon.trim() || null,
+      is_active: categoryForm.is_active,
+      sort_order: categoryForm.sort_order,
+    };
+    if (editingCategory) {
+      const { error } = await supabase.from('worker_channel_categories').update(payload).eq('id', editingCategory.id);
+      if (error) { console.error('Update category error:', error.message); return; }
+    } else {
+      const { error } = await supabase.from('worker_channel_categories').insert(payload);
+      if (error) { console.error('Insert category error:', error.message); return; }
+    }
+    setShowCategoryForm(false);
+    setEditingCategory(null);
+    load();
+  }
+
+  async function deleteCategory(id: string) {
+    if (!confirm('Delete this category? Channels in it will be uncategorized.')) return;
+    const { error } = await supabase.from('worker_channel_categories').delete().eq('id', id);
+    if (error) { console.error('Delete category error:', error.message); return; }
+    load();
+  }
+
+  if (loading) {
+    return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />)}</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Categories section */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Channel Categories</h3>
+          <button onClick={startNewCategory} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90">
+            <Plus className="h-3.5 w-3.5" /> New Category
+          </button>
+        </div>
+        <div className="space-y-2">
+          {categories.map((cat) => (
+            <div key={cat.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div>
+                <p className="text-sm font-medium text-neutral-900 dark:text-white">{cat.name}</p>
+                <p className="text-xs text-neutral-400">/{cat.slug} · {cat.is_active ? 'Active' : 'Inactive'}</p>
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => startEditCategory(cat)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+                  <Eye className="h-4 w-4" />
+                </button>
+                <button onClick={() => deleteCategory(cat.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {categories.length === 0 && <p className="text-sm text-neutral-400">No categories yet.</p>}
+        </div>
+      </div>
+
+      {/* Channels section */}
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Worker Channels</h3>
+          <button onClick={startNewChannel} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90">
+            <Plus className="h-3.5 w-3.5" /> New Channel
+          </button>
+        </div>
+        <div className="space-y-2">
+          {channels.map((ch) => (
+            <div key={ch.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <Hash className="h-3.5 w-3.5 text-brand-purple dark:text-brand-purple-lighter" />
+                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{ch.name}</p>
+                  {ch.is_official && <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">Official</span>}
+                  {!ch.is_active && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-500">Inactive</span>}
+                </div>
+                <p className="mt-0.5 truncate text-xs text-neutral-400">
+                  /{ch.slug} · {ch.region || 'National'} · {ch.member_count ?? 0} members
+                  {ch.category && ` · ${ch.category.name}`}
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <button onClick={() => startEditChannel(ch)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+                  <Eye className="h-4 w-4" />
+                </button>
+                <button onClick={() => deleteChannel(ch.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {channels.length === 0 && <p className="text-sm text-neutral-400">No channels yet.</p>}
+        </div>
+      </div>
+
+      {/* Channel form modal */}
+      {showChannelForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowChannelForm(false)}>
+          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+              {editingChannel ? 'Edit Channel' : 'New Channel'}
+            </h3>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
+                <input type="text" value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
+                <input type="text" value={channelForm.slug} onChange={(e) => setChannelForm({ ...channelForm, slug: e.target.value })}
+                  placeholder="e.g. lagos-price-watch"
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
+                <textarea value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} rows={2}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Region</span>
+                  <input type="text" value={channelForm.region} onChange={(e) => setChannelForm({ ...channelForm, region: e.target.value })}
+                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
+                  <input type="text" value={channelForm.icon} onChange={(e) => setChannelForm({ ...channelForm, icon: e.target.value })}
+                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+                </label>
+              </div>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Category</span>
+                <select value={channelForm.category_id} onChange={(e) => setChannelForm({ ...channelForm, category_id: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy">
+                  <option value="">Uncategorized</option>
+                  {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
+                <input type="number" value={channelForm.sort_order} onChange={(e) => setChannelForm({ ...channelForm, sort_order: parseInt(e.target.value) || 0 })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                  <input type="checkbox" checked={channelForm.is_official} onChange={(e) => setChannelForm({ ...channelForm, is_official: e.target.checked })} />
+                  Official FRELUX channel
+                </label>
+                <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                  <input type="checkbox" checked={channelForm.is_active} onChange={(e) => setChannelForm({ ...channelForm, is_active: e.target.checked })} />
+                  Active
+                </label>
+              </div>
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button onClick={saveChannel} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white hover:bg-brand-purple/90">
+                <Save className="h-4 w-4" /> Save
+              </button>
+              <button onClick={() => setShowChannelForm(false)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category form modal */}
+      {showCategoryForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCategoryForm(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+            <h3 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+              {editingCategory ? 'Edit Category' : 'New Category'}
+            </h3>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
+                <input type="text" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
+                <input type="text" value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <label className="block">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
+                <input type="text" value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
+                  <input type="text" value={categoryForm.icon} onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
+                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+                </label>
+                <label className="block">
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
+                  <input type="number" value={categoryForm.sort_order} onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: parseInt(e.target.value) || 0 })}
+                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
+                </label>
+              </div>
+              <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                <input type="checkbox" checked={categoryForm.is_active} onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })} />
+                Active
+              </label>
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button onClick={saveCategory} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white hover:bg-brand-purple/90">
+                <Save className="h-4 w-4" /> Save
+              </button>
+              <button onClick={() => setShowCategoryForm(false)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// =========================================================
+// MODERATION TAB — AI bot configuration
+// =========================================================
+function AdminModerationTab() {
+  const [config, setConfig] = useState<DbWorkerModerationConfig | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [bannedWordsText, setBannedWordsText] = useState('');
+  const [bannedPatternsText, setBannedPatternsText] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('worker_moderation_config')
+      .select('*')
+      .limit(1)
+      .maybeSingle();
+    if (error) { console.error('Load moderation config error:', error.message); }
+    if (data) {
+      setConfig(data as DbWorkerModerationConfig);
+      setBannedWordsText((data.banned_words ?? []).join(', '));
+      setBannedPatternsText((data.banned_patterns ?? []).join('\n'));
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleSave() {
+    if (!config) return;
+    setSaving(true);
+    setSaved(false);
+    const bannedWords = bannedWordsText.split(',').map((w) => w.trim()).filter(Boolean);
+    const bannedPatterns = bannedPatternsText.split('\n').map((p) => p.trim()).filter(Boolean);
+    const { error } = await supabase
+      .from('worker_moderation_config')
+      .update({
+        is_enabled: config.is_enabled,
+        auto_remove_threshold: config.auto_remove_threshold,
+        auto_flag_threshold: config.auto_flag_threshold,
+        banned_words: bannedWords,
+        banned_patterns: bannedPatterns,
+        warning_message: config.warning_message,
+        ai_provider: config.ai_provider,
+        ai_model: config.ai_model,
+      })
+      .eq('id', config.id);
+    setSaving(false);
+    if (error) {
+      console.error('Save moderation config error:', error.message);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    }
+  }
+
+  if (loading) {
+    return <div className="space-y-3">{[...Array(3)].map((_, i) => <div key={i} className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />)}</div>;
+  }
+
+  if (!config) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-500/20 dark:bg-amber-500/10">
+        <Bot className="mx-auto mb-3 h-8 w-8 text-amber-500" />
+        <p className="text-sm font-medium text-amber-700 dark:text-amber-400">No moderation config found.</p>
+        <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">Run the Phase 30 migration to seed the default config.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {/* Status banner */}
+      <div className={classNames(
+        'flex items-center gap-3 rounded-xl border p-4',
+        config.is_enabled
+          ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10'
+          : 'border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5'
+      )}>
+        <Bot className={classNames('h-5 w-5', config.is_enabled ? 'text-emerald-500' : 'text-neutral-400')} />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-neutral-900 dark:text-white">
+            AI Moderation Bot: {config.is_enabled ? 'Active' : 'Disabled'}
+          </p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            {config.is_enabled
+              ? `Using ${config.ai_provider} / ${config.ai_model} — messages are auto-checked on send.`
+              : 'All messages will pass through without moderation.'}
+          </p>
+        </div>
+        <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+          <input
+            type="checkbox"
+            checked={config.is_enabled}
+            onChange={(e) => setConfig({ ...config, is_enabled: e.target.checked })}
+            className="h-4 w-4 rounded border-neutral-300"
+          />
+          {config.is_enabled ? 'Enabled' : 'Disabled'}
+        </label>
+      </div>
+
+      {/* Thresholds */}
+      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Auto-Action Thresholds</h3>
+        <p className="mb-4 text-xs text-neutral-400">
+          AI scores messages 0.0 (safe) to 1.0 (harmful). Set thresholds for automatic flagging and removal.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-flag threshold (0.0–1.0)</span>
+            <input
+              type="number" step="0.05" min="0" max="1"
+              value={config.auto_flag_threshold}
+              onChange={(e) => setConfig({ ...config, auto_flag_threshold: parseFloat(e.target.value) || 0 })}
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+            />
+            <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are flagged for review.</span>
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-remove threshold (0.0–1.0)</span>
+            <input
+              type="number" step="0.05" min="0" max="1"
+              value={config.auto_remove_threshold}
+              onChange={(e) => setConfig({ ...config, auto_remove_threshold: parseFloat(e.target.value) || 0 })}
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+            />
+            <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are removed automatically.</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Banned words & patterns */}
+      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Banned Words & Patterns</h3>
+        <div className="space-y-4">
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned words (comma-separated)</span>
+            <textarea
+              value={bannedWordsText}
+              onChange={(e) => setBannedWordsText(e.target.value)}
+              rows={3}
+              placeholder="e.g. scam, fraud, idiot, ..."
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+            />
+            <span className="mt-1 block text-[11px] text-neutral-400">Messages containing these are instantly removed (score = 1.0).</span>
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned regex patterns (one per line)</span>
+            <textarea
+              value={bannedPatternsText}
+              onChange={(e) => setBannedPatternsText(e.target.value)}
+              rows={3}
+              placeholder="e.g. \b\d{10}\b (phone number spam)"
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-brand-navy"
+            />
+            <span className="mt-1 block text-[11px] text-neutral-400">Each line is a regex pattern. Matching messages are instantly removed.</span>
+          </label>
+        </div>
+      </div>
+
+      {/* AI Provider settings */}
+      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">AI Provider Settings</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Provider</span>
+            <select
+              value={config.ai_provider}
+              onChange={(e) => setConfig({ ...config, ai_provider: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+            >
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="local">Local / Heuristic only</option>
+            </select>
+            <span className="mt-1 block text-[11px] text-neutral-400">If set to "Local", only heuristic rules apply (no API calls).</span>
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Model</span>
+            <input
+              type="text"
+              value={config.ai_model}
+              onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
+              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+            />
+            <span className="mt-1 block text-[11px] text-neutral-400">e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.</span>
+          </label>
+        </div>
+      </div>
+
+      {/* Warning message */}
+      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Warning Message (shown to users)</h3>
+        <textarea
+          value={config.warning_message}
+          onChange={(e) => setConfig({ ...config, warning_message: e.target.value })}
+          rows={2}
+          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+        />
+        <span className="mt-1 block text-[11px] text-neutral-400">Posted as a system message in the channel when content is removed.</span>
+      </div>
+
+      {/* Save button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+      >
+        <Save className="h-4 w-4" />
+        {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Moderation Settings'}
       </button>
     </div>
   );
