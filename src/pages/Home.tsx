@@ -18,6 +18,8 @@ import ProConnectHomeSection from '@/components/pro-connect/ProConnectHomeSectio
 import { useState, useEffect, useMemo } from 'react';
 import { useSeo } from '@/lib/seo';
 import { getPublicTemplates } from '@/lib/templates';
+import { Link } from 'react-router-dom';
+import { ShoppingBag, Plus } from 'lucide-react';
 
 export default function Home() {
   const [featuredSlugs, setFeaturedSlugs] = useState<{ name: string; slug: string; type: string }[]>([]);
