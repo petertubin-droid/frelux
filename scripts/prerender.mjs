@@ -405,10 +405,16 @@ for (const route of routes) {
     html = html.replace('</head>', `${sdScripts}\n</head>`);
   }
 
-  // Inject SEO content into #root for crawlers (React replaces it on load)
+  // Inject SEO content into #root for crawlers (React replaces it on load).
+  // Visually hidden (clip-based sr-only technique) so it never flashes as
+  // unstyled text on screen — the existing branded .page-loader spinner
+  // remains the only visible thing until React hydrates and takes over.
+  // Crawlers (Googlebot et al.) still read this content fine: it's real
+  // text in the DOM, not display:none, so it's treated like any other
+  // accessibly-hidden content.
   const pageContent = seoContentMap[route.path];
   if (pageContent) {
-    const contentDiv = `<div style="max-width:48rem;margin:0 auto;padding:3rem 1rem;font-family:system-ui,sans-serif;color:#333;">${pageContent}</div>`;
+    const contentDiv = `<div style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">${pageContent}</div>`;
     html = html.replace('<div id="root">', `<div id="root">${contentDiv}`);
   }
 
