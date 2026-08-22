@@ -23,5 +23,5 @@ SET
   hero_cta_primary_label = 'Start Calculating',
   hero_cta_primary_href = '/screeding-calculator',
   hero_cta_secondary_label = 'Explore Calculators',
-  hero_cta_secondary_href = '#calculators'
+  hero_cta_secondary_href = '/calculators'
 WHERE id = '00000000-0000-0000-0000-000000000001';

@@ -10,6 +10,7 @@ const today = new Date().toISOString().split('T')[0];
 
 const routes = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
+  { path: '/calculators', priority: '0.9', changefreq: 'monthly' },
   { path: '/paint-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/screeding-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/cost-estimator', priority: '0.9', changefreq: 'monthly' },

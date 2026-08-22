@@ -30,7 +30,7 @@ export const DEFAULT_HERO_CONTENT: HeroContent = {
   ctaPrimaryLabel: 'Start Calculating',
   ctaPrimaryHref: '/screeding-calculator',
   ctaSecondaryLabel: 'Explore Calculators',
-  ctaSecondaryHref: '#calculators',
+  ctaSecondaryHref: '/calculators',
 };
 
 let cachedContent: HeroContent | null = null;

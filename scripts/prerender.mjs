@@ -44,6 +44,30 @@ const routes = [
     ],
   },
   {
+    path: '/calculators',
+    title: 'All Calculators | FRELUX PAINT CALC',
+    description:
+      'Browse every FRELUX calculator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.',
+    priority: '0.9',
+    changefreq: 'monthly',
+    structuredData: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'FRELUX Calculators',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Painting Estimator', url: `${SITE_URL}/painting-estimator` },
+          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', url: `${SITE_URL}/paint-calculator` },
+          { '@type': 'ListItem', position: 3, name: 'Screeding Calculator', url: `${SITE_URL}/screeding-calculator` },
+          { '@type': 'ListItem', position: 4, name: 'POP Ceiling Calculator', url: `${SITE_URL}/pop-ceiling-calculator` },
+          { '@type': 'ListItem', position: 5, name: 'Tile Calculator', url: `${SITE_URL}/tile-calculator` },
+          { '@type': 'ListItem', position: 6, name: 'Tyrolene Estimator', url: `${SITE_URL}/tyrolene-estimator` },
+          { '@type': 'ListItem', position: 7, name: 'Finish Estimator', url: `${SITE_URL}/finish-estimator` },
+        ],
+      },
+    ],
+  },
+  {
     path: '/paint-calculator',
     title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX',
     description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',

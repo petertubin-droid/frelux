@@ -53,6 +53,8 @@ export const navWorkspaces: NavWorkspace[] = [
     label: 'Calculators',
     path: '/painting-estimator',
     children: [
+      // Section: All Calculators
+      { label: 'View All Calculators', path: '/calculators', section: 'Browse', description: 'Browse every FRELUX calculator in one place' },
       // Section: Quantity Estimators
       { label: 'Painting Estimator', path: '/painting-estimator', section: 'Estimators', description: 'Room-based paint quantity calculator' },
       { label: 'Screeding Calculator', path: '/screeding-calculator', section: 'Estimators', description: 'Screeding material quantities' },

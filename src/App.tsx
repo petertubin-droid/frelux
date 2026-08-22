@@ -19,6 +19,7 @@ import { useTypography } from '@/lib/useTypography';
 const ColorDetail = lazy(() => import('@/pages/ColorDetail'));
 const Learn = lazy(() => import('@/pages/learn/Learn'));
 const PaintCalculator = lazy(() => import('@/pages/PaintCalculator'));
+const Calculators = lazy(() => import('@/pages/Calculators'));
 const CostEstimator = lazy(() => import('@/pages/CostEstimator'));
 const AiColorAssistant = lazy(() => import('@/pages/AiColorAssistant'));
 const Contact = lazy(() => import('@/pages/Contact'));
@@ -167,6 +168,7 @@ export default function App() {
           <Route element={<Layout />}>
             {/* Home workspace */}
             <Route path="/" element={<Home />} />
+            <Route path="/calculators" element={<Suspense fallback={<PageLoader />}><Calculators /></Suspense>} />
 
             {/* Calculate workspace */}
             <Route path="/paint-calculator" element={<Suspense fallback={<PageLoader />}><PaintCalculator /></Suspense>} />
