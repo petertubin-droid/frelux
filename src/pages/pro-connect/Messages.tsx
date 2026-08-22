@@ -79,10 +79,25 @@ export default function Messages() {
   }
 
   async function handleSend() {
-    if (!messageText.trim() || !activeConvo) return;
+    if (!messageText.trim() || !activeConvo || !user) return;
     const body = messageText.trim();
     setMessageText('');
-    await sendMessage(activeConvo.id, body);
+    const msg = await sendMessage(activeConvo.id, body);
+    if (msg) {
+      // Trigger AI moderation with OpenAI
+      try {
+        await supabase.functions.invoke('moderate-pro-message', {
+          body: {
+            messageId: msg.id,
+            content: msg.body,
+            conversationId: msg.conversation_id,
+            userId: user.id,
+          },
+        });
+      } catch {
+        // Moderation failure is silent — don't block the user experience
+      }
+    }
     // Refresh messages
     await loadMessages(activeConvo.id);
   }
@@ -193,16 +208,29 @@ export default function Messages() {
                   <div className="space-y-3">
                     {messages.map((msg) => {
                       const isMe = msg.sender_id === user?.id;
+                      const isRemoved = (msg as { is_removed?: boolean }).is_removed;
+                      const isModeration = (msg as { message_type?: string }).message_type === 'moderation';
+                      if (isModeration) {
+                        return (
+                          <div key={msg.id} className="flex justify-center">
+                            <span className="rounded-full bg-amber-50 px-3 py-1.5 text-xs text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                              {msg.body}
+                            </span>
+                          </div>
+                        );
+                      }
                       return (
                         <div key={msg.id} className={classNames('flex', isMe ? 'justify-end' : 'justify-start')}>
                           <div className={classNames(
                             'max-w-[75%] rounded-2xl px-4 py-2.5 text-sm',
-                            isMe
-                              ? 'bg-brand-purple text-white'
-                              : 'bg-neutral-100 text-neutral-700 dark:bg-white/5 dark:text-neutral-200'
+                            isRemoved
+                              ? 'border border-red-200 bg-red-50 text-red-400 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400'
+                              : isMe
+                                ? 'bg-brand-purple text-white'
+                                : 'bg-neutral-100 text-neutral-700 dark:bg-white/5 dark:text-neutral-200'
                           )}>
-                            <p>{msg.body}</p>
-                            {msg.attachment_url && (
+                            <p>{isRemoved ? '⚠️ This message was removed by the moderator.' : msg.body}</p>
+                            {!isRemoved && msg.attachment_url && (
                               <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="mt-1 flex items-center gap-1 text-xs underline">
                                 <Paperclip className="h-3 w-3" />
                                 Attachment

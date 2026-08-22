@@ -549,22 +549,24 @@ export async function getMessages(conversationId: string): Promise<DbProMessage[
   return data as DbProMessage[];
 }
 
-export async function sendMessage(conversationId: string, body: string, attachmentUrl?: string): Promise<boolean> {
+export async function sendMessage(conversationId: string, body: string, attachmentUrl?: string): Promise<{ id: string; body: string; sender_id: string; conversation_id: string; created_at: string } | null> {
   if (!isSupabaseConfigured) return false;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;
 
-  const { error } = await supabase
+  const { data: msgData, error } = await supabase
     .from('pro_messages')
     .insert({
       conversation_id: conversationId,
       sender_id: user.id,
       body,
       attachment_url: attachmentUrl || null,
-    });
-  if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] sendMessage:', error.message);
-    return false;
+    })
+    .select('id, body, sender_id, conversation_id, created_at')
+    .single();
+  if (error || !msgData) {
+    if (import.meta.env.DEV) console.error('[pro-connect] sendMessage:', error?.message);
+    return null;
   }
 
   // Update conversation's last_message_at
@@ -613,7 +615,7 @@ export async function sendMessage(conversationId: string, body: string, attachme
     // Don't fail the message send if push fails
   }
 
-  return true;
+  return msgData;
 }
 
 export async function markMessagesRead(conversationId: string): Promise<boolean> {

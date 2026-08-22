@@ -176,6 +176,10 @@ export interface DbProMessage {
   is_read: boolean;
   read_at: string | null;
   is_flagged: boolean;
+  is_removed: boolean;
+  flag_reason: string | null;
+  flagged_by: string | null;
+  message_type: string | null;
   created_at: string;
 }
 
