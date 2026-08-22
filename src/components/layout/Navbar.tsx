@@ -19,7 +19,7 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +52,7 @@ export default function Navbar() {
   }, []);
 
   const accountMenuItems = [
+    { label: 'My Profile', to: '/profile', icon: UserCircle },
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
     { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
@@ -241,9 +242,11 @@ export default function Navbar() {
                 aria-label={user ? 'Account menu' : 'Sign in'}
                 aria-expanded={openDropdown === 'account'}
               >
-                {user ? (
+                {user && profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-7 w-7 rounded-full object-cover" />
+                ) : user ? (
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
-                    {(user.email ?? '?').charAt(0).toUpperCase()}
+                    {(profile?.full_name?.charAt(0) || (user.email ?? '?')).charAt(0).toUpperCase()}
                   </span>
                 ) : (
                   <UserCircle className="h-5 w-5" strokeWidth={1.5} />
@@ -258,8 +261,19 @@ export default function Navbar() {
                   {user ? (
                     <>
                       <div className="px-4 py-2.5 border-b border-neutral-100 dark:border-white/5">
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500">Signed in as</p>
-                        <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{user.email}</p>
+                        <div className="flex items-center gap-2.5">
+                          {profile?.avatar_url ? (
+                            <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                          ) : (
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
+                              {(profile?.full_name?.charAt(0) || (user.email ?? '?')).charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
+                            <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
+                          </div>
+                        </div>
                       </div>
                       <div className="py-1">
                         {accountMenuItems.map((item) => {
@@ -428,9 +442,18 @@ export default function Navbar() {
               </p>
               {user ? (
                 <div className="space-y-0.5">
-                  <div className="px-3 py-1.5">
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">Signed in as</p>
-                    <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{user.email}</p>
+                  <div className="px-3 py-1.5 flex items-center gap-2.5">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                    ) : (
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
+                        {(profile?.full_name?.charAt(0) || (user.email ?? '?')).charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
+                      <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
+                    </div>
                   </div>
                   {accountMenuItems.map((item) => {
                     const Icon = item.icon;

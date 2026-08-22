@@ -296,7 +296,7 @@ export default function AdminIntegrations() {
                     )}
 
                     {configFields.length > 0 && (
-                      <div className="mt-4 space-y-3">
+                      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {configFields.map(([key, _value]) => (
                           <div key={key}>
                             <label className="text-xs font-medium text-muted-foreground">

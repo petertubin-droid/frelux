@@ -5,6 +5,10 @@ export interface DbProfile {
   email: string;
   role: 'admin' | 'user';
   account_type: 'client' | 'pro_worker';
+  full_name: string;
+  phone: string;
+  avatar_url: string;
+  marketplace_id: string;
   created_at: string;
   updated_at: string;
 }

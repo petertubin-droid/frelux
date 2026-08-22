@@ -91,15 +91,15 @@ function SettingsTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="space-y-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {ESTIMATOR_KEYS.map((key) => {
           const setting = settings.find((s) => s.estimator_key === key);
           if (!setting) return null;
           return (
-            <AdminCard key={setting.id} className="p-5">
+            <AdminCard key={setting.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-brand-navy dark:text-white">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
+                  <h3 className="text-xs font-bold text-brand-navy dark:text-white">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
                   <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
                     {setting.is_enabled ? 'Labour estimation enabled' : 'Labour estimation disabled'}
                     {' · '}Default method: {PRICING_METHOD_LABELS[setting.default_pricing_method]}

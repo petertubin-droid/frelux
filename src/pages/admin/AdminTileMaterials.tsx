@@ -115,25 +115,27 @@ export default function AdminTileMaterials() {
 
       {/* Tile sizes */}
       {tab === 'sizes' && !showSizeEditor && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sizes.length === 0 ? (
             <StateMessage type="empty" title="No tile sizes" message="Add tile sizes to get started." />
           ) : sizes.map((s) => (
-            <AdminCard key={s.id} className="flex items-center justify-between">
+            <AdminCard key={s.id} className="flex flex-col gap-2 p-3">
               <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">{s.name}</p>
-                  {s.is_standard && <span className="rounded-full bg-brand-purple/15 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">Standard</span>}
-                  <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
-                    {s.is_active ? 'Active' : 'Inactive'}
+                <div className="flex items-center gap-1.5">
+                  <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{s.name}</p>
+                  {s.is_standard && <span className="rounded-full bg-brand-purple/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand-purple">Std</span>}
+                  <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
+                    {s.is_active ? 'On' : 'Off'}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box} tiles/box</p>
+                <p className="mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                 <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
-                <button type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></button>
-                <button type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                <div className="flex items-center gap-0.5">
+                  <button type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3.5 w-3.5" /></button>
+                  <button type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                </div>
               </div>
             </AdminCard>
           ))}
@@ -155,9 +157,9 @@ export default function AdminTileMaterials() {
             return (
               <div key={cat}>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat}</h3>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {catItems.map((m) => (
-                    <AdminCard key={m.id} className="flex items-center justify-between">
+                    <AdminCard key={m.id} className="flex flex-col gap-2 p-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <p className="text-sm font-bold text-brand-navy dark:text-white">{m.name}</p>

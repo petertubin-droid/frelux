@@ -163,33 +163,37 @@ function PaintColorsTab() {
                 </div>
               }
             >
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {group.items.map((item) => (
-                <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/5" style={{ background: item.hex_code }}>
-                      <span className="text-[9px] font-bold" style={{ color: readableTextColor(item.hex_code) }}>{item.hex_code}</span>
+                <div key={item.id} className="card p-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/5" style={{ background: item.hex_code }}>
+                      <span className="text-[8px] font-bold" style={{ color: readableTextColor(item.hex_code) }}>{item.hex_code}</span>
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                        {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
-                        {item.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-brand-purple" />}
-                        {item.is_trending && <TrendingUp className="h-3.5 w-3.5 text-accent-orange" />}
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                        {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                        {item.is_featured && <BadgeCheck className="h-3 w-3 text-brand-purple" />}
+                        {item.is_trending && <TrendingUp className="h-3 w-3 text-accent-orange" />}
                       </div>
-                      <p className="text-xs text-neutral-400 dark:text-neutral-500">{item.is_interior ? 'Interior' : ''}{item.is_interior && item.is_exterior ? ' / ' : ''}{item.is_exterior ? 'Exterior' : ''}</p>
+                      <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{item.is_interior ? 'Int' : ''}{item.is_interior && item.is_exterior ? '/' : ''}{item.is_exterior ? 'Ext' : ''}</p>
                     </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                     <div className="flex items-center gap-1">
                       <ToggleChip active={item.is_featured} onClick={() => toggleField(item, 'is_featured')} label="Feat" />
                       <ToggleChip active={item.is_trending} onClick={() => toggleField(item, 'is_trending')} label="Trend" />
-                      <ToggleChip active={item.is_active} onClick={() => toggleField(item, 'is_active')} label="Active" />
+                      <ToggleChip active={item.is_active} onClick={() => toggleField(item, 'is_active')} label="On" />
                     </div>
-                    <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                    <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                    <div className="flex items-center gap-0.5">
+                      <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
+                      <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                    </div>
                   </div>
-                </AdminCard>
+                </div>
               ))}
+              </div>
             </CollapsibleGroup>
           ))}
         </div>
