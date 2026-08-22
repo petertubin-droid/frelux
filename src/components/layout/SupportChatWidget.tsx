@@ -69,8 +69,8 @@ export default function SupportChatWidget() {
       const { data, error: fnError } = await supabase.functions.invoke<{
         result?: string;
         error?: string;
-      }>('ai-learn-assistant', {
-        body: { action: 'ask', question: q, clientId },
+      }>('ai-livechat', {
+        body: { question: q, clientId },
       });
 
       if (fnError) throw new Error(fnError.message);
