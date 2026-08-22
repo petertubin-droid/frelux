@@ -1216,6 +1216,23 @@ function EstimateResult({
             </button>
           </div>
 
+          {/* Post as Job CTA — marketplace integration */}
+          <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-brand-navy dark:text-white">Need someone to do the work?</p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified pros near you.</p>
+              </div>
+              <a
+                href={`/marketplace/post?estimate_ref=${result.estimate_ref || ''}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? 'room' : 'rooms'}`}
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
+              >
+                <Briefcase className="h-4 w-4" />
+                Post as Job
+              </a>
+            </div>
+          </div>
+
           {/* Trust labels */}
           <div className="flex flex-wrap gap-2 pt-2 text-xs">
             <TrustBadge label="CALCULATED" value="FRELUX engine" />

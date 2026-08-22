@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, ThumbsUp, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash } from 'lucide-react';
+import { MessageSquare, ThumbsUp, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash, ShoppingBag, Clock, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import {
   getMyProProfile, getProProfileServices, getProProfileLocations,
@@ -8,6 +8,8 @@ import {
 } from '@/lib/pro-connect';
 import type { DbProProfile, DbProService, DbProLocation, DbProPortfolioItem, DbProReview, DbProConversation } from '@/types/pro-connect';
 import { supabase } from '@/lib/supabase';
+import { fetchMyBids, fetchMyOrders } from '@/lib/marketplace';
+import type { DbMarketplaceBid, DbMarketplaceListing, DbMarketplaceOrder } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
 import {
   checkProLevelEligibility,
@@ -28,6 +30,8 @@ export default function ProConnectDashboard() {
   const [verificationRequests, setVerificationRequests] = useState<DbProVerificationRequest[]>([]);
   const [proLevelEligible, setProLevelEligible] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
+  const [myBids, setMyBids] = useState<(DbMarketplaceBid & { listing: DbMarketplaceListing })[]>([]);
+  const [myOrders, setMyOrders] = useState<DbMarketplaceOrder[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -58,6 +62,16 @@ export default function ProConnectDashboard() {
         checkProLevelEligibility(p.id),
       ]);
       setVerificationRequests(verifReqs);
+
+      // Fetch marketplace data
+      try {
+        const [bids, orders] = await Promise.all([
+          fetchMyBids(p.id).catch(() => []),
+          fetchMyOrders(user.id, 'pro').catch(() => []),
+        ]);
+        setMyBids(bids);
+        setMyOrders(orders);
+      } catch { /* marketplace not yet set up */ }
       setProLevelEligible(eligible);
       setLoading(false);
     })();
@@ -103,6 +117,10 @@ export default function ProConnectDashboard() {
         <Link to="/messages" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
           <MessageSquare className="h-4 w-4" />
           Messages
+        </Link>
+        <Link to="/profile" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
+          <Settings className="h-4 w-4" />
+          My Profile
         </Link>
       </div>
 
@@ -477,6 +495,89 @@ export default function ProConnectDashboard() {
           </div>
         )}
       </div>
+
+      {/* Marketplace — My Bids */}
+      <div className="mb-8">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+            <ShoppingBag className="h-5 w-5 text-brand-purple" />
+            Marketplace Bids
+          </h2>
+          <Link to="/marketplace" className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
+            Browse Jobs <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        {myBids.length === 0 ? (
+          <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center dark:border-white/5 dark:bg-brand-navy-mid">
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">You haven't placed any bids yet.</p>
+            <Link to="/marketplace" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
+              <ShoppingBag className="h-4 w-4" /> Browse open jobs
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {myBids.slice(0, 5).map((bid) => (
+              <Link
+                key={bid.id}
+                to={`/marketplace/${bid.listing_id}`}
+                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{bid.listing?.title || 'Untitled job'}</p>
+                  <p className="text-xs text-neutral-400">
+                    Bid: ₦{bid.proposed_price.toLocaleString()} · {new Date(bid.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+                <span className={classNames(
+                  'ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold',
+                  bid.status === 'accepted' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                  bid.status === 'rejected' ? 'bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400' :
+                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                )}>
+                  {bid.status}
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Marketplace — Active Orders */}
+      {myOrders.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+            <Briefcase className="h-5 w-5 text-brand-purple" />
+            Active Orders
+          </h2>
+          <div className="space-y-2">
+            {myOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').slice(0, 5).map((order) => (
+              <Link
+                key={order.id}
+                to={`/marketplace/orders/${order.id}`}
+                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                    {order.listing?.title || 'Untitled job'}
+                  </p>
+                  <p className="text-xs text-neutral-400">
+                    {order.order_number} · ₦{order.agreed_price.toLocaleString()}
+                  </p>
+                </div>
+                <span className={classNames(
+                  'ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold',
+                  order.status === 'in_progress' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' :
+                  order.status === 'pending_start' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' :
+                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                )}>
+                  {order.status === 'in_progress' && <Clock className="h-3 w-3" />}
+                  {order.status.replace('_', ' ')}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

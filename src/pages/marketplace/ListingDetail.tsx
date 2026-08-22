@@ -166,6 +166,30 @@ export default function ListingDetail() {
             </div>
           </div>
 
+          {/* Posted by */}
+          {listing.client && (
+            <div className="mt-4 flex items-center gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
+              <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+                {listing.client.avatar_url ? (
+                  <img src={listing.client.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
+                    {(listing.client.full_name || '?').charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500">Posted by</p>
+                <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                  {listing.client.full_name || 'Anonymous'}
+                </p>
+                {listing.client.marketplace_id && (
+                  <p className="text-[10px] tracking-wider text-neutral-400">{listing.client.marketplace_id}</p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Meta grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>

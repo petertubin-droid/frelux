@@ -525,6 +525,22 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
             </button>
           )}
           <button type="button" onClick={onStartOver} className="btn-secondary">Start Over</button>
+        {/* Post as Job CTA */}
+        <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-bold text-brand-navy dark:text-white">Need a pro for this tiling job?</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified tilers near you.</p>
+            </div>
+            <a
+              href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling — ${result.surfaceArea.toFixed(1)} m²`}
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
+            >
+              Post as Job
+            </a>
+          </div>
+        </div>
+
           <Link to="/tile-cost-estimator" state={{ surfaceArea: result.surfaceArea, grandTotal: result.grandTotal, input }}
             className="btn-primary">
             Continue to Cost Estimate <ArrowRight className="h-4 w-4" />

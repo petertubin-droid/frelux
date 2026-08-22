@@ -53,11 +53,11 @@ export async function fetchListings(params: {
 export async function fetchListing(id: string) {
   const { data, error } = await supabase
     .from('marketplace_listings')
-    .select('*')
+    .select('*, client:profiles!user_id(full_name, avatar_url, marketplace_id)')
     .eq('id', id)
     .single();
   if (error) throw error;
-  return data as DbMarketplaceListing;
+  return data as DbMarketplaceListing & { client?: { full_name: string; avatar_url: string; marketplace_id: string } };
 }
 
 export async function fetchMyListings(userId: string) {
@@ -121,24 +121,9 @@ export async function cancelListing(id: string, reason: string) {
 }
 
 export async function incrementListingView(id: string) {
-  await supabase.rpc('increment_view_count', { listing_id: id }).then(() => {}).catch(() => {});
-  // Fallback: direct update
-  await supabase
-    .from('marketplace_listings')
-    .update({ view_count: supabase.rpc ? undefined : undefined })
-    .eq('id', id);
-  // Use raw SQL approach via update
-  const { data } = await supabase
-    .from('marketplace_listings')
-    .select('view_count')
-    .eq('id', id)
-    .single();
-  if (data) {
-    await supabase
-      .from('marketplace_listings')
-      .update({ view_count: (data as { view_count: number }).view_count + 1 })
-      .eq('id', id);
-  }
+  try {
+    await supabase.rpc('increment_view_count', { listing_id: id });
+  } catch { /* non-critical */ }
 }
 
 // ============================================================
