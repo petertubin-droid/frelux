@@ -72,7 +72,7 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
     block_width: 225,
     concrete_mix_cement: 1,
     concrete_mix_sand: 2,
-    concrete_mix_aggregate: 4,
+    concrete_mix_granite: 4,
     mortar_mix_cement: 1,
     mortar_mix_sand: 6,
     roof_type: 'gable',
@@ -100,13 +100,13 @@ describe('concreteToMaterials', () => {
     // cementBags = 0.22 / 0.0347 = 6.34
     expect(result.cement_bags).toBeCloseTo(6.34, 1);
     expect(result.sand_m3).toBeCloseTo(0.44, 1);
-    expect(result.aggregate_m3).toBeCloseTo(0.88, 1);
+    expect(result.granite_m3).toBeCloseTo(0.88, 1);
   });
 
   it('mass balance: cement + sand + aggregate volumes = dry volume', () => {
     for (const [c, s, a] of [[1, 2, 4], [1, 3, 6], [1, 1.5, 3], [1, 4, 8]]) {
       const result = concreteToMaterials(5, c, s, a);
-      const total = result.cement_bags * CEMENT_VOLUME_PER_BAG + result.sand_m3 + result.aggregate_m3;
+      const total = result.cement_bags * CEMENT_VOLUME_PER_BAG + result.sand_m3 + result.granite_m3;
       const expected = 5 * DRY_WET_RATIO;
       expect(total).toBeCloseTo(expected, 4);
     }
@@ -116,7 +116,7 @@ describe('concreteToMaterials', () => {
     const result = concreteToMaterials(0, 1, 2, 4);
     expect(result.cement_bags).toBe(0);
     expect(result.sand_m3).toBe(0);
-    expect(result.aggregate_m3).toBe(0);
+    expect(result.granite_m3).toBe(0);
   });
 
   it('returns zeros for invalid mix (zero parts)', () => {
@@ -130,7 +130,7 @@ describe('concreteToMaterials', () => {
     // cementVol = 1.54, bags = 44.38
     expect(result.cement_bags).toBeCloseTo(44.38, 0);
     expect(result.sand_m3).toBeCloseTo(4.62, 0);
-    expect(result.aggregate_m3).toBeCloseTo(9.24, 0);
+    expect(result.granite_m3).toBeCloseTo(9.24, 0);
   });
 });
 

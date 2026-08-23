@@ -173,6 +173,7 @@ export default function BuildToRoofEstimator() {
     location: 'Lagos',
     building_type: 'bungalow',
     number_of_floors: 1,
+    measurement_unit: 'm',
     building_length: 15,
     building_width: 10,
     floor_to_floor_height: 3,
@@ -191,12 +192,12 @@ export default function BuildToRoofEstimator() {
     hardcore_thickness: 0.15,
     dpc_length: 50,
     block_size: '9inch',
-    block_length: 450,
-    block_height: 225,
-    block_width: 225,
+    block_length: 18, // inches (450mm ≈ 18")
+    block_height: 9, // inches (225mm ≈ 9")
+    block_width: 9, // inches (225mm ≈ 9")
     concrete_mix_cement: 1,
     concrete_mix_sand: 2,
-    concrete_mix_aggregate: 4,
+    concrete_mix_granite: 4,
     mortar_mix_cement: 1,
     mortar_mix_sand: 6,
     roof_type: 'gable',
@@ -302,13 +303,54 @@ export default function BuildToRoofEstimator() {
             {/* Step 1: Dimensions */}
             {step === 1 && (
               <SectionCard title="Building Dimensions" icon={Ruler}>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-sm font-medium text-neutral-600">Measurement unit:</span>
+                  <div className="inline-flex rounded-lg border border-neutral-200 overflow-hidden">
+                    <button
+                      onClick={() => {
+                        if (input.measurement_unit === 'ft') {
+                          // Convert ft values to m
+                          setInput(prev => ({
+                            ...prev,
+                            measurement_unit: 'm',
+                            building_length: parseFloat((prev.building_length * 0.3048).toFixed(2)),
+                            building_width: parseFloat((prev.building_width * 0.3048).toFixed(2)),
+                            floor_to_floor_height: parseFloat((prev.floor_to_floor_height * 0.3048).toFixed(2)),
+                            wall_thickness: parseFloat((prev.wall_thickness * 0.3048).toFixed(4)),
+                            internal_wall_length: parseFloat((prev.internal_wall_length * 0.3048).toFixed(2)),
+                            internal_wall_thickness: parseFloat((prev.internal_wall_thickness * 0.3048).toFixed(4)),
+                          }));
+                        }
+                      }}
+                      className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === 'm' ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                    >Meters (m)</button>
+                    <button
+                      onClick={() => {
+                        if (input.measurement_unit === 'm') {
+                          // Convert m values to ft
+                          setInput(prev => ({
+                            ...prev,
+                            measurement_unit: 'ft',
+                            building_length: parseFloat((prev.building_length / 0.3048).toFixed(2)),
+                            building_width: parseFloat((prev.building_width / 0.3048).toFixed(2)),
+                            floor_to_floor_height: parseFloat((prev.floor_to_floor_height / 0.3048).toFixed(2)),
+                            wall_thickness: parseFloat((prev.wall_thickness / 0.3048).toFixed(4)),
+                            internal_wall_length: parseFloat((prev.internal_wall_length / 0.3048).toFixed(2)),
+                            internal_wall_thickness: parseFloat((prev.internal_wall_thickness / 0.3048).toFixed(4)),
+                          }));
+                        }
+                      }}
+                      className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === 'ft' ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:bg-neutral-50'}`}
+                    >Feet (ft)</button>
+                  </div>
+                </div>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <Field label="Building length" unit="m" value={input.building_length} onChange={v => update('building_length', parseFloat(v) || 0)} step="0.1" />
-                  <Field label="Building width" unit="m" value={input.building_width} onChange={v => update('building_width', parseFloat(v) || 0)} step="0.1" />
-                  <Field label="Floor-to-floor height" unit="m" value={input.floor_to_floor_height} onChange={v => update('floor_to_floor_height', parseFloat(v) || 0)} step="0.1" />
-                  <Field label="External wall thickness" unit="m" value={input.wall_thickness} onChange={v => update('wall_thickness', parseFloat(v) || 0)} step="0.025" />
-                  <Field label="Internal wall total length" unit="m" value={input.internal_wall_length} onChange={v => update('internal_wall_length', parseFloat(v) || 0)} step="0.5" />
-                  <Field label="Internal wall thickness" unit="m" value={input.internal_wall_thickness} onChange={v => update('internal_wall_thickness', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="Building length" unit={input.measurement_unit} value={input.building_length} onChange={v => update('building_length', parseFloat(v) || 0)} step="0.1" />
+                  <Field label="Building width" unit={input.measurement_unit} value={input.building_width} onChange={v => update('building_width', parseFloat(v) || 0)} step="0.1" />
+                  <Field label="Floor-to-floor height" unit={input.measurement_unit} value={input.floor_to_floor_height} onChange={v => update('floor_to_floor_height', parseFloat(v) || 0)} step="0.1" />
+                  <Field label="External wall thickness" unit={input.measurement_unit} value={input.wall_thickness} onChange={v => update('wall_thickness', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="Internal wall total length" unit={input.measurement_unit} value={input.internal_wall_length} onChange={v => update('internal_wall_length', parseFloat(v) || 0)} step="0.5" />
+                  <Field label="Internal wall thickness" unit={input.measurement_unit} value={input.internal_wall_thickness} onChange={v => update('internal_wall_thickness', parseFloat(v) || 0)} step="0.025" />
                 </div>
                 <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-3 flex items-start gap-2">
                   <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
@@ -343,12 +385,12 @@ export default function BuildToRoofEstimator() {
                           <option value="window">Window</option>
                         </select>
                       </div>
-                      <Field label="Width (m)" value={opening.width} onChange={v => {
+                      <Field label={`Width (${input.measurement_unit})`} value={opening.width} onChange={v => {
                         const openings = [...input.openings];
                         openings[i] = { ...opening, width: parseFloat(v) || 0 };
                         update('openings', openings);
                       }} step="0.1" />
-                      <Field label="Height (m)" value={opening.height} onChange={v => {
+                      <Field label={`Height (${input.measurement_unit})`} value={opening.height} onChange={v => {
                         const openings = [...input.openings];
                         openings[i] = { ...opening, height: parseFloat(v) || 0 };
                         update('openings', openings);
@@ -379,12 +421,12 @@ export default function BuildToRoofEstimator() {
               <SectionCard title="Foundation Details" icon={Layers}>
                 <div className="grid md:grid-cols-3 gap-4">
                   <SelectField label="Foundation type" value={input.foundation_type} onChange={v => update('foundation_type', v as FoundationType)} options={FOUNDATION_TYPES} />
-                  <Field label="Foundation depth" unit="m" value={input.foundation_depth} onChange={v => update('foundation_depth', parseFloat(v) || 0)} step="0.1" />
-                  <Field label="Foundation width" unit="m" value={input.foundation_width} onChange={v => update('foundation_width', parseFloat(v) || 0)} step="0.025" />
-                  <Field label="Footing thickness" unit="m" value={input.footing_thickness} onChange={v => update('footing_thickness', parseFloat(v) || 0)} step="0.025" />
-                  <Field label="Blinding thickness" unit="m" value={input.blinding_thickness} onChange={v => update('blinding_thickness', parseFloat(v) || 0)} step="0.025" />
-                  <Field label="Hardcore thickness" unit="m" value={input.hardcore_thickness} onChange={v => update('hardcore_thickness', parseFloat(v) || 0)} step="0.025" />
-                  <Field label="DPC length" unit="m" value={input.dpc_length} onChange={v => update('dpc_length', parseFloat(v) || 0)} />
+                  <Field label="Foundation depth" unit={input.measurement_unit} value={input.foundation_depth} onChange={v => update('foundation_depth', parseFloat(v) || 0)} step="0.1" />
+                  <Field label="Foundation width" unit={input.measurement_unit} value={input.foundation_width} onChange={v => update('foundation_width', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="Footing thickness" unit={input.measurement_unit} value={input.footing_thickness} onChange={v => update('footing_thickness', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="Blinding thickness" unit={input.measurement_unit} value={input.blinding_thickness} onChange={v => update('blinding_thickness', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="Hardcore thickness" unit={input.measurement_unit} value={input.hardcore_thickness} onChange={v => update('hardcore_thickness', parseFloat(v) || 0)} step="0.025" />
+                  <Field label="DPC length" unit={input.measurement_unit} value={input.dpc_length} onChange={v => update('dpc_length', parseFloat(v) || 0)} />
                 </div>
               </SectionCard>
             )}
@@ -404,25 +446,25 @@ export default function BuildToRoofEstimator() {
                     <SelectField label="Block size" value={input.block_size} onChange={v => {
                       const size = v as BlockSize;
                       const dims: Record<string, [number, number, number]> = {
-                        '9inch': [450, 225, 225],
-                        '6inch': [450, 225, 150],
-                        '5inch': [450, 225, 125],
+                        '9inch': [18, 9, 9],
+                        '6inch': [18, 9, 6],
+                        '5inch': [18, 9, 5],
                       };
-                      const d = dims[v] || [450, 225, 225];
+                      const d = dims[v] || [18, 9, 9];
                       setInput(prev => ({ ...prev, block_size: size, block_length: d[0], block_height: d[1], block_width: d[2] }));
                     }} options={BLOCK_SIZES} />
-                    <Field label="Block length" unit="mm" value={input.block_length} onChange={v => update('block_length', parseFloat(v) || 0)} />
-                    <Field label="Block height" unit="mm" value={input.block_height} onChange={v => update('block_height', parseFloat(v) || 0)} />
-                    <Field label="Block width" unit="mm" value={input.block_width} onChange={v => update('block_width', parseFloat(v) || 0)} />
+                    <Field label="Block length" unit="in" value={input.block_length} onChange={v => update('block_length', parseFloat(v) || 0)} />
+                    <Field label="Block height" unit="in" value={input.block_height} onChange={v => update('block_height', parseFloat(v) || 0)} />
+                    <Field label="Block width" unit="in" value={input.block_width} onChange={v => update('block_width', parseFloat(v) || 0)} />
                   </div>
                 </SectionCard>
                 <SectionCard title="Concrete Mix Ratio" icon={Settings}>
                   <div className="grid grid-cols-3 gap-4">
                     <Field label="Cement (parts)" value={input.concrete_mix_cement} onChange={v => update('concrete_mix_cement', parseFloat(v) || 1)} />
                     <Field label="Sand (parts)" value={input.concrete_mix_sand} onChange={v => update('concrete_mix_sand', parseFloat(v) || 1)} />
-                    <Field label="Aggregate (parts)" value={input.concrete_mix_aggregate} onChange={v => update('concrete_mix_aggregate', parseFloat(v) || 1)} />
+                    <Field label="Granite (parts)" value={input.concrete_mix_granite} onChange={v => update('concrete_mix_granite', parseFloat(v) || 1)} />
                   </div>
-                  <p className="mt-2 text-xs text-neutral-400">Current ratio: {input.concrete_mix_cement}:{input.concrete_mix_sand}:{input.concrete_mix_aggregate}</p>
+                  <p className="mt-2 text-xs text-neutral-400">Current ratio: {input.concrete_mix_cement}:{input.concrete_mix_sand}:{input.concrete_mix_granite}</p>
                 </SectionCard>
                 <SectionCard title="Mortar Mix Ratio" icon={Settings}>
                   <div className="grid grid-cols-2 gap-4">
@@ -436,7 +478,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="Blocks" unit="%" value={input.wastage.blocks} onChange={v => update('wastage', { ...input.wastage, blocks: parseFloat(v) || 0 })} />
                     <Field label="Cement" unit="%" value={input.wastage.cement} onChange={v => update('wastage', { ...input.wastage, cement: parseFloat(v) || 0 })} />
                     <Field label="Sand" unit="%" value={input.wastage.sand} onChange={v => update('wastage', { ...input.wastage, sand: parseFloat(v) || 0 })} />
-                    <Field label="Aggregate" unit="%" value={input.wastage.aggregate} onChange={v => update('wastage', { ...input.wastage, aggregate: parseFloat(v) || 0 })} />
+                    <Field label="Granite" unit="%" value={input.wastage.granite} onChange={v => update('wastage', { ...input.wastage, aggregate: parseFloat(v) || 0 })} />
                     <Field label="Reinforcement" unit="%" value={input.wastage.reinforcement} onChange={v => update('wastage', { ...input.wastage, reinforcement: parseFloat(v) || 0 })} />
                     <Field label="Timber" unit="%" value={input.wastage.timber} onChange={v => update('wastage', { ...input.wastage, timber: parseFloat(v) || 0 })} />
                     <Field label="Roofing sheets" unit="%" value={input.wastage.roofing_sheets} onChange={v => update('wastage', { ...input.wastage, roofing_sheets: parseFloat(v) || 0 })} />
@@ -452,7 +494,7 @@ export default function BuildToRoofEstimator() {
                 <div className="grid md:grid-cols-3 gap-4">
                   <SelectField label="Roof type" value={input.roof_type} onChange={v => update('roof_type', v as RoofType)} options={ROOF_TYPES} />
                   <Field label="Roof pitch" unit="°" value={input.roof_pitch_degrees} onChange={v => update('roof_pitch_degrees', parseFloat(v) || 0)} />
-                  <Field label="Overhang" unit="m" value={input.roof_overhang} onChange={v => update('roof_overhang', parseFloat(v) || 0)} step="0.1" />
+                  <Field label="Overhang" unit={input.measurement_unit} value={input.roof_overhang} onChange={v => update('roof_overhang', parseFloat(v) || 0)} step="0.1" />
                   <SelectField label="Roofing material" value={input.roofing_material} onChange={v => update('roofing_material', v as RoofingMaterial)} options={ROOFING_MATERIALS} />
                 </div>
               </SectionCard>
@@ -513,17 +555,17 @@ export default function BuildToRoofEstimator() {
                             members[i] = { ...member, label: v };
                             update('structural_members', members);
                           }} type="text" />
-                          <Field label="L (m)" value={member.length} onChange={v => {
+                          <Field label={`L (${input.measurement_unit})`} value={member.length} onChange={v => {
                             const members = [...input.structural_members];
                             members[i] = { ...member, length: parseFloat(v) || 0 };
                             update('structural_members', members);
                           }} step="0.1" />
-                          <Field label="W (m)" value={member.width} onChange={v => {
+                          <Field label={`W (${input.measurement_unit})`} value={member.width} onChange={v => {
                             const members = [...input.structural_members];
                             members[i] = { ...member, width: parseFloat(v) || 0 };
                             update('structural_members', members);
                           }} step="0.025" />
-                          <Field label="D (m)" value={member.depth} onChange={v => {
+                          <Field label={`D (${input.measurement_unit})`} value={member.depth} onChange={v => {
                             const members = [...input.structural_members];
                             members[i] = { ...member, depth: parseFloat(v) || 0 };
                             update('structural_members', members);
@@ -568,7 +610,9 @@ export default function BuildToRoofEstimator() {
                     <Field label="Cement per bag" unit="₦" value={input.prices.cement_per_bag} onChange={v => update('prices', { ...input.prices, cement_per_bag: parseFloat(v) || 0 })} />
                     <Field label="Block per piece" unit="₦" value={input.prices.block_per_piece} onChange={v => update('prices', { ...input.prices, block_per_piece: parseFloat(v) || 0 })} />
                     <Field label="Sand per m³" unit="₦" value={input.prices.sand_per_m3} onChange={v => update('prices', { ...input.prices, sand_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Sand per trip" unit="₦" value={input.prices.sand_per_trip} onChange={v => update('prices', { ...input.prices, sand_per_trip: parseFloat(v) || 0 })} />
                     <Field label="Granite per m³" unit="₦" value={input.prices.granite_per_m3} onChange={v => update('prices', { ...input.prices, granite_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Granite per trip" unit="₦" value={input.prices.granite_per_trip} onChange={v => update('prices', { ...input.prices, granite_per_trip: parseFloat(v) || 0 })} />
                     <Field label="Reinforcement per tonne" unit="₦" value={input.prices.reinforcement_per_tonne} onChange={v => update('prices', { ...input.prices, reinforcement_per_tonne: parseFloat(v) || 0 })} />
                     <Field label="Binding wire per kg" unit="₦" value={input.prices.binding_wire_per_kg} onChange={v => update('prices', { ...input.prices, binding_wire_per_kg: parseFloat(v) || 0 })} />
                     <Field label="Timber per meter" unit="₦" value={input.prices.timber_per_m} onChange={v => update('prices', { ...input.prices, timber_per_m: parseFloat(v) || 0 })} />
@@ -592,23 +636,85 @@ export default function BuildToRoofEstimator() {
 
             {/* Step 8: Labour */}
             {step === 8 && (
-              <SectionCard title="Labour Rates (₦)" icon={Users}>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <Field label="Excavation per m³" unit="₦" value={input.labour.excavation_per_m3} onChange={v => update('labour', { ...input.labour, excavation_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Blockwork per block" unit="₦" value={input.labour.blockwork_per_block} onChange={v => update('labour', { ...input.labour, blockwork_per_block: parseFloat(v) || 0 })} />
-                  <Field label="Concrete per m³" unit="₦" value={input.labour.concrete_per_m3} onChange={v => update('labour', { ...input.labour, concrete_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Reinforcement per tonne" unit="₦" value={input.labour.reinforcement_per_tonne} onChange={v => update('labour', { ...input.labour, reinforcement_per_tonne: parseFloat(v) || 0 })} />
-                  <Field label="Formwork per m²" unit="₦" value={input.labour.formwork_per_m2} onChange={v => update('labour', { ...input.labour, formwork_per_m2: parseFloat(v) || 0 })} />
-                  <Field label="Roofing per m²" unit="₦" value={input.labour.roofing_per_m2} onChange={v => update('labour', { ...input.labour, roofing_per_m2: parseFloat(v) || 0 })} />
-                  <Field label="Blinding per m³" unit="₦" value={input.labour.blinding_per_m3} onChange={v => update('labour', { ...input.labour, blinding_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Hardcore per m³" unit="₦" value={input.labour.hardcore_per_m3} onChange={v => update('labour', { ...input.labour, hardcore_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Sand filling per m³" unit="₦" value={input.labour.sand_filling_per_m3} onChange={v => update('labour', { ...input.labour, sand_filling_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="General labour per day" unit="₦" value={input.labour.general_labour_per_day} onChange={v => update('labour', { ...input.labour, general_labour_per_day: parseFloat(v) || 0 })} />
-                  <Field label="Compaction per m³" unit="₦" value={input.labour.compaction_per_m3} onChange={v => update('labour', { ...input.labour, compaction_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Backfilling per m³" unit="₦" value={input.labour.backfilling_per_m3} onChange={v => update('labour', { ...input.labour, backfilling_per_m3: parseFloat(v) || 0 })} />
-                  <Field label="Site prep days" unit="days" value={input.labour.general_labour_days} onChange={v => update('labour', { ...input.labour, general_labour_days: parseFloat(v) || 0 })} />
-                </div>
-              </SectionCard>
+              <div className="space-y-4">
+                <SectionCard title="Task-Based Labour Rates (₦)" icon={Users}>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <Field label="Excavation per m³" unit="₦" value={input.labour.excavation_per_m3} onChange={v => update('labour', { ...input.labour, excavation_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Blockwork per block" unit="₦" value={input.labour.blockwork_per_block} onChange={v => update('labour', { ...input.labour, blockwork_per_block: parseFloat(v) || 0 })} />
+                    <Field label="Concrete per m³" unit="₦" value={input.labour.concrete_per_m3} onChange={v => update('labour', { ...input.labour, concrete_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Reinforcement per tonne" unit="₦" value={input.labour.reinforcement_per_tonne} onChange={v => update('labour', { ...input.labour, reinforcement_per_tonne: parseFloat(v) || 0 })} />
+                    <Field label="Formwork per m²" unit="₦" value={input.labour.formwork_per_m2} onChange={v => update('labour', { ...input.labour, formwork_per_m2: parseFloat(v) || 0 })} />
+                    <Field label="Roofing per m²" unit="₦" value={input.labour.roofing_per_m2} onChange={v => update('labour', { ...input.labour, roofing_per_m2: parseFloat(v) || 0 })} />
+                    <Field label="Blinding per m³" unit="₦" value={input.labour.blinding_per_m3} onChange={v => update('labour', { ...input.labour, blinding_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Hardcore per m³" unit="₦" value={input.labour.hardcore_per_m3} onChange={v => update('labour', { ...input.labour, hardcore_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Sand filling per m³" unit="₦" value={input.labour.sand_filling_per_m3} onChange={v => update('labour', { ...input.labour, sand_filling_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Compaction per m³" unit="₦" value={input.labour.compaction_per_m3} onChange={v => update('labour', { ...input.labour, compaction_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Backfilling per m³" unit="₦" value={input.labour.backfilling_per_m3} onChange={v => update('labour', { ...input.labour, backfilling_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="General labour per day" unit="₦" value={input.labour.general_labour_per_day} onChange={v => update('labour', { ...input.labour, general_labour_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Site prep days" unit="days" value={input.labour.general_labour_days} onChange={v => update('labour', { ...input.labour, general_labour_days: parseFloat(v) || 0 })} />
+                  </div>
+                </SectionCard>
+                <SectionCard title="Role-Based Daily/Contract Rates (₦)" icon={Users}>
+                  <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
+                    <p className="text-xs text-blue-600">
+                      <strong>Nigerian construction labour roles:</strong> Set daily or contract payment rates for each role.
+                      These are added to the labour total alongside task-based rates.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <Field label="Bricklayer per day" unit="₦/day" value={input.labour.bricklayer_per_day} onChange={v => update('labour', { ...input.labour, bricklayer_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Bricklayer days" unit="days" value={input.labour.bricklayer_days} onChange={v => update('labour', { ...input.labour, bricklayer_days: parseFloat(v) || 0 })} />
+                    <div></div>
+                    <Field label="Foreman per day" unit="₦/day" value={input.labour.foreman_per_day} onChange={v => update('labour', { ...input.labour, foreman_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Foreman days" unit="days" value={input.labour.foreman_days} onChange={v => update('labour', { ...input.labour, foreman_days: parseFloat(v) || 0 })} />
+                    <div></div>
+                    <Field label="Supervisor per day" unit="₦/day" value={input.labour.supervisor_per_day} onChange={v => update('labour', { ...input.labour, supervisor_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Supervisor days" unit="days" value={input.labour.supervisor_days} onChange={v => update('labour', { ...input.labour, supervisor_days: parseFloat(v) || 0 })} />
+                    <div></div>
+                    <Field label="Carpenter per day" unit="₦/day" value={input.labour.carpenter_per_day} onChange={v => update('labour', { ...input.labour, carpenter_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Carpenter days" unit="days" value={input.labour.carpenter_days} onChange={v => update('labour', { ...input.labour, carpenter_days: parseFloat(v) || 0 })} />
+                    <div></div>
+                    <Field label="Concrete labourer per day" unit="₦/day" value={input.labour.concrete_labourer_per_day} onChange={v => update('labour', { ...input.labour, concrete_labourer_per_day: parseFloat(v) || 0 })} />
+                    <Field label="Concrete labourer days" unit="days" value={input.labour.concrete_labourer_days} onChange={v => update('labour', { ...input.labour, concrete_labourer_days: parseFloat(v) || 0 })} />
+                    <div></div>
+                    <div className="md:col-span-3 border-t border-neutral-100 pt-4 mt-2">
+                      <p className="text-sm font-medium text-neutral-700 mb-3">Contractor Payment</p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-neutral-600 mb-1 block">Payment type</label>
+                          <select
+                            value={input.labour.contractor_fee_type}
+                            onChange={e => update('labour', { ...input.labour, contractor_fee_type: e.target.value as 'daily' | 'contract' })}
+                            className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
+                          >
+                            <option value="contract">Lump sum (contract)</option>
+                            <option value="daily">Daily rate</option>
+                          </select>
+                        </div>
+                        {input.labour.contractor_fee_type === 'contract' ? (
+                          <Field label="Contractor fee (lump sum)" unit="₦" value={input.labour.contractor_fee} onChange={v => update('labour', { ...input.labour, contractor_fee: parseFloat(v) || 0 })} />
+                        ) : (
+                          <>
+                            <Field label="Contractor per day" unit="₦/day" value={input.labour.contractor_fee} onChange={v => update('labour', { ...input.labour, contractor_fee: parseFloat(v) || 0 })} />
+                            <Field label="Contractor days" unit="days" value={input.labour.contractor_days} onChange={v => update('labour', { ...input.labour, contractor_days: parseFloat(v) || 0 })} />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-lg bg-neutral-50 border border-neutral-100 p-3">
+                    <p className="text-xs text-neutral-500">
+                      Role-based total: ₦{(input.labour.bricklayer_per_day * input.labour.bricklayer_days +
+                      input.labour.foreman_per_day * input.labour.foreman_days +
+                      input.labour.supervisor_per_day * input.labour.supervisor_days +
+                      input.labour.carpenter_per_day * input.labour.carpenter_days +
+                      input.labour.concrete_labourer_per_day * input.labour.concrete_labourer_days +
+                      (input.labour.contractor_fee_type === 'contract' ? input.labour.contractor_fee : input.labour.contractor_fee * input.labour.contractor_days)
+                      ).toLocaleString()}
+                    </p>
+                  </div>
+                </SectionCard>
+              </div>
             )}
 
             {/* Step 9: Drawing upload */}

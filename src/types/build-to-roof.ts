@@ -84,8 +84,9 @@ export interface BuildToRoofInput {
   location: string;
   building_type: BuildingType;
   number_of_floors: number;
+  measurement_unit: 'm' | 'ft';
 
-  // Building dimensions (meters)
+  // Building dimensions (stored in meters internally; converted from ft if unit is ft)
   building_length: number;
   building_width: number;
   floor_to_floor_height: number; // wall height per floor
@@ -109,14 +110,14 @@ export interface BuildToRoofInput {
 
   // Block specification
   block_size: BlockSize;
-  block_length: number; // mm
-  block_height: number; // mm
-  block_width: number; // mm (thickness)
+  block_length: number; // inches (18" standard)
+  block_height: number; // inches (9" standard)
+  block_width: number; // inches (thickness: 9", 6", or 5")
 
   // Concrete mix (cement:sand:aggregate by volume)
   concrete_mix_cement: number; // parts
   concrete_mix_sand: number;
-  concrete_mix_aggregate: number;
+  concrete_mix_granite: number;
 
   // Mortar mix (cement:sand by volume)
   mortar_mix_cement: number;
@@ -152,7 +153,7 @@ export interface WastageConfig {
   blocks: number; // %
   cement: number; // %
   sand: number; // %
-  aggregate: number; // %
+  granite: number; // %
   reinforcement: number; // %
   timber: number; // %
   roofing_sheets: number; // %
@@ -163,7 +164,9 @@ export interface PriceConfig {
   cement_per_bag: number; // ₦ per 50kg bag
   block_per_piece: number; // ₦ per block
   sand_per_m3: number; // ₦ per cubic meter
+  sand_per_trip: number; // ₦ per trip (1 trip ≈ 3.5 m³, 5-tonne tipper)
   granite_per_m3: number; // ₦ per cubic meter
+  granite_per_trip: number; // ₦ per trip (1 trip ≈ 3.5 m³, 5-tonne tipper)
   hardcore_per_m3: number; // ₦ per cubic meter (hardcore stone/laterite)
   reinforcement_per_tonne: number; // ₦ per tonne
   binding_wire_per_kg: number; // ₦ per kg
@@ -193,6 +196,20 @@ export interface LabourConfig {
   backfilling_per_m3: number; // ₦ per m³
   general_labour_per_day: number; // ₦ per day
   general_labour_days: number; // estimated days for site prep + clearing + setting out
+  // Role-based daily rates (Nigerian construction)
+  bricklayer_per_day: number; // ₦ per day per bricklayer/mason
+  bricklayer_days: number; // estimated bricklayer-days for blockwork
+  contractor_fee: number; // ₦ — lump sum or daily rate × days
+  contractor_fee_type: 'daily' | 'contract'; // payment mode
+  contractor_days: number; // if daily, estimated contractor days
+  supervisor_per_day: number; // ₦ per day
+  supervisor_days: number; // estimated supervisor days
+  foreman_per_day: number; // ₦ per day
+  foreman_days: number; // estimated foreman days
+  carpenter_per_day: number; // ₦ per day (formwork + roof timber)
+  carpenter_days: number; // estimated carpenter days
+  concrete_labourer_per_day: number; // ₦ per day
+  concrete_labourer_days: number; // estimated concrete labourer days
 }
 
 export interface DrawingAnalysis {

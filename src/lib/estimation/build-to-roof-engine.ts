@@ -74,11 +74,27 @@ export const RAFTER_SPACING = 0.9;
 // Foundation blockwork courses below DPC
 export const FOUNDATION_COURSES = 4;
 
+// Feet to meters conversion
+export const M_PER_FT = 0.3048;
+
+// 1 trip of sand/granite = ~3.5 m³ (standard 5-tonne tipper truck in Nigeria)
+export const M3_PER_TRIP = 3.5;
+
 // ── Helpers ──
 
 function round(n: number, dp = 2): number {
   const f = Math.pow(10, dp);
   return Math.round(n * f) / f;
+}
+
+// Convert feet to meters
+function ftToM(ft: number): number {
+  return ft * M_PER_FT;
+}
+
+// Convert m³ to trips (Nigerian construction unit)
+function m3ToTrips(m3: number): number {
+  return m3 / M3_PER_TRIP;
 }
 
 function applyWastage(baseQty: number, wastagePercent: number): number {
@@ -138,38 +154,38 @@ function labLine(label: string, unit: string, qty: number, rate: number): Labour
 // ── Concrete mix → material breakdown ──
 
 /**
- * Convert wet concrete volume (m³) into cement (bags), sand (m³), aggregate (m³)
- * using a mix ratio like 1:2:4 (cement:sand:aggregate by volume).
+ * Convert wet concrete volume (m³) into cement (bags), sand (m³), granite (m³)
+ * using a mix ratio like 1:2:4 (cement:sand:granite by volume).
  *
  * Formula:
  *   dryVolume = wetVolume × 1.54
  *   totalParts = cement + sand + aggregate
  *   cementVol = dryVolume × (cement / totalParts)
  *   sandVol   = dryVolume × (sand / totalParts)
- *   aggVol    = dryVolume × (aggregate / totalParts)
+ *   graniteVol    = dryVolume × (aggregate / totalParts)
  *   cementBags = cementVol / 0.0347
  *
- * Verification: cementVol + sandVol + aggVol = dryVolume (mass balance holds)
+ * Verification: cementVol + sandVol + graniteVol = dryVolume (mass balance holds)
  */
 export function concreteToMaterials(
   wetVolumeM3: number,
   mixCement: number,
   mixSand: number,
-  mixAggregate: number
-): { cement_bags: number; sand_m3: number; aggregate_m3: number } {
-  if (wetVolumeM3 <= 0) return { cement_bags: 0, sand_m3: 0, aggregate_m3: 0 };
+  mixGranite: number
+): { cement_bags: number; sand_m3: number; granite_m3: number } {
+  if (wetVolumeM3 <= 0) return { cement_bags: 0, sand_m3: 0, granite_m3: 0 };
   const dryVolume = wetVolumeM3 * DRY_WET_RATIO;
-  const totalParts = mixCement + mixSand + mixAggregate;
-  if (totalParts <= 0) return { cement_bags: 0, sand_m3: 0, aggregate_m3: 0 };
+  const totalParts = mixCement + mixSand + mixGranite;
+  if (totalParts <= 0) return { cement_bags: 0, sand_m3: 0, granite_m3: 0 };
 
   const cementVol = dryVolume * (mixCement / totalParts);
   const sandVol = dryVolume * (mixSand / totalParts);
-  const aggVol = dryVolume * (mixAggregate / totalParts);
+  const graniteVol = dryVolume * (mixGranite / totalParts);
 
   return {
     cement_bags: cementVol / CEMENT_VOLUME_PER_BAG,
     sand_m3: sandVol,
-    aggregate_m3: aggVol,
+    granite_m3: graniteVol,
   };
 }
 
@@ -216,8 +232,9 @@ export function mortarToMaterials(
  * so blocks per m² is slightly less than theoretical.
  * We use the block face dimension as-is (standard industry approach).
  */
-export function blocksPerM2(blockLengthMm: number, blockHeightMm: number): number {
-  const blockFaceArea = (blockLengthMm / 1000) * (blockHeightMm / 1000); // m²
+export function blocksPerM2(blockLengthInches: number, blockHeightInches: number): number {
+  // Convert inches to meters: 1 inch = 0.0254 m
+  const blockFaceArea = (blockLengthInches * 0.0254) * (blockHeightInches * 0.0254); // m²
   if (blockFaceArea <= 0) return 0;
   return 1 / blockFaceArea;
 }
@@ -444,10 +461,10 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
       { footprint_area: footprintArea, blinding_thickness: input.blinding_thickness },
       blindingVol, 'm³', input.wastage.cement)
   );
-  const blindingMats = concreteToMaterials(blindingVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_aggregate);
+  const blindingMats = concreteToMaterials(blindingVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (blinding)', 'bags', blindingMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
   materials.push(matLine('Sand (blinding)', 'm³', blindingMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (blinding)', 'm³', blindingMats.aggregate_m3, input.wastage.aggregate, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLine('Granite (blinding)', 'm³', blindingMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Blinding labour', 'm³', blindingVol, input.labour.blinding_per_m3));
 
   // 4. Foundation concrete (strip footing) — FIX: uses configurable footing_thickness
@@ -457,10 +474,10 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
       { perimeter, foundation_width: input.foundation_width, footing_thickness: input.footing_thickness },
       foundationConcreteVol, 'm³', input.wastage.cement)
   );
-  const foundMats = concreteToMaterials(foundationConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_aggregate);
+  const foundMats = concreteToMaterials(foundationConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (foundation)', 'bags', foundMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
   materials.push(matLine('Sand (foundation)', 'm³', foundMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (foundation)', 'm³', foundMats.aggregate_m3, input.wastage.aggregate, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLine('Granite (foundation)', 'm³', foundMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour', 'm³', foundationConcreteVol, input.labour.concrete_per_m3));
 
   // 5. Hardcore filling — FIX: now has material cost
@@ -514,7 +531,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   }
 
   // 10. Foundation blockwork (up to DPC) — FIX: includes mortar joints in height
-  const courseHeight = input.block_height / 1000 + MORTAR_JOINT_THICKNESS; // block + mortar joint
+  const courseHeight = (input.block_height * 0.0254) + MORTAR_JOINT_THICKNESS; // block (inches→m) + mortar joint
   const foundationBlockHeight = courseHeight * FOUNDATION_COURSES;
   const foundationWallArea = perimeter * foundationBlockHeight;
   const blocksPerM2Val = blocksPerM2(input.block_length, input.block_height);
@@ -576,10 +593,10 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
       slabVol, 'm³', input.wastage.cement)
   );
 
-  const slabMats = concreteToMaterials(slabVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_aggregate);
+  const slabMats = concreteToMaterials(slabVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (ground floor)', 'bags', slabMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
   materials.push(matLine('Sand (ground floor)', 'm³', slabMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (ground floor)', 'm³', slabMats.aggregate_m3, input.wastage.aggregate, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLine('Granite (ground floor)', 'm³', slabMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour (ground floor)', 'm³', slabVol, input.labour.concrete_per_m3));
 
   // DPM under slab — FIX: uses dpm_per_m2 (not dpc_per_meter)
@@ -733,10 +750,10 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   }
 
   // Concrete materials
-  const concreteMats = concreteToMaterials(totalConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_aggregate);
+  const concreteMats = concreteToMaterials(totalConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (structural)', 'bags', concreteMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
   materials.push(matLine('Sand (structural)', 'm³', concreteMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (structural)', 'm³', concreteMats.aggregate_m3, input.wastage.aggregate, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLine('Granite (structural)', 'm³', concreteMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
 
   // Reinforcement
   const rebarTonnes = totalReinforcementKg / 1000;
@@ -966,9 +983,44 @@ function assessConfidence(input: BuildToRoofInput): { level: ConfidenceLevel; re
 // ── Main calculation ──
 
 export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult {
+  // Convert ft inputs to meters if measurement_unit is ft
+  const input_m: BuildToRoofInput = input.measurement_unit === 'ft'
+    ? {
+        ...input,
+        building_length: ftToM(input.building_length),
+        building_width: ftToM(input.building_width),
+        floor_to_floor_height: ftToM(input.floor_to_floor_height),
+        wall_thickness: ftToM(input.wall_thickness),
+        internal_wall_length: ftToM(input.internal_wall_length),
+        internal_wall_thickness: ftToM(input.internal_wall_thickness),
+        foundation_depth: ftToM(input.foundation_depth),
+        foundation_width: ftToM(input.foundation_width),
+        footing_thickness: ftToM(input.footing_thickness),
+        blinding_thickness: ftToM(input.blinding_thickness),
+        hardcore_thickness: ftToM(input.hardcore_thickness),
+        dpc_length: ftToM(input.dpc_length),
+        roof_overhang: ftToM(input.roof_overhang),
+        openings: input.openings.map(o => ({
+          ...o,
+          width: ftToM(o.width),
+          height: ftToM(o.height),
+        })),
+        structural_members: input.structural_members.map(m => ({
+          ...m,
+          length: ftToM(m.length),
+          width: ftToM(m.width),
+          depth: ftToM(m.depth),
+        })),
+      }
+    : input;
+
   const stages: StageResult[] = [];
 
-  stages.push(calcSiteAndFoundation(input));
+  stages.push(calcSiteAndFoundation(input_m));
+  stages.push(calcGroundFloor(input_m));
+  stages.push(calcWalls(input_m));
+  stages.push(calcStructuralFrame(input_m));
+  stages.push(calcRoofing(input_m));
   stages.push(calcGroundFloor(input));
   stages.push(calcWalls(input));
   stages.push(calcStructuralFrame(input));
@@ -977,7 +1029,22 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
   const shoppingList = consolidateMaterials(stages);
 
   const materialsTotal = stages.reduce((s, stage) => s + stage.materials_total, 0);
-  const labourTotal = stages.reduce((s, stage) => s + stage.labour_total, 0);
+  
+  // Task-based labour total from stages
+  const taskLabourTotal = stages.reduce((s, stage) => s + stage.labour_total, 0);
+  
+  // Role-based labour total (daily/contract rates)
+  const roleLabourTotal =
+    (input.labour.bricklayer_per_day * input.labour.bricklayer_days) +
+    (input.labour.foreman_per_day * input.labour.foreman_days) +
+    (input.labour.supervisor_per_day * input.labour.supervisor_days) +
+    (input.labour.carpenter_per_day * input.labour.carpenter_days) +
+    (input.labour.concrete_labourer_per_day * input.labour.concrete_labourer_days) +
+    (input.labour.contractor_fee_type === 'contract'
+      ? input.labour.contractor_fee
+      : input.labour.contractor_fee * input.labour.contractor_days);
+  
+  const labourTotal = taskLabourTotal + roleLabourTotal;
 
   // Wastage allowance = difference between final quantities and base quantities
   const wastageAllowance = stages.reduce((sum, stage) => {
@@ -994,9 +1061,9 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
 
   // Assumptions & limitations
   const assumptions: string[] = [
-    `Concrete mix ratio: ${input.concrete_mix_cement}:${input.concrete_mix_sand}:${input.concrete_mix_aggregate} (cement:sand:aggregate)`,
+    `Concrete mix ratio: ${input.concrete_mix_cement}:${input.concrete_mix_sand}:${input.concrete_mix_granite} (cement:sand:granite)`,
     `Mortar mix ratio: ${input.mortar_mix_cement}:${input.mortar_mix_sand} (cement:sand)`,
-    `Block size: ${input.block_length}mm × ${input.block_height}mm × ${input.block_width}mm`,
+    `Block size: ${input.block_length}" × ${input.block_height}" × ${input.block_width}" (inches)`,
     `Foundation type: ${input.foundation_type}`,
     `Footing thickness: ${input.footing_thickness}m`,
     `Roof type: ${input.roof_type} at ${input.roof_pitch_degrees}° pitch with ${input.roofing_material.replace(/_/g, ' ')} sheets`,
@@ -1062,7 +1129,9 @@ export const DEFAULT_PRICES = {
   cement_per_bag: 9500,
   block_per_piece: 350,
   sand_per_m3: 45000,
+  sand_per_trip: 157500, // 45000 × 3.5 m³ per trip
   granite_per_m3: 95000,
+  granite_per_trip: 332500, // 95000 × 3.5 m³ per trip
   hardcore_per_m3: 35000,
   reinforcement_per_tonne: 1200000,
   binding_wire_per_kg: 2500,
@@ -1092,13 +1161,27 @@ export const DEFAULT_LABOUR = {
   backfilling_per_m3: 2500,
   general_labour_per_day: 10000,
   general_labour_days: 5,
+  // Nigerian construction role-based daily rates
+  bricklayer_per_day: 8000,
+  bricklayer_days: 20,
+  contractor_fee: 500000,
+  contractor_fee_type: 'contract',
+  contractor_days: 30,
+  supervisor_per_day: 10000,
+  supervisor_days: 30,
+  foreman_per_day: 7000,
+  foreman_days: 25,
+  carpenter_per_day: 8000,
+  carpenter_days: 15,
+  concrete_labourer_per_day: 6000,
+  concrete_labourer_days: 15,
 };
 
 export const DEFAULT_WASTAGE = {
   blocks: 5,
   cement: 5,
   sand: 10,
-  aggregate: 10,
+  granite: 10,
   reinforcement: 3,
   timber: 10,
   roofing_sheets: 5,

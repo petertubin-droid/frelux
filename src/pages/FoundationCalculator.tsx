@@ -25,22 +25,24 @@ export default function FoundationCalculator() {
   const [depth, setDepth] = useState(0.9);
   const [buildingLength, setBuildingLength] = useState(15);
   const [buildingWidth, setBuildingWidth] = useState(10);
+  const [measurementUnit, setMeasurementUnit] = useState<'m' | 'ft'>('m');
   const [result, setResult] = useState<ReturnType<typeof designFoundation> | null>(null);
   const [showFormulas, setShowFormulas] = useState(false);
 
   const calculate = useCallback(() => {
+    const mPerFt = 0.3048;
     const input: FoundationDesignInput = {
       shape, soil_type: soilType,
       custom_bearing_capacity: soilType === 'custom' ? customBearing : undefined,
       wall_load: wallLoad,
       column_load: shape === 'pad' ? columnLoad : undefined,
-      foundation_depth: depth,
+      foundation_depth: measurementUnit === 'ft' ? depth * mPerFt : depth,
       concrete_grade: 'C25',
-      building_length: buildingLength,
-      building_width: buildingWidth,
+      building_length: measurementUnit === 'ft' ? buildingLength * mPerFt : buildingLength,
+      building_width: measurementUnit === 'ft' ? buildingWidth * mPerFt : buildingWidth,
     };
     setResult(designFoundation(input));
-  }, [shape, soilType, customBearing, wallLoad, columnLoad, depth, buildingLength, buildingWidth]);
+  }, [shape, soilType, customBearing, wallLoad, columnLoad, depth, buildingLength, buildingWidth, measurementUnit]);
 
   if (!result) calculate();
 
@@ -62,6 +64,27 @@ export default function FoundationCalculator() {
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Inputs */}
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs font-medium text-neutral-500">Measurement unit:</span>
+            <div className="inline-flex rounded-lg border border-neutral-200 overflow-hidden">
+              <button onClick={() => {
+                if (measurementUnit === 'ft') {
+                  setMeasurementUnit('m');
+                  setDepth(parseFloat((depth * 0.3048).toFixed(2)));
+                  setBuildingLength(parseFloat((buildingLength * 0.3048).toFixed(2)));
+                  setBuildingWidth(parseFloat((buildingWidth * 0.3048).toFixed(2)));
+                }
+              }} className={`px-3 py-1 text-xs font-medium ${measurementUnit === 'm' ? 'bg-brand-purple text-white' : 'text-neutral-500'}`}>m</button>
+              <button onClick={() => {
+                if (measurementUnit === 'm') {
+                  setMeasurementUnit('ft');
+                  setDepth(parseFloat((depth / 0.3048).toFixed(2)));
+                  setBuildingLength(parseFloat((buildingLength / 0.3048).toFixed(2)));
+                  setBuildingWidth(parseFloat((buildingWidth / 0.3048).toFixed(2)));
+                }
+              }} className={`px-3 py-1 text-xs font-medium ${measurementUnit === 'ft' ? 'bg-brand-purple text-white' : 'text-neutral-500'}`}>ft</button>
+            </div>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Foundation type</label>
@@ -95,17 +118,17 @@ export default function FoundationCalculator() {
                 className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1 block">Foundation depth (m)</label>
+              <label className="text-xs font-medium text-neutral-500 mb-1 block">Foundation depth ({measurementUnit})</label>
               <input type="number" value={depth} step="0.1" onChange={e => setDepth(parseFloat(e.target.value) || 0)}
                 className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1 block">Building length (m)</label>
+              <label className="text-xs font-medium text-neutral-500 mb-1 block">Building length ({measurementUnit})</label>
               <input type="number" value={buildingLength} step="0.5" onChange={e => setBuildingLength(parseFloat(e.target.value) || 0)}
                 className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1 block">Building width (m)</label>
+              <label className="text-xs font-medium text-neutral-500 mb-1 block">Building width ({measurementUnit})</label>
               <input type="number" value={buildingWidth} step="0.5" onChange={e => setBuildingWidth(parseFloat(e.target.value) || 0)}
                 className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
             </div>
