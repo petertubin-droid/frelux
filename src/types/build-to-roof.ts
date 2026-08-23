@@ -94,8 +94,9 @@ export interface BuildToRoofInput {
 
   // Foundation
   foundation_type: FoundationType;
-  foundation_depth: number; // trench depth (m)
+  foundation_depth: number; // trench depth (m) — used for excavation
   foundation_width: number; // trench/pad width (m)
+  footing_thickness: number; // concrete footing thickness (m) — configurable, NOT hardcoded
   blinding_thickness: number; // blinding concrete thickness (m)
   hardcore_thickness: number; // hardcore fill thickness (m)
   dpc_length: number; // DPC roll length needed (m), 0 if none
@@ -149,6 +150,7 @@ export interface WastageConfig {
   reinforcement: number; // %
   timber: number; // %
   roofing_sheets: number; // %
+  hardcore: number; // %
 }
 
 export interface PriceConfig {
@@ -156,6 +158,7 @@ export interface PriceConfig {
   block_per_piece: number; // ₦ per block
   sand_per_m3: number; // ₦ per cubic meter
   granite_per_m3: number; // ₦ per cubic meter
+  hardcore_per_m3: number; // ₦ per cubic meter (hardcore stone/laterite)
   reinforcement_per_tonne: number; // ₦ per tonne
   binding_wire_per_kg: number; // ₦ per kg
   timber_per_m: number; // ₦ per linear meter (2x4 equivalent)
@@ -163,7 +166,8 @@ export interface PriceConfig {
   ridge_cap_per_meter: number; // ₦ per linear meter
   roofing_screws_per_piece: number; // ₦ per screw
   fascia_per_meter: number; // ₦ per linear meter
-  dpc_per_meter: number; // ₦ per linear meter
+  dpc_per_meter: number; // ₦ per linear meter (DPC roll)
+  dpm_per_m2: number; // ₦ per m² (DPM membrane — different from DPC roll)
   formwork_per_m2: number; // ₦ per m² of formwork (plywood + nails)
   price_date: string; // ISO date
   price_source: string; // e.g. "User-supplied" or "Admin-configured"
@@ -177,10 +181,12 @@ export interface LabourConfig {
   formwork_per_m2: number; // ₦ per m² erected/removed
   roofing_per_m2: number; // ₦ per m² roof area
   blinding_per_m3: number; // ₦ per m³
-  hardcore_per_m3: number; // ₦ per m³
+  hardcore_per_m3: number; // ₦ per m³ (laying + compacting)
   sand_filling_per_m3: number; // ₦ per m³
+  compaction_per_m3: number; // ₦ per m³ (compaction of hardcore/filling)
+  backfilling_per_m3: number; // ₦ per m³
   general_labour_per_day: number; // ₦ per day
-  general_labour_days: number; // estimated days for site prep
+  general_labour_days: number; // estimated days for site prep + clearing + setting out
 }
 
 export interface DrawingAnalysis {
