@@ -3,7 +3,7 @@ import { Lock, Crown, Clock, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { formatSubscriptionStatus } from '@/lib/subscription';
 import type { PaidFeature } from '@/lib/subscription';
-import { FEATURE_LABELS } from '@/lib/subscription';
+import { FEATURE_LABELS, getFeatureMinPlan } from '@/lib/subscription';
 
 interface SubscriptionGateProps {
   feature: PaidFeature;
@@ -25,7 +25,18 @@ interface SubscriptionGateProps {
 export function SubscriptionGate({ feature, children, fallback }: SubscriptionGateProps) {
   const { isAdmin, isPaid, paidStatus, user } = useAuth();
 
-  if (isAdmin || isPaid) {
+  // Check tiered access: admin always passes, paid users must have sufficient plan tier
+  const minPlan = getFeatureMinPlan(feature);
+  const hasAccess = isAdmin || (isPaid && (() => {
+    // Free features always accessible
+    if (minPlan === 'free') return true;
+    // Check if user's plan meets the feature's minimum tier
+    const userPlan = paidStatus?.plan || 'free';
+    const hierarchy = ['free', 'basic', 'pro', 'premium', 'enterprise'];
+    return hierarchy.indexOf(userPlan) >= hierarchy.indexOf(minPlan);
+  })());
+
+  if (hasAccess) {
     return (
       <>
         {children}
@@ -53,7 +64,7 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
           {featureLabel}
         </h2>
         <p className="mt-2 text-sm text-neutral-500">
-          This is a premium feature. Subscribe to unlock all FRELUX engineering tools, calculators, and AI assistants.
+          This feature requires the <span className="font-semibold capitalize text-brand-purple">{minPlan}</span> plan or higher. Subscribe to unlock all FRELUX engineering tools, calculators, and AI assistants.
         </p>
 
         <div className="mx-auto mt-5 max-w-sm space-y-1.5 text-left">

@@ -65,6 +65,42 @@ export const FEATURE_LABELS: Record<PaidFeature, string> = {
   template_download: 'Template Downloads',
 };
 
+// Plan hierarchy: higher index = more features
+const PLAN_HIERARCHY: SubscriptionPlan[] = ['free', 'basic', 'pro', 'premium', 'enterprise'];
+
+// Which plan tier is required for each feature
+const FEATURE_MIN_PLAN: Record<PaidFeature, SubscriptionPlan> = {
+  ai_photo_estimator: 'free',           // free tier has limited uses, paid = unlimited
+  painting_estimator: 'pro',
+  screeding_estimator: 'pro',
+  build_to_roof_estimator: 'pro',
+  construction_sequence: 'premium',
+  structural_calculator: 'premium',
+  foundation_calculator: 'premium',
+  project_timeline: 'premium',
+  ai_color_consult: 'premium',
+  ai_project_assistant: 'premium',
+  pro_connect_messaging: 'premium',
+  template_download: 'premium',
+};
+
+/**
+ * Check if the user's plan tier meets or exceeds the required tier for a feature.
+ */
+export function planHasFeature(userPlan: SubscriptionPlan, feature: PaidFeature): boolean {
+  const requiredTier = FEATURE_MIN_PLAN[feature];
+  const userIdx = PLAN_HIERARCHY.indexOf(userPlan);
+  const requiredIdx = PLAN_HIERARCHY.indexOf(requiredTier);
+  return userIdx >= requiredIdx;
+}
+
+/**
+ * Get the minimum plan required for a feature.
+ */
+export function getFeatureMinPlan(feature: PaidFeature): SubscriptionPlan {
+  return FEATURE_MIN_PLAN[feature];
+}
+
 /**
  * Check if a subscription is currently active (paid and not expired).
  */
@@ -94,7 +130,8 @@ export function getPlan(paidStatus: DbUserPaidStatus | null): SubscriptionPlan {
   if (!paidStatus || !paidStatus.is_paid) return 'free';
   const plan = (paidStatus.plan || '').toLowerCase();
   if (plan.includes('enterprise')) return 'enterprise';
-  if (plan.includes('premium') || plan.includes('pro')) return 'pro';
+  if (plan.includes('premium')) return 'premium';
+  if (plan.includes('pro')) return 'pro';
   if (plan.includes('basic') || plan.includes('starter')) return 'basic';
   return 'pro'; // default to pro if paid but plan name unrecognized
 }
@@ -170,10 +207,24 @@ export function hasFeatureAccess(
   subscription: SubscriptionState,
   feature: PaidFeature,
   isAdmin = false,
-): { allowed: boolean; reason: string } {
+): { allowed: boolean; reason: string; minPlan?: SubscriptionPlan } {
   if (isAdmin) return { allowed: true, reason: 'admin' };
-  if (subscription.isActive) return { allowed: true, reason: 'subscription_active' };
-  return { allowed: false, reason: 'subscription_required' };
+
+  // Free features are always accessible (usage limits handled separately)
+  const minPlan = getFeatureMinPlan(feature);
+  if (minPlan === 'free') return { allowed: true, reason: 'free_tier' };
+
+  // Check if subscription is active
+  if (!subscription.isActive) {
+    return { allowed: false, reason: 'subscription_required', minPlan };
+  }
+
+  // Check if the user's plan tier covers this feature
+  if (!planHasFeature(subscription.plan, feature)) {
+    return { allowed: false, reason: 'plan_upgrade_required', minPlan };
+  }
+
+  return { allowed: true, reason: 'subscription_active' };
 }
 
 /**
