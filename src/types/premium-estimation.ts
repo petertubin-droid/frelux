@@ -59,7 +59,13 @@ export interface BuildingAnalysisResult {
   detected_roof_type_confidence: number;
   estimated_roof_pitch: number; // degrees
   detected_roofing_material: string;
+  detected_roofing_material_confidence: number; // 0-1
   detected_block_type: string;
+  detected_wall_finish: string;
+  detected_structural_frame: string;
+  estimated_bays: number;
+  detected_condition: string;
+  estimated_number_of_rooms: number;
   estimated_internal_wall_length: number; // meters
   detected_openings: {
     type: 'door' | 'window';
@@ -69,8 +75,17 @@ export interface BuildingAnalysisResult {
   }[];
   detected_foundation_type: string;
   ai_confidence: 'high' | 'moderate' | 'low';
+  confidence_factors: {
+    image_quality: number;
+    angle_quality: number;
+    scale_reference_visible: boolean;
+    multiple_facades_visible: boolean;
+  };
   analysis_notes: string[];
+  structural_observations: string[];
   warnings: string[];
+  verification_checklist: string[];
+  validation_passed: boolean;
   /** URL of the analyzed image (stored in Supabase storage) */
   image_url?: string;
 }

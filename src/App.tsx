@@ -49,6 +49,10 @@ const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
 const BuildToRoofEstimator = lazy(() => import('@/pages/BuildToRoofEstimator'));
 const ImageEstimator = lazy(() => import('@/pages/ImageEstimator'));
+const StructuralCalculator = lazy(() => import('@/pages/StructuralCalculator'));
+const FoundationCalculator = lazy(() => import('@/pages/FoundationCalculator'));
+const ProjectTimeline = lazy(() => import('@/pages/ProjectTimeline'));
+const ConstructionSequence = lazy(() => import('@/pages/ConstructionSequence'));
 const ClientManagement = lazy(() => import('@/pages/ClientManagement'));
 const EstimateAnalytics = lazy(() => import('@/pages/EstimateAnalytics'));
 const ColorPreview = lazy(() => import('@/pages/ColorPreview'));
@@ -206,6 +210,10 @@ export default function App() {
             <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
             <Route path="/painting-estimator" element={<Suspense fallback={<PageLoader />}><PaintingEstimator /></Suspense>} />
             <Route path="/image-estimator" element={<Suspense fallback={<PageLoader />}><ImageEstimator /></Suspense>} />
+            <Route path="/structural-calculator" element={<Suspense fallback={<PageLoader />}><StructuralCalculator /></Suspense>} />
+            <Route path="/foundation-calculator" element={<Suspense fallback={<PageLoader />}><FoundationCalculator /></Suspense>} />
+            <Route path="/project-timeline" element={<Suspense fallback={<PageLoader />}><ProjectTimeline /></Suspense>} />
+            <Route path="/construction-sequence" element={<Suspense fallback={<PageLoader />}><ConstructionSequence /></Suspense>} />
 <Route path="/build-to-roof-estimator" element={<Suspense fallback={<PageLoader />}><BuildToRoofEstimator /></Suspense>} />
             <Route path="/tyrolene-estimator" element={<Suspense fallback={<PageLoader />}><TyroleneEstimator /></Suspense>} />
 

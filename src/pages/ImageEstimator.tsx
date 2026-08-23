@@ -395,6 +395,74 @@ export default function ImageEstimator() {
                 </div>
               )}
 
+              {/* Structural observations */}
+              {analysis.structural_observations && analysis.structural_observations.length > 0 && (
+                <div className="mt-3 rounded-lg bg-purple-50 border border-purple-100 p-3">
+                  <p className="text-xs font-medium text-purple-700 mb-1 flex items-center gap-1">
+                    <Building2 className="w-3.5 h-3.5" /> Structural Observations
+                  </p>
+                  <ul className="space-y-1">
+                    {analysis.structural_observations.map((obs, i) => (
+                      <li key={i} className="text-xs text-purple-600 flex items-start gap-1">
+                        <span className="text-purple-400">•</span> {obs}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Confidence factors */}
+              {analysis.confidence_factors && (
+                <div className="mt-3 rounded-lg bg-neutral-50 border border-neutral-100 p-3">
+                  <p className="text-xs font-medium text-neutral-500 mb-2">Analysis Confidence Factors:</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-400">Image quality</span>
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(n => (
+                          <div key={n} className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.image_quality * 5) ? 'bg-green-400' : 'bg-neutral-200'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-400">Angle quality</span>
+                      <div className="flex gap-0.5">
+                        {[1,2,3,4,5].map(n => (
+                          <div key={n} className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.angle_quality * 5) ? 'bg-green-400' : 'bg-neutral-200'}`} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-400">Scale reference</span>
+                      <span className="text-neutral-600">{analysis.confidence_factors.scale_reference_visible ? '✓' : '✗'}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-neutral-400">Multiple facades</span>
+                      <span className="text-neutral-600">{analysis.confidence_factors.multiple_facades_visible ? '✓' : '✗'}</span>
+                    </div>
+                  </div>
+                  {!analysis.validation_passed && (
+                    <p className="mt-2 text-xs text-red-500">⚠ Some AI parameters failed validation — verify highlighted values before generating estimate.</p>
+                  )}
+                </div>
+              )}
+
+              {/* Verification checklist */}
+              {analysis.verification_checklist && analysis.verification_checklist.length > 0 && (
+                <div className="mt-3 rounded-lg bg-green-50 border border-green-200 p-3">
+                  <p className="text-xs font-medium text-green-700 mb-1 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Verification Checklist (before construction)
+                  </p>
+                  <ul className="space-y-1">
+                    {analysis.verification_checklist.map((item, i) => (
+                      <li key={i} className="text-xs text-green-600 flex items-start gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-green-400 mt-0.5 shrink-0" /> {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <button
                 onClick={generateEstimate}
                 className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-green/90 transition-colors"

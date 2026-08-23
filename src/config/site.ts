@@ -64,6 +64,10 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Finish Estimator', path: '/finish-estimator', section: 'Estimators', description: 'Multi-surface finish calculator' },
       { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator', section: 'Estimators', description: 'Foundation to roof construction cost estimator' },
       { label: 'AI Photo Estimator', path: '/image-estimator', section: 'Estimators', description: 'Upload a building photo and get an instant AI cost estimate (Premium)' },
+      { label: 'Structural Calculator', path: '/structural-calculator', section: 'Engineering', description: 'Beam, column, and slab sizing with BS 8110 formulas' },
+      { label: 'Foundation Designer', path: '/foundation-calculator', section: 'Engineering', description: 'Strip, pad, and raft foundation sizing by soil type' },
+      { label: 'Project Timeline', path: '/project-timeline', section: 'Engineering', description: 'How long will your build take? Stage-by-stage schedule' },
+      { label: 'Construction Sequence', path: '/construction-sequence', section: 'Engineering', description: 'The correct build order with quality gates and checks' },
       // Section: Cost Estimators
       { label: 'Paint Cost Estimator', path: '/cost-estimator', section: 'Cost Estimators', description: 'Full painting project cost breakdown' },
       { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator', section: 'Cost Estimators', description: 'Screeding project cost analysis' },

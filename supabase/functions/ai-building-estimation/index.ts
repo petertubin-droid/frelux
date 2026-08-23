@@ -194,39 +194,70 @@ async function analyzeBuildingImage(
   imageDataUrl: string,
   apiKey: string,
 ): Promise<Record<string, unknown>> {
-  const prompt = `You are a construction cost estimation expert specializing in Nigerian building construction.
+  const prompt = `You are an expert construction engineer and architect specializing in Nigerian building construction. You have deep knowledge of Nigerian building codes, construction practices, material specifications, and cost estimation.
 
-Analyze this building image and extract the following information. Be precise and realistic. If you cannot determine a value, provide your best estimate based on visual cues.
+Analyze this building image with engineering precision. Extract building characteristics that will be used for a full construction cost estimate.
+
+IMPORTANT: Be extremely precise and honest about what you can and cannot determine from a single photo. Do not hallucinate measurements — if you cannot determine something, provide your best conservative estimate and flag it as uncertain.
 
 Return a JSON object with these exact fields:
 {
   "detected_building_type": "bungalow" | "duplex" | "two_storey" | "apartment" | "office" | "shop" | "custom",
   "detected_building_type_confidence": 0.0-1.0,
-  "estimated_length": number (meters, estimate from visual scale),
-  "estimated_width": number (meters),
-  "estimated_floors": number (1, 2, 3, etc.),
-  "estimated_height_per_floor": number (meters, typically 3-3.5m),
+  "estimated_length": number (meters — use visual scale cues: doors are ~0.9m wide, windows ~1.2m, floor height ~3m),
+  "estimated_width": number (meters — if only one facade visible, estimate from building proportions),
+  "estimated_floors": number (count visible floor levels — look for window rows, floor lines),
+  "estimated_height_per_floor": number (meters — typically 3.0-3.5m for residential, 3.5-4.5m for commercial),
   "detected_roof_type": "gable" | "hip" | "mono_pitch" | "flat" | "custom",
   "detected_roof_type_confidence": 0.0-1.0,
-  "estimated_roof_pitch": number (degrees, estimate the pitch angle),
+  "estimated_roof_pitch": number (degrees — gable: 15-30°, hip: 15-25°, flat: 0-5°),
   "detected_roofing_material": "long_span_aluminium" | "stone_coated" | "gi_sheet" | "shingle" | "custom",
+  "detected_roofing_material_confidence": 0.0-1.0,
   "detected_block_type": "225mm" | "150mm" | "125mm" | "custom",
-  "estimated_internal_wall_length": number (meters, estimate total internal partition wall length),
+  "detected_wall_finish": "unplastered" | "plastered" | "painted" | "faced_brick" | "stone" | "custom",
+  "estimated_internal_wall_length": number (meters — for bungalows: 40-60% of external perimeter; for duplexes: 60-80%),
   "detected_openings": [{"type": "door" | "window", "estimated_width": number, "estimated_height": number, "estimated_count": number}],
   "detected_foundation_type": "strip_footing" | "pad_footing" | "raft" | "pile" | "custom",
+  "detected_structural_frame": "unreinforced_blockwork" | "framed_with_columns" | "hybrid" | "uncertain",
+  "estimated_bays": number (number of structural bays/columns visible, 0 if uncertain),
+  "detected_condition": "under_construction" | "completed" | "renovation" | "dilapidated",
+  "estimated_number_of_rooms": number (visible rooms based on openings, 0 if uncertain),
   "ai_confidence": "high" | "moderate" | "low",
-  "analysis_notes": [array of strings explaining what you observed],
-  "warnings": [array of strings about limitations of this estimate]
+  "confidence_factors": {
+    "image_quality": 0.0-1.0,
+    "angle_quality": 0.0-1.0,
+    "scale_reference_visible": boolean,
+    "multiple_facades_visible": boolean
+  },
+  "analysis_notes": [array of detailed strings explaining your observations and reasoning],
+  "structural_observations": [array of strings about structural elements visible: columns, beams, lintels, cracks, etc.],
+  "warnings": [array of strings about limitations and risks of this estimate],
+  "verification_checklist": [array of strings — items the user should verify on-site or from drawings before proceeding]
 }
 
-Important guidelines:
-- Building dimensions from a single photo are approximate. State this in warnings.
-- Roof pitch: gable roofs in Nigeria typically 15-30°, hip roofs 15-25°
-- Foundation type cannot be seen in a photo — default to "strip_footing" and note in warnings
-- Block type: most Nigerian buildings use 225mm (9-inch) blocks
-- Internal walls: estimate based on building size (typically 40-60% of perimeter for bungalows)
-- Count visible doors and windows, but note these are only the visible ones
-- Be conservative in your estimates`;
+PRECISION GUIDELINES:
+1. Scale estimation: Use doors (0.9m wide, 2.1m tall), windows (1.2-1.5m wide, 1.2m tall), and floor heights (3m) as reference
+2. If only one facade is visible, DO NOT guess the width — estimate based on building type proportions (bungalow L:W typically 1.5:1)
+3. Roof pitch: Estimate from the visible roof slope angle relative to horizontal
+4. Roofing material: Look for panel width, corrugation pattern, color, and reflectivity
+5. Block type: Default to 225mm (9-inch) unless you can clearly see thinner blocks
+6. Internal walls: Cannot be seen — estimate based on building size and type
+7. Foundation: Cannot be seen — ALWAYS default to "strip_footing" and add to warnings
+8. Structural frame: Look for visible columns, beams, or column starter bars in unfinished buildings
+9. Opening count: Count only visible openings, add a warning that hidden sides may have more
+10. Condition: Look for scaffolding, fresh mortar, unpainted surfaces, or weathering
+11. Be HONEST about confidence — if the image is blurry or at a poor angle, say "low" confidence
+
+Always include in warnings:
+- "Dimensions estimated from photo are approximate. Verify from architectural drawings."
+- "Foundation type is not visible — defaulting to strip footing. Geotechnical investigation required."
+- "Internal wall layout estimated statistically — verify from floor plans."
+
+Always include in verification_checklist:
+- "Confirm actual building dimensions from approved drawings"
+- "Verify soil type and bearing capacity with geotechnical report"
+- "Engage structural engineer for reinforcement design"
+- "Verify roof structure and pitch from architectural drawings"`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
@@ -378,6 +409,62 @@ function buildEstimateInput(analysis: Record<string, unknown>, projectName: stri
   };
 }
 
+// ── AI output validation ──
+
+interface ValidationWarning {
+  field: string;
+  message: string;
+  severity: 'error' | 'warning' | 'info';
+}
+
+function validateAiAnalysis(analysis: Record<string, unknown>): ValidationWarning[] {
+  const warnings: ValidationWarning[] = [];
+
+  // Check required fields
+  const requiredFields = ['detected_building_type', 'estimated_length', 'estimated_width', 'estimated_floors'];
+  for (const field of requiredFields) {
+    if (analysis[field] === undefined || analysis[field] === null) {
+      warnings.push({ field, message: `Missing required field: ${field}`, severity: 'error' });
+    }
+  }
+
+  // Sanity checks on dimensions
+  const length = Number(analysis.estimated_length) || 0;
+  const width = Number(analysis.estimated_width) || 0;
+  const floors = Number(analysis.estimated_floors) || 1;
+  const height = Number(analysis.estimated_height_per_floor) || 3;
+
+  if (length < 3) warnings.push({ field: 'estimated_length', message: `Length ${length}m is unusually small. Verify.`, severity: 'warning' });
+  if (length > 50) warnings.push({ field: 'estimated_length', message: `Length ${length}m is unusually large. Verify.`, severity: 'warning' });
+  if (width < 3) warnings.push({ field: 'estimated_width', message: `Width ${width}m is unusually small. Verify.`, severity: 'warning' });
+  if (width > 50) warnings.push({ field: 'estimated_width', message: `Width ${width}m is unusually large. Verify.`, severity: 'warning' });
+  if (height < 2.5) warnings.push({ field: 'height', message: `Floor height ${height}m is below 2.5m minimum.`, severity: 'warning' });
+  if (height > 5) warnings.push({ field: 'height', message: `Floor height ${height}m is above typical. Verify.`, severity: 'info' });
+  if (floors > 5) warnings.push({ field: 'floors', message: `${floors} floors — high-rise requires specialist design.`, severity: 'warning' });
+
+  // Roof pitch sanity
+  const pitch = Number(analysis.estimated_roof_pitch) || 0;
+  const roofType = analysis.detected_roof_type as string;
+  if (roofType === 'flat' && pitch > 5) {
+    warnings.push({ field: 'roof_pitch', message: `Flat roof with ${pitch}° pitch — should be near 0°.`, severity: 'warning' });
+  }
+  if (roofType === 'gable' && (pitch < 10 || pitch > 40)) {
+    warnings.push({ field: 'roof_pitch', message: `Gable roof pitch ${pitch}° is outside typical 15-30° range.`, severity: 'warning' });
+  }
+
+  // Opening count sanity
+  const openings = analysis.detected_openings as unknown[];
+  if (openings && Array.isArray(openings)) {
+    const totalOpenings = openings.reduce((sum: number, o: unknown) => sum + Math.floor(Number((o as Record<string, unknown>).estimated_count) || 0), 0);
+    const buildingArea = length * width * floors;
+    if (buildingArea > 0 && totalOpenings > buildingArea / 2) {
+      warnings.push({ field: 'openings', message: `Opening count (${totalOpenings}) seems high for building size. Verify.`, severity: 'info' });
+    }
+  }
+
+  return warnings;
+}
+
 // ── Main handler ──
 
 Deno.serve(async (req: Request) => {
@@ -464,6 +551,18 @@ Deno.serve(async (req: Request) => {
 
     // ── AI analysis ──
     const analysis = await analyzeBuildingImage(imageDataUrl, geminiApiKey);
+
+    // ── Validate AI output ──
+    const validationWarnings = validateAiAnalysis(analysis);
+    if (validationWarnings.length > 0) {
+      // Add validation warnings to the analysis
+      const existingWarnings = (analysis.warnings as string[]) ?? [];
+      analysis.warnings = [
+        ...existingWarnings,
+        ...validationWarnings.map(w => `[${w.severity.toUpperCase()}] ${w.field}: ${w.message}`),
+      ];
+    }
+    analysis.validation_passed = validationWarnings.filter(w => w.severity === 'error').length === 0;
 
     // ── Consume usage (only on success) ──
     if (!admin || !config.estimation_admin_override) {

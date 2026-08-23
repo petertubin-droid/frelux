@@ -59,6 +59,12 @@ Deno.serve(async (req: Request) => {
       { loc: "/ai-disclaimer", priority: "0.3", changefreq: "yearly" },
       { loc: "/marketplace", priority: "0.8", changefreq: "daily" },
       { loc: "/pro-connect", priority: "0.8", changefreq: "daily" },
+      { loc: "/build-to-roof-estimator", priority: "0.9", changefreq: "monthly" },
+      { loc: "/image-estimator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/structural-calculator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/foundation-calculator", priority: "0.8", changefreq: "monthly" },
+      { loc: "/project-timeline", priority: "0.7", changefreq: "monthly" },
+      { loc: "/construction-sequence", priority: "0.7", changefreq: "monthly" },
     ];
 
     const urls: string[] = [];
