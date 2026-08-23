@@ -231,8 +231,8 @@ export default function WorkerChannels() {
       priceItem: priceForm.item.trim(),
       priceAmount: Number(priceForm.amount),
       priceCurrency: 'NGN',
-      priceLocation: priceForm.location.trim() || null,
-      priceStore: priceForm.store.trim() || null,
+      priceLocation: priceForm.location.trim() || undefined,
+      priceStore: priceForm.store.trim() || undefined,
     });
     if (msg) {
       setMessages((prev) => [...prev, msg]);

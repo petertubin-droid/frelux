@@ -369,7 +369,7 @@ function ScreedingResultCard({
         <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
         <ReportCalculationIssue
           calculatorType="screeding"
-          userInput={{ method: input.method, length: input.length, width: input.width, height: input.height, unit: input.unit }}
+          userInput={{ method: input.method, roomLength: input.roomLength, roomWidth: input.roomWidth, wallHeight: input.wallHeight, unit: input.unit }}
           actualResult={{ grossWallArea: result.grossWallArea, netScreedingArea: result.netScreedingArea }}
         />
 

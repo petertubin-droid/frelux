@@ -85,10 +85,10 @@ export default function ProConnectRegister() {
       // Check account type and upgrade to pro_worker if needed
       if (user) {
         const acct = await getAccountType(user.id);
-        setAccountType(acct);
+        _setAccountType(acct);
         if (acct === 'client') {
           await upgradeToProWorker();
-          setAccountType('pro_worker');
+          _setAccountType('pro_worker');
         }
       }
 
@@ -190,6 +190,63 @@ export default function ProConnectRegister() {
     setStep(4);
   }
 
+
+
+  // OTP handlers
+  async function handleSendOTP() {
+    if (!mobileNumber.trim()) { setOtpError('Enter a mobile number'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    setOtpSuccess('');
+    try {
+      // TODO: Integrate with actual OTP provider
+      // For now, simulate OTP send
+      setOtpSent(true);
+      setOtpSuccess('OTP sent to ' + mobileNumber);
+      setResendCooldown(30);
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) { clearInterval(interval); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: any) {
+      setOtpError(err.message || 'Failed to send OTP');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  async function handleVerifyOTP() {
+    if (otpCode.length !== 6) { setOtpError('Enter the 6-digit code'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      // TODO: Integrate with actual OTP verification
+      // For now, accept any 6-digit code
+      setOtpSuccess('Phone number verified successfully!');
+      setOtpVerified(true);
+    } catch (err: any) {
+      setOtpError(err.message || 'Invalid OTP');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  async function handleSubmitNIN() {
+    if (!ninNumber.trim()) { setOtpError('Enter your NIN'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      // TODO: Integrate with NIN verification API
+      // For now, simulate verification
+      setOtpSuccess('NIN verification submitted. Status will be updated once verified.');
+    } catch (err: any) {
+      setOtpError(err.message || 'NIN verification failed');
+    } finally {
+      setOtpSending(false);
+    }
+  }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
@@ -361,7 +418,64 @@ export default function ProConnectRegister() {
             const _selectedInState = selectedLocations.filter((id) =>
               stateLocations.some((l) => l.id === id)
             );
-            return (
+          
+  // OTP handlers
+  async function handleSendOTP() {
+    if (!mobileNumber.trim()) { setOtpError('Enter a mobile number'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    setOtpSuccess('');
+    try {
+      // TODO: Integrate with actual OTP provider
+      // For now, simulate OTP send
+      setOtpSent(true);
+      setOtpSuccess('OTP sent to ' + mobileNumber);
+      setResendCooldown(30);
+      const interval = setInterval(() => {
+        setResendCooldown((prev) => {
+          if (prev <= 1) { clearInterval(interval); return 0; }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: any) {
+      setOtpError(err.message || 'Failed to send OTP');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  async function handleVerifyOTP() {
+    if (otpCode.length !== 6) { setOtpError('Enter the 6-digit code'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      // TODO: Integrate with actual OTP verification
+      // For now, accept any 6-digit code
+      setOtpSuccess('Phone number verified successfully!');
+      setOtpVerified(true);
+    } catch (err: any) {
+      setOtpError(err.message || 'Invalid OTP');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  async function handleSubmitNIN() {
+    if (!ninNumber.trim()) { setOtpError('Enter your NIN'); return; }
+    setOtpSending(true);
+    setOtpError('');
+    try {
+      // TODO: Integrate with NIN verification API
+      // For now, simulate verification
+      setOtpSuccess('NIN verification submitted. Status will be updated once verified.');
+    } catch (err: any) {
+      setOtpError(err.message || 'NIN verification failed');
+    } finally {
+      setOtpSending(false);
+    }
+  }
+
+  return (
               <div key={state}>
                 <h3 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-200">{state}</h3>
                 <div className="flex flex-wrap gap-2">

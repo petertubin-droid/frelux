@@ -580,13 +580,13 @@ describe('Waste margin clamping', () => {
       roomLength: 4,
       roomWidth: 4,
       wasteMargin: -10, // negative — should be clamped to 0
-      workflow: 'basic',
+      workflow: 'nigeria',
       includeDecorative: false,
       includeOptional: false,
       unit: 'meters',
     };
     const materials: DbPopMaterial[] = [
-      { id: 'm1', workflow: 'basic', category: 'powder', name: 'POP Powder', coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1 },
+      { id: 'm1', workflow: 'nigeria', category: 'primary', name: 'POP Powder', description: null, coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, currency: 'NGN', labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1, created_at: '', updated_at: '', unit: 'kg' },
     ];
     const result = calculatePopCeiling(input, materials, 'NGN', '₦');
     // With 0% waste: area = 16, adjusted = 16
@@ -600,13 +600,13 @@ describe('Waste margin clamping', () => {
       roomLength: 4,
       roomWidth: 4,
       wasteMargin: 200, // > 100 — should be clamped to 100
-      workflow: 'basic',
+      workflow: 'nigeria',
       includeDecorative: false,
       includeOptional: false,
       unit: 'meters',
     };
     const materials: DbPopMaterial[] = [
-      { id: 'm1', workflow: 'basic', category: 'powder', name: 'POP Powder', coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1 },
+      { id: 'm1', workflow: 'nigeria', category: 'primary', name: 'POP Powder', description: null, coverage_rate: 2, coverage_unit: 'm²/kg', package_size: 5, package_unit: 'kg', unit_price: 3000, currency: 'NGN', labour_rate_per_sqm: 0, is_optional: false, is_active: true, sort_order: 1, created_at: '', updated_at: '', unit: 'kg' },
     ];
     const result = calculatePopCeiling(input, materials, 'NGN', '₦');
     // With 100% waste: area = 16, adjusted = 32
@@ -640,6 +640,7 @@ describe('Waste margin clamping', () => {
       spacerPackageSize: 0,
       spacerPricePerPack: 0,
       wasteMargin: -20, // negative — should be clamped to 0
+      labourRatePerSqm: 0,
     };
     const materials: DbTileMaterial[] = [];
     const result = calculateTile(input, materials, 'NGN', '₦');

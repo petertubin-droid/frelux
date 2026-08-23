@@ -295,6 +295,7 @@ export default function PaintCalculator() {
                 errors={errors}
                 paintTypes={paintTypes}
                 typesLoading={typesLoading}
+                wasteOptions={WASTE_OPTIONS}
               />
             )}
 
@@ -323,6 +324,7 @@ export default function PaintCalculator() {
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
+            calcDefaults={calcDefaults}
           onSave={handleSave}
           onExport={handleExport}
           onShare={handleShare}
@@ -471,12 +473,14 @@ function Step3({
   errors,
   paintTypes,
   typesLoading,
+  wasteOptions,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
   errors: Record<string, string>;
   paintTypes: DbPaintType[];
   typesLoading: boolean;
+  wasteOptions: number[];
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
@@ -564,7 +568,7 @@ function Step3({
         <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
         <p className="mt-0.5 text-xs text-neutral-400">Extra paint added to account for spills, roller waste, and touch ups.</p>
         <div className="mt-2 flex flex-wrap gap-2">
-          {WASTE_OPTIONS.map((w) => (
+          {wasteOptions.map((w: number) => (
             <button
               key={w}
               type="button"
@@ -596,6 +600,7 @@ function ResultCard({
   onExport: _onExport,
   onShare: _onShare,
   onAskAi: _onAskAi,
+  calcDefaults,
 }: {
   result: CalculatorResult;
   input: CalculatorInput;
@@ -606,6 +611,7 @@ function ResultCard({
   onExport?: () => void;
   onShare?: () => void;
   onAskAi?: () => void;
+  calcDefaults: any;
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">

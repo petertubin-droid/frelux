@@ -93,7 +93,7 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   },
 };
 
-const INTEGRATION_LINKS: Record<string, { label: string; url: string }> = {
+const INTEGRATION_LINKS: Record<string, Record<string, string>> = {
   google_analytics: { label: 'Open Google Analytics', url: 'https://analytics.google.com' },
   google_adsense: { label: 'Open Google AdSense', url: 'https://www.google.com/adsense' },
   google_search_console: { label: 'Open Search Console', url: 'https://search.google.com/search-console' },
@@ -110,8 +110,9 @@ const INTEGRATION_LINKS: Record<string, { label: string; url: string }> = {
   ayet_studios: { label: 'Open Ayet Studios', url: 'https://ayetstudios.com' },
   meta_pixel: {
     pixel_id: 'Your Meta/Facebook Pixel ID (e.g. 123456789012345). Find it in Meta Events Manager → Data Sources → Pixel.',
+    label: 'Open Meta Events Manager',
+    url: 'https://business.facebook.com/events_manager',
   },
-  meta_pixel: { label: 'Open Meta Events Manager', url: 'https://business.facebook.com/events_manager' },
   revu: { label: 'Open RevU', url: 'https://revu.tv' },
 };
 

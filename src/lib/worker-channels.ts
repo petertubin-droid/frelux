@@ -282,7 +282,7 @@ export function subscribeToChannelMessages(
       },
       () => {
         // Refetch reactions via the callback; we send a synthetic event
-        callback({ id: '__reaction_update__', channel_id: channelId, user_id: '', content: '', message_type: 'system', is_flagged: false, flag_reason: null, flagged_by: null, is_removed: false, removed_by: null, removed_at: null, reply_to: null, attachment_url: null, created_at: '', updated_at: '' });
+        callback({ id: '__reaction_update__', channel_id: channelId, user_id: '', content: '', message_type: 'system', price_item: null, price_amount: null, price_currency: null, price_location: null, price_store: null, is_flagged: false, flag_reason: null, flagged_by: null, is_removed: false, removed_by: null, removed_at: null, reply_to: null, attachment_url: null, created_at: '', updated_at: '' });
       }
     )
     .on(
@@ -293,7 +293,7 @@ export function subscribeToChannelMessages(
         table: 'worker_channel_reactions',
       },
       () => {
-        callback({ id: '__reaction_update__', channel_id: channelId, user_id: '', content: '', message_type: 'system', is_flagged: false, flag_reason: null, flagged_by: null, is_removed: false, removed_by: null, removed_at: null, reply_to: null, attachment_url: null, created_at: '', updated_at: '' });
+        callback({ id: '__reaction_update__', channel_id: channelId, user_id: '', content: '', message_type: 'system', price_item: null, price_amount: null, price_currency: null, price_location: null, price_store: null, is_flagged: false, flag_reason: null, flagged_by: null, is_removed: false, removed_by: null, removed_at: null, reply_to: null, attachment_url: null, created_at: '', updated_at: '' });
       }
     )
     .subscribe();

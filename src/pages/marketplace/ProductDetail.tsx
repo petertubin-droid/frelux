@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Loader2, MapPin, Tag, MessageCircle, ArrowLeft, Share2, Eye, Shield, Truck, Store } from 'lucide-react';
+import { Loader2, MapPin, Tag, MessageCircle, ArrowLeft, Share2, Eye, Shield, Truck, Store, Send } from 'lucide-react';
 import { fetchProduct, incrementProductView, createInquiry, fetchProductCategories } from '@/lib/marketplace-products';
 import { supabase } from '@/lib/supabase';
 import type { DbMarketplaceProduct, DbProductCategory } from '@/types/marketplace-products';

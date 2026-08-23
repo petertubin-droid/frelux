@@ -16,7 +16,7 @@ const NIGERIAN_STATES = [
 export default function PostListing() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  useSeo({ title: 'Post a Job — FRELUX Marketplace', canonicalPath: '/marketplace/post' });
+  useSeo({ description: 'FRELUX marketplace', title: 'Post a Job — FRELUX Marketplace', canonicalPath: '/marketplace/post' });
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');

@@ -66,6 +66,16 @@ export default function TileCostEstimator() {
     adhesivePricePerBag: passed.input?.adhesivePricePerBag ?? 4500,
     groutCoverageRate: passed.input?.groutCoverageRate ?? 20,
     groutPricePerKg: passed.input?.groutPricePerKg ?? 1500,
+    method: passed.input?.method ?? 'adhesive',
+    cementCoverageRate: passed.input?.cementCoverageRate ?? 2,
+    cementPricePerBag: passed.input?.cementPricePerBag ?? 3500,
+    cementPackageSize: passed.input?.cementPackageSize ?? 50,
+    sandCoverageRate: passed.input?.sandCoverageRate ?? 0.04,
+    sandPricePerBag: passed.input?.sandPricePerBag ?? 1500,
+    sandPackageSize: passed.input?.sandPackageSize ?? 25,
+    spacerCoverageRate: passed.input?.spacerCoverageRate ?? 10,
+    spacerPricePerPack: passed.input?.spacerPricePerPack ?? 500,
+    spacerPackageSize: passed.input?.spacerPackageSize ?? 200,
     wasteMargin: passed.input?.wasteMargin ?? 10,
     labourRatePerSqm: passed.input?.labourRatePerSqm ?? 2000,
     unit: passed.input?.unit ?? 'meters',
@@ -293,7 +303,7 @@ export default function TileCostEstimator() {
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="tile_cost"
-                    userInput={{ surfaceType: input.surfaceType, surfaceArea: input.surfaceArea, wasteMargin: input.wasteMargin }}
+                    userInput={{ surfaceType: input.surfaceType, surfaceArea: result?.surfaceArea ?? 0, wasteMargin: input.wasteMargin }}
                     actualResult={{ materialCost: result.materialCost, grandTotal: result.grandTotal }}
                   />
                 </div>

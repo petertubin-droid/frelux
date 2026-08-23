@@ -398,9 +398,9 @@ function DisputesTab() {
               By {d.raised_by_role as string} · {new Date(d.created_at as string).toLocaleDateString()}
             </span>
           </div>
-          <p className="mt-2 text-sm font-bold text-neutral-900 dark:text-white">{d.reason as string}</p>
-          {d.description && <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{d.description as string}</p>}
-          {d.admin_resolution && (
+          <p className="mt-2 text-sm font-bold text-neutral-900 dark:text-white">{String(d.reason)}</p>
+          {d.description != null && <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{String(d.description)}</p>}
+          {d.admin_resolution != null && String(d.admin_resolution) && (
             <p className="mt-2 rounded-md bg-emerald-50 p-2 text-xs text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
               ✓ {d.admin_resolution as string}
             </p>

@@ -145,7 +145,7 @@ export default function PopCeilingCalculator() {
     return (
       <>
         <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate POP ceiling materials and quantities." breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'POP Ceiling Calculator' }]}
-        useCalcTitle />
+        />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );

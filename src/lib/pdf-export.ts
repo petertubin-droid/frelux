@@ -5,6 +5,7 @@
  */
 
 import { formatNumber, formatCurrency } from '@/lib/utils';
+import type { CostEstimateResult, CostEstimateInput } from '@/types';
 
 interface QuoteExportData {
   result: CostEstimateResult;

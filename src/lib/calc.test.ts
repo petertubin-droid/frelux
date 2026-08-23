@@ -603,6 +603,8 @@ describe('Edge cases: screeding mix waste', () => {
       cementConsumptionRatioKgPerL: 2,
       cementBagSizeKg: 40,
       cementPricePerBag: 5000,
+      defaultMixRatio: '1:3',
+      labourRatePerSqm: 500,
       currency: 'NGN',
       currencySymbol: '₦',
     };

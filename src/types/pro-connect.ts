@@ -36,6 +36,12 @@ export interface DbProLocation {
   state: string;
   city: string;
   area: string | null;
+  slug?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  seo_indexable?: boolean;
   sort_order: number;
   is_active: boolean;
   created_at: string;

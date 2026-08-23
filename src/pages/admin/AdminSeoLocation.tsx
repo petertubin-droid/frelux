@@ -277,8 +277,8 @@ function CategoriesTab() {
   async function handleSave(id: string) {
     setSaving(true);
     await adminUpdateCategorySeo(id, {
-      seo_title: editTitle || null,
-      seo_description: editDesc || null,
+      seo_title: editTitle || undefined,
+      seo_description: editDesc || undefined,
       seo_indexable: editIndexable,
     });
     setSaving(false);

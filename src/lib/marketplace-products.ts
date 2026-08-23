@@ -195,10 +195,7 @@ export async function createInquiry(data: {
   if (error) throw error;
 
   // Increment inquiry count
-  await supabase
-    .from('marketplace_products')
-    .update({ inquiry_count: supabase.rpc ? 0 : 0 }) // Can't easily increment via client; use RPC if needed
-    .eq('id', data.product_id);
+  await supabase.rpc('increment_product_inquiry_count', { product_id: data.product_id });
 
   return result as DbProductInquiry;
 }

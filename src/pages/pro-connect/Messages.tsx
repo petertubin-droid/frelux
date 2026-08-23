@@ -82,7 +82,7 @@ export default function Messages() {
     if (!messageText.trim() || !activeConvo || !user) return;
     const body = messageText.trim();
     setMessageText('');
-    const msg = await sendMessage(activeConvo.id, body);
+    const msg = await sendMessage(activeConvo.id, body) as any;
     if (msg) {
       // Trigger AI moderation with OpenAI
       try {

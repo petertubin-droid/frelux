@@ -15,6 +15,8 @@ import { saveLocalProject } from '@/lib/local-projects';
 import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import LabourCostSection from '@/components/labour/LabourCostSection';
+import { type LabourConfig, calculateLabourCost, createInitialLabourConfig, DEFAULT_LABOUR_CONFIG } from '@/lib/labour';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -91,12 +93,16 @@ export default function CostEstimator() {
     rollersCost: 0,
     includeOther: false,
     otherMaterialsCost: 0,
+    laborMode: 'manual' as const,
+    laborRatePerSqm: 0,
+    laborTotal: 0,
     currency,
     currencySymbol,
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
+  const [labourConfig, setLabourConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
 
   useEffect(() => {
     async function loadAll() {
@@ -201,7 +207,8 @@ export default function CostEstimator() {
 
   function compute() {
     const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
-    const r: CostEstimateResult = { ...rawResult, laborCost: labourCost, total: rawResult.total + labourCost };
+    const laborCost = calculateLabourCost(labourConfig, input.paintableArea);
+    const r: CostEstimateResult = { ...rawResult, laborCost, total: rawResult.total + laborCost };
     setResult(r);
     trackCalculation('cost');
     track('cost_estimate_completed', { total: r.total });
@@ -445,7 +452,7 @@ export default function CostEstimator() {
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="cost"
-                    userInput={{ projectType: input.projectType, area: input.area, coats: input.coats, includePrimer: input.includePrimer }}
+                    userInput={{ projectType: input.projectType, area: input.paintableArea, coats: input.coats, includePrimer: input.includePrimer }}
                     actualResult={{ total: result.total, materialCost: result.total - result.laborCost, laborCost: result.laborCost }}
                   />
                 </>

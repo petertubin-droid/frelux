@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Trash2, ChevronDown, ChevronUp, AlertCircle, CheckCircle2,
   Calculator, Save, RotateCcw, Layers, DoorOpen, Square, Paintbrush,
-  Palette, Shield, Building2, Info, MapPin, Loader2,
+  Palette, Shield, Building2, Info, MapPin, Loader2, Briefcase,
 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { supabase } from '@/lib/supabase';
@@ -1240,7 +1240,7 @@ function EstimateResult({
             <TrustBadge label="NEGOTIATED" value="Labour (separate)" />
           </div>
 
-          <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
+          <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
           <ReportCalculationIssue
             calculatorType="painting"
             userInput={{ rooms: result.rooms.length, totalTheoreticalLitres: result.combined_theoretical_litres }}

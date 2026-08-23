@@ -37,6 +37,9 @@ export interface DbMarketplaceListing {
   cancel_reason: string | null;
   created_at: string;
   updated_at: string;
+  // Joined fields
+  client?: { id: string; full_name: string; email: string; avatar_url?: string | null; marketplace_id?: string | null } | null;
+  category?: { id: string; name: string; slug: string } | null;
 }
 
 export interface DbMarketplaceBid {

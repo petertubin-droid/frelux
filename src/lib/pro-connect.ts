@@ -549,7 +549,7 @@ export async function getMessages(conversationId: string): Promise<DbProMessage[
   return data as DbProMessage[];
 }
 
-export async function sendMessage(conversationId: string, body: string, attachmentUrl?: string): Promise<{ id: string; body: string; sender_id: string; conversation_id: string; created_at: string } | null> {
+export async function sendMessage(conversationId: string, body: string, attachmentUrl?: string): Promise<{ id: string; body: string; sender_id: string; conversation_id: string; created_at: string } | null | boolean> {
   if (!isSupabaseConfigured) return false;
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return false;

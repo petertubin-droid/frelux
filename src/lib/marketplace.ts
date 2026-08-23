@@ -87,6 +87,8 @@ export async function createListing(data: {
   location_area?: string;
   urgency?: string;
   expires_at?: string;
+  latitude?: number;
+  longitude?: number;
 }) {
   const { data: result, error } = await supabase
     .from('marketplace_listings')

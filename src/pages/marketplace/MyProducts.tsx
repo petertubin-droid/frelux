@@ -9,7 +9,7 @@ import { useSeo } from '@/lib/seo';
 import { classNames } from '@/lib/utils';
 
 export default function MyProducts() {
-  useSeo({ title: 'My Products — FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
+  useSeo({ description: 'FRELUX marketplace', title: 'My Products — FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
 
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);

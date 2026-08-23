@@ -28,7 +28,7 @@ export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  useSeo({ title: 'Order Details — FRELUX Marketplace', canonicalPath: `/marketplace/orders/${id}` });
+  useSeo({ description: 'FRELUX marketplace', title: 'Order Details — FRELUX Marketplace', canonicalPath: `/marketplace/orders/${id}` });
 
   const [order, setOrder] = useState<DbMarketplaceOrder | null>(null);
   const [milestones, setMilestones] = useState<DbMarketplaceMilestone[]>([]);

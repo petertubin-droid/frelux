@@ -416,7 +416,7 @@ export default function FinishEstimator() {
               stats={[
                 { label: 'Surface Area', value: `${formatNumber(result.area)} m²`, highlight: true },
                 { label: 'Material Cost', value: formatCurrency(result.materialCost, currencySymbol) },
-                { label: 'Labour Cost', value: formatCurrency(result.labourCost, currencySymbol) },
+                { label: 'Labour', value: result.labourNote },
                 { label: 'Materials', value: `${result.materials.length} type${result.materials.length > 1 ? 's' : ''}` },
               ]}
               grandTotal={result.totalCost}
@@ -468,7 +468,7 @@ export default function FinishEstimator() {
                   </div>
                   <div className="mt-2 flex items-center justify-between text-sm">
                     <span className="text-neutral-500">Total Labour</span>
-                    <span className="font-semibold text-neutral-900">{formatCurrency(result.labourCost, currencySymbol)}</span>
+                    <span className="font-semibold text-neutral-900">{result.labourNote}</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-neutral-200 pt-2 text-sm">
                     <span className="font-bold text-neutral-900">Grand Total</span>

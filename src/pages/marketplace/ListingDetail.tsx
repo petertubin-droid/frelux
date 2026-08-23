@@ -23,6 +23,18 @@ export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+
+  const [listing, setListing] = useState<DbMarketplaceListing | null>(null);
+  const [bids, setBids] = useState<DbMarketplaceBid[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showBidForm, setShowBidForm] = useState(false);
+  const [bidPrice, setBidPrice] = useState('');
+  const [bidTimeline, setBidTimeline] = useState('');
+  const [bidMessage, setBidMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [viewIncremented, setViewIncremented] = useState(false);
+
   useSeo({
     title: listing?.seo_title || listing?.title || 'Job Details — FRELUX Marketplace',
     description: listing?.seo_description || (listing?.description ? listing.description.slice(0, 160) : 'View this construction job listing on FRELUX Marketplace and submit your bid.'),
@@ -38,17 +50,6 @@ export default function ListingDetail() {
       ...(listing.location_city || listing.location_state ? { jobLocation: { '@type': 'Place', address: { addressLocality: listing.location_city || '', addressRegion: listing.location_state || '', addressCountry: 'NG' } } } : {}),
     } : undefined,
   });
-
-  const [listing, setListing] = useState<DbMarketplaceListing | null>(null);
-  const [bids, setBids] = useState<DbMarketplaceBid[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showBidForm, setShowBidForm] = useState(false);
-  const [bidPrice, setBidPrice] = useState('');
-  const [bidTimeline, setBidTimeline] = useState('');
-  const [bidMessage, setBidMessage] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [viewIncremented, setViewIncremented] = useState(false);
 
   const load = useCallback(async () => {
     if (!id) return;

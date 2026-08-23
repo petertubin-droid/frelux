@@ -123,7 +123,7 @@ export default function ProConnectDirectory() {
       radiusKm: radius,
       categorySlug: cat?.slug,
       verifiedOnly,
-      minRating,
+      minRating: minRating ?? undefined,
     }).then((data) => {
       setNearbyPros(data);
       setNearbyLoading(false);

@@ -20,7 +20,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function MyListings() {
   const { user } = useAuth();
-  useSeo({ title: 'My Listings — FRELUX Marketplace', canonicalPath: '/marketplace/my-listings' });
+  useSeo({ description: 'FRELUX marketplace', title: 'My Listings — FRELUX Marketplace', canonicalPath: '/marketplace/my-listings' });
 
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
   const [loading, setLoading] = useState(true);

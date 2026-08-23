@@ -65,12 +65,12 @@ export default function Navbar() {
   ];
 
   // Group children by section for premium dropdown rendering
-  function groupBySection(children: NavChild[]): { section: string | null; items: NavChild[] }[] {
+  function groupBySection(children: NavChild[] | undefined): { section: string | null; items: NavChild[] }[] {
     const groups: { section: string | null; items: NavChild[] }[] = [];
     let currentSection: string | null = null;
     let currentGroup: NavChild[] = [];
 
-    for (const child of children) {
+    for (const child of children ?? []) {
       const sec = child.section ?? null;
       if (sec !== currentSection) {
         if (currentGroup.length > 0) {

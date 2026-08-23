@@ -223,6 +223,8 @@ export interface PaintingEstimateResult {
   errors: string[];
   // Calc version
   calc_version_id: string | null;
+  // Estimate reference for marketplace posting
+  estimate_ref?: string;
 }
 
 // =========================================================

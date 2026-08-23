@@ -242,7 +242,7 @@ export default function PopCeilingCostEstimator() {
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="pop_ceiling_cost"
-                    userInput={{ workflow: input.workflow, ceilingArea: input.ceilingArea, wasteMargin: input.wasteMargin }}
+                    userInput={{ workflow: input.workflow, ceilingArea: result?.ceilingArea ?? 0, wasteMargin: input.wasteMargin }}
                     actualResult={{ materialCost: result.materialCost, grandTotal: result.grandTotal, ceilingArea: result.ceilingArea }}
                   />
                 </div>

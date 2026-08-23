@@ -22,7 +22,7 @@ const CONDITIONS: { value: ProductCondition; label: string }[] = [
 ];
 
 export default function PostProduct() {
-  useSeo({ title: 'Post a Product — FRELUX Marketplace', canonicalPath: '/marketplace/products/post' });
+  useSeo({ description: 'FRELUX marketplace', title: 'Post a Product — FRELUX Marketplace', canonicalPath: '/marketplace/products/post' });
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');

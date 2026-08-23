@@ -172,7 +172,7 @@ export default function AdminEstimationProducts() {
               <div className="space-y-3">
                 {groupOrder.map((cat) => {
                   const catItems = groupMap.get(cat)!;
-                  const isOpen = search || !collapsed.has(cat);
+                  const isOpen = !!search || !collapsed.has(cat);
                   return (
                     <CollapsibleGroup
                       key={cat}

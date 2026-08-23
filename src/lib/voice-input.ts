@@ -5,6 +5,41 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 
+// Minimal type declarations for the Web Speech API (not in TS DOM lib)
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+interface SpeechRecognitionResultItem {
+  transcript: string;
+  confidence: number;
+}
+interface SpeechRecognitionResultList {
+  readonly length: number;
+  [index: number]: { [index: number]: SpeechRecognitionResultItem; readonly length: number };
+}
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  maxAlternatives: number;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+}
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+
 interface SpeechRecognitionResult {
   transcript: string;
   confidence: number;
@@ -27,7 +62,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const isSupported = typeof window !== 'undefined' &&
-    (('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window));
+    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
 
   const startListening = useCallback(() => {
     if (!isSupported) {
@@ -38,7 +73,9 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
     setError(null);
     setTranscript(null);
 
-    const SpeechRecognitionClass = (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SR = window as unknown as { SpeechRecognition?: SpeechRecognitionConstructor; webkitSpeechRecognition?: SpeechRecognitionConstructor };
+    const SpeechRecognitionClass = SR.SpeechRecognition || SR.webkitSpeechRecognition;
+    if (!SpeechRecognitionClass) return;
     const recognition = new SpeechRecognitionClass();
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -47,7 +84,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
 
     recognition.onstart = () => setIsListening(true);
     recognition.onend = () => setIsListening(false);
-    recognition.onerror = (e: Event) => {
+    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
       setIsListening(false);
       if (e.error === 'not-allowed') {
         setError('Microphone access denied. Please allow microphone access in your browser.');
@@ -57,7 +94,7 @@ export function useVoiceInput(onResult?: (transcript: string) => void): UseVoice
         setError(`Voice input error: ${e.error}`);
       }
     };
-    recognition.onresult = (e: Event) => {
+    recognition.onresult = (e: SpeechRecognitionEvent) => {
       const result: SpeechRecognitionResult = {
         transcript: e.results[0][0].transcript,
         confidence: e.results[0][0].confidence,
