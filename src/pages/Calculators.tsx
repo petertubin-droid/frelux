@@ -116,6 +116,15 @@ const calculators: Tool[] = [
     to: '/finish-estimator',
     accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',
   },
+  {
+    icon: Building2,
+    title: 'Build-to-Roof Estimator',
+    description: 'Calculate materials, quantities, and costs from foundation through roof — structural concrete, blockwork, roofing, and more.',
+    benefit: 'Foundation to roof',
+    to: '/build-to-roof-estimator',
+    accent: 'text-brand-purple bg-brand-purple/10',
+    featured: true,
+  },
 ];
 
 export default function Calculators() {

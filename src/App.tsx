@@ -47,6 +47,7 @@ const Profile = lazy(() => import('@/pages/Profile'));
 const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
 const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
+const BuildToRoofEstimator = lazy(() => import('@/pages/BuildToRoofEstimator'));
 const ClientManagement = lazy(() => import('@/pages/ClientManagement'));
 const EstimateAnalytics = lazy(() => import('@/pages/EstimateAnalytics'));
 const ColorPreview = lazy(() => import('@/pages/ColorPreview'));
@@ -202,6 +203,7 @@ export default function App() {
             <Route path="/tile-cost-estimator" element={<Suspense fallback={<PageLoader />}><TileCostEstimator /></Suspense>} />
             <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
             <Route path="/painting-estimator" element={<Suspense fallback={<PageLoader />}><PaintingEstimator /></Suspense>} />
+<Route path="/build-to-roof-estimator" element={<Suspense fallback={<PageLoader />}><BuildToRoofEstimator /></Suspense>} />
             <Route path="/tyrolene-estimator" element={<Suspense fallback={<PageLoader />}><TyroleneEstimator /></Suspense>} />
 
             {/* Colors workspace */}
