@@ -139,6 +139,30 @@ export default function BuildToRoofEstimator() {
     title: 'Build-to-Roof Construction Cost Estimator | FRELUX',
     description: 'Calculate materials, quantities, and costs for your building from foundation to roof. Upload drawings, configure prices, and get a professional Build-to-Roof estimate.',
     keywords: 'build to roof, construction cost estimator, Nigerian construction, foundation to roof, building materials calculator',
+    canonicalPath: '/build-to-roof-estimator',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        'name': 'Build-to-Roof Construction Cost Estimator',
+        'url': 'https://freluxtools.netlify.app/build-to-roof-estimator',
+        'description': 'Calculate materials, quantities, and costs for your building from foundation to roof with Nigerian-market pricing.',
+        'applicationCategory': 'BusinessApplication',
+        'operatingSystem': 'Web',
+        'offers': { '@type': 'Offer', 'price': '0', 'priceCurrency': 'NGN' },
+        'audience': { '@type': 'Audience', 'audienceType': 'Homeowners, Builders, Contractors' },
+        'areaServed': { '@type': 'Country', 'name': 'Nigeria' }
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Build-to-Roof Estimator', 'item': 'https://freluxtools.netlify.app/build-to-roof-estimator' }
+        ]
+      }
+    ],
   });
 
   const [step, setStep] = useState(0);

@@ -17,6 +17,22 @@ export default function ProConnectDirectory() {
     description: 'Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.',
     canonicalPath: '/pro-connect',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'Directory',
+      'name': 'FRELUX Pro Connect',
+      'description': 'Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.',
+      'url': 'https://freluxtools.netlify.app/pro-connect',
+      'provider': {
+        '@type': 'Organization',
+        'name': 'FRELUX PAINT CALC',
+        'url': 'https://freluxtools.netlify.app'
+      },
+      'areaServed': {
+        '@type': 'Country',
+        'name': 'Nigeria'
+      }
+    },
   });
   const { categorySlug } = useParams();
   const [_searchParams, _setSearchParams] = useSearchParams();

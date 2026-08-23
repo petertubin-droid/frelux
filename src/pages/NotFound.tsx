@@ -1,7 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Home, ArrowLeft, Search } from 'lucide-react';
+import { useSeo } from '@/lib/seo';
 
 export default function NotFound() {
+  useSeo({
+    title: 'Page Not Found — FRELUX PAINT CALC',
+    description: 'The page you are looking for could not be found. Browse our paint calculators, cost estimators, and AI color tools instead.',
+    canonicalPath: '/404',
+    noIndex: true,
+  });
   return (
     <div className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-4 py-24 text-center sm:py-32">
       {/* Subtle grid pattern */}

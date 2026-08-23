@@ -182,17 +182,28 @@ export default function Calculators() {
       'Browse every FRELUX calculator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.',
     canonicalPath: '/calculators',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'ItemList',
-      name: 'FRELUX Calculators',
-      itemListElement: calculators.map((c, i) => ({
-        '@type': 'ListItem',
-        position: i + 1,
-        name: c.title,
-        url: `https://freluxtools.netlify.app${c.to}`,
-      })),
-    },
+    keywords: 'paint calculator, screeding calculator, POP ceiling calculator, tile calculator, cost estimator, construction calculator Nigeria, build to roof estimator, tyrolene estimator, finishing estimator',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'FRELUX Calculators',
+        itemListElement: calculators.map((c, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          name: c.title,
+          url: `https://freluxtools.netlify.app${c.to}`,
+        })),
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' }
+        ]
+      }
+    ],
   });
 
   return (

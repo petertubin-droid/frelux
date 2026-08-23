@@ -8,6 +8,30 @@ export default function About() {
       'FRELUX PAINT CALC is a practical painting and color platform helping homeowners, decorators, and contractors plan paint projects with confidence.',
     canonicalPath: '/about',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'AboutPage',
+      'name': 'About FRELUX PAINT CALC',
+      'description': 'FRELUX PAINT CALC is a practical painting and color platform helping homeowners, decorators, and contractors plan paint projects with confidence.',
+      'url': 'https://freluxtools.netlify.app/about',
+      'mainEntity': {
+        '@type': 'Organization',
+        'name': 'FRELUX PAINT CALC',
+        'url': 'https://freluxtools.netlify.app',
+        'logo': 'https://freluxtools.netlify.app/logo-mark.png',
+        'foundingDate': '2025',
+        'areaServed': 'Nigeria',
+        'knowsAbout': [
+          'Paint calculation',
+          'Construction cost estimation',
+          'Wall screeding',
+          'POP ceiling installation',
+          'Tile calculation',
+          'Paint color selection',
+          'Construction materials pricing'
+        ]
+      }
+    }
   });
 
   return (

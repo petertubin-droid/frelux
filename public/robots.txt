@@ -34,6 +34,13 @@ Allow: /marketplace/
 Allow: /pro-connect
 Allow: /pro-connect/
 Allow: /pro/
+Allow: /build-to-roof-estimator
+Allow: /pricing
+Allow: /privacy-policy
+Allow: /terms
+Allow: /cookie-policy
+Allow: /disclaimer
+Allow: /ai-disclaimer
 
 # Disallow private/auth/admin routes
 Disallow: /admin

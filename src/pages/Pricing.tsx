@@ -17,6 +17,71 @@ export default function Pricing() {
     title: 'Pricing — FRELUX Premium',
     description: 'Choose the FRELUX plan that fits your construction needs. From free calculators to the full engineering toolkit with structural design, foundation analysis, and AI-powered estimation.',
     canonicalPath: '/pricing',
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        'name': 'FRELUX Premium',
+        'description': 'Premium subscription for FRELUX engineering calculators, AI estimation tools, and Pro Connect messaging.',
+        'brand': { '@type': 'Brand', 'name': 'FRELUX PAINT CALC' },
+        'offers': [
+          {
+            '@type': 'Offer',
+            'name': 'Pro Monthly',
+            'price': '5000',
+            'priceCurrency': 'NGN',
+            'url': 'https://freluxtools.netlify.app/pricing',
+            'availability': 'https://schema.org/PreOrder'
+          },
+          {
+            '@type': 'Offer',
+            'name': 'Premium Monthly',
+            'price': '10000',
+            'priceCurrency': 'NGN',
+            'url': 'https://freluxtools.netlify.app/pricing',
+            'availability': 'https://schema.org/PreOrder'
+          }
+        ]
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': [
+          {
+            '@type': 'Question',
+            'name': 'Can I upgrade or downgrade my FRELUX plan later?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Yes. You can switch plans at any time. If you upgrade, you\'ll only pay the prorated difference. Downgrades take effect at the end of your current billing cycle.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'What payment methods does FRELUX accept?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'We use Paystack to accept all major Nigerian debit cards (Verve, Visa, Mastercard), bank transfers, and USSD. International cards are also supported.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'Do I need to be logged in to subscribe?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'Yes. You\'ll need a free FRELUX account first. After subscribing, your premium features activate instantly.'
+            }
+          },
+          {
+            '@type': 'Question',
+            'name': 'What happens when my FRELUX subscription expires?',
+            'acceptedAnswer': {
+              '@type': 'Answer',
+              'text': 'You\'ll automatically revert to the Free plan. Your saved projects and data remain intact — you just lose access to premium tools until you renew.'
+            }
+          }
+        ]
+      }
+    ],
   });
 
   const { user, isPaid, paidStatus, refreshProfile } = useAuth();

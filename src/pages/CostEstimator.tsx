@@ -41,7 +41,8 @@ export default function CostEstimator() {
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
     canonicalPath: '/cost-estimator',
     ogType: 'website',
-    structuredData: {
+    structuredDataArray: [
+      
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Cost Estimator',
@@ -50,7 +51,17 @@ export default function CostEstimator() {
       applicationCategory: 'CalculatorApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+   ,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Cost Estimator', 'item': 'https://freluxtools.netlify.app/cost-estimator' }
+        ]
+      }
+    ],,
   });
 
   const location = useLocation();

@@ -69,6 +69,22 @@ export default function MarketplaceHome() {
     description: 'Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria.',
     canonicalPath: '/marketplace',
     ogType: 'website',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'Marketplace',
+      'name': 'FRELUX Marketplace',
+      'description': 'Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria.',
+      'url': 'https://freluxtools.netlify.app/marketplace',
+      'provider': {
+        '@type': 'Organization',
+        'name': 'FRELUX PAINT CALC',
+        'url': 'https://freluxtools.netlify.app'
+      },
+      'areaServed': {
+        '@type': 'Country',
+        'name': 'Nigeria'
+      }
+    },
   });
 
   // Jobs state

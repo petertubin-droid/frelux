@@ -90,19 +90,23 @@
       "name": "FRELUX PAINT CALC",
       "alternateName": "FRELUX Paint",
       "url": "https://freluxtools.netlify.app",
-      "description": "Free online paint calculator, screeding calculator, cost estimator, and AI color assistant. Plan your perfect paint project with accurate quantity estimates, real product prices, and curated color palettes.",
+      "description": "Free online paint calculator, screeding calculator, cost estimator, construction cost estimator, and AI color assistant. Plan your perfect paint or construction project with accurate quantity estimates, real product prices, and curated color palettes.",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
       "browserRequirements": "Requires JavaScript",
-      "featureList": "Paint Calculator, Screeding Calculator, POP Ceiling Calculator, Tile Calculator, Cost Estimator, AI Color Assistant, Color Library",
+      "featureList": "Paint Calculator, Screeding Calculator, POP Ceiling Calculator, Tile Calculator, Cost Estimator, Build-to-Roof Estimator, AI Color Assistant, Color Library, Pro Connect, Marketplace",
       "offers": {
         "@type": "Offer",
         "price": "0",
-        "priceCurrency": "USD"
+        "priceCurrency": "NGN"
       },
       "audience": {
         "@type": "Audience",
-        "audienceType": "Homeowners, Decorators, Contractors"
+        "audienceType": "Homeowners, Decorators, Contractors, Builders, Engineers"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Nigeria"
       },
       "publisher": {
         "@type": "Organization",
@@ -113,7 +117,43 @@
           "url": "https://freluxtools.netlify.app/logo-mark.png",
           "width": 512,
           "height": 512
-        }
+        },
+        "sameAs": [
+          "https://freluxtools.netlify.app"
+        ]
+      }
+    }
+    </script>
+
+    <!-- Service Catalog Structured Data -->
+    <script type="application/ld+json" id="service-structured-data">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "serviceType": "Construction Calculators and Estimation",
+      "provider": {
+        "@type": "Organization",
+        "name": "FRELUX PAINT CALC",
+        "url": "https://freluxtools.netlify.app"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "Nigeria"
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "FRELUX Tools",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "Paint Calculator", "url": "https://freluxtools.netlify.app/paint-calculator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "Screeding Calculator", "url": "https://freluxtools.netlify.app/screeding-calculator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "POP Ceiling Calculator", "url": "https://freluxtools.netlify.app/pop-ceiling-calculator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "Tile Calculator", "url": "https://freluxtools.netlify.app/tile-calculator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "Cost Estimator", "url": "https://freluxtools.netlify.app/cost-estimator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "Build-to-Roof Estimator", "url": "https://freluxtools.netlify.app/build-to-roof-estimator", "applicationCategory": "CalculatorApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "SoftwareApplication", "name": "AI Color Assistant", "url": "https://freluxtools.netlify.app/ai-color-assistant", "applicationCategory": "BusinessApplication" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Pro Connect Directory", "url": "https://freluxtools.netlify.app/pro-connect" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Marketplace", "url": "https://freluxtools.netlify.app/marketplace" } }
+        ]
       }
     }
     </script>
@@ -162,6 +202,30 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "Wall screeding is the process of smoothing wall surfaces before painting. Use the FRELUX Screeding Calculator to calculate the wall surface area that needs screeding, with door and window deductions, and estimate screeding material and labour costs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I estimate the cost of building a house in Nigeria?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Use the FRELUX Build-to-Roof Construction Cost Estimator to calculate materials, quantities, and costs for your building project from foundation to roof. It includes concrete, blocks, reinforcement, roofing, and finishing materials with Nigerian-market pricing."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Where can I find verified construction professionals in Nigeria?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The FRELUX Pro Connect directory lists verified painters, tilers, screeders, POP installers, contractors, and engineers across Nigeria. Browse by service and location to find the right professional for your project."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I buy and sell building materials on FRELUX?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. The FRELUX Marketplace lets you post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria."
           }
         }
       ]

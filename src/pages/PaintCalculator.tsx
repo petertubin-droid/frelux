@@ -62,16 +62,27 @@ export default function PaintCalculator() {
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
     canonicalPath: '/paint-calculator',
     ogType: 'website',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Paint Calculator',
-      description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
-      url: 'https://freluxtools.netlify.app/paint-calculator',
-      applicationCategory: 'CalculatorApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+    structuredDataArray: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'FRELUX Paint Calculator',
+        description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
+        url: 'https://freluxtools.netlify.app/paint-calculator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Paint Calculator', 'item': 'https://freluxtools.netlify.app/paint-calculator' }
+        ]
+      }
+    ],
   });
 
   const [step, setStep] = useState(1);

@@ -24,14 +24,25 @@ export default function ScreedingCalculator() {
       'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
     canonicalPath: '/screeding-calculator',
     ogType: 'website',
-    structuredData: {
+    structuredDataArray: [
+      
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'FRELUX Wall Screeding Calculator',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-    },
+   ,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
+          { '@type': 'ListItem', 'position': 3, 'name': 'Screeding Calculator', 'item': 'https://freluxtools.netlify.app/screeding-calculator' }
+        ]
+      }
+    ],,
   });
 
   const [result, setResult] = useState<ScreedingCalcResult | null>(null);
