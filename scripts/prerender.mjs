@@ -539,6 +539,8 @@ if (!existsSync(templatePath)) {
 }
 
 let templateHtml = readFileSync(templatePath, 'utf-8');
+// Remove the old generic "JavaScript Required" noscript — we inject per-route content instead
+templateHtml = templateHtml.replace(/<noscript>[\s\S]*?<\/noscript>/, '');
 let count = 0;
 
 for (const route of routes) {
@@ -607,17 +609,14 @@ for (const route of routes) {
     html = html.replace('</head>', `${sdScripts}\n</head>`);
   }
 
-  // Inject SEO content into #root for crawlers (React replaces it on load).
-  // Visually hidden (clip-based sr-only technique) so it never flashes as
-  // unstyled text on screen — the existing branded .page-loader spinner
-  // remains the only visible thing until React hydrates and takes over.
-  // Crawlers (Googlebot et al.) still read this content fine: it's real
-  // text in the DOM, not display:none, so it's treated like any other
-  // accessibly-hidden content.
+  // Inject SEO content into <noscript> — visible to crawlers and no-JS users.
+  // Googlebot reads <noscript> content. When JS loads, React replaces #root
+  // entirely, so the noscript content is never visible to JS-enabled users.
+  // The loading spinner remains visible only to JS users until hydration.
   const pageContent = seoContentMap[route.path];
   if (pageContent) {
-    const contentDiv = `<div style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;">${pageContent}</div>`;
-    html = html.replace('<div id="root">', `<div id="root">${contentDiv}`);
+    const noscriptContent = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${pageContent}</div></noscript>`;
+    html = html.replace('<div id="root">', `${noscriptContent}\n    <div id="root">`);
   }
 
   // Write file
@@ -626,6 +625,22 @@ for (const route of routes) {
   writeFileSync(outPath, html);
   count++;
   console.log(`  ✅ ${route.path}`);
+}
+
+// ── 404 page ────────────────────────────────────────────────────────
+// Generate a proper 404.html that returns real content, not the homepage shell.
+{
+  let html404 = templateHtml;
+  html404 = html404.replace(/<title>.*?<\/title>/, '<title>Page Not Found | FRELUX PAINT CALC</title>');
+  html404 = html404.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/, '<meta name="robots" content="noindex, nofollow" />');
+  if (html404.includes('rel="canonical"')) {
+    html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="https://freluxtools.netlify.app/404" />');
+  }
+  const notFoundContent = '<h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> <h1>Page Not Found</h1>rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator">Paint Calculator</a></li><li><a href="/tile-calculator">Tile Calculator</a></li><li><a href="/screeding-calculator">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator">POP Ceiling Calculator</a></li><li><a href="/calculators">All Calculators</a></li></ul><p><a href="/">Back to home</a></p>';
+  const noscript404 = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${notFoundContent}</div></noscript>`;
+  html404 = html404.replace('<div id="root">', `${noscript404}\n    <div id="root">`);
+  writeFileSync(join(distDir, '404.html'), html404);
+  console.log('  ✅ /404.html');
 }
 
 console.log(`\n prerendered ${count} routes`);

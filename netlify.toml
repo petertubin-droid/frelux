@@ -11,11 +11,19 @@
   # in the build output, which fails the build.
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL"
 
-# SPA routing — redirect all routes to index.html
+# 404 page — return real 404 for unknown routes
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# SPA routing — fallback for known routes that don't have prerendered HTML
+# This only fires if no static file matches (prerendered pages are found first)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 # Security headers
 [[headers]]
