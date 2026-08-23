@@ -440,6 +440,8 @@ export default function TileCalculator() {
         CALC_LINKS.paintCalculator,
         CALC_LINKS.screedingCalc,
         CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
       ]} />
       <ProConnectCTA calculatorType="tile" />
     </>

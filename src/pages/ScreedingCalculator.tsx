@@ -11,6 +11,7 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 // Default door/window dims are now fetched from admin calc rules via useCalcDefaults
 
@@ -226,6 +227,14 @@ export default function ScreedingCalculator() {
           />
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.tileCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

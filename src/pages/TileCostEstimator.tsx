@@ -14,6 +14,7 @@ import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 interface PassedState {
   surfaceArea?: number;
@@ -315,6 +316,14 @@ export default function TileCostEstimator() {
           </div>
         </div>
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.tileCalc,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

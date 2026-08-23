@@ -663,6 +663,8 @@ export default function PaintingEstimator() {
         CALC_LINKS.costEstimator,
         CALC_LINKS.finishEstimator,
         CALC_LINKS.tyroleneEstimator,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
       ]} />
     </>
   );

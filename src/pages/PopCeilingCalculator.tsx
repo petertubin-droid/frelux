@@ -261,6 +261,8 @@ export default function PopCeilingCalculator() {
         CALC_LINKS.paintCalculator,
         CALC_LINKS.screedingCalc,
         CALC_LINKS.tileCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
       ]} />
       <ProConnectCTA calculatorType="pop-ceiling" />
     </>

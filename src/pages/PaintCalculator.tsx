@@ -48,6 +48,7 @@ const ADVANCED_FEATURES = [
 ];
 
 import { useSeo } from '@/lib/seo';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 export default function PaintCalculator() {
   const { defaults: calcDefaults, rules: calcRules } = useCalcDefaults('painting');
@@ -365,6 +366,14 @@ export default function PaintCalculator() {
           </RewardedFeatureGate>
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.tileCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

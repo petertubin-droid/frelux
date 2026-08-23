@@ -13,6 +13,7 @@ import {
   Loader2, Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 type Tab = 'beam' | 'column' | 'slab';
 
@@ -179,6 +180,13 @@ function BeamCalculator() {
           <FormulaToggle show={showFormulas} setShow={setShowFormulas} formulas={result.formula_transparency} />
         </ResultCard>
       )}
+      <RelatedTools links={[
+        CALC_LINKS.foundationCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.constructionSeq,
+        CALC_LINKS.imageEstimator,
+        CALC_LINKS.costEstimator,
+      ]} />
     </div>
   );
 }

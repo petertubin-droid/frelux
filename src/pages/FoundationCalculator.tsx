@@ -9,6 +9,7 @@ import {
   ChevronRight, ChevronDown, Building2,
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 export default function FoundationCalculator() {
   useSeo({
@@ -244,6 +245,13 @@ export default function FoundationCalculator() {
         </div>
       </div>
     </div>
+      <RelatedTools links={[
+        CALC_LINKS.structuralCalc,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.constructionSeq,
+        CALC_LINKS.imageEstimator,
+        CALC_LINKS.costEstimator,
+      ]} />
     </SubscriptionGate>
   );
 }

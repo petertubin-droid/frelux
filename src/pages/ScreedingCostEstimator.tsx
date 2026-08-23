@@ -15,6 +15,7 @@ import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 interface PassedState {
   netScreedingArea?: number;
@@ -343,6 +344,14 @@ export default function ScreedingCostEstimator() {
           </div>
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.tileCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

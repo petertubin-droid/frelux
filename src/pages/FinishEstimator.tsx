@@ -11,6 +11,7 @@ import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import type { DbFinishType, DbSiteSettings } from '@/types/database';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -518,6 +519,14 @@ export default function FinishEstimator() {
           </div>
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.paintingEstimator,
+        CALC_LINKS.tyroleneEstimator,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

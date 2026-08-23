@@ -108,6 +108,11 @@ const CALC_LINKS = {
   aiColor: { label: 'Smart Color Assistant', path: '/ai-color-assistant', description: 'AI color ideas' },
   colors: { label: 'Color Library', path: '/colors', description: 'Browse paint colors' },
   compareColors: { label: 'Compare Colors', path: '/colors/compare', description: 'Side-by-side comparison' },
+  buildToRoof: { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator', description: 'Full build cost from foundation to roof' },
+  imageEstimator: { label: 'AI Photo Estimator', path: '/image-estimator', description: 'Upload a photo for AI cost estimation' },
+  structuralCalc: { label: 'Structural Calculator', path: '/structural-calculator', description: 'Beams, columns & slabs' },
+  foundationCalc: { label: 'Foundation Calculator', path: '/foundation-calculator', description: 'Foundation sizing & materials' },
+  constructionSeq: { label: 'Construction Sequence', path: '/construction-sequence', description: 'Step-by-step build timeline' },
 };
 
 export { CALC_LINKS };

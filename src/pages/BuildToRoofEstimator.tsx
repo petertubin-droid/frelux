@@ -1,10 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useSeo } from '@/lib/seo';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import {
   Building2, ChevronRight, ChevronLeft, Calculator, Upload, FileText,
   CheckCircle2, AlertTriangle, Info, Package, Users, DollarSign,
   TrendingUp, ShieldCheck, Layers, Home, Ruler, Hammer, FolderOpen,
-  Download, Printer, ArrowRight, Settings,
+  Download, Printer, ArrowRight, Settings, Camera,
 } from 'lucide-react';
 import {
   calculateBuildToRoof,
@@ -250,6 +252,14 @@ export default function BuildToRoofEstimator() {
             Foundation → Ground Floor → Walls → Structural Frame → Roof → Ready for Finishing
           </div>
         </div>
+        <Link
+          to="/image-estimator"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-green px-4 py-2.5 text-sm font-semibold text-brand-navy shadow-lg shadow-accent-green/20 transition-all hover:bg-accent-green/90 hover:shadow-xl"
+        >
+          <Camera className="w-4 h-4" />
+          Estimate from a Photo — Try our AI Photo Estimator
+          <ArrowRight className="w-4 h-4" />
+        </Link>
       </div>
 
       {/* Progress bar */}
@@ -804,8 +814,16 @@ export default function BuildToRoofEstimator() {
           </>
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.structuralCalc,
+        CALC_LINKS.foundationCalc,
+        CALC_LINKS.constructionSeq,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </div>
-    </SubscriptionGate>
+  </SubscriptionGate>
   );
 }
 

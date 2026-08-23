@@ -994,6 +994,8 @@ export default function TyroleneEstimator() {
         CALC_LINKS.paintingEstimator,
         CALC_LINKS.costEstimator,
         CALC_LINKS.paintCalculator,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
       ]} />
     </>
   );

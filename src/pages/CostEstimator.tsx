@@ -32,6 +32,7 @@ interface PassedState {
 import { useSeo } from '@/lib/seo';
 import { trackCalculation } from '@/lib/achievements';
 import { trackRecentTool } from '@/lib/smart-defaults';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 export default function CostEstimator() {
   const { defaults: calcDefaults } = useCalcDefaults('cost');
@@ -480,6 +481,14 @@ export default function CostEstimator() {
           />
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.screedingCost,
+        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.tileCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
+      ]} />
     </>
   );
 }

@@ -267,6 +267,8 @@ export default function PopCeilingCostEstimator() {
         CALC_LINKS.costEstimator,
         CALC_LINKS.screedingCost,
         CALC_LINKS.tileCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.imageEstimator,
       ]} />
     </>
   );

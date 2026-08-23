@@ -6,6 +6,7 @@ import {
   CheckCircle2, HardHat, Wrench, Package, FileCheck, Building2,
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 export default function ConstructionSequence() {
   useSeo({
@@ -170,6 +171,13 @@ function StepCard({ step, isOpen, onToggle }: { step: SequenceStep; isOpen: bool
           )}
         </div>
       )}
+      <RelatedTools links={[
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.structuralCalc,
+        CALC_LINKS.foundationCalc,
+        CALC_LINKS.imageEstimator,
+        CALC_LINKS.costEstimator,
+      ]} />
     </div>
   );
 }

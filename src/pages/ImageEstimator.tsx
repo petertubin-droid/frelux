@@ -22,6 +22,7 @@ import type {
 import { calculateBuildToRoof, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
 import type { BuildToRoofInput, BuildToRoofResult } from '@/types/build-to-roof';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 type Phase = 'upload' | 'analyzing' | 'review' | 'result' | 'locked' | 'error';
 
@@ -499,6 +500,13 @@ export default function ImageEstimator() {
           </div>
         )}
       </div>
+      <RelatedTools links={[
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.costEstimator,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.structuralCalc,
+        CALC_LINKS.foundationCalc,
+      ]} />
     </div>
   );
 }
