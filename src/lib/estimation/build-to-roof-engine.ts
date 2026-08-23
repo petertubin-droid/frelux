@@ -1021,10 +1021,6 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
   stages.push(calcWalls(input_m));
   stages.push(calcStructuralFrame(input_m));
   stages.push(calcRoofing(input_m));
-  stages.push(calcGroundFloor(input));
-  stages.push(calcWalls(input));
-  stages.push(calcStructuralFrame(input));
-  stages.push(calcRoofing(input));
 
   const shoppingList = consolidateMaterials(stages);
 

@@ -162,24 +162,26 @@ describe('mortarToMaterials', () => {
 // ── Block calculation tests ──
 
 describe('blocksPerM2', () => {
-  it('calculates blocks per m² for 450×225mm block', () => {
-    const result = blocksPerM2(450, 225);
-    // face area = 0.45 × 0.225 = 0.10125 m²
-    // blocks per m² = 1 / 0.10125 ≈ 9.88
-    expect(result).toBeCloseTo(9.88, 1);
+  // NOTE: blocksPerM2 takes INCHES (matches real app usage — e.g. a
+  // Nigerian 9-inch block is entered as 18" long × 9" high).
+  it('calculates blocks per m² for an 18"×9" block (9-inch block)', () => {
+    const result = blocksPerM2(18, 9);
+    // face area = (18×0.0254) × (9×0.0254) = 0.4572 × 0.2286 ≈ 0.10453 m²
+    // blocks per m² = 1 / 0.10453 ≈ 9.57
+    expect(result).toBeCloseTo(9.57, 1);
   });
 
-  it('calculates blocks per m² for 450×150mm block', () => {
-    const result = blocksPerM2(450, 150);
-    // face area = 0.45 × 0.15 = 0.0675
-    // blocks per m² = 1 / 0.0675 ≈ 14.81
-    expect(result).toBeCloseTo(14.81, 1);
+  it('calculates blocks per m² for an 18"×6" block (6-inch block)', () => {
+    const result = blocksPerM2(18, 6);
+    // face area = (18×0.0254) × (6×0.0254) = 0.4572 × 0.1524 ≈ 0.06968 m²
+    // blocks per m² = 1 / 0.06968 ≈ 14.35
+    expect(result).toBeCloseTo(14.35, 1);
   });
 
   it('returns 0 for invalid dimensions', () => {
-    expect(blocksPerM2(0, 225)).toBe(0);
-    expect(blocksPerM2(450, 0)).toBe(0);
-    expect(blocksPerM2(-1, 225)).toBe(0);
+    expect(blocksPerM2(0, 9)).toBe(0);
+    expect(blocksPerM2(18, 0)).toBe(0);
+    expect(blocksPerM2(-1, 9)).toBe(0);
   });
 });
 
@@ -411,10 +413,14 @@ describe('calculateBuildToRoof — Bungalow', () => {
     expect(result.stages[3].stage_total).toBe(0);
   });
 
-  it('grand total reconciles: stages + contingency', () => {
-    const stageTotal = result.stages.reduce((s, st) => s + st.stage_total, 0);
-    const contingency = stageTotal * (input.contingency_percent / 100);
-    expect(result.grand_total).toBeCloseTo(stageTotal + contingency, 0);
+  it('grand total reconciles: materials + labour (incl. role-based) + contingency', () => {
+    // grand_total = materials_total + labour_total (task-based + role-based day-rate labour) + contingency.
+    // Note: role-based labour (bricklayer/foreman/etc. day rates) is a separate cost
+    // bucket on top of per-stage totals, so we reconcile against the aggregate fields
+    // rather than re-summing stage_total (which only carries task-based labour).
+    const base = result.materials_total + result.labour_total;
+    const contingency = base * (input.contingency_percent / 100);
+    expect(result.grand_total).toBeCloseTo(base + contingency, 0);
   });
 
   it('materials + labour = stage total for each stage', () => {
@@ -553,10 +559,10 @@ describe('calculateBuildToRoof — Duplex with structural schedule', () => {
     expect(ext!.base_quantity).toBeCloseTo(330, 0);
   });
 
-  it('reconciliation: grand total = stages + contingency', () => {
-    const stageTotal = result.stages.reduce((s, st) => s + st.stage_total, 0);
-    const contingency = stageTotal * (input.contingency_percent / 100);
-    expect(result.grand_total).toBeCloseTo(stageTotal + contingency, 0);
+  it('reconciliation: grand total = materials + labour (incl. role-based) + contingency', () => {
+    const base = result.materials_total + result.labour_total;
+    const contingency = base * (input.contingency_percent / 100);
+    expect(result.grand_total).toBeCloseTo(base + contingency, 0);
   });
 });
 
@@ -577,8 +583,7 @@ describe('calculateBuildToRoof — Edge cases', () => {
   it('handles zero contingency', () => {
     const input = createTestInput({ contingency_percent: 0 });
     const result = calculateBuildToRoof(input);
-    const stageTotal = result.stages.reduce((s, st) => s + st.stage_total, 0);
-    expect(result.grand_total).toBeCloseTo(stageTotal, 0);
+    expect(result.grand_total).toBeCloseTo(result.materials_total + result.labour_total, 0);
     expect(result.contingency).toBe(0);
   });
 

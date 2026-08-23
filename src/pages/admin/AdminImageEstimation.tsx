@@ -40,9 +40,11 @@ const DEFAULT_CONFIG: EstimationConfig = {
 
 export default function AdminImageEstimation() {
   const [config, setConfig] = useState<EstimationConfig>(DEFAULT_CONFIG);
+  const [rowId, setRowId] = useState<string | null>(null);
   const [stats, setStats] = useState<UsageStats | null>(null);
   const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState('');
+  const [saveError, setSaveError] = useState('');
   const [saved, setSaved] = useState(false);
 
   const load = useCallback(async () => {
@@ -50,6 +52,7 @@ export default function AdminImageEstimation() {
     const { data, error: fetchError } = await supabase
       .from('site_settings')
       .select(`
+        id,
         estimation_enabled,
         estimation_access_mode,
         estimation_daily_free_uses,
@@ -71,6 +74,7 @@ export default function AdminImageEstimation() {
     }
 
     if (data) {
+      setRowId(data.id ?? null);
       setConfig({
         estimation_enabled: data.estimation_enabled ?? false,
         estimation_access_mode: data.estimation_access_mode ?? 'disabled',
@@ -115,8 +119,13 @@ export default function AdminImageEstimation() {
   useEffect(() => { load(); }, [load]);
 
   const save = useCallback(async () => {
+    if (!rowId) {
+      setSaveError('No settings row found to update — try reloading the page.');
+      return;
+    }
     setStatus('saving');
     setSaved(false);
+    setSaveError('');
     const { error: updateError } = await supabase
       .from('site_settings')
       .update({
@@ -130,18 +139,18 @@ export default function AdminImageEstimation() {
         estimation_reset_period: config.estimation_reset_period,
         estimation_admin_override: config.estimation_admin_override,
       })
-      .eq('id', 1); // assuming single row
+      .eq('id', rowId);
 
     if (updateError) {
-      setError(updateError.message);
-      setStatus('error');
+      setSaveError(updateError.message);
+      setStatus('ready');
       return;
     }
 
     setSaved(true);
     setStatus('ready');
     setTimeout(() => setSaved(false), 3000);
-  }, [config]);
+  }, [config, rowId]);
 
   if (status === 'loading') {
     return (
@@ -165,6 +174,16 @@ export default function AdminImageEstimation() {
             <p className="text-xs text-amber-600 mt-2 font-mono">
               supabase/migrations/20260823100000_phase31_premium_estimation.sql
             </p>
+          </div>
+        </div>
+      )}
+
+      {saveError && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-red-800">Couldn't save changes</p>
+            <p className="text-xs text-red-700 mt-1">{saveError}</p>
           </div>
         </div>
       )}
