@@ -162,8 +162,7 @@ export default function Colors() {
         eyebrow="Inspiration"
         title="Color Library"
         subtitle="Browse hundreds of professional paint colors and curated palettes with color codes you can take to any paint shop."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Color Library' }] }
       />
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">

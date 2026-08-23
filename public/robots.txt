@@ -5,6 +5,9 @@
 # Default — allow all public content
 User-agent: *
 Allow: /
+
+# Explicitly allow all public calculator and estimator routes
+Allow: /calculators
 Allow: /paint-calculator
 Allow: /screeding-calculator
 Allow: /screeding-cost-estimator
@@ -14,49 +17,71 @@ Allow: /tile-calculator
 Allow: /tile-cost-estimator
 Allow: /cost-estimator
 Allow: /finish-estimator
+Allow: /painting-estimator
+Allow: /build-to-roof-estimator
+Allow: /image-estimator
+Allow: /structural-calculator
+Allow: /foundation-calculator
+Allow: /construction-sequence
+Allow: /project-timeline
+Allow: /tyrolene-estimator
+
+# Colors and design
 Allow: /colors
 Allow: /colors/compare
 Allow: /colors/paint/
 Allow: /colors/
+
+# Learn and templates
 Allow: /learn
 Allow: /learn/category/
 Allow: /learn/
 Allow: /templates
 Allow: /templates/
-Allow: /contact
-Allow: /about
+
+# Marketplace and Pro Connect
 Allow: /marketplace
-Allow: /marketplace/
-Allow: /marketplace/products
-Allow: /marketplace/products/category/
+Allow: /marketplace/category/
 Allow: /marketplace/sellers/
-Allow: /marketplace/
+Allow: /marketplace/products
+Allow: /marketplace/products/
 Allow: /pro-connect
 Allow: /pro-connect/
 Allow: /pro/
-Allow: /build-to-roof-estimator
+
+# Other public pages
+Allow: /contact
+Allow: /about
 Allow: /pricing
 Allow: /privacy-policy
 Allow: /terms
 Allow: /cookie-policy
 Allow: /disclaimer
 Allow: /ai-disclaimer
+Allow: /ai-color-assistant
 
 # Disallow private/auth/admin routes
 Disallow: /admin
 Disallow: /login
 Disallow: /dashboard
 Disallow: /profile
+Disallow: /achievements
+Disallow: /color-preview
 Disallow: /my-projects
 Disallow: /my-templates
+Disallow: /shared/
 Disallow: /marketplace/post
 Disallow: /marketplace/products/post
 Disallow: /marketplace/products/my
 Disallow: /marketplace/my-listings
 Disallow: /marketplace/orders/
+Disallow: /pro-connect/register
+Disallow: /pro-connect/dashboard
 Disallow: /messages
 Disallow: /contractor
 Disallow: /worker-channels
+Disallow: /clients
+Disallow: /analytics
 
 # Sitemap
 Sitemap: https://freluxtools.netlify.app/sitemap.xml

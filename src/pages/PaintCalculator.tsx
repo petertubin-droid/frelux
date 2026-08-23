@@ -259,8 +259,7 @@ export default function PaintCalculator() {
         eyebrow="Tool"
         title="Paint Calculator"
         subtitle="Estimate how much paint your project may require, step by step."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Paint Calculator' }] }
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

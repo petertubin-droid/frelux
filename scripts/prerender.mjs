@@ -121,7 +121,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX POP Ceiling Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    ],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'POP Ceiling Calculator', item: 'https://freluxtools.netlify.app/pop-ceiling-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How do I calculate POP ceiling materials?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length and width into the FRELUX POP Ceiling Calculator. It estimates POP cement, fibreglass mesh, bonding agent, and other materials based on your ceiling area.' } }, { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'Plaster of Paris (POP) ceilings are smooth, elegant ceiling finishes popular in Nigerian homes. POP is mixed with water and applied to ceilings, often with decorative mouldings and cornices.' } }] }],
   },
   {
     path: '/tile-calculator',
@@ -131,7 +131,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tile Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    ],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Tile Calculator', item: 'https://freluxtools.netlify.app/tile-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How many tiles do I need?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your floor or wall dimensions and tile size into the FRELUX Tile Calculator. It calculates the number of tiles, boxes, adhesive, and grout including a waste factor for cuts and breakages.' } }, { '@type': 'Question', name: 'How much extra tile should I buy?', acceptedAnswer: { '@type': 'Answer', text: 'Always add 10-15% extra tiles for cuts, breakages, and future repairs. The calculator includes this waste factor automatically.' } }] }],
   },
   {
     path: '/painting-estimator',
@@ -141,7 +141,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Painting Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    ],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the Painting Estimator work?', acceptedAnswer: { '@type': 'Answer', text: 'Enter each room with its dimensions. The estimator calculates paint quantity and project cost for all rooms combined using the FRELUX methodology with real Nigerian product prices.' } }] }],
   },
   {
     path: '/screeding-cost-estimator',
@@ -194,6 +194,11 @@ const routes = [
     description: 'Estimate material quantities and costs for wall finishes: painting, Tyrolene, and Grafitex. Uses real coverage rates and package sizes.',
     priority: '0.7',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Finish Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Finish Estimator', item: 'https://freluxtools.netlify.app/finish-estimator' }] },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What finishes does the Finish Estimator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Finish Estimator calculates materials and costs for painting, Tyrolene, and Grafitex wall finishes using real coverage rates and Nigerian package sizes.' } }] },
+    ],
   },
   {
     path: '/tyrolene-estimator',
@@ -201,6 +206,11 @@ const routes = [
     description: 'Calculate Tyrolene material quantities and costs. Cement, sand, acrylic bond, water seal, and anti-fungal estimates for exterior walls.',
     priority: '0.7',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tyrolene Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Tyrolene Estimator', item: 'https://freluxtools.netlify.app/tyrolene-estimator' }] },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is Tyrolene?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is a textured exterior wall finish made from cement, sand, acrylic bond, and water seal. It provides weather resistance and decorative texture to building exteriors.' } }, { '@type': 'Question', name: 'How is Tyrolene calculated?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is calculated based on wall area and number of coats. The estimator determines cement, sand, acrylic bond, water seal, and anti-fungal quantities.' } }] },
+    ],
   },
   {
     path: '/colors',
@@ -208,6 +218,9 @@ const routes = [
     description: 'Browse hundreds of paint colors with real names and codes. Search, filter, and compare colors for your painting project.',
     priority: '0.8',
     changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: 'https://freluxtools.netlify.app/colors' }] },
+    ],
   },
   {
     path: '/colors/compare',
@@ -215,6 +228,9 @@ const routes = [
     description: 'Compare paint colors side by side. See how different shades look together and choose the perfect palette for your space.',
     priority: '0.7',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Color Library', item: 'https://freluxtools.netlify.app/colors' }, { '@type': 'ListItem', position: 3, name: 'Compare Colors', item: 'https://freluxtools.netlify.app/colors/compare' }] },
+    ],
   },
   {
     path: '/ai-color-assistant',
@@ -222,6 +238,10 @@ const routes = [
     description: 'Get AI-powered paint color recommendations. Describe your room, lighting, and mood to receive personalized color suggestions.',
     priority: '0.7',
     changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Smart Color Assistant', item: 'https://freluxtools.netlify.app/ai-color-assistant' }] },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the AI Color Assistant work?', acceptedAnswer: { '@type': 'Answer', text: 'Describe your room, lighting, and mood. The AI recommends paint colors that suit your space, with direct links to purchase from the color library.' } }] },
+    ],
   },
   {
     path: '/learn',
@@ -229,6 +249,9 @@ const routes = [
     description: 'Expert guides on paint selection, surface preparation, application techniques, and cost planning for your painting projects.',
     priority: '0.8',
     changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }] },
+    ],
   },
   {
     path: '/templates',
@@ -236,6 +259,9 @@ const routes = [
     description: 'Professionally curated templates for common painting, tiling, screeding, and POP ceiling projects using the FRELUX calculation engine.',
     priority: '0.6',
     changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Templates', item: 'https://freluxtools.netlify.app/templates' }] },
+    ],
   },
   { path: '/templates/standard-living-room-painting', title: 'Paint Calculator Template: Standard Living Room | FRELUX', description: 'Calculate paint needed for a standard living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
   { path: '/templates/master-bedroom-painting', title: 'Paint Calculator Template: Master Bedroom | FRELUX', description: 'Calculate paint needed for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
@@ -278,6 +304,182 @@ const routes = [
   { path: '/templates/master-bedroom-pop-ceiling', title: 'POP Ceiling Calculator Template: Master Bedroom | FRELUX', description: 'Calculate POP ceiling materials for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
   { path: '/templates/conference-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Conference Room | FRELUX', description: 'Calculate POP ceiling materials for a large conference room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
 
+  // ── Construction calculators & estimators (missing from original) ──
+  {
+    path: '/build-to-roof-estimator',
+    title: 'Build-to-Roof Estimator: Full Construction Cost | FRELUX',
+    description: 'Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for Nigerian building projects.',
+    priority: '0.9',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Build-to-Roof Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Build-to-Roof Estimator', item: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: 'What does the Build-to-Roof Estimator calculate?', acceptedAnswer: { '@type': 'Answer', text: 'It estimates materials and costs for a full building project from foundation through roof, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.' } },
+        { '@type': 'Question', name: 'Can I estimate costs for different building types?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. The estimator supports bungalows, duplexes, and multi-storey buildings with configurable foundation types, wall heights, and roofing materials.' } },
+      ]},
+    ],
+  },
+  {
+    path: '/image-estimator',
+    title: 'AI Photo Estimator: Estimate from a Photo | FRELUX',
+    description: 'Upload a photo of your construction site or room and get an AI-powered material and cost estimate. Quick, visual estimation for Nigerian building projects.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX AI Photo Estimator', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'AI Photo Estimator', item: 'https://freluxtools.netlify.app/image-estimator' },
+      ]},
+    ],
+  },
+  {
+    path: '/structural-calculator',
+    title: 'Structural Calculator: Beams, Columns & Slabs | FRELUX',
+    description: 'Calculate structural member sizes for Nigerian building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Structural Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Structural Calculator', item: 'https://freluxtools.netlify.app/structural-calculator' },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: 'What does the Structural Calculator compute?', acceptedAnswer: { '@type': 'Answer', text: 'It calculates beam depths and widths, column cross-sections, slab thickness, and reinforcement quantities based on span, loading, and Nigerian concrete mix standards.' } },
+      ]},
+    ],
+  },
+  {
+    path: '/foundation-calculator',
+    title: 'Foundation Calculator: Sizing & Materials | FRELUX',
+    description: 'Calculate foundation sizes and materials for Nigerian building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Foundation Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Foundation Calculator', item: 'https://freluxtools.netlify.app/foundation-calculator' },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: 'What foundation types does the calculator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Foundation Calculator supports strip footings, pad foundations, and raft foundations with typical Nigerian soil bearing capacities for preliminary sizing and budgeting.' } },
+        { '@type': 'Question', name: 'Do I need a soil test before using the foundation calculator?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. A geotechnical investigation is mandatory for actual foundation design. The calculator uses typical soil bearing capacities for preliminary sizing only.' } },
+      ]},
+    ],
+  },
+  {
+    path: '/construction-sequence',
+    title: 'Construction Sequence Planner | FRELUX',
+    description: 'Plan your building project step by step. From site clearance to finishing, get a construction timeline with material and labour requirements for each phase.',
+    priority: '0.7',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Construction Sequence Planner', applicationCategory: 'ProjectManagementApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Construction Sequence', item: 'https://freluxtools.netlify.app/construction-sequence' },
+      ]},
+    ],
+  },
+  {
+    path: '/project-timeline',
+    title: 'Project Timeline Builder | FRELUX',
+    description: 'Create a construction project timeline with phases, milestones, and material schedules. Track progress from foundation to finishing.',
+    priority: '0.7',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Project Timeline', applicationCategory: 'ProjectManagementApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Project Timeline', item: 'https://freluxtools.netlify.app/project-timeline' },
+      ]},
+    ],
+  },
+  {
+    path: '/pricing',
+    title: 'Pricing & Plans | FRELUX PAINT CALC',
+    description: 'Compare FRELUX plans. Free calculators, Pro features for professionals, and enterprise options for construction firms in Nigeria.',
+    priority: '0.6',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Pricing', item: 'https://freluxtools.netlify.app/pricing' },
+      ]},
+    ],
+  },
+  {
+    path: '/marketplace',
+    title: 'Construction Marketplace: Buy & Sell Building Materials | FRELUX',
+    description: 'Browse construction materials, tools, and services from suppliers across Nigeria. Find paints, tiles, cement, tools, and professional services near you.',
+    priority: '0.8',
+    changefreq: 'daily',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Construction Marketplace', description: 'Buy and sell construction materials, tools, and services across Nigeria.' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Marketplace', item: 'https://freluxtools.netlify.app/marketplace' },
+      ]},
+    ],
+  },
+  {
+    path: '/pro-connect',
+    title: 'Pro Connect: Find Verified Construction Professionals | FRELUX',
+    description: 'Connect with verified painters, tilers, screeders, POP ceiling specialists, and builders across Nigeria. Browse profiles, compare services, and hire professionals.',
+    priority: '0.8',
+    changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Pro Connect Directory', description: 'Find verified construction professionals across Nigeria.' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: 'https://freluxtools.netlify.app/pro-connect' },
+      ]},
+    ],
+  },
+  {
+    path: '/calculators',
+    title: 'All Calculators & Estimators | FRELUX PAINT CALC',
+    description: 'Browse every FRELUX calculator and estimator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free Nigerian construction material calculators.',
+    priority: '0.9',
+    changefreq: 'monthly',
+    structuredData: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'FRELUX Calculators & Estimators',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Build-to-Roof Estimator', url: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
+          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', url: 'https://freluxtools.netlify.app/paint-calculator' },
+          { '@type': 'ListItem', position: 3, name: 'Painting Estimator', url: 'https://freluxtools.netlify.app/painting-estimator' },
+          { '@type': 'ListItem', position: 4, name: 'Screeding Calculator', url: 'https://freluxtools.netlify.app/screeding-calculator' },
+          { '@type': 'ListItem', position: 5, name: 'POP Ceiling Calculator', url: 'https://freluxtools.netlify.app/pop-ceiling-calculator' },
+          { '@type': 'ListItem', position: 6, name: 'Tile Calculator', url: 'https://freluxtools.netlify.app/tile-calculator' },
+          { '@type': 'ListItem', position: 7, name: 'Structural Calculator', url: 'https://freluxtools.netlify.app/structural-calculator' },
+          { '@type': 'ListItem', position: 8, name: 'Foundation Calculator', url: 'https://freluxtools.netlify.app/foundation-calculator' },
+          { '@type': 'ListItem', position: 9, name: 'AI Photo Estimator', url: 'https://freluxtools.netlify.app/image-estimator' },
+          { '@type': 'ListItem', position: 10, name: 'Finish Estimator', url: 'https://freluxtools.netlify.app/finish-estimator' },
+          { '@type': 'ListItem', position: 11, name: 'Tyrolene Estimator', url: 'https://freluxtools.netlify.app/tyrolene-estimator' },
+          { '@type': 'ListItem', position: 12, name: 'Cost Estimator', url: 'https://freluxtools.netlify.app/cost-estimator' },
+          { '@type': 'ListItem', position: 13, name: 'Screeding Cost Estimator', url: 'https://freluxtools.netlify.app/screeding-cost-estimator' },
+          { '@type': 'ListItem', position: 14, name: 'POP Ceiling Cost Estimator', url: 'https://freluxtools.netlify.app/pop-ceiling-cost-estimator' },
+          { '@type': 'ListItem', position: 15, name: 'Tile Cost Estimator', url: 'https://freluxtools.netlify.app/tile-cost-estimator' },
+        ],
+      },
+    ],
+  },
+
+  // ── About / Contact / Legal ──
   {
     path: '/about',
     title: 'About FRELUX PAINT CALC',

@@ -14,6 +14,7 @@ export default function Achievements() {
     title: 'Achievements & Rewards',
     description: 'Track your FRELUX milestones and unlock badges as you use the platform.',
     canonicalPath: '/achievements',
+    noIndex: true,
   });
 
   useEffect(() => {

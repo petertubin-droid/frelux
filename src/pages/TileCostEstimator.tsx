@@ -160,7 +160,7 @@ export default function TileCostEstimator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Estimate" title="Tile Cost Estimator" subtitle="Estimate material and labour costs for your tile installation." backTo="/" backLabel="Home" />
+        <PageHeader eyebrow="Estimate" title="Tile Cost Estimator" subtitle="Estimate material and labour costs for your tile installation." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Cost Estimator' }] } />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -168,7 +168,7 @@ export default function TileCostEstimator() {
 
   return (
     <>
-      <PageHeader eyebrow="Estimate" title="Tile Cost Estimator" subtitle="Estimate tile, adhesive, grout, and labour costs for your tiling project." backTo="/" backLabel="Home" />
+      <PageHeader eyebrow="Estimate" title="Tile Cost Estimator" subtitle="Estimate tile, adhesive, grout, and labour costs for your tiling project." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Cost Estimator' }] } />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">

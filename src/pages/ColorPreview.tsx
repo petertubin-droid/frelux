@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import PageHeader from '@/components/ui/PageHeader';
 import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
@@ -6,6 +7,7 @@ import { Loader2, Upload, X, Wand2, Eye, Download } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 
 export default function ColorPreview() {
+  useSeo({ title: 'Color Preview Tool', description: 'Preview paint colors on your room photos with AI.', canonicalPath: '/color-preview', noIndex: true });
   const { user } = useAuth();
   const fileRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);

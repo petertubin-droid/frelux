@@ -164,8 +164,7 @@ export default function FinishEstimator() {
         eyebrow="Estimate"
         title="Finish Estimator"
         subtitle="Calculate material quantities and costs for Painting, Tyrolene, and Grafitex wall finishes."
-        backTo="/"
-        backLabel="Home"
+        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Finish Estimator' }] }
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">

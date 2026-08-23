@@ -222,7 +222,7 @@ export default function TileCalculator() {
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Tile Calculator' }]} />
+        <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Calculator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -230,7 +230,7 @@ export default function TileCalculator() {
 
   return (
     <>
-      <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project." breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Tile Calculator' }]} />
+      <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Calculator' }]} />
 
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <LoadTemplateButton calculatorType="tile" onLoad={(t) => setInput(t.input_data as unknown as TileCalcInput)} />
