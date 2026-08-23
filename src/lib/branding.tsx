@@ -31,6 +31,14 @@ const BrandingContext = createContext<BrandingContextValue>({
   refresh: async () => {},
 });
 
+function hexToRgbChannels(hex: string): string {
+  const cleaned = hex.replace('#', '');
+  const r = parseInt(cleaned.slice(0, 2), 16);
+  const g = parseInt(cleaned.slice(2, 4), 16);
+  const b = parseInt(cleaned.slice(4, 6), 16);
+  return `${r} ${g} ${b}`;
+}
+
 export function BrandingProvider({ children }: { children: ReactNode }) {
   const [branding, setBranding] = useState<DbSiteBranding | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,9 +64,9 @@ export function BrandingProvider({ children }: { children: ReactNode }) {
 
     // Apply brand colors as CSS custom properties
     const root = document.documentElement;
-    root.style.setProperty('--brand-primary', branding.primary_color);
-    root.style.setProperty('--brand-secondary', branding.secondary_color);
-    root.style.setProperty('--brand-accent', branding.accent_color);
+    root.style.setProperty('--brand-primary', hexToRgbChannels(branding.primary_color));
+    root.style.setProperty('--brand-secondary', hexToRgbChannels(branding.secondary_color));
+    root.style.setProperty('--brand-accent', hexToRgbChannels(branding.accent_color));
 
     // Favicon
     if (branding.favicon_url) {
