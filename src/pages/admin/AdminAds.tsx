@@ -82,10 +82,15 @@ function ProvidersTab() {
     const swapIdx = idx + dir;
     if (swapIdx < 0 || swapIdx >= sorted.length) return;
     const swapProv = sorted[swapIdx];
-    await Promise.all([
+    const [res1, res2] = await Promise.all([
       supabase.from('ad_providers').update({ priority: swapProv.priority }).eq('id', prov.id),
       supabase.from('ad_providers').update({ priority: prov.priority }).eq('id', swapProv.id),
     ]);
+    if (res1.error || res2.error) {
+      setError(res1.error?.message || res2.error?.message || 'Failed to swap priorities');
+      load();
+      return;
+    }
     load();
     clearAdConfigCache();
   }

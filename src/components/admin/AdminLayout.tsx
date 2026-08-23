@@ -139,7 +139,7 @@ const navModules: NavModule[] = [
       { label: 'Site Branding', to: '/admin/branding', icon: Palette },
       { label: 'Typography', to: '/admin/typography', icon: Type },
       { label: 'Site Settings', to: '/admin/settings', icon: Settings },
-      { label: 'Roles & Permissions', to: '/admin/studio/role_management', icon: ShieldCheck },
+      { label: 'Studio Management', to: '/admin/studio/management', icon: ShieldCheck },
       { label: 'Error Monitor', to: '/admin/errors', icon: AlertTriangle },
     ],
   },

@@ -61,17 +61,19 @@ function ListingsTab() {
     try {
       const { listings: data, total: count } = await adminFetchAllListings({
         status: statusFilter || undefined,
-        limit: 20,
+        limit: 100,
       });
-      const filtered = search
-        ? data.filter(l => l.title.toLowerCase().includes(search.toLowerCase()))
-        : data;
-      setListings(filtered);
+      setListings(data);
       setTotal(count);
     } catch { /* ignore */ } finally {
       setLoading(false);
     }
-  }, [statusFilter, search]);
+  }, [statusFilter]);
+
+  // Client-side search filter on fetched listings
+  const filteredListings = search
+    ? listings.filter(l => l.title.toLowerCase().includes(search.toLowerCase()))
+    : listings;
 
   useEffect(() => { load(); }, [load]);
 
@@ -119,7 +121,7 @@ function ListingsTab() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {listings.map((l) => (
+        {filteredListings.map((l) => (
           <div key={l.id} className="card p-3">
             <div className="flex items-center justify-between">
               <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
