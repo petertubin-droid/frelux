@@ -69,7 +69,7 @@ export default function ProCategoryLocationPage() {
     title: `${professionLabel} in ${locationLabel || '...'} — FRELUX Pro Connect`,
     description: `Find verified ${professionLabel.toLowerCase()} in ${locationLabel}. Browse profiles, check ratings, and connect with trusted construction professionals on FRELUX.`,
     canonicalPath: `/pro/${categorySlug}/${locationSlug}`,
-    noIndex: !category?.seo_indexable || !location?.seo_indexable,
+    noIndex: false,
     structuredData: breadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Pro Connect', path: '/pro-connect' },

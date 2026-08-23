@@ -55,7 +55,7 @@ export default function ProductDetail() {
     title: product?.seo_title || product?.title || 'Product — FRELUX Marketplace',
     description: product?.seo_description || product?.description?.slice(0, 160) || 'Building materials and interior design products on FRELUX Marketplace.',
     canonicalPath: `/marketplace/products/${id}`,
-    noIndex: product ? !product.seo_indexable : true,
+    noIndex: false,
     structuredData: product ? {
       '@context': 'https://schema.org',
       '@type': 'Product',

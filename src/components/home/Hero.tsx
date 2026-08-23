@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Wand2 } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Wand2, Building2 } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { useHeroContent } from '@/lib/useHeroContent';
 import { useBranding } from '@/lib/branding';
@@ -127,6 +127,14 @@ export default function Hero() {
                 {hero.ctaSecondaryLabel}
               </Link>
             )}
+            <Link
+              to="/build-to-roof-estimator"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
+            >
+              <Building2 className="h-4 w-4" />
+              Build-to-Roof Estimator
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
 
           {/* Trust points */}

@@ -85,7 +85,7 @@ export default function MarketplaceLocationPage() {
     description: location?.seo_description ||
       `Find verified construction professionals, painters, tilers, and job listings in ${locationLabel}. Post a job and get bids from local pros.`,
     canonicalPath: `/marketplace/sellers/${locationSlug}`,
-    noIndex: location ? !location.seo_indexable : true,
+    noIndex: false,
     structuredData: breadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Marketplace', path: '/marketplace' },

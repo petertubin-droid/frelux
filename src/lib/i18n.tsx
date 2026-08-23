@@ -6,7 +6,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-export type Language = 'en' | 'yo' | 'ha' | 'ig' | 'pidgin';
+export type Language = 'en' | 'yo' | 'ha' | 'ig' | 'pidgin' | 'efik' | 'tiv' | 'ijaw' | 'kanuri' | 'nupe' | 'fulfulde' | 'ebira' | 'ibibio' | 'igala' | 'urhobo' | 'eso';
 
 export const LANGUAGES: { value: Language; label: string; nativeLabel: string; flag: string }[] = [
   { value: 'en', label: 'English', nativeLabel: 'English', flag: '🇬🇧' },
@@ -14,6 +14,17 @@ export const LANGUAGES: { value: Language; label: string; nativeLabel: string; f
   { value: 'ha', label: 'Hausa', nativeLabel: 'Hausa', flag: '🇳🇬' },
   { value: 'ig', label: 'Igbo', nativeLabel: 'Igbo', flag: '🇳🇬' },
   { value: 'pidgin', label: 'Pidgin', nativeLabel: 'Naija', flag: '🇳🇬' },
+  { value: 'efik', label: 'Efik', nativeLabel: 'Usem Efik', flag: '🇳🇬' },
+  { value: 'tiv', label: 'Tiv', nativeLabel: 'Zwa Tiv', flag: '🇳🇬' },
+  { value: 'ijaw', label: 'Ijaw', nativeLabel: 'Izon', flag: '🇳🇬' },
+  { value: 'kanuri', label: 'Kanuri', nativeLabel: 'Kanuri', flag: '🇳🇬' },
+  { value: 'nupe', label: 'Nupe', nativeLabel: 'Nupe', flag: '🇳🇬' },
+  { value: 'fulfulde', label: 'Fulfulde', nativeLabel: 'Fulfulde', flag: '🇳🇬' },
+  { value: 'ebira', label: 'Ebira', nativeLabel: 'Ebira', flag: '🇳🇬' },
+  { value: 'ibibio', label: 'Ibibio', nativeLabel: 'Ibibio', flag: '🇳🇬' },
+  { value: 'igala', label: 'Igala', nativeLabel: 'Igala', flag: '🇳🇬' },
+  { value: 'urhobo', label: 'Urhobo', nativeLabel: 'Urhobo', flag: '🇳🇬' },
+  { value: 'eso', label: 'Esan', nativeLabel: 'Esan', flag: '🇳🇬' },
 ];
 
 type TranslationKey = string;
@@ -21,6 +32,17 @@ type TranslationKey = string;
 // Translation dictionary — covers calculator labels, navigation, and common UI
 const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
+  efik: {},
+  tiv: {},
+  ijaw: {},
+  kanuri: {},
+  nupe: {},
+  fulfulde: {},
+  ebira: {},
+  ibibio: {},
+  igala: {},
+  urhobo: {},
+  eso: {},
   yo: {
     'calc.title': 'Kọmputa Paint',
     'calc.subtitle': 'Yọ iwọn iye paint ti iṣẹ rẹ nilo',

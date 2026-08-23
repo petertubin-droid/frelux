@@ -64,7 +64,7 @@ export default function MarketplaceCategoryPage() {
     description: category?.seo_description || category?.description ||
       `Browse ${category?.name || 'construction'} jobs and services on the FRELUX Marketplace. Post a job and get bids from verified professionals.`,
     canonicalPath: `/marketplace/category/${categorySlug}`,
-    noIndex: category ? !category.seo_indexable : true,
+    noIndex: false,
     structuredData: breadcrumbSchema([
       { name: 'Home', path: '/' },
       { name: 'Marketplace', path: '/marketplace' },

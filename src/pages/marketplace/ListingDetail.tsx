@@ -39,7 +39,7 @@ export default function ListingDetail() {
     title: listing?.seo_title || listing?.title || 'Job Details — FRELUX Marketplace',
     description: listing?.seo_description || (listing?.description ? listing.description.slice(0, 160) : 'View this construction job listing on FRELUX Marketplace and submit your bid.'),
     canonicalPath: `/marketplace/${id}`,
-    noIndex: listing ? !listing.seo_indexable : true,
+    noIndex: false,
     structuredData: listing ? {
       '@context': 'https://schema.org',
       '@type': 'JobPosting',

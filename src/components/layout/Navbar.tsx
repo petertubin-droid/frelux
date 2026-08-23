@@ -234,7 +234,7 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Account icon — dropdown menu */}
+            {/* Language switcher — Nigerian languages */}
             <div className="relative">
               <button
                 type="button"
@@ -444,69 +444,6 @@ export default function Navbar() {
                 )}
               </div>
             ))}
-
-            {/* Account section */}
-            <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
-              <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
-                Account
-              </p>
-              {user ? (
-                <div className="space-y-0.5">
-                  <div className="px-3 py-1.5 flex items-center gap-2.5">
-                    {profile?.avatar_url ? (
-                      <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
-                    ) : (
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
-                        {(profile?.full_name?.charAt(0) || (user.email ?? '?')).charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
-                      <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
-                      {isPaid && (
-                        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple">
-                          <Crown className="h-2.5 w-2.5" />
-                          {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {accountMenuItems.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.label}
-                        to={item.to}
-                        onClick={() => setMobileOpen(false)}
-                        className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
-                      >
-                        <Icon className="h-4 w-4" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                  <button
-                    type="button"
-                    onClick={() => signOut()}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-neutral-300 dark:hover:bg-red-500/10 dark:hover:text-red-400"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-0.5">
-                  <Link to="/login" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
-                    <LogIn className="h-4 w-4" />
-                    Sign in
-                  </Link>
-                  <Link to="/login?mode=signup" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
-                    <User className="h-4 w-4" />
-                    Create Account
-                  </Link>
-                </div>
-              )}
-            </div>
 
             {/* Language & Accessibility */}
             <div className="mt-4 flex items-center justify-around border-t border-neutral-100 pt-4 dark:border-white/5">

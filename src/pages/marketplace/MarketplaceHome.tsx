@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Plus, MapPin, Clock, ArrowRight, Loader2, SlidersHorizontal, X, Store, Briefcase, Tag } from 'lucide-react';
 import { fetchListings } from '@/lib/marketplace';
@@ -121,10 +121,15 @@ export default function MarketplaceHome() {
     fetchProductCategories().then(setProductCategories).catch(() => {});
   }, []);
 
-  // Load jobs
+  // Load jobs — uses refs to avoid re-creation on state change (prevents infinite render loop)
+  const jobsOffsetRef = useRef(jobsOffset);
+  const listingsRef = useRef(listings);
+  jobsOffsetRef.current = jobsOffset;
+  listingsRef.current = listings;
+
   const loadJobs = useCallback(async (reset = false) => {
     setJobsLoading(true);
-    const off = reset ? 0 : jobsOffset;
+    const off = reset ? 0 : jobsOffsetRef.current;
     const { listings: data, total: count } = await fetchListings({
       search: jobSearch || undefined,
       project_type: projectType || undefined,
@@ -132,17 +137,23 @@ export default function MarketplaceHome() {
       limit: 12,
       offset: off,
     });
-    setListings(reset ? data : [...listings, ...data]);
+    setListings(reset ? data : [...listingsRef.current, ...data]);
     setJobsTotal(count);
     setJobsHasMore(off + data.length < count);
     if (reset) setJobsOffset(0);
+    else setJobsOffset(off + data.length);
     setJobsLoading(false);
-  }, [jobSearch, projectType, jobState, jobsOffset, listings]);
+  }, [jobSearch, projectType, jobState]);
 
-  // Load products
+  // Load products — same ref pattern to prevent infinite loop
+  const productsOffsetRef = useRef(productsOffset);
+  const productsRef = useRef(products);
+  productsOffsetRef.current = productsOffset;
+  productsRef.current = products;
+
   const loadProducts = useCallback(async (reset = false) => {
     setProductsLoading(true);
-    const off = reset ? 0 : productsOffset;
+    const off = reset ? 0 : productsOffsetRef.current;
     const catId = productCategories.find((c) => c.slug === productCategory)?.id;
     const { products: data, total: count } = await searchProducts({
       search: productSearch || undefined,
@@ -153,12 +164,13 @@ export default function MarketplaceHome() {
       limit: 24,
       offset: off,
     });
-    setProducts(reset ? data : [...products, ...data]);
+    setProducts(reset ? data : [...productsRef.current, ...data]);
     setProductsTotal(count);
     setProductsHasMore(off + data.length < count);
     if (reset) setProductsOffset(0);
+    else setProductsOffset(off + data.length);
     setProductsLoading(false);
-  }, [productSearch, productCategory, productCondition, productState, productSort, productsOffset, products, productCategories]);
+  }, [productSearch, productCategory, productCondition, productState, productSort, productCategories]);
 
   useEffect(() => {
     if (tab === 'jobs') loadJobs(true);
