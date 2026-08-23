@@ -13,6 +13,22 @@ export interface DbProfile {
   updated_at: string;
 }
 
+
+/** A single word highlight rule for the hero headline. */
+export interface HeroWordHighlight {
+  /** 0-based word index in the headline */
+  wordIndex: number;
+  /** The word text (for verification / display) */
+  word: string;
+  /** CSS color to apply (hex or named) */
+  color: string;
+}
+
+/** Configuration for hero headline word coloring. Stored in site_branding.hero_highlight_config (JSONB). */
+export interface HeroHighlightConfig {
+  highlights: HeroWordHighlight[];
+}
+
 export interface DbSiteBranding {
   id: string;
   website_name: string;
@@ -25,6 +41,8 @@ export interface DbSiteBranding {
   primary_color: string;
   secondary_color: string;
   accent_color: string;
+  /** JSON: which words in the hero headline get a custom color. */
+  hero_highlight_config: HeroHighlightConfig | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

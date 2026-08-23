@@ -2,6 +2,25 @@ import { Link } from 'react-router-dom';
 import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Wand2 } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { useHeroContent } from '@/lib/useHeroContent';
+import { useBranding } from '@/lib/branding';
+
+
+/** Splits a headline into words and wraps highlighted words in a colored span. */
+function renderHighlightedHeadline(headline: string, highlights: { wordIndex: number; color: string }[] | null) {
+  if (!highlights || highlights.length === 0) return headline;
+  const words = headline.split(/\s+/);
+  return words.map((word, i) => {
+    const hl = highlights.find((h) => h.wordIndex === i);
+    if (hl) {
+      return (
+        <span key={i} style={{ color: hl.color }}>
+          {word}{i < words.length - 1 ? ' ' : ''}
+        </span>
+      );
+    }
+    return <span key={i}>{word}{i < words.length - 1 ? ' ' : ''}</span>;
+  });
+}
 
 const heroSteps = [
   { icon: Layers, label: 'Screeding', to: '/screeding-calculator' },
@@ -18,6 +37,7 @@ const trustPoints = [
 
 export default function Hero() {
   const { content: hero } = useHeroContent();
+  const { branding } = useBranding();
 
   return (
     <section className="relative overflow-hidden bg-mesh text-white">
@@ -61,7 +81,7 @@ export default function Hero() {
 
           {/* Headline */}
           <h1 className="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
-            {hero.headline}
+            {renderHighlightedHeadline(hero.headline, branding?.hero_highlight_config?.highlights ?? null)}
           </h1>
 
           {/* Subheadline */}

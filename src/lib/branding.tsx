@@ -20,6 +20,7 @@ const defaultBranding: DbSiteBranding = {
   primary_color: '#7C3AED',
   secondary_color: '#0B1120',
   accent_color: '#F97316',
+  hero_highlight_config: null,
   is_active: true,
   created_at: '',
   updated_at: '',
