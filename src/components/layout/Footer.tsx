@@ -34,6 +34,7 @@ const accountLinks = [
   { label: 'My Projects', path: '/my-projects' },
   { label: 'Contact', path: '/contact' },
   { label: 'About', path: '/about' },
+  { label: 'Pricing', path: '/pricing' },
 ];
 
 const legalLinks = [

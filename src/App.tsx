@@ -44,6 +44,7 @@ const MyProjects = lazy(() => import('@/pages/MyProjects'));
 const SharedProject = lazy(() => import('@/pages/SharedProject'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Profile = lazy(() => import('@/pages/Profile'));
+const Pricing = lazy(() => import('@/pages/Pricing'));
 const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
 const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
@@ -237,6 +238,7 @@ export default function App() {
             {/* Dashboard */}
             <Route path="/dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
             <Route path="/profile" element={<Suspense fallback={<PageLoader />}><Profile /></Suspense>} />
+            <Route path="/pricing" element={<Suspense fallback={<PageLoader />}><Pricing /></Suspense>} />
             <Route path="/achievements" element={<Suspense fallback={<PageLoader />}><Achievements /></Suspense>} />
 
             {/* Contractor Experience */}

@@ -57,6 +57,7 @@ export default function Navbar() {
     { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
     { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag },
+    { label: 'Pricing', to: '/pricing', icon: Crown },
     { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
     { label: 'My Products', to: '/marketplace/products/my', icon: Package },
     { label: 'My Projects', to: '/contractor', icon: FileStack },

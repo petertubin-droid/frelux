@@ -1,0 +1,301 @@
+import { useState, useEffect } from 'react';
+import { Check, Crown, Loader2, AlertCircle, ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import PageHeader from '@/components/ui/PageHeader';
+import { useAuth } from '@/lib/auth';
+import { useSeo } from '@/lib/seo';
+import { useToast } from '@/components/ui/Toast';
+import { PRICING_PLANS, formatNaira, type PricingPlan } from '@/lib/pricing-plans';
+import { initializeSubscriptionCheckout, verifyPayment, isPaystackConfigured } from '@/lib/paystack';
+import { classNames } from '@/lib/utils';
+
+type BillingCycle = 'monthly' | 'yearly';
+
+export default function Pricing() {
+  useSeo({
+    title: 'Pricing — FRELUX Premium',
+    description: 'Choose the FRELUX plan that fits your construction needs. From free calculators to the full engineering toolkit with structural design, foundation analysis, and AI-powered estimation.',
+    canonicalPath: '/pricing',
+  });
+
+  const { user, isPaid, paidStatus, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<'success' | 'error' | null>(null);
+
+  // Handle Paystack redirect callback
+  useEffect(() => {
+    const status = searchParams.get('status');
+    const ref = searchParams.get('ref');
+    if (status === 'verify' && ref) {
+      setVerifying(true);
+      verifyPayment(ref).then(async (result) => {
+        if (result.verified) {
+          setVerifyResult('success');
+          await refreshProfile();
+          toast({ title: 'Payment successful!', message: 'Your premium subscription is now active.' });
+        } else {
+          setVerifyResult('error');
+          toast({ title: 'Payment verification failed', message: result.error || 'Please contact support.', variant: 'error' });
+        }
+        setVerifying(false);
+      });
+    }
+  }, [searchParams]);
+
+  async function handleSubscribe(plan: PricingPlan) {
+    if (plan.id === 'free') {
+      navigate('/dashboard');
+      return;
+    }
+
+    if (plan.id === 'enterprise') {
+      navigate('/contact?subject=Enterprise%20Inquiry');
+      return;
+    }
+
+    if (!user) {
+      navigate(`/login?redirect=/pricing`);
+      return;
+    }
+
+    if (!isPaystackConfigured()) {
+      toast({
+        title: 'Payment not configured',
+        message: 'Our payment provider is being set up. Please contact us directly to subscribe.',
+        variant: 'error',
+      });
+      navigate('/contact?subject=Subscription%20Inquiry');
+      return;
+    }
+
+    setLoadingPlan(plan.id);
+
+    const amount = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+    const amountInKobo = amount * 100; // Paystack expects kobo
+
+    const result = await initializeSubscriptionCheckout(
+      plan.id,
+      billingCycle,
+      amountInKobo,
+      user.email!,
+      user.id,
+    );
+
+    setLoadingPlan(null);
+
+    if ('error' in result) {
+      toast({ title: 'Payment failed to start', message: result.error, variant: 'error' });
+    } else {
+      // Redirect to Paystack checkout
+      window.location.href = result.authorization_url;
+    }
+  }
+
+  if (verifying) {
+    return (
+      <>
+        <PageHeader eyebrow="Checkout" title="Verifying Payment" subtitle="Confirming your subscription with Paystack…" />
+        <div className="mx-auto max-w-md px-4 py-20 text-center">
+          <Loader2 className="mx-auto h-12 w-12 animate-spin text-brand-purple" />
+          <p className="mt-4 text-neutral-500">Please wait while we verify your payment…</p>
+        </div>
+      </>
+    );
+  }
+
+  if (verifyResult === 'success') {
+    return (
+      <>
+        <PageHeader eyebrow="Welcome aboard" title="Subscription Active!" subtitle="You now have access to all FRELUX premium tools." />
+        <div className="mx-auto max-w-lg px-4 py-16 text-center">
+          <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-accent-green/15">
+            <Check className="h-10 w-10 text-accent-green" />
+          </div>
+          <p className="mt-6 text-lg font-semibold text-brand-navy dark:text-white">You're all set, {user?.email}!</p>
+          <p className="mt-2 text-sm text-neutral-500">Your <span className="font-semibold capitalize text-brand-purple">{paidStatus?.plan}</span> subscription is now active.</p>
+          <Link
+            to="/dashboard"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90"
+          >
+            Go to Dashboard <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <PageHeader
+        eyebrow="Pricing"
+        title="Plans for Every Stage of Your Build"
+        subtitle="From free calculators to the full engineering toolkit. Upgrade anytime, cancel anytime."
+      />
+
+      {/* Billing cycle toggle */}
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="flex justify-center">
+          <div className="inline-flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={classNames(
+                'rounded-lg px-5 py-2 text-sm font-semibold transition-all',
+                billingCycle === 'monthly' ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:text-brand-purple'
+              )}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={classNames(
+                'rounded-lg px-5 py-2 text-sm font-semibold transition-all',
+                billingCycle === 'yearly' ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:text-brand-purple'
+              )}
+            >
+              Yearly
+              <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold text-accent-green">2 months free</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Current plan indicator */}
+        {isPaid && (
+          <div className="mx-auto mt-6 max-w-md rounded-xl border border-brand-purple/30 bg-brand-purple/5 p-4 text-center">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+              You're currently on <span className="font-bold capitalize text-brand-purple">{paidStatus?.plan}</span>
+              {paidStatus?.paid_until && (
+                <span className="text-neutral-400"> · expires {new Date(paidStatus.paid_until).toLocaleDateString()}</span>
+              )}
+            </p>
+          </div>
+        )}
+
+        {/* Plan cards */}
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {PRICING_PLANS.map((plan) => {
+            const price = billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice;
+            const isCurrentPlan = isPaid && paidStatus?.plan === plan.id;
+            const isLoading = loadingPlan === plan.id;
+
+            return (
+              <div
+                key={plan.id}
+                className={classNames(
+                  'relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-brand-navy-mid',
+                  plan.highlight
+                    ? 'border-brand-purple ring-2 ring-brand-purple/20 lg:scale-105'
+                    : 'border-neutral-200/60 dark:border-white/10',
+                  isCurrentPlan && 'ring-2 ring-accent-green/30'
+                )}
+              >
+                {plan.badge && (
+                  <span className={classNames(
+                    'absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide',
+                    plan.highlight ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+                  )}>
+                    {plan.badge}
+                  </span>
+                )}
+
+                <div className="flex items-center gap-2">
+                  {plan.id === 'free' ? (
+                    <Sparkles className="h-5 w-5 text-neutral-400" />
+                  ) : (
+                    <Crown className={classNames('h-5 w-5', plan.highlight ? 'text-brand-purple' : 'text-neutral-400')} />
+                  )}
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">{plan.name}</h3>
+                </div>
+                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">{plan.tagline}</p>
+
+                <div className="mt-4">
+                  <span className="text-3xl font-extrabold text-brand-navy dark:text-white">{formatNaira(price)}</span>
+                  <span className="text-sm text-neutral-400">/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                </div>
+
+                <button
+                  onClick={() => handleSubscribe(plan)}
+                  disabled={isLoading || isCurrentPlan}
+                  className={classNames(
+                    'mt-4 w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
+                    isCurrentPlan
+                      ? 'cursor-default bg-accent-green/10 text-accent-green'
+                      : plan.highlight
+                        ? 'bg-brand-purple text-white hover:bg-brand-purple/90'
+                        : 'border border-neutral-200 text-brand-navy hover:border-brand-purple hover:text-brand-purple dark:border-white/20 dark:text-white dark:hover:border-brand-purple-lighter'
+                  )}
+                >
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing…</span>
+                  ) : isCurrentPlan ? (
+                    'Current Plan'
+                  ) : (
+                    plan.cta
+                  )}
+                </button>
+
+                <ul className="mt-6 space-y-2.5">
+                  {plan.features.map((feature, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                      <Check className={classNames('mt-0.5 h-4 w-4 shrink-0', plan.highlight ? 'text-brand-purple' : 'text-accent-green')} />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Trust badges */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400">
+          <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4" /> Secure payment via Paystack</span>
+          <span className="flex items-center gap-2"><Zap className="h-4 w-4" /> Instant activation</span>
+          <span className="flex items-center gap-2"><Check className="h-4 w-4" /> Cancel anytime</span>
+        </div>
+
+        {/* FAQ */}
+        <div className="mx-auto mt-16 max-w-2xl">
+          <h2 className="text-center text-xl font-bold text-brand-navy dark:text-white">Frequently Asked Questions</h2>
+          <div className="mt-6 space-y-4">
+            <FaqItem q="Can I upgrade or downgrade later?" a="Yes. You can switch plans at any time. If you upgrade, you'll only pay the prorated difference. Downgrades take effect at the end of your current billing cycle." />
+            <FaqItem q="What payment methods do you accept?" a="We use Paystack to accept all major Nigerian debit cards (Verve, Visa, Mastercard), bank transfers, and USSD. International cards are also supported." />
+            <FaqItem q="Do I need to be logged in to subscribe?" a="Yes. You'll need a free FRELUX account first. After subscribing, your premium features activate instantly." />
+            <FaqItem q="What happens when my subscription expires?" a="You'll automatically revert to the Free plan. Your saved projects and data remain intact — you just lose access to premium tools until you renew." />
+          </div>
+        </div>
+
+        {/* CTA for non-logged-in users */}
+        {!user && (
+          <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-brand-purple/20 bg-brand-purple/5 p-6 text-center">
+            <AlertCircle className="mx-auto h-8 w-8 text-brand-purple" />
+            <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">You need a FRELUX account to subscribe. Create one in seconds — it's free.</p>
+            <Link to="/login?redirect=/pricing" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy/90">
+              Sign Up / Log In <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-xl border border-neutral-200/60 bg-white dark:border-white/10 dark:bg-brand-navy-mid">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between p-4 text-left"
+      >
+        <span className="text-sm font-semibold text-brand-navy dark:text-white">{q}</span>
+        <span className={classNames('text-neutral-400 transition-transform', open && 'rotate-180')}>▾</span>
+      </button>
+      {open && <p className="px-4 pb-4 text-sm text-neutral-500 dark:text-neutral-400">{a}</p>}
+    </div>
+  );
+}
