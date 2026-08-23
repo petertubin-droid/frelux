@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import type { DbProfile } from '@/types/database';
+import type { DbProfile, DbUserPaidStatus } from '@/types/database';
 
 export type AccountType = 'client' | 'pro_worker';
 
@@ -9,6 +9,8 @@ interface AuthState {
   session: Session | null;
   user: User | null;
   profile: DbProfile | null;
+  paidStatus: DbUserPaidStatus | null;
+  isPaid: boolean;
   isAdmin: boolean;
   loading: boolean;
   configured: boolean;
@@ -32,6 +34,7 @@ interface AuthContextValue extends AuthState {
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   refreshProfile: () => Promise<void>;
+  refreshPaidStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -41,6 +44,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session: null,
     user: null,
     profile: null,
+    paidStatus: null,
+    isPaid: false,
     isAdmin: false,
     loading: true,
     configured: isSupabaseConfigured,
@@ -59,10 +64,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data as DbProfile | null;
   }
 
+  /**
+   * Load the user's paid/subscription status from `user_paid_status`.
+   * RLS allows users to read only their own row.
+   */
+  async function loadPaidStatus(userId: string): Promise<{ status: DbUserPaidStatus | null; isPaid: boolean }> {
+    const { data, error } = await supabase
+      .from('user_paid_status')
+      .select('user_id, is_paid, plan, paid_until, payment_provider, provider_customer_id, updated_at')
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) {
+      if (import.meta.env.DEV) console.error('[auth] Failed to load paid status:', error.message);
+      return { status: null, isPaid: false };
+    }
+    const status = data as DbUserPaidStatus | null;
+    let isPaid = false;
+    if (status && status.is_paid) {
+      if (status.paid_until) {
+        const expiry = new Date(status.paid_until).getTime();
+        isPaid = Date.now() <= expiry;
+      } else {
+        isPaid = true; // paid with no expiry = lifetime
+      }
+    }
+    return { status, isPaid };
+  }
+
   async function refreshProfile() {
     if (!state.user) return;
     const profile = await loadProfile(state.user.id);
-    setState((s) => ({ ...s, profile, isAdmin: profile?.role === 'admin' }));
+    const { status, isPaid } = await loadPaidStatus(state.user.id);
+    setState((s) => ({ ...s, profile, isAdmin: profile?.role === 'admin', paidStatus: status, isPaid }));
+  }
+
+  async function refreshPaidStatus() {
+    if (!state.user) return;
+    const { status, isPaid } = await loadPaidStatus(state.user.id);
+    setState((s) => ({ ...s, paidStatus: status, isPaid }));
   }
 
   /**
@@ -98,14 +137,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!mounted) return;
       if (error) {
         if (import.meta.env.DEV) console.error('[auth] getSession error:', error.message);
-        setState({ session: null, user: null, profile: null, isAdmin: false, loading: false, configured: true });
+        setState({ session: null, user: null, profile: null, paidStatus: null, isPaid: false, isAdmin: false, loading: false, configured: true });
         return;
       }
       const session = data.session;
       const user = session?.user ?? null;
       const profile = user ? await loadProfile(user.id) : null;
+      const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
       if (!mounted) return;
-      setState({ session, user, profile, isAdmin: profile?.role === 'admin', loading: false, configured: true });
+      setState({ session, user, profile, paidStatus, isPaid, isAdmin: profile?.role === 'admin', loading: false, configured: true });
     }).catch((err) => {
       if (import.meta.env.DEV) console.error('[auth] getSession threw:', err);
       if (mounted) setState((s) => ({ ...s, loading: false }));
@@ -115,8 +155,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (async () => {
         const user = session?.user ?? null;
         const profile = user ? await loadProfile(user.id) : null;
+        const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
         if (!mounted) return;
-        setState({ session, user, profile, isAdmin: profile?.role === 'admin', loading: false, configured: true });
+        setState({ session, user, profile, paidStatus, isPaid, isAdmin: profile?.role === 'admin', loading: false, configured: true });
       })();
     });
 
@@ -134,12 +175,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) return { error: error.message, isAdmin: false };
         const user = data.user;
         const profile = user ? await loadProfile(user.id) : null;
+        const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
         const isAdmin = profile?.role === 'admin';
         setState((s) => ({
           ...s,
           session: data.session,
           user,
           profile,
+          paidStatus,
+          isPaid,
           isAdmin,
           loading: false,
         }));
@@ -153,7 +197,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (data.user && !needsConfirmation) {
           await setAccountType(data.user.id, email, accountType);
           const profile = await loadProfile(data.user.id);
-          setState((s) => ({ ...s, session: data.session, user: data.user, profile, isAdmin: false, loading: false }));
+          const { status: paidStatus, isPaid } = await loadPaidStatus(data.user.id);
+          setState((s) => ({ ...s, session: data.session, user: data.user, profile, paidStatus, isPaid, isAdmin: false, loading: false }));
         }
         return { error: null, needsConfirmation };
       },
@@ -179,7 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       },
       signOut: async () => {
         await supabase.auth.signOut();
-        setState((s) => ({ ...s, session: null, user: null, profile: null, isAdmin: false }));
+        setState((s) => ({ ...s, session: null, user: null, profile: null, paidStatus: null, isPaid: false, isAdmin: false }));
       },
       resetPassword: async (email) => {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -188,6 +233,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: error ? error.message : null };
       },
       refreshProfile,
+      refreshPaidStatus,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [state]

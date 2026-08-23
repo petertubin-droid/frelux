@@ -32,7 +32,7 @@ export default function ImageEstimator() {
     keywords: 'AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI',
   });
 
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, isPaid } = useAuth();
   const [phase, setPhase] = useState<Phase>('upload');
   const [config, setConfig] = useState<EstimationAccessConfig | null>(null);
   const [usage, setUsage] = useState<EstimationUsageStatus | null>(null);
@@ -56,7 +56,7 @@ export default function ImageEstimator() {
       if (cfg) {
         const u = await getEstimationUsageStatus(cfg, user?.id);
         setUsage(u);
-        const decision = checkEstimationAccess(cfg, u, isAdmin);
+        const decision = checkEstimationAccess(cfg, u, isAdmin, isPaid);
         setAccessDecision(decision);
         if (!decision.allowed) {
           setPhase('locked');
@@ -64,7 +64,7 @@ export default function ImageEstimator() {
       }
     }
     loadAccess();
-  }, [user?.id, isAdmin]);
+  }, [user?.id, isAdmin, isPaid]);
 
   // ── Handle image selection ──
   const handleImageSelect = useCallback((file: File) => {

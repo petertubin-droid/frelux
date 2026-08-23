@@ -8,6 +8,7 @@ import {
   Layers, AlertTriangle, CheckCircle2, ShieldCheck, Calculator,
   ChevronRight, ChevronDown, Building2,
 } from 'lucide-react';
+import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 
 export default function FoundationCalculator() {
   useSeo({
@@ -44,6 +45,7 @@ export default function FoundationCalculator() {
   if (!result) calculate();
 
   return (
+    <SubscriptionGate feature="foundation_calculator">
     <div className="min-h-screen bg-neutral-50">
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
@@ -220,4 +222,5 @@ export default function FoundationCalculator() {
       </div>
     </div>
   );
+    </SubscriptionGate>
 }

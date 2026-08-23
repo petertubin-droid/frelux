@@ -17,6 +17,7 @@ import type {
   RoofType, BlockSize, RoofingMaterial, OpeningInput, StructuralMemberInput,
 } from '@/types/build-to-roof';
 import { formatCurrency, formatNumber } from '@/lib/utils';
+import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 
 const STEPS = [
   { id: 'project', label: 'Project', icon: Home },
@@ -207,6 +208,7 @@ export default function BuildToRoofEstimator() {
   }, [step, input.project_name]);
 
   return (
+    <SubscriptionGate feature="build_to_roof_estimator">
     <div className="min-h-screen bg-neutral-50">
       {/* Header */}
       <div className="bg-brand-navy text-white">
@@ -952,4 +954,5 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       </div>
     </div>
   );
+    </SubscriptionGate>
 }

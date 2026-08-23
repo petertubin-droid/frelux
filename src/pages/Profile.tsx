@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Camera, Save, Copy, Check, Mail, Phone, Shield, ShoppingBag, Calendar, Loader2 } from 'lucide-react';
+import { User, Camera, Save, Copy, Check, Mail, Phone, Shield, ShoppingBag, Calendar, Loader2, Crown, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
 import { useToast } from '@/components/ui/Toast';
@@ -15,7 +15,7 @@ export default function Profile() {
     noIndex: true,
   });
 
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, isPaid, paidStatus } = useAuth();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -314,6 +314,48 @@ export default function Profile() {
               <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 This unique ID will be used to identify you in the upcoming FRELUX marketplace. Share it with clients and partners so they can find you easily.
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Subscription Status */}
+        <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
+          <div className="flex items-center gap-3">
+            <div className={"flex h-10 w-10 items-center justify-center rounded-lg " + (isPaid ? "bg-brand-purple/15 text-brand-purple" : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400")}>
+              {isPaid ? <Crown className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
+            </div>
+            <div className="flex-1">
+              <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Subscription Status</p>
+              {isPaid ? (
+                <div>
+                  <p className="text-sm font-semibold capitalize text-brand-navy dark:text-white">
+                    {paidStatus?.plan || 'Premium'} · Active
+                  </p>
+                  {paidStatus?.paid_until && (
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
+                      <Clock className="h-3 w-3" />
+                      Expires {new Date(paidStatus.paid_until).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  )}
+                </div>
+              ) : paidStatus?.is_paid && paidStatus?.paid_until ? (
+                <div>
+                  <p className="text-sm font-semibold capitalize text-amber-600 dark:text-amber-400">
+                    {paidStatus.plan || 'Premium'} · Expired
+                  </p>
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                    Expired on {new Date(paidStatus.paid_until).toLocaleDateString()}
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Free Plan</p>
+                  <Link to="/pricing" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline">
+                    <Crown className="h-3 w-3" />
+                    Upgrade to Premium
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,15 +1,19 @@
 // =========================================================
 // FRELUX Premium Estimation — Access Control
-// Phase 31
+// Phase 31 / Phase 33
 //
 // Follows the same pattern as ai-access.ts:
 // - Admin configures access mode, daily limits, and pricing in site_settings
 // - Users are gated by the configured mode (free / rewarded / paid / disabled)
 // - Usage is tracked server-side (edge function consumes on success)
 // - Client can only READ usage status (never write)
+//
+// Phase 33: Now checks user_paid_status for paid mode — a subscriber
+// with an active plan gets full access to all estimation features.
 // =========================================================
 
 import { supabase } from '@/lib/supabase';
+import type { DbUserPaidStatus } from '@/types/database';
 import type {
   EstimationAccessConfig,
   EstimationUsageStatus,
@@ -122,12 +126,27 @@ export async function getEstimationUsageStatus(
   };
 }
 
+/**
+ * Check if the user has an active paid subscription.
+ * This is a client-side check — the edge function does the authoritative
+ * server-side check using the service role key.
+ */
+export function checkUserPaidStatus(paidStatus: DbUserPaidStatus | null): boolean {
+  if (!paidStatus || !paidStatus.is_paid) return false;
+  if (paidStatus.paid_until) {
+    const expiry = new Date(paidStatus.paid_until).getTime();
+    if (Date.now() > expiry) return false;
+  }
+  return true;
+}
+
 // ── Check whether user can use the feature right now ──
 
 export function checkEstimationAccess(
   config: EstimationAccessConfig,
   usage: EstimationUsageStatus,
   isAdmin = false,
+  isPaid = false,
 ): EstimationAccessDecision {
   if (!config.enabled) return { allowed: false, reason: 'disabled' };
   if (config.accessMode === 'disabled') return { allowed: false, reason: 'disabled' };
@@ -135,6 +154,11 @@ export function checkEstimationAccess(
   // Admin bypass
   if (isAdmin && config.adminOverride) {
     return { allowed: true, reason: 'admin_override' };
+  }
+
+  // Active subscribers get full access regardless of mode
+  if (isPaid) {
+    return { allowed: true, reason: 'paid' };
   }
 
   // Paid mode — requires subscription

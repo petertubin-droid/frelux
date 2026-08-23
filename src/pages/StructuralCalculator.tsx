@@ -12,6 +12,7 @@ import {
   Calculator, Building2, AlertTriangle, CheckCircle2, Info, ShieldCheck,
   Loader2, Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,
 } from 'lucide-react';
+import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 
 type Tab = 'beam' | 'column' | 'slab';
 
@@ -25,6 +26,7 @@ export default function StructuralCalculator() {
   const [tab, setTab] = useState<Tab>('beam');
 
   return (
+    <SubscriptionGate feature="structural_calculator">
     <div className="min-h-screen bg-neutral-50">
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
@@ -436,4 +438,5 @@ function FormulaToggle({ show, setShow, formulas }: { show: boolean; setShow: (v
       )}
     </div>
   );
+    </SubscriptionGate>
 }

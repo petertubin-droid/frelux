@@ -3,7 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
   Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack,
-  Users, BarChart3, Search, ChevronRight,
+  Users, BarChart3, Search, ChevronRight, Crown,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces, type NavChild } from '@/config/site';
@@ -19,7 +19,7 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const location = useLocation();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, isPaid, paidStatus } = useAuth();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -275,6 +275,12 @@ export default function Navbar() {
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
                             <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
+                            {isPaid && (
+                              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple">
+                                <Crown className="h-2.5 w-2.5" />
+                                {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -456,6 +462,12 @@ export default function Navbar() {
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
                       <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
+                      {isPaid && (
+                        <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple">
+                          <Crown className="h-2.5 w-2.5" />
+                          {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
+                        </span>
+                      )}
                     </div>
                   </div>
                   {accountMenuItems.map((item) => {

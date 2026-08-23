@@ -1,0 +1,95 @@
+import { Link } from 'react-router-dom';
+import { Lock, Crown, Clock, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
+import { formatSubscriptionStatus } from '@/lib/subscription';
+import type { PaidFeature } from '@/lib/subscription';
+import { FEATURE_LABELS } from '@/lib/subscription';
+
+interface SubscriptionGateProps {
+  feature: PaidFeature;
+  children: React.ReactNode;
+  /** Optional fallback content to show when the user is not subscribed */
+  fallback?: React.ReactNode;
+}
+
+/**
+ * Gates children behind an active subscription check.
+ *
+ * Access rules:
+ * - Admins always see the content
+ * - Users with active paid subscription see the content
+ * - Everyone else sees the locked paywall
+ *
+ * For rewarded-ad gating (daily free uses + ad unlock), use RewardedFeatureGate instead.
+ */
+export function SubscriptionGate({ feature, children, fallback }: SubscriptionGateProps) {
+  const { isAdmin, isPaid, paidStatus, user } = useAuth();
+
+  if (isAdmin || isPaid) {
+    return (
+      <>
+        {children}
+        {isPaid && paidStatus?.paid_until && (
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-neutral-600">
+            <Clock className="h-3.5 w-3.5 text-accent-green" />
+            {formatSubscriptionStatus({ isActive: true, plan: (paidStatus.plan as 'free' | 'basic' | 'pro' | 'premium' | 'enterprise') || 'pro', paidUntil: new Date(paidStatus.paid_until), daysRemaining: Math.ceil((new Date(paidStatus.paid_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24)), paidStatus, loading: false, error: null, refresh: async () => {} })}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  if (fallback) return <>{fallback}</>;
+
+  const featureLabel = FEATURE_LABELS[feature];
+
+  return (
+    <div className="mx-auto max-w-md py-12 px-4">
+      <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-purple/10">
+          <Lock className="h-7 w-7 text-brand-purple" />
+        </div>
+        <h2 className="mt-4 text-xl font-bold text-brand-navy dark:text-white">
+          {featureLabel}
+        </h2>
+        <p className="mt-2 text-sm text-neutral-500">
+          This is a premium feature. Subscribe to unlock all FRELUX engineering tools, calculators, and AI assistants.
+        </p>
+
+        <div className="mx-auto mt-5 max-w-sm space-y-1.5 text-left">
+          {[
+            'All engineering calculators & estimators',
+            'AI Photo Estimator with vision analysis',
+            'Construction Sequence Planner',
+            'Structural & Foundation calculators',
+            'Unlimited saves & export to PDF',
+            'Priority Pro Connect messaging',
+          ].map((f) => (
+            <div key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+              {f}
+            </div>
+          ))}
+        </div>
+
+        {user ? (
+          <Link
+            to="/pricing"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+          >
+            <Crown className="h-4 w-4" />
+            Upgrade to Premium
+          </Link>
+        ) : (
+          <Link
+            to="/login?redirect=/pricing"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+          >
+            <Crown className="h-4 w-4" />
+            Sign in to Subscribe
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}

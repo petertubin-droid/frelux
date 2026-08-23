@@ -5,6 +5,7 @@ import {
   ListChecks, ShieldCheck, AlertTriangle, ChevronRight, ChevronDown,
   CheckCircle2, HardHat, Wrench, Package, FileCheck, Building2,
 } from 'lucide-react';
+import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 
 export default function ConstructionSequence() {
   useSeo({
@@ -17,6 +18,7 @@ export default function ConstructionSequence() {
   const [openStep, setOpenStep] = useState<number | null>(1);
 
   return (
+    <SubscriptionGate feature="construction_sequence">
     <div className="min-h-screen bg-neutral-50">
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
@@ -197,4 +199,5 @@ function Section({ icon: Icon, title, items, color }: {
       </ul>
     </div>
   );
+    </SubscriptionGate>
 }
