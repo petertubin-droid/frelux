@@ -46,7 +46,11 @@ DECLARE
   new_slug text;
 BEGIN
   FOR r IN SELECT id, state, city, area FROM pro_locations WHERE slug IS NULL OR slug = '' LOOP
-    new_slug := lower(regexp_replace(r.city, '[^a-zA-Z0-9]+', '-', 'g'));
+    new_slug := lower(COALESCE(r.city, r.state));
+    IF r.area IS NOT NULL AND r.area != '' THEN
+      new_slug := new_slug || '-' || lower(regexp_replace(r.area, '[^a-zA-Z0-9]+', '-', 'g'));
+    END IF;
+    new_slug := lower(regexp_replace(new_slug, '[^a-zA-Z0-9]+', '-', 'g'));
     new_slug := trim(both '-' from new_slug);
     UPDATE pro_locations SET slug = new_slug WHERE id = r.id;
   END LOOP;
@@ -115,8 +119,7 @@ CREATE TABLE IF NOT EXISTS seo_page_settings (
   is_indexable boolean NOT NULL DEFAULT true,
   structured_data jsonb, -- additional JSON-LD to inject
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(page_type, COALESCE(entity_id, ''), COALESCE(category_slug, ''), COALESCE(location_slug, ''))
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 
 ALTER TABLE seo_page_settings ENABLE ROW LEVEL SECURITY;

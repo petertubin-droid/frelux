@@ -186,7 +186,7 @@ CREATE POLICY "products_seller_update" ON marketplace_products
 
 CREATE POLICY "products_admin_all" ON marketplace_products
   FOR ALL USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+    is_admin()
   );
 
 -- Inquiries: buyer creates, seller reads
@@ -197,13 +197,13 @@ CREATE POLICY "inquiries_participant_read" ON marketplace_product_inquiries
   FOR SELECT USING (
     auth.uid() = buyer_id OR
     auth.uid() IN (SELECT seller_id FROM marketplace_products WHERE id = product_id) OR
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+    is_admin()
   );
 
 CREATE POLICY "inquiries_seller_update" ON marketplace_product_inquiries
   FOR UPDATE USING (
     auth.uid() IN (SELECT seller_id FROM marketplace_products WHERE id = product_id) OR
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_admin = true)
+    is_admin()
   );
 
 -- ============================================================
