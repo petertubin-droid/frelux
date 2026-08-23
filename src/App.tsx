@@ -129,6 +129,9 @@ const Achievements = lazy(() => import("@/pages/Achievements"));
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
 const AdminMarketplace = lazy(() => import('@/pages/admin/AdminMarketplace'));
 const AdminSeoLocation = lazy(() => import('@/pages/admin/AdminSeoLocation'));
+const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
+const ProductDetail = lazy(() => import('@/pages/marketplace/ProductDetail'));
+const MyProducts = lazy(() => import('@/pages/marketplace/MyProducts'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -259,6 +262,10 @@ export default function App() {
             <Route path="/marketplace/category/:categorySlug" element={<Suspense fallback={<PageLoader />}><MarketplaceCategoryPage /></Suspense>} />
             <Route path="/marketplace/sellers/:locationSlug" element={<Suspense fallback={<PageLoader />}><MarketplaceLocationPage /></Suspense>} />
             <Route path="/marketplace/:categorySlug/:locationSlug" element={<Suspense fallback={<PageLoader />}><MarketplaceCategoryLocationPage /></Suspense>} />
+            <Route path="/marketplace/products/post" element={<Suspense fallback={<PageLoader />}><PostProduct /></Suspense>} />
+            <Route path="/marketplace/products/my" element={<Suspense fallback={<PageLoader />}><MyProducts /></Suspense>} />
+            <Route path="/marketplace/products/:id" element={<Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>} />
+            <Route path="/marketplace/products" element={<Suspense fallback={<PageLoader />}><MarketplaceHome /></Suspense>} />
             <Route path="/marketplace/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
             <Route path="/marketplace/orders/:id" element={<Suspense fallback={<PageLoader />}><OrderDetail /></Suspense>} />
             <Route path="/pro/:categorySlug/:locationSlug" element={<Suspense fallback={<PageLoader />}><ProCategoryLocationPage /></Suspense>} />

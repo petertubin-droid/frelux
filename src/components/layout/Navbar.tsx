@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
-  Sun, Moon, LayoutDashboard, ShoppingBag, UserCircle, ClipboardList, FileStack,
+  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack,
   Users, BarChart3, Search, ChevronRight,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
@@ -57,6 +57,8 @@ export default function Navbar() {
     { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
     { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag },
+    { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
+    { label: 'My Products', to: '/marketplace/products/my', icon: Package },
     { label: 'My Projects', to: '/contractor', icon: FileStack },
     { label: 'Clients', to: '/clients', icon: Users },
     { label: 'Analytics', to: '/analytics', icon: BarChart3 },

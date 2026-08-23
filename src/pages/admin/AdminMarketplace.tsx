@@ -11,8 +11,11 @@ import {
 import type { DbMarketplaceListing, DbMarketplaceOrder } from '@/types/marketplace';
 import { LISTING_STATUS_LABELS, ORDER_STATUS_LABELS, PROJECT_TYPE_LABELS } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
+import type { DbMarketplaceProduct } from '@/types/marketplace-products';
 
-type Tab = 'listings' | 'orders' | 'disputes';
+type Tab = 'listings' | 'products' | 'orders' | 'disputes';
 
 export default function AdminMarketplace() {
   const [tab, setTab] = useState<Tab>('listings');
@@ -24,6 +27,7 @@ export default function AdminMarketplace() {
       <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
         {([
           ['listings', 'Listings'],
+          ['products', 'Products'],
           ['orders', 'Orders'],
           ['disputes', 'Disputes'],
         ] as const).map(([key, label]) => (
@@ -43,6 +47,7 @@ export default function AdminMarketplace() {
       </div>
 
       {tab === 'listings' && <ListingsTab />}
+      {tab === 'products' && <ProductsTab />}
       {tab === 'orders' && <OrdersTab />}
       {tab === 'disputes' && <DisputesTab />}
     </div>
@@ -165,6 +170,105 @@ function ListingsTab() {
         ))}
       </div>
       <p className="mt-3 text-xs text-neutral-400">{total} total listings</p>
+    </div>
+  );
+}
+
+// ============================================================
+// PRODUCTS TAB
+// ============================================================
+function ProductsTab() {
+  const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    let query = supabase
+      .from('marketplace_products')
+      .select('*, category:marketplace_product_categories(id, name), seller:profiles!seller_id(full_name, avatar_url)')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (statusFilter) query = query.eq('status', statusFilter);
+    if (search) query = query.or(`title.ilike.%${search}%,brand.ilike.%${search}%`);
+
+    const { data, error } = await query;
+    if (error) { console.error(error); setLoading(false); return; }
+    setProducts((data ?? []) as unknown as DbMarketplaceProduct[]);
+    setLoading(false);
+  }, [search, statusFilter]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function toggleProductStatus(id: string, current: string) {
+    const newStatus = current === 'active' ? 'paused' : 'active';
+    const { error } = await supabase.from('marketplace_products').update({ status: newStatus }).eq('id', id);
+    if (error) { alert(error.message); return; }
+    setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as any } : p));
+  }
+
+  async function adminRemoveProduct(id: string) {
+    if (!confirm('Remove this product from marketplace?')) return;
+    const { error } = await supabase.from('marketplace_products').update({ admin_removed: true, status: 'removed' }).eq('id', id);
+    if (error) { alert(error.message); return; }
+    setProducts(products.filter((p) => p.id !== id));
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex gap-2">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search products..."
+          className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white">
+          <option value="">All statuses</option>
+          {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-8"><Loader2 className="h-5 w-5 animate-spin text-brand-purple" /></div>
+      ) : products.length === 0 ? (
+        <p className="py-8 text-center text-sm text-neutral-500">No products found.</p>
+      ) : (
+        <div className="space-y-2">
+          {products.map((p) => (
+            <div key={p.id} className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 dark:border-white/10">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 dark:bg-white/5">
+                {p.images.length > 0 && <img src={p.images[0]} alt="" className="h-full w-full object-cover" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{p.title}</p>
+                <p className="text-xs text-neutral-400">
+                  ₦{p.price.toLocaleString()} · {p.category?.name || 'No category'} · {PRODUCT_CONDITION_LABELS[p.condition]}
+                  {p.brand && ` · ${p.brand}`}
+                </p>
+                <p className="text-xs text-neutral-400">
+                  {p.seller?.full_name || 'Unknown'} · {p.view_count} views · {p.inquiry_count} inquiries
+                </p>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className={classNames(
+                  'rounded-md px-2 py-0.5 text-xs font-medium',
+                  p.status === 'active' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' :
+                  p.status === 'sold' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
+                )}>{PRODUCT_STATUS_LABELS[p.status]}</span>
+                <button onClick={() => toggleProductStatus(p.id, p.status)} className="rounded p-1 text-neutral-400 hover:text-brand-purple" title="Toggle status">
+                  {p.status === 'active' ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                </button>
+                <button onClick={() => adminRemoveProduct(p.id)} className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" title="Remove">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

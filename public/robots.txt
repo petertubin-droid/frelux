@@ -26,7 +26,9 @@ Allow: /templates/
 Allow: /contact
 Allow: /about
 Allow: /marketplace
-Allow: /marketplace/category/
+Allow: /marketplace/
+Allow: /marketplace/products
+Allow: /marketplace/products/category/
 Allow: /marketplace/sellers/
 Allow: /marketplace/
 Allow: /pro-connect
@@ -41,6 +43,8 @@ Disallow: /profile
 Disallow: /my-projects
 Disallow: /my-templates
 Disallow: /marketplace/post
+Disallow: /marketplace/products/post
+Disallow: /marketplace/products/my
 Disallow: /marketplace/my-listings
 Disallow: /marketplace/orders/
 Disallow: /messages
