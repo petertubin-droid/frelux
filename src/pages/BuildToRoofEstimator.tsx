@@ -580,7 +580,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="Formwork per m²" unit="₦" value={input.prices.formwork_per_m2} onChange={v => update('prices', { ...input.prices, formwork_per_m2: parseFloat(v) || 0 })} />
                     <Field label="Hardcore per m³" unit="₦" value={input.prices.hardcore_per_m3} onChange={v => update('prices', { ...input.prices, hardcore_per_m3: parseFloat(v) || 0 })} />
                     <Field label="DPM per m²" unit="₦" value={input.prices.dpm_per_m2} onChange={v => update('prices', { ...input.prices, dpm_per_m2: parseFloat(v) || 0 })} />
-                    <Field label="Contingency" unit="%" value={input.contingency_percent} onChange={v => update('contingency_percent', parseFloat(v) || 0 })} />
+                    <Field label="Contingency" unit="%" value={input.contingency_percent} onChange={v => update('contingency_percent', parseFloat(v) || 0)} />
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-neutral-400">
                     <Info className="w-3.5 h-3.5" />
@@ -699,6 +699,7 @@ export default function BuildToRoofEstimator() {
         )}
       </div>
     </div>
+    </SubscriptionGate>
   );
 }
 
@@ -978,5 +979,4 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       </div>
     </div>
   );
-    </SubscriptionGate>
 }

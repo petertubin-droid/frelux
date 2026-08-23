@@ -25,14 +25,14 @@ export default function ScreedingCalculator() {
     canonicalPath: '/screeding-calculator',
     ogType: 'website',
     structuredDataArray: [
-      
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Wall Screeding Calculator',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-   ,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'FRELUX Wall Screeding Calculator',
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
@@ -42,7 +42,7 @@ export default function ScreedingCalculator() {
           { '@type': 'ListItem', 'position': 3, 'name': 'Screeding Calculator', 'item': 'https://freluxtools.netlify.app/screeding-calculator' }
         ]
       }
-    ],,
+    ],
   });
 
   const [result, setResult] = useState<ScreedingCalcResult | null>(null);

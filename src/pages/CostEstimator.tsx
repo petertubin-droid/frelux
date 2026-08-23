@@ -42,26 +42,26 @@ export default function CostEstimator() {
     canonicalPath: '/cost-estimator',
     ogType: 'website',
     structuredDataArray: [
-      
-      '@context': 'https://schema.org',
-      '@type': 'WebApplication',
-      name: 'FRELUX Cost Estimator',
-      description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
-      url: 'https://freluxtools.netlify.app/cost-estimator',
-      applicationCategory: 'CalculatorApplication',
-      operatingSystem: 'Web',
-      offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-   ,
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'FRELUX Cost Estimator',
+        description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
+        url: 'https://freluxtools.netlify.app/cost-estimator',
+        applicationCategory: 'CalculatorApplication',
+        operatingSystem: 'Web',
+        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
+      },
       {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
         'itemListElement': [
-          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
-          { '@type': 'ListItem', 'position': 3, 'name': 'Cost Estimator', 'item': 'https://freluxtools.netlify.app/cost-estimator' }
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+          { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+          { '@type': 'ListItem', position: 3, name: 'Cost Estimator', item: 'https://freluxtools.netlify.app/cost-estimator' }
         ]
       }
-    ],,
+    ],
   });
 
   const location = useLocation();

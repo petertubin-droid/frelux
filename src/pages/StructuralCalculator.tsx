@@ -84,6 +84,7 @@ export default function StructuralCalculator() {
         </div>
       </div>
     </div>
+    </SubscriptionGate>
   );
 }
 
@@ -438,5 +439,4 @@ function FormulaToggle({ show, setShow, formulas }: { show: boolean; setShow: (v
       )}
     </div>
   );
-    </SubscriptionGate>
 }

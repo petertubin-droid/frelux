@@ -221,6 +221,6 @@ export default function FoundationCalculator() {
         </div>
       </div>
     </div>
-  );
     </SubscriptionGate>
+  );
 }

@@ -113,6 +113,7 @@ export default function ConstructionSequence() {
         </div>
       </div>
     </div>
+    </SubscriptionGate>
   );
 }
 
@@ -199,5 +200,4 @@ function Section({ icon: Icon, title, items, color }: {
       </ul>
     </div>
   );
-    </SubscriptionGate>
 }
