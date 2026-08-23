@@ -48,6 +48,7 @@ const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
 const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
 const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
 const BuildToRoofEstimator = lazy(() => import('@/pages/BuildToRoofEstimator'));
+const ImageEstimator = lazy(() => import('@/pages/ImageEstimator'));
 const ClientManagement = lazy(() => import('@/pages/ClientManagement'));
 const EstimateAnalytics = lazy(() => import('@/pages/EstimateAnalytics'));
 const ColorPreview = lazy(() => import('@/pages/ColorPreview'));
@@ -128,6 +129,7 @@ const Achievements = lazy(() => import("@/pages/Achievements"));
 
 // Admin Pro Connect
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
+const AdminImageEstimation = lazy(() => import('@/pages/admin/AdminImageEstimation'));
 const AdminMarketplace = lazy(() => import('@/pages/admin/AdminMarketplace'));
 const AdminSeoLocation = lazy(() => import('@/pages/admin/AdminSeoLocation'));
 const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
@@ -203,6 +205,7 @@ export default function App() {
             <Route path="/tile-cost-estimator" element={<Suspense fallback={<PageLoader />}><TileCostEstimator /></Suspense>} />
             <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
             <Route path="/painting-estimator" element={<Suspense fallback={<PageLoader />}><PaintingEstimator /></Suspense>} />
+            <Route path="/image-estimator" element={<Suspense fallback={<PageLoader />}><ImageEstimator /></Suspense>} />
 <Route path="/build-to-roof-estimator" element={<Suspense fallback={<PageLoader />}><BuildToRoofEstimator /></Suspense>} />
             <Route path="/tyrolene-estimator" element={<Suspense fallback={<PageLoader />}><TyroleneEstimator /></Suspense>} />
 
@@ -349,6 +352,7 @@ export default function App() {
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
             {/* Pro Connect */}
             <Route path="pro-connect" element={<AdminProConnect />} />
+            <Route path="image-estimation" element={<AdminImageEstimation />} />
             <Route path="marketplace" element={<AdminMarketplace />} />
             <Route path="seo-location" element={<Suspense fallback={<PageLoader />}><AdminSeoLocation /></Suspense>} />
 

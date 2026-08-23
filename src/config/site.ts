@@ -63,6 +63,7 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Tyrolene Estimator', path: '/tyrolene-estimator', section: 'Estimators', description: 'Tyrolene putty estimator' },
       { label: 'Finish Estimator', path: '/finish-estimator', section: 'Estimators', description: 'Multi-surface finish calculator' },
       { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator', section: 'Estimators', description: 'Foundation to roof construction cost estimator' },
+      { label: 'AI Photo Estimator', path: '/image-estimator', section: 'Estimators', description: 'Upload a building photo and get an instant AI cost estimate (Premium)' },
       // Section: Cost Estimators
       { label: 'Paint Cost Estimator', path: '/cost-estimator', section: 'Cost Estimators', description: 'Full painting project cost breakdown' },
       { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator', section: 'Cost Estimators', description: 'Screeding project cost analysis' },

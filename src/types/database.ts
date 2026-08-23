@@ -104,6 +104,16 @@ export interface DbSiteSettings {
   hero_cta_primary_href: string | null;
   hero_cta_secondary_label: string | null;
   hero_cta_secondary_href: string | null;
+  // Premium Image Estimation (Phase 31)
+  estimation_enabled: boolean;
+  estimation_access_mode: string;
+  estimation_daily_free_uses: number;
+  estimation_rewarded_enabled: boolean;
+  estimation_paid_enabled: boolean;
+  estimation_paid_price: number;
+  estimation_paid_currency: string;
+  estimation_reset_period: string;
+  estimation_admin_override: boolean;
   updated_at: string;
 }
 

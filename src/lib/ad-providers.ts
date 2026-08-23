@@ -501,4 +501,5 @@ export const REWARDED_FEATURES = [
   { key: 'ai_color_assistant', name: 'Smart Color Assistant', icon: 'Palette' },
   { key: 'ai_learning_assistant', name: 'AI Learning Assistant', icon: 'BookOpen' },
   { key: 'premium_reports', name: 'Premium Reports', icon: 'FileText' },
+  { key: 'image_estimation', name: 'AI Photo Estimator', icon: 'Camera' },
 ];

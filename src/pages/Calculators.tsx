@@ -7,6 +7,7 @@ import {
   Square,
   Layers,
   Building2,
+  Camera,
   Hammer,
   Palette,
   ArrowRight,
@@ -123,6 +124,15 @@ const calculators: Tool[] = [
     benefit: 'Foundation to roof',
     to: '/build-to-roof-estimator',
     accent: 'text-brand-purple bg-brand-purple/10',
+    featured: true,
+  },
+  {
+    icon: Camera,
+    title: 'AI Photo Estimator',
+    description: 'Upload a photo of any building and get an instant AI-powered construction cost estimate. Premium feature.',
+    benefit: 'AI-powered · Premium',
+    to: '/image-estimator',
+    accent: 'text-accent-green bg-accent-green/10',
     featured: true,
   },
 ];
