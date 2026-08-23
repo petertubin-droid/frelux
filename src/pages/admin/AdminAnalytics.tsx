@@ -121,7 +121,7 @@ export default function AdminAnalytics() {
                     <div className="mt-2 space-y-1">
                       {cat.events.map((e) => (
                         <div key={e} className="flex items-center justify-between text-xs">
-                          <span className="text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e}</span>
+                          <span className="text-neutral-500 dark:text-neutral-400">{e}</span>
                           <span className="font-semibold text-brand-navy dark:text-white">{counts[e] ?? 0}</span>
                         </div>
                       ))}
@@ -147,7 +147,7 @@ export default function AdminAnalytics() {
 
             {/* Recent events table */}
             <AdminCard>
-              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Recent events</h2>
+              <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Recent events</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead><tr className="border-b border-neutral-200 text-xs uppercase tracking-widest text-neutral-400 dark:text-neutral-500"><th className="py-2 pr-4">Event</th><th className="py-2 pr-4">Page</th><th className="py-2 pr-4">Time</th></tr></thead>
@@ -155,7 +155,7 @@ export default function AdminAnalytics() {
                     {events.slice(0, 50).map((e) => (
                       <tr key={e.id} className="border-b border-neutral-100">
                         <td className="py-2 pr-4 font-medium text-brand-navy dark:text-white">{e.event}</td>
-                        <td className="py-2 pr-4 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{e.page_path ?? 'N/A'}</td>
+                        <td className="py-2 pr-4 text-neutral-500 dark:text-neutral-400">{e.page_path ?? 'N/A'}</td>
                         <td className="py-2 pr-4 text-neutral-400 dark:text-neutral-500">{new Date(e.created_at).toLocaleString()}</td>
                       </tr>
                     ))}

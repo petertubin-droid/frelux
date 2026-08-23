@@ -48,7 +48,7 @@ export default function AdminPaintTypes() {
                     <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
                     {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
                   </div>
-                  {item.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{item.description}</p>}
+                  {item.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{item.description}</p>}
                   <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Coverage: {item.coverage_rate} {item.coverage_unit} · Containers: {item.container_sizes.join(', ')} L</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">

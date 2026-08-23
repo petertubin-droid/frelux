@@ -51,13 +51,13 @@ export default function AdminOverview() {
                 <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
               </div>
               <p className="mt-4 text-3xl font-bold text-brand-navy dark:text-white">{c.value}</p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{c.label}</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">{c.label}</p>
             </Link>
           );
         })}
       </div>
       <AdminCard className="mt-6">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">All records</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">All records</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <StatRow label="Paint products" value={counts?.paint_products ?? 0} />
           <StatRow label="Material prices" value={counts?.material_prices ?? 0} />

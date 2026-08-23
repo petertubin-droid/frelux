@@ -78,14 +78,30 @@ export default function AdminTypography() {
   async function handleSave() {
     setStatus('saving');
     setError('');
-    const { error: saveError } = await supabase
-      .from('site_settings')
-      .update({ typography_config: config })
-      .eq('id', settingsId);
-    if (saveError) {
-      setError(saveError.message);
-      setStatus('ready');
-      return;
+    if (!settingsId) {
+      // No settings row yet — insert a new one with typography config
+      const { data: insertData, error: insertError } = await supabase
+        .from('site_settings')
+        .insert({ typography_config: config })
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+      if (insertError) {
+        setError(insertError.message);
+        setStatus('ready');
+        return;
+      }
+      if (insertData?.id) setSettingsId(insertData.id);
+    } else {
+      const { error: saveError } = await supabase
+        .from('site_settings')
+        .update({ typography_config: config })
+        .eq('id', settingsId);
+      if (saveError) {
+        setError(saveError.message);
+        setStatus('ready');
+        return;
+      }
     }
     setOriginalConfig(config);
     setStatus('ready');

@@ -85,11 +85,11 @@ export default function AdminContactMessages() {
               <h2 className="text-lg font-bold text-brand-navy dark:text-white">{viewing.subject}</h2>
               <button type="button" onClick={() => setViewing(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
             </div>
-            <div className="mt-3 space-y-1 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+            <div className="mt-3 space-y-1 text-sm text-neutral-500 dark:text-neutral-400">
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">From:</span> {viewing.name} ({viewing.email})</p>
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
             </div>
-            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-neutral-50 dark:bg-white/5 dark:bg-white/5 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">{viewing.message}</div>
+            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-neutral-50 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">{viewing.message}</div>
             <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
               <a href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject)}`}>
                 <AdminButton variant="secondary"><Mail className="h-4 w-4" /> Reply by email</AdminButton>

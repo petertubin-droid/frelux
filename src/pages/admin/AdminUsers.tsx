@@ -31,9 +31,9 @@ export default function AdminUsers() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-200">
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Email</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Role</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Joined</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Email</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Role</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Joined</th>
               </tr>
             </thead>
             <tbody>

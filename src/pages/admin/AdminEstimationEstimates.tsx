@@ -326,7 +326,7 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     {isItemLoading ? (
-                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Loading line items...</div>
+                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-400">Loading line items...</div>
                     ) : lineItems.length === 0 ? (
                       <p className="text-xs text-neutral-500 italic p-2">No line items recorded for this estimate.</p>
                     ) : (
@@ -411,7 +411,7 @@ export default function AdminEstimationEstimates() {
                         )}
 
                         {est.notes && (
-                          <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-2.5 text-neutral-700 sm:col-span-2">
+                          <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-2.5 text-neutral-700 sm:col-span-2">
                             <span className="font-bold block mb-1 text-[11px]">Notes</span>
                             <p className="text-[11px]">{est.notes}</p>
                           </div>

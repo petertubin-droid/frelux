@@ -17,7 +17,7 @@ export default function AdminRewardedAccess() {
         title="Rewarded Ads Manager"
         subtitle="Configure rewarded ad providers, feature unlock durations, daily limits, cooldowns, and reward rules. Track unlock analytics and ad performance."
       />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:bg-neutral-900 p-1 dark:border-neutral-700">
         {([
           { key: 'features', label: 'Feature Config', icon: Settings2 },
           { key: 'tools', label: 'Tool Config', icon: Gift },
@@ -113,11 +113,11 @@ function FeatureConfigTab() {
                     <h3 className="text-sm font-bold text-brand-navy dark:text-white">{feat.feature_name}</h3>
                     <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:bg-neutral-800">{feat.feature_key}</code>
                   </div>
-                  {feat.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{feat.description}</p>}
+                  {feat.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{feat.description}</p>}
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle checked={feat.is_enabled} onChange={(v) => updateFeature(feat.id, { is_enabled: v })} />
-                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{feat.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{feat.is_enabled ? 'Enabled' : 'Disabled'}</span>
                 </div>
               </div>
 
@@ -266,7 +266,7 @@ function ToolConfigTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+      <p className="mb-3 text-sm text-neutral-500 dark:text-neutral-400">
         These are tool-level configs that link specific tools to rewarded ad providers. Feature-level configs in the Feature Config tab take priority when both are set.
       </p>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -278,11 +278,11 @@ function ToolConfigTab() {
                   <h3 className="text-sm font-bold text-brand-navy dark:text-white">{cfg.tool_label}</h3>
                   <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:bg-neutral-800">{cfg.tool_key}</code>
                 </div>
-                {cfg.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{cfg.description}</p>}
+                {cfg.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{cfg.description}</p>}
               </div>
               <div className="flex items-center gap-2">
                 <Toggle checked={cfg.is_enabled} onChange={(v) => updateConfig(cfg.id, { is_enabled: v })} />
-                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{cfg.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{cfg.is_enabled ? 'Enabled' : 'Disabled'}</span>
               </div>
             </div>
 
@@ -446,7 +446,7 @@ function AnalyticsTab() {
 
       {/* Daily unlock chart */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Daily Unlocks (Last 14 Days)</h2>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Daily Unlocks (Last 14 Days)</h2>
         <AdminCard className="p-5">
           {stats.dailyData.length === 0 ? (
             <p className="text-sm text-neutral-400 dark:text-neutral-500">No unlock data yet.</p>
@@ -457,7 +457,7 @@ function AnalyticsTab() {
                 const pct = maxCount > 0 ? (count / maxCount) * 100 : 0;
                 return (
                   <div key={date} className="flex items-center gap-3">
-                    <span className="w-24 shrink-0 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{date}</span>
+                    <span className="w-24 shrink-0 text-xs text-neutral-500 dark:text-neutral-400">{date}</span>
                     <div className="h-6 flex-1 overflow-hidden rounded bg-neutral-100 dark:bg-neutral-800">
                       <div className="flex h-full items-center rounded bg-brand-purple/60 px-2 text-[10px] font-semibold text-white" style={{ width: `${Math.max(pct, 5)}%` }}>
                         {count}
@@ -473,7 +473,7 @@ function AnalyticsTab() {
 
       {/* Ad event breakdown */}
       <div className="mb-6">
-        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Ad Event Breakdown</h2>
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Ad Event Breakdown</h2>
         <AdminCard className="p-5">
           <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {(['impression', 'click', 'reward', 'close', 'error'] as const).map((type) => (
@@ -483,7 +483,7 @@ function AnalyticsTab() {
               </div>
             ))}
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <div className="mt-4 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
             <DollarSign className="h-3.5 w-3.5" />
             Estimated event revenue: <span className="font-semibold text-neutral-700 dark:text-neutral-300">${stats.eventRevenue.toFixed(2)}</span>
           </div>
@@ -495,7 +495,7 @@ function AnalyticsTab() {
 
 function StatCard({ icon: Icon, label, value, color }: { icon: typeof Users; label: string; value: string; color: string }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-4 dark:border-neutral-700 dark:bg-neutral-900">
+    <div className="rounded-xl border border-neutral-200 bg-white dark:bg-neutral-900 p-4 dark:border-neutral-700">
       <div className="flex items-center gap-2">
         <Icon className={`h-4 w-4 ${color}`} />
         <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{label}</span>

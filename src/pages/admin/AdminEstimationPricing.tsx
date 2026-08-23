@@ -219,7 +219,7 @@ export default function AdminEstimationPricing() {
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-neutral-400" />
-          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
+          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <button
                 key={type}
@@ -635,7 +635,7 @@ function PriceHistoryModal({
         <div className="flex items-center justify-between pb-4 border-b">
           <div>
             <h2 className="text-lg font-bold text-brand-navy dark:text-white">Price History</h2>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
               {refName} ({item.price_type})
             </p>
           </div>

@@ -61,7 +61,7 @@ export default function AdminMedia() {
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Folders sidebar */}
         <div className="w-full shrink-0 lg:w-52">
-          <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-3">
+          <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Folders</p>
             <div className="space-y-1">
               <button type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100')}>
@@ -110,7 +110,7 @@ export default function AdminMedia() {
                       <div className="flex items-center gap-2">
                         <input className="input-field dark:bg-brand-navy-mid dark:border-white/10 flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
                         <button type="button" onClick={() => saveAlt(item)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check className="h-3.5 w-3.5" /></button>
-                        <button type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500"><X className="h-3.5 w-3.5" /></button>
+                        <button type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X className="h-3.5 w-3.5" /></button>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">

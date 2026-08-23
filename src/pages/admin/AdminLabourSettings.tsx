@@ -23,7 +23,7 @@ export default function AdminLabourSettings() {
         title="Labour Settings"
         subtitle="Configure labour estimation globally or per estimator. Set suggested rates, default pricing methods, and manage labour categories. Users can always override any suggested rate from the frontend."
       />
-      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:bg-neutral-900 p-1 dark:border-neutral-700">
         {([
           { key: 'settings', label: 'Estimator Settings', icon: HardHat },
           { key: 'categories', label: 'Labour Categories', icon: Plus },
@@ -100,14 +100,14 @@ function SettingsTab() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-brand-navy dark:text-white">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                     {setting.is_enabled ? 'Labour estimation enabled' : 'Labour estimation disabled'}
                     {' · '}Default method: {PRICING_METHOD_LABELS[setting.default_pricing_method]}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle checked={setting.is_enabled} onChange={(v) => updateSetting(setting.id, { is_enabled: v })} />
-                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
                 </div>
               </div>
 

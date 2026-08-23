@@ -20,7 +20,7 @@ export default function AdminAds() {
         title="Ad Management Center"
         subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes."
       />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1 dark:border-neutral-700 dark:bg-neutral-900">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:bg-neutral-900 p-1 dark:border-neutral-700">
         {([
           { key: 'providers', label: 'Providers', icon: Megaphone },
           { key: 'placements', label: 'Placements', icon: Layers },
@@ -118,7 +118,7 @@ function ProvidersTab() {
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{providers.length} providers configured · {providers.filter(p => p.is_active).length} active</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">{providers.length} providers configured · {providers.filter(p => p.is_active).length} active</p>
         <div className="flex flex-wrap gap-2">
           <AdminButton variant="secondary" onClick={exportConfig}><Download className="h-4 w-4" /> Export</AdminButton>
           <AdminButton variant="secondary" onClick={() => setShowImport(true)}><Upload className="h-4 w-4" /> Import</AdminButton>
@@ -356,10 +356,10 @@ function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
           <h2 className="text-lg font-bold text-brand-navy dark:text-white">Import Providers</h2>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
         </div>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
         <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-3 font-mono text-sm" rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder='[{"name":"...","slug":"..."}]' />
         {result && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3 text-sm dark:border-neutral-700 dark:bg-neutral-800">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-neutral-800 p-3 text-sm dark:border-neutral-700">
             <p className="font-semibold text-brand-navy dark:text-white">Added/Updated: {result.added}</p>
             {result.errors.length > 0 && <p className="mt-1 text-red-600">{result.errors.join(', ')}</p>}
           </div>
@@ -419,7 +419,7 @@ function PlacementsTab() {
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{placements.length} placements · {placements.filter(p => p.is_active).length} active</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">{placements.length} placements · {placements.filter(p => p.is_active).length} active</p>
         <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Placement</AdminButton>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -659,7 +659,7 @@ function AnalyticsTab() {
   return (
     <>
       <div className="mb-4 flex items-center gap-3">
-        <span className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Time range:</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-400">Time range:</span>
         {[7, 30, 90].map((d) => (
           <button key={d} type="button" onClick={() => setDays(d)} className={classNames('rounded-md px-3 py-1 text-sm font-semibold', days === d ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800')}>{d} days</button>
         ))}
@@ -688,7 +688,7 @@ function AnalyticsTab() {
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {events.map((ev) => (
             <div key={ev.event_type} className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-              <p className="text-xs font-semibold capitalize text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{ev.event_type}</p>
+              <p className="text-xs font-semibold capitalize text-neutral-500 dark:text-neutral-400">{ev.event_type}</p>
               <p className="mt-1 text-lg font-bold text-brand-navy dark:text-white">{ev.count.toLocaleString()}</p>
               {ev.revenue > 0 && <p className="text-xs text-accent-green">${ev.revenue.toFixed(2)}</p>}
             </div>
@@ -717,7 +717,7 @@ function AnalyticsTab() {
                 {providerStats.map((stat, i) => (
                   <tr key={i} className="border-b border-neutral-100 dark:border-neutral-800">
                     <td className="py-2 pr-4 font-medium text-brand-navy dark:text-white">{stat.provider_name}</td>
-                    <td className="py-2 pr-4 capitalize text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{stat.event_type}</td>
+                    <td className="py-2 pr-4 capitalize text-neutral-500 dark:text-neutral-400">{stat.event_type}</td>
                     <td className="py-2 pr-4 text-right font-semibold">{stat.count.toLocaleString()}</td>
                     <td className="py-2 text-right text-accent-green">${stat.revenue.toFixed(2)}</td>
                   </tr>

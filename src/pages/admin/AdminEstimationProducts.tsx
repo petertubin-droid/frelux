@@ -217,7 +217,7 @@ export default function AdminEstimationProducts() {
                           {expandedId === p.id && p.has_quality_levels && (
                             <div className="ml-4 mt-1 space-y-2">
                               {(qualityMap[p.id] ?? []).map(q => (
-                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 px-4 py-2.5">
+                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
                                   <div className="flex items-center gap-2">
                                     <Tag className="h-4 w-4 text-purple-500" />
                                     <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>

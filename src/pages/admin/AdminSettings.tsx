@@ -59,7 +59,7 @@ export default function AdminSettings() {
       {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}
       <div className="space-y-6">
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Brand</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Brand</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Site name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.site_name} onChange={(e) => update('site_name', e.target.value)} /></AdminField>
             <AdminField label="Short name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.short_name} onChange={(e) => update('short_name', e.target.value)} /></AdminField>
@@ -69,14 +69,14 @@ export default function AdminSettings() {
           <div className="mt-4"><MediaUploader label="Logo" value={settings.logo_url} onChange={(url) => update('logo_url', url || null)} folder="branding" /></div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Contact</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Contact</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Contact email"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.contact_email} onChange={(e) => update('contact_email', e.target.value)} /></AdminField>
             <AdminField label="WhatsApp number" hint="International format without +"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.whatsapp_number} onChange={(e) => update('whatsapp_number', e.target.value)} /></AdminField>
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Defaults</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Defaults</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Default currency"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
             <AdminField label="Currency symbol"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
@@ -84,12 +84,12 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">SEO</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">SEO</h2>
           <AdminField label="SEO title" hint="Optional"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
           <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Homepage Hero</h2>
+          <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Homepage Hero</h2>
           <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
             This is the approved, client-controlled copy shown on the homepage hero section.
             Changes here take effect immediately on save. Use <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">#calculators</code> for in-page anchors or <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">/screeding-calculator</code> for routes.
@@ -120,7 +120,7 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">Maintenance</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Maintenance</h2>
           <div className="flex items-center gap-3">
             <Toggle checked={settings.maintenance_mode} onChange={(v) => update('maintenance_mode', v)} />
             <div><p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Maintenance mode</p><p className="text-xs text-neutral-400 dark:text-neutral-500">When on, visitors see a maintenance notice instead of the tools.</p></div>

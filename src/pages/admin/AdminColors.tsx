@@ -14,7 +14,7 @@ export default function AdminColors() {
   return (
     <>
       <AdminHeader title="Color Gallery" subtitle="Manage individual paint colors, palettes, categories, and color families." />
-      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['paint_colors','combinations','categories','families'] as Tab[]).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>{t.replace('_', ' ')}</button>
         ))}
@@ -396,7 +396,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
           <button type="button" onClick={() => setFormat('json')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'json' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>JSON</button>
         </div>
 
-        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
           {format === 'csv'
             ? <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">Name, #HEX, family slug, category slug</code></>
             : <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">JSON array of objects: name, hex, family_slug, category_slug</code></>}
@@ -407,7 +407,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
 
         {/* Validation preview */}
         {preview && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3">
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                 <span className="text-accent-green">{validCount} valid</span>
@@ -435,7 +435,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
 
         {/* Import result */}
         {result && (
-          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-3 text-sm">
+          <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-sm">
             <p className="font-semibold text-accent-green">{result.added} colors added{result.duplicates > 0 && `, ${result.duplicates} duplicates skipped`}</p>
             {result.errors.length > 0 && (
               <div className="mt-2">
