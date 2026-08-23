@@ -37,6 +37,7 @@ export default function AdminSettings() {
       whatsapp_number: settings.whatsapp_number, default_currency: settings.default_currency,
       default_currency_symbol: settings.default_currency_symbol, default_unit: settings.default_unit,
       maintenance_mode: settings.maintenance_mode, seo_title: settings.seo_title, seo_description: settings.seo_description,
+      premium_subscriptions_enabled: settings.premium_subscriptions_enabled,
       hero_headline: settings.hero_headline, hero_subheadline: settings.hero_subheadline,
       hero_cta_primary_label: settings.hero_cta_primary_label, hero_cta_primary_href: settings.hero_cta_primary_href,
       hero_cta_secondary_label: settings.hero_cta_secondary_label, hero_cta_secondary_href: settings.hero_cta_secondary_href,
@@ -87,6 +88,26 @@ export default function AdminSettings() {
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">SEO</h2>
           <AdminField label="SEO title" hint="Optional"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
           <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
+        </AdminCard>
+        <AdminCard>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Premium Subscriptions</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Enable Premium Subscriptions</p>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                When enabled, users can subscribe to Pro and Premium plans via Paystack. When disabled, premium features show a "Coming Soon" message.
+              </p>
+            </div>
+            <Toggle
+              checked={settings.premium_subscriptions_enabled ?? false}
+              onChange={(v) => update('premium_subscriptions_enabled', v)}
+            />
+          </div>
+          {(settings.premium_subscriptions_enabled ?? false) && (
+            <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
+              ⚠️ Make sure your Paystack credentials are configured (PAYSTACK_SECRET_KEY secret + VITE_PAYSTACK_PUBLIC_KEY env var) before enabling. Users will be able to pay immediately.
+            </div>
+          )}
         </AdminCard>
         <AdminCard>
           <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Homepage Hero</h2>

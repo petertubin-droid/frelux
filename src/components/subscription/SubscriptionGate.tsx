@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Crown, Clock, CheckCircle2 } from 'lucide-react';
+import { Lock, Crown, Clock, CheckCircle2, Sparkles } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { formatSubscriptionStatus } from '@/lib/subscription';
 import type { PaidFeature } from '@/lib/subscription';
 import { FEATURE_LABELS, getFeatureMinPlan } from '@/lib/subscription';
+import { isPremiumEnabled } from '@/lib/premium-access';
 
 interface SubscriptionGateProps {
   feature: PaidFeature;
@@ -18,12 +20,18 @@ interface SubscriptionGateProps {
  * Access rules:
  * - Admins always see the content
  * - Users with active paid subscription see the content
+ * - When premium subscriptions are disabled (admin toggle), shows "Coming Soon"
  * - Everyone else sees the locked paywall
  *
  * For rewarded-ad gating (daily free uses + ad unlock), use RewardedFeatureGate instead.
  */
 export function SubscriptionGate({ feature, children, fallback }: SubscriptionGateProps) {
   const { isAdmin, isPaid, paidStatus, user } = useAuth();
+  const [premiumLive, setPremiumLive] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    isPremiumEnabled().then(setPremiumLive);
+  }, []);
 
   // Check tiered access: admin always passes, paid users must have sufficient plan tier
   const minPlan = getFeatureMinPlan(feature);
@@ -54,6 +62,62 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
 
   const featureLabel = FEATURE_LABELS[feature];
 
+  // Show "Coming Soon" when premium subscriptions are not live yet
+  if (premiumLive === false) {
+    return (
+      <div className="mx-auto max-w-md py-12 px-4">
+        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-purple/10">
+            <Sparkles className="h-7 w-7 text-brand-purple" />
+          </div>
+          <h2 className="mt-4 text-xl font-bold text-brand-navy dark:text-white">
+            {featureLabel}
+          </h2>
+          <p className="mt-2 text-sm text-neutral-500">
+            This premium feature is coming soon. We're putting the finishing touches on FRELUX Premium subscriptions.
+          </p>
+
+          <div className="mx-auto mt-5 max-w-sm space-y-1.5 text-left">
+            {[
+              'All engineering calculators & estimators',
+              'AI Photo Estimator with vision analysis',
+              'Construction Sequence Planner',
+              'Structural & Foundation calculators',
+              'Unlimited saves & export to PDF',
+              'Priority Pro Connect messaging',
+            ].map((f) => (
+              <div key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+                {f}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-6 py-3 text-sm font-bold text-brand-purple">
+            <Sparkles className="h-4 w-4" />
+            Coming Soon
+          </div>
+
+          {user && (
+            <p className="mt-3 text-xs text-neutral-400">
+              You'll be notified as soon as Premium goes live.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state (premiumLive === null) — show nothing briefly
+  if (premiumLive === null) {
+    return (
+      <div className="mx-auto max-w-md py-12 px-4 animate-pulse">
+        <div className="h-48 rounded-2xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5" />
+      </div>
+    );
+  }
+
+  // Premium is live — show the real paywall
   return (
     <div className="mx-auto max-w-md py-12 px-4">
       <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
@@ -89,7 +153,7 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
           >
             <Crown className="h-4 w-4" />
-            Upgrade to Premium
+            Upgrade to {minPlan === 'free' ? 'Premium' : minPlan.charAt(0).toUpperCase() + minPlan.slice(1)}
           </Link>
         ) : (
           <Link

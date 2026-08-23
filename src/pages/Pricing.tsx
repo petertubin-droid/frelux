@@ -7,6 +7,7 @@ import { useSeo } from '@/lib/seo';
 import { useToast } from '@/components/ui/Toast';
 import { PRICING_PLANS, formatNaira, type PricingPlan } from '@/lib/pricing-plans';
 import { initializeSubscriptionCheckout, verifyPayment, isPaystackConfigured } from '@/lib/paystack';
+import { isPremiumEnabled } from '@/lib/premium-access';
 import { classNames } from '@/lib/utils';
 
 type BillingCycle = 'monthly' | 'yearly';
@@ -26,6 +27,12 @@ export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [verifyResult, setVerifyResult] = useState<'success' | 'error' | null>(null);
+  const [premiumLive, setPremiumLive] = useState<boolean | null>(null);
+
+  // Check if premium subscriptions are enabled
+  useEffect(() => {
+    isPremiumEnabled().then(setPremiumLive);
+  }, []);
 
   // Handle Paystack redirect callback
   useEffect(() => {
@@ -60,6 +67,14 @@ export default function Pricing() {
 
     if (!user) {
       navigate(`/login?redirect=/pricing`);
+      return;
+    }
+
+    if (!premiumLive) {
+      toast({
+        title: 'Coming Soon',
+        message: 'FRELUX Premium subscriptions are coming soon. We\'ll let you know as soon as they go live!',
+      });
       return;
     }
 
@@ -163,6 +178,17 @@ export default function Pricing() {
           </div>
         </div>
 
+        {/* Coming Soon banner */}
+        {premiumLive === false && (
+          <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 text-center">
+            <Sparkles className="mx-auto h-8 w-8 text-brand-purple" />
+            <h3 className="mt-3 text-lg font-bold text-brand-navy dark:text-white">Premium Subscriptions — Coming Soon</h3>
+            <p className="mt-1 text-sm text-neutral-500">
+              We're putting the finishing touches on FRELUX Premium. Browse the plans below to see what's coming, and check back shortly to subscribe.
+            </p>
+          </div>
+        )}
+
         {/* Current plan indicator */}
         {isPaid && (
           <div className="mx-auto mt-6 max-w-md rounded-xl border border-brand-purple/30 bg-brand-purple/5 p-4 text-center">
@@ -219,20 +245,24 @@ export default function Pricing() {
 
                 <button
                   onClick={() => handleSubscribe(plan)}
-                  disabled={isLoading || isCurrentPlan}
+                  disabled={isLoading || isCurrentPlan || (premiumLive === false && plan.id !== 'free' && plan.id !== 'enterprise')}
                   className={classNames(
                     'mt-4 w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition-all',
                     isCurrentPlan
                       ? 'cursor-default bg-accent-green/10 text-accent-green'
-                      : plan.highlight
-                        ? 'bg-brand-purple text-white hover:bg-brand-purple/90'
-                        : 'border border-neutral-200 text-brand-navy hover:border-brand-purple hover:text-brand-purple dark:border-white/20 dark:text-white dark:hover:border-brand-purple-lighter'
+                      : premiumLive === false && plan.id !== 'free' && plan.id !== 'enterprise'
+                        ? 'cursor-default border border-brand-purple/30 bg-brand-purple/5 text-brand-purple'
+                        : plan.highlight
+                          ? 'bg-brand-purple text-white hover:bg-brand-purple/90'
+                          : 'border border-neutral-200 text-brand-navy hover:border-brand-purple hover:text-brand-purple dark:border-white/20 dark:text-white dark:hover:border-brand-purple-lighter'
                   )}
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing…</span>
                   ) : isCurrentPlan ? (
                     'Current Plan'
+                  ) : premiumLive === false && plan.id !== 'free' && plan.id !== 'enterprise' ? (
+                    <span className="flex items-center justify-center gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Coming Soon</span>
                   ) : (
                     plan.cta
                   )}

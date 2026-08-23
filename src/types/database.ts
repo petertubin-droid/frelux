@@ -114,6 +114,7 @@ export interface DbSiteSettings {
   estimation_paid_currency: string;
   estimation_reset_period: string;
   estimation_admin_override: boolean;
+  premium_subscriptions_enabled: boolean;
   updated_at: string;
 }
 
