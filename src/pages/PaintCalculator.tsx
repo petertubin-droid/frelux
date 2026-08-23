@@ -14,6 +14,7 @@ import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig } from '@/types';
 import type { DbPaintType } from '@/types/database';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
@@ -654,6 +655,15 @@ function ResultCard({
         <br />
         Coverage ~{formatNumber(result.coverageRate, 1)} m² per liter per coat. Final amounts vary by surface texture,
         application method, and product.
+      </div>
+
+      {/* Find Near Me */}
+      <div className="px-6 py-4 sm:px-8">
+        <CalculatorNearMe
+          tradeSlug="painting"
+          materialName={paintTypeName}
+          projectType="painting"
+        />
       </div>
 
       <div className="px-6 pb-2 sm:px-8">

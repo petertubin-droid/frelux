@@ -8,6 +8,7 @@ import { track } from '@/lib/analytics';
 import { logAnalyticsEvent } from '@/lib/queries';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
 
@@ -386,6 +387,15 @@ function ScreedingResultCard({
               Post as Job
             </a>
           </div>
+        </div>
+
+        {/* Find Near Me */}
+        <div className="mt-4">
+          <CalculatorNearMe
+            tradeSlug="screeding"
+            materialName="Screeding materials"
+            projectType="screeding"
+          />
         </div>
       </div>
 

@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -539,6 +540,15 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
               Post as Job
             </a>
           </div>
+        </div>
+
+        {/* Find Near Me */}
+        <div className="mt-4">
+          <CalculatorNearMe
+            tradeSlug="tiling"
+            materialName="Tiles"
+            projectType="tiling"
+          />
         </div>
 
           <Link to="/tile-cost-estimator" state={{ surfaceArea: result.surfaceArea, grandTotal: result.grandTotal, input }}

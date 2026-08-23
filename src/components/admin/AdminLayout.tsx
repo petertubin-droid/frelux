@@ -3,7 +3,7 @@ import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
   LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift,
-  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type, Factory, Building2, Briefcase, ShoppingBag,
+  BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type, Factory, Building2, Briefcase, ShoppingBag, MapPin,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -123,6 +123,7 @@ const navModules: NavModule[] = [
     items: [
       { label: 'Professionals & Reports', to: '/admin/pro-connect', icon: Briefcase },
       { label: 'Marketplace', to: '/admin/marketplace', icon: ShoppingBag },
+      { label: 'SEO & Location', to: '/admin/seo-location', icon: MapPin },
     ],
   },
   {

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import LocationPicker from '@/components/ui/LocationPicker';
+import { useLocation } from '@/lib/location';
+import { fetchLocations } from '@/lib/pro-connect';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Send, Loader2, Calculator, FileText, Info } from 'lucide-react';
 import { createListing } from '@/lib/marketplace';
@@ -23,11 +26,22 @@ export default function PostListing() {
   const [state, setState] = useState(profile?.full_name ? '' : '');
   const [city, setCity] = useState('');
   const [area, setArea] = useState('');
+  const [userLocation, setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
+  const [dbLocations, setDbLocations] = useState<Awaited<ReturnType<typeof fetchLocations>>>([]);
   const [urgency, setUrgency] = useState('standard');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [scopeSummary, setScopeSummary] = useState<Record<string, unknown> | null>(null);
   const [estimateRef, setEstimateRef] = useState<string | null>(null);
+
+  // Load DB locations
+  useEffect(() => { fetchLocations().then(setDbLocations).catch(() => {}); }, []);
+
+  // Auto-fill state/city from user location
+  useEffect(() => {
+    if (userLocation?.state && !state) setState(userLocation.state);
+    if (userLocation?.city && !city) setCity(userLocation.city);
+  }, [userLocation]);
 
   // Check for pre-filled data from estimate (passed via location state)
   useEffect(() => {
@@ -62,6 +76,8 @@ export default function PostListing() {
       const listing = await createListing({
         user_id: user.id,
         title: title.trim(),
+        latitude: userLocation?.latitude || undefined,
+        longitude: userLocation?.longitude || undefined,
         description: description.trim() || undefined,
         project_type: projectType,
         budget_min: budgetMin ? parseFloat(budgetMin) : undefined,
@@ -179,6 +195,11 @@ export default function PostListing() {
             </div>
           </div>
 
+          {/* Quick location detection */}
+          <div className="mb-2">
+            <LocationPicker onLocationChange={setUserLocation} showRadius={false} compact />
+          </div>
+
           {/* Location */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
@@ -189,7 +210,7 @@ export default function PostListing() {
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               >
                 <option value="">Select state</option>
-                {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                {(dbLocations.length > 0 ? [...new Set(dbLocations.map((l) => l.state))].sort() : NIGERIAN_STATES).map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div>

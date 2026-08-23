@@ -12,6 +12,9 @@ export interface DbProCategory {
   icon: string | null;
   sort_order: number;
   is_active: boolean;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_indexable: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -98,6 +101,9 @@ export interface DbProProfile {
   rating_count: number;
   project_count: number;
   sort_order: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_indexable: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -128,6 +134,9 @@ export interface DbProPortfolioItem {
   image_urls: string[];
   completed_date: string | null;
   sort_order: number;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_indexable: boolean;
   created_at: string;
   updated_at: string;
 }

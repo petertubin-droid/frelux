@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
@@ -365,6 +366,15 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
               Post as Job
             </a>
           </div>
+        </div>
+
+        {/* Find Near Me */}
+        <div className="mt-4">
+          <CalculatorNearMe
+            tradeSlug="pop_ceiling"
+            materialName="POP ceiling materials"
+            projectType="pop_ceiling"
+          />
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

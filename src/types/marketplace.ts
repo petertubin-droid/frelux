@@ -22,6 +22,11 @@ export interface DbMarketplaceListing {
   is_active: boolean;
   admin_removed: boolean;
   admin_notes: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_indexable: boolean;
+  latitude: number | null;
+  longitude: number | null;
   view_count: number;
   bid_count: number;
   expires_at: string | null;

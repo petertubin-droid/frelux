@@ -8,6 +8,10 @@ import type { DbProCategory } from '@/types/pro-connect';
 import { PROJECT_TYPE_LABELS, URGENCY_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
+import LocationPicker from '@/components/ui/LocationPicker';
+import { useLocation } from '@/lib/location';
+import { findNearbyListings, type NearbyListing } from '@/lib/location-discovery';
+import { formatDistance } from '@/lib/location';
 
 const PROJECT_TYPES = [
   { value: 'painting', label: 'Painting' },
@@ -53,6 +57,10 @@ export default function MarketplaceHome() {
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [userLocation, setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
+  const [radius, setRadius] = useState(25);
+  const [nearbyListings, setNearbyListings] = useState<NearbyListing[]>([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
 
   // Filters
   const [search, setSearch] = useState('');
@@ -87,6 +95,24 @@ export default function MarketplaceHome() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, projectType, state]);
 
+  // Nearby listings when location is set
+  useEffect(() => {
+    if (!userLocation || (userLocation.latitude === 0 && userLocation.longitude === 0)) {
+      setNearbyListings([]);
+      return;
+    }
+    setNearbyLoading(true);
+    findNearbyListings({
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+      radiusKm: radius,
+      projectType: projectType || undefined,
+    }).then((data) => {
+      setNearbyListings(data);
+      setNearbyLoading(false);
+    }).catch(() => setNearbyLoading(false));
+  }, [userLocation, radius, projectType]);
+
   const activeFilters = [projectType, state, urgency].filter(Boolean).length;
 
   return (
@@ -111,6 +137,14 @@ export default function MarketplaceHome() {
               Post a Job
             </Link>
           </div>
+        </div>
+        {/* Location Picker */}
+        <div className="mt-4">
+          <LocationPicker
+            onLocationChange={setUserLocation}
+            onRadiusChange={setRadius}
+            showRadius={true}
+          />
         </div>
       </div>
 
@@ -193,6 +227,38 @@ export default function MarketplaceHome() {
           )}
         </div>
       </div>
+
+      {/* Nearby listings */}
+      {userLocation && nearbyListings.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+          <h2 className="mb-3 text-sm font-bold text-neutral-900 dark:text-white">
+            Jobs Near You
+            <span className="ml-2 text-xs font-normal text-neutral-400">({nearbyListings.length} within {radius} km)</span>
+          </h2>
+          <div className="mb-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {nearbyListings.slice(0, 6).map((listing) => (
+              <Link
+                key={listing.id}
+                to={`/marketplace/${listing.id}`}
+                className="group rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 transition-all hover:border-brand-purple/40 hover:shadow-md"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
+                    {PROJECT_TYPE_LABELS[listing.project_type] || listing.project_type}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-xs text-neutral-400">
+                    📍 {formatDistance(listing.distance_km)}
+                  </span>
+                </div>
+                <h3 className="mt-2 text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">{listing.title}</h3>
+                {listing.location_city && (
+                  <p className="mt-1 text-xs text-neutral-500">{listing.location_city}</p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Listings grid */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

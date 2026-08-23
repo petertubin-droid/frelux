@@ -57,6 +57,8 @@ Deno.serve(async (req: Request) => {
       { loc: "/cookie-policy", priority: "0.3", changefreq: "yearly" },
       { loc: "/disclaimer", priority: "0.3", changefreq: "yearly" },
       { loc: "/ai-disclaimer", priority: "0.3", changefreq: "yearly" },
+      { loc: "/marketplace", priority: "0.8", changefreq: "daily" },
+      { loc: "/pro-connect", priority: "0.8", changefreq: "daily" },
     ];
 
     const urls: string[] = [];
@@ -71,12 +73,16 @@ Deno.serve(async (req: Request) => {
     }
 
     // Fetch dynamic public content in parallel
-    const [colorsRes, palettesRes, articlesRes, categoriesRes, templatesRes] = await Promise.all([
+    const [colorsRes, palettesRes, articlesRes, categoriesRes, templatesRes, proCategoriesRes, proLocationsRes, proProfilesRes, marketplaceListingsRes] = await Promise.all([
       fetch(`${supabaseUrl}/rest/v1/paint_colors?select=slug,updated_at&is_active=eq.true&order=slug.asc`, { headers }),
       fetch(`${supabaseUrl}/rest/v1/color_combinations?select=slug,updated_at&is_published=eq.true&order=slug.asc`, { headers }),
       fetch(`${supabaseUrl}/rest/v1/learn_articles?select=slug,updated_at,published_at&status=eq.published&order=published_at.desc`, { headers }),
       fetch(`${supabaseUrl}/rest/v1/learn_categories?select=slug,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
       fetch(`${supabaseUrl}/rest/v1/calculator_templates?select=slug,updated_at&visibility=eq.public&is_published=eq.true&order=slug.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/pro_categories?select=slug,name,seo_indexable&is_active=eq.true&seo_indexable=eq.true&order=sort_order.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/pro_locations?select=slug,state,city,seo_indexable&is_active=eq.true&seo_indexable=eq.true&order=state.asc,city.asc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/pro_profiles?select=slug,updated_at,seo_indexable&is_listed=eq.true&seo_indexable=eq.true&verification_status=neq.suspended&order=updated_at.desc`, { headers }),
+      fetch(`${supabaseUrl}/rest/v1/marketplace_listings?select=id,title,updated_at,seo_indexable,location_state,location_city&is_active=eq.true&admin_removed=eq.false&seo_indexable=eq.true&status=in.(open,awarded,in_progress)&order=updated_at.desc&limit=200`, { headers }),
     ]);
 
     // Add active paint colors — /colors/paint/{slug}
@@ -141,6 +147,88 @@ Deno.serve(async (req: Request) => {
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>`);
+    }
+
+    // Add marketplace category pages — /marketplace/category/{slug}
+    const proCategories = await proCategoriesRes.json() as { slug: string; name: string; seo_indexable: boolean }[];
+    for (const cat of proCategories) {
+      if (!cat.slug || !cat.seo_indexable) continue;
+      const slug = escapeXml(cat.slug);
+      urls.push(`  <url>
+    <loc>${SITE_URL}/marketplace/category/${slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+    }
+
+    // Add marketplace location pages — /marketplace/sellers/{slug}
+    const proLocations = await proLocationsRes.json() as { slug: string; state: string; city: string; seo_indexable: boolean }[];
+    for (const loc of proLocations) {
+      if (!loc.slug || !loc.seo_indexable) continue;
+      const slug = escapeXml(loc.slug);
+      urls.push(`  <url>
+    <loc>${SITE_URL}/marketplace/sellers/${slug}</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>`);
+    }
+
+    // Add pro profile pages — /pro-connect/{slug}
+    const proProfiles = await proProfilesRes.json() as { slug: string; updated_at: string; seo_indexable: boolean }[];
+    for (const pro of proProfiles) {
+      if (!pro.slug || !pro.seo_indexable) continue;
+      const slug = escapeXml(pro.slug);
+      const lastmod = new Date(pro.updated_at).toISOString().split("T")[0];
+      urls.push(`  <url>
+    <loc>${SITE_URL}/pro-connect/${slug}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`);
+    }
+
+    // Add marketplace listing pages — /marketplace/{id}
+    const marketplaceListings = await marketplaceListingsRes.json() as { id: string; title: string; updated_at: string; seo_indexable: boolean; location_state: string; location_city: string }[];
+    for (const listing of marketplaceListings) {
+      if (!listing.seo_indexable) continue;
+      const id = escapeXml(listing.id);
+      const lastmod = new Date(listing.updated_at).toISOString().split("T")[0];
+      urls.push(`  <url>
+    <loc>${SITE_URL}/marketplace/${id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>`);
+    }
+
+    // Add category + location combo pages — /marketplace/{categorySlug}/{locationSlug}
+    for (const cat of proCategories) {
+      if (!cat.slug || !cat.seo_indexable) continue;
+      for (const loc of proLocations) {
+        if (!loc.slug || !loc.seo_indexable) continue;
+        const catSlug = escapeXml(cat.slug);
+        const locSlug = escapeXml(loc.slug);
+        urls.push(`  <url>
+    <loc>${SITE_URL}/marketplace/${catSlug}/${locSlug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`);
+      }
+    }
+
+    // Add pro category + location pages — /pro/{categorySlug}/{locationSlug}
+    for (const cat of proCategories) {
+      if (!cat.slug || !cat.seo_indexable) continue;
+      for (const loc of proLocations) {
+        if (!loc.slug || !loc.seo_indexable) continue;
+        const catSlug = escapeXml(cat.slug);
+        const locSlug = escapeXml(loc.slug);
+        urls.push(`  <url>
+    <loc>${SITE_URL}/pro/${catSlug}/${locSlug}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>`);
+      }
     }
 
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>

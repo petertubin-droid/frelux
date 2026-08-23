@@ -6,6 +6,10 @@ import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@
 import ProfessionalCard from '@/components/pro-connect/ProfessionalCard';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
+import LocationPicker from '@/components/ui/LocationPicker';
+import { useLocation } from '@/lib/location';
+import { findNearbyProfessionals, type NearbyProfessional } from '@/lib/location-discovery';
+import { formatDistance } from '@/lib/location';
 
 export default function ProConnectDirectory() {
   useSeo({
@@ -26,6 +30,10 @@ export default function ProConnectDirectory() {
   const [_page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [userLocation, setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
+  const [radius, setRadius] = useState(25);
+  const [nearbyPros, setNearbyPros] = useState<NearbyProfessional[]>([]);
+  const [nearbyLoading, setNearbyLoading] = useState(false);
 
   // Profile enrichment data
   const [profileServices, setProfileServices] = useState<Record<string, DbProService[]>>({});
@@ -100,6 +108,27 @@ export default function ProConnectDirectory() {
       setProfileCategories(catMap);
     })();
   }, [selectedCategory, selectedService, selectedState, selectedCity, verifiedOnly, minRating, availabilityFilter, searchQuery, categories]);
+
+  // Nearby professionals when location is set
+  useEffect(() => {
+    if (!userLocation || (userLocation.latitude === 0 && userLocation.longitude === 0)) {
+      setNearbyPros([]);
+      return;
+    }
+    setNearbyLoading(true);
+    const cat = categories.find((c) => c.id === selectedCategory);
+    findNearbyProfessionals({
+      latitude: userLocation.latitude,
+      longitude: userLocation.longitude,
+      radiusKm: radius,
+      categorySlug: cat?.slug,
+      verifiedOnly,
+      minRating,
+    }).then((data) => {
+      setNearbyPros(data);
+      setNearbyLoading(false);
+    }).catch(() => setNearbyLoading(false));
+  }, [userLocation, radius, selectedCategory, categories, verifiedOnly, minRating]);
 
   const states = [...new Set(locations.map((l) => l.state))].sort();
   const cities = selectedState

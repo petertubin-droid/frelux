@@ -23,7 +23,21 @@ export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
-  useSeo({ title: 'Job Details — FRELUX Marketplace', canonicalPath: `/marketplace/${id}` });
+  useSeo({
+    title: listing?.seo_title || listing?.title || 'Job Details — FRELUX Marketplace',
+    description: listing?.seo_description || (listing?.description ? listing.description.slice(0, 160) : 'View this construction job listing on FRELUX Marketplace and submit your bid.'),
+    canonicalPath: `/marketplace/${id}`,
+    noIndex: listing ? !listing.seo_indexable : true,
+    structuredData: listing ? {
+      '@context': 'https://schema.org',
+      '@type': 'JobPosting',
+      title: listing.title,
+      description: listing.description || listing.title,
+      datePosted: listing.created_at,
+      ...(listing.budget_min ? { baseSalary: { '@type': 'MonetaryAmount', currency: listing.currency, minValue: listing.budget_min, ...(listing.budget_max ? { maxValue: listing.budget_max } : {}) } } : {}),
+      ...(listing.location_city || listing.location_state ? { jobLocation: { '@type': 'Place', address: { addressLocality: listing.location_city || '', addressRegion: listing.location_state || '', addressCountry: 'NG' } } } : {}),
+    } : undefined,
+  });
 
   const [listing, setListing] = useState<DbMarketplaceListing | null>(null);
   const [bids, setBids] = useState<DbMarketplaceBid[]>([]);
