@@ -208,7 +208,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
 
   // Required effective depth (singly reinforced, approximate)
   // d = sqrt(M / (0.87 × fcu × b × 0.167)) — simplified
-  // Assume b = 225mm (9-inch block width) initially
+  // Assume b = 225mm (9-inch block width) initially — 9-inch is standard for Nigerian load-bearing walls
   const assumed_width = input.existing_width ?? 225;
   const K = max_moment * 1e6 / (fcu * assumed_width); // K = M / (fcu × b × d²)
   // z = d × (0.5 + sqrt(0.25 - K/0.9)) — lever arm factor
@@ -273,7 +273,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     warnings.push('Ground beams in Nigerian practice are typically ≥ 450mm deep. Consider increasing depth.');
   }
   if (input.beam_type === 'lintel' && recommended_depth > 450) {
-    warnings.push('Lintel beams are typically 225×225mm. Verify if larger section is truly needed.');
+    warnings.push('Lintel beams are typically 225×225mm (9-inch). Verify if larger section is truly needed.');
   }
   if (span_to_depth > basicRatio) {
     warnings.push(`Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase beam depth.`);
@@ -391,7 +391,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   formulas.push(`Capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${capacity_check_pass ? 'PASS' : 'FAIL'}`);
 
   if (recommended_width < 225) {
-    warnings.push(`Column width ${recommended_width}mm is below typical 225mm minimum for Nigerian block walls. Consider 225mm minimum.`);
+    warnings.push(`Column width ${recommended_width}mm is below typical 225mm (9-inch) minimum for Nigerian block walls. Consider 225mm (9-inch) minimum.`);
   }
 
   return {

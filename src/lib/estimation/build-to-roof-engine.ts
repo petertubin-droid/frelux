@@ -653,7 +653,7 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   );
   materials.push(matLine('Blocks (walls)', 'pcs', totalBlocks, input.wastage.blocks, input.prices.block_per_piece, input.prices.price_source));
 
-  // Mortar — ~0.03 m³ mortar per m² of wall (for 225mm blocks)
+  // Mortar — ~0.03 m³ mortar per m² of wall (for 9-inch / 225mm blocks)
   const mortarVol = netWallArea * 0.03;
   const mortarMats = mortarToMaterials(mortarVol, input.mortar_mix_cement, input.mortar_mix_sand);
   materials.push(matLine('Cement (wall mortar)', 'bags', mortarMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
@@ -1014,7 +1014,7 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     'Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.',
     'Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.',
     'Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.',
-    'Mortar volume is estimated at 0.03 m³ per m² of wall — this is a standard industry approximation for 225mm blockwork.',
+    'Mortar volume is estimated at 0.03 m³ per m² of wall — this is a standard industry approximation for 9-inch (225mm) blockwork.',
     'Sand filling thickness under ground floor slab is assumed at 50mm.',
   ];
 

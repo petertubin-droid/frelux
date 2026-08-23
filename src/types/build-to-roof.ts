@@ -26,7 +26,13 @@ export type FoundationType =
 
 export type RoofType = 'gable' | 'hip' | 'mono_pitch' | 'flat' | 'custom';
 
-export type BlockSize = '225mm' | '150mm' | '125mm' | 'custom';
+/**
+ * Nigerian block sizes (inch-based, industry standard):
+ * - 9-inch: hollow block, best for foundations and storey buildings
+ * - 6-inch: hollow or solid, used for internal walls and partitions
+ * - 5-inch: solid block only, used for non-load-bearing partitions
+ */
+export type BlockSize = '9inch' | '6inch' | '5inch' | 'custom';
 
 export type RoofingMaterial =
   | 'long_span_aluminium'

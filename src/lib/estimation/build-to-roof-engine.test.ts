@@ -66,7 +66,7 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: '225mm',
+    block_size: '9inch',
     block_length: 450,
     block_height: 225,
     block_width: 225,

@@ -213,7 +213,7 @@ Return a JSON object with these exact fields:
   "estimated_roof_pitch": number (degrees — gable: 15-30°, hip: 15-25°, flat: 0-5°),
   "detected_roofing_material": "long_span_aluminium" | "stone_coated" | "gi_sheet" | "shingle" | "custom",
   "detected_roofing_material_confidence": 0.0-1.0,
-  "detected_block_type": "225mm" | "150mm" | "125mm" | "custom",
+  "detected_block_type": "9inch" | "6inch" | "5inch" | "custom",
   "detected_wall_finish": "unplastered" | "plastered" | "painted" | "faced_brick" | "stone" | "custom",
   "estimated_internal_wall_length": number (meters — for bungalows: 40-60% of external perimeter; for duplexes: 60-80%),
   "detected_openings": [{"type": "door" | "window", "estimated_width": number, "estimated_height": number, "estimated_count": number}],
@@ -240,7 +240,7 @@ PRECISION GUIDELINES:
 2. If only one facade is visible, DO NOT guess the width — estimate based on building type proportions (bungalow L:W typically 1.5:1)
 3. Roof pitch: Estimate from the visible roof slope angle relative to horizontal
 4. Roofing material: Look for panel width, corrugation pattern, color, and reflectivity
-5. Block type: Default to 225mm (9-inch) unless you can clearly see thinner blocks
+5. Block type: Nigerian blocks come in 5-inch (solid only), 6-inch (solid or hollow), and 9-inch (hollow). Default to 9-inch unless you can clearly see thinner blocks. 9-inch is standard for foundations and load-bearing external walls. 6-inch is common for internal partitions. 5-inch is solid-only, used for non-load-bearing walls.
 6. Internal walls: Cannot be seen — estimate based on building size and type
 7. Foundation: Cannot be seen — ALWAYS default to "strip_footing" and add to warnings
 8. Structural frame: Look for visible columns, beams, or column starter bars in unfinished buildings
@@ -387,7 +387,7 @@ function buildEstimateInput(analysis: Record<string, unknown>, projectName: stri
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: (analysis.detected_block_type as string) || '225mm',
+    block_size: (analysis.detected_block_type as string) || '9inch',
     block_length: 450,
     block_height: 225,
     block_width: 225,

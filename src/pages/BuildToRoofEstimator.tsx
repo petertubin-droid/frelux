@@ -58,11 +58,11 @@ const ROOF_TYPES: { value: RoofType; label: string }[] = [
   { value: 'custom', label: 'Custom' },
 ];
 
-const BLOCK_SIZES: { value: BlockSize; label: string }[] = [
-  { value: '225mm', label: '9-inch (225mm)' },
-  { value: '150mm', label: '6-inch (150mm)' },
-  { value: '125mm', label: '5-inch (125mm)' },
-  { value: 'custom', label: 'Custom' },
+const BLOCK_SIZES: { value: BlockSize; label: string; description: string }[] = [
+  { value: '9inch', label: '9-inch Block', description: 'Hollow · Best for foundations & storey buildings' },
+  { value: '6inch', label: '6-inch Block', description: 'Hollow or solid · Internal walls & partitions' },
+  { value: '5inch', label: '5-inch Block', description: 'Solid only · Non-load-bearing partitions' },
+  { value: 'custom', label: 'Custom', description: 'Specify custom dimensions' },
 ];
 
 const ROOFING_MATERIALS: { value: RoofingMaterial; label: string }[] = [
@@ -165,7 +165,7 @@ export default function BuildToRoofEstimator() {
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: '225mm',
+    block_size: '9inch',
     block_length: 450,
     block_height: 225,
     block_width: 225,
@@ -367,13 +367,20 @@ export default function BuildToRoofEstimator() {
             {step === 4 && (
               <div className="space-y-4">
                 <SectionCard title="Block Specification" icon={Settings}>
+                  <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
+                    <p className="text-xs text-blue-600">
+                      <strong>Nigerian block sizes:</strong> 9-inch (hollow) — foundations &amp; external load-bearing walls ·
+                      6-inch (hollow or solid) — internal partitions ·
+                      5-inch (solid only) — non-load-bearing partitions
+                    </p>
+                  </div>
                   <div className="grid md:grid-cols-4 gap-4">
                     <SelectField label="Block size" value={input.block_size} onChange={v => {
                       const size = v as BlockSize;
                       const dims: Record<string, [number, number, number]> = {
-                        '225mm': [450, 225, 225],
-                        '150mm': [450, 225, 150],
-                        '125mm': [450, 225, 125],
+                        '9inch': [450, 225, 225],
+                        '6inch': [450, 225, 150],
+                        '5inch': [450, 225, 125],
                       };
                       const d = dims[v] || [450, 225, 225];
                       setInput(prev => ({ ...prev, block_size: size, block_length: d[0], block_height: d[1], block_width: d[2] }));
