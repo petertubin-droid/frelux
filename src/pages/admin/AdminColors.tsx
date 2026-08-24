@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { classNames } from '@/lib/utils';
@@ -254,11 +254,11 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit color' : 'Add color'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
-            <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
+            <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
+            <AdminField label="Slug" hint="lowercase, no spaces"><AdminInput  value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="HEX code" hint="#RRGGBB"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono" value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#F5F1E8" /></AdminField>
+            <AdminField label="HEX code" hint="#RRGGBB"><AdminInput className="font-mono" value={hex} onChange={(e) => setHex(e.target.value)} placeholder="#F5F1E8" /></AdminField>
             <div className="flex items-end"><div className="h-10 w-full rounded-lg ring-1 ring-black/5" style={{ background: hex }} /></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -266,8 +266,8 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <AdminField label="Category"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">— None —</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Recommended usage" hint="Comma separated"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="Living Room, Bedroom" /></AdminField>
-            <AdminField label="Finish compatibility" hint="Comma separated"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={finishes} onChange={(e) => setFinishes(e.target.value)} placeholder="Emulsion, Satin" /></AdminField>
+            <AdminField label="Recommended usage" hint="Comma separated"><AdminInput  value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="Living Room, Bedroom" /></AdminField>
+            <AdminField label="Finish compatibility" hint="Comma separated"><AdminInput  value={finishes} onChange={(e) => setFinishes(e.target.value)} placeholder="Emulsion, Satin" /></AdminField>
           </div>
           <div className="flex flex-wrap gap-4">
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Interior</span><div className="mt-2"><Toggle checked={isInterior} onChange={setIsInterior} /></div></div>
@@ -276,8 +276,8 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Trending</span><div className="mt-2"><Toggle checked={isTrending} onChange={setIsTrending} /></div></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Popularity score"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={popularity} onChange={(e) => setPopularity(Number(e.target.value))} /></AdminField>
-            <AdminField label="Display order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Popularity score"><AdminInput type="number"  value={popularity} onChange={(e) => setPopularity(Number(e.target.value))} /></AdminField>
+            <AdminField label="Display order"><AdminInput type="number"  value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} /></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
@@ -391,7 +391,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
         </p>
         <p className="text-xs text-neutral-400 dark:text-neutral-500">Family and category slugs are optional. RGB/HSL are auto computed from the hex code.</p>
 
-        <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-3 font-mono text-xs" rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder={format === 'csv' ? 'Warm White, #F5F1E8, white, interior-wall-colors' : '[{"name": "Warm White", "hex": "#F5F1E8"}]'} />
+        <AdminTextarea className="mt-3 font-mono text-xs" rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder={format === 'csv' ? 'Warm White, #F5F1E8, white, interior-wall-colors' : '[{"name": "Warm White", "hex": "#F5F1E8"}]'} />
 
         {/* Validation preview */}
         {preview && (
@@ -524,11 +524,11 @@ function FamilyForm({ initial, onClose, onSaved }: { initial: DbColorFamily | nu
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit family' : 'Add family'} maxWidth="max-w-md">
-          <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
-          <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
-          <AdminField label="Description"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
+          <AdminField label="Slug" hint="lowercase, no spaces"><AdminInput  value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
+          <AdminField label="Description"><AdminInput  value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
@@ -648,25 +648,25 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit combination' : 'Add combination'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Title"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={() => !slug && setSlug(slugify(title))} /></AdminField>
-            <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" /></AdminField>
+            <AdminField label="Title"><AdminInput  value={title} onChange={(e) => setTitle(e.target.value)} onBlur={() => !slug && setSlug(slugify(title))} /></AdminField>
+            <AdminField label="Slug" hint="lowercase, no spaces"><AdminInput  value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" /></AdminField>
           </div>
-          <AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Main color name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={mainName} onChange={(e) => setMainName(e.target.value)} /></AdminField>
-            <AdminField label="Main color code"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={mainCode} onChange={(e) => setMainCode(e.target.value)} placeholder="#F5F1E8" /></AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Secondary name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={secName} onChange={(e) => setSecName(e.target.value)} /></AdminField>
-            <AdminField label="Secondary code"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={secCode} onChange={(e) => setSecCode(e.target.value)} /></AdminField>
+            <AdminField label="Main color name"><AdminInput  value={mainName} onChange={(e) => setMainName(e.target.value)} /></AdminField>
+            <AdminField label="Main color code"><AdminInput  value={mainCode} onChange={(e) => setMainCode(e.target.value)} placeholder="#F5F1E8" /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Accent name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={accName} onChange={(e) => setAccName(e.target.value)} /></AdminField>
-            <AdminField label="Accent code"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={accCode} onChange={(e) => setAccCode(e.target.value)} /></AdminField>
+            <AdminField label="Secondary name"><AdminInput  value={secName} onChange={(e) => setSecName(e.target.value)} /></AdminField>
+            <AdminField label="Secondary code"><AdminInput  value={secCode} onChange={(e) => setSecCode(e.target.value)} /></AdminField>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <AdminField label="Accent name"><AdminInput  value={accName} onChange={(e) => setAccName(e.target.value)} /></AdminField>
+            <AdminField label="Accent code"><AdminInput  value={accCode} onChange={(e) => setAccCode(e.target.value)} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Recommended rooms" hint="Comma separated"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={rooms} onChange={(e) => setRooms(e.target.value)} placeholder="Living Room, Hallway" /></AdminField>
-            <AdminField label="Style"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={style} onChange={(e) => setStyle(e.target.value)} /></AdminField>
+            <AdminField label="Recommended rooms" hint="Comma separated"><AdminInput  value={rooms} onChange={(e) => setRooms(e.target.value)} placeholder="Living Room, Hallway" /></AdminField>
+            <AdminField label="Style"><AdminInput  value={style} onChange={(e) => setStyle(e.target.value)} /></AdminField>
           </div>
           <MediaUploader label="Image" value={imageUrl} onChange={setImageUrl} folder="colors" />
           <AdminField label="Categories">
@@ -678,7 +678,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
             </div>
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Published</span><div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
@@ -766,8 +766,8 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit category' : 'Add category'} maxWidth="max-w-md">
-          <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
-          <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
+          <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
+          <AdminField label="Slug" hint="lowercase, no spaces"><AdminInput  value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
           <AdminField label="Type">
             <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={type} onChange={(e) => setType(e.target.value as DbColorCategory['type'])}>
               <option value="room">Room</option>
@@ -778,7 +778,7 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
             </select>
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

@@ -6,7 +6,7 @@ import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 import type { DbSiteBranding, HeroHighlightConfig, HeroWordHighlight } from '@/types/database';
-import { AdminButton } from '@/components/admin/AdminUi';
+import { AdminButton, AdminInput } from '@/components/admin/AdminUi';
 
 export default function AdminBranding() {
   const { branding, refresh } = useBranding();
@@ -173,13 +173,13 @@ export default function AdminBranding() {
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <AdminField label="Website Name">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={websiteName} onChange={(e) => setWebsiteName(e.target.value)} />
+            <AdminInput type="text" value={websiteName} onChange={(e) => setWebsiteName(e.target.value)} />
           </AdminField>
           <AdminField label="Website Tagline">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={websiteTagline} onChange={(e) => setWebsiteTagline(e.target.value)} />
+            <AdminInput type="text" value={websiteTagline} onChange={(e) => setWebsiteTagline(e.target.value)} />
           </AdminField>
           <AdminField label="Browser Title" hint="Shown in the browser tab">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={browserTitle} onChange={(e) => setBrowserTitle(e.target.value)} />
+            <AdminInput type="text" value={browserTitle} onChange={(e) => setBrowserTitle(e.target.value)} />
           </AdminField>
         </div>
       </AdminCard>
@@ -210,19 +210,19 @@ export default function AdminBranding() {
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
               <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
+              <AdminInput type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Secondary Color">
             <div className="flex items-center gap-2">
               <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
+              <AdminInput type="text" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Accent Color">
             <div className="flex items-center gap-2">
               <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
-              <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
+              <AdminInput type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
             </div>
           </AdminField>
         </div>
@@ -251,7 +251,7 @@ export default function AdminBranding() {
             type="text"
             value={pendingColor}
             onChange={(e) => setPendingColor(e.target.value)}
-            className="input-field dark:bg-brand-navy dark:border-white/10 w-28 text-xs"
+            className="w-28 text-xs"
             placeholder="#F97316"
           />
         </div>
@@ -299,7 +299,7 @@ export default function AdminBranding() {
                       type="text"
                       value={hl.color}
                       onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
-                      className="input-field dark:bg-brand-navy dark:border-white/10 w-24 text-xs"
+                      className="w-24 text-xs"
                     />
                     <button
                       onClick={() => removeHighlight(hl.wordIndex)}

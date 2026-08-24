@@ -127,3 +127,37 @@ export function GroupControls({ onExpandAll, onCollapseAll, groupLabel = 'groups
     </div>
   );
 }
+
+// =========================================================
+// AdminInput / AdminTextarea — shadcn-based form controls
+// with FRELUX dark-mode styling baked in. Drop-in replacement
+// for the old `input-field` CSS class pattern.
+// =========================================================
+
+import { Input as ShadcnInput } from '@/components/ui/shadcn/input';
+import { Textarea as ShadcnTextarea } from '@/components/ui/shadcn/textarea';
+import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+
+export function AdminInput({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {
+  return (
+    <ShadcnInput
+      className={classNames(
+        'rounded-lg px-3.5 py-2.5 dark:bg-brand-navy-mid dark:border-white/10',
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function AdminTextarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <ShadcnTextarea
+      className={classNames(
+        'rounded-lg px-3.5 py-2.5 dark:bg-brand-navy-mid dark:border-white/10',
+        className,
+      )}
+      {...props}
+    />
+  );
+}

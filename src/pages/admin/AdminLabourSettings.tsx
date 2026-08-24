@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { HardHat, Plus, Pencil, Trash2, Save, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { PRICING_METHOD_LABELS, type LabourPricingMethod, type LabourEstimatorKey } from '@/lib/labour';
 import type { DbLabourSettings, DbLabourCategory } from '@/types/database';
@@ -307,10 +307,10 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
               {(['paint', 'screeding', 'pop_ceiling', 'tile'] as LabourEstimatorKey[]).map((k) => <option key={k} value={k}>{ESTIMATOR_LABELS[k]}</option>)}
             </select>
           </AdminField>
-          <AdminField label="Category Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="e.g. Skilled Painter" /></AdminField>
-          <AdminField label="Description (optional)"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Category Name"><AdminInput  value={categoryName} onChange={(e) => setCategoryName(e.target.value)} placeholder="e.g. Skilled Painter" /></AdminField>
+          <AdminField label="Description (optional)"><AdminInput  value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Suggested Rate"><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={suggestedRate} onChange={(e) => setSuggestedRate(Number(e.target.value))} /></AdminField>
+            <AdminField label="Suggested Rate"><AdminInput type="number" min={0}  value={suggestedRate} onChange={(e) => setSuggestedRate(Number(e.target.value))} /></AdminField>
             <AdminField label="Rate Unit">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={rateUnit} onChange={(e) => setRateUnit(e.target.value as LabourPricingMethod)}>
                 {Object.entries(PRICING_METHOD_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -318,7 +318,7 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort Order"><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort Order"><AdminInput type="number" min={0}  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <AdminField label="Active"><div className="pt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

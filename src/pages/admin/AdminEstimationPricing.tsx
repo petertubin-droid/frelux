@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, X, History, Search, Filter, DollarSign, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 interface PriceItem {
@@ -467,10 +467,10 @@ function PricingForm({
               </div>
             ) : (
               <div className="space-y-1.5">
-                <input
+                <AdminInput
                   type="text"
                   placeholder="Paste UUID ref_id"
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-xs"
+                  className="font-mono text-xs"
                   value={useCustomRef ? customRefId : refId}
                   onChange={(e) =>
                     useCustomRef ? setCustomRefId(e.target.value) : setRefId(e.target.value)
@@ -491,11 +491,11 @@ function PricingForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Price Amount">
-              <input
+              <AdminInput
                 type="number"
                 min="0"
                 step="0.01"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-semibold"
+                className="font-semibold"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
               />
@@ -532,9 +532,9 @@ function PricingForm({
             </AdminField>
 
             <AdminField label="Effective Date">
-              <input
+              <AdminInput
                 type="date"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={effectiveDate}
                 onChange={(e) => setEffectiveDate(e.target.value)}
               />
@@ -542,8 +542,8 @@ function PricingForm({
           </div>
 
           <AdminField label="Notes / Comments">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminTextarea
+              
               rows={2}
               placeholder="e.g. Standard wholesale pricing updated for Q3"
               value={notes}

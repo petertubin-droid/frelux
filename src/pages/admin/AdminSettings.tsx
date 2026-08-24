@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 
@@ -62,32 +62,32 @@ export default function AdminSettings() {
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Brand</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Site name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.site_name} onChange={(e) => update('site_name', e.target.value)} /></AdminField>
-            <AdminField label="Short name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.short_name} onChange={(e) => update('short_name', e.target.value)} /></AdminField>
+            <AdminField label="Site name"><AdminInput  value={settings.site_name} onChange={(e) => update('site_name', e.target.value)} /></AdminField>
+            <AdminField label="Short name"><AdminInput  value={settings.short_name} onChange={(e) => update('short_name', e.target.value)} /></AdminField>
           </div>
-          <div className="mt-4"><AdminField label="Tagline"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.tagline} onChange={(e) => update('tagline', e.target.value)} /></AdminField></div>
-          <div className="mt-4"><AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.description} onChange={(e) => update('description', e.target.value)} /></AdminField></div>
+          <div className="mt-4"><AdminField label="Tagline"><AdminInput  value={settings.tagline} onChange={(e) => update('tagline', e.target.value)} /></AdminField></div>
+          <div className="mt-4"><AdminField label="Description"><AdminTextarea  rows={2} value={settings.description} onChange={(e) => update('description', e.target.value)} /></AdminField></div>
           <div className="mt-4"><MediaUploader label="Logo" value={settings.logo_url} onChange={(url) => update('logo_url', url || null)} folder="branding" /></div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Contact</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Contact email"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.contact_email} onChange={(e) => update('contact_email', e.target.value)} /></AdminField>
-            <AdminField label="WhatsApp number" hint="International format without +"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.whatsapp_number} onChange={(e) => update('whatsapp_number', e.target.value)} /></AdminField>
+            <AdminField label="Contact email"><AdminInput  value={settings.contact_email} onChange={(e) => update('contact_email', e.target.value)} /></AdminField>
+            <AdminField label="WhatsApp number" hint="International format without +"><AdminInput  value={settings.whatsapp_number} onChange={(e) => update('whatsapp_number', e.target.value)} /></AdminField>
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Defaults</h2>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Default currency"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
-            <AdminField label="Currency symbol"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
+            <AdminField label="Default currency"><AdminInput  value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
+            <AdminField label="Currency symbol"><AdminInput  value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
             <AdminField label="Default unit"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_unit} onChange={(e) => update('default_unit', e.target.value as 'meters' | 'feet')}><option value="meters">Meters</option><option value="feet">Feet</option></select></AdminField>
           </div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">SEO</h2>
-          <AdminField label="SEO title" hint="Optional"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
-          <div className="mt-4"><AdminField label="SEO description" hint="Optional"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
+          <AdminField label="SEO title" hint="Optional"><AdminInput  value={settings.seo_title ?? ''} onChange={(e) => update('seo_title', e.target.value || null)} /></AdminField>
+          <div className="mt-4"><AdminField label="SEO description" hint="Optional"><AdminTextarea  rows={2} value={settings.seo_description ?? ''} onChange={(e) => update('seo_description', e.target.value || null)} /></AdminField></div>
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Premium Subscriptions</h2>
@@ -117,26 +117,26 @@ export default function AdminSettings() {
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Headline" hint="Main hero headline">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_headline ?? ''} onChange={(e) => update('hero_headline', e.target.value || null)} placeholder="Know Exactly What Materials Your Project Needs." />
+              <AdminInput  value={settings.hero_headline ?? ''} onChange={(e) => update('hero_headline', e.target.value || null)} placeholder="Know Exactly What Materials Your Project Needs." />
             </AdminField>
             <AdminField label="Subheadline" hint="Supporting text below the headline">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_subheadline ?? ''} onChange={(e) => update('hero_subheadline', e.target.value || null)} placeholder="Calculate materials and estimate project costs..." />
+              <AdminInput  value={settings.hero_subheadline ?? ''} onChange={(e) => update('hero_subheadline', e.target.value || null)} placeholder="Calculate materials and estimate project costs..." />
             </AdminField>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <AdminField label="Primary CTA label" hint="Button text">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_primary_label ?? ''} onChange={(e) => update('hero_cta_primary_label', e.target.value || null)} placeholder="Start Calculating" />
+              <AdminInput  value={settings.hero_cta_primary_label ?? ''} onChange={(e) => update('hero_cta_primary_label', e.target.value || null)} placeholder="Start Calculating" />
             </AdminField>
             <AdminField label="Primary CTA link" hint="Route or anchor">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_primary_href ?? ''} onChange={(e) => update('hero_cta_primary_href', e.target.value || null)} placeholder="/screeding-calculator" />
+              <AdminInput  value={settings.hero_cta_primary_href ?? ''} onChange={(e) => update('hero_cta_primary_href', e.target.value || null)} placeholder="/screeding-calculator" />
             </AdminField>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <AdminField label="Secondary CTA label" hint="Button text">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_secondary_label ?? ''} onChange={(e) => update('hero_cta_secondary_label', e.target.value || null)} placeholder="Explore Calculators" />
+              <AdminInput  value={settings.hero_cta_secondary_label ?? ''} onChange={(e) => update('hero_cta_secondary_label', e.target.value || null)} placeholder="Explore Calculators" />
             </AdminField>
             <AdminField label="Secondary CTA link" hint="Route or anchor">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.hero_cta_secondary_href ?? ''} onChange={(e) => update('hero_cta_secondary_href', e.target.value || null)} placeholder="#calculators" />
+              <AdminInput  value={settings.hero_cta_secondary_href ?? ''} onChange={(e) => update('hero_cta_secondary_href', e.target.value || null)} placeholder="#calculators" />
             </AdminField>
           </div>
         </AdminCard>

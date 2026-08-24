@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Pencil, X, Check, Loader2, AlertCircle, BookOpen, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import type { DbLearnCategory, DbLearnArticle, LearnArticleStatus } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -242,8 +242,8 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       {error && <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Title"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></AdminField>
-        <AdminField label="Slug" hint="URL friendly identifier, e.g. how to paint a wall"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></AdminField>
+        <AdminField label="Title"><AdminInput  value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></AdminField>
+        <AdminField label="Slug" hint="URL friendly identifier, e.g. how to paint a wall"><AdminInput  value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></AdminField>
       </div>
 
       <AdminField label="Category">
@@ -253,20 +253,20 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       </AdminField>
 
       <AdminField label="Excerpt" hint="Short summary shown in article cards and search results.">
-        <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
+        <AdminTextarea  rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} />
       </AdminField>
 
       <AdminField label="Content" hint="Markdown formatted article body. Supports headings, lists, bold, and code blocks.">
-        <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-sm" rows={12} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="# Introduction&#10;Write your article here…" />
+        <AdminTextarea className="font-mono text-sm" rows={12} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} placeholder="# Introduction&#10;Write your article here…" />
       </AdminField>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <MediaUploader label="Cover Image" value={form.cover_image_url} onChange={(url) => setForm({ ...form, cover_image_url: url })} folder="learn" />
-        <AdminField label="Author"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} /></AdminField>
+        <AdminField label="Author"><AdminInput  value={form.author} onChange={(e) => setForm({ ...form, author: e.target.value })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Read Time (minutes)"><input type="number" min={1} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.read_time_minutes} onChange={(e) => setForm({ ...form, read_time_minutes: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Read Time (minutes)"><AdminInput type="number" min={1}  value={form.read_time_minutes} onChange={(e) => setForm({ ...form, read_time_minutes: Number(e.target.value) })} /></AdminField>
         <AdminField label="Status">
           <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as LearnArticleStatus })}>
             <option value="draft">Draft</option>
@@ -279,8 +279,8 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       <AdminCard className="bg-neutral-50 dark:bg-white/5">
         <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">SEO Settings</h3>
         <div className="space-y-4">
-          <AdminField label="Meta Title" hint="Overrides the default page title for search engines."><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.meta_title} onChange={(e) => setForm({ ...form, meta_title: e.target.value })} /></AdminField>
-          <AdminField label="Meta Description" hint="Overrides the default description for search engines."><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} /></AdminField>
+          <AdminField label="Meta Title" hint="Overrides the default page title for search engines."><AdminInput  value={form.meta_title} onChange={(e) => setForm({ ...form, meta_title: e.target.value })} /></AdminField>
+          <AdminField label="Meta Description" hint="Overrides the default description for search engines."><AdminTextarea  rows={2} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} /></AdminField>
         </div>
       </AdminCard>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbPaintType } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 export default function AdminPaintTypes() {
@@ -92,11 +92,11 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit paint type' : 'Add paint type'} maxWidth="max-w-lg">
-          <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} placeholder="Emulsion" /></AdminField>
-          <AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} placeholder="Emulsion" /></AdminField>
+          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Coverage rate" hint="m² per liter per coat" error={coverageRate <= 0 ? 'Must be > 0' : undefined}>
-              <input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverageRate} onChange={(e) => setCoverageRate(Number(e.target.value))} />
+              <AdminInput type="number" min={0} step="0.1"  value={coverageRate} onChange={(e) => setCoverageRate(Number(e.target.value))} />
             </AdminField>
             <AdminField label="Coverage unit">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverageUnit} onChange={(e) => setCoverageUnit(e.target.value)}>
@@ -106,10 +106,10 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
             </AdminField>
           </div>
           <AdminField label="Container sizes (liters)" hint="Comma separated, e.g. 1, 4, 20">
-            <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={containerSizes} onChange={(e) => setContainerSizes(e.target.value)} />
+            <AdminInput  value={containerSizes} onChange={(e) => setContainerSizes(e.target.value)} />
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

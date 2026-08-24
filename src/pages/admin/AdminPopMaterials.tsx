@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Pencil, X, Check, Download } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 import type { DbPopMaterial, PopWorkflowType, PopMaterialCategory } from '@/types/database';
 
@@ -166,7 +166,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
+        <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
         <AdminField label="Workflow">
           <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.workflow} onChange={(e) => setForm({ ...form, workflow: e.target.value as PopWorkflowType })}>
             {workflows.map((w) => <option key={w} value={w} className="capitalize">{w}</option>)}
@@ -177,23 +177,23 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
             {categories.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
           </select>
         </AdminField>
-        <AdminField label="Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit"><AdminInput  value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Coverage Rate"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Coverage Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
-        <AdminField label="Package Size"><input type="number" step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Coverage Rate"><AdminInput type="number" step="0.1"  value={form.coverage_rate} onChange={(e) => setForm({ ...form, coverage_rate: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Coverage Unit"><AdminInput  value={form.coverage_unit} onChange={(e) => setForm({ ...form, coverage_unit: e.target.value })} /></AdminField>
+        <AdminField label="Package Size"><AdminInput type="number" step="0.1"  value={form.package_size} onChange={(e) => setForm({ ...form, package_size: Number(e.target.value) })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Package Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
-        <AdminField label="Unit Price (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
-        <AdminField label="Labour Rate/m² (₦)"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Package Unit"><AdminInput  value={form.package_unit} onChange={(e) => setForm({ ...form, package_unit: e.target.value })} /></AdminField>
+        <AdminField label="Unit Price (₦)"><AdminInput type="number"  value={form.unit_price} onChange={(e) => setForm({ ...form, unit_price: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Labour Rate/m² (₦)"><AdminInput type="number"  value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <AdminField label="Sort Order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
+        <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
           <input type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Optional
         </label>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { GraduationCap, Loader2, AlertCircle, Check, FileText, Search, HelpCircle, Image, ListOrdered, GitCompare, Send } from 'lucide-react';
 import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, AdminInput} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 
 type Action = 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison';
@@ -97,11 +97,11 @@ export default function AdminAiLearningAssistant() {
             <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Input</h2>
 
             <AdminField label="Topic" hint="Enter a topic or title for the AI to work with">
-              <input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
+              <AdminInput  value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
             </AdminField>
 
             <AdminField label="Content" hint="Paste existing content to expand, rewrite, or optimize">
-              <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-sm" rows={6} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Paste content here…" />
+              <AdminTextarea className="font-mono text-sm" rows={6} value={content} onChange={(e) => setContent(e.target.value)} placeholder="Paste content here…" />
             </AdminField>
 
             {error && (

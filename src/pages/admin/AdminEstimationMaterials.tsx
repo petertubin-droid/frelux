@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { EstimationMaterial, EstimationUnit } from '@/types/estimation';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 function slugify(s: string): string {
@@ -322,8 +322,8 @@ function MaterialForm({
     <AdminModal open onClose={onClose} title={initial ? 'Edit estimation material' : 'Add estimation material'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Name">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminInput
+                
                 value={name}
                 onChange={(e) => {
                   const val = e.target.value;
@@ -336,8 +336,8 @@ function MaterialForm({
               />
             </AdminField>
             <AdminField label="Slug" hint="Auto-generated if left blank">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminInput
+                
                 value={slug}
                 onChange={(e) => setSlug(e.target.value)}
                 placeholder="e.g. wall-putty"
@@ -347,8 +347,8 @@ function MaterialForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Category">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminInput
+                
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 placeholder="e.g. primer, filler, putty"
@@ -367,8 +367,8 @@ function MaterialForm({
               </datalist>
             </AdminField>
             <AdminField label="Supplier">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminInput
+                
                 value={supplier}
                 onChange={(e) => setSupplier(e.target.value)}
                 placeholder="e.g. Berger Paints"
@@ -377,8 +377,8 @@ function MaterialForm({
           </div>
 
           <AdminField label="Description">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminTextarea
+              
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -402,11 +402,11 @@ function MaterialForm({
               </select>
             </AdminField>
             <AdminField label="Pack size">
-              <input
+              <AdminInput
                 type="number"
                 step="any"
                 min={0}
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={packSize}
                 onChange={(e) => setPackSize(e.target.value)}
                 placeholder="e.g. 20"
@@ -430,9 +430,9 @@ function MaterialForm({
               </select>
             </AdminField>
             <AdminField label="Effective date">
-              <input
+              <AdminInput
                 type="date"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={effectiveDate}
                 onChange={(e) => setEffectiveDate(e.target.value)}
               />
@@ -440,8 +440,8 @@ function MaterialForm({
           </div>
 
           <AdminField label="Notes">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminTextarea
+              
               rows={2}
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
@@ -451,9 +451,9 @@ function MaterialForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order">
-              <input
+              <AdminInput
                 type="number"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />

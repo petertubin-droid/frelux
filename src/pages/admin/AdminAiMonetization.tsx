@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, CheckCircle2, AlertCircle, DollarSign, Lock, Gift, CreditCard, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings, AiAccessMode } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 
 const ACCESS_MODES: { value: AiAccessMode; label: string; description: string }[] = [
   { value: 'free', label: 'Free', description: 'Anyone can use AI features within the daily limit.' },
@@ -140,7 +140,7 @@ export default function AdminAiMonetization() {
           <p className="mb-4 text-xs text-neutral-400 dark:text-neutral-500">This limit is shared across all AI features (text consultation, image analysis). Only successful generations consume a use.</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Daily free AI uses" hint="Default: 3. Shared across all AI features.">
-              <input type="number" min={0} max={100} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
+              <AdminInput type="number" min={0} max={100}  value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
             </AdminField>
             <AdminField label="Usage reset period">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.ai_reset_period} onChange={(e) => update('ai_reset_period', e.target.value)}>
@@ -187,19 +187,19 @@ export default function AdminAiMonetization() {
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <AdminField label="Price" hint={paymentProviderConfigured ? 'Price per AI access period.' : 'Placeholder, not active until a payment provider is connected.'}>
-              <input
+              <AdminInput
                 type="number"
                 min={0}
                 step="0.01"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={settings.ai_paid_price}
                 onChange={(e) => update('ai_paid_price', Number(e.target.value))}
                 disabled={!paymentProviderConfigured}
               />
             </AdminField>
             <AdminField label="Currency">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminInput
+                
                 value={settings.ai_paid_currency}
                 onChange={(e) => update('ai_paid_currency', e.target.value)}
                 disabled={!paymentProviderConfigured}

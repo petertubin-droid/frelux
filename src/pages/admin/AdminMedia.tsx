@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Search, Upload, Trash2, Folder as FolderIcon, X, Pencil, Check } from 'lucide-react';
-import { AdminHeader, AdminCard, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, StateMessage, AdminInput} from '@/components/admin/AdminUi';
 import { fetchMediaFolders, fetchMediaItems, uploadMediaImage, deleteMediaItem, updateMediaItemAlt } from '@/lib/queries';
 import type { DbMediaFolder, DbMediaItem } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -108,7 +108,7 @@ export default function AdminMedia() {
                   <div className="p-3">
                     {editingAlt === item.id ? (
                       <div className="flex items-center gap-2">
-                        <input className="input-field dark:bg-brand-navy-mid dark:border-white/10 flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
+                        <AdminInput className="flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
                         <button type="button" onClick={() => saveAlt(item)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check className="h-3.5 w-3.5" /></button>
                         <button type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X className="h-3.5 w-3.5" /></button>
                       </div>

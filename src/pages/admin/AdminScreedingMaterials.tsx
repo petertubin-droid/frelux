@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2, AlertCircle, Layers, Paintbrush, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { formatCurrency } from '@/lib/utils';
 import type { DbScreedingMixConfig } from '@/types/database';
 import { AdminButton } from '@/components/admin/AdminUi';
@@ -123,13 +123,13 @@ export default function AdminScreedingMaterials() {
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Coverage rate (m²/L)" hint="Square metres covered per litre of paint">
-            <input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={paintCoverage} onChange={(e) => setPaintCoverage(Number(e.target.value))} />
+            <AdminInput type="number" min={0} step="0.1"  value={paintCoverage} onChange={(e) => setPaintCoverage(Number(e.target.value))} />
           </AdminField>
           <AdminField label="Bucket size (L)">
-            <input type="number" min={1} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={paintBucketSize} onChange={(e) => setPaintBucketSize(Number(e.target.value))} />
+            <AdminInput type="number" min={1}  value={paintBucketSize} onChange={(e) => setPaintBucketSize(Number(e.target.value))} />
           </AdminField>
           <AdminField label="Price per bucket">
-            <input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={paintPrice} onChange={(e) => setPaintPrice(Number(e.target.value))} />
+            <AdminInput type="number" min={0}  value={paintPrice} onChange={(e) => setPaintPrice(Number(e.target.value))} />
           </AdminField>
         </div>
       </AdminCard>
@@ -143,13 +143,13 @@ export default function AdminScreedingMaterials() {
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Consumption ratio (kg/L)" hint="Kg of cement per litre of paint">
-            <input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={cementRatio} onChange={(e) => setCementRatio(Number(e.target.value))} />
+            <AdminInput type="number" min={0} step="0.1"  value={cementRatio} onChange={(e) => setCementRatio(Number(e.target.value))} />
           </AdminField>
           <AdminField label="Bag size (kg)">
-            <input type="number" min={1} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={cementBagSize} onChange={(e) => setCementBagSize(Number(e.target.value))} />
+            <AdminInput type="number" min={1}  value={cementBagSize} onChange={(e) => setCementBagSize(Number(e.target.value))} />
           </AdminField>
           <AdminField label="Price per bag">
-            <input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={cementPrice} onChange={(e) => setCementPrice(Number(e.target.value))} />
+            <AdminInput type="number" min={0}  value={cementPrice} onChange={(e) => setCementPrice(Number(e.target.value))} />
           </AdminField>
         </div>
       </AdminCard>
@@ -162,13 +162,13 @@ export default function AdminScreedingMaterials() {
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Default mix ratio" hint="e.g. 2:1 (paint:cement)">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={mixRatio} onChange={(e) => setMixRatio(e.target.value)} />
+            <AdminInput type="text"  value={mixRatio} onChange={(e) => setMixRatio(e.target.value)} />
           </AdminField>
           <AdminField label="Labour rate per m²">
-            <input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={labourRate} onChange={(e) => setLabourRate(Number(e.target.value))} />
+            <AdminInput type="number" min={0}  value={labourRate} onChange={(e) => setLabourRate(Number(e.target.value))} />
           </AdminField>
           <AdminField label="Waste percentage (%)">
-            <input type="number" min={0} max={100} step="0.5" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={wastePct} onChange={(e) => setWastePct(Number(e.target.value))} />
+            <AdminInput type="number" min={0} max={100} step="0.5"  value={wastePct} onChange={(e) => setWastePct(Number(e.target.value))} />
           </AdminField>
         </div>
       </AdminCard>
@@ -180,13 +180,13 @@ export default function AdminScreedingMaterials() {
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-4">
           <AdminField label="Currency code">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={currency} onChange={(e) => setCurrency(e.target.value)} />
+            <AdminInput type="text"  value={currency} onChange={(e) => setCurrency(e.target.value)} />
           </AdminField>
           <AdminField label="Currency symbol">
-            <input type="text" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={currencySymbol} onChange={(e) => setCurrencySymbol(e.target.value)} />
+            <AdminInput type="text"  value={currencySymbol} onChange={(e) => setCurrencySymbol(e.target.value)} />
           </AdminField>
           <AdminField label="Tax/VAT (%)">
-            <input type="number" min={0} max={100} step="0.5" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={taxPct} onChange={(e) => setTaxPct(Number(e.target.value))} />
+            <AdminInput type="number" min={0} max={100} step="0.5"  value={taxPct} onChange={(e) => setTaxPct(Number(e.target.value))} />
           </AdminField>
           <div>
             <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>

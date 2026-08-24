@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {
-  AdminHeader,
+import {AdminHeader,
   AdminButton,
   AdminField,
   StateMessage,
   Toggle,
-} from '@/components/admin/AdminUi';
+  AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import type {
@@ -306,8 +305,8 @@ function UnitForm({
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit unit' : 'Add unit'} maxWidth="max-w-lg">
           <AdminField label="Name">
-            <input
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminInput
+              
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. litres, kilograms, bags"
@@ -315,8 +314,8 @@ function UnitForm({
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Symbol">
-              <input
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
+              <AdminInput
+                className="font-mono"
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value)}
                 placeholder="e.g. L, kg, bag"
@@ -339,9 +338,9 @@ function UnitForm({
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order">
-              <input
+              <AdminInput
                 type="number"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />
@@ -684,8 +683,8 @@ function PackSizeForm({
                   ))}
                 </select>
               ) : (
-                <input
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
+                <AdminInput
+                  className="font-mono"
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                   placeholder="UUID of target item"
@@ -696,11 +695,11 @@ function PackSizeForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Pack Size">
-              <input
+              <AdminInput
                 type="number"
                 step="any"
                 min="0.001"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={packSize}
                 onChange={(e) => setPackSize(Number(e.target.value))}
               />
@@ -738,11 +737,11 @@ function PackSizeForm({
             </AdminField>
 
             <AdminField label="Min Quantity">
-              <input
+              <AdminInput
                 type="number"
                 step="any"
                 min="0"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={minQuantity}
                 onChange={(e) => setMinQuantity(Number(e.target.value))}
               />
@@ -765,9 +764,9 @@ function PackSizeForm({
             </AdminField>
 
             <AdminField label="Sort Order">
-              <input
+              <AdminInput
                 type="number"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={sortOrder}
                 onChange={(e) => setSortOrder(Number(e.target.value))}
               />
@@ -1052,8 +1051,8 @@ function CalcRuleForm({
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit calculation rule' : 'Add calculation rule'} maxWidth="max-w-lg">
           <AdminField label="Rule Key">
-            <input
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
+            <AdminInput
+              className="font-mono"
               value={ruleKey}
               onChange={(e) => setRuleKey(e.target.value)}
               placeholder="e.g. standard_room_height"
@@ -1092,8 +1091,8 @@ function CalcRuleForm({
           </div>
 
           <AdminField label="Rule Value (JSON text input)" hint="Must be valid JSON formatting">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono text-xs"
+            <AdminTextarea
+              className="font-mono text-xs"
               rows={4}
               value={ruleValueStr}
               onChange={(e) => setRuleValueStr(e.target.value)}
@@ -1102,8 +1101,8 @@ function CalcRuleForm({
           </AdminField>
 
           <AdminField label="Description">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminTextarea
+              
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -1354,11 +1353,11 @@ function CalcVersionForm({
             </AdminField>
 
             <AdminField label="Version Number">
-              <input
+              <AdminInput
                 type="number"
                 min="1"
                 step="1"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                
                 value={versionNumber}
                 onChange={(e) => setVersionNumber(Number(e.target.value))}
               />
@@ -1366,8 +1365,8 @@ function CalcVersionForm({
           </div>
 
           <AdminField label="Version Label" hint="Optional, e.g. 'v1.0' or 'Beta release'">
-            <input
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminInput
+              
               value={versionLabel}
               onChange={(e) => setVersionLabel(e.target.value)}
               placeholder="e.g. v1.0"
@@ -1375,8 +1374,8 @@ function CalcVersionForm({
           </AdminField>
 
           <AdminField label="Description">
-            <textarea
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminTextarea
+              
               rows={2}
               value={description}
               onChange={(e) => setDescription(e.target.value)}

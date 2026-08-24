@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbPaintProduct, DbMaterialPrice, DbLaborRate, DbPaintType } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames, formatCurrency } from '@/lib/utils';
 
@@ -127,9 +127,9 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit product' : 'Add product'} maxWidth="max-w-lg">
-          <AdminField label="Product name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
+          <AdminField label="Product name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Brand"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={brand} onChange={(e) => setBrand(e.target.value)} /></AdminField>
+            <AdminField label="Brand"><AdminInput  value={brand} onChange={(e) => setBrand(e.target.value)} /></AdminField>
             <AdminField label="Paint type">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={paintTypeId} onChange={(e) => setPaintTypeId(e.target.value)}>
                 <option value="">— None —</option>
@@ -138,12 +138,12 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Container size (L)" error={containerSize <= 0 ? 'Must be > 0' : undefined}><input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={containerSize} onChange={(e) => setContainerSize(Number(e.target.value))} /></AdminField>
-            <AdminField label="Price" error={price < 0 ? 'Cannot be negative' : undefined}><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={price} onChange={(e) => setPrice(Number(e.target.value))} /></AdminField>
+            <AdminField label="Container size (L)" error={containerSize <= 0 ? 'Must be > 0' : undefined}><AdminInput type="number" min={0} step="0.1"  value={containerSize} onChange={(e) => setContainerSize(Number(e.target.value))} /></AdminField>
+            <AdminField label="Price" error={price < 0 ? 'Cannot be negative' : undefined}><AdminInput type="number" min={0}  value={price} onChange={(e) => setPrice(Number(e.target.value))} /></AdminField>
             <AdminField label="Currency"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={currency} onChange={(e) => setCurrency(e.target.value)}><option value="NGN">NGN (₦)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></select></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
@@ -223,15 +223,15 @@ function MaterialForm({ initial, onClose, onSaved }: { initial: DbMaterialPrice 
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit material' : 'Add material'} maxWidth="max-w-lg">
-          <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
+          <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Category"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={category} onChange={(e) => setCategory(e.target.value as DbMaterialPrice['category'])}>{['primer','filler','putty','sandpaper','brushes','rollers','other'].map((c) => <option key={c} value={c}>{c}</option>)}</select></AdminField>
-            <AdminField label="Unit"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="liter, kg, pack" /></AdminField>
+            <AdminField label="Unit"><AdminInput  value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="liter, kg, pack" /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Price" error={price < 0 ? 'Cannot be negative' : undefined}><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={price} onChange={(e) => setPrice(Number(e.target.value))} /></AdminField>
+            <AdminField label="Price" error={price < 0 ? 'Cannot be negative' : undefined}><AdminInput type="number" min={0}  value={price} onChange={(e) => setPrice(Number(e.target.value))} /></AdminField>
             <AdminField label="Currency"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={currency} onChange={(e) => setCurrency(e.target.value)}><option value="NGN">NGN (₦)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></select></AdminField>
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
@@ -308,11 +308,11 @@ function LaborForm({ initial, onClose, onSaved }: { initial: DbLaborRate | null;
 
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit labor rate' : 'Add labor rate'} maxWidth="max-w-lg">
-          <AdminField label="Rate name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} placeholder="Standard painter" /></AdminField>
+          <AdminField label="Rate name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} placeholder="Standard painter" /></AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Rate per m²" error={ratePerSqm < 0 ? 'Cannot be negative' : undefined}><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={ratePerSqm} onChange={(e) => setRatePerSqm(Number(e.target.value))} /></AdminField>
+            <AdminField label="Rate per m²" error={ratePerSqm < 0 ? 'Cannot be negative' : undefined}><AdminInput type="number" min={0}  value={ratePerSqm} onChange={(e) => setRatePerSqm(Number(e.target.value))} /></AdminField>
             <AdminField label="Currency"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={currency} onChange={(e) => setCurrency(e.target.value)}><option value="NGN">NGN (₦)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></select></AdminField>
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

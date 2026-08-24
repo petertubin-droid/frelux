@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Tag, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 // ─────────────────────────────────────────────────────────
@@ -319,10 +319,10 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit product' : 'Add product'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. FRELUX Emulsion" /></AdminField>
-            <AdminField label="Slug" hint="Auto-generated if left blank"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={e => setSlug(e.target.value)} placeholder="frelux-emulsion" /></AdminField>
+            <AdminField label="Name"><AdminInput  value={name} onChange={e => setName(e.target.value)} placeholder="e.g. FRELUX Emulsion" /></AdminField>
+            <AdminField label="Slug" hint="Auto-generated if left blank"><AdminInput  value={slug} onChange={e => setSlug(e.target.value)} placeholder="frelux-emulsion" /></AdminField>
           </div>
-          <AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Category">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={category} onChange={e => setCategory(e.target.value)}>
@@ -341,22 +341,22 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Standard pack size" hint="Leave blank if not yet configured"><input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={standardPackSize} onChange={e => setStandardPackSize(e.target.value)} /></AdminField>
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Standard pack size" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={standardPackSize} onChange={e => setStandardPackSize(e.target.value)} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Recommended surface"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={recommendedSurface} onChange={e => setRecommendedSurface(e.target.value)} /></AdminField>
-            <AdminField label="Finish"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
+            <AdminField label="Recommended surface"><AdminInput  value={recommendedSurface} onChange={e => setRecommendedSurface(e.target.value)} /></AdminField>
+            <AdminField label="Finish"><AdminInput  value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Texture"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
-            <AdminField label="Gloss level"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
+            <AdminField label="Texture"><AdminInput  value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
+            <AdminField label="Gloss level"><AdminInput  value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Durability"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
-            <AdminField label="Colour compatibility"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={colourCompat} onChange={e => setColourCompat(e.target.value)} /></AdminField>
+            <AdminField label="Durability"><AdminInput  value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
+            <AdminField label="Colour compatibility"><AdminInput  value={colourCompat} onChange={e => setColourCompat(e.target.value)} /></AdminField>
           </div>
-          <AdminField label="Paint compatibility"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={paintCompat} onChange={e => setPaintCompat(e.target.value)} /></AdminField>
+          <AdminField label="Paint compatibility"><AdminInput  value={paintCompat} onChange={e => setPaintCompat(e.target.value)} /></AdminField>
           <div className="flex items-center gap-6">
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
@@ -419,12 +419,12 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit quality level' : 'Add quality level'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={e => setName(e.target.value)} placeholder="Standard, Premium, High Quality" /></AdminField>
-            <AdminField label="Slug" hint="Auto-generated if left blank"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={e => setSlug(e.target.value)} /></AdminField>
+            <AdminField label="Name"><AdminInput  value={name} onChange={e => setName(e.target.value)} placeholder="Standard, Premium, High Quality" /></AdminField>
+            <AdminField label="Slug" hint="Auto-generated if left blank"><AdminInput  value={slug} onChange={e => setSlug(e.target.value)} /></AdminField>
           </div>
-          <AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
+          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Coverage rate" hint="Leave blank if not yet configured"><input type="number" min={0} step="0.1" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverage} onChange={e => setCoverage(e.target.value)} /></AdminField>
+            <AdminField label="Coverage rate" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={coverage} onChange={e => setCoverage(e.target.value)} /></AdminField>
             <AdminField label="Coverage unit">
               <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
                 <option value="m2_per_liter">m² per liter</option>
@@ -434,17 +434,17 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Finish"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
-            <AdminField label="Texture"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
-            <AdminField label="Gloss level"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
+            <AdminField label="Finish"><AdminInput  value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
+            <AdminField label="Texture"><AdminInput  value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
+            <AdminField label="Gloss level"><AdminInput  value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Shine level"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={shineLevel} onChange={e => setShineLevel(e.target.value)} /></AdminField>
-            <AdminField label="Durability"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
+            <AdminField label="Shine level"><AdminInput  value={shineLevel} onChange={e => setShineLevel(e.target.value)} /></AdminField>
+            <AdminField label="Durability"><AdminInput  value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
           </div>
           <div className="flex items-center gap-6">
             <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
-            <AdminField label="Sort order"><input type="number" className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
+            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2">

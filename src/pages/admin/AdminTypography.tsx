@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Save, CheckCircle2, RotateCcw, Search, X, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 import {
   FONT_LIBRARY,
@@ -237,8 +237,8 @@ export default function AdminTypography() {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-              <input
-                className="input-field pl-10"
+              <AdminInput
+                className="pl-10"
                 placeholder="Search fonts…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -260,8 +260,8 @@ export default function AdminTypography() {
 
           {/* Custom preview text */}
           <div className="mb-4">
-            <input
-              className="input-field"
+            <AdminInput
+              
               placeholder="Type custom preview text…"
               value={previewText}
               onChange={(e) => setPreviewText(e.target.value)}

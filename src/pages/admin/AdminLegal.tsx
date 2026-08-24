@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pencil, FileText, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbLegalPage } from '@/types/database';
-import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 export default function AdminLegal() {
@@ -77,8 +77,8 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
 
   return (
     <AdminModal open onClose={onClose} title="Edit {initial.title}" maxWidth="max-w-2xl">
-          <AdminField label="Title"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={title} onChange={(e) => setTitle(e.target.value)} /></AdminField>
-          <AdminField label="Content" hint="Plain text. Paragraphs separated by blank lines."><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 min-h-[300px] resize-y font-mono text-sm" value={content} onChange={(e) => setContent(e.target.value)} /></AdminField>
+          <AdminField label="Title"><AdminInput  value={title} onChange={(e) => setTitle(e.target.value)} /></AdminField>
+          <AdminField label="Content" hint="Plain text. Paragraphs separated by blank lines."><AdminTextarea className="min-h-[300px] resize-y font-mono text-sm" value={content} onChange={(e) => setContent(e.target.value)} /></AdminField>
           <div>
             <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Published</span>
             <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">When published, this content replaces the default draft layout on the public site.</p>
