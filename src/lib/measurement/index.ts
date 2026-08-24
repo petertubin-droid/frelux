@@ -357,6 +357,24 @@ export {
   wasteResolutionToText,
 } from './waste-config';
 
+// ── Visual Summary (Feature 13: Visual Measurement Summary) ──
+export {
+  type SummaryBar,
+  type SummaryChart,
+  type SummaryRow,
+  type SummaryTable,
+  type VisualMeasurementSummary,
+  buildAreaChart,
+  buildFinishTypeChart,
+  buildMaterialChart,
+  buildDetailTable,
+  buildMaterialTable,
+  buildKeyMetrics,
+  buildVisualSummary,
+  chartToAscii,
+  tableToAscii,
+} from './visual-summary';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
