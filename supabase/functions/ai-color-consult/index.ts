@@ -1,12 +1,12 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://freluxtools.netlify.app',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-3.6-flash';
 const MAX_REQUESTS_PER_HOUR = 20;
 
 interface ConsultRequest {
@@ -289,7 +289,7 @@ async function callGemini(apiKey: string, mode: 'text' | 'image', description: s
     generationConfig: {
       temperature: 0.7,
       topP: 0.9,
-      maxOutputTokens: 1200,
+      maxOutputTokens: 4096,
       responseMimeType: 'application/json',
     },
   };
@@ -314,8 +314,18 @@ async function callGemini(apiKey: string, mode: 'text' | 'image', description: s
 
   let parsed: AiRecommendation;
   try {
-    parsed = JSON.parse(text);
-  } catch {
+    let cleanText = text.trim();
+    // Remove markdown code fences if present
+    const fence = String.fromCharCode(96, 96, 96);
+    if (cleanText.startsWith(fence)) {
+      const lines = cleanText.split(String.fromCharCode(10));
+      lines.shift(); // remove opening fence line
+      if (lines[lines.length - 1].trim() === fence) lines.pop();
+      cleanText = lines.join(String.fromCharCode(10));
+    }
+    cleanText = cleanText.trim();
+    parsed = JSON.parse(cleanText);
+  } catch (e) {
     throw new Error('MALFORMED_JSON:AI returned non-JSON content');
   }
 

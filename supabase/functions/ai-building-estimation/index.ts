@@ -18,7 +18,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
 
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-3.6-flash';
 
 interface EstimationRequest {
   imageDataUrl?: string;
@@ -502,6 +502,9 @@ Deno.serve(async (req: Request) => {
       return jsonResponse({ error: 'Image estimation is currently disabled.', code: 'AI_DISABLED' }, 403);
     }
 
+    // Read body once (req.json() can only be called once)
+    const body = await req.json() as EstimationRequest;
+
     // Admin override
     if (admin && config.estimation_admin_override) {
       // Admins can always use it
@@ -517,7 +520,6 @@ Deno.serve(async (req: Request) => {
         }
       } else {
         // Free/rewarded modes — check daily limit
-        const body = await req.json() as EstimationRequest;
         const clientId = body.clientId ?? 'unknown';
         const usedToday = await getDailyUsage(supabase, clientId, userId);
 
@@ -533,7 +535,6 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── Process request ──
-    const body = await req.json() as EstimationRequest;
     const clientId = body.clientId ?? 'unknown';
     const projectName = body.projectName ?? 'AI-Estimated Building';
     const location = body.location ?? 'Nigeria';
