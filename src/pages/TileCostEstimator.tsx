@@ -13,6 +13,13 @@ import { useSeo } from '@/lib/seo';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineExplanationPanel,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
@@ -51,6 +58,8 @@ export default function TileCostEstimator() {
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'tile_cost' });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('tile');
@@ -298,6 +307,42 @@ const mountedRef = useRef(true);
                         {saving ? 'Saving…' : 'Save to Projects'}
                       </button>
                     )}
+
+                    {/* ── Engine Features (Additive) ── */}
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <EngineConfidenceBadge result={engine.assessConfidence({
+                          ruleValid: true,
+                          inputComplete: true,
+                          materialSpecComplete: result.tilesNeeded > 0,
+                          marketPriceAvailable: result.materialCost > 0,
+                          sourceReliability: 'trusted',
+                          productMatched: result.boxesNeeded > 0,
+                        })} />
+                      </div>
+
+                      <EngineExplanationPanel result={engine.buildExplanation({
+                        subject: 'Tile Cost Estimate',
+                        resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.surfaceArea)} m²`,
+                        steps: [
+                          { description: 'Surface area', value: `${formatNumber(result.surfaceArea)} m²` },
+                          { description: 'Tiles needed', value: String(result.tilesNeeded) },
+                          { description: 'Boxes needed', value: String(result.boxesNeeded) },
+                          { description: 'Tile cost', value: formatCurrency(result.tileCost, currencySymbol) },
+                          ...(result.method === 'adhesive' ? [{ description: 'Adhesive cost', value: formatCurrency(result.adhesiveCost, currencySymbol) }] : []),
+                          { description: 'Grout cost', value: formatCurrency(result.groutCost, currencySymbol) },
+                          { description: 'Material cost', value: formatCurrency(result.materialCost, currencySymbol) },
+                          { description: 'Grand total', value: formatCurrency(result.grandTotal, currencySymbol) },
+                        ],
+                        notes: [`Method: ${result.method}`, `Waste margin: ${input.wasteMargin}%`],
+                      })} />
+
+                      <EngineMaterialSummaryCard summary={engine.buildMaterialSummary([
+                        { materialId: 'tiles', productName: 'Tiles', totalQuantity: result.boxesNeeded, quantityUnit: 'boxes', spaceIds: ['surface'] },
+                        ...(result.method === 'adhesive' ? [{ materialId: 'adhesive', productName: 'Adhesive', totalQuantity: result.adhesiveNeeded, quantityUnit: 'bags', spaceIds: ['surface'] }] : []),
+                        { materialId: 'grout', productName: 'Grout', totalQuantity: result.groutNeeded, quantityUnit: 'kg', spaceIds: ['surface'] },
+                      ])} />
+                    </div>
                   </>
                 ) : (
                   <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>

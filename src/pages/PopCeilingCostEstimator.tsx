@@ -12,6 +12,13 @@ import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbSiteSettings } from '@/types/database';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineExplanationPanel,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PopCeilingCostEstimatorSeo } from '@/components/seo/SeoContent';
@@ -52,6 +59,8 @@ export default function PopCeilingCostEstimator() {
   const [loading, setLoading] = useState(true);
   const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig('pop_ceiling');
   const [result, setResult] = useState<PopCalcResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'pop_ceiling_cost' });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
 
@@ -236,6 +245,42 @@ const mountedRef = useRef(true);
                         {saving ? 'Saving…' : 'Save to Projects'}
                       </button>
                     )}
+
+                    {/* ── Engine Features (Additive) ── */}
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <EngineConfidenceBadge result={engine.assessConfidence({
+                          ruleValid: true,
+                          inputComplete: true,
+                          materialSpecComplete: result.materials.length > 0,
+                          marketPriceAvailable: result.materialCost > 0,
+                          sourceReliability: 'trusted',
+                          productMatched: result.materials.some(m => m.packagesNeeded > 0),
+                        })} />
+                      </div>
+
+                      <EngineExplanationPanel result={engine.buildExplanation({
+                        subject: 'POP Ceiling Cost Estimate',
+                        resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(result.ceilingArea)} m²`,
+                        steps: [
+                          { description: 'Ceiling area', value: `${formatNumber(result.ceilingArea)} m²` },
+                          { description: 'Waste allowance', value: `${formatNumber(result.wasteAmount)} m²` },
+                          { description: 'Material cost', value: formatCurrency(result.materialCost, currencySymbol) },
+                          { description: 'Grand total', value: formatCurrency(result.grandTotal, currencySymbol) },
+                        ],
+                        notes: [`Workflow: ${input.workflow}`, `Waste margin: ${input.wasteMargin}%`],
+                      })} />
+
+                      <EngineMaterialSummaryCard summary={engine.buildMaterialSummary(
+                        result.materials.map((m, i) => ({
+                          materialId: `pop-mat-${i}`,
+                          productName: m.name,
+                          totalQuantity: m.packagesNeeded,
+                          quantityUnit: 'packages',
+                          spaceIds: ['ceiling'],
+                        }))
+                      )} />
+                    </div>
                   </>
                 ) : (
                   <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>

@@ -17,6 +17,13 @@ import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineExplanationPanel,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 
 interface PassedState {
   netScreedingArea?: number;
@@ -84,6 +91,8 @@ export default function ScreedingCostEstimator() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [result, setResult] = useState<ScreedingMixResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'screeding_cost' });
 
 const mountedRef = useRef(true);
     useEffect(() => {
@@ -285,6 +294,43 @@ const mountedRef = useRef(true);
                       <div className="flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
                         <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                         Based on {formatNumber(netArea)} m² screeding area, {result.wasteAllowance}% waste, and {config.taxVatPercentage}% VAT.
+                      </div>
+
+                      {/* ── Engine Features (Additive) ── */}
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <EngineConfidenceBadge result={engine.assessConfidence({
+                            ruleValid: true,
+                            inputComplete: netArea > 0,
+                            materialSpecComplete: true,
+                            marketPriceAvailable: result.materialCost > 0,
+                            sourceReliability: 'trusted',
+                            productMatched: result.paintBucketsNeeded > 0,
+                          })} />
+                        </div>
+
+                        <EngineExplanationPanel result={engine.buildExplanation({
+                          subject: 'Screeding Cost Estimate',
+                          resultSummary: `${formatCurrency(result.grandTotal, currencySymbol)} total for ${formatNumber(netArea)} m²`,
+                          steps: [
+                            { description: 'Screeding area', value: `${formatNumber(netArea)} m²` },
+                            { description: 'Paint required', value: `${formatNumber(result.paintRequiredLiters, 1)} L` },
+                            { description: 'Paint buckets needed', value: `${result.paintBucketsNeeded} × ${config.paintBucketSizeL}L` },
+                            { description: 'Paint cost', value: formatCurrency(result.paintTotalCost, currencySymbol) },
+                            { description: 'Cement required', value: `${formatNumber(result.cementRequiredKg, 1)} kg` },
+                            { description: 'Cement bags needed', value: `${result.cementBagsNeeded} × ${config.cementBagSizeKg}kg` },
+                            { description: 'Cement cost', value: formatCurrency(result.cementTotalCost, currencySymbol) },
+                            { description: 'Material cost', value: formatCurrency(result.materialCost, currencySymbol) },
+                            { description: 'Waste', value: formatCurrency(result.wasteAmount, currencySymbol) },
+                            { description: 'Grand total', value: formatCurrency(result.grandTotal, currencySymbol) },
+                          ],
+                          notes: [`Waste: ${result.wasteAllowance}%`, `VAT: ${config.taxVatPercentage}%`],
+                        })} />
+
+                        <EngineMaterialSummaryCard summary={engine.buildMaterialSummary([
+                          { materialId: 'screeding-paint', productName: 'Screeding Paint', totalQuantity: result.paintBucketsNeeded, quantityUnit: 'buckets', spaceIds: ['surface'] },
+                          { materialId: 'white-cement', productName: 'White Cement', totalQuantity: result.cementBagsNeeded, quantityUnit: 'bags', spaceIds: ['surface'] },
+                        ])} />
                       </div>
                     </>
                   ) : (
