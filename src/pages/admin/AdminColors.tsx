@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { classNames } from '@/lib/utils';
 import { readableTextColor } from '@/lib/colors';
@@ -251,13 +252,7 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit color' : 'Add color'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit color' : 'Add color'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
             <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
@@ -286,9 +281,7 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -383,12 +376,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
   const errorCount = preview?.filter((r) => !r.valid).length ?? 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Bulk import colors</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
+    <AdminModal open onClose={onClose} title="Bulk import colors" maxWidth="max-w-2xl">
 
         {/* Format toggle */}
         <div className="mt-3 inline-flex rounded-lg border border-neutral-200 p-1">
@@ -453,8 +441,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
           <AdminButton variant="secondary" onClick={onClose}>Close</AdminButton>
           <AdminButton onClick={doImport} disabled={importing || validCount === 0}>{importing ? 'Importing…' : `Import ${validCount} colors`}</AdminButton>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -536,13 +523,7 @@ function FamilyForm({ initial, onClose, onSaved }: { initial: DbColorFamily | nu
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit family' : 'Add family'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit family' : 'Add family'} maxWidth="max-w-md">
           <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
           <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
           <AdminField label="Description"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
@@ -552,9 +533,7 @@ function FamilyForm({ initial, onClose, onSaved }: { initial: DbColorFamily | nu
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -667,13 +646,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit combination' : 'Add combination'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit combination' : 'Add combination'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Title"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={title} onChange={(e) => setTitle(e.target.value)} onBlur={() => !slug && setSlug(slugify(title))} /></AdminField>
             <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from title" /></AdminField>
@@ -710,9 +683,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -794,13 +765,7 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit category' : 'Add category'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit category' : 'Add category'} maxWidth="max-w-md">
           <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
           <AdminField label="Slug" hint="lowercase, no spaces"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
           <AdminField label="Type">
@@ -818,8 +783,6 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
