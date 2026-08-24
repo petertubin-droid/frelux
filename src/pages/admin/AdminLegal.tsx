@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Pencil, X, FileText, CheckCircle2 } from 'lucide-react';
+import { Pencil, FileText, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbLegalPage } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 export default function AdminLegal() {
   const [items, setItems] = useState<DbLegalPage[]>([]);
@@ -75,13 +76,7 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Edit {initial.title}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title="Edit {initial.title}" maxWidth="max-w-2xl">
           <AdminField label="Title"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={title} onChange={(e) => setTitle(e.target.value)} /></AdminField>
           <AdminField label="Content" hint="Plain text. Paragraphs separated by blank lines."><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 min-h-[300px] resize-y font-mono text-sm" value={content} onChange={(e) => setContent(e.target.value)} /></AdminField>
           <div>
@@ -91,8 +86,6 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}{!saving && <CheckCircle2 className="h-4 w-4" />}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

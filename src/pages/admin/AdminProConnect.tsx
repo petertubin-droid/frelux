@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
@@ -1204,11 +1205,7 @@ function AdminChannelsTab() {
 
       {/* Channel form modal */}
       {showChannelForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowChannelForm(false)}>
-          <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
-              {editingChannel ? 'Edit Channel' : 'New Channel'}
-            </h3>
+        <AdminModal open onClose={() => setShowChannelForm(false)} title={editingChannel ? 'Edit Channel' : 'New Channel'} maxWidth="max-w-lg">
             <div className="space-y-3">
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
@@ -1270,17 +1267,12 @@ function AdminChannelsTab() {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
 
       {/* Category form modal */}
       {showCategoryForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCategoryForm(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
-            <h3 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
-              {editingCategory ? 'Edit Category' : 'New Category'}
-            </h3>
+        <AdminModal open onClose={() => setShowCategoryForm(false)} title={editingCategory ? 'Edit Category' : 'New Category'} maxWidth="max-w-md">
             <div className="space-y-3">
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
@@ -1322,8 +1314,7 @@ function AdminChannelsTab() {
                 Cancel
               </button>
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
     </div>
   );

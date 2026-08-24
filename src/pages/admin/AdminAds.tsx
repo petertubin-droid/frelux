@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Plus, Pencil, Trash2, X, Save, Loader2, Megaphone, Layers, BarChart3,
+  Plus, Pencil, Trash2, Save, Loader2, Megaphone, Layers, BarChart3,
   Download, Upload, ArrowUp, ArrowDown, Check,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import { clearAdConfigCache } from '@/lib/ad-config';
 import { BUILTIN_PROVIDERS, CUSTOM_PROVIDER_SCHEMA, PLACEMENT_TYPE_LABELS, PAGE_TARGET_LABELS } from '@/lib/ad-providers';
@@ -208,13 +209,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 dark:bg-black/60">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit Provider' : 'Add Provider'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit Provider' : 'Add Provider'} maxWidth="max-w-2xl">
           {!initial && (
             <AdminField label="Provider Type">
               <div className="flex items-center gap-3">
@@ -307,9 +302,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -350,12 +343,7 @@ function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 dark:bg-black/60">
-      <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">Import Providers</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
-        </div>
+    <AdminModal open onClose={onClose} title="Import Providers" maxWidth="max-w-xl">
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
         <textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-3 font-mono text-sm" rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder='[{"name":"...","slug":"..."}]' />
         {result && (
@@ -368,8 +356,7 @@ function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
           <AdminButton variant="secondary" onClick={onClose}>Close</AdminButton>
           <AdminButton onClick={doImport} disabled={importing || !text.trim()}>{importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />} Import</AdminButton>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -516,13 +503,7 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
   const activeProviders = providers.filter(p => p.is_active || providerIds.includes(p.id));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 dark:bg-black/60">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit Placement' : 'Add Placement'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit Placement' : 'Add Placement'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Placement Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementName} onChange={(e) => setPlacementName(e.target.value)} /></AdminField>
             <AdminField label="Placement Key" hint="URL friendly identifier"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementKey} onChange={(e) => setPlacementKey(e.target.value)} placeholder="auto from name" disabled={!!initial} /></AdminField>
@@ -598,9 +579,7 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 

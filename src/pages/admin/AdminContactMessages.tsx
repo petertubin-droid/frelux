@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Mail, Trash2, X, CheckCircle2, Archive } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 
 interface ContactMessage {
@@ -79,13 +80,8 @@ export default function AdminContactMessages() {
           </div>
         )}
       {viewing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-brand-navy dark:text-white">{viewing.subject}</h2>
-              <button type="button" onClick={() => setViewing(null)} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
-            </div>
-            <div className="mt-3 space-y-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <AdminModal open onClose={() => setViewing(null)} title={viewing.subject} maxWidth="max-w-2xl">
+            <div className="space-y-1 text-sm text-neutral-500 dark:text-neutral-400">
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">From:</span> {viewing.name} ({viewing.email})</p>
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
             </div>
@@ -97,8 +93,7 @@ export default function AdminContactMessages() {
               {viewing.status !== 'replied' && <AdminButton variant="secondary" onClick={() => updateStatus(viewing.id, 'replied')}><CheckCircle2 className="h-4 w-4" /> Mark replied</AdminButton>}
               {viewing.status !== 'archived' && <AdminButton variant="secondary" onClick={() => updateStatus(viewing.id, 'archived')}><Archive className="h-4 w-4" /> Archive</AdminButton>}
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
     </>
   );

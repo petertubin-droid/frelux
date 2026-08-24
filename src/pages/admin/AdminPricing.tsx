@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbPaintProduct, DbMaterialPrice, DbLaborRate, DbPaintType } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames, formatCurrency } from '@/lib/utils';
 
 type Tab = 'products' | 'materials' | 'labor';
@@ -125,13 +126,7 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit product' : 'Add product'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit product' : 'Add product'} maxWidth="max-w-lg">
           <AdminField label="Product name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Brand"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={brand} onChange={(e) => setBrand(e.target.value)} /></AdminField>
@@ -153,9 +148,7 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -229,13 +222,7 @@ function MaterialForm({ initial, onClose, onSaved }: { initial: DbMaterialPrice 
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit material' : 'Add material'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit material' : 'Add material'} maxWidth="max-w-lg">
           <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Category"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={category} onChange={(e) => setCategory(e.target.value as DbMaterialPrice['category'])}>{['primer','filler','putty','sandpaper','brushes','rollers','other'].map((c) => <option key={c} value={c}>{c}</option>)}</select></AdminField>
@@ -249,9 +236,7 @@ function MaterialForm({ initial, onClose, onSaved }: { initial: DbMaterialPrice 
           <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -322,13 +307,7 @@ function LaborForm({ initial, onClose, onSaved }: { initial: DbLaborRate | null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit labor rate' : 'Add labor rate'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit labor rate' : 'Add labor rate'} maxWidth="max-w-lg">
           <AdminField label="Rate name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} placeholder="Standard painter" /></AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Rate per m²" error={ratePerSqm < 0 ? 'Cannot be negative' : undefined}><input type="number" min={0} className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={ratePerSqm} onChange={(e) => setRatePerSqm(Number(e.target.value))} /></AdminField>
@@ -338,8 +317,6 @@ function LaborForm({ initial, onClose, onSaved }: { initial: DbLaborRate | null;
           <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {
   AdminHeader,
@@ -8,6 +8,7 @@ import {
   StateMessage,
   Toggle,
 } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import type {
   EstimationUnit,
@@ -303,21 +304,7 @@ function UnitForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
-            {initial ? 'Edit unit' : 'Add unit'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit unit' : 'Add unit'} maxWidth="max-w-lg">
           <AdminField label="Name">
             <input
               className="input-field dark:bg-brand-navy-mid dark:border-white/10"
@@ -379,9 +366,7 @@ function UnitForm({
               {saving ? 'Saving…' : 'Save'}
             </AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -665,22 +650,7 @@ function PackSizeForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
-            {initial ? 'Edit pack size' : 'Add pack size'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit pack size' : 'Add pack size'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Reference Type">
               <select
@@ -825,9 +795,7 @@ function PackSizeForm({
               {saving ? 'Saving…' : 'Save'}
             </AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -1082,22 +1050,7 @@ function CalcRuleForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
-            {initial ? 'Edit calculation rule' : 'Add calculation rule'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit calculation rule' : 'Add calculation rule'} maxWidth="max-w-lg">
           <AdminField label="Rule Key">
             <input
               className="input-field dark:bg-brand-navy-mid dark:border-white/10 font-mono"
@@ -1179,9 +1132,7 @@ function CalcRuleForm({
               {saving ? 'Saving…' : 'Save'}
             </AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -1386,22 +1337,7 @@ function CalcVersionForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
-            {initial ? 'Edit calculation version' : 'Add calculation version'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit calculation version' : 'Add calculation version'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Calculator Type">
               <select
@@ -1469,8 +1405,6 @@ function CalcVersionForm({
               {saving ? 'Saving…' : 'Save'}
             </AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

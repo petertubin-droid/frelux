@@ -16,6 +16,7 @@ import {
   StateMessage,
   Toggle,
 } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 interface ProductionRule {
   id: string;
@@ -196,16 +197,7 @@ function ProductionRuleForm({
   const [sortOrder, setSortOrder] = useState(rule?.sort_order ?? 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-brand-navy-mid">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-            {rule ? 'Edit Rule' : 'Add Production Rule'}
-          </h3>
-          <button onClick={onCancel} className="rounded p-1 text-neutral-400 hover:text-neutral-600">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <AdminModal open onClose={onCancel} title={rule ? 'Edit Rule' : 'Add Production Rule'} maxWidth="max-w-md">
 
         <div className="space-y-3">
           <AdminField label="Product Category">
@@ -264,7 +256,6 @@ function ProductionRuleForm({
             is_active: true,
           })}>Save</AdminButton>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

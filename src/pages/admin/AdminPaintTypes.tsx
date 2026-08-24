@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbPaintType } from '@/types/database';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 export default function AdminPaintTypes() {
   const [items, setItems] = useState<DbPaintType[]>([]);
@@ -90,13 +91,7 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit paint type' : 'Add paint type'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit paint type' : 'Add paint type'} maxWidth="max-w-lg">
           <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={(e) => setName(e.target.value)} placeholder="Emulsion" /></AdminField>
           <AdminField label="Description"><textarea className="input-field dark:bg-brand-navy-mid dark:border-white/10" rows={2} value={description} onChange={(e) => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -122,8 +117,6 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

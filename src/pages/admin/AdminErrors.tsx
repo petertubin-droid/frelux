@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { formatNumber } from '@/lib/utils';
 
@@ -196,15 +197,8 @@ export default function AdminErrors() {
 
       {/* Detail modal */}
       {selectedError && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setSelectedError(null)}>
-          <div className="max-h-80vh w-full max-w-2xl overflow-auto rounded-lg bg-white p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Error Details</h2>
-              <button type="button" onClick={() => setSelectedError(null)} className="text-neutral-400 hover:text-neutral-600">
-                <span className="text-xl">×</span>
-              </button>
-            </div>
-            <div className="mt-4 space-y-3">
+        <AdminModal open onClose={() => setSelectedError(null)} title="Error Details" maxWidth="max-w-2xl">
+            <div className="space-y-3">
               <DetailRow label="Severity" value={selectedError.severity} />
               <DetailRow label="Boundary" value={selectedError.boundary_name} />
               <DetailRow label="Message" value={selectedError.error_message} />
@@ -224,8 +218,7 @@ export default function AdminErrors() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
+        </AdminModal>
       )}
     </div>
   );

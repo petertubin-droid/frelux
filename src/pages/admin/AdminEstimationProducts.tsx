@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X, ChevronDown, ChevronRight, Tag, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Tag, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 // ─────────────────────────────────────────────────────────
 // Types (inline — matches DB columns from estimation_products)
@@ -316,13 +317,7 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 overflow-y-auto">
-      <div className="w-full max-w-2xl rounded-xl bg-white p-6 shadow-xl my-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit product' : 'Add product'}</h2>
-          <button onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit product' : 'Add product'} maxWidth="max-w-2xl">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. FRELUX Emulsion" /></AdminField>
             <AdminField label="Slug" hint="Auto-generated if left blank"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={e => setSlug(e.target.value)} placeholder="frelux-emulsion" /></AdminField>
@@ -371,9 +366,7 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -424,13 +417,7 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 overflow-y-auto">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl my-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit quality level' : 'Add quality level'}</h2>
-          <button onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit quality level' : 'Add quality level'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Name"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={name} onChange={e => setName(e.target.value)} placeholder="Standard, Premium, High Quality" /></AdminField>
             <AdminField label="Slug" hint="Auto-generated if left blank"><input className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={e => setSlug(e.target.value)} /></AdminField>
@@ -464,8 +451,6 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

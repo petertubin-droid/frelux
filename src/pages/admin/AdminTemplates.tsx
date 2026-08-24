@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { Plus, Loader2, Edit2, Trash2, Copy, BadgeCheck, Eye, EyeOff, Save, X, Search, ChevronDown } from 'lucide-react';
 import {
   adminGetAllTemplates,
@@ -261,16 +262,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
-            {isEdit ? 'Edit Template' : 'Create Template'}
-          </h2>
-          <button onClick={onClose} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <AdminModal open onClose={onClose} title={isEdit ? 'Edit Template' : 'Create Template'} maxWidth="max-w-2xl">
 
         <div className="mt-4 space-y-4">
           {/* Name */}
@@ -343,7 +335,6 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
             </button>
           </div>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

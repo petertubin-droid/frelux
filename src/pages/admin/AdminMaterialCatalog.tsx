@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { AdminHeader, AdminButton, StateMessage, AdminField, Toggle } from "@/components/admin/AdminUi";
 import { supabase } from '@/lib/supabase';
 import type { DbMaterialCatalog, MaterialCatalogCategory } from '@/types/database';
@@ -199,12 +200,7 @@ function MaterialForm({ item, onSave, onClose }: { item: DbMaterialCatalog | nul
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-neutral-800">{item ? 'Edit Material' : 'Add Material'}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
+    <AdminModal open onClose={onClose} title={item ? 'Edit Material' : 'Add Material'} maxWidth="max-w-2xl">
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -261,7 +257,6 @@ function MaterialForm({ item, onSave, onClose }: { item: DbMaterialCatalog | nul
             </div>
           </div>
         </form>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

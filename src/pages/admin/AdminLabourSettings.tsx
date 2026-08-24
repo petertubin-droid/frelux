@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
-import { HardHat, Plus, Pencil, Trash2, X, Save, Loader2 } from 'lucide-react';
+import { HardHat, Plus, Pencil, Trash2, Save, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { PRICING_METHOD_LABELS, type LabourPricingMethod, type LabourEstimatorKey } from '@/lib/labour';
 import type { DbLabourSettings, DbLabourCategory } from '@/types/database';
 
@@ -300,13 +301,7 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 dark:bg-black/60">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-neutral-900">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{initial ? 'Edit Category' : 'Add Category'}</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"><X className="h-5 w-5" /></button>
-        </div>
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit Category' : 'Add Category'} maxWidth="max-w-lg">
           <AdminField label="Estimator">
             <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={estimatorKey} onChange={(e) => setEstimatorKey(e.target.value as LabourEstimatorKey)}>
               {(['paint', 'screeding', 'pop_ceiling', 'tile'] as LabourEstimatorKey[]).map((k) => <option key={k} value={k}>{ESTIMATOR_LABELS[k]}</option>)}
@@ -331,8 +326,6 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
             <AdminButton onClick={onSave} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

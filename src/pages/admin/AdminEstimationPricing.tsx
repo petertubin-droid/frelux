@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, X, History, Search, Filter, DollarSign, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 
 interface PriceItem {
   id: string;
@@ -429,22 +430,7 @@ function PricingForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
-            {initial ? 'Edit Price Record' : 'Add Price Record'}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <div className="mt-5 space-y-4">
+    <AdminModal open onClose={onClose} title={initial ? 'Edit Price Record' : 'Add Price Record'} maxWidth="max-w-lg">
           <AdminField label="Price Type">
             <select
               className="input-field dark:bg-brand-navy-mid dark:border-white/10"
@@ -584,9 +570,7 @@ function PricingForm({
               {saving ? 'Saving…' : 'Save Price'}
             </AdminButton>
           </div>
-        </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
 
@@ -630,23 +614,10 @@ function PriceHistoryModal({
   }, [item.ref_id, item.price_type]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4">
-      <div className="w-full max-w-xl rounded-xl bg-white p-6 shadow-xl max-h-[85vh] flex flex-col">
-        <div className="flex items-center justify-between pb-4 border-b">
-          <div>
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Price History</h2>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              {refName} ({item.price_type})
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <AdminModal open onClose={onClose} title="Price History" maxWidth="max-w-xl">
+        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          {refName} ({item.price_type})
+        </p>
 
         <div className="mt-4 flex-1 overflow-y-auto pr-1">
           {error && (
@@ -711,7 +682,6 @@ function PriceHistoryModal({
             Close
           </AdminButton>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }

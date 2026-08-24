@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import type { DbTimelineTemplate, ProjectType, TimelinePhase } from "@/types/database";
 import { Plus, Trash2, Edit3, X, Calendar } from 'lucide-react';
@@ -118,12 +119,7 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-neutral-800">{template ? 'Edit Template' : 'Add Template'}</h2>
-          <button onClick={onClose} className="rounded-lg p-1 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
-        </div>
+    <AdminModal open onClose={onClose} title={template ? 'Edit Template' : 'Add Template'} maxWidth="max-w-2xl">
 
         {error && <div className="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-700">{error}</div>}
 
@@ -169,7 +165,6 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
             <AdminButton onClick={handleSave}>{template ? 'Update' : 'Create'} Template</AdminButton>
           </div>
         </div>
-      </div>
-    </div>
+    </AdminModal>
   );
 }
