@@ -167,13 +167,13 @@ function AdminProfessionalsTab() {
                 <option value="suspended">Suspend</option>
               </select>
               {!p.pro_level ? (
-                <button onClick={() => handleAwardProLevel(p.id)} title="Award FRELUX Pro" className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10">
+                <AdminIconButton variant="ghost" onClick={() => handleAwardProLevel(p.id)} title="Award FRELUX Pro" className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10">
                   <Award className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
               ) : (
-                <button onClick={() => handleRevokeProLevel(p.id)} title="Revoke FRELUX Pro" className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
+                <AdminIconButton variant="danger" onClick={() => handleRevokeProLevel(p.id)} title="Revoke FRELUX Pro" className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
                   <Ban className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
               )}
               <a href={`/pro-connect/${p.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
                 <Eye className="h-4 w-4" />
@@ -987,13 +987,13 @@ function AdminSettingsTab() {
       </div>
 
       {/* Save button */}
-      <button
+      <AdminButton
         onClick={handleSave}
         disabled={saving}
-        className="rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="px-6 py-2.5"
       >
         {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Settings'}
-      </button>
+      </AdminButton>
     </div>
   );
 }
@@ -1151,9 +1151,9 @@ function AdminChannelsTab() {
                 <p className="text-xs text-neutral-400">/{cat.slug} · {cat.is_active ? 'Active' : 'Inactive'}</p>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => startEditCategory(cat)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+                <AdminIconButton variant="ghost" onClick={() => startEditCategory(cat)}>
                   <Eye className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
                 <AdminIconButton variant="ghost" onClick={() => deleteCategory(cat.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
                 </AdminIconButton>
@@ -1188,9 +1188,9 @@ function AdminChannelsTab() {
                 </p>
               </div>
               <div className="flex gap-1">
-                <button onClick={() => startEditChannel(ch)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+                <AdminIconButton variant="ghost" onClick={() => startEditChannel(ch)}>
                   <Eye className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
                 <AdminIconButton variant="ghost" onClick={() => deleteChannel(ch.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
                 </AdminIconButton>
@@ -1522,14 +1522,14 @@ function AdminModerationTab() {
       </div>
 
       {/* Save button */}
-      <button
+      <AdminButton
         onClick={handleSave}
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="px-6 py-2.5"
       >
         <Save className="h-4 w-4" />
         {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Moderation Settings'}
-      </button>
+      </AdminButton>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
+import { AdminButton, AdminInput } from '@/components/admin/AdminUi';
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -80,7 +81,7 @@ export default function AdminLogin() {
                 <p className="font-semibold text-accent-green">Account created</p>
                 <p className="mt-1">Your account <span className="font-semibold">{signedUpEmail}</span> has been registered. New accounts start as a regular user. To get admin access, an existing admin needs to update your role to <span className="font-semibold">admin</span> in the profiles table.</p>
               </div>
-              <button type="button" onClick={() => { setSignedUpEmail(null); setMode('signin'); }} className="btn-secondary w-full">Sign in</button>
+              <AdminButton variant="secondary" onClick={() => { setSignedUpEmail(null); setMode('signin'); }} className="w-full px-5 py-2.5">Sign in</AdminButton>
             </div>
           ) : (
             <>
@@ -107,14 +108,14 @@ export default function AdminLogin() {
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
                   <div className="relative mt-1.5">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="admin@example.com" autoComplete="email" required />
+                    <AdminInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="admin@example.com" autoComplete="email" required />
                   </div>
                 </label>
                 <label className="block">
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                   <div className="relative mt-1.5">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
+                    <AdminInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                   </div>
                 </label>
                 {error && (
@@ -122,10 +123,10 @@ export default function AdminLogin() {
                     <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /><p>{error}</p>
                   </div>
                 )}
-                <button type="submit" disabled={loading || !configured} className="btn-primary w-full disabled:opacity-50">
+                <AdminButton type="submit" disabled={loading || !configured} className="w-full px-5 py-2.5">
                   {mode === 'signin' ? <LogIn className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
                   {loading ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Create account'}
-                </button>
+                </AdminButton>
                 <div className="text-center">
                   <button type="button" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }} className="text-xs font-semibold text-brand-purple hover:underline">
                     {mode === 'signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
