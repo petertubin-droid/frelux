@@ -7,6 +7,9 @@
 // =========================================================
 
 // Calculation method types
+// Coverage unit types for the paint calculation engine
+export type CoverageUnit = 'm2_per_liter' | 'm2_per_bucket' | 'ft2_per_liter' | 'ft2_per_bucket' | 'frelux_calibration';
+
 export type CalculationMethod =
   | 'room_based'
   | 'partition_based'
@@ -182,7 +185,9 @@ export interface EstimationProductQuality {
   slug: string;
   description: string | null;
   coverage: number | null;
-  coverage_unit: string | null;
+  coverage_unit: string | null;  // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, frelux_calibration
+  ceiling_coverage: number | null;  // separate ceiling coverage rate
+  ceiling_coverage_unit: string | null;
   finish: string | null;
   texture: string | null;
   gloss_level: string | null;

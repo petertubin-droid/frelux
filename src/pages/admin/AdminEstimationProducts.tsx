@@ -3,6 +3,7 @@ import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Tag, Search } from 'lu
 import { supabase } from '@/lib/supabase';
 import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
+import { getCoverageUnitLabel } from '@/lib/estimation/paint-engine';
 
 // ─────────────────────────────────────────────────────────
 // Types (inline — matches DB columns from estimation_products)
@@ -39,6 +40,8 @@ interface EstQuality {
   description: string | null;
   coverage: number | null;
   coverage_unit: string | null;
+  ceiling_coverage: number | null;
+  ceiling_coverage_unit: string | null;
   finish: string | null;
   texture: string | null;
   gloss_level: string | null;
@@ -51,6 +54,13 @@ interface EstQuality {
 const CALC_METHODS = ['room_based', 'partition_based', 'area_based', 'material_based', 'fixed_quantity', 'custom'];
 const PRODUCT_TYPES = ['paint', 'coating', 'primer', 'sealer', 'adhesive', 'other'];
 const CATEGORIES = ['emulsion', 'matt', 'satin', 'tyrolene', 'grafitex', 'primer', 'sealer', 'screeding', 'pop', 'tile', 'other'];
+const COVERAGE_UNITS = [
+  { value: 'm2_per_liter', label: 'm² per litre' },
+  { value: 'm2_per_bucket', label: 'm² per 20-L bucket' },
+  { value: 'ft2_per_liter', label: 'ft² per litre' },
+  { value: 'ft2_per_bucket', label: 'ft² per 20-L bucket' },
+  { value: 'frelux_calibration', label: 'FRELUX Calibration' },
+];
 
 function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -379,6 +389,8 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
   const [description, setDescription] = useState(initial?.description ?? '');
   const [coverage, setCoverage] = useState(initial?.coverage?.toString() ?? '');
   const [coverageUnit, setCoverageUnit] = useState(initial?.coverage_unit ?? 'm2_per_liter');
+  const [ceilingCoverage, setCeilingCoverage] = useState(initial?.ceiling_coverage?.toString() ?? '');
+  const [ceilingCoverageUnit, setCeilingCoverageUnit] = useState(initial?.ceiling_coverage_unit ?? 'm2_per_liter');
   const [finish, setFinish] = useState(initial?.finish ?? '');
   const [texture, setTexture] = useState(initial?.texture ?? '');
   const [glossLevel, setGlossLevel] = useState(initial?.gloss_level ?? '');
@@ -400,6 +412,8 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
       description: description.trim() || null,
       coverage: coverage ? Number(coverage) : null,
       coverage_unit: coverage ? coverageUnit : null,
+      ceiling_coverage: ceilingCoverage ? Number(ceilingCoverage) : null,
+      ceiling_coverage_unit: ceilingCoverage ? ceilingCoverageUnit : null,
       finish: finish.trim() || null,
       texture: texture.trim() || null,
       gloss_level: glossLevel.trim() || null,
@@ -426,10 +440,18 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Coverage rate" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={coverage} onChange={e => setCoverage(e.target.value)} /></AdminField>
             <AdminField label="Coverage unit">
-              <AdminSelect  value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
-                <option value="m2_per_liter">m² per liter</option>
-                <option value="m2_per_kg">m² per kg</option>
-                <option value="m2_per_bag">m² per bag</option>
+              <AdminSelect value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
+                {COVERAGE_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
+              </AdminSelect>
+            </AdminField>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <AdminField label="Ceiling coverage rate" hint="Separate from wall coverage. Leave blank to use wall coverage or ceiling_quantity_per_room rule.">
+              <AdminInput type="number" min={0} step="0.1" value={ceilingCoverage} onChange={e => setCeilingCoverage(e.target.value)} />
+            </AdminField>
+            <AdminField label="Ceiling coverage unit">
+              <AdminSelect value={ceilingCoverageUnit} onChange={e => setCeilingCoverageUnit(e.target.value)}>
+                {COVERAGE_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
               </AdminSelect>
             </AdminField>
           </div>

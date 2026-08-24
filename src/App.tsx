@@ -78,6 +78,7 @@ const AdminEstimationPricing = lazy(() => import('@/pages/admin/AdminEstimationP
 const AdminEstimationEstimates = lazy(() => import('@/pages/admin/AdminEstimationEstimates'));
 const AdminEstimationAudit = lazy(() => import('@/pages/admin/AdminEstimationAudit'));
 const AdminEstimationProduction = lazy(() => import('@/pages/admin/AdminEstimationProduction'));
+const AdminPaintEngineTest = lazy(() => import('@/pages/admin/AdminPaintEngineTest'));
 const AdminTyroleneConfig = lazy(() => import('@/pages/admin/AdminTyroleneConfig'));
 const AdminPaintTypes = lazy(() => import('@/pages/admin/AdminPaintTypes'));
 const AdminPricing = lazy(() => import('@/pages/admin/AdminPricing'));
@@ -335,6 +336,7 @@ export default function App() {
             <Route path="estimation-estimates" element={<AdminEstimationEstimates />} />
             <Route path="estimation-audit" element={<AdminEstimationAudit />} />
             <Route path="estimation-production" element={<Suspense fallback={<PageLoader />}><AdminEstimationProduction /></Suspense>} />
+            <Route path="paint-engine-test" element={<Suspense fallback={<PageLoader />}><AdminPaintEngineTest /></Suspense>} />
             <Route path="tyrolene-config" element={<Suspense fallback={<PageLoader />}><AdminTyroleneConfig /></Suspense>} />
             <Route path="paint-types" element={<AdminPaintTypes />} />
             <Route path="screeding" element={<AdminScreedingMaterials />} />
