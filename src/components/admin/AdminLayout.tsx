@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, Outlet, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Calculator, DollarSign, Palette, Settings, FileText, BarChart3,
-  LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift,
+  LogOut, Menu, X, ExternalLink, Megaphone, Layers, Image, GraduationCap, Gift, Globe,
   BookOpen, Users, Search, Plug, ShieldCheck, Sun, Moon, HardHat, Mail, AlertTriangle, Package, Calendar, FileSignature, Type, Factory, Building2, Briefcase, ShoppingBag, MapPin, Camera, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
@@ -134,6 +134,12 @@ const navModules: NavModule[] = [
       { label: 'Material Catalog', to: '/admin/material-catalog', icon: Package },
       { label: 'Timeline Templates', to: '/admin/timeline-templates', icon: Calendar },
       { label: 'Quotation Settings', to: '/admin/quotation-settings', icon: FileSignature },
+    ],
+  },
+  {
+    heading: 'International',
+    items: [
+      { label: 'Markets & Regions', to: '/admin/markets', icon: Globe },
     ],
   },
   {

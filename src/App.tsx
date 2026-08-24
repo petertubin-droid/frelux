@@ -10,6 +10,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
+import { MarketProvider } from '@/lib/international/market-context';
 import { ToastProvider } from '@/components/ui/Toast';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
 import { AdBlockNotice } from '@/components/ui/AdBlockNotice';
@@ -102,6 +103,7 @@ const AdminRewardedAccess = lazy(() => import('@/pages/admin/AdminRewardedAccess
 const AdminBranding = lazy(() => import('@/pages/admin/AdminBranding'));
 const AdminScreedingMaterials = lazy(() => import('@/pages/admin/AdminScreedingMaterials'));
 const AdminLearn = lazy(() => import('@/pages/admin/AdminLearn'));
+const AdminMarkets = lazy(() => import('@/pages/admin/AdminMarkets'));
 const AdminAiLearningAssistant = lazy(() => import('@/pages/admin/AdminAiLearningAssistant'));
 const AdminPopMaterials = lazy(() => import('@/pages/admin/AdminPopMaterials'));
 const AdminTypography = lazy(() => import('@/pages/admin/AdminTypography'));
@@ -189,6 +191,7 @@ export default function App() {
   return (
     <ErrorBoundary boundaryName="app-root">
       <AuthProvider>
+        <MarketProvider>
         <ToastProvider>
           <AnalyticsScripts />
           <AdBlockNotice />
@@ -377,6 +380,7 @@ export default function App() {
             <Route path="pro-connect" element={<AdminProConnect />} />
             <Route path="image-estimation" element={<AdminImageEstimation />} />
             <Route path="marketplace" element={<AdminMarketplace />} />
+            <Route path="markets" element={<AdminMarkets />} />
             <Route path="seo-location" element={<Suspense fallback={<PageLoader />}><AdminSeoLocation /></Suspense>} />
 
             {/* Contractor Config */}
@@ -412,6 +416,7 @@ export default function App() {
         </SentryRoutes>
           </BrowserRouter>
         </ToastProvider>
+        </MarketProvider>
       </AuthProvider>
     </ErrorBoundary>
   );
