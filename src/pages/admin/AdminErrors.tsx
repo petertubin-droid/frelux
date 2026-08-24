@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { formatNumber } from '@/lib/utils';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 interface ErrorLog {
   id: string;
@@ -106,14 +107,13 @@ export default function AdminErrors() {
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Error Monitor</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Runtime errors and exceptions logged from the frontend</p>
         </div>
-        <button
-          type="button"
+        <AdminButton
+          variant="secondary"
           onClick={resolveAll}
           disabled={stats.unresolved === 0}
-          className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:bg-white/5 disabled:opacity-50"
         >
           Resolve all ({stats.unresolved})
-        </button>
+        </AdminButton>
       </div>
 
       {/* Stats grid */}
@@ -180,13 +180,13 @@ export default function AdminErrors() {
                     Details
                   </button>
                   {!err.is_resolved && (
-                    <button
-                      type="button"
+                    <AdminButton
+                      variant="success"
                       onClick={() => resolveError(err.id)}
-                      className="rounded-lg border border-green-200 px-3 py-1 text-xs font-medium text-green-600 hover:bg-green-50"
+                      className="text-xs py-1 bg-green-50 border-green-200 text-green-600 hover:bg-green-100"
                     >
                       Resolve
-                    </button>
+                    </AdminButton>
                   )}
                 </div>
               </div>

@@ -6,6 +6,7 @@ import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 import type { DbSiteBranding, HeroHighlightConfig, HeroWordHighlight } from '@/types/database';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 export default function AdminBranding() {
   const { branding, refresh } = useBranding();
