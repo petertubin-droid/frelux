@@ -85,6 +85,8 @@ export function evaluateHeightWarning(heightM: number, unit: 'meters' | 'feet'):
 export interface CalcConfig {
   coverageRate?: number; // m² per liter per coat
   containerSizes?: number[]; // liters, ascending
+  surfaceFactorOverride?: number; // DB-driven coverage adjustment factor
+  minCoatsOverride?: number; // DB-driven minimum coats for colour condition
 }
 
 // ─────────────────────────────────────────────────────────
@@ -295,14 +297,18 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
 
   // ── Surface condition adjustment ──
   // Rough/textured surfaces reduce effective coverage — apply factor to base rate.
+  // Use DB-driven override if provided, otherwise fall back to hardcoded factor.
   const surfaceCondition = input.surfaceCondition ?? 'smooth';
   const surfaceInfo = getSurfaceConditionFactor(surfaceCondition);
-  const adjustedCoverageRate = round(baseCoverageRate * surfaceInfo.factor);
+  const surfaceFactor = config?.surfaceFactorOverride ?? surfaceInfo.factor;
+  const adjustedCoverageRate = round(baseCoverageRate * surfaceFactor);
 
   // ── Color condition logic ──
+  // Use DB-driven override for min coats if provided.
   const colorCondition = input.colorCondition ?? 'same_or_light';
   const colorInfo = getColorConditionInfo(colorCondition);
-  const effectiveCoats = Math.max(input.coats, colorInfo.minCoats);
+  const minCoats = config?.minCoatsOverride ?? colorInfo.minCoats;
+  const effectiveCoats = Math.max(input.coats, minCoats);
 
   // ── Height warning ──
   const heightWarning = evaluateHeightWarning(heightM, input.unit);
@@ -341,7 +347,7 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
     coverageRate: adjustedCoverageRate,
     baseCoverageRate,
     surfaceCondition,
-    surfaceConditionFactor: surfaceInfo.factor,
+    surfaceConditionFactor: surfaceFactor,
     paintRequiredLiters: round(baseLiters),
     wasteMargin: input.wasteMargin,
     adjustedLiters: round(adjustedLiters),

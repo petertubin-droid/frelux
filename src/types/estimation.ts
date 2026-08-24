@@ -361,6 +361,7 @@ export interface EstimationColourCondition {
   name: string;
   description: string | null;
   requires_warning: boolean;
+  min_coats_override: number | null; // 2 = standard, 3 = colour transition
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -375,6 +376,7 @@ export interface EstimationSurfaceCondition {
   description: string | null;
   requires_preparation: boolean;
   primer_recommended: boolean;
+  coverage_adjustment_factor: number | null; // 1.0 = full, 0.85 = 15% less coverage
   is_active: boolean;
   sort_order: number;
   created_at: string;

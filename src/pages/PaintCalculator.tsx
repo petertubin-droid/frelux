@@ -10,6 +10,7 @@ import { useToast } from '@/components/ui/Toast';
 import { calculatePaint, type CalcConfig, SURFACE_CONDITION_FACTORS, COLOR_CONDITION_INFO } from '@/lib/calc';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
+import { fetchSurfaceConditions, fetchColourConditions } from '@/lib/estimation/queries';
 import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
@@ -17,6 +18,7 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig, SurfaceCondition, ColorCondition } from '@/types';
 import type { DbPaintType } from '@/types/database';
+import type { EstimationSurfaceCondition, EstimationColourCondition } from '@/types/estimation';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 
@@ -111,6 +113,8 @@ export default function PaintCalculator() {
   const [screedingConfig, setScreedingConfig] = useState<ScreedingMixConfig | null>(null);
   const [typesLoading, setTypesLoading] = useState(true);
   const [typesError, setTypesError] = useState<string | null>(null);
+  const [dbSurfaceConditions, setDbSurfaceConditions] = useState<EstimationSurfaceCondition[]>([]);
+  const [dbColourConditions, setDbColourConditions] = useState<EstimationColourCondition[]>([]);
 
   useEffect(() => {
     async function loadTypes() {
@@ -141,8 +145,14 @@ export default function PaintCalculator() {
         });
       }
     }
+    async function loadConditions() {
+      const [surfRes, colourRes] = await Promise.all([fetchSurfaceConditions(), fetchColourConditions()]);
+      if (surfRes.data) setDbSurfaceConditions(surfRes.data);
+      if (colourRes.data) setDbColourConditions(colourRes.data);
+    }
     loadTypes();
     loadScreedingConfig();
+    loadConditions();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -152,10 +162,86 @@ export default function PaintCalculator() {
     return {
       coverageRate: Number(selected.coverage_rate),
       containerSizes: selected.container_sizes,
+      surfaceFactorOverride: effectiveSurfaceFactor !== 1.0 ? effectiveSurfaceFactor : undefined,
+      minCoatsOverride: effectiveMinCoats > 2 ? effectiveMinCoats : undefined,
     };
-  }, [paintTypes, input.paintType]);
+  }, [paintTypes, input.paintType, effectiveSurfaceFactor, effectiveMinCoats]);
+
+  // Override the hardcoded surface condition factor if DB has a value
+  const effectiveSurfaceFactor = useMemo(() => {
+    const dbMatch = dbSurfaceConditions.find(s => s.condition_key === (input.surfaceCondition ?? 'smooth'));
+    if (dbMatch?.coverage_adjustment_factor != null) return dbMatch.coverage_adjustment_factor;
+    return SURFACE_CONDITION_FACTORS[input.surfaceCondition ?? 'smooth']?.factor ?? 1.0;
+  }, [dbSurfaceConditions, input.surfaceCondition]);
+
+  // Override min coats if DB has a value
+  const effectiveMinCoats = useMemo(() => {
+    const dbMatch = dbColourConditions.find(c => c.condition_key === (input.colorCondition ?? 'same_or_light'));
+    if (dbMatch?.min_coats_override != null) return dbMatch.min_coats_override;
+    return COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light']?.minCoats ?? 2;
+  }, [dbColourConditions, input.colorCondition]);
 
   const selectedPaintType = paintTypes.find((t) => t.id === input.paintType || t.name === input.paintType);
+
+  // Merge DB-driven surface conditions with hardcoded fallbacks.
+  // If DB has coverage_adjustment_factor, use it; otherwise fall back to hardcoded.
+  const surfaceConditionOptions = useMemo(() => {
+    const options: { key: SurfaceCondition; label: string; factor: number; description: string; primerRecommended: boolean }[] = [];
+    // If DB has surface conditions, use them
+    if (dbSurfaceConditions.length > 0) {
+      for (const sc of dbSurfaceConditions) {
+        // Map DB condition_key to our SurfaceCondition type
+        const key = sc.condition_key as SurfaceCondition;
+        const factor = sc.coverage_adjustment_factor ?? SURFACE_CONDITION_FACTORS.smooth.factor;
+        // Check if we have a hardcoded label for this key, otherwise use the DB name
+        const hardcoded = SURFACE_CONDITION_FACTORS[key];
+        options.push({
+          key,
+          label: sc.name,
+          factor,
+          description: sc.description ?? (hardcoded?.description ?? ''),
+          primerRecommended: sc.primer_recommended,
+        });
+      }
+    }
+    // Always ensure smooth is available as fallback
+    if (!options.find(o => o.key === 'smooth')) {
+      options.unshift({
+        key: 'smooth',
+        label: SURFACE_CONDITION_FACTORS.smooth.label,
+        factor: SURFACE_CONDITION_FACTORS.smooth.factor,
+        description: SURFACE_CONDITION_FACTORS.smooth.description,
+        primerRecommended: false,
+      });
+    }
+    return options;
+  }, [dbSurfaceConditions]);
+
+  // Merge DB-driven colour conditions with hardcoded fallbacks
+  const colourConditionOptions = useMemo(() => {
+    const options: { key: ColorCondition; label: string; warning: string | null; minCoats: number }[] = [];
+    if (dbColourConditions.length > 0) {
+      for (const cc of dbColourConditions) {
+        const key = cc.condition_key as ColorCondition;
+        const hardcoded = COLOR_CONDITION_INFO[key];
+        options.push({
+          key,
+          label: cc.name,
+          warning: cc.requires_warning ? (hardcoded?.warning ?? 'Additional preparation or paint may be required.') : null,
+          minCoats: cc.min_coats_override ?? hardcoded?.minCoats ?? 2,
+        });
+      }
+    }
+    if (!options.find(o => o.key === 'same_or_light')) {
+      options.unshift({
+        key: 'same_or_light',
+        label: COLOR_CONDITION_INFO.same_or_light.label,
+        warning: null,
+        minCoats: 2,
+      });
+    }
+    return options;
+  }, [dbColourConditions]);
 
   function update<K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) {
     setInput((prev) => ({ ...prev, [key]: value }));
@@ -313,6 +399,8 @@ export default function PaintCalculator() {
                 paintTypes={paintTypes}
                 typesLoading={typesLoading}
                 wasteOptions={WASTE_OPTIONS}
+                surfaceConditionOptions={surfaceConditionOptions}
+                colourConditionOptions={colourConditionOptions}
               />
             )}
 
@@ -499,6 +587,8 @@ function Step3({
   paintTypes,
   typesLoading,
   wasteOptions,
+  surfaceConditionOptions,
+  colourConditionOptions,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
@@ -506,6 +596,8 @@ function Step3({
   paintTypes: DbPaintType[];
   typesLoading: boolean;
   wasteOptions: number[];
+  surfaceConditionOptions: { key: SurfaceCondition; label: string; factor: number; description: string; primerRecommended: boolean }[];
+  colourConditionOptions: { key: ColorCondition; label: string; warning: string | null; minCoats: number }[];
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
@@ -621,9 +713,9 @@ function Step3({
           onChange={(e) => update('surfaceCondition', e.target.value as SurfaceCondition)}
           className="input-field mt-2"
         >
-          {Object.entries(SURFACE_CONDITION_FACTORS).map(([key, info]) => (
-            <option key={key} value={key}>
-              {info.label} ({Math.round((1 - info.factor) * 100)}% more paint)
+          {surfaceConditionOptions.map((opt) => (
+            <option key={opt.key} value={opt.key}>
+              {opt.label} ({Math.round((1 - opt.factor) * 100)}% more paint)
             </option>
           ))}
         </select>
@@ -638,14 +730,14 @@ function Step3({
           onChange={(e) => update('colorCondition', e.target.value as ColorCondition)}
           className="input-field mt-2"
         >
-          {Object.entries(COLOR_CONDITION_INFO).map(([key, info]) => (
-            <option key={key} value={key}>{info.label}</option>
+          {colourConditionOptions.map((opt) => (
+            <option key={opt.key} value={opt.key}>{opt.label}</option>
           ))}
         </select>
-        {COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light'].warning && (
+        {colourConditionOptions.find(o => o.key === (input.colorCondition ?? 'same_or_light'))?.warning && (
           <p className="mt-1 flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-700">
             <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
-            {COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light'].warning}
+            {colourConditionOptions.find(o => o.key === (input.colorCondition ?? 'same_or_light'))?.warning}
           </p>
         )}
       </div>
@@ -659,7 +751,7 @@ function Step3({
         <div>
           <p className="text-sm font-semibold text-neutral-700">Include primer / sealer</p>
           <p className="text-xs text-neutral-400">
-            {input.surfaceCondition === 'new_plaster' || input.surfaceCondition === 'rough'
+            {surfaceConditionOptions.find(o => o.key === (input.surfaceCondition ?? 'smooth'))?.primerRecommended
               ? 'Recommended for this surface condition.'
               : 'Recommended for new surfaces and strong colour transitions.'}
           </p>
