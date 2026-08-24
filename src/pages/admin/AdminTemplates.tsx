@@ -11,7 +11,7 @@ import {
 import { useToast } from '@/components/ui/Toast';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
 
 const CALC_TYPES: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
 
@@ -272,7 +272,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           {/* Description */}
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Description</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <AdminTextarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
           </div>
 
           {/* Calculator type */}
@@ -286,7 +286,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           {/* Input JSON */}
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Input Configuration (JSON)</label>
-            <textarea value={inputJson} onChange={(e) => setInputJson(e.target.value)} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-white" />
+            <AdminTextarea value={inputJson} onChange={(e) => setInputJson(e.target.value)} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-white" />
             {jsonError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{jsonError}</p>}
           </div>
 
@@ -309,7 +309,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
 
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">SEO Description</label>
-            <textarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <AdminTextarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
           </div>
 
           {/* Toggles */}

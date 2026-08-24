@@ -5,7 +5,7 @@ import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
 
 // ============================================================
 // Admin SEO & Location Management
@@ -335,7 +335,7 @@ function CategoriesTab() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-neutral-500">SEO Description</label>
-                    <textarea
+                    <AdminTextarea
                       value={editDesc}
                       onChange={(e) => setEditDesc(e.target.value)}
                       placeholder={`Find ${cat.name} professionals and job listings on FRELUX...`}
@@ -492,7 +492,7 @@ function SeoPagesTab() {
             </div>
             <div className="sm:col-span-2">
               <label className="text-xs font-medium text-neutral-500">SEO Description *</label>
-              <textarea
+              <AdminTextarea
                 value={form.seo_description}
                 onChange={(e) => setForm({ ...form, seo_description: e.target.value })}
                 rows={2}

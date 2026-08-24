@@ -16,7 +16,8 @@ import {AdminHeader,
   Toggle,
   AdminIconButton,
   AdminInput,
-  AdminSelect} from '@/components/admin/AdminUi';
+  AdminSelect,
+  AdminTextarea} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 interface ProductionRule {
@@ -233,7 +234,7 @@ function ProductionRuleForm({
           </AdminField>
 
           <AdminField label="Description (optional)">
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+            <AdminTextarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white" />
           </AdminField>
 

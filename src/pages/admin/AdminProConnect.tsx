@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -905,7 +905,7 @@ function AdminSettingsTab() {
         <div className="space-y-3">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Contact Verified description</span>
-            <textarea
+            <AdminTextarea
               value={settings.contact_verified_description}
               onChange={(e) => setSettings({ ...settings, contact_verified_description: e.target.value })}
               rows={2}
@@ -914,7 +914,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">FRELUX Verified description</span>
-            <textarea
+            <AdminTextarea
               value={settings.frelux_verified_description}
               onChange={(e) => setSettings({ ...settings, frelux_verified_description: e.target.value })}
               rows={2}
@@ -923,7 +923,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">FRELUX Pro description</span>
-            <textarea
+            <AdminTextarea
               value={settings.pro_level_description}
               onChange={(e) => setSettings({ ...settings, pro_level_description: e.target.value })}
               rows={2}
@@ -932,7 +932,7 @@ function AdminSettingsTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Verification disclaimer</span>
-            <textarea
+            <AdminTextarea
               value={settings.verification_disclaimer}
               onChange={(e) => setSettings({ ...settings, verification_disclaimer: e.target.value })}
               rows={2}
@@ -1218,7 +1218,7 @@ function AdminChannelsTab() {
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
-                <textarea value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} rows={2}
+                <AdminTextarea value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} rows={2}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -1456,7 +1456,7 @@ function AdminModerationTab() {
         <div className="space-y-4">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned words (comma-separated)</span>
-            <textarea
+            <AdminTextarea
               value={bannedWordsText}
               onChange={(e) => setBannedWordsText(e.target.value)}
               rows={3}
@@ -1467,7 +1467,7 @@ function AdminModerationTab() {
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned regex patterns (one per line)</span>
-            <textarea
+            <AdminTextarea
               value={bannedPatternsText}
               onChange={(e) => setBannedPatternsText(e.target.value)}
               rows={3}
@@ -1512,7 +1512,7 @@ function AdminModerationTab() {
       {/* Warning message */}
       <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Warning Message (shown to users)</h3>
-        <textarea
+        <AdminTextarea
           value={config.warning_message}
           onChange={(e) => setConfig({ ...config, warning_message: e.target.value })}
           rows={2}

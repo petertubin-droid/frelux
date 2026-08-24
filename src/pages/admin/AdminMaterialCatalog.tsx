@@ -4,7 +4,7 @@ import { AdminHeader, AdminButton, StateMessage, AdminField, Toggle } from "@/co
 import { supabase } from '@/lib/supabase';
 import type { DbMaterialCatalog, MaterialCatalogCategory } from '@/types/database';
 import { Plus, Trash2, Edit3, X, Search } from "lucide-react";
-import {AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
 
 const CATEGORIES: MaterialCatalogCategory[] = [
   'paint', 'primer', 'white_cement', 'screeding_paint', 'pop_cement',
@@ -222,7 +222,7 @@ function MaterialForm({ item, onSave, onClose }: { item: DbMaterialCatalog | nul
             </AdminField>
           </div>
 
-          <AdminField label="Description"><textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
+          <AdminField label="Description"><AdminTextarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={2} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <AdminField label="Economy Price"><AdminInput type="number" value={form.economy_price} onChange={e => setForm({ ...form, economy_price: +e.target.value })} className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" /></AdminField>

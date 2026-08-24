@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput, AdminTextarea} from '@/components/admin/AdminUi';
 import { fetchQuotationSettings, updateQuotationSettings } from '@/lib/contractor';
 import type { DbQuotationSettings } from '@/types/database';
 import { Save, Check, AlertCircle } from 'lucide-react';
@@ -109,7 +109,7 @@ export default function AdminQuotationSettings() {
           <h3 className="mb-4 font-semibold text-neutral-800 dark:text-white">Terms & Conditions</h3>
           <label className="block">
             <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Terms & Conditions</span>
-            <textarea value={settings.default_terms_conditions} onChange={e => setSettings({ ...settings, default_terms_conditions: e.target.value })} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+            <AdminTextarea value={settings.default_terms_conditions} onChange={e => setSettings({ ...settings, default_terms_conditions: e.target.value })} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
           </label>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
