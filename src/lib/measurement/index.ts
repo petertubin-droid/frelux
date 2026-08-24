@@ -160,6 +160,30 @@ export {
   defaultVolumeUnitForSystem,
 } from './extended-units';
 
+// ── Space Engine (Feature 2: Space Engine) ──
+export {
+  type FinishType,
+  type SpaceOpening,
+  type Space,
+  type SpaceResult,
+  type SpaceGroup,
+  type SpaceGroupResult,
+  type SpaceCollection,
+  type SpaceCollectionResult,
+  FINISH_TYPE_LABELS,
+  createSpace,
+  createOpening,
+  createSpaceCollection,
+  calculateSpace,
+  calculateSpaceGroup,
+  groupSpacesByType,
+  calculateSpaceCollection,
+  spaceToMeasurementEntry,
+  spaceCollectionToMeasurementProject,
+  totalAreaByFinishType,
+  spaceSummary,
+} from './space-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
