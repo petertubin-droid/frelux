@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { track } from '@/lib/analytics';
-import { captureException } from '@/lib/sentry';
+import { captureException } from '../instrument';
 
 interface ErrorBoundaryProps {
   children: ReactNode;

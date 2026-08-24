@@ -1,4 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Sentry } from './instrument';
+
+// Wrap Routes with Sentry router instrumentation for navigation tracing
+const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
 import { useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
@@ -189,7 +193,7 @@ export default function App() {
             <ScrollToTop />
             <NotificationClickHandler />
             <CookieBanner />
-            <Routes>
+            <SentryRoutes>
           {/* ─────────────────────────────────────────────────────── */}
           {/* PUBLIC SITE — all public-facing pages under Layout */}
           {/* No admin links, routes, or components appear here. */}
@@ -402,7 +406,7 @@ export default function App() {
 
           {/* Fallback for unmatched admin routes */}
           <Route path="/admin/*" element={<NotFound />} />
-        </Routes>
+        </SentryRoutes>
           </BrowserRouter>
         </ToastProvider>
       </AuthProvider>

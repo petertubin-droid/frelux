@@ -1,43 +1,64 @@
 /**
- * Sentry initialization — error monitoring for production.
- *
- * Activates only if VITE_SENTRY_DSN is set. In development, Sentry
- * is disabled to avoid polluting your Sentry project with dev errors.
+ * Sentry instrumentation — imported FIRST in main.tsx, before any other code.
  *
  * Setup:
  * 1. Create a project at https://sentry.io (free tier: 5K events/month)
  * 2. Copy the DSN from Project Settings → Client Keys
  * 3. Add to .env: VITE_SENTRY_DSN=https://xxx@sentry.io/123
  * 4. Add the same to Netlify environment variables
- * 5. Set VITE_SENTRY_ENVIRONMENT=production in Netlify (optional)
+ * 5. For source maps: add SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN to Netlify
+ *
+ * If VITE_SENTRY_DSN is not set, Sentry stays inactive (zero overhead).
  */
 
 import * as Sentry from '@sentry/react';
+import React from 'react';
+import {
+  createRoutesFromChildren,
+  matchRoutes,
+  useLocation,
+  useNavigationType,
+} from 'react-router-dom';
 
 const dsn = import.meta.env.VITE_SENTRY_DSN as string | undefined;
 
-export function initSentry(): void {
-  if (!dsn) {
-    // No DSN configured — Sentry stays inactive (zero overhead)
-    return;
-  }
-
+if (dsn) {
   Sentry.init({
     dsn,
-    environment: (import.meta.env.VITE_SENTRY_ENVIRONMENT as string) ?? (import.meta.env.PROD ? 'production' : 'development'),
+    environment: import.meta.env.VITE_SENTRY_ENVIRONMENT as string | undefined
+      ?? (import.meta.env.PROD ? 'production' : 'development'),
     release: import.meta.env.VITE_SENTRY_RELEASE as string | undefined,
-    // Performance monitoring — sample 10% of sessions
-    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
-    // Session replay — sample 1% of sessions, 100% on error
-    replaysSessionSampleRate: 0.01,
-    replaysOnErrorSampleRate: 1.0,
+
     integrations: [
-      Sentry.browserTracingIntegration(),
+      // React Router v7 tracing — names transactions after the matched route
+      Sentry.reactRouterV7BrowserTracingIntegration({
+        useEffect: React.useEffect,
+        useLocation,
+        useNavigationType,
+        createRoutesFromChildren,
+        matchRoutes,
+      }),
+      // Session replay — records DOM + user interactions around errors
       Sentry.replayIntegration({
         maskAllText: true,
         blockAllMedia: true,
       }),
     ],
+
+    // Tracing — 10% in production, 100% in dev
+    tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
+
+    // Propagate trace headers to Supabase and Paystack
+    tracePropagationTargets: [
+      'localhost',
+      /^https:\/\/.*\.supabase\.co/,
+      /^https:\/\/api\.paystack\.co/,
+    ],
+
+    // Session replay — 1% of normal sessions, 100% of error sessions
+    replaysSessionSampleRate: 0.01,
+    replaysOnErrorSampleRate: 1.0,
+
     // Ignore benign errors that aren't actionable
     ignoreErrors: [
       'ResizeObserver loop limit exceeded',
@@ -47,6 +68,7 @@ export function initSentry(): void {
       'Load failed',
       'Non-Error promise rejection captured',
     ],
+
     // Don't send errors from browser extensions
     denyUrls: [
       /browser-extension/i,
@@ -57,25 +79,24 @@ export function initSentry(): void {
   });
 }
 
-/** Capture an exception manually (for non-React errors) */
+// Re-export helpers so the rest of the app imports from one place
+export { Sentry };
+
 export function captureException(error: unknown, context?: Record<string, unknown>): void {
   if (!dsn) return;
   Sentry.captureException(error, { extra: context });
 }
 
-/** Set the current user context for error attribution */
 export function setUserContext(user: { id: string; email?: string; username?: string } | null): void {
   if (!dsn) return;
   Sentry.setUser(user);
 }
 
-/** Clear user context on logout */
 export function clearUserContext(): void {
   if (!dsn) return;
   Sentry.setUser(null);
 }
 
-/** Check if Sentry is active */
 export function isSentryActive(): boolean {
   return !!dsn;
 }

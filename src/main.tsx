@@ -1,8 +1,7 @@
-import { StrictMode } from 'react';
+// Sentry must initialize BEFORE any other code runs
+import './instrument';
 
-// Initialize error monitoring BEFORE anything else
-import { initSentry } from '@/lib/sentry';
-initSentry();
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { BrandingProvider } from '@/lib/branding';
