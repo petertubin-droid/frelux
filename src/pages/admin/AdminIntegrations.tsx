@@ -208,8 +208,8 @@ export default function AdminIntegrations() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Integration Center</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Integration Center</h1>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
           Configure and manage third-party integrations. Toggle each integration on, enter your credentials, and save. Changes take effect on the next page load.
         </p>
       </div>
@@ -224,7 +224,7 @@ export default function AdminIntegrations() {
           return (
             <div key={key} className={`rounded-lg border p-4 ${configured ? 'border-emerald-200 dark:border-emerald-800' : 'border-neutral-200 dark:border-white/10'}`}>
               <div className="flex items-center gap-2">
-                <Icon className={`h-4 w-4 ${configured ? 'text-emerald-600' : 'text-muted-foreground'}`} />
+                <Icon className={`h-4 w-4 ${configured ? 'text-emerald-600' : 'text-neutral-500 dark:text-neutral-400'}`} />
                 <span className="text-sm font-medium">{(integ as DbIntegrationSetting).display_name}</span>
               </div>
               <div className="mt-2 flex items-center gap-1.5">
@@ -233,7 +233,7 @@ export default function AdminIntegrations() {
                 ) : (integ as DbIntegrationSetting).is_enabled ? (
                   <><Loader2 className="h-3.5 w-3.5 text-amber-500" /><span className="text-xs text-amber-500">Enabled — needs credentials</span></>
                 ) : (
-                  <><X className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs text-muted-foreground">Not configured</span></>
+                  <><X className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" /><span className="text-xs text-neutral-500 dark:text-neutral-400">Not configured</span></>
                 )}
               </div>
             </div>
@@ -253,7 +253,7 @@ export default function AdminIntegrations() {
         const Icon = CATEGORY_ICONS[category] ?? CreditCard;
         return (
           <div key={category}>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
               <Icon className="h-5 w-5 text-brand-purple" />
               {CATEGORY_LABELS[category] ?? category}
             </h2>
@@ -267,8 +267,8 @@ export default function AdminIntegrations() {
                   <div key={integration.id} className="rounded-lg border p-5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-foreground">{integration.display_name}</h3>
-                        <span className={`mt-1 inline-flex items-center gap-1 text-xs ${integration.is_enabled ? 'text-emerald-600' : 'text-muted-foreground'}`}>
+                        <h3 className="font-semibold text-neutral-900 dark:text-white">{integration.display_name}</h3>
+                        <span className={`mt-1 inline-flex items-center gap-1 text-xs ${integration.is_enabled ? 'text-emerald-600' : 'text-neutral-500 dark:text-neutral-400'}`}>
                           {integration.is_enabled ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                           {integration.is_enabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -276,7 +276,7 @@ export default function AdminIntegrations() {
                       <button
                         onClick={() => handleToggle(integration)}
                         disabled={saving === integration.integration_key}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${integration.is_enabled ? 'bg-brand-purple' : 'bg-muted'}`}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${integration.is_enabled ? 'bg-brand-purple' : 'bg-neutral-300 dark:bg-white/10'}`}
                         aria-label="Toggle integration"
                       >
                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${integration.is_enabled ? 'translate-x-6' : 'translate-x-1'}`} />
@@ -300,7 +300,7 @@ export default function AdminIntegrations() {
                       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {configFields.map(([key, _value]) => (
                           <div key={key}>
-                            <label className="text-xs font-medium text-muted-foreground">
+                            <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
                               {key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                             </label>
                             <input
@@ -308,10 +308,10 @@ export default function AdminIntegrations() {
                               value={editValues[integration.integration_key]?.[key] ?? ''}
                               onChange={(e) => updateFieldValue(integration.integration_key, key, e.target.value)}
                               placeholder={isSecret(key) ? '••••••••' : ''}
-                              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm"
+                              className="w-full rounded-lg border bg-white dark:bg-brand-navy-mid px-3 py-1.5 text-sm"
                             />
                             {FIELD_HELP[integration.integration_key]?.[key] && (
-                              <p className="mt-1 text-[11px] text-muted-foreground/70 leading-relaxed">
+                              <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400/70 leading-relaxed">
                                 {FIELD_HELP[integration.integration_key][key]}
                               </p>
                             )}
