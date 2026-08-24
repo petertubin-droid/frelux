@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { classNames } from '@/lib/utils';
+import { Switch } from '@/components/ui/shadcn/switch';
 
 export function AdminCard({ children, className, compact }: { children: ReactNode; className?: string; compact?: boolean }) {
   return <div className={classNames('card', compact ? 'p-3' : 'p-5 sm:p-6', className)}>{children}</div>;
@@ -57,12 +58,10 @@ export function StateMessage({ type, title, message, action }: { type: 'loading'
 
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label?: string }) {
   return (
-    <button type="button" onClick={() => onChange(!checked)} className="inline-flex items-center gap-2" aria-pressed={checked}>
-      <span className={classNames('relative h-5 w-9 rounded-full transition-colors', checked ? 'bg-accent-green' : 'bg-neutral-300 dark:bg-white/10')}>
-        <span className={classNames('absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-4' : 'translate-x-0.5')} />
-      </span>
-      {label && <span className="text-sm text-neutral-600 dark:text-neutral-300">{label}</span>}
-    </button>
+    <div className="inline-flex items-center gap-2">
+      <Switch checked={checked} onCheckedChange={onChange} aria-label={label} />
+      {label && <span className="text-sm text-muted-foreground">{label}</span>}
+    </div>
   );
 }
 

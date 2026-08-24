@@ -5,6 +5,41 @@ export default {
   theme: {
     extend: {
       colors: {
+        // shadcn/ui semantic tokens — hsl(var(--token) / <alpha>)
+        background: 'hsl(var(--background) / <alpha-value>)',
+        foreground: 'hsl(var(--foreground) / <alpha-value>)',
+        card: {
+          DEFAULT: 'hsl(var(--card) / <alpha-value>)',
+          foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover) / <alpha-value>)',
+          foreground: 'hsl(var(--popover-foreground) / <alpha-value>)',
+        },
+        primary: {
+          DEFAULT: 'hsl(var(--primary) / <alpha-value>)',
+          foreground: 'hsl(var(--primary-foreground) / <alpha-value>)',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
+          foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted) / <alpha-value>)',
+          foreground: 'hsl(var(--muted-foreground) / <alpha-value>)',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
+          foreground: 'hsl(var(--accent-foreground) / <alpha-value>)',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
+          foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)',
+        },
+        border: 'hsl(var(--border) / <alpha-value>)',
+        input: 'hsl(var(--input) / <alpha-value>)',
+        ring: 'hsl(var(--ring) / <alpha-value>)',
+
         brand: {
           purple: 'rgb(var(--brand-primary) / <alpha-value>)',
           'purple-light': '#8B5CF6',
@@ -54,6 +89,9 @@ export default {
         22: '5.5rem',
       },
       borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
         'xl-lg': '0.875rem',
         '2xl-lg': '1.25rem',
       },
@@ -70,7 +108,16 @@ export default {
         'dark-card-hover': '0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3)',
       },
       animation: {
-        'fade-in': 'fade-in 0.5s ease-out both',
+        
+      'animate-in': 'animate-in 0.15s ease-out',
+      'animate-out': 'animate-out 0.15s ease-out',
+      'fade-in': 'fade-in 0.15s ease-out both',
+      'fade-out': 'fade-out 0.15s ease-out both',
+      'fade-in-0': 'fade-in-0 0.15s ease-out both',
+      'fade-out-0': 'fade-out-0 0.15s ease-out both',
+      'zoom-in-95': 'zoom-in-95 0.15s ease-out both',
+      'zoom-out-95': 'zoom-out-95 0.15s ease-out both',
+      'fade-in': 'fade-in 0.5s ease-out both',
         'fade-in-up': 'fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
         'fade-in-down': 'fade-in-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) both',
         'scale-in': 'scale-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -84,7 +131,16 @@ export default {
         'slide-in-right': 'slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
-        'fade-in': { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+        
+      'animate-in': 'animate-in 0.15s ease-out',
+      'animate-out': 'animate-out 0.15s ease-out',
+      'fade-in': 'fade-in 0.15s ease-out both',
+      'fade-out': 'fade-out 0.15s ease-out both',
+      'fade-in-0': 'fade-in-0 0.15s ease-out both',
+      'fade-out-0': 'fade-out-0 0.15s ease-out both',
+      'zoom-in-95': 'zoom-in-95 0.15s ease-out both',
+      'zoom-out-95': 'zoom-out-95 0.15s ease-out both',
+      'fade-in': { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
         'fade-in-up': { '0%': { opacity: '0', transform: 'translateY(12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
         'fade-in-down': { '0%': { opacity: '0', transform: 'translateY(-12px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
         'scale-in': { '0%': { opacity: '0', transform: 'scale(0.95)' }, '100%': { opacity: '1', transform: 'scale(1)' } },

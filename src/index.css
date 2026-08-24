@@ -15,6 +15,54 @@
   --brand-secondary: 10 10 26;   /* #0A0A1A */
   --brand-accent: 249 115 22;     /* #F97316 */
 }
+/* shadcn/ui semantic tokens — mapped to FRELUX brand system.
+   HSL channels for hsl(var(--token) / <alpha>) support.
+   Primary/ring/accent mirror the brand colors (updated dynamically by BrandingProvider). */
+:root {
+  --background: 0 0% 100%;             /* white */
+  --foreground: 240 10% 9%;            /* neutral-900 */
+  --card: 0 0% 100%;                    /* white */
+  --card-foreground: 240 10% 9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 9%;
+  --primary: 258 74% 48%;              /* #6D28D9 brand-purple */
+  --primary-foreground: 0 0% 100%;     /* white */
+  --secondary: 240 5% 96%;             /* neutral-100 */
+  --secondary-foreground: 240 10% 9%;
+  --muted: 240 5% 96%;                 /* neutral-100 */
+  --muted-foreground: 240 8% 47%;      /* neutral-500 */
+  --accent: 240 5% 96%;
+  --accent-foreground: 240 10% 9%;
+  --destructive: 0 72% 51%;            /* red-600 */
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 6% 90%;                /* neutral-200 */
+  --input: 240 6% 90%;
+  --ring: 258 74% 48%;                /* brand-purple */
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 240 44% 7%;            /* #0A0A1A brand-navy */
+  --foreground: 0 0% 100%;              /* white */
+  --card: 240 42% 12%;                  /* #12122A navy-mid */
+  --card-foreground: 0 0% 100%;
+  --popover: 240 42% 12%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 258 74% 58%;              /* lighter purple for dark bg */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 240 28% 23%;             /* #2A2A4A navy-soft */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 240 28% 23%;                /* navy-soft */
+  --muted-foreground: 240 6% 61%;      /* neutral-400 */
+  --accent: 240 28% 23%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 63% 40%;            /* darker red for dark */
+  --destructive-foreground: 0 0% 100%;
+  --border: 240 5% 18%;              /* dark gray border */
+  --input: 240 5% 18%;
+  --ring: 258 74% 58%;
+}
+
 
 @layer base {
   html {

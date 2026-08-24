@@ -5,6 +5,7 @@ import { BrandingProvider } from '@/lib/branding';
 import { ThemeProvider } from '@/lib/theme';
 import { LanguageProvider } from '@/lib/i18n';
 import { AccessibilityProvider } from '@/lib/accessibility';
+import { Toaster } from '@/components/ui/shadcn/toast';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
@@ -14,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <AccessibilityProvider>
           <BrandingProvider>
             <App />
+            <Toaster />
           </BrandingProvider>
         </AccessibilityProvider>
       </LanguageProvider>

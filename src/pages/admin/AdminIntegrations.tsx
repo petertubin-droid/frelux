@@ -2,6 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { getIntegrationSettings, updateIntegrationSetting } from '@/lib/crm';
 import type { DbIntegrationSetting } from '@/types/database';
 import { Loader2, Check, X, CreditCard, BarChart3, MessageSquare, MapPin, Cloud, Megaphone, Save, ExternalLink, Search } from 'lucide-react';
+import { Switch } from '@/components/ui/shadcn/switch';
+import { Card } from '@/components/ui/shadcn/card';
+import { Input } from '@/components/ui/shadcn/input';
+import { Label } from '@/components/ui/shadcn/label';
+import { Button } from '@/components/ui/shadcn/button';
 
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
   payment: CreditCard,
@@ -208,8 +213,8 @@ export default function AdminIntegrations() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Integration Center</h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <h1 className="text-2xl font-bold text-foreground">Integration Center</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Configure and manage third-party integrations. Toggle each integration on, enter your credentials, and save. Changes take effect on the next page load.
         </p>
       </div>
@@ -222,9 +227,9 @@ export default function AdminIntegrations() {
           const configured = isConfigured(integ as DbIntegrationSetting);
           const Icon = key === 'google_analytics' ? BarChart3 : key === 'google_adsense' ? Megaphone : Search;
           return (
-            <div key={key} className={`rounded-lg border p-4 ${configured ? 'border-emerald-200 dark:border-emerald-800' : 'border-neutral-200 dark:border-white/10'}`}>
+            <Card key={key} className={`p-4 ${configured ? 'border-emerald-200 dark:border-emerald-800' : 'border-neutral-200 dark:border-white/10'}`}>
               <div className="flex items-center gap-2">
-                <Icon className={`h-4 w-4 ${configured ? 'text-emerald-600' : 'text-neutral-500 dark:text-neutral-400'}`} />
+                <Icon className={`h-4 w-4 ${configured ? 'text-emerald-600' : 'text-muted-foreground'}`} />
                 <span className="text-sm font-medium">{(integ as DbIntegrationSetting).display_name}</span>
               </div>
               <div className="mt-2 flex items-center gap-1.5">
@@ -233,10 +238,10 @@ export default function AdminIntegrations() {
                 ) : (integ as DbIntegrationSetting).is_enabled ? (
                   <><Loader2 className="h-3.5 w-3.5 text-amber-500" /><span className="text-xs text-amber-500">Enabled — needs credentials</span></>
                 ) : (
-                  <><X className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" /><span className="text-xs text-neutral-500 dark:text-neutral-400">Not configured</span></>
+                  <><X className="h-3.5 w-3.5 text-muted-foreground" /><span className="text-xs text-muted-foreground">Not configured</span></>
                 )}
               </div>
-            </div>
+            </Card>
           );
         })}
       </div>
@@ -253,7 +258,7 @@ export default function AdminIntegrations() {
         const Icon = CATEGORY_ICONS[category] ?? CreditCard;
         return (
           <div key={category}>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
               <Icon className="h-5 w-5 text-brand-purple" />
               {CATEGORY_LABELS[category] ?? category}
             </h2>
@@ -264,11 +269,11 @@ export default function AdminIntegrations() {
                 const link = INTEGRATION_LINKS[integration.integration_key];
                 const justSaved = savedKeys.has(integration.integration_key);
                 return (
-                  <div key={integration.id} className="rounded-lg border p-5">
+                  <Card key={integration.id} className="p-5">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-neutral-900 dark:text-white">{integration.display_name}</h3>
-                        <span className={`mt-1 inline-flex items-center gap-1 text-xs ${integration.is_enabled ? 'text-emerald-600' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                        <h3 className="font-semibold text-foreground">{integration.display_name}</h3>
+                        <span className={`mt-1 inline-flex items-center gap-1 text-xs ${integration.is_enabled ? 'text-emerald-600' : 'text-muted-foreground'}`}>
                           {integration.is_enabled ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
                           {integration.is_enabled ? 'Enabled' : 'Disabled'}
                         </span>
@@ -300,32 +305,32 @@ export default function AdminIntegrations() {
                       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
                         {configFields.map(([key, _value]) => (
                           <div key={key}>
-                            <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                            <Label className="text-xs font-medium text-muted-foreground">
                               {key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
-                            </label>
-                            <input
+                            </Label>
+                            <Input
                               type={isSecret(key) ? 'password' : 'text'}
                               value={editValues[integration.integration_key]?.[key] ?? ''}
                               onChange={(e) => updateFieldValue(integration.integration_key, key, e.target.value)}
                               placeholder={isSecret(key) ? '••••••••' : ''}
-                              className="w-full rounded-lg border bg-white dark:bg-brand-navy-mid px-3 py-1.5 text-sm"
+                              className="h-9"
                             />
                             {FIELD_HELP[integration.integration_key]?.[key] && (
-                              <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400/70 leading-relaxed">
+                              <p className="mt-1 text-[11px] text-muted-foreground/70 leading-relaxed">
                                 {FIELD_HELP[integration.integration_key][key]}
                               </p>
                             )}
                           </div>
                         ))}
                         <div className="flex items-center gap-3">
-                          <button
+                          <Button
                             onClick={() => handleSaveConfig(integration)}
                             disabled={saving === integration.integration_key}
-                            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-medium text-white disabled:opacity-50"
+                            size="sm"
                           >
                             {saving === integration.integration_key ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                             Save Config
-                          </button>
+                          </Button>
                           {justSaved && (
                             <span className="inline-flex items-center gap-1 text-xs text-emerald-600">
                               <Check className="h-3 w-3" /> Saved
@@ -334,7 +339,7 @@ export default function AdminIntegrations() {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
