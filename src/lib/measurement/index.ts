@@ -282,6 +282,18 @@ export {
   verifyRuleVersion,
 } from './rule-versioning';
 
+// ── Explanation Engine (Feature 8: Calculation Explanation) ──
+export {
+  type ExplanationSection,
+  type CalculationExplanation,
+  explainSpaceCalculation,
+  explainFenceCalculation,
+  explainMaterialCalculation,
+  explainProjectCalculation,
+  explainFromSteps,
+  explanationToText,
+} from './explanation-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
