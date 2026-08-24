@@ -8,6 +8,9 @@ import CountUp from '@/components/ui/CountUp';
 import StickyActionBar from '@/components/ui/StickyActionBar';
 import { useToast } from '@/components/ui/Toast';
 import { calculatePaint, type CalcConfig, SURFACE_CONDITION_FACTORS, COLOR_CONDITION_INFO } from '@/lib/calc';
+import { calculateRoom, type PaintEngineRoomInput, type PaintEngineConfig } from '@/lib/estimation/paint-engine';
+import type { EstimationProduct, EstimationProductQuality, EstimationPrice, EstimationCalcRule } from '@/types/estimation';
+import { fetchEstimationProducts, fetchProductQualityLevels, fetchActivePrice, fetchCalcRules } from '@/lib/estimation/queries';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
 import { fetchSurfaceConditions, fetchColourConditions } from '@/lib/estimation/queries';
@@ -18,6 +21,7 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig, SurfaceCondition, ColorCondition } from '@/types';
 import type { DbPaintType } from '@/types/database';
+import type { SurfaceCondition } from '@/types';
 import type { EstimationSurfaceCondition, EstimationColourCondition } from '@/types/estimation';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
@@ -115,6 +119,10 @@ export default function PaintCalculator() {
   const [typesError, setTypesError] = useState<string | null>(null);
   const [dbSurfaceConditions, setDbSurfaceConditions] = useState<EstimationSurfaceCondition[]>([]);
   const [dbColourConditions, setDbColourConditions] = useState<EstimationColourCondition[]>([]);
+  const [estProducts, setEstProducts] = useState<EstimationProduct[]>([]);
+  const [estQualities, setEstQualities] = useState<Map<string, EstimationProductQuality[]>>(new Map());
+  const [estPrices, setEstPrices] = useState<Map<string, EstimationPrice>>(new Map());
+  const [estCalcRules, setEstCalcRules] = useState<Map<string, EstimationCalcRule>>(new Map());
 
   useEffect(() => {
     async function loadTypes() {
@@ -150,9 +158,42 @@ export default function PaintCalculator() {
       if (surfRes.data) setDbSurfaceConditions(surfRes.data);
       if (colourRes.data) setDbColourConditions(colourRes.data);
     }
+    async function loadEstimationEngine() {
+      try {
+        const [prodRes, rulesRes] = await Promise.all([
+          fetchEstimationProducts(),
+          fetchCalcRules(),
+        ]);
+        const prodList = (prodRes.data ?? []) as EstimationProduct[];
+        setEstProducts(prodList);
+        const ruleMap = new Map<string, EstimationCalcRule>();
+        for (const r of (rulesRes.data ?? []) as EstimationCalcRule[]) {
+          ruleMap.set(r.rule_key, r);
+        }
+        setEstCalcRules(ruleMap);
+
+        // Load qualities for each product
+        const qualMap = new Map<string, EstimationProductQuality[]>();
+        const priceMap = new Map<string, EstimationPrice>();
+        for (const p of prodList) {
+          const { data: quals } = await fetchProductQualityLevels(p.id);
+          qualMap.set(p.id, (quals ?? []) as EstimationProductQuality[]);
+          // Load prices for each quality
+          for (const q of (quals ?? []) as EstimationProductQuality[]) {
+            const { data: priceData } = await fetchActivePrice(q.id);
+            if (priceData) priceMap.set(q.id, priceData as EstimationPrice);
+          }
+        }
+        setEstQualities(qualMap);
+        setEstPrices(priceMap);
+      } catch (e) {
+        console.error('Failed to load estimation engine config:', e);
+      }
+    }
     loadTypes();
     loadScreedingConfig();
     loadConditions();
+    loadEstimationEngine();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -280,6 +321,123 @@ export default function PaintCalculator() {
 
   function compute() {
     if (!validateStep(3)) return;
+
+    // Try the central Paint Calculation Engine first (uses DB-configured coverage/prices)
+    const estProduct = estProducts.find(p => p.slug === 'emulsion' || p.slug === 'matt' || p.slug === 'satin');
+    if (estProduct && estQualities.size > 0) {
+      // Find matching product by paint type name
+      const selectedPaint = paintTypes.find(t => t.id === input.paintType || t.name === input.paintType);
+      const matchedProduct = estProducts.find(p =>
+        p.name.toLowerCase() === (selectedPaint?.name ?? '').toLowerCase() ||
+        p.category === (selectedPaint?.name ?? '').toLowerCase()
+      ) ?? estProducts[0];
+
+      const quals = estQualities.get(matchedProduct.id) ?? [];
+      const matchedQuality = quals[0] ?? null;
+      const price = matchedQuality ? (estPrices.get(matchedQuality.id) ?? null) : null;
+
+      const ceilingRule = estCalcRules.get('ceiling_quantity_per_room') ?? null;
+      const ceilingCoverageRule = estCalcRules.get('ceiling_coverage_rate') ?? null;
+      const packSizeRule = estCalcRules.get('pack_size_bucket_litres') ?? null;
+      const roundingRule = estCalcRules.get('purchase_rounding_rule') ?? null;
+      const standardHeightRule = estCalcRules.get('standard_room_height') ?? null;
+      const heightAdjustmentRule = estCalcRules.get('height_adjustment_rule') ?? null;
+      const openingDeductionRule = estCalcRules.get('opening_deduction_rule') ?? null;
+      const coatCountRule = estCalcRules.get('standard_coat_count') ?? null;
+      const calibrationReferencesRule = estCalcRules.get('frelux_calibration_references') ?? null;
+
+      const doorOpenings = input.doors > 0
+        ? [{ quantity: input.doors, width: input.doorDims.width, height: input.doorDims.height }]
+        : [];
+      const windowOpenings = input.windows > 0
+        ? [{ quantity: input.windows, width: input.windowDims.width, height: input.windowDims.height }]
+        : [];
+
+      const engineInput: PaintEngineRoomInput = {
+        room_id: 'room-1',
+        room_name: 'Room',
+        length: input.length,
+        width: input.width,
+        height: input.wallHeight,
+        unit: input.unit,
+        doors: doorOpenings,
+        windows: windowOpenings,
+        doors_unknown: false,
+        windows_unknown: false,
+        product_id: matchedProduct.id,
+        quality_id: matchedQuality?.id ?? '',
+        coats: input.coats,
+        include_ceiling: input.includeCeiling,
+        ceiling_colour: 'white',
+        surface_condition_key: (input.surfaceCondition ?? 'smooth') as string,
+        colour_condition_key: (input.colorCondition ?? 'same_or_light') as string,
+        include_primer: input.includePrimer ?? false,
+      };
+
+      const engineConfig: PaintEngineConfig = {
+        product: matchedProduct,
+        quality: matchedQuality,
+        price: price,
+        primer_price: null,
+        ceilingRule,
+        ceilingCoverageRule,
+        packSizeRule,
+        roundingRule,
+        standardHeightRule,
+        heightAdjustmentRule,
+        openingDeductionRule,
+        coatCountRule,
+        calibrationReferencesRule,
+        colourConditions: dbColourConditions,
+        surfaceConditions: dbSurfaceConditions,
+        calcVersionId: null,
+      };
+
+      const engineResult = calculateRoom(engineInput, engineConfig);
+
+      // Convert engine result to old CalculatorResult format
+      const containers = engineResult.practical_total_buckets > 0
+        ? [{ size: engineResult.pack_size_litres, count: engineResult.practical_total_buckets }]
+        : [];
+      const primerContainers = engineResult.primer_buckets > 0
+        ? [{ size: engineResult.pack_size_litres, count: engineResult.primer_buckets }]
+        : [];
+
+      const r: CalculatorResult = {
+        projectType: input.projectType,
+        unit: input.unit,
+        wallArea: engineResult.gross_wall_area_m2,
+        ceilingArea: engineResult.ceiling_area_m2,
+        doorArea: engineResult.door_area_m2,
+        windowArea: engineResult.window_area_m2,
+        paintableArea: engineResult.net_wall_area_m2,
+        coats: engineResult.effective_coats,
+        paintType: input.paintType,
+        coverageRate: engineResult.coverage_rate ?? 0,
+        baseCoverageRate: engineResult.coverage_rate ?? 0,
+        surfaceCondition: (engineResult.surface_condition?.condition_key ?? 'smooth') as SurfaceCondition,
+        surfaceConditionFactor: engineResult.surface_factor,
+        paintRequiredLiters: engineResult.theoretical_total_litres,
+        wasteMargin: input.wasteMargin,
+        adjustedLiters: engineResult.theoretical_total_litres,
+        recommendedContainers: containers,
+        totalRecommendedLiters: engineResult.practical_total_litres,
+        leftoverLiters: engineResult.leftover_litres,
+        primerLiters: engineResult.primer_litres,
+        primerContainers,
+        primerTotalLiters: engineResult.primer_buckets * engineResult.pack_size_litres,
+        heightWarning: engineResult.height_warning,
+        colorWarning: engineResult.colour_condition?.requires_warning ? engineResult.colour_condition.name : null,
+        primerRecommended: engineResult.primer_recommended,
+      };
+
+      setResult(r);
+      track('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
+      logAnalyticsEvent('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
+      return;
+    }
+
+    // Fall back to legacy calculation
     if (paintTypes.length === 0) return;
     const r = calculatePaint(input, calcConfig);
     setResult(r);

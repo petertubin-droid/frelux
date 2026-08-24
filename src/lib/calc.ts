@@ -25,6 +25,9 @@ import {
 // Configurable constants (defaults; overridden by DB values)
 // ─────────────────────────────────────────────────────────
 
+// LEGACY FALLBACK ONLY — NOT a FRELUX business rule.
+// The central Paint Calculation Engine uses admin-configured coverage from the database.
+// This default is only used by the legacy calculatePaint() when no DB config is available.
 export const DEFAULT_COVERAGE_M2_PER_LITER = 10;
 export const DEFAULT_CONTAINER_SIZES_LITERS = [1, 4, 20];
 
