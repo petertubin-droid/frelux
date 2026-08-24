@@ -473,6 +473,7 @@ INSERT INTO market_profiles (
   supported_length_units, supported_area_units,
   default_length_unit, default_area_unit,
   default_language,
+  local_terminology,
   status, profile_version, sort_order, is_visible
 ) VALUES (
   'GH', 'Ghana', 'West Africa',
@@ -497,6 +498,7 @@ INSERT INTO market_profiles (
   supported_length_units, supported_area_units,
   default_length_unit, default_area_unit,
   default_language,
+  local_terminology,
   status, profile_version, sort_order, is_visible
 ) VALUES (
   'KE', 'Kenya', 'East Africa',
@@ -521,6 +523,7 @@ INSERT INTO market_profiles (
   supported_length_units, supported_area_units,
   default_length_unit, default_area_unit,
   default_language,
+  local_terminology,
   status, profile_version, sort_order, is_visible
 ) VALUES (
   'ZA', 'South Africa', 'Southern Africa',
