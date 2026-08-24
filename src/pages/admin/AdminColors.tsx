@@ -401,7 +401,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
                 <span className="text-accent-green">{validCount} valid</span>
                 {errorCount > 0 && <span className="ml-3 text-red-600">{errorCount} invalid</span>}
               </p>
-              <button type="button" onClick={() => setPreview(null)} className="text-xs text-neutral-400 hover:text-neutral-600">Hide preview</button>
+              <AdminButton variant="link" type="button" onClick={() => setPreview(null)} className="text-xs text-muted-foreground">Hide preview</AdminButton>
             </div>
             <div className="mt-2 max-h-32 overflow-y-auto">
               <table className="w-full text-xs">
@@ -429,7 +429,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
               <div className="mt-2">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-semibold text-red-600">{result.errors.length} errors</p>
-                  <button type="button" onClick={downloadErrorReport} className="text-xs font-semibold text-brand-purple hover:underline">Download error report</button>
+                  <AdminButton variant="link" type="button" onClick={downloadErrorReport} className="text-xs font-semibold">Download error report</AdminButton>
                 </div>
                 <ul className="mt-1 text-xs text-red-500">{result.errors.slice(0, 10).map((e, i) => <li key={i}>{e}</li>)}</ul>
               </div>

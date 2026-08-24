@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
-import { AdminButton, AdminInput } from '@/components/admin/AdminUi';
+import { AdminButton, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -128,9 +128,9 @@ export default function AdminLogin() {
                   {loading ? 'Please wait...' : mode === 'signin' ? 'Sign in' : 'Create account'}
                 </AdminButton>
                 <div className="text-center">
-                  <button type="button" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }} className="text-xs font-semibold text-brand-purple hover:underline">
+                  <AdminButton variant="link" type="button" onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }} className="text-xs font-semibold">
                     {mode === 'signin' ? 'Need an account? Sign up' : 'Already have an account? Sign in'}
-                  </button>
+                  </AdminButton>
                 </div>
               </form>
             </>

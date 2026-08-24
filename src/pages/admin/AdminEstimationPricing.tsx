@@ -291,7 +291,7 @@ export default function AdminEstimationPricing() {
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-                    <button type="button" onClick={() => setHistoryItem(item)} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10" title="History"><History className="h-3 w-3" /></button>
+                    <AdminIconButton variant="ghost" type="button" onClick={() => setHistoryItem(item)} title="History"><History className="h-3 w-3" /></AdminIconButton>
                     <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
                     <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
                   </div>

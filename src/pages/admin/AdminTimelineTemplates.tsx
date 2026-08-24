@@ -157,7 +157,7 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
                 </div>
               ))}
             </div>
-            <button onClick={() => setPhases([...phases, { phase: 'preparation' as const, name: '', days: 1, depends_on: '' }])} className="mt-2 flex items-center gap-1 text-sm text-brand-purple"><Plus className="h-4 w-4" /> Add Phase</button>
+            <AdminButton variant="link" onClick={() => setPhases([...phases, { phase: 'preparation' as const, name: '', days: 1, depends_on: '' }])} className="mt-2"><Plus className="h-4 w-4" /> Add Phase</AdminButton>
           </div>
 
           <div className="flex justify-end gap-2">

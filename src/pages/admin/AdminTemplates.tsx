@@ -150,19 +150,19 @@ export default function AdminTemplates() {
                     </AdminIconButton>
                   </td>
                   <td className="px-4 py-3">
-                    <button onClick={() => toggleFeatured(t)}>
+                    <AdminIconButton variant="ghost" onClick={() => toggleFeatured(t)}>
                       <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-neutral-300 dark:text-neutral-600')} fill={t.is_featured ? 'currentColor' : 'none'} />
-                    </button>
+                    </AdminIconButton>
                   </td>
                   <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.slug ?? '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditing(t)} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white" title="Edit">
+                      <AdminIconButton variant="ghost" onClick={() => setEditing(t)} title="Edit">
                         <Edit2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button onClick={() => handleDuplicate(t)} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white" title="Duplicate">
+                      </AdminIconButton>
+                      <AdminIconButton variant="ghost" onClick={() => handleDuplicate(t)} title="Duplicate">
                         <Copy className="h-3.5 w-3.5" />
-                      </button>
+                      </AdminIconButton>
                       <AdminIconButton variant="danger" onClick={() => handleDelete(t.id)}  title="Delete">
                         <Trash2 className="h-3.5 w-3.5" />
                       </AdminIconButton>

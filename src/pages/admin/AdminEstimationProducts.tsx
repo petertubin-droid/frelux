@@ -204,9 +204,9 @@ export default function AdminEstimationProducts() {
                           <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                             <div className="flex items-center gap-1">
                               {p.has_quality_levels && (
-                                <button type="button" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-[10px] font-semibold text-brand-purple hover:underline">
+                                <AdminButton variant="link" type="button" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-[10px] font-semibold">
                                   {qualityMap[p.id]?.length ?? 0} tiers
-                                </button>
+                                </AdminButton>
                               )}
                               <Toggle checked={p.is_active} onChange={() => toggleActive(p)} />
                             </div>

@@ -259,9 +259,9 @@ function ProductsTab() {
                   p.status === 'active' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' :
                   p.status === 'sold' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
                 )}>{PRODUCT_STATUS_LABELS[p.status]}</span>
-                <button onClick={() => toggleProductStatus(p.id, p.status)} className="rounded p-1 text-neutral-400 hover:text-brand-purple" title="Toggle status">
+                <AdminIconButton variant="ghost" onClick={() => toggleProductStatus(p.id, p.status)} title="Toggle status">
                   {p.status === 'active' ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                </button>
+                </AdminIconButton>
                 <AdminIconButton variant="danger" onClick={() => adminRemoveProduct(p.id)}  title="Remove">
                   <Trash2 className="h-3.5 w-3.5" />
                 </AdminIconButton>

@@ -222,9 +222,9 @@ function LocationsTab() {
                         </>
                       ) : (
                         <>
-                          <button onClick={() => startEdit(loc)} className="rounded p-1 text-brand-purple hover:bg-brand-purple/10" title="Edit">
+                          <AdminIconButton variant="ghost" onClick={() => startEdit(loc)} title="Edit" className="rounded p-1 text-brand-purple hover:bg-brand-purple/10">
                             <Navigation className="h-3.5 w-3.5" />
-                          </button>
+                          </AdminIconButton>
                           {!loc.latitude && (
                             <AdminIconButton variant="ghost" onClick={() => handleAutoGeocode(loc)} className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10" title="Auto-geocode">
                               <Globe className="h-3.5 w-3.5" />

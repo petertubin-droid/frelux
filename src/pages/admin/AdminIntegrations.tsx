@@ -249,7 +249,7 @@ export default function AdminIntegrations() {
       {error && (
         <div className="rounded-lg bg-destructive/10 p-4">
           <p className="text-sm text-destructive">{error}</p>
-          <button onClick={() => setError(null)} className="mt-2 text-xs underline">Dismiss</button>
+          <AdminButton variant="link" onClick={() => setError(null)} className="mt-2 text-xs">Dismiss</AdminButton>
         </div>
       )}
 
