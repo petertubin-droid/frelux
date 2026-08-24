@@ -4,6 +4,7 @@ import { AdminHeader, AdminCard, StateMessage } from '@/components/admin/AdminUi
 import type { DbProfile, DbUserPaidStatus } from '@/types/database';
 import { classNames } from '@/lib/utils';
 import { Crown, Clock, X, Check } from 'lucide-react';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 type Status = 'loading' | 'ready' | 'error';
 
@@ -197,37 +198,40 @@ export default function AdminUsers() {
                     <td className="py-3 pr-4">
                       {isEditing ? (
                         <div className="flex items-center gap-2">
-                          <button
+                          <AdminButton
                             onClick={() => saveSubscription(u.id)}
                             disabled={saving}
-                            className="rounded-md bg-brand-purple px-3 py-1 text-xs font-semibold text-white hover:bg-brand-purple/90 disabled:opacity-50"
+                            className="text-xs py-1"
                           >
                             {saving ? 'Saving…' : 'Save'}
-                          </button>
-                          <button
+                          </AdminButton>
+                          <AdminButton
+                            variant="secondary"
                             onClick={() => setEditingId(null)}
-                            className="rounded-md border border-neutral-200 px-3 py-1 text-xs font-semibold text-neutral-500 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800"
+                            className="text-xs py-1"
                           >
                             Cancel
-                          </button>
+                          </AdminButton>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <button
+                          <AdminButton
+                            variant="secondary"
                             onClick={() => startEdit(u)}
-                            className="rounded-md border border-neutral-200 px-3 py-1 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5 dark:border-neutral-700 dark:hover:bg-white/5"
+                            className="text-xs py-1 text-brand-purple hover:bg-brand-purple/5"
                           >
                             <Crown className="mr-1 inline h-3 w-3" />
                             {isActive ? 'Extend' : 'Grant'}
-                          </button>
+                          </AdminButton>
                           {isActive && (
-                            <button
+                            <AdminButton
+                              variant="danger"
                               onClick={() => revokeSubscription(u.id)}
                               disabled={saving}
-                              className="rounded-md border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-900/20"
+                              className="text-xs py-1"
                             >
                               Revoke
-                            </button>
+                            </AdminButton>
                           )}
                         </div>
                       )}

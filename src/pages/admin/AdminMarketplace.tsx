@@ -14,6 +14,7 @@ import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
 import type { DbMarketplaceProduct } from '@/types/marketplace-products';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 type Tab = 'listings' | 'products' | 'orders' | 'disputes';
 
@@ -406,14 +407,15 @@ function DisputesTab() {
             </p>
           )}
           {d.status === 'open' && (
-            <button
+            <AdminButton
+              variant="success"
               onClick={() => handleResolve(d.id as string)}
               disabled={resolving === d.id}
-              className="mt-2 inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+              className="mt-2 text-xs py-1.5"
             >
               {resolving === d.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
               Resolve
-            </button>
+            </AdminButton>
           )}
         </div>
       ))}
