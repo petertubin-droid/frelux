@@ -294,6 +294,19 @@ export {
   explanationToText,
 } from './explanation-engine';
 
+// ── Confidence Engine (Feature 9: Result Confidence) ──
+export {
+  type ConfidenceLevel,
+  type ConfidenceFactor,
+  type ConfidenceAssessment,
+  CONFIDENCE_LEVEL_LABELS,
+  CONFIDENCE_LEVEL_COLORS,
+  assessCalculationConfidence,
+  assessMaterialConfidence,
+  assessPriceConfidence,
+  combineConfidence,
+} from './confidence-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
