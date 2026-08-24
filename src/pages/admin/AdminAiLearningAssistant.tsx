@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GraduationCap, Loader2, AlertCircle, Check, FileText, Search, HelpCircle, Image, ListOrdered, GitCompare, Send } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField } from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 
@@ -46,7 +46,7 @@ export default function AdminAiLearningAssistant() {
         },
       });
 
-      if (fnError) throw new Error(fnError.message);
+      if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
       if (!data) throw new Error('No response from AI service.');
       if (data.error) throw new Error(data.error);
       if (!data.result) throw new Error('Empty AI response.');

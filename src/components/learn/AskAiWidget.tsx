@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, Send, Loader2, AlertCircle, X } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import { getClientId } from '@/lib/ai-access';
 import { classNames } from '@/lib/utils';
 
@@ -44,7 +44,7 @@ export default function AskAiWidget() {
         body: { action: 'ask', question: q, clientId },
       });
 
-      if (fnError) throw new Error(fnError.message);
+      if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
       if (!data) throw new Error('No response from AI.');
       if (data.error) throw new Error(data.error);
 

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import type { StudioToolType, DbStudioSession, DbStudioArtifact, DbStudioVersion, DbStudioPrompt, DbStudioPlugin, DbStudioIntegration, DbStudioFeature, DbStudioMetric, DbStudioRole, DbStudioChat } from '@/types/database';
 
 export interface StudioAiRequest {
@@ -35,7 +35,7 @@ export async function invokeStudioAi(req: StudioAiRequest): Promise<string> {
   });
 
   if (error) {
-    throw new StudioAiError(error.message, 'INVOCATION_ERROR', 500);
+    throw new StudioAiError(await getFunctionErrorMessage(error), 'INVOCATION_ERROR', 500);
   }
 
   if (!data) {

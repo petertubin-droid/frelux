@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Minus, Loader2, MessageCircle, ChevronRight, Phone } from 'lucide-react';
 import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import { getClientId } from '@/lib/ai-access';
 import { classNames } from '@/lib/utils';
 
@@ -75,7 +75,7 @@ export default function SupportChatWidget() {
         body: { question: q, clientId },
       });
 
-      if (fnError) throw new Error(fnError.message);
+      if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
       if (!data) throw new Error('No response from AI.');
 
       const responseText = data.result || data.error || 'Sorry, I couldn\'t answer that right now. Try asking in a different way.';
