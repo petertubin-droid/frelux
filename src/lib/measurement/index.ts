@@ -321,6 +321,24 @@ export {
   materialSummaryToText,
 } from './material-summary';
 
+// ── Already-Have / Purchase Quantity (Feature 11) ──
+export {
+  type QuantityType,
+  type QuantityBreakdown,
+  type AlreadyHaveEntry,
+  type AlreadyHaveInventory,
+  QUANTITY_TYPE_LABELS,
+  buildQuantityBreakdown,
+  createQuantityBreakdown,
+  createAlreadyHaveInventory,
+  setAlreadyHave,
+  getAlreadyHaveQuantity,
+  removeAlreadyHave,
+  getAlreadyHaveEntries,
+  inventoryToMap,
+  quantityBreakdownToText,
+} from './already-have';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
