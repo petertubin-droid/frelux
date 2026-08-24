@@ -307,6 +307,20 @@ export {
   combineConfidence,
 } from './confidence-engine';
 
+// ── Material Summary (Feature 10: Project Material Summary) ──
+export {
+  type MaterialLineItem,
+  type MaterialCategorySubtotal,
+  type ProjectMaterialSummary,
+  type MaterialRequirement,
+  createMaterialLineItem,
+  groupByCategory,
+  buildMaterialSummary,
+  requirementsFromProject,
+  summaryFromProject,
+  materialSummaryToText,
+} from './material-summary';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
