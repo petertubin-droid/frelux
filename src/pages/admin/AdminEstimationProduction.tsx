@@ -8,14 +8,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {
-  AdminHeader,
+import {AdminHeader,
   AdminCard,
   AdminButton,
   AdminField,
   StateMessage,
   Toggle,
-} from '@/components/admin/AdminUi';
+  AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 interface ProductionRule {
@@ -157,12 +156,12 @@ export default function AdminEstimationProduction() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle checked={rule.is_active} onChange={() => handleToggleActive(rule.id, rule.is_active)} />
-                  <button onClick={() => { setEditing(rule); setShowForm(true); }} className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5">
+                  <AdminIconButton variant="ghost" onClick={() => { setEditing(rule); setShowForm(true); }} >
                     <Pencil className="h-4 w-4" />
-                  </button>
-                  <button onClick={() => handleDelete(rule.id)} className="rounded p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10">
+                  </AdminIconButton>
+                  <AdminIconButton variant="danger" onClick={() => handleDelete(rule.id)} >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </AdminIconButton>
                 </div>
               </div>
             </AdminCard>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import type { DbTimelineTemplate, ProjectType, TimelinePhase } from "@/types/database";
@@ -59,8 +59,8 @@ export default function AdminTimelineTemplates() {
                   {tpl.description && <p className="mt-1 text-sm text-neutral-600">{tpl.description}</p>}
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => { setEditing(tpl); setShowForm(true); }} className="rounded p-1 hover:bg-neutral-100"><Edit3 className="h-4 w-4 text-neutral-500" /></button>
-                  <button onClick={() => handleDelete(tpl.id)} className="rounded p-1 hover:bg-red-50"><Trash2 className="h-4 w-4 text-red-500" /></button>
+                  <AdminIconButton variant="ghost" onClick={() => { setEditing(tpl); setShowForm(true); }} ><Edit3 className="h-4 w-4 text-neutral-500" /></AdminIconButton>
+                  <AdminIconButton variant="danger" onClick={() => handleDelete(tpl.id)} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -153,7 +153,7 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
                   </select>
                   <input type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
                   <input value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <button onClick={() => setPhases(phases.filter((_, j) => j !== i))} className="rounded p-1 hover:bg-red-50"><Trash2 className="h-4 w-4 text-red-500" /></button>
+                  <AdminIconButton variant="danger" onClick={() => setPhases(phases.filter((_, j) => j !== i))} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               ))}
             </div>

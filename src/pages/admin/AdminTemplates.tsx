@@ -11,7 +11,7 @@ import {
 import { useToast } from '@/components/ui/Toast';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
-import { AdminButton } from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
 
 const CALC_TYPES: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
 
@@ -163,9 +163,9 @@ export default function AdminTemplates() {
                       <button onClick={() => handleDuplicate(t)} className="rounded-md p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white" title="Duplicate">
                         <Copy className="h-3.5 w-3.5" />
                       </button>
-                      <button onClick={() => handleDelete(t.id)} className="rounded-md p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400" title="Delete">
+                      <AdminIconButton variant="danger" onClick={() => handleDelete(t.id)}  title="Delete">
                         <Trash2 className="h-3.5 w-3.5" />
-                      </button>
+                      </AdminIconButton>
                     </div>
                   </td>
                 </tr>

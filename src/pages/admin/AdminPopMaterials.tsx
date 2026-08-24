@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Pencil, X, Check, Download } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 import type { DbPopMaterial, PopWorkflowType, PopMaterialCategory } from '@/types/database';
 
@@ -118,8 +118,8 @@ export default function AdminPopMaterials() {
                       <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                         <Toggle checked={mat.is_active} onChange={() => handleToggleActive(mat)} />
                         <div className="flex items-center gap-0.5">
-                          <button type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
-                          <button type="button" onClick={() => handleDelete(mat.id)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                          <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
+                          <AdminIconButton variant="danger" type="button" onClick={() => handleDelete(mat.id)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
                         </div>
                       </div>
                     </div>
@@ -162,7 +162,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{material ? 'Edit Material' : 'New Material'}</h2>
-        <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

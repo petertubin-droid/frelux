@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Pencil, X, Check, Loader2, AlertCircle, BookOpen, FileText } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import type { DbLearnCategory, DbLearnArticle, LearnArticleStatus } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -132,8 +132,8 @@ export default function AdminLearn() {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={article.status === 'published'} onChange={() => handleTogglePublished(article)} />
-                <button type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></button>
-                <button type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
+                <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></AdminIconButton>
               </div>
             </div>
           ))}
@@ -236,7 +236,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{article ? 'Edit Article' : 'New Article'}</h2>
-        <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
 
       {error && <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}

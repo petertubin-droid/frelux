@@ -5,7 +5,7 @@ import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
-import { AdminButton } from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
 
 // ============================================================
 // Admin SEO & Location Management
@@ -216,9 +216,9 @@ function LocationsTab() {
                           <button onClick={() => handleSave(loc.id)} disabled={saving} className="rounded p-1 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:hover:bg-emerald-500/10">
                             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                           </button>
-                          <button onClick={() => setEditingId(null)} className="rounded p-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/5">
+                          <AdminIconButton variant="ghost" onClick={() => setEditingId(null)} >
                             <X className="h-3.5 w-3.5" />
-                          </button>
+                          </AdminIconButton>
                         </>
                       ) : (
                         <>
@@ -552,9 +552,9 @@ function SeoPagesTab() {
                 )}>
                   {s.is_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                 </span>
-                <button onClick={() => handleDelete(s.id)} className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
+                <AdminIconButton variant="danger" onClick={() => handleDelete(s.id)} >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </AdminIconButton>
               </div>
             </div>
           ))}

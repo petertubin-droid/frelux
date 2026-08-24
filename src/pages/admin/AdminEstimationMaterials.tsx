@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { EstimationMaterial, EstimationUnit } from '@/types/estimation';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 function slugify(s: string): string {
@@ -219,8 +219,8 @@ export default function AdminEstimationMaterials() {
                     <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                       <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                       <div className="flex items-center gap-0.5">
-                        <button type="button" onClick={() => { setEditing(item); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
-                        <button type="button" onClick={() => remove(item)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
+                        <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
                       </div>
                     </div>
                   </div>

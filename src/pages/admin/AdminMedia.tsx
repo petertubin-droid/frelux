@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Search, Upload, Trash2, Folder as FolderIcon, X, Pencil, Check } from 'lucide-react';
-import {AdminHeader, AdminCard, StateMessage, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, StateMessage, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { fetchMediaFolders, fetchMediaItems, uploadMediaImage, deleteMediaItem, updateMediaItemAlt } from '@/lib/queries';
 import type { DbMediaFolder, DbMediaItem } from '@/types/database';
 import { classNames } from '@/lib/utils';
@@ -101,21 +101,21 @@ export default function AdminMedia() {
                 <AdminCard key={item.id} className="group overflow-hidden p-0">
                   <div className="relative aspect-square overflow-hidden bg-neutral-100">
                     <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
-                    <button type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </AdminIconButton>
                   </div>
                   <div className="p-3">
                     {editingAlt === item.id ? (
                       <div className="flex items-center gap-2">
                         <AdminInput className="flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
                         <button type="button" onClick={() => saveAlt(item)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check className="h-3.5 w-3.5" /></button>
-                        <button type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X className="h-3.5 w-3.5" /></button>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X className="h-3.5 w-3.5" /></AdminIconButton>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
                         <p className="truncate text-xs font-medium text-neutral-700" title={item.file_name}>{item.file_name}</p>
-                        <button type="button" onClick={() => { setEditingAlt(item.id); setAltText(item.alt_text ?? ''); }} className="shrink-0 rounded p-1 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3 w-3" /></button>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingAlt(item.id); setAltText(item.alt_text ?? ''); }} className="shrink-0 rounded p-1 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3 w-3" /></AdminIconButton>
                       </div>
                     )}
                     {item.alt_text && editingAlt !== item.id && <p className="mt-0.5 truncate text-[10px] text-neutral-400 dark:text-neutral-500">{item.alt_text}</p>}

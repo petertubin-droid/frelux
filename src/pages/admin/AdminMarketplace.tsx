@@ -14,7 +14,7 @@ import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
 import type { DbMarketplaceProduct } from '@/types/marketplace-products';
-import { AdminButton } from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
 
 type Tab = 'listings' | 'products' | 'orders' | 'disputes';
 
@@ -160,12 +160,12 @@ function ListingsTab() {
                 <Star className={classNames('h-3 w-3', l.is_featured && 'fill-amber-400')} />
                 {l.is_featured ? 'Featured' : 'Feature'}
               </button>
-              <button
+              <AdminIconButton variant="ghost"
                 onClick={() => handleRemove(l.id)}
                 className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-neutral-400 hover:text-red-500"
               >
                 <Trash2 className="h-3 w-3" /> Remove
-              </button>
+              </AdminIconButton>
             </div>
           </div>
         ))}
@@ -262,9 +262,9 @@ function ProductsTab() {
                 <button onClick={() => toggleProductStatus(p.id, p.status)} className="rounded p-1 text-neutral-400 hover:text-brand-purple" title="Toggle status">
                   {p.status === 'active' ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                 </button>
-                <button onClick={() => adminRemoveProduct(p.id)} className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" title="Remove">
+                <AdminIconButton variant="danger" onClick={() => adminRemoveProduct(p.id)}  title="Remove">
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </AdminIconButton>
               </div>
             </div>
           ))}

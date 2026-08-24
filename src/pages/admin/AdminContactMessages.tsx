@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Mail, Trash2, X, CheckCircle2, Archive } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminButton, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 
@@ -73,7 +73,7 @@ export default function AdminContactMessages() {
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                   <AdminButton variant="secondary" onClick={() => { setViewing(item); if (item.status === 'new') updateStatus(item.id, 'read'); }}><Mail className="h-3.5 w-3.5" /> View</AdminButton>
-                  <button type="button" onClick={() => del(item.id)} className="rounded-lg p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30" aria-label="Delete"><Trash2 className="h-4 w-4" /></button>
+                  <AdminIconButton variant="danger" type="button" onClick={() => del(item.id)}  aria-label="Delete"><Trash2 className="h-4 w-4" /></AdminIconButton>
                 </div>
               </div>
             ))}

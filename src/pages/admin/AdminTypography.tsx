@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Save, CheckCircle2, RotateCcw, Search, X, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 import {
   FONT_LIBRARY,
@@ -224,13 +224,13 @@ export default function AdminTypography() {
             <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
               Select Font for {TYPOGRAPHY_AREAS.find((a) => a.key === pickerArea)?.label}
             </h2>
-            <button
+            <AdminIconButton variant="ghost"
               type="button"
               onClick={() => setPickerArea(null)}
-              className="rounded-md p-2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+              
             >
               <X className="h-4 w-4" />
-            </button>
+            </AdminIconButton>
           </div>
 
           {/* Search + Category filter */}

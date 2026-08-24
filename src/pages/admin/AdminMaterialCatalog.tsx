@@ -4,6 +4,7 @@ import { AdminHeader, AdminButton, StateMessage, AdminField, Toggle } from "@/co
 import { supabase } from '@/lib/supabase';
 import type { DbMaterialCatalog, MaterialCatalogCategory } from '@/types/database';
 import { Plus, Trash2, Edit3, X, Search } from "lucide-react";
+import { AdminIconButton } from '@/components/admin/AdminUi';
 
 const CATEGORIES: MaterialCatalogCategory[] = [
   'paint', 'primer', 'white_cement', 'screeding_paint', 'pop_cement',
@@ -136,8 +137,8 @@ export default function AdminMaterialCatalog() {
                   </td>
                   <td className="py-2">
                     <div className="flex gap-1">
-                      <button onClick={() => { setEditing(item); setShowForm(true); }} className="rounded p-1 hover:bg-neutral-100"><Edit3 className="h-4 w-4 text-neutral-500" /></button>
-                      <button onClick={() => handleDelete(item.id)} className="rounded p-1 hover:bg-red-50"><Trash2 className="h-4 w-4 text-red-500" /></button>
+                      <AdminIconButton variant="ghost" onClick={() => { setEditing(item); setShowForm(true); }} ><Edit3 className="h-4 w-4 text-neutral-500" /></AdminIconButton>
+                      <AdminIconButton variant="danger" onClick={() => handleDelete(item.id)} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
                     </div>
                   </td>
                 </tr>

@@ -184,3 +184,32 @@ export function AdminSelect({ className, children, ...props }: SelectHTMLAttribu
     </select>
   );
 }
+
+// =========================================================
+// AdminIconButton — compact icon-only action button for
+// edit/delete/move/close patterns. Two variants: ghost (neutral)
+// and danger (red for delete actions).
+// =========================================================
+
+export function AdminIconButton({
+  children, onClick, variant = 'ghost', type = 'button', disabled, className, title,
+}: {
+  children: ReactNode;
+  onClick?: () => void;
+  variant?: 'ghost' | 'danger';
+  type?: 'button' | 'submit';
+  disabled?: boolean;
+  className?: string;
+  title?: string;
+}) {
+  const base = 'inline-flex items-center justify-center rounded-md p-1 transition-all active:scale-95 disabled:opacity-50';
+  const variants = {
+    ghost: 'text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10',
+    danger: 'text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10',
+  };
+  return (
+    <button type={type} onClick={onClick} disabled={disabled} title={title} className={classNames(base, variants[variant], className)}>
+      {children}
+    </button>
+  );
+}

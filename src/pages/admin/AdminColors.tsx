@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { classNames } from '@/lib/utils';
@@ -594,8 +594,8 @@ function CombinationsTab() {
                   <div className="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-2.5 dark:border-white/5">
                     <Toggle checked={item.is_published} onChange={() => togglePublished(item)} />
                     <div className="flex items-center gap-1">
-                      <button type="button" onClick={() => { setEditing(item); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3.5 w-3.5" /></button>
-                      <button type="button" onClick={() => remove(item)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3.5 w-3.5" /></AdminIconButton>
+                      <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3.5 w-3.5" /></AdminIconButton>
                     </div>
                   </div>
                 </div>

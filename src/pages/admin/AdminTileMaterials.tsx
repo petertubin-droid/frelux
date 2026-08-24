@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Plus, Trash2, Pencil, X, Check, Download } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 import type { DbTileSize, DbTileMaterial, TileMaterialCategory } from '@/types/database';
 
@@ -133,8 +133,8 @@ export default function AdminTileMaterials() {
               <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                 <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
                 <div className="flex items-center gap-0.5">
-                  <button type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3.5 w-3.5" /></button>
-                  <button type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3.5 w-3.5" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></AdminIconButton>
                 </div>
               </div>
             </AdminCard>
@@ -171,8 +171,8 @@ export default function AdminTileMaterials() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Toggle checked={m.is_active} onChange={() => handleToggleMatActive(m)} />
-                        <button type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></button>
-                        <button type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></AdminIconButton>
                       </div>
                     </AdminCard>
                   ))}
@@ -204,7 +204,7 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
-        <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
       <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -243,7 +243,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{material ? 'Edit Material' : 'New Material'}</h2>
-        <button type="button" onClick={onCancel} className="rounded-md p-2 text-neutral-400 hover:text-neutral-600"><X className="h-4 w-4" /></button>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, Plus } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { AdminHeader, AdminCard, AdminField, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
@@ -301,13 +301,13 @@ export default function AdminBranding() {
                       onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
                       className="w-24 text-xs"
                     />
-                    <button
+                    <AdminIconButton variant="danger"
                       onClick={() => removeHighlight(hl.wordIndex)}
-                      className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                      
                       title="Remove highlight"
                     >
                       <X className="h-4 w-4" />
-                    </button>
+                    </AdminIconButton>
                   </div>
                 </div>
               ))}

@@ -4,7 +4,7 @@ import {
   Download, Upload, ArrowUp, ArrowDown, Check,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import { clearAdConfigCache } from '@/lib/ad-config';
@@ -150,13 +150,13 @@ function ProvidersTab() {
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
               <div className="flex items-center gap-0.5">
-                <button type="button" onClick={() => movePriority(prov, -1)} disabled={idx === 0} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-white/10" aria-label="Move up"><ArrowUp className="h-3 w-3" /></button>
-                <button type="button" onClick={() => movePriority(prov, 1)} disabled={idx === arr.length - 1} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-white/10" aria-label="Move down"><ArrowDown className="h-3 w-3" /></button>
+                <AdminIconButton variant="ghost" type="button" onClick={() => movePriority(prov, -1)} disabled={idx === 0}  aria-label="Move up"><ArrowUp className="h-3 w-3" /></AdminIconButton>
+                <AdminIconButton variant="ghost" type="button" onClick={() => movePriority(prov, 1)} disabled={idx === arr.length - 1}  aria-label="Move down"><ArrowDown className="h-3 w-3" /></AdminIconButton>
                 <Toggle checked={prov.is_active} onChange={() => toggleActive(prov)} />
               </div>
               <div className="flex items-center gap-0.5">
-                <button type="button" onClick={() => { setEditing(prov); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
-                {!prov.is_system && <button type="button" onClick={() => remove(prov)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>}
+                <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(prov); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
+                {!prov.is_system && <AdminIconButton variant="danger" type="button" onClick={() => remove(prov)} ><Trash2 className="h-3 w-3" /></AdminIconButton>}
               </div>
             </div>
           </div>
@@ -436,8 +436,8 @@ function PlacementsTab() {
               <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                 <Toggle checked={pl.is_active} onChange={() => toggleActive(pl)} />
                 <div className="flex items-center gap-0.5">
-                  <button type="button" onClick={() => { setEditing(pl); setShowForm(true); }} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/10"><Pencil className="h-3 w-3" /></button>
-                  <button type="button" onClick={() => remove(pl)} className="rounded-md p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"><Trash2 className="h-3 w-3" /></button>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(pl); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
+                  <AdminIconButton variant="danger" type="button" onClick={() => remove(pl)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
                 </div>
               </div>
             </div>
@@ -564,8 +564,8 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
                     {isSelected && order >= 0 && (
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-bold text-brand-purple">#{order + 1}</span>
-                        <button type="button" onClick={() => moveProvider(prov.id, -1)} disabled={order === 0} className="rounded p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-neutral-800"><ArrowUp className="h-3 w-3" /></button>
-                        <button type="button" onClick={() => moveProvider(prov.id, 1)} disabled={order === providerIds.length - 1} className="rounded p-1 text-neutral-400 hover:bg-neutral-100 disabled:opacity-30 dark:hover:bg-neutral-800"><ArrowDown className="h-3 w-3" /></button>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => moveProvider(prov.id, -1)} disabled={order === 0} ><ArrowUp className="h-3 w-3" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => moveProvider(prov.id, 1)} disabled={order === providerIds.length - 1} ><ArrowDown className="h-3 w-3" /></AdminIconButton>
                       </div>
                     )}
                   </div>

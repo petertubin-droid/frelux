@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
-import { AdminButton } from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -1154,9 +1154,9 @@ function AdminChannelsTab() {
                 <button onClick={() => startEditCategory(cat)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
                   <Eye className="h-4 w-4" />
                 </button>
-                <button onClick={() => deleteCategory(cat.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
+                <AdminIconButton variant="ghost" onClick={() => deleteCategory(cat.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
               </div>
             </div>
           ))}
@@ -1191,9 +1191,9 @@ function AdminChannelsTab() {
                 <button onClick={() => startEditChannel(ch)} className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
                   <Eye className="h-4 w-4" />
                 </button>
-                <button onClick={() => deleteChannel(ch.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
+                <AdminIconButton variant="ghost" onClick={() => deleteChannel(ch.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
                   <Trash2 className="h-4 w-4" />
-                </button>
+                </AdminIconButton>
               </div>
             </div>
           ))}
