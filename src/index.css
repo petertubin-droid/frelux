@@ -82,6 +82,10 @@
   }
   * {
     @apply box-border;
+    hyphens: none;
+    -webkit-hyphens: none;
+    -moz-hyphens: none;
+    -ms-hyphens: none;
   }
   /* Premium focus indicators */
   a:focus-visible,
