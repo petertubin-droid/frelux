@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
+import { AdminButton } from '@/components/admin/AdminUi';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -351,18 +352,18 @@ function AdminVerificationTab() {
                           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                         />
                         <div className="flex flex-wrap gap-2">
-                          <button onClick={() => handleApprove(req.profile_id, req.id)} className="rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white">
+                          <AdminButton variant="success" onClick={() => handleApprove(req.profile_id, req.id)} className="text-xs">
                             <Check className="mr-1 inline h-3.5 w-3.5" />Approve
-                          </button>
-                          <button onClick={() => handleReject(req.profile_id, req.id)} className="rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white">
+                          </AdminButton>
+                          <AdminButton variant="danger" onClick={() => handleReject(req.profile_id, req.id)} className="text-xs bg-red-500 border-red-500 text-white hover:bg-red-600">
                             <X className="mr-1 inline h-3.5 w-3.5" />Reject
-                          </button>
-                          <button onClick={() => handleMoreInfo(req.profile_id, req.id)} className="rounded-lg border border-blue-200 px-3 py-1.5 text-xs font-medium text-blue-600 dark:border-blue-500/20 dark:text-blue-400">
+                          </AdminButton>
+                          <AdminButton variant="secondary" onClick={() => handleMoreInfo(req.profile_id, req.id)} className="text-xs text-blue-600 dark:text-blue-400">
                             <FileWarning className="mr-1 inline h-3.5 w-3.5" />Request Info
-                          </button>
-                          <button onClick={() => setSelectedRequest(null)} className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">
+                          </AdminButton>
+                          <AdminButton variant="secondary" onClick={() => setSelectedRequest(null)} className="text-xs">
                             Cancel
-                          </button>
+                          </AdminButton>
                         </div>
                       </div>
                     ) : (
@@ -379,22 +380,16 @@ function AdminVerificationTab() {
                 {/* Reinstation/Suspension for non-pending */}
                 {req.status === 'approved' && (
                   <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
-                    <button
-                      onClick={() => handleSuspend(req.profile_id)}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 dark:border-red-500/20 dark:text-red-400"
-                    >
+                    <AdminButton variant="danger" onClick={() => handleSuspend(req.profile_id)} className="text-xs">
                       Suspend Verification
-                    </button>
+                    </AdminButton>
                   </div>
                 )}
                 {req.status === 'rejected' && (
                   <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
-                    <button
-                      onClick={() => handleReinstate(req.profile_id)}
-                      className="rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-medium text-emerald-600 dark:border-emerald-500/20 dark:text-emerald-400"
-                    >
+                    <AdminButton variant="success" onClick={() => handleReinstate(req.profile_id)} className="text-xs bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400 hover:bg-emerald-100">
                       Reinstate
-                    </button>
+                    </AdminButton>
                   </div>
                 )}
               </div>
@@ -576,28 +571,31 @@ function AdminKycTab() {
                         className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                       />
                       <div className="flex flex-wrap gap-2">
-                        <button
+                        <AdminButton
+                          variant="success"
                           onClick={() => handleApprove(sub.profile_id)}
                           disabled={processing}
-                          className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                          className="text-xs"
                         >
                           <Check className="mr-1 inline h-3.5 w-3.5" />
                           {processing ? 'Processing...' : 'Confirm & Auto-Verify'}
-                        </button>
-                        <button
+                        </AdminButton>
+                        <AdminButton
+                          variant="danger"
                           onClick={() => handleReject(sub.profile_id)}
                           disabled={processing || !rejectReason.trim()}
-                          className="rounded-lg bg-red-500 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                          className="text-xs bg-red-500 border-red-500 text-white hover:bg-red-600"
                         >
                           <X className="mr-1 inline h-3.5 w-3.5" />
                           Reject NIN
-                        </button>
-                        <button
+                        </AdminButton>
+                        <AdminButton
+                          variant="secondary"
                           onClick={() => { setSelectedNin(null); setRejectReason(''); }}
-                          className="rounded-lg border border-neutral-200 px-4 py-2 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300"
+                          className="text-xs"
                         >
                           Cancel
-                        </button>
+                        </AdminButton>
                       </div>
                       <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                         <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -725,8 +723,8 @@ function AdminReportsTab() {
                   <span className={classNames('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', r.status === 'open' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : r.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}>{r.status}</span>
                   {r.status === 'open' && (
                     <>
-                      <button onClick={() => resolveProReport(r.id, 'resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-medium text-white">Resolve</button>
-                      <button onClick={() => resolveProReport(r.id, 'dismissed')} className="rounded-lg border border-neutral-200 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">Dismiss</button>
+                      <AdminButton variant="success" onClick={() => resolveProReport(r.id, 'resolved')} className="text-xs py-1">Resolve</AdminButton>
+                      <AdminButton variant="secondary" onClick={() => resolveProReport(r.id, 'dismissed')} className="text-xs py-1">Dismiss</AdminButton>
                     </>
                   )}
                 </div>
@@ -762,8 +760,8 @@ function AdminReportsTab() {
                   </button>
                   {wr.status === 'pending' && (
                     <>
-                      <button onClick={() => resolveWorkerReport(wr.id, 'resolved')} className="rounded-lg bg-emerald-500 px-3 py-1 text-xs font-medium text-white">Resolve</button>
-                      <button onClick={() => resolveWorkerReport(wr.id, 'dismissed')} className="rounded-lg border border-neutral-200 px-3 py-1 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-300">Dismiss</button>
+                      <AdminButton variant="success" onClick={() => resolveWorkerReport(wr.id, 'resolved')} className="text-xs py-1">Resolve</AdminButton>
+                      <AdminButton variant="secondary" onClick={() => resolveWorkerReport(wr.id, 'dismissed')} className="text-xs py-1">Dismiss</AdminButton>
                     </>
                   )}
                 </div>
@@ -1141,9 +1139,9 @@ function AdminChannelsTab() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Channel Categories</h3>
-          <button onClick={startNewCategory} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90">
+          <AdminButton onClick={startNewCategory} className="text-xs py-1">
             <Plus className="h-3.5 w-3.5" /> New Category
-          </button>
+          </AdminButton>
         </div>
         <div className="space-y-2">
           {categories.map((cat) => (
@@ -1170,9 +1168,9 @@ function AdminChannelsTab() {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Worker Channels</h3>
-          <button onClick={startNewChannel} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90">
+          <AdminButton onClick={startNewChannel} className="text-xs py-1">
             <Plus className="h-3.5 w-3.5" /> New Channel
-          </button>
+          </AdminButton>
         </div>
         <div className="space-y-2">
           {channels.map((ch) => (
@@ -1260,12 +1258,12 @@ function AdminChannelsTab() {
               </div>
             </div>
             <div className="mt-5 flex gap-2">
-              <button onClick={saveChannel} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white hover:bg-brand-purple/90">
+              <AdminButton onClick={saveChannel}>
                 <Save className="h-4 w-4" /> Save
-              </button>
-              <button onClick={() => setShowChannelForm(false)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+              </AdminButton>
+              <AdminButton variant="secondary" onClick={() => setShowChannelForm(false)}>
                 Cancel
-              </button>
+              </AdminButton>
             </div>
         </AdminModal>
       )}
@@ -1307,12 +1305,12 @@ function AdminChannelsTab() {
               </label>
             </div>
             <div className="mt-5 flex gap-2">
-              <button onClick={saveCategory} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white hover:bg-brand-purple/90">
+              <AdminButton onClick={saveCategory}>
                 <Save className="h-4 w-4" /> Save
-              </button>
-              <button onClick={() => setShowCategoryForm(false)} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 dark:border-white/10 dark:text-neutral-300">
+              </AdminButton>
+              <AdminButton variant="secondary" onClick={() => setShowCategoryForm(false)}>
                 Cancel
-              </button>
+              </AdminButton>
             </div>
         </AdminModal>
       )}

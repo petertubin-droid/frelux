@@ -23,7 +23,7 @@ export function AdminButton({
 }: {
   children: ReactNode;
   onClick?: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
   type?: 'button' | 'submit';
   disabled?: boolean;
   className?: string;
@@ -33,6 +33,7 @@ export function AdminButton({
     primary: 'bg-brand-purple text-white hover:bg-brand-purple-dark',
     secondary: 'bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50 dark:bg-brand-navy-mid dark:text-neutral-200 dark:border-white/5 dark:hover:bg-white/5',
     danger: 'bg-white text-red-600 border border-red-200 hover:bg-red-50 dark:bg-brand-navy-mid dark:text-red-400 dark:border-red-500/20 dark:hover:bg-red-500/10',
+    success: 'bg-emerald-500 text-white hover:bg-emerald-600',
   };
   return (
     <button type={type} onClick={onClick} disabled={disabled} className={classNames(base, variants[variant], className)}>
