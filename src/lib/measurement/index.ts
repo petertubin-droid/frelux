@@ -339,6 +339,24 @@ export {
   quantityBreakdownToText,
 } from './already-have';
 
+// ── Configurable Waste (Feature 12) ──
+export {
+  type WasteSource,
+  type WasteResolution,
+  type WasteConfig,
+  WASTE_SOURCE_LABELS,
+  createWasteConfig,
+  resolveWaste,
+  resolveWasteFromRule,
+  applyResolvedWaste,
+  setGlobalDefaultWaste,
+  setCountryWaste,
+  setMarketWaste,
+  setUserWaste,
+  createNigeriaWasteConfig,
+  wasteResolutionToText,
+} from './waste-config';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
