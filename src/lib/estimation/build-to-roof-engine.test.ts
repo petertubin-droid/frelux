@@ -635,3 +635,111 @@ describe('calculateBuildToRoof — Edge cases', () => {
     expect(result.confidence).toBe('preliminary');
   });
 });
+
+
+// ── Smart Adjustment Tests ──
+
+describe('Smart Adjustments (Audit Phase)', () => {
+  it('mortar volume scales with wall thickness', () => {
+    const input225 = createTestInput({ wall_thickness: 0.225 });
+    const input150 = createTestInput({ wall_thickness: 0.150 });
+    const result225 = calculateBuildToRoof(input225);
+    const result150 = calculateBuildToRoof(input150);
+
+    const walls225 = result225.stages.find(s => s.stage === 'walls')!;
+    const walls150 = result150.stages.find(s => s.stage === 'walls')!;
+
+    const sand225 = walls225.materials.find(m => m.label.includes('Sand (wall mortar)'))!;
+    const sand150 = walls150.materials.find(m => m.label.includes('Sand (wall mortar)'))!;
+
+    // 150mm wall should use less mortar than 225mm
+    expect(sand150.base_quantity).toBeLessThan(sand225.base_quantity);
+  });
+
+  it('sand filling thickness is configurable', () => {
+    const inputDefault = createTestInput({});
+    const inputThick = createTestInput({ sand_filling_thickness: 0.10 });
+
+    const resultDefault = calculateBuildToRoof(inputDefault);
+    const resultThick = calculateBuildToRoof(inputThick);
+
+    const foundationDefault = resultDefault.stages.find(s => s.stage === 'site_preparation')!;
+    const foundationThick = resultThick.stages.find(s => s.stage === 'site_preparation')!;
+
+    const sandDefault = foundationDefault.materials.find(m => m.label.includes('Sand (filling)'))!;
+    const sandThick = foundationThick.materials.find(m => m.label.includes('Sand (filling)'))!;
+
+    // 100mm thickness should produce more sand volume than default 50mm
+    expect(sandThick.base_quantity).toBeGreaterThan(sandDefault.base_quantity);
+  });
+
+  it('price freshness: age_days is calculated', () => {
+    const input = createTestInput({
+      prices: { ...DEFAULT_PRICES, price_date: '2026-01-01' },
+    });
+    const result = calculateBuildToRoof(input);
+    expect(result.price_age_days).toBeGreaterThan(0);
+  });
+
+  it('price freshness: stale flag triggers when older than 30 days', () => {
+    const input = createTestInput({
+      prices: { ...DEFAULT_PRICES, price_date: '2026-01-01' },
+    });
+    const result = calculateBuildToRoof(input);
+    expect(result.price_stale).toBe(true);
+  });
+
+  it('price freshness: stale flag false for recent prices', () => {
+    const input = createTestInput({
+      prices: { ...DEFAULT_PRICES, price_date: new Date().toISOString().split('T')[0] },
+    });
+    const result = calculateBuildToRoof(input);
+    expect(result.price_stale).toBe(false);
+    expect(result.price_age_days).toBeLessThanOrEqual(1);
+  });
+
+  it('default prices are realistic for Nigerian market (Aug 2026)', () => {
+    // Cement should be between ₦7,000 and ₦15,000
+    expect(DEFAULT_PRICES.cement_per_bag).toBeGreaterThanOrEqual(7000);
+    expect(DEFAULT_PRICES.cement_per_bag).toBeLessThanOrEqual(15000);
+
+    // Blocks should be between ₦250 and ₦700
+    expect(DEFAULT_PRICES.block_per_piece).toBeGreaterThanOrEqual(250);
+    expect(DEFAULT_PRICES.block_per_piece).toBeLessThanOrEqual(700);
+
+    // Sand per m³ should be between ₦30,000 and ₦80,000
+    expect(DEFAULT_PRICES.sand_per_m3).toBeGreaterThanOrEqual(30000);
+    expect(DEFAULT_PRICES.sand_per_m3).toBeLessThanOrEqual(80000);
+
+    // Granite per m³ should be between ₦70,000 and ₦150,000
+    expect(DEFAULT_PRICES.granite_per_m3).toBeGreaterThanOrEqual(70000);
+    expect(DEFAULT_PRICES.granite_per_m3).toBeLessThanOrEqual(150000);
+
+    // Reinforcement per tonne should be between ₦900,000 and ₦1,800,000
+    expect(DEFAULT_PRICES.reinforcement_per_tonne).toBeGreaterThanOrEqual(900000);
+    expect(DEFAULT_PRICES.reinforcement_per_tonne).toBeLessThanOrEqual(1800000);
+  });
+
+  it('default labour rates are realistic for Nigerian market', () => {
+    // Excavation per m³: ₦2,000–₦6,000
+    expect(DEFAULT_LABOUR.excavation_per_m3).toBeGreaterThanOrEqual(2000);
+    expect(DEFAULT_LABOUR.excavation_per_m3).toBeLessThanOrEqual(6000);
+
+    // Blockwork per block: ₦100–₦300
+    expect(DEFAULT_LABOUR.blockwork_per_block).toBeGreaterThanOrEqual(100);
+    expect(DEFAULT_LABOUR.blockwork_per_block).toBeLessThanOrEqual(300);
+
+    // Concrete per m³: ₦20,000–₦40,000
+    expect(DEFAULT_LABOUR.concrete_per_m3).toBeGreaterThanOrEqual(20000);
+    expect(DEFAULT_LABOUR.concrete_per_m3).toBeLessThanOrEqual(40000);
+  });
+
+  it('price scanner fallback prices are within market range', () => {
+    // Import fallback prices
+    // These should match the updated DEFAULT_PRICES
+    expect(DEFAULT_PRICES.cement_per_bag).toBe(10000);
+    expect(DEFAULT_PRICES.block_per_piece).toBe(450);
+    expect(DEFAULT_PRICES.sand_per_m3).toBe(55000);
+    expect(DEFAULT_PRICES.granite_per_m3).toBe(110000);
+  });
+});

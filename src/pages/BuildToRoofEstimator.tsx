@@ -1074,12 +1074,26 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
       </div>
 
-      {/* Price Info */}
-      <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-6">
-        <p className="text-sm text-neutral-500">
-          <span className="font-medium text-neutral-700">Price Date:</span> {result.price_date} ·
-          <span className="font-medium text-neutral-700 ml-2">Source:</span> {result.price_source}
-        </p>
+      {/* Price Info with Freshness Indicator */}
+      <div className={`rounded-2xl border p-6 ${result.price_stale ? 'border-amber-300 bg-amber-50' : 'border-neutral-200 bg-neutral-50'}`}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <p className="text-sm text-neutral-500">
+            <span className="font-medium text-neutral-700">Price Date:</span> {result.price_date} ·
+            <span className="font-medium text-neutral-700 ml-2">Source:</span> {result.price_source}
+          </p>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
+            result.price_stale
+              ? 'bg-amber-100 text-amber-800'
+              : 'bg-green-100 text-green-800'
+          }`}>
+            {result.price_stale ? '⚠️ Stale' : '✓ Fresh'} ({result.price_age_days}d old)
+          </span>
+        </div>
+        {result.price_stale && (
+          <p className="mt-2 text-xs text-amber-700">
+            Prices are older than 30 days. For accurate estimates, update current market prices before procurement.
+          </p>
+        )}
       </div>
 
       {/* Actions */}

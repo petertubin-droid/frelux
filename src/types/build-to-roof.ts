@@ -145,6 +145,9 @@ export interface BuildToRoofInput {
   // Drawing analysis
   drawing_analysis?: DrawingAnalysis;
 
+  // Sand filling (under ground floor slab)
+  sand_filling_thickness?: number; // meters, default 0.05 (50mm)
+
   // Contingency
   contingency_percent: number; // e.g. 5 means 5%
 }
@@ -335,4 +338,6 @@ export interface BuildToRoofResult {
   // Price info
   price_date: string;
   price_source: string;
+  price_age_days: number; // days since price_date
+  price_stale: boolean; // true if older than 30 days
 }

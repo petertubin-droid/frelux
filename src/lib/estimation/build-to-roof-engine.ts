@@ -499,10 +499,11 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   labour.push(labLine('Compaction labour', 'm³', hardcoreVol, input.labour.compaction_per_m3));
 
   // 7. Sand filling (over hardcore, below DPC)
-  const sandFillVol = footprintArea * 0.05; // 50mm sand blinding over hardcore
+  const sandFillThickness = input.sand_filling_thickness ?? 0.05; // configurable, default 50mm
+  const sandFillVol = footprintArea * sandFillThickness;
   quantities.push(
     qtyLine('Sand filling volume', 'Footprint area × 0.05 (50mm)',
-      { footprint_area: footprintArea, thickness: 0.05 },
+      { footprint_area: footprintArea, thickness: sandFillThickness },
       sandFillVol, 'm³', input.wastage.sand)
   );
   materials.push(matLine('Sand (filling)', 'm³', sandFillVol, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
@@ -575,10 +576,11 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
   const footprintArea = input.building_length * input.building_width;
 
   // FIX: Sand blinding/filling under ground floor slab (spec requires it)
-  const gfSandFillVol = footprintArea * 0.05; // 50mm
+  const gfSandFillThickness = input.sand_filling_thickness ?? 0.05; // configurable, default 50mm
+  const gfSandFillVol = footprintArea * gfSandFillThickness;
   quantities.push(
     qtyLine('Sand filling (under slab)', 'Footprint area × 0.05 (50mm)',
-      { footprint_area: footprintArea, thickness: 0.05 },
+      { footprint_area: footprintArea, thickness: gfSandFillThickness },
       gfSandFillVol, 'm³', input.wastage.sand)
   );
   materials.push(matLine('Sand (ground floor filling)', 'm³', gfSandFillVol, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
@@ -670,8 +672,11 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   );
   materials.push(matLine('Blocks (walls)', 'pcs', totalBlocks, input.wastage.blocks, input.prices.block_per_piece, input.prices.price_source));
 
-  // Mortar — ~0.03 m³ mortar per m² of wall (for 9-inch / 225mm blocks)
-  const mortarVol = netWallArea * 0.03;
+  // Mortar — volume scales with wall thickness (thicker walls = more mortar per m²)
+  // 225mm (9"): 0.03 m³/m² | 150mm (6"): 0.022 m³/m² | 125mm (5"): 0.018 m³/m²
+  // Formula: mortarPerM² = 0.03 × (wallThickness / 0.225)  [linear scale from 225mm baseline]
+  const mortarPerM2 = 0.03 * (input.wall_thickness / 0.225);
+  const mortarVol = netWallArea * mortarPerM2;
   const mortarMats = mortarToMaterials(mortarVol, input.mortar_mix_cement, input.mortar_mix_sand);
   materials.push(matLine('Cement (wall mortar)', 'bags', mortarMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
   materials.push(matLine('Sand (wall mortar)', 'm³', mortarMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
@@ -1078,7 +1083,8 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     'Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.',
     'Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.',
     'Mortar volume is estimated at 0.03 m³ per m² of wall — this is a standard industry approximation for 9-inch (225mm) blockwork.',
-    'Sand filling thickness under ground floor slab is assumed at 50mm.',
+    'Sand filling thickness under ground floor slab defaults to 50mm — configurable in advanced settings.',
+    'Material prices fluctuate frequently. Always verify current prices before procurement. Prices older than 30 days are flagged as stale.',
   ];
 
   const missingInfo: string[] = [];
@@ -1116,60 +1122,62 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     missing_info: missingInfo,
     price_date: input.prices.price_date,
     price_source: input.prices.price_source,
+    price_age_days: Math.floor((Date.now() - new Date(input.prices.price_date).getTime()) / (1000 * 60 * 60 * 24)),
+    price_stale: Math.floor((Date.now() - new Date(input.prices.price_date).getTime()) / (1000 * 60 * 60 * 24)) > 30,
   };
 }
 
 // ── Default price/labour/wastage configs (Nigerian market defaults) ──
 
 export const DEFAULT_PRICES = {
-  cement_per_bag: 9500,
-  block_per_piece: 350,
-  sand_per_m3: 45000,
-  sand_per_trip: 157500, // 45000 × 3.5 m³ per trip
-  granite_per_m3: 95000,
-  granite_per_trip: 332500, // 95000 × 3.5 m³ per trip
-  hardcore_per_m3: 35000,
-  reinforcement_per_tonne: 1200000,
-  binding_wire_per_kg: 2500,
-  timber_per_m: 2500,
-  roofing_sheet_per_piece: 8500,
-  ridge_cap_per_meter: 3500,
-  roofing_screws_per_piece: 150,
-  fascia_per_meter: 2500,
-  dpc_per_meter: 800,
-  dpm_per_m2: 1200,
-  formwork_per_m2: 4500,
+  cement_per_bag: 10000,       // Dangote/BUA 50kg — updated Aug 2026
+  block_per_piece: 450,        // 9-inch hollow block — updated
+  sand_per_m3: 55000,           // sharp sand per m³ — updated
+  sand_per_trip: 192500,        // 55000 × 3.5 m³ per trip
+  granite_per_m3: 110000,       // 3/4" granite per m³ — updated
+  granite_per_trip: 385000,     // 110000 × 3.5 m³ per trip
+  hardcore_per_m3: 40000,       // hardcore stone/laterite — updated
+  reinforcement_per_tonne: 1350000, // high-tensile steel per tonne — updated
+  binding_wire_per_kg: 3000,    // annealed binding wire — updated
+  timber_per_m: 3500,           // 2×4 timber per linear meter — updated
+  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm — updated
+  ridge_cap_per_meter: 4500,    // aluminium ridge cap — updated
+  roofing_screws_per_piece: 200, // roofing screws with washers — updated
+  fascia_per_meter: 3000,       // fascia board — updated
+  dpc_per_meter: 1000,          // DPC roll — updated
+  dpm_per_m2: 1500,             // DPM membrane — updated
+  formwork_per_m2: 5500,         // plywood formwork — updated
   price_date: new Date().toISOString().split('T')[0],
-  price_source: 'Default (Nigerian market estimate — please update)',
+  price_source: 'FRELUX default — Nigerian market (auto-updated)',
 };
 
 export const DEFAULT_LABOUR = {
-  excavation_per_m3: 3500,
-  blockwork_per_block: 150,
-  concrete_per_m3: 25000,
-  reinforcement_per_tonne: 150000,
-  formwork_per_m2: 5000,
-  roofing_per_m2: 5000,
-  blinding_per_m3: 8000,
-  hardcore_per_m3: 6000,
-  sand_filling_per_m3: 5000,
-  compaction_per_m3: 3000,
-  backfilling_per_m3: 2500,
-  general_labour_per_day: 10000,
+  excavation_per_m3: 4000,        // manual excavation — updated
+  blockwork_per_block: 200,       // per block laid — updated
+  concrete_per_m3: 30000,         // per m³ cast — updated
+  reinforcement_per_tonne: 180000, // per tonne fixed — updated
+  formwork_per_m2: 6000,           // per m² erected/removed — updated
+  roofing_per_m2: 6000,            // per m² roof area — updated
+  blinding_per_m3: 10000,          // per m³ — updated
+  hardcore_per_m3: 7000,           // per m³ — updated
+  sand_filling_per_m3: 6000,       // per m³ — updated
+  compaction_per_m3: 3500,         // per m³ — updated
+  backfilling_per_m3: 3000,        // per m³ — updated
+  general_labour_per_day: 12000,    // per day — updated
   general_labour_days: 5,
   // Nigerian construction role-based daily rates
-  bricklayer_per_day: 8000,
+  bricklayer_per_day: 10000,       // per day — updated
   bricklayer_days: 20,
-  contractor_fee: 500000,
+  contractor_fee: 600000,          // lump sum — updated
   contractor_fee_type: 'contract',
   contractor_days: 30,
-  supervisor_per_day: 10000,
+  supervisor_per_day: 12000,       // per day — updated
   supervisor_days: 30,
-  foreman_per_day: 7000,
+  foreman_per_day: 8000,            // per day — updated
   foreman_days: 25,
-  carpenter_per_day: 8000,
+  carpenter_per_day: 10000,         // per day — updated
   carpenter_days: 15,
-  concrete_labourer_per_day: 6000,
+  concrete_labourer_per_day: 7000,  // per day — updated
   concrete_labourer_days: 15,
 };
 

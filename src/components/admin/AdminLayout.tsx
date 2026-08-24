@@ -66,6 +66,7 @@ const navModules: NavModule[] = [
       { label: 'Audit Log', to: '/admin/estimation-audit', icon: ShieldCheck },
       { label: 'Production Rules', to: '/admin/estimation-production', icon: Factory },
       { label: 'Engine Test Calculator', to: '/admin/paint-engine-test', icon: Calculator },
+      { label: 'Price Updater', to: '/admin/price-updater', icon: TrendingUp },
       { label: 'Tyrolene Config', to: '/admin/tyrolene-config', icon: Building2 },
     ],
   },
