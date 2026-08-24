@@ -21,6 +21,7 @@ const defaultBranding: DbSiteBranding = {
   secondary_color: '#0B1120',
   accent_color: '#F97316',
   hero_highlight_config: null,
+  hero_image_url: null,
   is_active: true,
   created_at: '',
   updated_at: '',

@@ -179,7 +179,7 @@ export default function Hero() {
             {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
               <img
-                src="https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900"
+                src={branding?.hero_image_url || 'https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900'}
                 alt="Painter rolling fresh color onto a wall"
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"

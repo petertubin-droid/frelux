@@ -31,6 +31,7 @@ export default function AdminBranding() {
   const [accentColor, setAccentColor] = useState('#F97316');
   // Form state — hero highlight
   const [heroHeadline, setHeroHeadline] = useState('Know Exactly What Materials Your Project Needs.');
+  const [heroImage, setHeroImage] = useState<string | null>(null);
   const [highlightConfig, setHighlightConfig] = useState<HeroHighlightConfig | null>(null);
   // Active color picker for the next word selected
   const [pendingColor, setPendingColor] = useState('#F97316');
@@ -50,6 +51,7 @@ export default function AdminBranding() {
         setSecondaryColor(branding.secondary_color);
         setAccentColor(branding.accent_color);
         setHighlightConfig(branding.hero_highlight_config ?? { highlights: [] });
+        setHeroImage(branding.hero_image_url ?? null);
       }
       setLoading(false);
     }
@@ -128,6 +130,7 @@ export default function AdminBranding() {
         secondary_color: secondaryColor,
         accent_color: accentColor,
         hero_highlight_config: highlightConfig,
+        hero_image_url: heroImage,
         updated_at: new Date().toISOString(),
       })
       .eq('id', config.id);
@@ -196,6 +199,18 @@ export default function AdminBranding() {
           <MediaUploader label="Dark Mode Logo" value={darkLogo} onChange={setDarkLogo} folder="branding" />
           <MediaUploader label="Favicon" value={favicon} onChange={setFavicon} folder="branding" />
           <MediaUploader label="PWA App Icon" value={pwaIcon} onChange={setPwaIcon} folder="branding" />
+        </div>
+      </AdminCard>
+
+      {/* Hero Image section */}
+      <AdminCard className="mb-4 p-5">
+        <div className="flex items-center gap-2">
+          <ImageIcon className="h-5 w-5 text-brand-purple" />
+          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Hero Image</h2>
+        </div>
+        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">The main image shown on the homepage hero section. Recommended aspect ratio: 4:5 (portrait). Leave empty to use the default.</p>
+        <div className="mt-4">
+          <MediaUploader label="Hero Image" value={heroImage} onChange={setHeroImage} folder="branding" />
         </div>
       </AdminCard>
 

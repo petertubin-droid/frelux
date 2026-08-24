@@ -43,6 +43,7 @@ export interface DbSiteBranding {
   accent_color: string;
   /** JSON: which words in the hero headline get a custom color. */
   hero_highlight_config: HeroHighlightConfig | null;
+  hero_image_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
