@@ -418,3 +418,10 @@ export {
   aggregateTilingResults,
   type GrafitexBridgeResult,
 } from './bridges';
+
+// ── Engine Features Hook (Feature: UI Integration) ──
+export {
+  useEngineFeatures,
+  type UseEngineFeaturesOptions,
+  type UseEngineFeaturesReturn,
+} from './use-engine-features';

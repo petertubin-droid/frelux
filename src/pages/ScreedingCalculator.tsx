@@ -15,8 +15,17 @@ import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { MeasurementInput, CalculationBreakdown, ValidationErrors } from '@/components/measurement/MeasurementInput';
 import {
   useMeasurementProject,
+  useEngineFeatures,
   type ProjectMode,
 } from '@/lib/measurement';
+
+// Engine UI components
+import {
+  EngineExplanationPanel,
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineWasteSelector,
+} from '@/components/engine';
 
 export default function ScreedingCalculator() {
   useCalcDefaults('screeding');
@@ -61,6 +70,9 @@ export default function ScreedingCalculator() {
     projectMode: 'single_room',
   });
 
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'screeding' });
+
   const [screedingResult, setScreedingResult] = useState<{
     totalAreaM2: number;
     steps: { label: string; formula: string; value: string }[];
@@ -97,6 +109,34 @@ export default function ScreedingCalculator() {
     resetWithMode(mode);
     setScreedingResult(null);
   }
+
+  // Build engine explanation from result
+  const engineExplanation = screedingResult
+    ? engine.buildExplanation({
+        subject: 'Screeding Area Calculation',
+        resultSummary: `${screedingResult.totalAreaM2.toFixed(2)} m² total screeding area`,
+        steps: screedingResult.steps.map((s) => ({
+          description: `${s.label}: ${s.formula}`,
+          value: s.value,
+        })),
+        notes: [
+          'All measurements are normalized to metres internally.',
+          'Area is always expressed in square metres (m²).',
+        ],
+      })
+    : null;
+
+  // Assess confidence
+  const confidence = screedingResult
+    ? engine.assessConfidence({
+        ruleValid: true,
+        inputComplete: validation.valid,
+        materialSpecComplete: false, // Screeding calc is area-only, no material spec yet
+        marketPriceAvailable: false,
+        sourceReliability: 'verified',
+        productMatched: false,
+      })
+    : null;
 
   return (
     <>
@@ -151,6 +191,11 @@ export default function ScreedingCalculator() {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
               <h2 className="text-lg font-bold text-brand-navy dark:text-white">Screeding Area Result</h2>
+              {confidence && (
+                <div className="ml-auto">
+                  <EngineConfidenceBadge result={confidence} />
+                </div>
+              )}
             </div>
 
             <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 text-center">
@@ -165,10 +210,28 @@ export default function ScreedingCalculator() {
 
             <CalculationBreakdown steps={screedingResult.steps} />
 
+            {/* Engine-powered explanation panel */}
+            {engineExplanation && (
+              <EngineExplanationPanel result={engineExplanation} />
+            )}
+
+            {/* Engine-powered confidence detail */}
+            {confidence && (
+              <EngineConfidenceDetail result={confidence} />
+            )}
+
+            {/* Waste selector (for future material calculation) */}
+            <EngineWasteSelector
+              resolution={engine.wasteResolution}
+              userWaste={engine.userWaste}
+              onUserWasteChange={engine.setUserWaste}
+            />
+
             <div className="rounded-lg bg-muted/30 border border-border p-4 text-sm text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Next Step</p>
               This area feeds into the FRELUX screeding material calculation rules,
               which determine material quantity based on coverage rate and package configuration.
+              The waste allowance above will apply when material quantity is calculated.
             </div>
 
             <button

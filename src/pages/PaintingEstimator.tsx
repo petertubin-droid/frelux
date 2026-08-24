@@ -46,6 +46,16 @@ import { PaintingEstimatorSeo } from '@/components/seo/SeoContent';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineExplanationPanel,
+  EngineAlreadyHaveInput,
+  EngineWasteSelector,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 // =========================================================
 // Types
 // =========================================================
@@ -136,6 +146,9 @@ const mountedRef = useRef(true);
 
   // ── State: Result ──
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
+  // Engine features hook (additive — existing logic unchanged)
+  const engine = useEngineFeatures({ calculatorType: 'painting' });
+  const [alreadyHave, setAlreadyHave] = useState(0);
   const [calculating, setCalculating] = useState(false);
   const [saved, setSaved] = useState(false);
   const [adjustments, setAdjustments] = useState<AdminAdjustmentState[]>([]);
@@ -651,7 +664,7 @@ const mountedRef = useRef(true);
         </div>
 
         {/* Results */}
-        {result && <EstimateResult result={result} showCalculation={showCalculation} onToggleCalculation={() => setShowCalculation(!showCalculation)} onSave={handleSave} saved={saved} onAddAdjustment={addAdjustment} />}
+        {result && <EstimateResult result={result} showCalculation={showCalculation} onToggleCalculation={() => setShowCalculation(!showCalculation)} onSave={handleSave} saved={saved} onAddAdjustment={addAdjustment} engine={engine} alreadyHave={alreadyHave} onAlreadyHaveChange={setAlreadyHave} />}
       </div>
 
       <PaintingEstimatorSeo />
@@ -970,6 +983,7 @@ function RoomCard({
 
 function EstimateResult({
   result, showCalculation, onToggleCalculation, onSave, saved, onAddAdjustment: _onAddAdjustment,
+  engine, alreadyHave, onAlreadyHaveChange,
 }: {
   result: PaintingEstimateResult;
   showCalculation: boolean;
@@ -977,6 +991,9 @@ function EstimateResult({
   onSave: () => void;
   saved: boolean;
   onAddAdjustment: (roomIndex: number, fieldName: string, originalValue: string, adjustedValue: string, reason: string) => void;
+  engine: ReturnType<typeof useEngineFeatures>;
+  alreadyHave: number;
+  onAlreadyHaveChange: (n: number) => void;
 }) {
   return (
     <div className="space-y-4">
@@ -1199,6 +1216,72 @@ function EstimateResult({
               <span className="text-lg font-bold text-neutral-900 dark:text-white">{formatCurrency(result.total_material_cost, result.currency)}</span>
             </div>
           </div>
+
+          {/* ── Engine Features (Additive) ── */}
+          {/* Confidence badge */}
+          <div className="flex items-center gap-2">
+            <EngineConfidenceBadge result={engine.assessConfidence({
+              ruleValid: true,
+              inputComplete: true,
+              materialSpecComplete: result.rooms.length > 0,
+              marketPriceAvailable: result.total_material_cost > 0,
+              sourceReliability: 'verified',
+              productMatched: result.rooms.some(r => r.product !== null),
+            })} />
+          </div>
+
+          {/* Already-have / Purchase quantity */}
+          <EngineAlreadyHaveInput
+            required={result.combined_practical_buckets}
+            alreadyHave={alreadyHave}
+            onAlreadyHaveChange={onAlreadyHaveChange}
+            unit="buckets"
+          />
+
+          {/* Waste selector */}
+          <EngineWasteSelector
+            resolution={engine.wasteResolution}
+            userWaste={engine.userWaste}
+            onUserWasteChange={engine.setUserWaste}
+          />
+
+          {/* Engine explanation panel */}
+          <EngineExplanationPanel result={engine.buildExplanation({
+            subject: 'Painting Estimate',
+            resultSummary: `${result.combined_practical_buckets} buckets needed (${result.combined_theoretical_litres.toFixed(2)} L theoretical)`,
+            steps: [
+              { description: 'Number of rooms', value: String(result.rooms.length) },
+              { description: 'Total theoretical litres', value: `${result.combined_theoretical_litres.toFixed(2)} L` },
+              { description: 'Total theoretical buckets', value: `${result.combined_theoretical_buckets.toFixed(2)}` },
+              { description: 'Purchase quantity (with waste)', value: `${result.combined_practical_buckets} buckets` },
+              { description: 'Total material cost', value: result.total_material_cost > 0 ? `${result.total_material_cost.toLocaleString()} ${result.currency}` : 'Not configured' },
+            ],
+            notes: [
+              ...result.warnings,
+              ...(alreadyHave > 0 ? [`Already have: ${alreadyHave} buckets — purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`] : []),
+            ],
+          })} />
+
+          {/* Confidence detail */}
+          <EngineConfidenceDetail result={engine.assessConfidence({
+            ruleValid: true,
+            inputComplete: true,
+            materialSpecComplete: result.rooms.length > 0,
+            marketPriceAvailable: result.total_material_cost > 0,
+            sourceReliability: 'verified',
+            productMatched: result.rooms.some(r => r.product !== null),
+          })} />
+
+          {/* Material summary */}
+          <EngineMaterialSummaryCard summary={engine.buildMaterialSummary(
+            result.rooms.map((room, i) => ({
+              materialId: room.product?.id ?? `paint-${i}`,
+              productName: room.product?.name ?? 'Paint',
+              totalQuantity: room.practical_total_buckets,
+              quantityUnit: 'buckets',
+              spaceIds: [room.room_id],
+            }))
+          )} />
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-2">
