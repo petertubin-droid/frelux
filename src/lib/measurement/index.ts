@@ -184,6 +184,27 @@ export {
   spaceSummary,
 } from './space-engine';
 
+// ── Project Engine (Feature 3: Project/Building Engine) ──
+export {
+  type ProjectElementType,
+  type ProjectElement,
+  type ProjectElementResult,
+  type ConstructionProject,
+  type ConstructionProjectResult,
+  PROJECT_ELEMENT_TYPE_LABELS,
+  createConstructionProject,
+  createProjectElement,
+  calculateProjectElement,
+  calculateConstructionProject,
+  projectToMeasurementProject,
+  totalAreaByElementType,
+  getSpacesByType,
+  getSpacesByFinishType,
+  getSpaceCount,
+  elementSummary,
+  finishTypeSummary,
+} from './project-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
