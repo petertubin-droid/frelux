@@ -1,24 +1,31 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Bookmark, Plus, Copy, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
-import { fetchBuiltinTemplates, fetchUserTemplates, saveUserTemplate, updateUserTemplate, deleteUserTemplate, duplicateUserTemplate } from '@/lib/queries';
+import {
+  getPublicTemplates,
+  getUserTemplates,
+  createUserTemplate,
+  updateUserTemplate,
+  deleteUserTemplate,
+  duplicateUserTemplate,
+} from '@/lib/templates';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
-import type { DbStudioTemplate, TemplateType } from '@/types/database';
+import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 
 export default function TemplatePicker({
-  templateType,
+  calculatorType,
   onLoad,
   currentData,
 }: {
-  templateType: TemplateType;
+  calculatorType: CalculatorType;
   onLoad: (data: Record<string, unknown>) => void;
   currentData: Record<string, unknown>;
 }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [builtin, setBuiltin] = useState<DbStudioTemplate[]>([]);
-  const [userTemplates, setUserTemplates] = useState<DbStudioTemplate[]>([]);
+  const [publicTemplates, setPublicTemplates] = useState<DbCalculatorTemplate[]>([]);
+  const [userTemplates, setUserTemplates] = useState<DbCalculatorTemplate[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveName, setSaveName] = useState('');
@@ -27,14 +34,20 @@ export default function TemplatePicker({
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
-    const [builtinRes, userRes] = await Promise.all([
-      fetchBuiltinTemplates(templateType),
-      user ? fetchUserTemplates(templateType) : Promise.resolve({ data: [], error: null }),
-    ]);
-    setBuiltin(builtinRes.data);
-    setUserTemplates(userRes.data);
-    setLoading(false);
-  }, [templateType, user]);
+    try {
+      const [pub, usr] = await Promise.all([
+        getPublicTemplates({ calculatorType }),
+        user ? getUserTemplates(user.id, { calculatorType }) : Promise.resolve([]),
+      ]);
+      setPublicTemplates(pub);
+      setUserTemplates(usr);
+    } catch {
+      setPublicTemplates([]);
+      setUserTemplates([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [calculatorType, user]);
 
   useEffect(() => {
     if (!open) return;
@@ -44,48 +57,55 @@ export default function TemplatePicker({
   async function handleSave() {
     if (!saveName.trim() || !user) return;
     setSaving(true);
-    const { error } = await saveUserTemplate(templateType, saveName.trim(), currentData);
-    setSaving(false);
-    if (error) {
-      toast({ type: 'error', title: 'Failed to save template', message: error });
-      return;
+    try {
+      await createUserTemplate(user.id, {
+        calculator_type: calculatorType,
+        name: saveName.trim(),
+        input_data: currentData,
+        visibility: 'private',
+      });
+      toast({ type: 'success', title: 'Template loaded', message: `"${saveName.trim()}" is now in your templates.` });
+      setSaveName('');
+      loadTemplates();
+    } catch (e) {
+      toast({ type: 'error', title: 'Failed to save template', message: e instanceof Error ? e.message : 'Unknown error' });
+    } finally {
+      setSaving(false);
     }
-    toast({ type: 'success', title: 'Template saved', message: `"${saveName.trim()}" is now in your templates.` });
-    setSaveName('');
-    loadTemplates();
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Delete this template?')) return;
-    const { error } = await deleteUserTemplate(id);
-    if (error) {
-      toast({ type: 'error', title: 'Failed to delete', message: error });
-      return;
+    if (!user || !confirm('Delete this template?')) return;
+    try {
+      await deleteUserTemplate(id, user.id);
+      toast({ type: 'success', title: 'Template deleted' });
+      loadTemplates();
+    } catch (e) {
+      toast({ type: 'error', title: 'Failed to delete', message: e instanceof Error ? e.message : 'Unknown error' });
     }
-    toast({ type: 'success', title: 'Template deleted' });
-    loadTemplates();
   }
 
   async function handleDuplicate(id: string) {
-    const { error } = await duplicateUserTemplate(id);
-    if (error) {
-      toast({ type: 'error', title: 'Failed to duplicate', message: error });
-      return;
+    if (!user) return;
+    try {
+      await duplicateUserTemplate(id, user.id);
+      toast({ type: 'success', title: 'Template duplicated' });
+      loadTemplates();
+    } catch (e) {
+      toast({ type: 'error', title: 'Failed to duplicate', message: e instanceof Error ? e.message : 'Unknown error' });
     }
-    toast({ type: 'success', title: 'Template duplicated' });
-    loadTemplates();
   }
 
   async function handleRename(id: string) {
-    if (!editName.trim()) return;
-    const { error } = await updateUserTemplate(id, { name: editName.trim() });
-    if (error) {
-      toast({ type: 'error', title: 'Failed to rename', message: error });
-      return;
+    if (!user || !editName.trim()) return;
+    try {
+      await updateUserTemplate(id, user.id, { name: editName.trim() });
+      setEditingId(null);
+      toast({ type: 'success', title: 'Template renamed' });
+      loadTemplates();
+    } catch (e) {
+      toast({ type: 'error', title: 'Failed to rename', message: e instanceof Error ? e.message : 'Unknown error' });
     }
-    setEditingId(null);
-    toast({ type: 'success', title: 'Template renamed' });
-    loadTemplates();
   }
 
   return (
@@ -110,16 +130,16 @@ export default function TemplatePicker({
                 </div>
               ) : (
                 <>
-                  {/* Built-in templates */}
+                  {/* Built-in / public templates */}
                   <div>
                     <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Built-in Templates</h4>
-                    {builtin.length > 0 ? (
+                    {publicTemplates.length > 0 ? (
                       <div className="space-y-1">
-                        {builtin.map((t) => (
+                        {publicTemplates.map((t) => (
                           <button
                             key={t.id}
                             onClick={() => {
-                              onLoad(t.calculator_data);
+                              onLoad(t.input_data);
                               setOpen(false);
                               toast({ type: 'info', title: 'Template loaded', message: t.name });
                             }}
@@ -162,7 +182,7 @@ export default function TemplatePicker({
                                 <>
                                   <button
                                     onClick={() => {
-                                      onLoad(t.calculator_data);
+                                      onLoad(t.input_data);
                                       setOpen(false);
                                       toast({ type: 'info', title: 'Template loaded', message: t.name });
                                     }}

@@ -295,7 +295,7 @@ export default function PaintCalculator() {
         {!result && paintTypes.length > 0 ? (
           <div className="mt-8 card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
             <div className="mb-6 flex justify-end">
-              <TemplatePicker templateType="paint" onLoad={handleLoadTemplate} currentData={input as unknown as Record<string, unknown>} />
+              <TemplatePicker calculatorType="paint" onLoad={handleLoadTemplate} currentData={input as unknown as Record<string, unknown>} />
             </div>
             {step === 1 && <Step1 input={input} update={update} />}
             {step === 2 && <Step2 input={input} update={update} errors={errors} />}
