@@ -11,6 +11,7 @@ import {
 import { useToast } from '@/components/ui/Toast';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 const CALC_TYPES: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
 
@@ -94,12 +95,9 @@ export default function AdminTemplates() {
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Calculator Templates</h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Manage public FRELUX templates and user-submitted templates.</p>
         </div>
-        <button
-          onClick={() => setCreating(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
-        >
+        <AdminButton onClick={() => setCreating(true)}>
           <Plus className="h-4 w-4" /> New Template
-        </button>
+        </AdminButton>
       </div>
 
       {/* Search */}
@@ -328,11 +326,11 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-2 pt-2">
-            <button onClick={onClose} className="flex-1 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50">
+            <AdminButton variant="secondary" onClick={onClose} className="flex-1">Cancel</AdminButton>
+            <AdminButton onClick={handleSave} disabled={saving} className="flex-1">
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Template'}
-            </button>
+            </AdminButton>
           </div>
         </div>
     </AdminModal>

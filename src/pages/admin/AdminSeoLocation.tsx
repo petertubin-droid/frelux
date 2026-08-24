@@ -5,6 +5,7 @@ import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 // ============================================================
 // Admin SEO & Location Management
@@ -311,12 +312,13 @@ function CategoriesTab() {
                     {cat.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                     {cat.seo_indexable ? 'Indexable' : 'No-index'}
                   </span>
-                  <button
+                  <AdminButton
+                    variant="secondary"
                     onClick={() => editingId === cat.id ? setEditingId(null) : startEdit(cat)}
-                    className="rounded-md border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+                    className="text-xs py-1"
                   >
                     {editingId === cat.id ? 'Cancel' : 'Edit SEO'}
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
 
@@ -350,14 +352,13 @@ function CategoriesTab() {
                     />
                     <span className="text-neutral-700 dark:text-neutral-200">Allow search engines to index this category page</span>
                   </label>
-                  <button
+                  <AdminButton
                     onClick={() => handleSave(cat.id)}
                     disabled={saving}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                     Save
-                  </button>
+                  </AdminButton>
                 </div>
               )}
 
@@ -431,13 +432,13 @@ function SeoPagesTab() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-neutral-500">Custom SEO metadata for dynamic pages (category, location, combo pages).</p>
-        <button
+        <AdminButton
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-sm font-semibold text-white"
+          className="py-2"
         >
           <Plus className="h-4 w-4" />
           Add SEO Page
-        </button>
+        </AdminButton>
       </div>
 
       {showForm && (
@@ -519,14 +520,14 @@ function SeoPagesTab() {
               </label>
             </div>
           </div>
-          <button
+          <AdminButton
             onClick={handleCreate}
             disabled={saving || !form.seo_title || !form.seo_description}
-            className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="mt-3"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
             Save SEO Setting
-          </button>
+          </AdminButton>
         </div>
       )}
 
