@@ -205,6 +205,21 @@ export {
   finishTypeSummary,
 } from './project-engine';
 
+// ── Fence Engine (Feature 4: Fence Element Engine) ──
+export {
+  type FenceDimension,
+  type FenceDimensionResult,
+  type Fence,
+  type FenceResult,
+  createFenceDimension,
+  createFence,
+  createFenceWithDimensions,
+  calculateFenceDimension,
+  calculateFence,
+  fenceDimensionToSpace,
+  fenceToSpaces,
+} from './fence-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
