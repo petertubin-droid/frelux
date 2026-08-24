@@ -104,6 +104,7 @@ const AdminBranding = lazy(() => import('@/pages/admin/AdminBranding'));
 const AdminScreedingMaterials = lazy(() => import('@/pages/admin/AdminScreedingMaterials'));
 const AdminLearn = lazy(() => import('@/pages/admin/AdminLearn'));
 const AdminMarkets = lazy(() => import('@/pages/admin/AdminMarkets'));
+const AdminMarketIntelligence = lazy(() => import('@/pages/admin/AdminMarketIntelligence'));
 const AdminAiLearningAssistant = lazy(() => import('@/pages/admin/AdminAiLearningAssistant'));
 const AdminPopMaterials = lazy(() => import('@/pages/admin/AdminPopMaterials'));
 const AdminTypography = lazy(() => import('@/pages/admin/AdminTypography'));
@@ -381,6 +382,7 @@ export default function App() {
             <Route path="image-estimation" element={<AdminImageEstimation />} />
             <Route path="marketplace" element={<AdminMarketplace />} />
             <Route path="markets" element={<AdminMarkets />} />
+            <Route path="market-intelligence" element={<AdminMarketIntelligence />} />
             <Route path="seo-location" element={<Suspense fallback={<PageLoader />}><AdminSeoLocation /></Suspense>} />
 
             {/* Contractor Config */}

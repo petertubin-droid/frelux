@@ -140,6 +140,7 @@ const navModules: NavModule[] = [
     heading: 'International',
     items: [
       { label: 'Markets & Regions', to: '/admin/markets', icon: Globe },
+      { label: 'Market Intelligence', to: '/admin/market-intelligence', icon: TrendingUp },
     ],
   },
   {
