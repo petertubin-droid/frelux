@@ -240,6 +240,30 @@ export {
   toMaterialReference,
 } from './material-engine';
 
+// ── Rule Registry (Feature 6: Calculation Rule Registry) ──
+export {
+  type RuleScope,
+  type RuleStatus,
+  type RuleApprovalStatus,
+  type RuleCategory,
+  type CalculationRule,
+  type RuleRegistry,
+  type RuleQuery,
+  RULE_CATEGORY_LABELS,
+  createRuleRegistry,
+  createRule,
+  registerRule,
+  registerRules,
+  findRules,
+  findApplicableRule,
+  findApplicableRules,
+  getRuleById,
+  getRuleParameter,
+  createGlobalGeometryRules,
+  createNigeriaPaintingRules,
+  createNigeriaScreedingRules,
+} from './rule-registry';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
