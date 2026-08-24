@@ -143,10 +143,10 @@ export default function AdminAiMonetization() {
               <AdminInput type="number" min={0} max={100}  value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
             </AdminField>
             <AdminField label="Usage reset period">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.ai_reset_period} onChange={(e) => update('ai_reset_period', e.target.value)}>
+              <AdminSelect  value={settings.ai_reset_period} onChange={(e) => update('ai_reset_period', e.target.value)}>
                 <option value="daily">Daily (midnight reset)</option>
                 <option value="hourly">Hourly</option>
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
         </AdminCard>

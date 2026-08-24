@@ -128,8 +128,8 @@ export default function AdminEstimationAudit() {
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4 text-neutral-400" />
           <span className="text-xs font-semibold text-neutral-600">Filter Entity:</span>
-          <select
-            className="input-field dark:bg-brand-navy-mid dark:border-white/10 text-xs py-1.5 w-48"
+          <AdminSelect
+            className="text-xs py-1.5 w-48"
             value={selectedEntityType}
             onChange={(e) => setSelectedEntityType(e.target.value)}
           >
@@ -141,7 +141,7 @@ export default function AdminEstimationAudit() {
             <option value="calc_rule">calc_rule</option>
             <option value="pack_size">pack_size</option>
             <option value="estimate">estimate</option>
-          </select>
+          </AdminSelect>
         </div>
 
         <AdminButton

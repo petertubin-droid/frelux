@@ -134,7 +134,7 @@ function PaintColorsTab() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or hex…" className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9" />
+          <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or hex…" className="pl-9" />
         </div>
         <div className="flex gap-2">
           <AdminButton variant="secondary" onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</AdminButton>
@@ -262,8 +262,8 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <div className="flex items-end"><div className="h-10 w-full rounded-lg ring-1 ring-black/5" style={{ background: hex }} /></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Color family"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">— None —</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</select></AdminField>
-            <AdminField label="Category"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">— None —</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></AdminField>
+            <AdminField label="Color family"><AdminSelect  value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">— None —</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</AdminSelect></AdminField>
+            <AdminField label="Category"><AdminSelect  value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">— None —</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</AdminSelect></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Recommended usage" hint="Comma separated"><AdminInput  value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="Living Room, Bedroom" /></AdminField>
@@ -769,13 +769,13 @@ function CategoryForm({ initial, onClose, onSaved }: { initial: DbColorCategory 
           <AdminField label="Name"><AdminInput  value={name} onChange={(e) => setName(e.target.value)} onBlur={() => !slug && setSlug(slugify(name))} /></AdminField>
           <AdminField label="Slug" hint="lowercase, no spaces"><AdminInput  value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="auto from name" /></AdminField>
           <AdminField label="Type">
-            <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={type} onChange={(e) => setType(e.target.value as DbColorCategory['type'])}>
+            <AdminSelect  value={type} onChange={(e) => setType(e.target.value as DbColorCategory['type'])}>
               <option value="room">Room</option>
               <option value="style">Style</option>
               <option value="surface">Surface</option>
               <option value="collection">Collection</option>
               <option value="seasonal">Seasonal</option>
-            </select>
+            </AdminSelect>
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>

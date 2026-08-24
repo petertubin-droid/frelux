@@ -99,10 +99,10 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
               <AdminInput type="number" min={0} step="0.1"  value={coverageRate} onChange={(e) => setCoverageRate(Number(e.target.value))} />
             </AdminField>
             <AdminField label="Coverage unit">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverageUnit} onChange={(e) => setCoverageUnit(e.target.value)}>
+              <AdminSelect  value={coverageUnit} onChange={(e) => setCoverageUnit(e.target.value)}>
                 <option value="m2_per_liter">m² per liter</option>
                 <option value="sqft_per_liter">sq ft per liter</option>
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
           <AdminField label="Container sizes (liters)" hint="Comma separated, e.g. 1, 4, 20">

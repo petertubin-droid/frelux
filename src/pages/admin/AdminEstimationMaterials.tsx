@@ -158,7 +158,7 @@ export default function AdminEstimationMaterials() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or category…"
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9"
+              className="pl-9"
             />
           </div>
           {!search && groups.length > 1 && (
@@ -388,8 +388,8 @@ function MaterialForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Base unit">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={unitId}
                 onChange={(e) => setUnitId(e.target.value)}
               >
@@ -399,7 +399,7 @@ function MaterialForm({
                     {u.name} ({u.symbol})
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Pack size">
               <AdminInput
@@ -416,8 +416,8 @@ function MaterialForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Pack unit">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={packUnitId}
                 onChange={(e) => setPackUnitId(e.target.value)}
               >
@@ -427,7 +427,7 @@ function MaterialForm({
                     {u.name} ({u.symbol})
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Effective date">
               <AdminInput

@@ -81,7 +81,7 @@ export default function AdminSettings() {
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Default currency"><AdminInput  value={settings.default_currency} onChange={(e) => update('default_currency', e.target.value)} /></AdminField>
             <AdminField label="Currency symbol"><AdminInput  value={settings.default_currency_symbol} onChange={(e) => update('default_currency_symbol', e.target.value)} /></AdminField>
-            <AdminField label="Default unit"><select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={settings.default_unit} onChange={(e) => update('default_unit', e.target.value as 'meters' | 'feet')}><option value="meters">Meters</option><option value="feet">Feet</option></select></AdminField>
+            <AdminField label="Default unit"><AdminSelect  value={settings.default_unit} onChange={(e) => update('default_unit', e.target.value as 'meters' | 'feet')}><option value="meters">Meters</option><option value="feet">Feet</option></AdminSelect></AdminField>
           </div>
         </AdminCard>
         <AdminCard>

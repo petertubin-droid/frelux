@@ -226,14 +226,14 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
           )}
           {!initial && !useCustomSchema && (
             <AdminField label="Select Built in Provider">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={slug} onChange={(e) => {
+              <AdminSelect  value={slug} onChange={(e) => {
                 setSlug(e.target.value);
                 const s = BUILTIN_PROVIDERS.find((p) => p.slug === e.target.value);
                 if (s) { setName(s.name); setProviderType(s.provider_type as AdProviderType); }
               }}>
                 <option value="">Choose a provider</option>
                 {BUILTIN_PROVIDERS.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -242,13 +242,13 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Type">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={providerType} onChange={(e) => setProviderType(e.target.value as AdProviderType)}>
+              <AdminSelect  value={providerType} onChange={(e) => setProviderType(e.target.value as AdProviderType)}>
                 <option value="display">Display</option>
                 <option value="rewarded">Rewarded</option>
                 <option value="interstitial">Interstitial</option>
                 <option value="native">Native</option>
                 <option value="mixed">Mixed</option>
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Priority" hint="Lower = higher priority"><AdminInput type="number"  value={priority} onChange={(e) => setPriority(Number(e.target.value))} /></AdminField>
             <AdminField label="Active">
@@ -510,14 +510,14 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Type">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={placementType} onChange={(e) => setPlacementType(e.target.value as typeof placementType)}>
+              <AdminSelect  value={placementType} onChange={(e) => setPlacementType(e.target.value as typeof placementType)}>
                 {Object.entries(PLACEMENT_TYPE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Page Target">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={pageTarget} onChange={(e) => setPageTarget(e.target.value as typeof pageTarget)}>
+              <AdminSelect  value={pageTarget} onChange={(e) => setPageTarget(e.target.value as typeof pageTarget)}>
                 {Object.entries(PAGE_TARGET_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Active">
               <div className="pt-2"><Toggle checked={isActive} onChange={setIsActive} /></div>

@@ -107,14 +107,14 @@ export default function AdminLogin() {
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
                   <div className="relative mt-1.5">
                     <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9" placeholder="admin@example.com" autoComplete="email" required />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="admin@example.com" autoComplete="email" required />
                   </div>
                 </label>
                 <label className="block">
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                   <div className="relative mt-1.5">
                     <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
+                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                   </div>
                 </label>
                 {error && (

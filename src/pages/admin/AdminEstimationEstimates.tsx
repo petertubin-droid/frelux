@@ -198,8 +198,8 @@ export default function AdminEstimationEstimates() {
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-neutral-400" />
             <span className="text-xs font-semibold text-neutral-600">Calculator:</span>
-            <select
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 text-xs py-1.5"
+            <AdminSelect
+              className="text-xs py-1.5"
               value={calcFilter}
               onChange={(e) => setCalcFilter(e.target.value)}
             >
@@ -210,13 +210,13 @@ export default function AdminEstimationEstimates() {
               <option value="screeding">Screeding</option>
               <option value="pop">POP</option>
               <option value="tile">Tile</option>
-            </select>
+            </AdminSelect>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-neutral-600">Status:</span>
-            <select
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 text-xs py-1.5"
+            <AdminSelect
+              className="text-xs py-1.5"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -228,7 +228,7 @@ export default function AdminEstimationEstimates() {
               <option value="shared">Shared</option>
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
-            </select>
+            </AdminSelect>
           </div>
         </div>
 
@@ -239,7 +239,7 @@ export default function AdminEstimationEstimates() {
             placeholder="Search estimate ref or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9 text-xs"
+            className="pl-9 text-xs"
           />
         </div>
       </div>

@@ -161,3 +161,26 @@ export function AdminTextarea({ className, ...props }: TextareaHTMLAttributes<HT
     />
   );
 }
+
+// =========================================================
+// AdminSelect — native <select> with FRELUX dark-mode styling.
+// shadcn-compatible border/ring tokens. Drop-in replacement
+// for the old input-field CSS class on <select> elements.
+// =========================================================
+
+import type { SelectHTMLAttributes } from 'react';
+
+export function AdminSelect({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
+  return (
+    <select
+      className={classNames(
+        'flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+        'dark:bg-brand-navy-mid dark:border-white/10',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </select>
+  );
+}

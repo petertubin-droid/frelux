@@ -142,7 +142,7 @@ export default function AdminEstimationProducts() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or category…"
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9"
+                className="pl-9"
               />
             </div>
             {!search && (() => {
@@ -325,19 +325,19 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
           <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Category">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={category} onChange={e => setCategory(e.target.value)}>
+              <AdminSelect  value={category} onChange={e => setCategory(e.target.value)}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Product type">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={productType} onChange={e => setProductType(e.target.value)}>
+              <AdminSelect  value={productType} onChange={e => setProductType(e.target.value)}>
                 {PRODUCT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Calculation method">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={calcMethod} onChange={e => setCalcMethod(e.target.value)}>
+              <AdminSelect  value={calcMethod} onChange={e => setCalcMethod(e.target.value)}>
                 {CALC_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -426,11 +426,11 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Coverage rate" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={coverage} onChange={e => setCoverage(e.target.value)} /></AdminField>
             <AdminField label="Coverage unit">
-              <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
+              <AdminSelect  value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
                 <option value="m2_per_liter">m² per liter</option>
                 <option value="m2_per_kg">m² per kg</option>
                 <option value="m2_per_bag">m² per bag</option>
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-3">

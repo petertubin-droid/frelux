@@ -322,8 +322,8 @@ function UnitForm({
               />
             </AdminField>
             <AdminField label="Category">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -333,7 +333,7 @@ function UnitForm({
                 <option value="area">area</option>
                 <option value="count">count</option>
                 <option value="other">other</option>
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -652,8 +652,8 @@ function PackSizeForm({
     <AdminModal open onClose={onClose} title={initial ? 'Edit pack size' : 'Add pack size'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Reference Type">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={refType}
                 onChange={(e) => {
                   setRefType(e.target.value as 'product' | 'material' | 'quality');
@@ -663,15 +663,15 @@ function PackSizeForm({
                 <option value="product">Product</option>
                 <option value="material">Material</option>
                 <option value="quality">Quality Level</option>
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Referenced Item">
               {loadingRefs ? (
                 <div className="py-2 text-xs text-neutral-400 dark:text-neutral-500">Loading items…</div>
               ) : refOptions.length > 0 ? (
-                <select
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                <AdminSelect
+                  
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                 >
@@ -681,7 +681,7 @@ function PackSizeForm({
                       {opt.name}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
               ) : (
                 <AdminInput
                   className="font-mono"
@@ -706,8 +706,8 @@ function PackSizeForm({
             </AdminField>
 
             <AdminField label="Pack Unit">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={packUnitId}
                 onChange={(e) => setPackUnitId(e.target.value)}
               >
@@ -717,14 +717,14 @@ function PackSizeForm({
                     {u.name} ({u.symbol})
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Purchase Rule">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={purchaseRule}
                 onChange={(e) => setPurchaseRule(e.target.value)}
               >
@@ -733,7 +733,7 @@ function PackSizeForm({
                     {r.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Min Quantity">
@@ -750,8 +750,8 @@ function PackSizeForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Rounding Rule">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={roundingRule}
                 onChange={(e) => setRoundingRule(e.target.value)}
               >
@@ -760,7 +760,7 @@ function PackSizeForm({
                     {r.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Sort Order">
@@ -1061,8 +1061,8 @@ function CalcRuleForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Calculator Type">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={calculatorType}
                 onChange={(e) => setCalculatorType(e.target.value)}
               >
@@ -1072,12 +1072,12 @@ function CalcRuleForm({
                     {type}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Rule Status">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={ruleStatus}
                 onChange={(e) => setRuleStatus(e.target.value as RuleStatus)}
               >
@@ -1086,7 +1086,7 @@ function CalcRuleForm({
                     {status.label}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
 
@@ -1339,8 +1339,8 @@ function CalcVersionForm({
     <AdminModal open onClose={onClose} title={initial ? 'Edit calculation version' : 'Add calculation version'} maxWidth="max-w-lg">
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Calculator Type">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={calculatorType}
                 onChange={(e) => setCalculatorType(e.target.value)}
               >
@@ -1349,7 +1349,7 @@ function CalcVersionForm({
                     {type}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Version Number">

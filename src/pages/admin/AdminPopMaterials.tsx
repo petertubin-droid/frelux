@@ -168,14 +168,14 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
         <AdminField label="Workflow">
-          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.workflow} onChange={(e) => setForm({ ...form, workflow: e.target.value as PopWorkflowType })}>
+          <AdminSelect  value={form.workflow} onChange={(e) => setForm({ ...form, workflow: e.target.value as PopWorkflowType })}>
             {workflows.map((w) => <option key={w} value={w} className="capitalize">{w}</option>)}
-          </select>
+          </AdminSelect>
         </AdminField>
         <AdminField label="Category">
-          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as PopMaterialCategory })}>
+          <AdminSelect  value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as PopMaterialCategory })}>
             {categories.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
-          </select>
+          </AdminSelect>
         </AdminField>
         <AdminField label="Unit"><AdminInput  value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></AdminField>
       </div>

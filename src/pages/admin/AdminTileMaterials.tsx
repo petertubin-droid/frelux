@@ -248,9 +248,9 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></AdminField>
         <AdminField label="Category">
-          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as TileMaterialCategory })}>
+          <AdminSelect  value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as TileMaterialCategory })}>
             {tileCategories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
+          </AdminSelect>
         </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">

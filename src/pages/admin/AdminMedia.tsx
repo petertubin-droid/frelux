@@ -82,7 +82,7 @@ export default function AdminMedia() {
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-              <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file name…" className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9" />
+              <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file name…" className="pl-9" />
             </div>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark">
               <Upload className="h-4 w-4" />

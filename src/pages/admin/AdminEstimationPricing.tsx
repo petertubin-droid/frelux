@@ -245,7 +245,7 @@ export default function AdminEstimationPricing() {
             placeholder="Search price items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field dark:bg-brand-navy-mid dark:border-white/10 pl-9 text-xs"
+            className="pl-9 text-xs"
           />
         </div>
       </div>
@@ -432,22 +432,22 @@ function PricingForm({
   return (
     <AdminModal open onClose={onClose} title={initial ? 'Edit Price Record' : 'Add Price Record'} maxWidth="max-w-lg">
           <AdminField label="Price Type">
-            <select
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+            <AdminSelect
+              
               value={priceType}
               onChange={(e) => setPriceType(e.target.value as 'product' | 'quality' | 'material')}
             >
               <option value="product">Product Price</option>
               <option value="quality">Quality Level Price</option>
               <option value="material">Material Price</option>
-            </select>
+            </AdminSelect>
           </AdminField>
 
           <AdminField label="Target Item">
             {!useCustomRef && filteredRefOptions.length > 0 ? (
               <div className="space-y-1.5">
-                <select
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                <AdminSelect
+                  
                   value={refId}
                   onChange={(e) => setRefId(e.target.value)}
                 >
@@ -456,7 +456,7 @@ function PricingForm({
                       {opt.name} {opt.detail ? `(${opt.detail})` : ''}
                     </option>
                   ))}
-                </select>
+                </AdminSelect>
                 <button
                   type="button"
                   onClick={() => setUseCustomRef(true)}
@@ -502,8 +502,8 @@ function PricingForm({
             </AdminField>
 
             <AdminField label="Currency">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
               >
@@ -511,14 +511,14 @@ function PricingForm({
                 <option value="USD">USD ($)</option>
                 <option value="EUR">EUR (€)</option>
                 <option value="GBP">GBP (£)</option>
-              </select>
+              </AdminSelect>
             </AdminField>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Pack Size (Optional)">
-              <select
-                className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+              <AdminSelect
+                
                 value={packSizeId}
                 onChange={(e) => setPackSizeId(e.target.value)}
               >
@@ -528,7 +528,7 @@ function PricingForm({
                     Pack Size: {ps.pack_size}
                   </option>
                 ))}
-              </select>
+              </AdminSelect>
             </AdminField>
 
             <AdminField label="Effective Date">

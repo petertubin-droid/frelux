@@ -247,9 +247,9 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       </div>
 
       <AdminField label="Category">
-        <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.category_slug} onChange={(e) => setForm({ ...form, category_slug: e.target.value })}>
+        <AdminSelect  value={form.category_slug} onChange={(e) => setForm({ ...form, category_slug: e.target.value })}>
           {categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
-        </select>
+        </AdminSelect>
       </AdminField>
 
       <AdminField label="Excerpt" hint="Short summary shown in article cards and search results.">
@@ -268,11 +268,11 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Read Time (minutes)"><AdminInput type="number" min={1}  value={form.read_time_minutes} onChange={(e) => setForm({ ...form, read_time_minutes: Number(e.target.value) })} /></AdminField>
         <AdminField label="Status">
-          <select className="input-field dark:bg-brand-navy-mid dark:border-white/10" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as LearnArticleStatus })}>
+          <AdminSelect  value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as LearnArticleStatus })}>
             <option value="draft">Draft</option>
             <option value="published">Published</option>
             <option value="archived">Archived</option>
-          </select>
+          </AdminSelect>
         </AdminField>
       </div>
 
