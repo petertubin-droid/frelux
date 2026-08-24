@@ -375,6 +375,16 @@ export {
   tableToAscii,
 } from './visual-summary';
 
+// ── Estimate Report (Feature 14: Estimate Report Engine) ──
+export {
+  type ReportSectionType,
+  type ReportSection,
+  type EstimateReport,
+  buildEstimateReport,
+  reportToText,
+  reportToMarkdown,
+} from './estimate-report';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
