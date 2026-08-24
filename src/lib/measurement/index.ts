@@ -220,6 +220,26 @@ export {
   fenceToSpaces,
 } from './fence-engine';
 
+// ── Material Engine (Feature 5: Material Engine) ──
+export {
+  type MaterialCategory,
+  type CoverageType,
+  type MaterialCoverage,
+  type MaterialSpec,
+  type MaterialReference,
+  type MaterialCalculationResult,
+  type MaterialCatalog,
+  MATERIAL_CATEGORY_LABELS,
+  createMaterialSpec,
+  calculateMaterialQuantity,
+  createMaterialCatalog,
+  addMaterialToCatalog,
+  findMaterialsByCategory,
+  findMaterialsByApplication,
+  findMaterialById,
+  toMaterialReference,
+} from './material-engine';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
