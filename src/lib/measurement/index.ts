@@ -385,6 +385,30 @@ export {
   reportToMarkdown,
 } from './estimate-report';
 
+// ── Market Profile / International Architecture (Feature 16) ──
+export {
+  type UnitSystem,
+  type MarketProfile,
+  type MarketProfileRegistry,
+  createMarketProfileRegistry,
+  registerProfile,
+  getProfile,
+  getActiveProfiles,
+  createNigeriaProfile,
+  createGhanaProfile,
+  createKenyaProfile,
+  createDefaultRegistry,
+  getMarketWastePercent,
+  getMarketPackageSize,
+  getMarketCoverage,
+  getMarketCurrency,
+  getMarketLengthUnit,
+  getMarketRuleIds,
+  isMarketActive,
+  marketProfileToText,
+  listProfiles,
+} from './market-profile';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
