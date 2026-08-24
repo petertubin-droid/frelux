@@ -145,9 +145,9 @@ export default function AdminTemplates() {
                   </td>
                   <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.visibility}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-neutral-300 dark:text-neutral-600')}>
+                    <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-neutral-300 dark:text-neutral-600')}>
                       {t.is_published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-                    </button>
+                    </AdminIconButton>
                   </td>
                   <td className="px-4 py-3">
                     <button onClick={() => toggleFeatured(t)}>

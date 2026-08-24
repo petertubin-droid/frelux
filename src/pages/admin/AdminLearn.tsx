@@ -107,10 +107,10 @@ export default function AdminLearn() {
       {/* Tab switcher */}
       <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['articles', 'categories'] as const).map((t) => (
-          <button key={t} type="button" onClick={() => setTab(t)}
+          <AdminButton key={t} type="button" onClick={() => setTab(t)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
             {t}
-          </button>
+          </AdminButton>
         ))}
       </div>
 

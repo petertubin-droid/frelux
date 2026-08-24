@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, Plus } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton, AdminButton} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
@@ -323,15 +323,15 @@ export default function AdminBranding() {
 
       {/* Save button */}
       <div className="flex items-center gap-3">
-        <button
+        <AdminButton
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+          className="px-5 py-2.5 text-sm"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Branding'}
-        </button>
+        </AdminButton>
         <span className="text-xs text-neutral-400 dark:text-neutral-500">Changes apply instantly across the website.</span>
       </div>
     </>

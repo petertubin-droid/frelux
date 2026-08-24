@@ -113,7 +113,7 @@ export default function AdminAiMonetization() {
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Access Mode</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {ACCESS_MODES.map((m) => (
-              <button
+              <AdminButton
                 key={m.value}
                 type="button"
                 onClick={() => update('ai_access_mode', m.value)}
@@ -129,7 +129,7 @@ export default function AdminAiMonetization() {
                   )}
                 </span>
                 <span className="text-xs text-neutral-500 dark:text-neutral-400">{m.description}</span>
-              </button>
+              </AdminButton>
             ))}
           </div>
         </AdminCard>

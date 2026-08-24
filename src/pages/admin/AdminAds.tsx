@@ -27,7 +27,7 @@ export default function AdminAds() {
           { key: 'placements', label: 'Placements', icon: Layers },
           { key: 'analytics', label: 'Analytics', icon: BarChart3 },
         ] as { key: Tab; label: string; icon: typeof Megaphone }[]).map((t) => (
-          <button
+          <AdminButton
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
@@ -38,7 +38,7 @@ export default function AdminAds() {
           >
             <t.icon className="h-4 w-4" />
             {t.label}
-          </button>
+          </AdminButton>
         ))}
       </div>
       {tab === 'providers' && <ProvidersTab />}
@@ -546,9 +546,9 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
                 const order = providerIds.indexOf(prov.id);
                 return (
                   <div key={prov.id} className={classNames('flex items-center gap-3 rounded-lg border p-3', isSelected ? 'border-brand-purple bg-brand-purple/5' : 'border-neutral-200 dark:border-neutral-700')}>
-                    <button type="button" onClick={() => toggleProvider(prov.id)} className={classNames('flex h-5 w-5 items-center justify-center rounded border', isSelected ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300')}>
+                    <AdminButton type="button" onClick={() => toggleProvider(prov.id)} className={classNames('flex h-5 w-5 items-center justify-center rounded border', isSelected ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-300')}>
                       {isSelected && <Check className="h-3 w-3" />}
-                    </button>
+                    </AdminButton>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-brand-navy dark:text-white">{prov.name}</p>
                       {isSelected && (
@@ -640,7 +640,7 @@ function AnalyticsTab() {
       <div className="mb-4 flex items-center gap-3">
         <span className="text-sm text-neutral-500 dark:text-neutral-400">Time range:</span>
         {[7, 30, 90].map((d) => (
-          <button key={d} type="button" onClick={() => setDays(d)} className={classNames('rounded-md px-3 py-1 text-sm font-semibold', days === d ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800')}>{d} days</button>
+          <AdminButton key={d} type="button" onClick={() => setDays(d)} className={classNames('rounded-md px-3 py-1 text-sm font-semibold', days === d ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800')}>{d} days</AdminButton>
         ))}
       </div>
 

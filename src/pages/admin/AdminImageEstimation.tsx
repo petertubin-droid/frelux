@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, Toggle, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, Toggle, StateMessage, AdminButton} from '@/components/admin/AdminUi';
 import {
   Camera, Crown, Users, TrendingUp, Settings2, Save, Loader2,
   CheckCircle2, AlertCircle, BarChart3,
@@ -333,14 +333,14 @@ export default function AdminImageEstimation() {
 
           {/* Save */}
           <div className="flex items-center gap-3 pt-2">
-            <button
+            <AdminButton
               onClick={save}
               disabled={status === 'saving'}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50"
+              className="px-5 py-2.5 text-sm"
             >
               {status === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {status === 'saving' ? 'Saving…' : 'Save Configuration'}
-            </button>
+            </AdminButton>
             {saved && (
               <span className="text-sm text-green-600 flex items-center gap-1">
                 <CheckCircle2 className="w-4 h-4" /> Saved successfully

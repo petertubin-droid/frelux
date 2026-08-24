@@ -15,10 +15,10 @@ export default function AdminPricing() {
       <AdminHeader title="Cost & Pricing" subtitle="Manage paint products, materials, and labor rates." />
       <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['products','materials','labor'] as Tab[]).map((t) => (
-          <button key={t} type="button" onClick={() => setTab(t)}
+          <AdminButton key={t} type="button" onClick={() => setTab(t)}
             className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
             {t === 'products' ? 'Paint products' : t === 'materials' ? 'Materials' : 'Labor rates'}
-          </button>
+          </AdminButton>
         ))}
       </div>
       {tab === 'products' && <ProductsTab />}

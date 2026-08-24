@@ -249,7 +249,7 @@ function AdminVerificationTab() {
       {/* Filter */}
       <div className="mb-6 flex flex-wrap gap-2">
         {['pending', 'approved', 'rejected', 'more_info', 'all'].map((f) => (
-          <button
+          <AdminButton
             key={f}
             onClick={() => setFilter(f)}
             className={classNames(
@@ -258,7 +258,7 @@ function AdminVerificationTab() {
             )}
           >
             {f.replace('_', ' ')}
-          </button>
+          </AdminButton>
         ))}
       </div>
 
@@ -474,7 +474,7 @@ function AdminKycTab() {
       {/* Filter */}
       <div className="mb-6 flex flex-wrap gap-2">
         {['pending', 'verified', 'rejected', 'all'].map((f) => (
-          <button
+          <AdminButton
             key={f}
             onClick={() => setFilter(f)}
             className={classNames(
@@ -483,7 +483,7 @@ function AdminKycTab() {
             )}
           >
             {f}
-          </button>
+          </AdminButton>
         ))}
       </div>
 
@@ -690,18 +690,18 @@ function AdminReportsTab() {
     <div>
       {/* Sub-tabs */}
       <div className="mb-4 flex gap-2">
-        <button
+        <AdminButton
           onClick={() => setReportSubTab('pro')}
           className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'pro' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
         >
           Pro Connect Reports ({reports.length})
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           onClick={() => setReportSubTab('worker')}
           className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'worker' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
         >
           Worker Channel Reports ({workerReports.length})
-        </button>
+        </AdminButton>
       </div>
 
       {reportSubTab === 'pro' && reports.length === 0 && (

@@ -77,14 +77,14 @@ export default function AdminAiLearningAssistant() {
                 const Icon = a.icon;
                 const selected = action === a.value;
                 return (
-                  <button key={a.value} type="button" onClick={() => setAction(a.value)}
+                  <AdminButton key={a.value} type="button" onClick={() => setAction(a.value)}
                     className={classNames('flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all', selected ? 'border-brand-purple bg-brand-purple/5 ring-1 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
                     <Icon className={classNames('mt-0.5 h-4 w-4 shrink-0', selected ? 'text-brand-purple' : 'text-neutral-400')} />
                     <div>
                       <p className={classNames('text-sm font-semibold', selected ? 'text-brand-purple' : 'text-brand-navy dark:text-white')}>{a.label}</p>
                       <p className="text-xs text-neutral-400 dark:text-neutral-500">{a.desc}</p>
                     </div>
-                  </button>
+                  </AdminButton>
                 );
               })}
             </div>

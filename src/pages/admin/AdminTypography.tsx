@@ -350,7 +350,7 @@ export default function AdminTypography() {
 
 function CategoryChip({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
-    <button
+    <AdminButton
       type="button"
       onClick={onClick}
       className={classNames(
@@ -361,7 +361,7 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
       )}
     >
       {label}
-    </button>
+    </AdminButton>
   );
 }
 
@@ -420,7 +420,7 @@ function FontCard({
           </span>
         )}
       </div>
-      <button
+      <AdminButton
         type="button"
         onClick={onSelect}
         disabled={isActive}
@@ -432,7 +432,7 @@ function FontCard({
         )}
       >
         {isActive ? 'Currently Active' : 'Apply This Font'}
-      </button>
+      </AdminButton>
     </div>
   );
 }

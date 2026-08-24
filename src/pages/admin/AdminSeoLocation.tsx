@@ -213,9 +213,9 @@ function LocationsTab() {
                     <div className="flex items-center gap-1">
                       {editingId === loc.id ? (
                         <>
-                          <button onClick={() => handleSave(loc.id)} disabled={saving} className="rounded p-1 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:hover:bg-emerald-500/10">
+                          <AdminIconButton variant="ghost" onClick={() => handleSave(loc.id)} disabled={saving} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:hover:bg-emerald-500/10">
                             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                          </button>
+                          </AdminIconButton>
                           <AdminIconButton variant="ghost" onClick={() => setEditingId(null)} >
                             <X className="h-3.5 w-3.5" />
                           </AdminIconButton>
@@ -226,9 +226,9 @@ function LocationsTab() {
                             <Navigation className="h-3.5 w-3.5" />
                           </button>
                           {!loc.latitude && (
-                            <button onClick={() => handleAutoGeocode(loc)} className="rounded p-1 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10" title="Auto-geocode">
+                            <AdminIconButton variant="ghost" onClick={() => handleAutoGeocode(loc)} className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10" title="Auto-geocode">
                               <Globe className="h-3.5 w-3.5" />
-                            </button>
+                            </AdminIconButton>
                           )}
                         </>
                       )}
@@ -599,7 +599,7 @@ function IndexabilityTab() {
   return (
     <div>
       <div className="mb-4 flex gap-2">
-        <button
+        <AdminButton
           onClick={() => setTab2('listings')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
@@ -607,8 +607,8 @@ function IndexabilityTab() {
           )}
         >
           Marketplace Listings
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           onClick={() => setTab2('profiles')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
@@ -616,7 +616,7 @@ function IndexabilityTab() {
           )}
         >
           Professional Profiles
-        </button>
+        </AdminButton>
       </div>
 
       {loading ? (
@@ -631,7 +631,7 @@ function IndexabilityTab() {
                 <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{l.title}</p>
                 <p className="text-xs text-neutral-500">{l.status} · {l.is_active ? 'Active' : 'Inactive'}</p>
               </div>
-              <button
+              <AdminIconButton variant="ghost"
                 onClick={() => toggleListingIndexable(l.id, l.seo_indexable)}
                 className={classNames(
                   'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium',
@@ -642,7 +642,7 @@ function IndexabilityTab() {
               >
                 {l.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                 {l.seo_indexable ? 'Indexable' : 'Hidden'}
-              </button>
+              </AdminIconButton>
             </div>
           ))}
           {listings.length === 0 && <p className="py-8 text-center text-sm text-neutral-500">No listings found.</p>}
@@ -655,7 +655,7 @@ function IndexabilityTab() {
                 <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{p.business_name || p.display_name}</p>
                 <p className="text-xs text-neutral-500">{p.verification_status} · /{p.slug}</p>
               </div>
-              <button
+              <AdminIconButton variant="ghost"
                 onClick={() => toggleProfileIndexable(p.id, p.seo_indexable)}
                 className={classNames(
                   'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium',
@@ -666,7 +666,7 @@ function IndexabilityTab() {
               >
                 {p.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
                 {p.seo_indexable ? 'Indexable' : 'Hidden'}
-              </button>
+              </AdminIconButton>
             </div>
           ))}
           {profiles.length === 0 && <p className="py-8 text-center text-sm text-neutral-500">No profiles found.</p>}

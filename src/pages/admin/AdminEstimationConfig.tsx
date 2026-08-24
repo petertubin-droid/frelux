@@ -61,7 +61,7 @@ export default function AdminEstimationConfig() {
 
       {/* Tabs navigation */}
       <div className="mb-6 flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
-        <button
+        <AdminButton
           type="button"
           onClick={() => setActiveTab('units')}
           className={classNames(
@@ -72,8 +72,8 @@ export default function AdminEstimationConfig() {
           )}
         >
           Units
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           type="button"
           onClick={() => setActiveTab('pack_sizes')}
           className={classNames(
@@ -84,8 +84,8 @@ export default function AdminEstimationConfig() {
           )}
         >
           Pack Sizes
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           type="button"
           onClick={() => setActiveTab('calc_rules')}
           className={classNames(
@@ -96,8 +96,8 @@ export default function AdminEstimationConfig() {
           )}
         >
           Calc Rules
-        </button>
-        <button
+        </AdminButton>
+        <AdminButton
           type="button"
           onClick={() => setActiveTab('calc_versions')}
           className={classNames(
@@ -108,7 +108,7 @@ export default function AdminEstimationConfig() {
           )}
         >
           Calc Versions
-        </button>
+        </AdminButton>
       </div>
 
       {/* Tab Panels */}

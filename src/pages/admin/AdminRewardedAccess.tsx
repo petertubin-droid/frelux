@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Gift, BarChart3, DollarSign, Users, Calendar, TrendingUp, Loader2, Settings2 } from 'lucide-react';
-import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect, AdminButton} from '@/components/admin/AdminUi';
 import { fetchAllRewardedToolConfigs, fetchRewardedUnlockStats, fetchRewardedAdEventStats } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
@@ -23,7 +23,7 @@ export default function AdminRewardedAccess() {
           { key: 'tools', label: 'Tool Config', icon: Gift },
           { key: 'analytics', label: 'Analytics', icon: BarChart3 },
         ] as { key: Tab; label: string; icon: typeof Gift }[]).map((t) => (
-          <button
+          <AdminButton
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
@@ -34,7 +34,7 @@ export default function AdminRewardedAccess() {
           >
             <t.icon className="h-4 w-4" />
             {t.label}
-          </button>
+          </AdminButton>
         ))}
       </div>
       {tab === 'features' && <FeatureConfigTab />}
@@ -430,7 +430,7 @@ function AnalyticsTab() {
       <div className="mb-4 flex items-center gap-2">
         <span className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">Time range:</span>
         {[7, 30, 90].map((d) => (
-          <button
+          <AdminButton
             key={d}
             type="button"
             onClick={() => setDays(d)}
@@ -440,7 +440,7 @@ function AnalyticsTab() {
             )}
           >
             {d} days
-          </button>
+          </AdminButton>
         ))}
       </div>
 

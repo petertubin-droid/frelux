@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2, AlertCircle, Layers, Paintbrush, Package } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, StateMessage, Toggle, AdminInput, AdminButton} from '@/components/admin/AdminUi';
 import { formatCurrency } from '@/lib/utils';
 import type { DbScreedingMixConfig } from '@/types/database';
 import { AdminButton } from '@/components/admin/AdminUi';
@@ -197,15 +197,15 @@ export default function AdminScreedingMaterials() {
 
       {/* Save button */}
       <div className="flex items-center gap-3">
-        <button
+        <AdminButton
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+          className="px-5 py-2.5 text-sm"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Configuration'}
-        </button>
+        </AdminButton>
         <span className="text-xs text-neutral-400 dark:text-neutral-500">
           Paint: {formatCurrency(paintPrice, currencySymbol)} / {paintBucketSize}L bucket · Cement: {formatCurrency(cementPrice, currencySymbol)} / {cementBagSize}kg bag
         </span>

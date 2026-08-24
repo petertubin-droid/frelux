@@ -81,10 +81,10 @@ export default function AdminPopMaterials() {
 
       <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {workflows.map((wf) => (
-          <button key={wf} type="button" onClick={() => setFilterWf(wf)}
+          <AdminButton key={wf} type="button" onClick={() => setFilterWf(wf)}
             className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', filterWf === wf ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
             {wf}
-          </button>
+          </AdminButton>
         ))}
       </div>
 

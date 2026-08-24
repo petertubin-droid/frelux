@@ -17,7 +17,7 @@ export default function AdminColors() {
       <AdminHeader title="Color Gallery" subtitle="Manage individual paint colors, palettes, categories, and color families." />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
         {(['paint_colors','combinations','categories','families'] as Tab[]).map((t) => (
-          <button key={t} type="button" onClick={() => setTab(t)} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>{t.replace('_', ' ')}</button>
+          <AdminButton key={t} type="button" onClick={() => setTab(t)} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>{t.replace('_', ' ')}</AdminButton>
         ))}
       </div>
       {tab === 'paint_colors' && <PaintColorsTab />}
@@ -207,7 +207,7 @@ function PaintColorsTab() {
 
 function ToggleChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <button type="button" onClick={onClick} className={classNames('rounded-md border px-2 py-1 text-[10px] font-semibold transition-all', active ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300')}>{label}</button>
+    <AdminButton type="button" onClick={onClick} className={classNames('rounded-md border px-2 py-1 text-[10px] font-semibold transition-all', active ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-500 hover:border-neutral-300')}>{label}</AdminButton>
   );
 }
 
@@ -380,8 +380,8 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
 
         {/* Format toggle */}
         <div className="mt-3 inline-flex rounded-lg border border-neutral-200 p-1">
-          <button type="button" onClick={() => setFormat('csv')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'csv' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>CSV</button>
-          <button type="button" onClick={() => setFormat('json')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'json' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>JSON</button>
+          <AdminButton type="button" onClick={() => setFormat('csv')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'csv' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>CSV</AdminButton>
+          <AdminButton type="button" onClick={() => setFormat('json')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'json' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>JSON</AdminButton>
         </div>
 
         <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
@@ -673,7 +673,7 @@ function CombinationForm({ initial, categories, onClose, onSaved }: { initial: D
             <div className="flex flex-wrap gap-2">
               {categories.map((c) => {
                 const selected = categoryIds.includes(c.id);
-                return <button key={c.id} type="button" onClick={() => setCategoryIds((prev) => selected ? prev.filter((id) => id !== c.id) : [...prev, c.id])} className={classNames('rounded-full border px-3 py-1.5 text-xs font-semibold transition-all', selected ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>{c.name}</button>;
+                return <AdminButton key={c.id} type="button" onClick={() => setCategoryIds((prev) => selected ? prev.filter((id) => id !== c.id) : [...prev, c.id])} className={classNames('rounded-full border px-3 py-1.5 text-xs font-semibold transition-all', selected ? 'border-brand-purple bg-brand-purple text-white' : 'border-neutral-200 text-neutral-600 hover:border-neutral-300')}>{c.name}</AdminButton>;
               })}
             </div>
           </AdminField>

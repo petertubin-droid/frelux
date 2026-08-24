@@ -222,7 +222,7 @@ export default function AdminEstimationPricing() {
           <Filter className="h-4 w-4 text-neutral-400" />
           <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
-              <button
+              <AdminButton
                 key={type}
                 type="button"
                 onClick={() => setTypeFilter(type)}
@@ -233,7 +233,7 @@ export default function AdminEstimationPricing() {
                 }`}
               >
                 {type}
-              </button>
+              </AdminButton>
             ))}
           </div>
         </div>

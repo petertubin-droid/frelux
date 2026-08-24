@@ -29,7 +29,7 @@ export default function AdminLabourSettings() {
           { key: 'settings', label: 'Estimator Settings', icon: HardHat },
           { key: 'categories', label: 'Labour Categories', icon: Plus },
         ] as { key: 'settings' | 'categories'; label: string; icon: typeof HardHat }[]).map((t) => (
-          <button
+          <AdminButton
             key={t.key}
             type="button"
             onClick={() => setTab(t.key)}
@@ -40,7 +40,7 @@ export default function AdminLabourSettings() {
           >
             <t.icon className="h-4 w-4" />
             {t.label}
-          </button>
+          </AdminButton>
         ))}
       </div>
       {tab === 'settings' && <SettingsTab />}
@@ -219,7 +219,7 @@ function CategoriesTab() {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
           {(['paint', 'screeding', 'pop_ceiling', 'tile'] as LabourEstimatorKey[]).map((k) => (
-            <button
+            <AdminButton
               key={k}
               type="button"
               onClick={() => setFilterKey(k)}
@@ -229,7 +229,7 @@ function CategoriesTab() {
               }
             >
               {ESTIMATOR_LABELS[k]}
-            </button>
+            </AdminButton>
           ))}
         </div>
         <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Category</AdminButton>
