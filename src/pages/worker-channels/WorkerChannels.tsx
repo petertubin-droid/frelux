@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import {
-  fetchChannels, fetchChannelBySlug, joinChannel, leaveChannel, isMember,
+  fetchChannels, fetchChannelBySlug, joinChannel, isMember,
   fetchMessages, sendMessage, deleteMessage, toggleReaction,
   subscribeToChannelMessages, fetchChannelCategories,
   fetchModerationConfig, isWorkerAccount,
@@ -28,7 +28,7 @@ export default function WorkerChannels() {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [channels, setChannels] = useState<DbWorkerChannel[]>([]);
-  const [categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
+  const [_categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
   const [activeChannel, setActiveChannel] = useState<DbWorkerChannel | null>(null);
   const [messages, setMessages] = useState<DbWorkerChannelMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');

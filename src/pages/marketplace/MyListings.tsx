@@ -4,7 +4,7 @@ import { Plus, Loader2, MapPin, Users, Eye, Clock, X } from 'lucide-react';
 import { fetchMyListings, cancelListing } from '@/lib/marketplace';
 import { useAuth } from '@/lib/auth';
 import type { DbMarketplaceListing } from '@/types/marketplace';
-import { PROJECT_TYPE_LABELS, URGENCY_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
+import { PROJECT_TYPE_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
 

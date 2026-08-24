@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Award, Clock, ArrowRight } from 'lucide-react';
 import Container from '@/components/ui/Container';
@@ -14,7 +14,8 @@ export default function TrendingColors() {
   const [recent, setRecent] = useState<DbPaintColor[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     Promise.all([fetchTrendingColors(6), fetchFeaturedColors(6), fetchRecentlyAddedColors(6)])
       .then(([t, f, r]) => {
         setTrending(t.data);
@@ -22,6 +23,8 @@ export default function TrendingColors() {
         setRecent(r.data);
       })
       .finally(() => setLoading(false));
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   if (!loading && trending.length === 0 && featured.length === 0 && recent.length === 0) return null;

@@ -3,7 +3,7 @@ import { AdminModal } from '@/components/admin/AdminModal';
 import { AdminHeader, AdminButton, StateMessage, AdminField, Toggle } from "@/components/admin/AdminUi";
 import { supabase } from '@/lib/supabase';
 import type { DbMaterialCatalog, MaterialCatalogCategory } from '@/types/database';
-import { Plus, Trash2, Edit3, X, Search } from "lucide-react";
+import { Plus, Trash2, Edit3, _X, Search } from "lucide-react";
 import {AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
 
 const CATEGORIES: MaterialCatalogCategory[] = [

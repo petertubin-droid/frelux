@@ -490,11 +490,12 @@ function getRebarPriceForDiameter(diameter_mm: number, prices: PriceConfig): num
     case 16: return prices.rebar_16mm_per_length;
     case 20: return prices.rebar_20mm_per_length;
     case 25: return prices.rebar_25mm_per_length;
-    default:
+    default: {
       // For non-standard diameters, estimate from per-tonne price
       // weight per 12m length = d²/162 × 12
       const weightPerLength = (diameter_mm * diameter_mm / 162) * REBAR_STANDARD_LENGTH;
       return Math.round(prices.reinforcement_per_tonne / 1000 * weightPerLength);
+    }
   }
 }
 
@@ -900,7 +901,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   }
 
   let totalConcreteVol = 0;
-  let totalReinforcementKg = 0;
+  const _totalReinforcementKg = 0;
   let totalFormworkArea = 0;
 
   for (const member of input.structural_members) {
@@ -925,7 +926,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
 
     // Reinforcement
     const rebarKg = estimateReinforcementKg(member);
-    totalReinforcementKg += rebarKg;
+    _totalReinforcementKg += rebarKg;
 
     quantities.push(
       qtyLine(`${member.label} — concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,

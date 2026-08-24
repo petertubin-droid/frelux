@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ArrowRight, Loader2, Shield, Star, Briefcase } from 'lucide-react';
+import { ArrowRight, Loader2, Shield, Star, Briefcase } from 'lucide-react';
 import { fetchCategories, fetchLocations, searchProfessionals } from '@/lib/pro-connect';
 import { useSeo } from '@/lib/seo';
 import { breadcrumbSchema } from '@/lib/structured-data';
@@ -27,7 +27,7 @@ function slugifyProfessionals(categorySlug: string): string {
 
 export default function ProCategoryLocationPage() {
   const { categorySlug, locationSlug } = useParams<{ categorySlug: string; locationSlug: string }>();
-  const [category, setCategory] = useState<DbProCategory | null>(null);
+  const [_category, setCategory] = useState<DbProCategory | null>(null);
   const [location, setLocation] = useState<DbProLocation | null>(null);
   const [pros, setPros] = useState<DbProProfile[]>([]);
   const [loading, setLoading] = useState(true);

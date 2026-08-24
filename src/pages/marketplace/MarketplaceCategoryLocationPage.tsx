@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, ArrowRight, Loader2, Package, Briefcase } from 'lucide-react';
+import { ArrowRight, Loader2, Package, Briefcase } from 'lucide-react';
 import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { fetchListings } from '@/lib/marketplace';
 import { searchProfessionals } from '@/lib/pro-connect';
@@ -8,7 +8,7 @@ import { useSeo } from '@/lib/seo';
 import { breadcrumbSchema } from '@/lib/structured-data';
 import type { DbProCategory, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import type { DbMarketplaceListing } from '@/types/marketplace';
-import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
+import { _PROJECT_TYPE_LABELS } from '@/types/marketplace';
 
 // ============================================================
 // SEO Page: /marketplace/:categorySlug/:locationSlug

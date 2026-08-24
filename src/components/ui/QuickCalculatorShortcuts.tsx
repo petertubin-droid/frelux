@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Paintbrush, Layers, Grid3x3, Palette, ArrowRight, Calculator, Wand2 } from 'lucide-react';
+import { Paintbrush, Layers, Grid3x3, ArrowRight, Calculator, Wand2 } from 'lucide-react';
 
 const shortcuts = [
   { to: '/paint-calculator', label: 'Paint Calculator', icon: Paintbrush, description: 'Calculate paint quantities and costs', badge: 'Popular' },

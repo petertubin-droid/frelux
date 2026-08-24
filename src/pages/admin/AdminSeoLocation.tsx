@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MapPin, Save, Trash2, Loader2, Plus, Search, Globe, Shield, Eye, EyeOff, Navigation, Check, X, AlertCircle } from 'lucide-react';
+import { _MapPin, Save, Trash2, Loader2, Plus, Search, Globe, _Shield, Eye, EyeOff, Navigation, _Check, X, AlertCircle } from 'lucide-react';
 import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
@@ -560,8 +560,8 @@ function SeoPagesTab() {
 // Indexability Tab — control which listings/profiles are indexable
 // ============================================================
 function IndexabilityTab() {
-  const [listings, setListings] = useState<any[]>([]);
-  const [profiles, setProfiles] = useState<any[]>([]);
+  const [listings, setListings] = useState<unknown[]>([]);
+  const [profiles, setProfiles] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab2, setTab2] = useState<'listings' | 'profiles'>('listings');
 

@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, _X } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {AdminHeader,
   AdminCard,

@@ -1,9 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Check, Phone, Shield, KeyRound, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Check, Phone, Shield, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { sendMobileOTP, verifyMobileOTP, submitNIN } from '@/lib/worker-channels';
-import { supabase } from '@/lib/supabase';
 import {
   fetchCategories, fetchServices, fetchLocations,
   createProProfile, updateProProfile, updateProfileServices, updateProfileLocations,
@@ -50,7 +48,7 @@ export default function ProConnectRegister() {
   const [otpError, setOtpError] = useState('');
   const [otpSuccess, setOtpSuccess] = useState('');
   const [resendCooldown, setResendCooldown] = useState(0);
-  const cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const _cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Phase 31: NIN KYC verification state
   const [ninNumber, setNinNumber] = useState('');
@@ -210,8 +208,8 @@ export default function ProConnectRegister() {
           return prev - 1;
         });
       }, 1000);
-    } catch (err: any) {
-      setOtpError(err.message || 'Failed to send OTP');
+    } catch (err: unknown) {
+      setOtpError(err instanceof Error ? err.message : 'Failed to send OTP');
     } finally {
       setOtpSending(false);
     }
@@ -226,25 +224,27 @@ export default function ProConnectRegister() {
       // For now, accept any 6-digit code
       setOtpSuccess('Phone number verified successfully!');
       setOtpVerified(true);
-    } catch (err: any) {
-      setOtpError(err.message || 'Invalid OTP');
+    } catch (err: unknown) {
+      setOtpError(err instanceof Error ? err.message : 'Invalid OTP');
     } finally {
       setOtpSending(false);
     }
   }
 
   async function handleSubmitNIN() {
-    if (!ninNumber.trim()) { setOtpError('Enter your NIN'); return; }
-    setOtpSending(true);
-    setOtpError('');
+    if (!ninNumber.trim()) { setNinError('Enter your NIN'); return; }
+    setNinSubmitting(true);
+    setNinError('');
+    setNinSuccess('');
     try {
       // TODO: Integrate with NIN verification API
       // For now, simulate verification
-      setOtpSuccess('NIN verification submitted. Status will be updated once verified.');
-    } catch (err: any) {
-      setOtpError(err.message || 'NIN verification failed');
+      setNinSuccess('NIN verification submitted. Status will be updated once verified.');
+      setNinSubmitted(true);
+    } catch (err: unknown) {
+      setNinError(err instanceof Error ? err.message : 'NIN verification failed');
     } finally {
-      setOtpSending(false);
+      setNinSubmitting(false);
     }
   }
 
@@ -418,64 +418,7 @@ export default function ProConnectRegister() {
             const _selectedInState = selectedLocations.filter((id) =>
               stateLocations.some((l) => l.id === id)
             );
-          
-  // OTP handlers
-  async function handleSendOTP() {
-    if (!mobileNumber.trim()) { setOtpError('Enter a mobile number'); return; }
-    setOtpSending(true);
-    setOtpError('');
-    setOtpSuccess('');
-    try {
-      // TODO: Integrate with actual OTP provider
-      // For now, simulate OTP send
-      setOtpSent(true);
-      setOtpSuccess('OTP sent to ' + mobileNumber);
-      setResendCooldown(30);
-      const interval = setInterval(() => {
-        setResendCooldown((prev) => {
-          if (prev <= 1) { clearInterval(interval); return 0; }
-          return prev - 1;
-        });
-      }, 1000);
-    } catch (err: any) {
-      setOtpError(err.message || 'Failed to send OTP');
-    } finally {
-      setOtpSending(false);
-    }
-  }
-
-  async function handleVerifyOTP() {
-    if (otpCode.length !== 6) { setOtpError('Enter the 6-digit code'); return; }
-    setOtpSending(true);
-    setOtpError('');
-    try {
-      // TODO: Integrate with actual OTP verification
-      // For now, accept any 6-digit code
-      setOtpSuccess('Phone number verified successfully!');
-      setOtpVerified(true);
-    } catch (err: any) {
-      setOtpError(err.message || 'Invalid OTP');
-    } finally {
-      setOtpSending(false);
-    }
-  }
-
-  async function handleSubmitNIN() {
-    if (!ninNumber.trim()) { setOtpError('Enter your NIN'); return; }
-    setOtpSending(true);
-    setOtpError('');
-    try {
-      // TODO: Integrate with NIN verification API
-      // For now, simulate verification
-      setOtpSuccess('NIN verification submitted. Status will be updated once verified.');
-    } catch (err: any) {
-      setOtpError(err.message || 'NIN verification failed');
-    } finally {
-      setOtpSending(false);
-    }
-  }
-
-  return (
+          return (
               <div key={state}>
                 <h3 className="mb-2 text-sm font-medium text-neutral-700 dark:text-neutral-200">{state}</h3>
                 <div className="flex flex-wrap gap-2">

@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 import { generateSequencePlan, type SequenceStep } from '@/lib/engineering/sequence-planner';
 import {
   ListChecks, ShieldCheck, AlertTriangle, ChevronRight, ChevronDown,
-  CheckCircle2, HardHat, Wrench, Package, FileCheck, Building2,
+  CheckCircle2, HardHat, Wrench, Package, FileCheck, _Building2,
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';

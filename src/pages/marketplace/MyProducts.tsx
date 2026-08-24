@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Plus, Store, Edit2, Trash2, Eye, MessageCircle } from 'lucide-react';
+import { Loader2, Plus, Store, Trash2, Eye, _MessageCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { fetchMyProducts, deleteProduct } from '@/lib/marketplace-products';
 import type { DbMarketplaceProduct } from '@/types/marketplace-products';
@@ -37,7 +37,7 @@ export default function MyProducts() {
     try {
       const { error } = await supabase.from('marketplace_products').update({ status: newStatus }).eq('id', id);
       if (error) throw error;
-      setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as any } : p));
+      setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as unknown } : p));
     } catch (e) {
       alert(e instanceof Error ? e.message : 'Failed to update');
     }

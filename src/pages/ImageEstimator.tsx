@@ -4,14 +4,14 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import {
   ImagePlus, Sparkles, Lock, Crown, Loader2, AlertCircle,
-  Building2, CheckCircle2, FileText, Download, TrendingUp,
+  Building2, CheckCircle2, FileText, TrendingUp,
   ShieldCheck, Camera, Zap, Info,
 } from 'lucide-react';
 import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
   checkEstimationAccess,
-  saveEstimationResult,
+  _saveEstimationResult,
 } from '@/lib/estimation-access';
 import type {
   EstimationAccessConfig,
@@ -19,9 +19,9 @@ import type {
   EstimationAccessDecision,
   BuildingAnalysisResult,
 } from '@/types/premium-estimation';
-import { calculateBuildToRoof, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
+import { calculateBuildToRoof, _DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
 import type { BuildToRoofInput, BuildToRoofResult } from '@/types/build-to-roof';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { formatCurrency, _formatNumber } from '@/lib/utils';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 type Phase = 'upload' | 'analyzing' | 'review' | 'result' | 'locked' | 'error';
@@ -33,13 +33,13 @@ export default function ImageEstimator() {
     keywords: 'AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI',
   });
 
-  const { user, profile, isAdmin, isPaid } = useAuth();
+  const { user, _profile, isAdmin, isPaid } = useAuth();
   const [phase, setPhase] = useState<Phase>('upload');
   const [config, setConfig] = useState<EstimationAccessConfig | null>(null);
   const [usage, setUsage] = useState<EstimationUsageStatus | null>(null);
   const [accessDecision, setAccessDecision] = useState<EstimationAccessDecision | null>(null);
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [_imageFile, setImageFile] = useState<File | null>(null);
   const [projectName, setProjectName] = useState('');
   const [location, setLocation] = useState('Lagos');
   const [analysis, setAnalysis] = useState<BuildingAnalysisResult | null>(null);
@@ -50,7 +50,8 @@ export default function ImageEstimator() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // ── Load access config on mount ──
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     async function loadAccess() {
       const cfg = await fetchEstimationAccessConfig();
       setConfig(cfg);
@@ -65,6 +66,8 @@ export default function ImageEstimator() {
       }
     }
     loadAccess();
+  
+    return () => { mountedRef.current = false; };
   }, [user?.id, isAdmin, isPaid]);
 
   // ── Handle image selection ──

@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MapPin, ArrowRight, Loader2, Package } from 'lucide-react';
-import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
+import { fetchCategories, _fetchLocations } from '@/lib/pro-connect';
 import { fetchListings } from '@/lib/marketplace';
-import { getSeoPageSettings } from '@/lib/location-discovery';
+import { _getSeoPageSettings } from '@/lib/location-discovery';
 import { useSeo } from '@/lib/seo';
 import { breadcrumbSchema } from '@/lib/structured-data';
-import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
+import type { DbProCategory, _DbProLocation } from '@/types/pro-connect';
 import type { DbMarketplaceListing } from '@/types/marketplace';
 import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
-import { classNames } from '@/lib/utils';
+import { _classNames } from '@/lib/utils';
 import LocationPicker from '@/components/ui/LocationPicker';
 
 // ============================================================

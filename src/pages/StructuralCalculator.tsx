@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
 import { useSeo } from '@/lib/seo';
-import { calculateBuildToRoof, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
+import { _DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
 import {
   designBeam, designColumn, designSlab,
   type BeamDesignInput, type ColumnDesignInput, type SlabDesignInput,
   type ConcreteGrade, type SteelGrade, type SupportCondition,
   type BeamType, type SlabType,
 } from '@/lib/engineering/structural-calculator';
-import type { BuildToRoofInput, BuildToRoofResult } from '@/types/build-to-roof';
+import type { _BuildToRoofResult } from '@/types/build-to-roof';
 import {
-  Calculator, Building2, AlertTriangle, CheckCircle2, Info, ShieldCheck,
-  Loader2, Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,
+  Calculator, Building2, AlertTriangle, CheckCircle2, ShieldCheck,
+  Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';

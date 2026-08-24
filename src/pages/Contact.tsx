@@ -41,17 +41,22 @@ export default function Contact() {
     e.preventDefault();
     if (!validate()) return;
     setStatus('submitting');
-    const { error } = await supabase.from('contact_messages').insert({
-      name: form.name,
-      email: form.email,
-      subject: form.subject,
-      message: form.message,
-    });
-    if (error) {
+    try {
+      const { error } = await supabase.from('contact_messages').insert({
+        name: form.name,
+        email: form.email,
+        subject: form.subject,
+        message: form.message,
+      });
+      if (error) {
+        setStatus('error');
+        return;
+      }
+      setStatus('success');
+    } catch {
       setStatus('error');
       return;
     }
-    setStatus('success');
     track('contact_form_submitted', { subject: form.subject });
     setForm({ name: '', email: '', subject: '', message: '' });
   }

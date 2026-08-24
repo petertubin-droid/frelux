@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { CheckCircle2, Info, AlertCircle, Loader2, Calculator } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -85,9 +85,12 @@ export default function ScreedingCostEstimator() {
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
   const [result, setResult] = useState<ScreedingMixResult | null>(null);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     track('screeding_estimator_opened', {});
     logAnalyticsEvent('screeding_estimator_opened', {});
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   useEffect(() => {

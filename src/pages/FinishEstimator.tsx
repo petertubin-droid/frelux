@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight, RotateCcw, Save, ChevronDown } from 'lucide-react';
+import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight, _ChevronDown } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ResultCard from '@/components/ui/ResultCard';
 import { calculateFinish, getFinishTypeLabel, getFinishTypeDescription, getDefaultCoats, dbToFinishMaterialConfig, type FinishType, type FinishCalcResult, type FinishMaterialConfig } from '@/lib/finish-calc';
 import { fetchFinishTypes, fetchSiteSettings, saveUserProject, logAnalyticsEvent } from '@/lib/queries';
-import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber, DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
+import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber, _DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { useSeo } from '@/lib/seo';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
@@ -69,7 +69,8 @@ export default function FinishEstimator() {
   const [wasteMargin, setWasteMargin] = useState(10);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     async function load() {
       setLoading(true);
       const [ftRes, settingsRes] = await Promise.all([
@@ -85,6 +86,8 @@ export default function FinishEstimator() {
     load();
     track('finish_estimator_opened', {});
     logAnalyticsEvent('finish_estimator_opened', {});
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   // Update coats when finish type changes

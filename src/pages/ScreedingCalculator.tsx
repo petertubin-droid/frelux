@@ -2,7 +2,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, RectangleHorizontal, AlertCircle, ChevronDown, CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
-import ResultDisplay from '@/components/ui/ResultDisplay';
+import _ResultDisplay from '@/components/ui/ResultDisplay';
 import { calculateScreedingArea, validateScreedingInput, formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent } from '@/lib/queries';

@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Plus, MapPin, Clock, ArrowRight, Loader2, SlidersHorizontal, X, Store, Briefcase, Tag } from 'lucide-react';
+import { Search, Plus, MapPin, Loader2, SlidersHorizontal, X, Store, Briefcase, _Tag } from 'lucide-react';
 import { fetchListings } from '@/lib/marketplace';
 import { searchProducts, fetchProductCategories } from '@/lib/marketplace-products';
 import type { DbMarketplaceListing } from '@/types/marketplace';
 import type { DbMarketplaceProduct, DbProductCategory } from '@/types/marketplace-products';
-import type { DbProCategory } from '@/types/pro-connect';
-import { fetchCategories } from '@/lib/pro-connect';
-import { PROJECT_TYPE_LABELS, URGENCY_LABELS } from '@/types/marketplace';
+import type { _DbProCategory } from '@/types/pro-connect';
+import { _fetchCategories } from '@/lib/pro-connect';
+import { PROJECT_TYPE_LABELS, _URGENCY_LABELS } from '@/types/marketplace';
 import { PRODUCT_CONDITION_LABELS } from '@/types/marketplace-products';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
@@ -158,9 +158,9 @@ export default function MarketplaceHome() {
     const { products: data, total: count } = await searchProducts({
       search: productSearch || undefined,
       category_id: catId,
-      condition: (productCondition || undefined) as any,
+      condition: (productCondition || undefined) as unknown,
       location_state: productState || undefined,
-      sort: productSort as any,
+      sort: productSort as unknown,
       limit: 24,
       offset: off,
     });

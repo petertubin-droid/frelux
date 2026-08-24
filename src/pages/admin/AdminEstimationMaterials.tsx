@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { EstimationMaterial, EstimationUnit } from '@/types/estimation';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 function slugify(s: string): string {

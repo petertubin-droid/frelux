@@ -117,7 +117,7 @@ export function designFoundation(input: FoundationDesignInput): FoundationDesign
 
   if (input.shape === 'strip') {
     // ── Strip footing ──
-    const applied_pressure = input.wall_load / (input.foundation_depth * 1); // kN/m² (per meter run)
+    const _applied_pressure = input.wall_load / (input.foundation_depth * 1); // kN/m² (per meter run)
     const required_width = (input.wall_load / allowable_capacity) * 1000; // mm
     formulas.push(`Required width = wall_load / allowable = ${input.wall_load} / ${allowable_capacity.toFixed(0)} = ${(required_width / 1000).toFixed(3)} m = ${required_width.toFixed(0)} mm`);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { RotateCcw, ArrowRight, CheckCircle2, AlertCircle, Loader2, Globe, MapPin } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -61,7 +61,10 @@ export default function PopCeilingCalculator() {
   });
 
   const { user } = useAuth();
-  useEffect(() => { trackRecentTool('/pop-ceiling-calculator', 'POP Ceiling Calculator', 'Grid3x3'); });
+const mountedRef = useRef(true);
+    useEffect(() => { trackRecentTool('/pop-ceiling-calculator', 'POP Ceiling Calculator', 'Grid3x3'); 
+    return () => { mountedRef.current = false; };
+  });
   const [materials, setMaterials] = useState<DbPopMaterial[]>([]);
   const [workflows, setWorkflows] = useState<DbPopWorkflow[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);

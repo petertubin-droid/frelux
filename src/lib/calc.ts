@@ -76,7 +76,7 @@ export function evaluateHeightWarning(heightM: number, unit: 'meters' | 'feet'):
   const standardM = STANDARD_HEIGHT_M;
   const standardFt = STANDARD_HEIGHT_FT;
   if (heightM > standardM) {
-    const heightFt = unit === 'feet' ? heightM / 0.3048 : heightM * 3.28084;
+    const _heightFt = unit === 'feet' ? heightM / 0.3048 : heightM * 3.28084;
     return `Wall height exceeds the FRELUX standard (${standardFt} ft / ${standardM.toFixed(2)} m). Professional assessment recommended for non-standard heights.`;
   }
   return null;
@@ -257,7 +257,7 @@ export function recommendPracticalContainers(
   // If there's a remainder, round up to one more of the smallest practical size.
   if (remaining > 0) {
     // Prefer rounding up to a 20L bucket if the remainder is more than half a bucket
-    const largest = sizes[0];
+    const _largest = sizes[0];
     const smallest = sizes[sizes.length - 1];
     if (remaining > smallest * 0.5 && recommendations.length > 0) {
       // Check if upgrading the last recommendation to a larger size is better

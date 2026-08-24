@@ -86,7 +86,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
     return { recent: [], all: results };
   }, [query, recent]);
 
-  const flatResults = [...filtered.recent, ...filtered.all];
+  const flatResults = useMemo(() => [...filtered.recent, ...filtered.all], [filtered]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

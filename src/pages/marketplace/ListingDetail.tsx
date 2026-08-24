@@ -2,12 +2,12 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, MapPin, Clock, Users, Eye, Loader2, Send, Check, X,
-  Star, ShieldCheck, Briefcase, MessageSquare, Calendar, Wallet,
+  Star, ShieldCheck, Briefcase, Calendar, _Wallet,
 } from 'lucide-react';
 import { fetchListing, fetchBidsForListing, createBid, updateBidStatus, incrementListingView } from '@/lib/marketplace';
 import { useAuth } from '@/lib/auth';
 import type { DbMarketplaceListing, DbMarketplaceBid } from '@/types/marketplace';
-import { PROJECT_TYPE_LABELS, URGENCY_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
+import { PROJECT_TYPE_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
 

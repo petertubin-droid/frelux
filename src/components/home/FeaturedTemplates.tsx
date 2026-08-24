@@ -16,7 +16,8 @@ export default function FeaturedTemplates() {
   const [templates, setTemplates] = useState<DbCalculatorTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     (async () => {
       try {
         // Fetch only featured templates, fallback data handles no-DB case
@@ -29,6 +30,8 @@ export default function FeaturedTemplates() {
         setLoading(false);
       }
     })();
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   if (loading) {

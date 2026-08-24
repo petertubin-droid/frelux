@@ -89,7 +89,7 @@ export default function ProductDetail() {
         contact_phone: inquiryPhone || undefined,
       });
       setInquirySent(true);
-    } catch (e) {
+    } catch (_e) {
       // Show error inline
     } finally {
       setSubmitting(false);

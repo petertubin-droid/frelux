@@ -8,7 +8,7 @@ import type {
   DbWorkerChannel,
   DbWorkerChannelCategory,
   DbWorkerChannelMessage,
-  DbWorkerChannelReaction,
+  _DbWorkerChannelReaction,
   DbWorkerModerationConfig,
 } from '@/types/worker-channels';
 
@@ -34,7 +34,7 @@ export async function fetchChannelCategories(): Promise<DbWorkerChannelCategory[
 // =========================================================
 
 export async function fetchChannels(userId?: string): Promise<DbWorkerChannel[]> {
-  let query = supabase
+  const query = supabase
     .from('worker_channels')
     .select(`
       *,
@@ -598,11 +598,7 @@ export async function sendSmsOTP(phoneNumber: string, otpCode: string): Promise<
   const termiiSender = import.meta.env.VITE_TERMII_SENDER_ID ?? 'FRELUX';
 
   if (!termiiKey) {
-    // No API key configured — return success (dev mode, OTP shown in UI)
-    if (import.meta.env.DEV) {
-      console.log('[sms] Termii key not configured — dev mode, OTP:', otpCode);
-      return { success: true, message: 'Dev mode: OTP shown in UI' };
-    }
+    // No API key configured — fail gracefully
     return { success: false, message: 'SMS gateway not configured' };
   }
 

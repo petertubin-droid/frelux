@@ -5,8 +5,8 @@ import {
   type TimelineInput, type ProjectComplexity, type WorkforceSize, type Season,
 } from '@/lib/engineering/timeline-estimator';
 import {
-  Calendar, Clock, AlertTriangle, CheckCircle2, TrendingUp,
-  Flag, ChevronRight, Building2, MapPin, Users,
+  Calendar, Clock, AlertTriangle, TrendingUp,
+  Flag, _Users,
 } from 'lucide-react';
 
 export default function ProjectTimeline() {

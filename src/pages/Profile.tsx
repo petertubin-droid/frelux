@@ -60,7 +60,7 @@ export default function Profile() {
       if (error) throw error;
       await refreshProfile();
       toast({ type: 'success', title: 'Profile updated', message: 'Your changes have been saved.' });
-    } catch (err) {
+    } catch (_err) {
       toast({ type: 'error', title: 'Failed to save', message: 'Please try again.' });
     } finally {
       setSaving(false);
@@ -112,7 +112,7 @@ export default function Profile() {
 
       await refreshProfile();
       toast({ type: 'success', title: 'Photo updated', message: 'Your profile picture has been updated.' });
-    } catch (err) {
+    } catch (_err) {
       toast({ type: 'error', title: 'Upload failed', message: 'Could not upload image. Please try again.' });
     } finally {
       setUploading(false);

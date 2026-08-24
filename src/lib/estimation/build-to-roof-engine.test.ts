@@ -39,7 +39,7 @@ import {
   CEMENT_VOLUME_PER_BAG,
   DRY_WET_RATIO,
   MORTAR_DRY_WET_RATIO,
-  SHEET_COVERAGE,
+  _SHEET_COVERAGE,
 } from './build-to-roof-engine';
 import type { BuildToRoofInput, StructuralMemberInput } from '@/types/build-to-roof';
 

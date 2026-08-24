@@ -3,7 +3,7 @@ import LocationPicker from '@/components/ui/LocationPicker';
 import { useLocation } from '@/lib/location';
 import { fetchLocations } from '@/lib/pro-connect';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Send, Loader2, Calculator, FileText, Info } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, Calculator, Info } from 'lucide-react';
 import { createListing } from '@/lib/marketplace';
 import { useAuth } from '@/lib/auth';
 import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
@@ -31,7 +31,7 @@ export default function PostListing() {
   const [urgency, setUrgency] = useState('standard');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [scopeSummary, setScopeSummary] = useState<Record<string, unknown> | null>(null);
+  const [scopeSummary, _setScopeSummary] = useState<Record<string, unknown> | null>(null);
   const [estimateRef, setEstimateRef] = useState<string | null>(null);
 
   // Load DB locations

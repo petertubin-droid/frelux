@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
-import { Plus, Loader2, Edit2, Trash2, Copy, BadgeCheck, Eye, EyeOff, Save, X, Search, ChevronDown } from 'lucide-react';
+import { Plus, Loader2, Edit2, Trash2, Copy, BadgeCheck, Eye, EyeOff, Save, _X, Search, _ChevronDown } from 'lucide-react';
 import {
   adminGetAllTemplates,
   adminCreateTemplate,

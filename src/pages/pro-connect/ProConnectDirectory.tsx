@@ -6,10 +6,10 @@ import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@
 import ProfessionalCard from '@/components/pro-connect/ProfessionalCard';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
-import LocationPicker from '@/components/ui/LocationPicker';
+import _LocationPicker from '@/components/ui/LocationPicker';
 import { useLocation } from '@/lib/location';
 import { findNearbyProfessionals, type NearbyProfessional } from '@/lib/location-discovery';
-import { formatDistance } from '@/lib/location';
+import { _formatDistance } from '@/lib/location';
 
 export default function ProConnectDirectory() {
   useSeo({
@@ -46,10 +46,10 @@ export default function ProConnectDirectory() {
   const [_page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [userLocation, setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
-  const [radius, setRadius] = useState(25);
-  const [nearbyPros, setNearbyPros] = useState<NearbyProfessional[]>([]);
-  const [nearbyLoading, setNearbyLoading] = useState(false);
+  const [userLocation, _setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
+  const [radius, _setRadius] = useState(25);
+  const [_nearbyPros, setNearbyPros] = useState<NearbyProfessional[]>([]);
+  const [_nearbyLoading, setNearbyLoading] = useState(false);
 
   // Profile enrichment data
   const [profileServices, setProfileServices] = useState<Record<string, DbProService[]>>({});

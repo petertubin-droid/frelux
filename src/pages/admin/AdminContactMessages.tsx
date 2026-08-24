@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Mail, Trash2, X, CheckCircle2, Archive } from 'lucide-react';
+import { Mail, Trash2, CheckCircle2, Archive } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import {AdminHeader, AdminButton, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';

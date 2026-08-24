@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  ArrowLeft, Loader2, Check, X, Star, Clock, MapPin, Wallet,
+  ArrowLeft, Loader2, Check, Star, Wallet,
   Calendar, Plus, ShieldCheck, MessageSquare, AlertTriangle,
 } from 'lucide-react';
 import {

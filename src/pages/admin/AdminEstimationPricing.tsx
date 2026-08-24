@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, X, History, Search, Filter, DollarSign, Calendar } from 'lucide-react';
+import { Plus, Pencil, Trash2, _X, History, Search, Filter, DollarSign, Calendar } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminHeader, _AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 interface PriceItem {

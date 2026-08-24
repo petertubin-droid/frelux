@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { HardHat, Info } from 'lucide-react';
 import {
   type LabourConfig,
@@ -37,7 +37,8 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
   const [config, setConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     let cancelled = false;
     (async () => {
       const settings = await fetchLabourSettings(estimatorKey);
@@ -52,6 +53,8 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
       setLoading(false);
     })();
     return () => { cancelled = true; };
+  
+    return () => { mountedRef.current = false; };
   }, [estimatorKey]);
 
   const updateConfig = useCallback((updates: Partial<LabourConfig>) => {

@@ -309,7 +309,9 @@ export default function App() {
             element={
               <Suspense fallback={<PageLoader />}>
                 <RequireAdmin>
-                  <AdminLayout />
+                  <ErrorBoundary boundaryName="admin">
+                    <AdminLayout />
+                  </ErrorBoundary>
                 </RequireAdmin>
               </Suspense>
             }

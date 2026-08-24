@@ -71,7 +71,7 @@ const PAINT_CATEGORIES = ['emulsion', 'matt', 'satin'];
 // =========================================================
 
 export default function PaintingEstimator() {
-  const { defaults: calcDefaults, rules: defaultCalcRules } = useCalcDefaults('painting');
+  const { defaults: _calcDefaults, rules: defaultCalcRules } = useCalcDefaults('painting');
   const DEFAULT_CEILING_COLOUR = (defaultCalcRules['ceiling_default_colour']?.rule_value as Record<string, unknown>)?.colour as string ?? 'white';
   const DEFAULT_COATS = (defaultCalcRules['standard_coat_count']?.rule_value as Record<string, unknown>)?.count as number ?? 2;
   useSeo({
@@ -108,7 +108,10 @@ export default function PaintingEstimator() {
     ],
   });
 
-  useEffect(() => { trackRecentTool('/painting-estimator', 'Painting Estimator', 'Calculator'); }, []);
+const mountedRef = useRef(true);
+    useEffect(() => { trackRecentTool('/painting-estimator', 'Painting Estimator', 'Calculator'); 
+    return () => { mountedRef.current = false; };
+  }, []);
 
   // ── State: Configuration data from DB ──
   const [products, setProducts] = useState<EstimationProduct[]>([]);

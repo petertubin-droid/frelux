@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import Container from '@/components/ui/Container';
+import _Container from '@/components/ui/Container';
 import SectionHeading from '@/components/ui/SectionHeading';
 import { fetchColorCombinations, fetchColorCategories } from '@/lib/queries';
 import type { DbColorCombination, DbColorCategory } from '@/types/database';
@@ -11,7 +11,8 @@ export default function ColorPreview() {
   const [categories, setCategories] = useState<DbColorCategory[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     async function load() {
       const [combRes, catRes] = await Promise.all([fetchColorCombinations(), fetchColorCategories()]);
       setCombinations(combRes.data.slice(0, 3));
@@ -19,6 +20,8 @@ export default function ColorPreview() {
       setLoading(false);
     }
     load();
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   function catName(id: string): string {

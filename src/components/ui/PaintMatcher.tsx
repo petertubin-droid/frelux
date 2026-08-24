@@ -18,12 +18,15 @@ export function PaintMatcher() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Load paint colors for matching
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     async function loadColors() {
       const { data } = await fetchPaintColors({ pageSize: 500 });
       setColors(data);
     }
     loadColors();
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   function handleFile(file: File) {

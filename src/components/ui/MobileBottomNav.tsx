@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Calculator, ShoppingBag, Palette, FolderOpen, Trophy, Hash } from 'lucide-react';
+import { Home, Calculator, ShoppingBag, FolderOpen, Trophy } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { getAchievements } from '@/lib/achievements';
 import { useEffect, useState } from 'react';

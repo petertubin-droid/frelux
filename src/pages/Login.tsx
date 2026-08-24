@@ -47,10 +47,18 @@ export default function Login() {
     const pending = localStorage.getItem('frelux_pending_account_type');
     if (pending && user) {
       (async () => {
-        const { supabase } = await import('@/lib/supabase');
-        await supabase.from('profiles').update({ account_type: pending }).eq('id', user.id);
-        localStorage.removeItem('frelux_pending_account_type');
-        setShowSuccess(true);
+        try {
+          const { supabase } = await import('@/lib/supabase');
+          const { error } = await supabase.from('profiles').update({ account_type: pending }).eq('id', user.id);
+          if (error) {
+            console.error('Failed to update account type:', error.message);
+            return;
+          }
+          localStorage.removeItem('frelux_pending_account_type');
+          setShowSuccess(true);
+        } catch (err) {
+          console.error('Profile update failed:', err);
+        }
       })();
     }
   }, [user]);

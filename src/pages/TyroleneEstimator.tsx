@@ -102,7 +102,10 @@ export default function TyroleneEstimator() {
     ],
   });
 
-  useEffect(() => { trackRecentTool('/tyrolene-estimator', 'Tyrolene Estimator', 'Calculator'); }, []);
+const mountedRef = useRef(true);
+    useEffect(() => { trackRecentTool('/tyrolene-estimator', 'Tyrolene Estimator', 'Calculator'); 
+    return () => { mountedRef.current = false; };
+  }, []);
 
   // ── State: Configuration data from DB ──
   const [product, setProduct] = useState<EstimationProduct | null>(null);

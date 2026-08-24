@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
@@ -25,7 +25,8 @@ export default function Layout() {
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
   // Track visit and check onboarding on first load
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     const newlyUnlocked = trackVisit();
     if (newlyUnlocked.length > 0) {
       setNewAchievements(newlyUnlocked);
@@ -34,6 +35,8 @@ export default function Layout() {
     if (!isOnboardingComplete() && location.pathname === '/') {
       setTimeout(() => setShowOnboarding(true), 800);
     }
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   useEffect(() => {

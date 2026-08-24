@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -68,7 +68,8 @@ export default function PopCeilingCostEstimator() {
   const currencySymbol = settings?.default_currency_symbol ?? '₦';
   const currency = settings?.default_currency ?? 'NGN';
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     async function load() {
       const [matRes, settingsRes] = await Promise.all([
         fetchPopMaterials(),
@@ -79,6 +80,8 @@ export default function PopCeilingCostEstimator() {
       setLoading(false);
     }
     load();
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   // Auto-calculate when ceilingArea is passed from calculator

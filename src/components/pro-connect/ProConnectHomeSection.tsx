@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Users, Briefcase, Search } from 'lucide-react';
 import { fetchCategories } from '@/lib/pro-connect';
@@ -25,11 +25,14 @@ const categoryIconMap: Record<string, string> = {
 export default function ProConnectHomeSection() {
   const [categories, setCategories] = useState<DbProCategory[]>([]);
 
-  useEffect(() => {
+const mountedRef = useRef(true);
+    useEffect(() => {
     (async () => {
       const cats = await fetchCategories();
       setCategories(cats.slice(0, 8)); // Show up to 8 category cards
     })();
+  
+    return () => { mountedRef.current = false; };
   }, []);
 
   return (

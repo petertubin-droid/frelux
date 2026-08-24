@@ -210,7 +210,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   // d = sqrt(M / (0.87 × fcu × b × 0.167)) — simplified
   // Assume b = 225mm (9-inch block width) initially — 9-inch is standard for Nigerian load-bearing walls
   const assumed_width = input.existing_width ?? 225;
-  const K = max_moment * 1e6 / (fcu * assumed_width); // K = M / (fcu × b × d²)
+  const _K = max_moment * 1e6 / (fcu * assumed_width); // K = M / (fcu × b × d²)
   // z = d × (0.5 + sqrt(0.25 - K/0.9)) — lever arm factor
   // For simplified: d ≈ sqrt(M / (0.156 × fcu × b))
   const required_depth_eff = Math.sqrt((max_moment * 1e6) / (0.156 * fcu * assumed_width));
@@ -360,7 +360,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   // Steel area
   const steel_area = ((factored_load * 1000) - 0.4 * fcu * gross_area) / (0.67 * fy);
   const min_steel = 0.004 * gross_area; // 0.4% min (BS 8110)
-  const max_steel = 0.06 * gross_area; // 6% max
+  const _max_steel = 0.06 * gross_area; // 6% max
   const final_steel = Math.max(steel_area, min_steel);
   const steel_ratio = (final_steel / gross_area) * 100;
 

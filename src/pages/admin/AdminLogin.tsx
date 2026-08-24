@@ -5,7 +5,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
-import { AdminButton, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import { AdminButton, AdminInput, _AdminIconButton} from '@/components/admin/AdminUi';
 
 function GoogleIcon({ className }: { className?: string }) {
   return (

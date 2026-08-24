@@ -6,7 +6,7 @@ import {
   Building2, ChevronRight, ChevronLeft, Calculator, Upload, FileText,
   CheckCircle2, AlertTriangle, Info, Package, Users, DollarSign,
   TrendingUp, ShieldCheck, Layers, Home, Ruler, Hammer, FolderOpen,
-  Download, Printer, ArrowRight, Settings, Camera,
+  Printer, ArrowRight, Settings, Camera,
 } from 'lucide-react';
 import {
   calculateBuildToRoof,
@@ -16,7 +16,7 @@ import {
 } from '@/lib/estimation/build-to-roof-engine';
 import type {
   BuildToRoofInput, BuildToRoofResult, BuildingType, FoundationType,
-  RoofType, BlockSize, RoofingMaterial, OpeningInput, StructuralMemberInput,
+  RoofType, BlockSize, RoofingMaterial, StructuralMemberInput,
 } from '@/types/build-to-roof';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { CheckCircle2, ArrowRight, Info, AlertCircle, Loader2, MessageCircle, ShoppingBag, FileText, Save } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -16,7 +16,7 @@ import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import LabourCostSection from '@/components/labour/LabourCostSection';
-import { type LabourConfig, calculateLabourCost, createInitialLabourConfig, DEFAULT_LABOUR_CONFIG } from '@/lib/labour';
+import { type LabourConfig, calculateLabourCost, DEFAULT_LABOUR_CONFIG } from '@/lib/labour';
 
 interface PassedState {
   projectType?: ProjectType;
@@ -69,7 +69,10 @@ export default function CostEstimator() {
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
 
-  useEffect(() => { trackRecentTool('/cost-estimator', 'Cost Estimator', 'DollarSign'); });
+const mountedRef = useRef(true);
+    useEffect(() => { trackRecentTool('/cost-estimator', 'Cost Estimator', 'DollarSign'); 
+    return () => { mountedRef.current = false; };
+  });
   const [products, setProducts] = useState<DbPaintProduct[]>([]);
   const [materials, setMaterials] = useState<DbMaterialPrice[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);

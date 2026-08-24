@@ -3,7 +3,7 @@ import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminIconButton, Admi
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import type { DbTimelineTemplate, ProjectType, TimelinePhase } from "@/types/database";
-import { Plus, Trash2, Edit3, X, Calendar } from 'lucide-react';
+import { Plus, Trash2, Edit3, Calendar } from 'lucide-react';
 
 const PROJECT_TYPES: ProjectType[] = ['painting', 'screeding', 'pop_ceiling', 'tiling', 'multi_trade'];
 

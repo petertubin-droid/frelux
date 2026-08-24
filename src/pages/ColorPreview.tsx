@@ -3,7 +3,7 @@ import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import PageHeader from '@/components/ui/PageHeader';
 import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
-import { Loader2, Upload, X, Wand2, Eye, Download } from 'lucide-react';
+import { Loader2, Upload, X, Wand2, Eye, _Download } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 
 export default function ColorPreview() {

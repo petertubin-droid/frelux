@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Tag, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, _ChevronDown, _ChevronRight, Tag, Search } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminHeader, _AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
-import { getCoverageUnitLabel } from '@/lib/estimation/paint-engine';
+import { _getCoverageUnitLabel } from '@/lib/estimation/paint-engine';
 
 // ─────────────────────────────────────────────────────────
 // Types (inline — matches DB columns from estimation_products)

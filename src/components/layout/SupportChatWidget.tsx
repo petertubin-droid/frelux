@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Send, Minus, Loader2, MessageCircle, ChevronRight, Phone } from 'lucide-react';
-import { siteConfig } from '@/config/site';
+// import { siteConfig } from '@/config/site';
 import { whatsappUrl } from '@/lib/analytics';
 import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import { getClientId } from '@/lib/ai-access';

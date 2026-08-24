@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { Home, Building2, Trees, Fence, RotateCcw, ArrowRight, CheckCircle2, AlertCircle, ChevronDown } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
@@ -58,7 +58,7 @@ import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 export default function PaintCalculator() {
-  const { defaults: calcDefaults, rules: calcRules } = useCalcDefaults('painting');
+  const { defaults: calcDefaults, rules: _calcRules } = useCalcDefaults('painting');
   const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [0, 5, 10, 15];
   const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
   const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
@@ -125,14 +125,19 @@ export default function PaintCalculator() {
   const [estPrices, setEstPrices] = useState<Map<string, EstimationPrice>>(new Map());
   const [estCalcRules, setEstCalcRules] = useState<Map<string, EstimationCalcRule>>(new Map());
 
+  const mountedRef = useRef(true);
   useEffect(() => {
+    const isMounted = mountedRef;
     async function loadTypes() {
       const { data, error } = await fetchPaintTypes();
       if (error) setTypesError(error.message);
+      if (!isMounted.current) return;
       setPaintTypes(data);
       if (data.length > 0 && !input.paintType) {
+        if (!isMounted.current) return;
         setInput((prev) => ({ ...prev, paintType: data[0].id }));
       }
+      if (!isMounted.current) return;
       setTypesLoading(false);
     }
     async function loadScreedingConfig() {
@@ -195,6 +200,7 @@ export default function PaintCalculator() {
     loadScreedingConfig();
     loadConditions();
     loadEstimationEngine();
+  return () => { mountedRef.current = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -942,7 +948,7 @@ function ResultCard({
   onExport?: () => void;
   onShare?: () => void;
   onAskAi?: () => void;
-  calcDefaults: any;
+  calcDefaults: unknown;
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">

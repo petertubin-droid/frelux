@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Star, Shield, Clock, Loader2, Briefcase, Package, ArrowRight, Navigation } from 'lucide-react';
+import { MapPin, Star, Shield, Loader2, Briefcase, ArrowRight, Navigation } from 'lucide-react';
 import { findNearbyProfessionals, findNearbyListings, type NearbyProfessional, type NearbyListing } from '@/lib/location-discovery';
 import { formatDistance } from '@/lib/location';
-import { useLocation, DISTANCE_FILTERS } from '@/lib/location';
+import { _DISTANCE_FILTERS } from '@/lib/location';
 import { classNames } from '@/lib/utils';
 import type { UserLocation } from '@/lib/location';
 import LocationPicker from '@/components/ui/LocationPicker';
@@ -19,7 +19,7 @@ interface NearbyResultsProps {
   categorySlug?: string;
   projectType?: string;
   // For calculator integration
-  materialQuery?: string;
+  _materialQuery?: string;
   // Title override
   title?: string;
   // Show compact (for calculator embeds)
@@ -30,7 +30,7 @@ export default function NearbyResults({
   mode,
   categorySlug,
   projectType,
-  materialQuery,
+  _materialQuery,
   title,
   compact = false,
 }: NearbyResultsProps) {

@@ -8,8 +8,8 @@
  * this bridge can be removed.
  */
 
-import type { CalculatorInput, CalculatorResult, ContainerRecommendation, SurfaceCondition, ColorCondition } from '@/types';
-import { calculateRoom, type PaintEngineRoomInput, type PaintEngineConfig, type PaintEngineRoomResult } from './paint-engine';
+import type { CalculatorInput, CalculatorResult, ContainerRecommendation, SurfaceCondition, _ColorCondition } from '@/types';
+import { type PaintEngineRoomInput, type PaintEngineConfig, type PaintEngineRoomResult } from './paint-engine';
 import type {
   EstimationProduct,
   EstimationProductQuality,

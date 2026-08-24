@@ -417,7 +417,7 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
   },
 ];
 
-export function generateSequencePlan(buildingType?: string): SequencePlan {
+export function generateSequencePlan(_buildingType?: string): SequencePlan {
   const steps: SequenceStep[] = SEQUENCE_STEPS.map((step, i) => ({
     ...step,
     step_number: i + 1,
