@@ -4,7 +4,7 @@ import {
   Download, Upload, ArrowUp, ArrowDown, Check,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import { clearAdConfigCache } from '@/lib/ad-config';

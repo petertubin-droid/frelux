@@ -7,6 +7,7 @@ import { Card } from '@/components/ui/shadcn/card';
 import { Input } from '@/components/ui/shadcn/input';
 import { Label } from '@/components/ui/shadcn/label';
 import { Button } from '@/components/ui/shadcn/button';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
   payment: CreditCard,

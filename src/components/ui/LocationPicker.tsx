@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { MapPin, Navigation, X, Loader2, Crosshair } from 'lucide-react';
-import { useLocation, DISTANCE_FILTERS, _formatDistance } from '@/lib/location';
+import { useLocation, DISTANCE_FILTERS, formatDistance } from '@/lib/location';
 import { fetchLocations } from '@/lib/pro-connect';
 import type { DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';

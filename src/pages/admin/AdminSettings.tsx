@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, CheckCircle2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings } from '@/types/database';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 

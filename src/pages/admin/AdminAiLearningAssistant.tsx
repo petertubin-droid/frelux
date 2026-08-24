@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { GraduationCap, Loader2, AlertCircle, Check, FileText, Search, HelpCircle, Image, ListOrdered, GitCompare, Send } from 'lucide-react';
 import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, AdminInput, _AdminIconButton} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, AdminInput, AdminIconButton, AdminTextarea } from '@/components/admin/AdminUi';
 import { classNames } from '@/lib/utils';
 
 type Action = 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison';

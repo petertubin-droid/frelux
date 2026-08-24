@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Pencil, Trash2, Search, Download, Upload, BadgeCheck, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbColorCategory, DbColorCombination, DbPaintColor, DbColorFamily } from '@/types/database';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { classNames } from '@/lib/utils';

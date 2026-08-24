@@ -19,7 +19,7 @@ const CACHE_TTL = 60_000; // 1 minute
 export async function isPremiumEnabled(): Promise<boolean> {
   // Return cache if fresh
   if (cachedEnabled !== null && Date.now() < cacheExpiry) {
-    return cachedEnabled;
+    return cachedEnabled ?? false;
   }
 
   try {
@@ -39,7 +39,7 @@ export async function isPremiumEnabled(): Promise<boolean> {
   }
 
   cacheExpiry = Date.now() + CACHE_TTL;
-  return cachedEnabled;
+  return cachedEnabled ?? false;
 }
 
 /**

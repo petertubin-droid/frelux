@@ -26,7 +26,7 @@ export default function CalculatorNearMe({
   materialName,
   projectType,
 }: CalculatorNearMeProps) {
-  const { location, loading: locLoading, detect, _setManual, error } = useLocation();
+  const { location, loading: locLoading, detect, setManual, error } = useLocation();
   const [radius, setRadius] = useState(25);
   const [showResults, setShowResults] = useState(false);
   const [searching, setSearching] = useState(false);

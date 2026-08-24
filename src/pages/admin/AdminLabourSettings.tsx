@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { HardHat, Plus, Pencil, Trash2, Save, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton, AdminSelect } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { PRICING_METHOD_LABELS, type LabourPricingMethod, type LabourEstimatorKey } from '@/lib/labour';
 import type { DbLabourSettings, DbLabourCategory } from '@/types/database';

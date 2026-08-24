@@ -300,7 +300,7 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
     shear_capacity: Math.round(shear_capacity * 10) / 10,
     shear_check_pass,
     deflection_check_pass,
-    span_to_depth: Math.round(span_to_depth * 10) / 10,
+    span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     warnings,
     formula_transparency: formulas,
   };
@@ -540,7 +540,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
     recommended_bar_diameter: bestDiameter,
     recommended_bar_spacing: bestSpacing,
     link_check: shear_link_note,
-    span_to_depth: Math.round(span_to_depth * 10) / 10,
+    span_to_depth_ratio: Math.round(span_to_depth * 10) / 10,
     deflection_check_pass,
     warnings,
     formula_transparency: formulas,

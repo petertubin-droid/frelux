@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, _Plus } from 'lucide-react';
+import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, Plus } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton, AdminButton, AdminInput} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
 import type { DbSiteBranding, HeroHighlightConfig, HeroWordHighlight } from '@/types/database';
-import { AdminButton, AdminInput } from '@/components/admin/AdminUi';
 
 export default function AdminBranding() {
   const { branding, refresh } = useBranding();

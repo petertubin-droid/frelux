@@ -52,8 +52,8 @@ export default function ProConnectDashboard() {
         getMyConversations(),
         getUnreadCount(),
       ]);
-      setServices(svc.map((s: unknown) => s.service).filter(Boolean) as DbProService[]);
-      setLocations(loc.map((l: unknown) => l.location).filter(Boolean) as DbProLocation[]);
+      setServices(svc.map((s) => s.service).filter(Boolean) as DbProService[]);
+      setLocations(loc.map((l) => l.location).filter(Boolean) as DbProLocation[]);
       setPortfolio(port);
       setReviews(rev);
       setConversations(convos);
@@ -222,7 +222,7 @@ export default function ProConnectDashboard() {
           <div className="mt-4">
             <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">Services</p>
             <div className="flex flex-wrap gap-1.5">
-              {services.map((s: unknown) => (
+              {services.map((s) => (
                 <span key={s.id} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
                   {s.name}
                 </span>
@@ -461,7 +461,7 @@ export default function ProConnectDashboard() {
             {reviews.map((review) => (
               <div key={review.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div className="flex items-center gap-2">
-                  {[1, 2, 3, 4, 5].map((s: unknown) => (
+                  {[1, 2, 3, 4, 5].map((s: number) => (
                     <span key={s} className={s <= review.rating ? 'text-amber-400' : 'text-neutral-200 dark:text-neutral-700'}>●</span>
                   ))}
                   <span className="text-xs text-neutral-400">{new Date(review.created_at).toLocaleDateString('en-GB')}</span>

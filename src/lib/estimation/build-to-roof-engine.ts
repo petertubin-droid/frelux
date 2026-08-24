@@ -37,6 +37,8 @@ import type {
   PriceConfig,
   ReinforcementBreakdown,
   ReinforcementBreakdownItem,
+  LabourConfig,
+  WastageConfig,
 } from '@/types/build-to-roof';
 
 // ── Constants ──
@@ -1354,7 +1356,7 @@ export const DEFAULT_PRICES = {
   price_source: 'FRELUX default — Nigerian market (auto-updated)',
 };
 
-export const DEFAULT_LABOUR = {
+export const DEFAULT_LABOUR: LabourConfig = {
   excavation_per_m3: 4000,        // manual excavation — updated
   blockwork_per_block: 200,       // per block laid — updated
   concrete_per_m3: 30000,         // per m³ cast — updated
@@ -1384,7 +1386,7 @@ export const DEFAULT_LABOUR = {
   concrete_labourer_days: 15,
 };
 
-export const DEFAULT_WASTAGE = {
+export const DEFAULT_WASTAGE: WastageConfig = {
   blocks: 5,
   cement: 5,
   sand: 10,

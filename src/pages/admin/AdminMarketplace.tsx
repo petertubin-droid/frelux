@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Star, Eye, EyeOff, Trash2, Loader2, MapPin, Users, _AlertTriangle,
-  Check, _X, ShieldAlert, _Package, Search,
+  Star, Eye, EyeOff, Trash2, Loader2, MapPin, Users, AlertTriangle,
+  Check, X, ShieldAlert, Package, Search,
 } from 'lucide-react';
 import {
   adminFetchAllListings, adminFetchAllOrders, adminFetchDisputes,
@@ -13,7 +13,7 @@ import { LISTING_STATUS_LABELS, ORDER_STATUS_LABELS, PROJECT_TYPE_LABELS } from 
 import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
-import type { DbMarketplaceProduct } from '@/types/marketplace-products';
+import type { DbMarketplaceProduct, ProductStatus } from '@/types/marketplace-products';
 import {AdminButton, AdminIconButton, AdminInput, AdminSelect,
   AdminTabButton} from '@/components/admin/AdminUi';
 
@@ -200,7 +200,7 @@ function ProductsTab() {
     const newStatus = current === 'active' ? 'paused' : 'active';
     const { error } = await supabase.from('marketplace_products').update({ status: newStatus }).eq('id', id);
     if (error) { alert(error.message); return; }
-    setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as unknown } : p));
+    setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as ProductStatus } : p));
   }
 
   async function adminRemoveProduct(id: string) {

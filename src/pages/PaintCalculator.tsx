@@ -16,12 +16,11 @@ import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserPr
 import { fetchSurfaceConditions, fetchColourConditions } from '@/lib/estimation/queries';
 import { formatNumber } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
-import { useCalcDefaults } from '@/lib/use-calc-defaults';
+import { useCalcDefaults, type CalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig, SurfaceCondition, ColorCondition } from '@/types';
 import type { DbPaintType } from '@/types/database';
-import type { SurfaceCondition } from '@/types';
 import type { EstimationSurfaceCondition, EstimationColourCondition } from '@/types/estimation';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
@@ -186,7 +185,7 @@ export default function PaintCalculator() {
           qualMap.set(p.id, (quals ?? []) as EstimationProductQuality[]);
           // Load prices for each quality
           for (const q of (quals ?? []) as EstimationProductQuality[]) {
-            const { data: priceData } = await fetchActivePrice(q.id);
+            const { data: priceData } = await fetchActivePrice("quality", q.id);
             if (priceData) priceMap.set(q.id, priceData as EstimationPrice);
           }
         }
@@ -204,17 +203,6 @@ export default function PaintCalculator() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const calcConfig: CalcConfig | undefined = useMemo(() => {
-    const selected = paintTypes.find((t) => t.id === input.paintType || t.name === input.paintType);
-    if (!selected) return undefined;
-    return {
-      coverageRate: Number(selected.coverage_rate),
-      containerSizes: selected.container_sizes,
-      surfaceFactorOverride: effectiveSurfaceFactor !== 1.0 ? effectiveSurfaceFactor : undefined,
-      minCoatsOverride: effectiveMinCoats > 2 ? effectiveMinCoats : undefined,
-    };
-  }, [paintTypes, input.paintType, effectiveSurfaceFactor, effectiveMinCoats]);
-
   // Override the hardcoded surface condition factor if DB has a value
   const effectiveSurfaceFactor = useMemo(() => {
     const dbMatch = dbSurfaceConditions.find(s => s.condition_key === (input.surfaceCondition ?? 'smooth'));
@@ -228,6 +216,17 @@ export default function PaintCalculator() {
     if (dbMatch?.min_coats_override != null) return dbMatch.min_coats_override;
     return COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light']?.minCoats ?? 2;
   }, [dbColourConditions, input.colorCondition]);
+
+  const calcConfig: CalcConfig | undefined = useMemo(() => {
+    const selected = paintTypes.find((t) => t.id === input.paintType || t.name === input.paintType);
+    if (!selected) return undefined;
+    return {
+      coverageRate: Number(selected.coverage_rate),
+      containerSizes: selected.container_sizes,
+      surfaceFactorOverride: effectiveSurfaceFactor !== 1.0 ? effectiveSurfaceFactor : undefined,
+      minCoatsOverride: effectiveMinCoats > 2 ? effectiveMinCoats : undefined,
+    };
+  }, [paintTypes, input.paintType, effectiveSurfaceFactor, effectiveMinCoats]);
 
   const selectedPaintType = paintTypes.find((t) => t.id === input.paintType || t.name === input.paintType);
 
@@ -948,7 +947,7 @@ function ResultCard({
   onExport?: () => void;
   onShare?: () => void;
   onAskAi?: () => void;
-  calcDefaults: unknown;
+  calcDefaults: CalcDefaults;
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">

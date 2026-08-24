@@ -5,14 +5,14 @@
  * and see the full step-by-step calculation breakdown.
  */
 
-import { useState, useEffect, _useCallback } from 'react';
-import { _Calculator, Play, AlertCircle, _CheckCircle2, _ChevronDown, _ChevronUp } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Calculator, Play, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, AdminInput } from '@/components/admin/AdminUi';
 import {
   calculateRoom,
   getCoverageUnitLabel,
-  _COVERAGE_UNIT_OPTIONS,
+  COVERAGE_UNIT_OPTIONS,
   type PaintEngineRoomInput,
   type PaintEngineRoomResult,
 } from '@/lib/estimation/paint-engine';
@@ -194,7 +194,7 @@ export default function AdminPaintEngineTest() {
       />
 
       {loading ? (
-        <StateMessage type="loading" message="Loading configuration..." />
+        <StateMessage type="loading" title="Loading" message="Loading configuration..." />
       ) : (
         <>
           {/* Input Form */}

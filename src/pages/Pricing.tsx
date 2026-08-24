@@ -112,7 +112,7 @@ export default function Pricing() {
           toast({ title: 'Payment successful!', message: 'Your premium subscription is now active.' });
         } else {
           setVerifyResult('error');
-          toast({ title: 'Payment verification failed', message: result.error || 'Please contact support.', variant: 'error' });
+          toast({ title: 'Payment verification failed', message: result.error || 'Please contact support.', type: 'error' });
         }
         setVerifying(false);
       });
@@ -147,7 +147,7 @@ export default function Pricing() {
       toast({
         title: 'Payment not configured',
         message: 'Our payment provider is being set up. Please contact us directly to subscribe.',
-        variant: 'error',
+        type: 'error',
       });
       navigate('/contact?subject=Subscription%20Inquiry');
       return;
@@ -169,7 +169,7 @@ export default function Pricing() {
     setLoadingPlan(null);
 
     if ('error' in result) {
-      toast({ title: 'Payment failed to start', message: result.error, variant: 'error' });
+      toast({ title: 'Payment failed to start', message: result.error, type: 'error' });
     } else {
       // Redirect to Paystack checkout
       window.location.href = result.authorization_url;

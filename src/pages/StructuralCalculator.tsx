@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useSeo } from '@/lib/seo';
-import { _DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
+import { DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
 import {
   designBeam, designColumn, designSlab,
   type BeamDesignInput, type ColumnDesignInput, type SlabDesignInput,
   type ConcreteGrade, type SteelGrade, type SupportCondition,
   type BeamType, type SlabType,
 } from '@/lib/engineering/structural-calculator';
-import type { _BuildToRoofResult } from '@/types/build-to-roof';
+import type { BuildToRoofResult } from '@/types/build-to-roof';
 import {
   Calculator, Building2, AlertTriangle, CheckCircle2, ShieldCheck,
   Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,
@@ -162,7 +162,7 @@ function BeamCalculator() {
 
           <div className="grid md:grid-cols-2 gap-4 mb-4">
             <CheckRow label="Shear Check" pass={result.shear_check_pass} value={`${result.shear_capacity} kN ≥ ${result.max_shear.toFixed(1)} kN`} />
-            <CheckRow label="Deflection Check" pass={result.deflection_check_pass} value={`L/d = ${result.span_to_depth}`} />
+            <CheckRow label="Deflection Check" pass={result.deflection_check_pass} value={`L/d = ${result.span_to_depth_ratio}`} />
           </div>
 
           <div className="grid md:grid-cols-3 gap-3 text-sm">
@@ -341,7 +341,7 @@ function SlabCalculator() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-4 mb-4">
-            <CheckRow label="Deflection Check" pass={result.deflection_check_pass} value={`L/d = ${result.span_to_depth}`} />
+            <CheckRow label="Deflection Check" pass={result.deflection_check_pass} value={`L/d = ${result.span_to_depth_ratio}`} />
             <CheckRow label="Shear" pass={result.link_check.includes('No shear')} value={result.link_check} />
           </div>
 

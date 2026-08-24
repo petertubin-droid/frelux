@@ -39,7 +39,7 @@ import {
   CEMENT_VOLUME_PER_BAG,
   DRY_WET_RATIO,
   MORTAR_DRY_WET_RATIO,
-  _SHEET_COVERAGE,
+  SHEET_COVERAGE,
 } from './build-to-roof-engine';
 import type { BuildToRoofInput, StructuralMemberInput } from '@/types/build-to-roof';
 
@@ -50,6 +50,7 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
     project_name: 'Test Bungalow',
     location: 'Lagos',
     building_type: 'bungalow',
+    measurement_unit: 'm',
     number_of_floors: 1,
     building_length: 15,
     building_width: 10,
@@ -820,7 +821,7 @@ describe('buildReinforcementBreakdown', () => {
       },
       {
         id: 'beam1',
-        type: 'beam',
+        type: 'suspended_beam',
         label: 'Beam B1',
         length: 6,
         width: 0.225,

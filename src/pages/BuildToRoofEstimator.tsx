@@ -488,7 +488,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="Blocks" unit="%" value={input.wastage.blocks} onChange={v => update('wastage', { ...input.wastage, blocks: parseFloat(v) || 0 })} />
                     <Field label="Cement" unit="%" value={input.wastage.cement} onChange={v => update('wastage', { ...input.wastage, cement: parseFloat(v) || 0 })} />
                     <Field label="Sand" unit="%" value={input.wastage.sand} onChange={v => update('wastage', { ...input.wastage, sand: parseFloat(v) || 0 })} />
-                    <Field label="Granite" unit="%" value={input.wastage.granite} onChange={v => update('wastage', { ...input.wastage, aggregate: parseFloat(v) || 0 })} />
+                    <Field label="Granite" unit="%" value={input.wastage.granite} onChange={v => update('wastage', { ...input.wastage, granite: parseFloat(v) || 0 })} />
                     <Field label="Reinforcement" unit="%" value={input.wastage.reinforcement} onChange={v => update('wastage', { ...input.wastage, reinforcement: parseFloat(v) || 0 })} />
                     <Field label="Timber" unit="%" value={input.wastage.timber} onChange={v => update('wastage', { ...input.wastage, timber: parseFloat(v) || 0 })} />
                     <Field label="Roofing sheets" unit="%" value={input.wastage.roofing_sheets} onChange={v => update('wastage', { ...input.wastage, roofing_sheets: parseFloat(v) || 0 })} />

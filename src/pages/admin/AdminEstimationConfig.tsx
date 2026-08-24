@@ -1,12 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Plus, Pencil, Trash2, } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader,
+import { AdminHeader,
   AdminButton,
   AdminField,
   StateMessage,
   Toggle,
-  AdminInput} from '@/components/admin/AdminUi';
+  AdminInput, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import type {

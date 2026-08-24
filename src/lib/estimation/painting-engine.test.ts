@@ -60,7 +60,7 @@ const mockProduct: EstimationProduct = {
 
 const mockQualityStandard: EstimationProductQuality = {
   id: 'qual-emulsion-std', product_id: 'prod-emulsion', name: 'Standard', slug: 'standard',
-  description: null, coverage: 10, coverage_unit: 'm2_per_liter', finish: null, texture: null,
+  description: null, coverage: 10, coverage_unit: 'm2_per_liter', ceiling_coverage: null, ceiling_coverage_unit: null, finish: null, texture: null,
   gloss_level: null, shine_level: null, durability: null, is_active: true, sort_order: 1, created_at: '', updated_at: '',
 };
 
@@ -115,16 +115,16 @@ const mockOpeningDeductionRule: EstimationCalcRule = {
 };
 
 const mockColourConditions: EstimationColourCondition[] = [
-  { id: 'cc1', condition_key: 'new_unpainted', name: 'New / Unpainted', description: null, requires_warning: false, is_active: true, sort_order: 1, created_at: '', updated_at: '' },
-  { id: 'cc2', condition_key: 'light', name: 'Light Colour', description: null, requires_warning: false, is_active: true, sort_order: 2, created_at: '', updated_at: '' },
-  { id: 'cc3', condition_key: 'dark_strong', name: 'Dark / Strong Colour', description: null, requires_warning: true, is_active: true, sort_order: 4, created_at: '', updated_at: '' },
-  { id: 'cc4', condition_key: 'significant_transition', name: 'Significant Colour Transition', description: null, requires_warning: true, is_active: true, sort_order: 7, created_at: '', updated_at: '' },
+  { id: 'cc1', condition_key: 'new_unpainted', name: 'New / Unpainted', description: null, requires_warning: false, min_coats_override: null, is_active: true, sort_order: 1, created_at: '', updated_at: '' },
+  { id: 'cc2', condition_key: 'light', name: 'Light Colour', description: null, requires_warning: false, min_coats_override: null, is_active: true, sort_order: 2, created_at: '', updated_at: '' },
+  { id: 'cc3', condition_key: 'dark_strong', name: 'Dark / Strong Colour', description: null, requires_warning: true, min_coats_override: 3, is_active: true, sort_order: 4, created_at: '', updated_at: '' },
+  { id: 'cc4', condition_key: 'significant_transition', name: 'Significant Colour Transition', description: null, requires_warning: true, min_coats_override: 3, is_active: true, sort_order: 7, created_at: '', updated_at: '' },
 ];
 
 const mockSurfaceConditions: EstimationSurfaceCondition[] = [
-  { id: 'sc1', condition_key: 'new_plastered', name: 'New / Plastered', description: null, requires_preparation: false, primer_recommended: false, is_active: true, sort_order: 1, created_at: '', updated_at: '' },
-  { id: 'sc2', condition_key: 'previously_painted_sound', name: 'Previously Painted (Sound)', description: null, requires_preparation: false, primer_recommended: false, is_active: true, sort_order: 2, created_at: '', updated_at: '' },
-  { id: 'sc3', condition_key: 'peeling_flaking', name: 'Peeling / Flaking', description: null, requires_preparation: true, primer_recommended: true, is_active: true, sort_order: 3, created_at: '', updated_at: '' },
+  { id: 'sc1', condition_key: 'new_plastered', name: 'New / Plastered', description: null, requires_preparation: false, primer_recommended: false, coverage_adjustment_factor: null, is_active: true, sort_order: 1, created_at: '', updated_at: '' },
+  { id: 'sc2', condition_key: 'previously_painted_sound', name: 'Previously Painted (Sound)', description: null, requires_preparation: false, primer_recommended: false, coverage_adjustment_factor: 1.0, is_active: true, sort_order: 2, created_at: '', updated_at: '' },
+  { id: 'sc3', condition_key: 'peeling_flaking', name: 'Peeling / Flaking', description: null, requires_preparation: true, primer_recommended: true, coverage_adjustment_factor: 0.85, is_active: true, sort_order: 3, created_at: '', updated_at: '' },
 ];
 
 const mockProductionRules: ProductionRuleRow[] = [

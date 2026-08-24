@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Calculator, BadgeCheck } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';

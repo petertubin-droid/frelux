@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { RefreshCw, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import AdminPageHeader from '@/components/admin/AdminPageHeader';
+import { AdminHeader as AdminPageHeader } from '@/components/admin/AdminUi';
 
 interface PriceScanResult {
   material_key: string;

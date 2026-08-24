@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Save, CheckCircle2, AlertCircle, DollarSign, Lock, Gift, CreditCard, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbSiteSettings, AiAccessMode } from '@/types/database';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminSelect } from '@/components/admin/AdminUi';
 
 const ACCESS_MODES: { value: AiAccessMode; label: string; description: string }[] = [
   { value: 'free', label: 'Free', description: 'Anyone can use AI features within the daily limit.' },

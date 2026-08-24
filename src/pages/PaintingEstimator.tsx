@@ -7,7 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Trash2, ChevronDown, ChevronUp, AlertCircle, CheckCircle2,
   Calculator, Save, RotateCcw, Layers, DoorOpen, Square, Paintbrush,

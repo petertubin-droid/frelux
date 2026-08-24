@@ -1,7 +1,7 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { haversineKm } from '@/lib/location';
-import type { _DbProLocation } from '@/types/pro-connect';
-import type { _DbMarketplaceListing } from '@/types/marketplace';
+import type { DbProLocation } from '@/types/pro-connect';
+import type { DbMarketplaceListing } from '@/types/marketplace';
 
 // ============================================================
 // Location-based discovery — nearby professionals and listings
@@ -125,7 +125,7 @@ async function fallbackNearbyProfessionals(params: {
 
   const results: NearbyProfessional[] = [];
 
-  for (const p of (profiles ?? []) as unknown[]) {
+  for (const p of (profiles ?? []) as any[]) {
     // Find the closest location
     let minDist = Infinity;
     if (p.locations) {
@@ -242,7 +242,7 @@ async function fallbackNearbyListings(params: {
 
   const results: NearbyListing[] = [];
 
-  for (const l of (listings ?? []) as unknown[]) {
+  for (const l of (listings ?? []) as any[]) {
     if (categoryId && l.category_id !== categoryId) continue;
     const dist = haversineKm(params.latitude, params.longitude, l.latitude, l.longitude);
     if (dist <= params.radiusKm) {

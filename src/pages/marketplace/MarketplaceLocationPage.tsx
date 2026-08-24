@@ -10,7 +10,7 @@ import type { DbProLocation } from '@/types/pro-connect';
 import type { DbMarketplaceListing } from '@/types/marketplace';
 import type { DbProProfile } from '@/types/pro-connect';
 import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
-import { _classNames } from '@/lib/utils';
+import { classNames } from '@/lib/utils';
 import LocationPicker from '@/components/ui/LocationPicker';
 
 // ============================================================

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Search, Filter, Calendar, User, Layers, AlertTriangle, Lightbulb } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, StateMessage, AdminInput} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, StateMessage, AdminInput, AdminSelect } from '@/components/admin/AdminUi';
 
 interface EstimationEstimate {
   id: string;

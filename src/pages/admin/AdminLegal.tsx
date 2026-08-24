@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pencil, FileText, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import type { DbLegalPage } from '@/types/database';
-import {AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput} from '@/components/admin/AdminUi';
+import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminTextarea } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 export default function AdminLegal() {

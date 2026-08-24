@@ -9,7 +9,7 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Plus, Trash2, AlertCircle, CheckCircle2,
   Calculator, Save, RotateCcw, Shield, Info, MapPin, Loader2,
