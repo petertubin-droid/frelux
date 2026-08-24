@@ -21,6 +21,9 @@ import type {
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RoofViewPanel } from '@/components/roof-view/RoofViewPanel';
+import { RoofGeometryEditor } from '@/components/roof-view/RoofGeometryEditor';
+import { createDefaultRoofGeometry } from '@/lib/roof/geometry-engine';
+import type { RoofGeometry } from '@/lib/roof/geometry-types';
 
 const STEPS = [
   { id: 'project', label: 'Project', icon: Home },
@@ -204,6 +207,7 @@ export default function BuildToRoofEstimator() {
 
   const [step, setStep] = useState(0);
   const [result, setResult] = useState<BuildToRoofResult | null>(null);
+  const [roofGeometry, setRoofGeometry] = useState<RoofGeometry>(() => createDefaultRoofGeometry());
 
   const [input, setInput] = useState<BuildToRoofInput>({
     project_name: '',
@@ -578,6 +582,14 @@ export default function BuildToRoofEstimator() {
                 {/* Roof View — optional aerial imagery (Feature 2) */}
                 <div className="mb-4">
                   <RoofViewPanel />
+                </div>
+                {/* Roof Geometry Editor — editable tracing (Feature 3) */}
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-neutral-600 mb-2">Roof Geometry (trace your roof outline)</p>
+                  <RoofGeometryEditor
+                    geometry={roofGeometry}
+                    onChange={setRoofGeometry}
+                  />
                 </div>
                 <div className="grid md:grid-cols-3 gap-4">
                   <SelectField label="Roof type" value={input.roof_type} onChange={v => update('roof_type', v as RoofType)} options={ROOF_TYPES} />

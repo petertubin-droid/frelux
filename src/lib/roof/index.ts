@@ -1,18 +1,14 @@
 /**
- * FRELUX ROOF VIEW — Public API
- *
- * Feature 2: Roof View
+ * FRELUX ROOF — Public API
  *
  * Exports:
- *   - Types for roof view provider, location, imagery results
- *   - Provider registry for checking configuration state
- *   - Imagery fetch function (calls Edge Function server-side)
+ *   - Roof View (imagery provider interface)
+ *   - Roof Geometry (editable tracing engine)
  *
- * Usage in components:
- *   import { getRoofViewConfig, fetchRoofViewImagery } from '@/lib/roof';
- *   import type { RoofViewProviderConfig, RoofViewState } from '@/lib/roof';
+ * Features 2-3: Roof View, Editable Roof Tracing
  */
 
+// ── Roof View (Feature 2) ──
 export type {
   RoofViewProviderType,
   RoofViewProviderConfig,
@@ -30,3 +26,41 @@ export {
   clearRoofViewConfigCache,
   fetchRoofViewImagery,
 } from './provider-registry';
+
+export { useRoofView } from './use-roof-view';
+
+// ── Roof Geometry (Feature 3) ──
+export type {
+  RoofPoint,
+  RoofSectionGeometry,
+  RoofGeometry,
+  EdgeType,
+  RoofEdge,
+  GeometrySource,
+  SectionAreaResult,
+  RoofGeometryCalculation,
+} from './geometry-types';
+
+export {
+  generateGeometryId,
+  createPoint,
+  distanceBetween,
+  polygonArea,
+  polygonPerimeter,
+  pixelAreaToM2,
+  pixelLengthToM,
+  classifyEdge,
+  generateEdges,
+  isValidSection,
+  calculateRoofGeometry,
+  createRoofSection,
+  createDefaultRoofGeometry,
+  addVertex,
+  moveVertex,
+  deleteVertex,
+  addSection,
+  removeSection,
+  renameSection,
+  confirmGeometry,
+  setSectionSource,
+} from './geometry-engine';
