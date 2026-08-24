@@ -9,7 +9,7 @@
   # VITE_OPENWEATHER_API_KEY / VITE_SITE_URL are also client-facing by design.
   # Without this, Netlify's secret scanner flags them as "exposed secrets"
   # in the build output, which fails the build.
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY"
 
 # 404 page — return real 404 for unknown routes
 [[redirects]]
@@ -38,7 +38,7 @@
     X-Permitted-Cross-Domain-Policies = "none"
     Cross-Origin-Opener-Policy = "same-origin"
     Cross-Origin-Resource-Policy = "same-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.openweathermap.org; frame-src 'self' https://googleads.g.doubleclick.net; object-src 'none'; base-uri 'self'; form-action 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://pagead2.googlesyndication.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.openweathermap.org https://api.paystack.co; frame-src 'self' https://googleads.g.doubleclick.net https://standard.paystack.co; object-src 'none'; base-uri 'self'; form-action 'self' https://paystack.com https://standard.paystack.co"
 
 # Static assets — long cache (immutable, 1 year)
 [[headers]]
