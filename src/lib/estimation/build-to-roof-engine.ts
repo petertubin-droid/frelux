@@ -901,7 +901,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   }
 
   let totalConcreteVol = 0;
-  const _totalReinforcementKg = 0;
+  let _totalReinforcementKg = 0;
   let totalFormworkArea = 0;
 
   for (const member of input.structural_members) {
