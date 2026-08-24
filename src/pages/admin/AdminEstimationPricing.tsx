@@ -457,13 +457,9 @@ function PricingForm({
                     </option>
                   ))}
                 </AdminSelect>
-                <button
-                  type="button"
-                  onClick={() => setUseCustomRef(true)}
-                  className="text-xs text-brand-purple hover:underline"
-                >
+                <AdminButton variant="link" type="button" onClick={() => setUseCustomRef(true)} className="text-xs">
                   Enter manual UUID
-                </button>
+                </AdminButton>
               </div>
             ) : (
               <div className="space-y-1.5">
@@ -477,13 +473,9 @@ function PricingForm({
                   }
                 />
                 {filteredRefOptions.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setUseCustomRef(false)}
-                    className="text-xs text-brand-purple hover:underline"
-                  >
+                  <AdminButton variant="link" type="button" onClick={() => setUseCustomRef(false)} className="text-xs">
                     Select from catalog list
-                  </button>
+                  </AdminButton>
                 )}
               </div>
             )}

@@ -2,7 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea,
+  AdminTabButton} from '@/components/admin/AdminUi';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -41,18 +42,9 @@ export default function AdminProConnect() {
           ['moderation', 'Moderation'],
           ['settings', 'Settings'],
         ] as const).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={classNames(
-              'px-4 py-2.5 text-sm font-medium transition-colors',
-              tab === key
-                ? 'border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
-            )}
-          >
+          <AdminTabButton key={key} active={tab === key} onClick={() => setTab(key)}>
             {label}
-          </button>
+          </AdminTabButton>
         ))}
       </div>
 
@@ -367,12 +359,9 @@ function AdminVerificationTab() {
                         </div>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => { setSelectedRequest(req); setActionNotes(''); setRejectionReason(''); setMoreInfoText(''); }}
-                        className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
-                      >
+                      <AdminButton variant="link" onClick={() => { setSelectedRequest(req); setActionNotes(''); setRejectionReason(''); setMoreInfoText(''); }} className="text-sm font-medium">
                         Review Request →
-                      </button>
+                      </AdminButton>
                     )}
                   </div>
                 )}
@@ -603,12 +592,9 @@ function AdminKycTab() {
                       </div>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => setSelectedNin(sub)}
-                      className="rounded-lg border border-brand-purple/30 px-4 py-2 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5"
-                    >
+                    <AdminButton variant="secondary" onClick={() => setSelectedNin(sub)} className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-brand-purple/5">
                       Review NIN →
-                    </button>
+                    </AdminButton>
                   )}
                 </div>
               )}
@@ -752,12 +738,9 @@ function AdminReportsTab() {
                   <p className="mt-2 text-xs text-neutral-400">{new Date(wr.created_at).toLocaleDateString('en-GB')}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => viewNinDetails(wr.id)}
-                    className="rounded-lg border border-brand-purple/30 px-3 py-1 text-xs font-medium text-brand-purple hover:bg-brand-purple/5"
-                  >
+                  <AdminButton variant="secondary" onClick={() => viewNinDetails(wr.id)} className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-brand-purple/5">
                     View NIN Details
-                  </button>
+                  </AdminButton>
                   {wr.status === 'pending' && (
                     <>
                       <AdminButton variant="success" onClick={() => resolveWorkerReport(wr.id, 'resolved')} className="text-xs py-1">Resolve</AdminButton>
@@ -856,12 +839,13 @@ function AdminReviewsTab() {
               </div>
               {r.review_text && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{r.review_text}</p>}
             </div>
-            <button
+            <AdminButton
+              variant={r.is_hidden ? 'success' : 'danger'}
               onClick={() => toggleHidden(r.id, r.is_hidden)}
-              className={classNames('rounded-lg px-3 py-1.5 text-xs font-medium', r.is_hidden ? 'bg-emerald-500 text-white' : 'border border-red-200 text-red-600 dark:border-red-500/20')}
+              className="rounded-lg px-3 py-1.5 text-xs"
             >
               {r.is_hidden ? 'Unhide' : 'Hide'}
-            </button>
+            </AdminButton>
           </div>
         </div>
       ))}

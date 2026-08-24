@@ -213,3 +213,54 @@ export function AdminIconButton({
     </button>
   );
 }
+
+// =========================================================
+// AdminTabButton — tab/filter selector with active/inactive
+// states. Three variants:
+//   underline — bottom-border tab (default, classic tab bar)
+//   pill      — rounded bordered pill (icon + label tabs)
+//   filter    — solid/outline filter chip (severity filters)
+// =========================================================
+
+export function AdminTabButton({
+  active = false,
+  onClick,
+  children,
+  variant = 'underline',
+  className,
+}: {
+  active?: boolean;
+  onClick?: () => void;
+  children: ReactNode;
+  variant?: 'underline' | 'pill' | 'filter';
+  className?: string;
+}) {
+  const base = 'text-sm font-medium transition-colors';
+  const variants = {
+    underline: {
+      base: 'px-4 py-2.5',
+      active: 'border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter',
+      inactive: 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400',
+    },
+    pill: {
+      base: 'flex items-center gap-2 rounded-lg px-4 py-2 border',
+      active: 'border-brand-purple bg-brand-purple/10 text-brand-purple',
+      inactive: 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10',
+    },
+    filter: {
+      base: 'rounded-lg px-3 py-1.5 capitalize',
+      active: 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900',
+      inactive: 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:bg-white/5 dark:border-white/10 dark:text-neutral-400',
+    },
+  };
+  const v = variants[variant];
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={classNames(base, v.base, active ? v.active : v.inactive, className)}
+    >
+      {children}
+    </button>
+  );
+}

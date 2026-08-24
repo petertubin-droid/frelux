@@ -14,7 +14,8 @@ import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
 import type { DbMarketplaceProduct } from '@/types/marketplace-products';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect,
+  AdminTabButton} from '@/components/admin/AdminUi';
 
 type Tab = 'listings' | 'products' | 'orders' | 'disputes';
 
@@ -32,18 +33,9 @@ export default function AdminMarketplace() {
           ['orders', 'Orders'],
           ['disputes', 'Disputes'],
         ] as const).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={classNames(
-              'px-4 py-2.5 text-sm font-medium transition-colors',
-              tab === key
-                ? 'border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
-            )}
-          >
+          <AdminTabButton key={key} active={tab === key} onClick={() => setTab(key)}>
             {label}
-          </button>
+          </AdminTabButton>
         ))}
       </div>
 
@@ -151,6 +143,7 @@ function ListingsTab() {
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
               <button
+                type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
                 className={classNames(
                   'inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors',

@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { formatNumber } from '@/lib/utils';
-import { AdminButton } from '@/components/admin/AdminUi';
+import { AdminButton,
+  AdminTabButton} from '@/components/admin/AdminUi';
 
 interface ErrorLog {
   id: string;
@@ -127,16 +128,14 @@ export default function AdminErrors() {
       {/* Filter tabs */}
       <div className="flex gap-2">
         {(['all', 'critical', 'error', 'warning', 'info'] as SeverityFilter[]).map(sev => (
-          <button
+          <AdminTabButton
+            variant="filter"
             key={sev}
-            type="button"
+            active={filter === sev}
             onClick={() => setFilter(sev)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium capitalize transition-colors ${
-              filter === sev ? 'bg-neutral-900 text-white' : 'bg-white border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:bg-white/5'
-            }`}
           >
             {sev}
-          </button>
+          </AdminTabButton>
         ))}
       </div>
 
@@ -172,13 +171,9 @@ export default function AdminErrors() {
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedError(err)}
-                    className="rounded-lg border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:bg-white/5"
-                  >
+                  <AdminButton variant="secondary" type="button" onClick={() => setSelectedError(err)} className="text-xs">
                     Details
-                  </button>
+                  </AdminButton>
                   {!err.is_resolved && (
                     <AdminButton
                       variant="success"

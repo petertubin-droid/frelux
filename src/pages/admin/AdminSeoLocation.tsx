@@ -5,7 +5,8 @@ import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea,
+  AdminTabButton} from '@/components/admin/AdminUi';
 
 // ============================================================
 // Admin SEO & Location Management
@@ -28,18 +29,9 @@ export default function AdminSeoLocation() {
           ['seo_pages', 'SEO Pages'],
           ['indexability', 'Indexability'],
         ] as const).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={classNames(
-              'px-4 py-2.5 text-sm font-medium transition-colors',
-              tab === key
-                ? 'border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
-            )}
-          >
+          <AdminTabButton key={key} active={tab === key} onClick={() => setTab(key)}>
             {label}
-          </button>
+          </AdminTabButton>
         ))}
       </div>
 

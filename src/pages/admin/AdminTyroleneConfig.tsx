@@ -18,7 +18,8 @@ import {AdminHeader,
   AdminCard,
   AdminButton,
   AdminField,
-  AdminInput} from '@/components/admin/AdminUi';
+  AdminInput,
+  AdminTabButton} from '@/components/admin/AdminUi';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
 import type {
@@ -434,19 +435,15 @@ export default function AdminTyroleneConfig() {
         {tabs.map(tab => {
           const Icon = tab.icon;
           return (
-            <button
+            <AdminTabButton
+              variant="pill"
               key={tab.id}
+              active={activeTab === tab.id}
               onClick={() => { setActiveTab(tab.id); setSaveMessage(null); }}
-              className={classNames(
-                'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors border',
-                activeTab === tab.id
-                  ? 'border-brand-purple bg-brand-purple/10 text-brand-purple'
-                  : 'border-neutral-200 text-neutral-500 hover:border-neutral-300'
-              )}
             >
               <Icon className="h-4 w-4" />
               {tab.label}
-            </button>
+            </AdminTabButton>
           );
         })}
       </div>
