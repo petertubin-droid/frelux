@@ -1,19 +1,22 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
-import { sentryVitePlugin } from '@sentry/vite-plugin';
+
+// Only load Sentry plugin when auth token is available (prevents build issues on Netlify)
+const hasSentryToken = !!process.env.SENTRY_AUTH_TOKEN;
+const sentryVitePlugin = hasSentryToken
+  ? (await import('@sentry/vite-plugin')).sentryVitePlugin
+  : null;
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    sentryVitePlugin({
+    ...(sentryVitePlugin ? [sentryVitePlugin({
       org: process.env.SENTRY_ORG,
       project: process.env.SENTRY_PROJECT,
       authToken: process.env.SENTRY_AUTH_TOKEN,
-      // Only upload in CI/production builds
-      disable: !process.env.SENTRY_AUTH_TOKEN,
-    }),
+    })] : []),
   ],
   resolve: {
     alias: {
@@ -25,7 +28,8 @@ export default defineConfig({
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
     minify: 'esbuild',
-    sourcemap: 'hidden',  // Required for Sentry source map upload
+    // Only generate hidden sourcemaps when Sentry is configured
+    sourcemap: hasSentryToken ? 'hidden' : false,
     rollupOptions: {
       output: {
         // Vendor chunk splitting for better caching

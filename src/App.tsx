@@ -1,8 +1,11 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Sentry } from './instrument';
+import { Sentry, isSentryActive } from './instrument';
 
 // Wrap Routes with Sentry router instrumentation for navigation tracing
-const SentryRoutes = Sentry.withSentryReactRouterV7Routing(Routes);
+// Falls back to plain Routes if Sentry is not configured
+const SentryRoutes = isSentryActive()
+  ? Sentry.withSentryReactRouterV7Routing(Routes)
+  : Routes;
 import { useEffect, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
