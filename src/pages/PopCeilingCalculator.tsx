@@ -23,6 +23,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 export default function PopCeilingCalculator() {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling');
   useSeo({
@@ -397,6 +398,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
           </div>
         </div>
       </div>
+        <RelatedToolsLinks />
     </div>
   );
 }

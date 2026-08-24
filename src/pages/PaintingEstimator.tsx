@@ -45,6 +45,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { PaintingEstimatorSeo } from '@/components/seo/SeoContent';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 // =========================================================
 // Types
 // =========================================================
@@ -955,6 +956,7 @@ function RoomCard({
           </Section>
         </div>
       )}
+        <RelatedToolsLinks />
     </div>
   );
 }

@@ -23,6 +23,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { TileCalculatorSeo } from '@/components/seo/SeoContent';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 export default function TileCalculator() {
   const { defaults: calcDefaults } = useCalcDefaults('tile');
   useSeo({
@@ -559,6 +560,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
           </Link>
         </div>
       </div>
+        <RelatedToolsLinks />
     </div>
   );
 }

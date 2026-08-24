@@ -27,8 +27,8 @@ export const DEFAULT_HERO_CONTENT: HeroContent = {
   headline: 'Know Exactly What Materials Your Project Needs.',
   subheadline:
     "Calculate materials and estimate project costs using FRELUX\u2019s Nigerian-focused construction and finishing calculators.",
-  ctaPrimaryLabel: 'Start Calculating',
-  ctaPrimaryHref: '/screeding-calculator',
+  ctaPrimaryLabel: 'Start Building',
+  ctaPrimaryHref: '/start-building',
   ctaSecondaryLabel: 'Explore Calculators',
   ctaSecondaryHref: '/calculators',
 };

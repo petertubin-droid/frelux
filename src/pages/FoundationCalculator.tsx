@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 export default function FoundationCalculator() {
   useSeo({
@@ -252,6 +253,7 @@ export default function FoundationCalculator() {
         CALC_LINKS.imageEstimator,
         CALC_LINKS.costEstimator,
       ]} />
+        <RelatedToolsLinks />
     </SubscriptionGate>
   );
 }

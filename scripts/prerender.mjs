@@ -68,6 +68,35 @@ const routes = [
     ],
   },
   {
+    path: '/start-building',
+    title: 'Start Building: What Are You Building Today? | FRELUX',
+    description:
+      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing — paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.',
+    priority: '0.9',
+    changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building — FRELUX', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Start Building', item: 'https://freluxtools.netlify.app/start-building' },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'ItemList', name: 'FRELUX Building Categories', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Build to Roof', url: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
+        { '@type': 'ListItem', position: 2, name: 'Painting', url: 'https://freluxtools.netlify.app/paint-calculator' },
+        { '@type': 'ListItem', position: 3, name: 'Screeding', url: 'https://freluxtools.netlify.app/screeding-calculator' },
+        { '@type': 'ListItem', position: 4, name: 'POP Ceiling', url: 'https://freluxtools.netlify.app/pop-ceiling-calculator' },
+        { '@type': 'ListItem', position: 5, name: 'Tiles & Flooring', url: 'https://freluxtools.netlify.app/tile-calculator' },
+        { '@type': 'ListItem', position: 6, name: 'Exterior Finishing', url: 'https://freluxtools.netlify.app/tyrolene-estimator' },
+        { '@type': 'ListItem', position: 7, name: 'Colour & Design', url: 'https://freluxtools.netlify.app/colors' },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: 'What is the Build-to-Roof Estimator?', acceptedAnswer: { '@type': 'Answer', text: 'The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.' } },
+        { '@type': 'Question', name: 'Can I estimate finishing costs after the build?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. After your structure is built, use FRELUX finishing calculators for paint, screeding, POP ceiling, tiles, and exterior finishes to estimate materials and costs for each stage.' } },
+        { '@type': 'Question', name: 'Are FRELUX calculators free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. All calculators and estimators are free to use with no sign-up required. Pro features like saved estimates and PDF exports are available with a Pro account.' } },
+      ]},
+    ],
+  },
+  {
     path: '/paint-calculator',
     title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX',
     description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',

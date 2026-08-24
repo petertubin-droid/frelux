@@ -7,6 +7,7 @@ User-agent: *
 Allow: /
 
 # Explicitly allow all public calculator and estimator routes
+Allow: /start-building
 Allow: /calculators
 Allow: /paint-calculator
 Allow: /screeding-calculator

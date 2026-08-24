@@ -57,6 +57,7 @@ const ConstructionSequence = lazy(() => import('@/pages/ConstructionSequence'));
 const ClientManagement = lazy(() => import('@/pages/ClientManagement'));
 const EstimateAnalytics = lazy(() => import('@/pages/EstimateAnalytics'));
 const ColorPreview = lazy(() => import('@/pages/ColorPreview'));
+const StartBuilding = lazy(() => import('@/pages/StartBuilding'));
 
 // Contractor experience pages
 const ContractorProjects = lazy(() => import('@/pages/contractor/ContractorProjects'));
@@ -196,6 +197,7 @@ export default function App() {
           <Route element={<Layout />}>
             {/* Home workspace */}
             <Route path="/" element={<Home />} />
+            <Route path="/start-building" element={<Suspense fallback={<PageLoader />}><StartBuilding /></Suspense>} />
             <Route path="/calculators" element={<Suspense fallback={<PageLoader />}><Calculators /></Suspense>} />
 
             {/* Calculate workspace */}

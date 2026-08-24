@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 type Tab = 'beam' | 'column' | 'slab';
 
@@ -187,6 +188,7 @@ function BeamCalculator() {
         CALC_LINKS.imageEstimator,
         CALC_LINKS.costEstimator,
       ]} />
+        <RelatedToolsLinks />
     </div>
   );
 }

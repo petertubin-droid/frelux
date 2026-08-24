@@ -17,6 +17,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { PopCeilingCostEstimatorSeo } from '@/components/seo/SeoContent';
 import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { calculateLabourCost } from '@/lib/labour';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -279,6 +280,7 @@ function Section({ title, children, last }: { title: string; children: ReactNode
     <div className={last ? '' : 'mb-6 border-b border-neutral-100 pb-6'}>
       <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">{title}</h2>
       {children}
+        <RelatedToolsLinks />
     </div>
   );
 }

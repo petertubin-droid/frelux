@@ -15,6 +15,7 @@ import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calcula
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 interface PassedState {
   surfaceArea?: number;
@@ -333,6 +334,7 @@ function Section({ title, children, last }: { title: string; children: ReactNode
     <div className={last ? '' : 'mb-6 border-b border-neutral-100 pb-6'}>
       <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">{title}</h2>
       {children}
+        <RelatedToolsLinks />
     </div>
   );
 }

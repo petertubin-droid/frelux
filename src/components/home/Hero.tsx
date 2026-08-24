@@ -96,7 +96,7 @@ export default function Hero() {
                 href={hero.ctaPrimaryHref}
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
-                <Layers className="h-4 w-4" />
+                <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
@@ -105,7 +105,7 @@ export default function Hero() {
                 to={hero.ctaPrimaryHref}
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
-                <Layers className="h-4 w-4" />
+                <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>

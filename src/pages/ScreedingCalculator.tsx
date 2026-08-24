@@ -12,6 +12,7 @@ import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 // Default door/window dims are now fetched from admin calc rules via useCalcDefaults
 
@@ -301,6 +302,7 @@ function OpeningsSection({
           )}
         </div>
       </div>
+        <RelatedToolsLinks />
     </div>
   );
 }

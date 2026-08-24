@@ -55,6 +55,7 @@ const ADVANCED_FEATURES = [
 
 import { useSeo } from '@/lib/seo';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 export default function PaintCalculator() {
   const { defaults: calcDefaults, rules: calcRules } = useCalcDefaults('painting');
@@ -665,6 +666,7 @@ function Step1({
           );
         })}
       </div>
+        <RelatedToolsLinks />
     </div>
   );
 }
