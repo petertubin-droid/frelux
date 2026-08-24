@@ -264,6 +264,24 @@ export {
   createNigeriaScreedingRules,
 } from './rule-registry';
 
+// ── Rule Versioning (Feature 7: Rule Versioning) ──
+export {
+  type RuleVersionEntry,
+  type RuleVersionHistory,
+  type RuleVersionRegistry,
+  type RuleVersionReference,
+  createVersionRegistry,
+  registerInitialVersion,
+  createNewVersion,
+  getVersionHistory,
+  getRuleVersion,
+  getLatestVersion,
+  getAllVersions,
+  hasMultipleVersions,
+  createRuleVersionReference,
+  verifyRuleVersion,
+} from './rule-versioning';
+
 // ── Engine Bridges ──
 export {
   bridgeScreeding,
