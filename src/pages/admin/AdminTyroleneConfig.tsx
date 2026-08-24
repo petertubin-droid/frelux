@@ -600,13 +600,13 @@ export default function AdminTyroleneConfig() {
                         placeholder="0.00"
                         className="w-32 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                       />
-                      <button
+                      <AdminButton
                         onClick={() => savePrice(mat.slug)}
                         disabled={saving}
-                        className="rounded-lg bg-brand-purple px-3 py-2 text-xs font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50"
+                        className="text-xs py-2"
                       >
                         Save
-                      </button>
+                      </AdminButton>
                     </div>
                   </div>
                 ))}
@@ -648,13 +648,13 @@ export default function AdminTyroleneConfig() {
                   className="w-40 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                 />
                 <span className="text-sm text-neutral-400">partitions</span>
-                <button
+                <AdminButton
                   onClick={saveProductionMin}
                   disabled={saving}
-                  className="rounded-lg bg-brand-purple px-3 py-2 text-xs font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50"
+                  className="text-xs py-2"
                 >
                   {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
-                </button>
+                </AdminButton>
               </div>
               {!outsideOwerriMin && (
                 <p className="text-xs text-amber-700 mt-2">

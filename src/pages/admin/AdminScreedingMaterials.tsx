@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminField, StateMessage, Toggle } from '@/components/admin/AdminUi';
 import { formatCurrency } from '@/lib/utils';
 import type { DbScreedingMixConfig } from '@/types/database';
+import { AdminButton } from '@/components/admin/AdminUi';
 
 export default function AdminScreedingMaterials() {
   const [config, setConfig] = useState<DbScreedingMixConfig | null>(null);
