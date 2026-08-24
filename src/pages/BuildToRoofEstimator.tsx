@@ -20,6 +20,7 @@ import type {
 } from '@/types/build-to-roof';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
+import { RoofViewPanel } from '@/components/roof-view/RoofViewPanel';
 
 const STEPS = [
   { id: 'project', label: 'Project', icon: Home },
@@ -574,6 +575,10 @@ export default function BuildToRoofEstimator() {
             {/* Step 5: Roof */}
             {step === 5 && (
               <SectionCard title="Roof Configuration" icon={Building2}>
+                {/* Roof View — optional aerial imagery (Feature 2) */}
+                <div className="mb-4">
+                  <RoofViewPanel />
+                </div>
                 <div className="grid md:grid-cols-3 gap-4">
                   <SelectField label="Roof type" value={input.roof_type} onChange={v => update('roof_type', v as RoofType)} options={ROOF_TYPES} />
                   <Field label="Roof pitch" unit="°" value={input.roof_pitch_degrees} onChange={v => update('roof_pitch_degrees', parseFloat(v) || 0)} />
