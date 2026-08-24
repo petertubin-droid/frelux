@@ -10,7 +10,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   Loader2, Plus, Trash2, Edit2, X, Save, Globe, DollarSign, AlertTriangle,
-  Activity, Check, Ban, FileText, Server, TrendingUp,
+  Activity, Check, Ban, FileText, Server, TrendingUp, Zap, Eye, Clock,
 } from 'lucide-react';
 import {
   fetchProviders, toggleProvider, upsertProvider,
@@ -21,6 +21,8 @@ import {
   fetchCrawlLogs,
   manuallyEnterPrice,
 } from '@/lib/market-intelligence';
+import { triggerCrawl } from '@/lib/market-intelligence/crawler/crawler-client';
+import type { CrawlJob as CrawlJobType } from '@/types/crawler';
 import type {
   MiProvider, MiSource, MiPriceObservation, MiApprovedPrice,
   MiAnomalyFlag, MiCrawlLog, ValidationStatus, MatchConfidence,
@@ -281,6 +283,8 @@ function SourcesTab() {
   const [sources, setSources] = useState<MiSource[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNew, setShowNew] = useState(false);
+  const [crawling, setCrawling] = useState<string | null>(null);
+  const [crawlReport, setCrawlReport] = useState<{ sourceName: string; job: CrawlJobType | null; error: string | null } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -288,6 +292,27 @@ function SourcesTab() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  async function handleCrawl(source: MiSource, mode: 'test' | 'production') {
+    setCrawling(source.id);
+    try {
+      const { result, job } = await triggerCrawl(source.id, mode);
+      setCrawlReport({
+        sourceName: source.source_name,
+        job,
+        error: result.started ? null : result.message,
+      });
+      load(); // Reload to show updated health
+    } catch (e) {
+      setCrawlReport({
+        sourceName: source.source_name,
+        job: null,
+        error: e instanceof Error ? e.message : 'Crawl failed',
+      });
+    } finally {
+      setCrawling(null);
+    }
+  }
 
   if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-brand-purple" /></div>;
 
@@ -300,41 +325,161 @@ function SourcesTab() {
         </button>
       </div>
 
-      <div className="space-y-2">
-        {sources.map((s) => (
-          <div key={s.id} className="card flex items-center justify-between p-3">
-            <div className="flex items-center gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-neutral-900 dark:text-white">{s.source_name}</span>
-                  <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
-                    {SOURCE_TYPE_LABELS[s.source_type]}
-                  </span>
-                  <span className="text-[10px] text-neutral-400">Tier {s.reliability_tier}</span>
-                  {s.is_verified && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-500/10">Verified</span>}
+      {sources.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center dark:border-white/10">
+          <Globe className="mx-auto mb-3 h-8 w-8 text-neutral-300" />
+          <p className="text-sm font-medium text-neutral-500">No sources registered yet</p>
+          <p className="mt-1 text-xs text-neutral-400">Add an approved source to start crawling construction material prices.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {sources.map((s) => (
+            <div key={s.id} className="card p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-neutral-900 dark:text-white">{s.source_name}</span>
+                      <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                        {SOURCE_TYPE_LABELS[s.source_type]}
+                      </span>
+                      <span className="text-[10px] text-neutral-400">Tier {s.reliability_tier}</span>
+                      {s.is_verified && <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-600 dark:bg-emerald-500/10">Verified</span>}
+                    </div>
+                    <div className="text-xs text-neutral-400">
+                      {s.country_code}{s.region ? ` · ${s.region}` : ''}{s.city ? ` · ${s.city}` : ''}
+                      {s.domain ? ` · ${s.domain}` : ''}
+                      {s.crawl_frequency ? ` · ${s.crawl_frequency}` : ''}
+                    </div>
+                    {s.last_checked_at && (
+                      <div className="text-xs text-neutral-400">
+                        Last checked: {new Date(s.last_checked_at).toLocaleString()}
+                        {s.last_error ? ` · ⚠ ${s.last_error}` : ''}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="text-xs text-neutral-400">
-                  {s.country_code}{s.region ? ` · ${s.region}` : ''}{s.city ? ` · ${s.city}` : ''}
-                  {s.domain ? ` · ${s.domain}` : ''}
+                <div className="flex items-center gap-2">
+                  <span className={classNames('text-xs', s.is_active ? 'text-emerald-600' : 'text-neutral-400')}>
+                    {s.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
               </div>
+              {s.is_active && s.source_url && (
+                <div className="mt-2 flex items-center gap-2 border-t border-neutral-100 pt-2 dark:border-white/5">
+                  {crawling === s.id ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-brand-purple">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" /> Crawling...
+                    </span>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => handleCrawl(s, 'test')}
+                        className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
+                        title="Fetch and extract without publishing prices"
+                      >
+                        <Eye className="h-3 w-3" /> Test Crawl
+                      </button>
+                      <button
+                        onClick={() => handleCrawl(s, 'production')}
+                        className="inline-flex items-center gap-1 rounded-md bg-brand-purple px-2 py-1 text-xs font-semibold text-white hover:bg-brand-purple-dark"
+                        title="Full crawl with price observation creation"
+                      >
+                        <Zap className="h-3 w-3" /> Crawl Now
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={async () => { await deleteSource(s.id); load(); }}
+                    className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                    title="Delete source"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <span className={classNames('text-xs', s.is_active ? 'text-emerald-600' : 'text-neutral-400')}>
-                {s.is_active ? 'Active' : 'Inactive'}
-              </span>
-              <button
-                onClick={async () => { await deleteSource(s.id); load(); }}
-                className="rounded p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {showNew && <SourceEditModal onClose={() => setShowNew(false)} onSaved={() => { setShowNew(false); load(); }} />}
+      {crawlReport && <CrawlReportModal report={crawlReport} onClose={() => setCrawlReport(null)} />}
+    </div>
+  );
+}
+
+function CrawlReportModal({ report, onClose }: { report: { sourceName: string; job: CrawlJobType | null; error: string | null }; onClose: () => void }) {
+  const job = report.job;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+      <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-neutral-900 dark:text-white">Crawl Report</h2>
+          <button onClick={onClose} className="text-neutral-400 hover:text-neutral-600"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="mb-3 text-sm text-neutral-500">Source: <span className="font-semibold text-neutral-900 dark:text-white">{report.sourceName}</span></div>
+        {report.error ? (
+          <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-500/10">
+            <AlertTriangle className="mb-1 inline h-4 w-4" /> {report.error}
+          </div>
+        ) : job ? (
+          <div className="space-y-3">
+            <div className={classNames('rounded-lg p-3 text-sm font-medium', job.status === 'completed' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : job.status === 'failed' ? 'bg-red-50 text-red-600 dark:bg-red-500/10' : 'bg-amber-50 text-amber-600 dark:bg-amber-500/10')}>
+              Status: {job.status} · {job.message}
+            </div>
+            {job.durationMs !== null && (
+              <div className="flex items-center gap-1 text-xs text-neutral-400"><Clock className="h-3.5 w-3.5" /> Duration: {(job.durationMs / 1000).toFixed(1)}s</div>
+            )}
+            <div className="grid grid-cols-2 gap-2">
+              <StatTile label="Pages Fetched" value={job.pagesFetched} />
+              <StatTile label="Products Found" value={job.productsDiscovered} />
+              <StatTile label="Prices Found" value={job.pricesDiscovered} />
+              <StatTile label="Approved" value={job.pricesAccepted} />
+              <StatTile label="Review Required" value={job.pricesReviewRequired} />
+              <StatTile label="Rejected" value={job.pricesRejected} />
+              <StatTile label="Anomalies" value={job.anomaliesDetected} />
+              <StatTile label="Errors" value={job.errors.length} />
+            </div>
+            {job.errors.length > 0 && (
+              <div>
+                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-400">Errors</h3>
+                <div className="space-y-1">
+                  {job.errors.map((e, i) => (
+                    <div key={i} className="rounded-md bg-red-50 px-2 py-1 text-xs text-red-600 dark:bg-red-500/10">
+                      <span className="font-semibold">{e.type}</span>: {e.message}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {job.warnings.length > 0 && (
+              <div>
+                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-400">Warnings</h3>
+                <div className="space-y-1">
+                  {job.warnings.map((w, i) => (
+                    <div key={i} className="text-xs text-neutral-500">· {w}</div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-neutral-400">No crawl data returned.</div>
+        )}
+        <div className="mt-4 flex justify-end">
+          <button onClick={onClose} className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400">Close</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatTile({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-neutral-100 p-2 dark:border-white/5">
+      <div className="text-xs text-neutral-400">{label}</div>
+      <div className="text-lg font-bold text-neutral-900 dark:text-white">{value}</div>
     </div>
   );
 }
@@ -369,6 +514,9 @@ function SourceEditModal({ onClose, onSaved }: { onClose: () => void; onSaved: (
         <div className="grid grid-cols-2 gap-3">
           <Input label="Source Name" value={form.source_name} onChange={(v) => setForm({ ...form, source_name: v })} />
           <Input label="Domain" value={form.domain} onChange={(v) => setForm({ ...form, domain: v })} placeholder="jumia.com.ng" />
+          <div className="col-span-2">
+            <Input label="Source URL" value={form.source_url} onChange={(v) => setForm({ ...form, source_url: v })} placeholder="https://example.com/products" />
+          </div>
           <Input label="Country Code" value={form.country_code} onChange={(v) => setForm({ ...form, country_code: v.toUpperCase() })} />
           <SelectInput label="Source Type" value={form.source_type} onChange={(v) => setForm({ ...form, source_type: v as MiSource['source_type'] })}
             options={Object.entries(SOURCE_TYPE_LABELS).map(([v, l]) => ({ value: v, label: l }))} />
