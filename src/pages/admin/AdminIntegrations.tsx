@@ -278,14 +278,12 @@ export default function AdminIntegrations() {
                           {integration.is_enabled ? 'Enabled' : 'Disabled'}
                         </span>
                       </div>
-                      <button
-                        onClick={() => handleToggle(integration)}
+                      <Switch
+                        checked={integration.is_enabled}
+                        onCheckedChange={() => handleToggle(integration)}
                         disabled={saving === integration.integration_key}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${integration.is_enabled ? 'bg-brand-purple' : 'bg-neutral-300 dark:bg-white/10'}`}
                         aria-label="Toggle integration"
-                      >
-                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${integration.is_enabled ? 'translate-x-6' : 'translate-x-1'}`} />
-                      </button>
+                      />
                     </div>
 
                     {/* External link for Google integrations */}
