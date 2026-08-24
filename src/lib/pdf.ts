@@ -2,7 +2,7 @@
  * PDF generation for quotations and shopping lists
  * Uses jsPDF for client-side PDF generation — no server needed.
  */
-import { jsPDF } from 'jspdf';
+// jsPDF is dynamically imported in each function to avoid bundling html2canvas (~200KB) until needed
 import QRCode from 'qrcode';
 import type { DbProjectQuotation, DbProjectShoppingItem, DbContractorProject } from '@/types/database';
 
@@ -14,6 +14,7 @@ export async function generateQuotationPDF(
   project: DbContractorProject,
   quotation: DbProjectQuotation,
 ): Promise<void> {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = 210;
   const pageHeight = 297;
@@ -209,6 +210,7 @@ export async function generateShoppingListPDF(
   project: DbContractorProject,
   items: DbProjectShoppingItem[],
 ): Promise<void> {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = 210;
   const margin = 15;

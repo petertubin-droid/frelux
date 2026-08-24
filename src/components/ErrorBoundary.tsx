@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { track } from '@/lib/analytics';
+import { captureException } from '@/lib/sentry';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -41,6 +42,12 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
       message: error.message,
       stack: import.meta.env.DEV ? error.stack : undefined,
       componentStack: import.meta.env.DEV ? errorInfo.componentStack : undefined,
+    });
+
+    // Send to Sentry (no-op if DSN not configured)
+    captureException(error, {
+      boundary,
+      componentStack: errorInfo.componentStack,
     });
 
     // Log to console in dev

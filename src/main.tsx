@@ -1,4 +1,8 @@
 import { StrictMode } from 'react';
+
+// Initialize error monitoring BEFORE anything else
+import { initSentry } from '@/lib/sentry';
+initSentry();
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { BrandingProvider } from '@/lib/branding';
