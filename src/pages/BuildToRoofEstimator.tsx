@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSeo } from '@/lib/seo';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
@@ -6,7 +6,7 @@ import {
   Building2, ChevronRight, ChevronLeft, Calculator, Upload, FileText,
   CheckCircle2, AlertTriangle, Info, Package, Users, DollarSign,
   TrendingUp, ShieldCheck, Layers, Home, Ruler, Hammer, FolderOpen,
-  Printer, ArrowRight, Settings, Camera,
+  Printer, ArrowRight, Settings, Camera, Gem, BadgeCheck, Award,
 } from 'lucide-react';
 import {
   calculateBuildToRoof,
@@ -125,8 +125,10 @@ function SectionCard({ title, icon: Icon, children, className = '' }: {
 }) {
   return (
     <div className={`rounded-2xl border border-neutral-200 bg-white shadow-card p-6 ${className}`}>
-      <div className="flex items-center gap-2 mb-4">
-        <Icon className="w-5 h-5 text-brand-purple" />
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+          <Icon className="w-4 h-4 text-brand-purple" />
+        </div>
         <h3 className="font-semibold text-neutral-900">{title}</h3>
       </div>
       {children}
@@ -135,6 +137,38 @@ function SectionCard({ title, icon: Icon, children, className = '' }: {
 }
 
 // ── Main component ──
+
+
+// ── Premium rotating text slide component ──
+function RotatingText({ messages, interval = 3500 }: { messages: string[]; interval?: number }) {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex(prev => (prev + 1) % messages.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [messages.length, interval]);
+
+  return (
+    <div className="relative h-6 overflow-hidden">
+      {messages.map((msg, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 flex items-center gap-2 transition-all duration-500"
+          style={{
+            opacity: i === index ? 1 : 0,
+            transform: i === index ? 'translateY(0)' : i < index ? 'translateY(-100%)' : 'translateY(100%)',
+          }}
+        >
+          <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
+          <span className="text-xs font-medium text-white/80">{msg}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 
 export default function BuildToRoofEstimator() {
   useSeo({
@@ -237,33 +271,63 @@ export default function BuildToRoofEstimator() {
   return (
     <SubscriptionGate feature="build_to_roof_estimator">
     <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <div className="bg-brand-navy text-white">
-        <div className="max-w-6xl mx-auto px-4 py-10">
-          <div className="flex items-center gap-3 mb-2">
-            <Building2 className="w-8 h-8 text-accent-green" />
-            <h1 className="text-2xl md:text-3xl font-bold">Build-to-Roof Estimator</h1>
+      {/* Premium Header with mesh gradient */}
+      <div className="relative overflow-hidden bg-brand-navy text-white">
+        {/* Animated mesh background */}
+        <div className="absolute inset-0 animate-mesh-float" style={{
+          background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.25) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.12) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(109, 40, 217, 0.08) 0px, transparent 50%)`,
+        }} />
+        <div className="absolute inset-0 animate-premium-shimmer" />
+
+        <div className="relative max-w-6xl mx-auto px-4 py-12">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
+              <Building2 className="w-7 h-7 text-accent-green" />
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Build-to-Roof Estimator</h1>
+              <div className="mt-1">
+                <RotatingText
+                  messages={[
+                    'Foundation → Block walls → Structural frame → Roof — all in one estimate',
+                    'Nigerian-market prices for cement, blocks, sand, granite & more',
+                    'Engineer-ready material schedules with quantities and costs',
+                    '11 guided steps · Full transparency · No hidden assumptions',
+                  ]}
+                />
+              </div>
+            </div>
           </div>
-          <p className="text-white/70 text-sm md:text-base">
-            Calculate materials. Estimate costs. Build with confidence.
-          </p>
-          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs text-white/80">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            Foundation → Ground Floor → Walls → Structural Frame → Roof → Ready for Finishing
+
+          {/* Feature badges row */}
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+              <ShieldCheck className="w-3.5 h-3.5 text-accent-green" />
+              Foundation to Roof
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+              <BadgeCheck className="w-3.5 h-3.5 text-accent-green" />
+              Transparent Pricing
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+              <Gem className="w-3.5 h-3.5 text-brand-purple-light" />
+              11-Step Professional Flow
+            </span>
           </div>
+
+          <Link
+            to="/image-estimator"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-2.5 text-sm font-semibold text-accent-green backdrop-blur-md transition-all hover:bg-accent-green/20 hover:border-accent-green/40"
+          >
+            <Camera className="w-4 h-4" />
+            Estimate from a Photo — Try our AI Photo Estimator
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-        <Link
-          to="/image-estimator"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-green px-4 py-2.5 text-sm font-semibold text-brand-navy shadow-lg shadow-accent-green/20 transition-all hover:bg-accent-green/90 hover:shadow-xl"
-        >
-          <Camera className="w-4 h-4" />
-          Estimate from a Photo — Try our AI Photo Estimator
-          <ArrowRight className="w-4 h-4" />
-        </Link>
       </div>
 
-      {/* Progress bar */}
-      <div className="sticky top-0 z-30 bg-white border-b border-neutral-200 shadow-sm">
+      {/* Premium sticky progress bar */}
+      <div className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-lg shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
             {STEPS.map((s, i) => {
@@ -274,10 +338,12 @@ export default function BuildToRoofEstimator() {
                 <button
                   key={s.id}
                   onClick={() => i <= step && setStep(i)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                    isActive ? 'bg-brand-purple text-white' :
-                    isDone ? 'bg-brand-purple/10 text-brand-purple' :
-                    'text-neutral-400'
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                    isActive
+                      ? 'bg-gradient-to-r from-brand-purple to-brand-purple-light text-white shadow-md shadow-brand-purple/20'
+                      : isDone
+                      ? 'bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/15'
+                      : 'text-neutral-400 hover:bg-neutral-50'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -286,6 +352,13 @@ export default function BuildToRoofEstimator() {
                 </button>
               );
             })}
+          </div>
+          {/* Progress line */}
+          <div className="h-0.5 w-full bg-neutral-100">
+            <div
+              className="h-full bg-gradient-to-r from-brand-purple to-accent-green transition-all duration-500 ease-out"
+              style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+            />
           </div>
         </div>
       </div>
@@ -790,7 +863,7 @@ export default function BuildToRoofEstimator() {
             )}
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-8 pt-4 border-t border-neutral-100">
               <button
                 onClick={prev}
                 disabled={step === 0}
@@ -799,11 +872,14 @@ export default function BuildToRoofEstimator() {
                 <ChevronLeft className="w-4 h-4" />
                 Back
               </button>
+              <span className="text-xs text-neutral-400 font-medium">
+                Step {step + 1} of {STEPS.length - 1}
+              </span>
               {step < STEPS.length - 2 ? (
                 <button
                   onClick={next}
                   disabled={!canProceed}
-                  className="inline-flex items-center gap-1 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-medium text-white disabled:opacity-40 hover:bg-brand-purple-dark transition-colors"
+                  className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-light px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all"
                 >
                   Next
                   <ChevronRight className="w-4 h-4" />
@@ -811,7 +887,7 @@ export default function BuildToRoofEstimator() {
               ) : step === STEPS.length - 2 ? (
                 <button
                   onClick={calculate}
-                  className="inline-flex items-center gap-2 rounded-lg bg-accent-green px-6 py-3 text-sm font-bold text-white hover:bg-accent-green/90 transition-colors"
+                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent-green to-green-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all"
                 >
                   <Calculator className="w-4 h-4" />
                   Generate Estimate
@@ -884,13 +960,16 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
       </div>
 
-      {/* Cost Breakdown Table */}
+      {/* Premium Cost Breakdown Table */}
       <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
-        <div className="p-6 pb-3">
+        <div className="flex items-center justify-between p-6 pb-3">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-brand-purple" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <DollarSign className="w-4 h-4 text-brand-purple" />
+            </div>
             Cost Breakdown by Stage
           </h3>
+          <span className="text-xs font-medium text-neutral-400">{result.stages.length} stages</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -904,7 +983,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             </thead>
             <tbody>
               {result.stages.map((stage, i) => (
-                <tr key={i} className="border-b border-neutral-50">
+                <tr key={i} className="border-b border-neutral-50 hover:bg-neutral-50/50 transition-colors">
                   <td className="px-6 py-3 font-medium text-neutral-900">{stage.stage_label}</td>
                   <td className="px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.materials_total)}</td>
                   <td className="px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.labour_total)}</td>
@@ -922,13 +1001,16 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
       </div>
 
-      {/* Shopping List */}
+      {/* Premium Shopping List */}
       <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
-        <div className="p-6 pb-3">
+        <div className="flex items-center justify-between p-6 pb-3">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
-            <Package className="w-5 h-5 text-brand-purple" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <Package className="w-4 h-4 text-brand-purple" />
+            </div>
             Consolidated Material Shopping List
           </h3>
+          <span className="text-xs font-medium text-neutral-400">{result.shopping_list.length} items</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -954,10 +1036,15 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
       </div>
 
-      {/* Reinforcement Breakdown */}
+      {/* Premium Reinforcement Breakdown */}
       {result.reinforcement_breakdown && result.reinforcement_breakdown.items.length > 0 && (
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
-          <h3 className="text-lg font-semibold text-neutral-900 mb-1">Reinforcement Breakdown</h3>
+          <div className="flex items-center gap-2.5 mb-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <TrendingUp className="w-4 h-4 text-brand-purple" />
+            </div>
+            <h3 className="text-lg font-semibold text-neutral-900">Reinforcement Breakdown</h3>
+          </div>
           <p className="text-sm text-neutral-500 mb-4">Steel rods split by diameter — priced per 12m standard length</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -1088,11 +1175,13 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </details>
       ))}
 
-      {/* Assumptions & Limitations */}
+      {/* Premium Assumptions & Limitations */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
-            <Info className="w-5 h-5 text-blue-500" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
+              <Info className="w-4 h-4 text-blue-500" />
+            </div>
             Assumptions
           </h3>
           <ul className="space-y-1.5">
@@ -1106,7 +1195,9 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+            </div>
             Limitations & Missing Info
           </h3>
           <ul className="space-y-1.5">
@@ -1126,13 +1217,18 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         </div>
       </div>
 
-      {/* Price Info with Freshness Indicator */}
-      <div className={`rounded-2xl border p-6 ${result.price_stale ? 'border-amber-300 bg-amber-50' : 'border-neutral-200 bg-neutral-50'}`}>
+      {/* Premium Price Info with Freshness Indicator */}
+      <div className={`rounded-2xl border p-6 ${result.price_stale ? 'border-amber-300 bg-gradient-to-r from-amber-50 to-amber-50/30' : 'border-neutral-200 bg-gradient-to-r from-neutral-50 to-neutral-50/30'}`}>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <p className="text-sm text-neutral-500">
-            <span className="font-medium text-neutral-700">Price Date:</span> {result.price_date} ·
-            <span className="font-medium text-neutral-700 ml-2">Source:</span> {result.price_source}
-          </p>
+          <div className="flex items-center gap-2">
+            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${result.price_stale ? 'bg-amber-100' : 'bg-green-100'}`}>
+              {result.price_stale ? <AlertTriangle className="w-4 h-4 text-amber-500" /> : <BadgeCheck className="w-4 h-4 text-green-500" />}
+            </div>
+            <p className="text-sm text-neutral-500">
+              <span className="font-medium text-neutral-700">Price Date:</span> {result.price_date} ·
+              <span className="font-medium text-neutral-700 ml-2">Source:</span> {result.price_source}
+            </p>
+          </div>
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${
             result.price_stale
               ? 'bg-amber-100 text-amber-800'
@@ -1148,8 +1244,8 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         )}
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Premium Actions */}
+      <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
         <button
           onClick={onBack}
           className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
@@ -1160,10 +1256,10 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-all"
           >
             <Printer className="w-4 h-4" />
-            Print
+            Print Estimate
           </button>
         </div>
       </div>

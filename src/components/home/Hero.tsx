@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Wand2, Building2 } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Gem, Building2 } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { useHeroContent } from '@/lib/useHeroContent';
 import { useBranding } from '@/lib/branding';
@@ -59,7 +59,7 @@ export default function Hero() {
         <div className="animate-fade-in-up">
           {/* Eyebrow badge */}
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md transition-colors hover:border-white/20 hover:text-white/90">
-            <Wand2 className="h-3 w-3 text-brand-purple-light" />
+            <Gem className="h-3 w-3 text-brand-purple-light" />
             Plan. Estimate. Discover.
           </span>
 

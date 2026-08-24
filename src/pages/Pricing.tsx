@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Check, Crown, Loader2, AlertCircle, ArrowRight, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Check, Crown, Gem, Loader2, AlertCircle, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
 import { useAuth } from '@/lib/auth';
@@ -246,7 +246,7 @@ export default function Pricing() {
         {/* Coming Soon banner */}
         {premiumLive === false && (
           <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 text-center">
-            <Sparkles className="mx-auto h-8 w-8 text-brand-purple" />
+            <Gem className="mx-auto h-8 w-8 text-brand-purple" />
             <h3 className="mt-3 text-lg font-bold text-brand-navy dark:text-white">Premium Subscriptions — Coming Soon</h3>
             <p className="mt-1 text-sm text-neutral-500">
               We're putting the finishing touches on FRELUX Premium. Browse the plans below to see what's coming, and check back shortly to subscribe.
@@ -295,7 +295,7 @@ export default function Pricing() {
 
                 <div className="flex items-center gap-2">
                   {plan.id === 'free' ? (
-                    <Sparkles className="h-5 w-5 text-neutral-400" />
+                    <Gem className="h-5 w-5 text-neutral-400" />
                   ) : (
                     <Crown className={classNames('h-5 w-5', plan.highlight ? 'text-brand-purple' : 'text-neutral-400')} />
                   )}
@@ -327,7 +327,7 @@ export default function Pricing() {
                   ) : isCurrentPlan ? (
                     'Current Plan'
                   ) : premiumLive === false && plan.id !== 'free' && plan.id !== 'enterprise' ? (
-                    <span className="flex items-center justify-center gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Coming Soon</span>
+                    <span className="flex items-center justify-center gap-1.5"><Gem className="h-3.5 w-3.5" /> Coming Soon</span>
                   ) : (
                     plan.cta
                   )}

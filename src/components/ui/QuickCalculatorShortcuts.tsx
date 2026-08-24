@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Paintbrush, Layers, Grid3x3, ArrowRight, Calculator, Wand2 } from 'lucide-react';
+import { Paintbrush, Layers, Grid3x3, ArrowRight, Calculator, BadgeCheck } from 'lucide-react';
 
 const shortcuts = [
   { to: '/paint-calculator', label: 'Paint Calculator', icon: Paintbrush, description: 'Calculate paint quantities and costs', badge: 'Popular' },
@@ -35,7 +35,7 @@ export default function QuickCalculatorShortcuts() {
                 </span>
                 {s.badge && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-accent-orange/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-accent-orange">
-                    <Wand2 className="h-2.5 w-2.5" />
+                    <BadgeCheck className="h-2.5 w-2.5" />
                     {s.badge}
                   </span>
                 )}

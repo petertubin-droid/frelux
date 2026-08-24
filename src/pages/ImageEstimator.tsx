@@ -3,9 +3,9 @@ import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import {
-  ImagePlus, Sparkles, Lock, Crown, Loader2, AlertCircle,
+  ImagePlus, Zap, BadgeCheck, Lock, Crown, Loader2, AlertCircle,
   Building2, CheckCircle2, FileText, TrendingUp,
-  ShieldCheck, Camera, Zap, Info,
+  ShieldCheck, Camera, Info,
 } from 'lucide-react';
 import {
   fetchEstimationAccessConfig,
@@ -25,6 +25,42 @@ import { formatCurrency, formatNumber } from '@/lib/utils';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 type Phase = 'upload' | 'analyzing' | 'review' | 'result' | 'locked' | 'error';
+
+
+
+// ── Rotating text slide for AI features ──
+function AiFeatureSlide() {
+  const messages = [
+    'Detects building type, roof structure, and materials from photos',
+    'Estimates dimensions, floor count, and room layout automatically',
+    'Generates material quantities with Nigerian-market pricing',
+    'Identifies foundation type, block type, and structural frame',
+  ];
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => setIndex(p => (p + 1) % messages.length), 3500);
+    return () => clearInterval(timer);
+  }, [messages.length]);
+
+  return (
+    <div className="relative h-5 overflow-hidden mt-2">
+      {messages.map((msg, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 flex items-center gap-2 transition-all duration-500"
+          style={{
+            opacity: i === index ? 1 : 0,
+            transform: i === index ? 'translateY(0)' : i < index ? 'translateY(-100%)' : 'translateY(100%)',
+          }}
+        >
+          <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
+          <span className="text-xs font-medium text-white/70">{msg}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function ImageEstimator() {
   useSeo({
@@ -197,19 +233,22 @@ const mountedRef = useRef(true);
 
   return (
     <div className="min-h-screen bg-neutral-50">
-      {/* Header */}
-      <div className="bg-brand-navy text-white">
-        <div className="max-w-5xl mx-auto px-4 py-10">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden bg-brand-navy text-white">
+        <div className="absolute inset-0 animate-mesh-float" style={{
+          background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.25) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.12) 0px, transparent 50%)`,
+        }} />
+        <div className="relative max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="relative">
-              <Camera className="w-8 h-8 text-accent-green" />
-              <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
+              <Camera className="w-7 h-7 text-accent-green" />
+              <Zap className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold">AI Building Photo Estimator</h1>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">AI Building Photo Estimator</h1>
+              <AiFeatureSlide />
+            </div>
           </div>
-          <p className="text-white/70 text-sm md:text-base">
-            Upload a photo of any building — AI will analyze it and generate a full construction cost estimate.
-          </p>
           {config && config.enabled && accessDecision?.allowed && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent-green/20 px-3 py-1 text-xs text-accent-green">
               <Crown className="w-3.5 h-3.5" />
@@ -308,7 +347,7 @@ const mountedRef = useRef(true);
                   onClick={runEstimation}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-green/90 transition-colors"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  <Zap className="w-4 h-4" />
                   Analyze Building & Generate Estimate
                 </button>
               </div>
@@ -600,7 +639,7 @@ function EstimateResultView({ estimate, analysis, savedId, onEdit }: {
         </div>
         {analysis && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-purple/5 px-3 py-1.5 text-xs text-brand-purple">
-            <Sparkles className="w-3.5 h-3.5" />
+            <BadgeCheck className="w-3.5 h-3.5" />
             AI-estimated from photo analysis · confidence: {analysis.ai_confidence}
           </div>
         )}

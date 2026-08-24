@@ -1,11 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { ChevronLeft, ChevronRight, Check, Wand2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, BadgeCheck } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 
 export interface WizardStep {
   title: string;
   subtitle?: string;
-  icon?: typeof Wand2;
+  icon?: typeof BadgeCheck;
   content: ReactNode;
   canProceed?: boolean;
 }

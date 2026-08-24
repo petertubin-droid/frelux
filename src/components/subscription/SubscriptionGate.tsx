@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Lock, Crown, Clock, CheckCircle2, Sparkles } from 'lucide-react';
+import { Lock, Crown, Clock, CheckCircle2, Gem } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { formatSubscriptionStatus } from '@/lib/subscription';
 import type { PaidFeature } from '@/lib/subscription';
@@ -68,7 +68,7 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
       <div className="mx-auto max-w-md py-12 px-4">
         <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-purple/10">
-            <Sparkles className="h-7 w-7 text-brand-purple" />
+            <Gem className="h-7 w-7 text-brand-purple" />
           </div>
           <h2 className="mt-4 text-xl font-bold text-brand-navy dark:text-white">
             {featureLabel}
@@ -94,7 +94,7 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
           </div>
 
           <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-6 py-3 text-sm font-bold text-brand-purple">
-            <Sparkles className="h-4 w-4" />
+            <Gem className="h-4 w-4" />
             Coming Soon
           </div>
 
