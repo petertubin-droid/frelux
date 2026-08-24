@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, MessageSquareWarning } from 'lucide-react';
-import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
 import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
@@ -120,10 +120,10 @@ function AdminProfessionalsTab() {
       <div className="mb-4">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <AdminInput
+ type="text"
+ value={search}
+ onChange={(e) => setSearch(e.target.value)}
             placeholder="Search professionals..."
             className="w-full rounded-lg border border-neutral-200 py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy"
           />
@@ -156,7 +156,7 @@ function AdminProfessionalsTab() {
               )}>
                 {p.verification_status.replace('_', ' ')}
               </span>
-              <select
+              <AdminSelect
                 value={p.verification_status}
                 onChange={(e) => updateVerification(p.id, e.target.value as 'unverified' | 'pending' | 'verified' | 'suspended')}
                 className="rounded-lg border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy"
@@ -165,7 +165,7 @@ function AdminProfessionalsTab() {
                 <option value="pending">Pending</option>
                 <option value="verified">Verify</option>
                 <option value="suspended">Suspend</option>
-              </select>
+              </AdminSelect>
               {!p.pro_level ? (
                 <AdminIconButton variant="ghost" onClick={() => handleAwardProLevel(p.id)} title="Award FRELUX Pro" className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10">
                   <Award className="h-4 w-4" />
@@ -330,24 +330,24 @@ function AdminVerificationTab() {
                   <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
                     {selectedRequest?.id === req.id ? (
                       <div className="space-y-3">
-                        <input
-                          type="text"
-                          value={actionNotes}
-                          onChange={(e) => setActionNotes(e.target.value)}
+                        <AdminInput
+ type="text"
+ value={actionNotes}
+ onChange={(e) => setActionNotes(e.target.value)}
                           placeholder="Admin notes (optional)"
                           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                         />
-                        <input
-                          type="text"
-                          value={rejectionReason}
-                          onChange={(e) => setRejectionReason(e.target.value)}
+                        <AdminInput
+ type="text"
+ value={rejectionReason}
+ onChange={(e) => setRejectionReason(e.target.value)}
                           placeholder="Rejection reason (if rejecting)"
                           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                         />
-                        <input
-                          type="text"
-                          value={moreInfoText}
-                          onChange={(e) => setMoreInfoText(e.target.value)}
+                        <AdminInput
+ type="text"
+ value={moreInfoText}
+ onChange={(e) => setMoreInfoText(e.target.value)}
                           placeholder="What additional info is needed? (if requesting more info)"
                           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                         />
@@ -563,10 +563,10 @@ function AdminKycTab() {
                 <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
                   {selectedNin?.profile_id === sub.profile_id ? (
                     <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={rejectReason}
-                        onChange={(e) => setRejectReason(e.target.value)}
+                      <AdminInput
+ type="text"
+ value={rejectReason}
+ onChange={(e) => setRejectReason(e.target.value)}
                         placeholder="Rejection reason (if rejecting)"
                         className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
                       />
@@ -948,38 +948,38 @@ function AdminSettingsTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum reviews</span>
-            <input
-              type="number"
-              value={settings.pro_level_min_reviews}
-              onChange={(e) => setSettings({ ...settings, pro_level_min_reviews: parseInt(e.target.value) || 0 })}
+            <AdminInput
+ type="number"
+ value={settings.pro_level_min_reviews}
+ onChange={(e) => setSettings({ ...settings, pro_level_min_reviews: parseInt(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum rating</span>
-            <input
-              type="number"
-              step="0.1"
-              value={settings.pro_level_min_rating}
-              onChange={(e) => setSettings({ ...settings, pro_level_min_rating: parseFloat(e.target.value) || 0 })}
+            <AdminInput
+ type="number"
+ step="0.1"
+ value={settings.pro_level_min_rating}
+ onChange={(e) => setSettings({ ...settings, pro_level_min_rating: parseFloat(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Min portfolio items</span>
-            <input
-              type="number"
-              value={settings.pro_level_min_portfolio_items}
-              onChange={(e) => setSettings({ ...settings, pro_level_min_portfolio_items: parseInt(e.target.value) || 0 })}
+            <AdminInput
+ type="number"
+ value={settings.pro_level_min_portfolio_items}
+ onChange={(e) => setSettings({ ...settings, pro_level_min_portfolio_items: parseInt(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Min profile age (days)</span>
-            <input
-              type="number"
-              value={settings.pro_level_min_profile_age_days}
-              onChange={(e) => setSettings({ ...settings, pro_level_min_profile_age_days: parseInt(e.target.value) || 0 })}
+            <AdminInput
+ type="number"
+ value={settings.pro_level_min_profile_age_days}
+ onChange={(e) => setSettings({ ...settings, pro_level_min_profile_age_days: parseInt(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
           </label>
@@ -1207,12 +1207,12 @@ function AdminChannelsTab() {
             <div className="space-y-3">
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
-                <input type="text" value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })}
+                <AdminInput type="text" value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
-                <input type="text" value={channelForm.slug} onChange={(e) => setChannelForm({ ...channelForm, slug: e.target.value })}
+                <AdminInput type="text" value={channelForm.slug} onChange={(e) => setChannelForm({ ...channelForm, slug: e.target.value })}
                   placeholder="e.g. lagos-price-watch"
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
@@ -1224,35 +1224,35 @@ function AdminChannelsTab() {
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Region</span>
-                  <input type="text" value={channelForm.region} onChange={(e) => setChannelForm({ ...channelForm, region: e.target.value })}
+                  <AdminInput type="text" value={channelForm.region} onChange={(e) => setChannelForm({ ...channelForm, region: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
                 <label className="block">
                   <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
-                  <input type="text" value={channelForm.icon} onChange={(e) => setChannelForm({ ...channelForm, icon: e.target.value })}
+                  <AdminInput type="text" value={channelForm.icon} onChange={(e) => setChannelForm({ ...channelForm, icon: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
               </div>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Category</span>
-                <select value={channelForm.category_id} onChange={(e) => setChannelForm({ ...channelForm, category_id: e.target.value })}
+                <AdminSelect value={channelForm.category_id} onChange={(e) => setChannelForm({ ...channelForm, category_id: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy">
                   <option value="">Uncategorized</option>
                   {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
+                </AdminSelect>
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
-                <input type="number" value={channelForm.sort_order} onChange={(e) => setChannelForm({ ...channelForm, sort_order: parseInt(e.target.value) || 0 })}
+                <AdminInput type="number" value={channelForm.sort_order} onChange={(e) => setChannelForm({ ...channelForm, sort_order: parseInt(e.target.value) || 0 })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                  <input type="checkbox" checked={channelForm.is_official} onChange={(e) => setChannelForm({ ...channelForm, is_official: e.target.checked })} />
+                  <AdminInput type="checkbox" checked={channelForm.is_official} onChange={(e) => setChannelForm({ ...channelForm, is_official: e.target.checked })} />
                   Official FRELUX channel
                 </label>
                 <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                  <input type="checkbox" checked={channelForm.is_active} onChange={(e) => setChannelForm({ ...channelForm, is_active: e.target.checked })} />
+                  <AdminInput type="checkbox" checked={channelForm.is_active} onChange={(e) => setChannelForm({ ...channelForm, is_active: e.target.checked })} />
                   Active
                 </label>
               </div>
@@ -1274,33 +1274,33 @@ function AdminChannelsTab() {
             <div className="space-y-3">
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
-                <input type="text" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                <AdminInput type="text" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
-                <input type="text" value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
+                <AdminInput type="text" value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
                 <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
-                <input type="text" value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                <AdminInput type="text" value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
-                  <input type="text" value={categoryForm.icon} onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
+                  <AdminInput type="text" value={categoryForm.icon} onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
                 <label className="block">
                   <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
-                  <input type="number" value={categoryForm.sort_order} onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: parseInt(e.target.value) || 0 })}
+                  <AdminInput type="number" value={categoryForm.sort_order} onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: parseInt(e.target.value) || 0 })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
               </div>
               <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                <input type="checkbox" checked={categoryForm.is_active} onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })} />
+                <AdminInput type="checkbox" checked={categoryForm.is_active} onChange={(e) => setCategoryForm({ ...categoryForm, is_active: e.target.checked })} />
                 Active
               </label>
             </div>
@@ -1410,10 +1410,10 @@ function AdminModerationTab() {
           </p>
         </div>
         <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-          <input
-            type="checkbox"
-            checked={config.is_enabled}
-            onChange={(e) => setConfig({ ...config, is_enabled: e.target.checked })}
+          <AdminInput
+ type="checkbox"
+ checked={config.is_enabled}
+ onChange={(e) => setConfig({ ...config, is_enabled: e.target.checked })}
             className="h-4 w-4 rounded border-neutral-300"
           />
           {config.is_enabled ? 'Enabled' : 'Disabled'}
@@ -1429,20 +1429,20 @@ function AdminModerationTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-flag threshold (0.0–1.0)</span>
-            <input
-              type="number" step="0.05" min="0" max="1"
-              value={config.auto_flag_threshold}
-              onChange={(e) => setConfig({ ...config, auto_flag_threshold: parseFloat(e.target.value) || 0 })}
+            <AdminInput
+ type="number" step="0.05" min="0" max="1"
+ value={config.auto_flag_threshold}
+ onChange={(e) => setConfig({ ...config, auto_flag_threshold: parseFloat(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
             <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are flagged for review.</span>
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-remove threshold (0.0–1.0)</span>
-            <input
-              type="number" step="0.05" min="0" max="1"
-              value={config.auto_remove_threshold}
-              onChange={(e) => setConfig({ ...config, auto_remove_threshold: parseFloat(e.target.value) || 0 })}
+            <AdminInput
+ type="number" step="0.05" min="0" max="1"
+ value={config.auto_remove_threshold}
+ onChange={(e) => setConfig({ ...config, auto_remove_threshold: parseFloat(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
             <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are removed automatically.</span>
@@ -1485,7 +1485,7 @@ function AdminModerationTab() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Provider</span>
-            <select
+            <AdminSelect
               value={config.ai_provider}
               onChange={(e) => setConfig({ ...config, ai_provider: e.target.value })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
@@ -1493,15 +1493,15 @@ function AdminModerationTab() {
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
               <option value="local">Local / Heuristic only</option>
-            </select>
+            </AdminSelect>
             <span className="mt-1 block text-[11px] text-neutral-400">If set to "Local", only heuristic rules apply (no API calls).</span>
           </label>
           <label className="block">
             <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Model</span>
-            <input
-              type="text"
-              value={config.ai_model}
-              onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
+            <AdminInput
+ type="text"
+ value={config.ai_model}
+ onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
             <span className="mt-1 block text-[11px] text-neutral-400">e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.</span>

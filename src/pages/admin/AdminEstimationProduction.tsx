@@ -14,7 +14,9 @@ import {AdminHeader,
   AdminField,
   StateMessage,
   Toggle,
-  AdminIconButton} from '@/components/admin/AdminUi';
+  AdminIconButton,
+  AdminInput,
+  AdminSelect} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 
 interface ProductionRule {
@@ -200,33 +202,33 @@ function ProductionRuleForm({
 
         <div className="space-y-3">
           <AdminField label="Product Category">
-            <select value={productCategory} onChange={(e) => setProductCategory(e.target.value)}
+            <AdminSelect value={productCategory} onChange={(e) => setProductCategory(e.target.value)}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white">
               {PRODUCT_CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
+            </AdminSelect>
           </AdminField>
 
           <AdminField label="Quality Level (optional)" hint="Leave as 'All Qualities' for a general minimum.">
-            <select value={qualitySlug} onChange={(e) => setQualitySlug(e.target.value)}
+            <AdminSelect value={qualitySlug} onChange={(e) => setQualitySlug(e.target.value)}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white">
               {QUALITY_SLUGS.map((q) => <option key={q.value} value={q.value}>{q.label}</option>)}
-            </select>
+            </AdminSelect>
           </AdminField>
 
           <AdminField label="Location Rule">
-            <select value={locationRule} onChange={(e) => setLocationRule(e.target.value)}
+            <AdminSelect value={locationRule} onChange={(e) => setLocationRule(e.target.value)}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white">
               {LOCATION_RULES.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
-            </select>
+            </AdminSelect>
           </AdminField>
 
           <AdminField label="Minimum Quantity" hint="Set to 0 for no minimum (Owerri rule).">
-            <input type="number" value={minQuantity} onChange={(e) => setMinQuantity(parseFloat(e.target.value) || 0)} min={0}
+            <AdminInput type="number" value={minQuantity} onChange={(e) => setMinQuantity(parseFloat(e.target.value) || 0)} min={0}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white" />
           </AdminField>
 
           <AdminField label="Unit">
-            <input type="text" value={unit} onChange={(e) => setUnit(e.target.value)}
+            <AdminInput type="text" value={unit} onChange={(e) => setUnit(e.target.value)}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white" />
           </AdminField>
 
@@ -236,7 +238,7 @@ function ProductionRuleForm({
           </AdminField>
 
           <AdminField label="Sort Order">
-            <input type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
+            <AdminInput type="number" value={sortOrder} onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white" />
           </AdminField>
         </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import {AdminHeader, AdminCard, Toggle, StateMessage, AdminButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, Toggle, StateMessage, AdminButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
 import {
   Camera, Crown, Users, TrendingUp, Settings2, Save, Loader2,
   CheckCircle2, AlertCircle, BarChart3,
@@ -223,7 +223,7 @@ export default function AdminImageEstimation() {
           {/* Access mode */}
           <div>
             <label className="text-sm font-medium text-neutral-700 mb-2 block">Access Mode</label>
-            <select
+            <AdminSelect
               value={config.estimation_access_mode}
               onChange={e => setConfig(prev => ({ ...prev, estimation_access_mode: e.target.value as EstimationConfig['estimation_access_mode'] }))}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
@@ -233,18 +233,18 @@ export default function AdminImageEstimation() {
               <option value="rewarded">Rewarded (free uses, then watch ad)</option>
               <option value="free_rewarded">Free + Rewarded (hybrid)</option>
               <option value="paid">Paid (subscription required)</option>
-            </select>
+            </AdminSelect>
           </div>
 
           {/* Daily free uses */}
           {(config.estimation_access_mode === 'free' || config.estimation_access_mode === 'rewarded' || config.estimation_access_mode === 'free_rewarded') && (
             <div>
               <label className="text-sm font-medium text-neutral-700 mb-1 block">Daily Free Uses</label>
-              <input
-                type="number"
-                min="0"
-                value={config.estimation_daily_free_uses}
-                onChange={e => setConfig(prev => ({ ...prev, estimation_daily_free_uses: Math.max(0, parseInt(e.target.value) || 0) }))}
+              <AdminInput
+ type="number"
+ min="0"
+ value={config.estimation_daily_free_uses}
+ onChange={e => setConfig(prev => ({ ...prev, estimation_daily_free_uses: Math.max(0, parseInt(e.target.value) || 0) }))}
                 className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
               />
               <p className="text-xs text-neutral-400 mt-1">Number of free estimations per user per day.</p>
@@ -284,20 +284,20 @@ export default function AdminImageEstimation() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-neutral-700 mb-1 block">Price per Estimation</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={config.estimation_paid_price}
-                    onChange={e => setConfig(prev => ({ ...prev, estimation_paid_price: Math.max(0, parseFloat(e.target.value) || 0) }))}
+                  <AdminInput
+ type="number"
+ min="0"
+ value={config.estimation_paid_price}
+ onChange={e => setConfig(prev => ({ ...prev, estimation_paid_price: Math.max(0, parseFloat(e.target.value) || 0) }))}
                     className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
                   />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-neutral-700 mb-1 block">Currency</label>
-                  <input
-                    type="text"
-                    value={config.estimation_paid_currency}
-                    onChange={e => setConfig(prev => ({ ...prev, estimation_paid_currency: e.target.value }))}
+                  <AdminInput
+ type="text"
+ value={config.estimation_paid_currency}
+ onChange={e => setConfig(prev => ({ ...prev, estimation_paid_currency: e.target.value }))}
                     className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
                   />
                 </div>
@@ -308,7 +308,7 @@ export default function AdminImageEstimation() {
           {/* Reset period */}
           <div>
             <label className="text-sm font-medium text-neutral-700 mb-1 block">Usage Reset Period</label>
-            <select
+            <AdminSelect
               value={config.estimation_reset_period}
               onChange={e => setConfig(prev => ({ ...prev, estimation_reset_period: e.target.value }))}
               className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
@@ -316,7 +316,7 @@ export default function AdminImageEstimation() {
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
-            </select>
+            </AdminSelect>
           </div>
 
           {/* Admin override */}

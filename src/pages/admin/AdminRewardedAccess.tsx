@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Gift, BarChart3, DollarSign, Users, Calendar, TrendingUp, Loader2, Settings2 } from 'lucide-react';
-import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect, AdminButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect, AdminButton, AdminInput} from '@/components/admin/AdminUi';
 import { fetchAllRewardedToolConfigs, fetchRewardedUnlockStats, fetchRewardedAdEventStats } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
@@ -143,29 +143,29 @@ function FeatureConfigTab() {
                   </AdminSelect>
                 </AdminField>
                 <AdminField label="Unlock Duration (minutes)" hint="1440 = 24 hours / end of day">
-                  <input
-                    type="number"
-                    min={1}
-                    value={feat.unlock_duration_minutes}
-                    onChange={(e) => updateFeature(feat.id, { unlock_duration_minutes: Number(e.target.value) })}
+                  <AdminInput
+ type="number"
+ min={1}
+ value={feat.unlock_duration_minutes}
+ onChange={(e) => updateFeature(feat.id, { unlock_duration_minutes: Number(e.target.value) })}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Daily Usage Limit" hint="0 = unlimited">
-                  <input
-                    type="number"
-                    min={0}
-                    value={feat.daily_usage_limit}
-                    onChange={(e) => updateFeature(feat.id, { daily_usage_limit: Number(e.target.value) })}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={feat.daily_usage_limit}
+ onChange={(e) => updateFeature(feat.id, { daily_usage_limit: Number(e.target.value) })}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Cooldown (minutes)" hint="Wait time between unlocks">
-                  <input
-                    type="number"
-                    min={0}
-                    value={feat.cooldown_minutes}
-                    onChange={(e) => updateFeature(feat.id, { cooldown_minutes: Number(e.target.value) })}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={feat.cooldown_minutes}
+ onChange={(e) => updateFeature(feat.id, { cooldown_minutes: Number(e.target.value) })}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
@@ -176,19 +176,19 @@ function FeatureConfigTab() {
                 <h4 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Reward Rules</h4>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <AdminField label="Success Message">
-                    <input
-                      type="text"
-                      value={feat.reward_rules?.success_message ?? ''}
-                      onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, success_message: e.target.value } })}
+                    <AdminInput
+ type="text"
+ value={feat.reward_rules?.success_message ?? ''}
+ onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, success_message: e.target.value } })}
                       className="dark:bg-brand-navy-mid dark:border-white/10"
                       placeholder="Feature unlocked! Enjoy your premium access."
                     />
                   </AdminField>
                   <AdminField label="Failure Message">
-                    <input
-                      type="text"
-                      value={feat.reward_rules?.failure_message ?? ''}
-                      onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, failure_message: e.target.value } })}
+                    <AdminInput
+ type="text"
+ value={feat.reward_rules?.failure_message ?? ''}
+ onChange={(e) => updateFeature(feat.id, { reward_rules: { ...feat.reward_rules, failure_message: e.target.value } })}
                       className="dark:bg-brand-navy-mid dark:border-white/10"
                       placeholder="Unable to load ad. Please try again."
                     />
@@ -321,39 +321,39 @@ function ToolConfigTab() {
                 </AdminSelect>
               </AdminField>
               <AdminField label="Ad Unit ID">
-                <input
-                  type="text"
-                  value={cfg.ad_unit_id ?? ''}
-                  onChange={(e) => updateConfig(cfg.id, { ad_unit_id: e.target.value })}
+                <AdminInput
+ type="text"
+ value={cfg.ad_unit_id ?? ''}
+ onChange={(e) => updateConfig(cfg.id, { ad_unit_id: e.target.value })}
                   className="dark:bg-brand-navy-mid dark:border-white/10"
                   placeholder="ca app pub xxx"
                 />
               </AdminField>
               <AdminField label="Unlock Duration (hours)">
-                <input
-                  type="number"
-                  min={1}
-                  max={168}
-                  value={cfg.unlock_duration_hours}
-                  onChange={(e) => updateConfig(cfg.id, { unlock_duration_hours: Number(e.target.value) })}
+                <AdminInput
+ type="number"
+ min={1}
+ max={168}
+ value={cfg.unlock_duration_hours}
+ onChange={(e) => updateConfig(cfg.id, { unlock_duration_hours: Number(e.target.value) })}
                   className="dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Daily Usage Limit" hint="0 = unlimited">
-                <input
-                  type="number"
-                  min={0}
-                  value={cfg.daily_usage_limit}
-                  onChange={(e) => updateConfig(cfg.id, { daily_usage_limit: Number(e.target.value) })}
+                <AdminInput
+ type="number"
+ min={0}
+ value={cfg.daily_usage_limit}
+ onChange={(e) => updateConfig(cfg.id, { daily_usage_limit: Number(e.target.value) })}
                   className="dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>
               <AdminField label="Cooldown (minutes)">
-                <input
-                  type="number"
-                  min={0}
-                  value={cfg.cooldown_minutes}
-                  onChange={(e) => updateConfig(cfg.id, { cooldown_minutes: Number(e.target.value) })}
+                <AdminInput
+ type="number"
+ min={0}
+ value={cfg.cooldown_minutes}
+ onChange={(e) => updateConfig(cfg.id, { cooldown_minutes: Number(e.target.value) })}
                   className="dark:bg-brand-navy-mid dark:border-white/10"
                 />
               </AdminField>

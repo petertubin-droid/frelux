@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
 import type { DbTimelineTemplate, ProjectType, TimelinePhase } from "@/types/database";
@@ -127,19 +127,19 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Name</span>
-              <input value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+              <AdminInput value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Project Type</span>
-              <select value={projectType} onChange={e => setProjectType(e.target.value as ProjectType)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
+              <AdminSelect value={projectType} onChange={e => setProjectType(e.target.value as ProjectType)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
-              </select>
+              </AdminSelect>
             </label>
           </div>
 
           <label className="block">
             <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Description</span>
-            <input value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+            <AdminInput value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
           </label>
 
           <div>
@@ -147,12 +147,12 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
             <div className="mt-2 space-y-2">
               {phases.map((phase, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_80px_1fr_auto] gap-2">
-                  <input value={phase.name} onChange={e => { const p = [...phases]; p[i] = { ...p[i], name: e.target.value }; setPhases(p); }} placeholder="Phase name" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <select value={phase.phase} onChange={e => { const p = [...phases]; p[i] = { ...p[i], phase: e.target.value as 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' }; setPhases(p); }} className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm">
+                  <AdminInput value={phase.name} onChange={e => { const p = [...phases]; p[i] = { ...p[i], name: e.target.value }; setPhases(p); }} placeholder="Phase name" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
+                  <AdminSelect value={phase.phase} onChange={e => { const p = [...phases]; p[i] = { ...p[i], phase: e.target.value as 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' }; setPhases(p); }} className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm">
                     <option value="preparation">preparation</option><option value="screeding">screeding</option><option value="pop_installation">pop_installation</option><option value="primer">primer</option><option value="painting">painting</option><option value="tiling">tiling</option><option value="drying">drying</option><option value="inspection">inspection</option><option value="completion">completion</option>
-                  </select>
-                  <input type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <input value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
+                  </AdminSelect>
+                  <AdminInput type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
+                  <AdminInput value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
                   <AdminIconButton variant="danger" onClick={() => setPhases(phases.filter((_, j) => j !== i))} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               ))}

@@ -125,38 +125,38 @@ function SettingsTab() {
                   </AdminSelect>
                 </AdminField>
                 <AdminField label="Suggested Fixed Rate" hint="Total project labour cost">
-                  <input
-                    type="number"
-                    min={0}
-                    value={setting.suggested_rates.fixed}
-                    onChange={(e) => updateRate(setting.id, 'fixed', Number(e.target.value))}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={setting.suggested_rates.fixed}
+ onChange={(e) => updateRate(setting.id, 'fixed', Number(e.target.value))}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per m²" hint="Per square metre">
-                  <input
-                    type="number"
-                    min={0}
-                    value={setting.suggested_rates.per_sqm}
-                    onChange={(e) => updateRate(setting.id, 'per_sqm', Number(e.target.value))}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={setting.suggested_rates.per_sqm}
+ onChange={(e) => updateRate(setting.id, 'per_sqm', Number(e.target.value))}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per Room" hint="Per room">
-                  <input
-                    type="number"
-                    min={0}
-                    value={setting.suggested_rates.per_room}
-                    onChange={(e) => updateRate(setting.id, 'per_room', Number(e.target.value))}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={setting.suggested_rates.per_room}
+ onChange={(e) => updateRate(setting.id, 'per_room', Number(e.target.value))}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Daily Rate" hint="Per working day">
-                  <input
-                    type="number"
-                    min={0}
-                    value={setting.suggested_rates.daily}
-                    onChange={(e) => updateRate(setting.id, 'daily', Number(e.target.value))}
+                  <AdminInput
+ type="number"
+ min={0}
+ value={setting.suggested_rates.daily}
+ onChange={(e) => updateRate(setting.id, 'daily', Number(e.target.value))}
                     className="dark:bg-brand-navy-mid dark:border-white/10"
                   />
                 </AdminField>

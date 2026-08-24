@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, Plus } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton, AdminButton} from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton, AdminButton, AdminInput} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import { useBranding } from '@/lib/branding';
 import { invalidateHeroContentCache } from '@/lib/useHeroContent';
@@ -209,19 +209,19 @@ export default function AdminBranding() {
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
-              <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
               <AdminInput type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Secondary Color">
             <div className="flex items-center gap-2">
-              <input type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
               <AdminInput type="text" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Accent Color">
             <div className="flex items-center gap-2">
-              <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
               <AdminInput type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
             </div>
           </AdminField>
@@ -241,16 +241,16 @@ export default function AdminBranding() {
         {/* Pending color picker */}
         <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-white/10 dark:bg-brand-navy-mid">
           <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Color for next selection:</span>
-          <input
-            type="color"
-            value={pendingColor}
-            onChange={(e) => setPendingColor(e.target.value)}
+          <AdminInput
+ type="color"
+ value={pendingColor}
+ onChange={(e) => setPendingColor(e.target.value)}
             className="h-8 w-10 shrink-0 cursor-pointer rounded border border-neutral-200 dark:border-white/10"
           />
-          <input
-            type="text"
-            value={pendingColor}
-            onChange={(e) => setPendingColor(e.target.value)}
+          <AdminInput
+ type="text"
+ value={pendingColor}
+ onChange={(e) => setPendingColor(e.target.value)}
             className="w-28 text-xs"
             placeholder="#F97316"
           />
@@ -289,16 +289,16 @@ export default function AdminBranding() {
                   <span className="text-xs font-mono text-neutral-400">#{hl.wordIndex}</span>
                   <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{hl.word}</span>
                   <div className="ml-auto flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={hl.color}
-                      onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
+                    <AdminInput
+ type="color"
+ value={hl.color}
+ onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
                       className="h-7 w-9 cursor-pointer rounded border border-neutral-200 dark:border-white/10"
                     />
-                    <input
-                      type="text"
-                      value={hl.color}
-                      onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
+                    <AdminInput
+ type="text"
+ value={hl.color}
+ onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
                       className="w-24 text-xs"
                     />
                     <AdminIconButton variant="danger"

@@ -195,10 +195,10 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
       <div className="grid gap-4 sm:grid-cols-3">
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
-          <input type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Optional
+          <AdminInput type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Optional
         </label>
         <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
-          <input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active
+          <AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active
         </label>
       </div>
 

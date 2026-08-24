@@ -286,7 +286,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
 
       <div className="flex items-center gap-3">
         <label className="flex items-center gap-2 text-sm text-neutral-600">
-          <input type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple focus:ring-brand-purple" />
+          <AdminInput type="checkbox" checked={form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple focus:ring-brand-purple" />
           Featured article
         </label>
       </div>

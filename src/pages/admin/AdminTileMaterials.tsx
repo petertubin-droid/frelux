@@ -214,8 +214,8 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><input type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Standard</label>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
+        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Standard</label>
+        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
       </div>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
@@ -267,7 +267,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
         <AdminField label="Labour Rate/m² (₦)"><AdminInput type="number"  value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
       </div>
-      <label className="flex items-center gap-2 text-sm text-neutral-600"><input type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
+      <label className="flex items-center gap-2 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
         <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check className="h-4 w-4" /> Save</AdminButton>

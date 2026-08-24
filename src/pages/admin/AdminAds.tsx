@@ -214,11 +214,11 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
             <AdminField label="Provider Type">
               <div className="flex items-center gap-3">
                 <label className="flex items-center gap-1.5 text-sm">
-                  <input type="radio" checked={!useCustomSchema} onChange={() => setUseCustomSchema(false)} className="text-brand-purple" />
+                  <AdminInput type="radio" checked={!useCustomSchema} onChange={() => setUseCustomSchema(false)} className="text-brand-purple" />
                   Built in
                 </label>
                 <label className="flex items-center gap-1.5 text-sm">
-                  <input type="radio" checked={useCustomSchema} onChange={() => setUseCustomSchema(true)} className="text-brand-purple" />
+                  <AdminInput type="radio" checked={useCustomSchema} onChange={() => setUseCustomSchema(true)} className="text-brand-purple" />
                   Custom
                 </label>
               </div>

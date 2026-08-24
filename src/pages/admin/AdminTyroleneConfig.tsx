@@ -14,12 +14,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { Save, Loader2, AlertCircle, CheckCircle2, Info, Ruler, Package, DollarSign, MapPin } from 'lucide-react';
-import {
-  AdminHeader,
+import {AdminHeader,
   AdminCard,
   AdminButton,
   AdminField,
-} from '@/components/admin/AdminUi';
+  AdminInput} from '@/components/admin/AdminUi';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
 import type {
@@ -481,23 +480,23 @@ export default function AdminTyroleneConfig() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AdminField label="Standard Partition Width (m)">
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={partitionWidth}
-                  onChange={e => setPartitionWidth(e.target.value)}
+                <AdminInput
+ type="number"
+ step="0.01"
+ min="0"
+ value={partitionWidth}
+ onChange={e => setPartitionWidth(e.target.value)}
                   placeholder="e.g., 3"
                   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                 />
               </AdminField>
               <AdminField label="Standard Partition Height (m)">
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={partitionHeight}
-                  onChange={e => setPartitionHeight(e.target.value)}
+                <AdminInput
+ type="number"
+ step="0.01"
+ min="0"
+ value={partitionHeight}
+ onChange={e => setPartitionHeight(e.target.value)}
                   placeholder="e.g., 3"
                   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                 />
@@ -532,11 +531,11 @@ export default function AdminTyroleneConfig() {
               </div>
             </div>
             <AdminField label="Partitions per Ratio">
-              <input
-                type="number"
-                min="1"
-                value={partitionsPerRatio}
-                onChange={e => setPartitionsPerRatio(parseInt(e.target.value) || 4)}
+              <AdminInput
+ type="number"
+ min="1"
+ value={partitionsPerRatio}
+ onChange={e => setPartitionsPerRatio(parseInt(e.target.value) || 4)}
                 className="w-32 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
               />
             </AdminField>
@@ -544,12 +543,12 @@ export default function AdminTyroleneConfig() {
               {ratioEntries.map((entry, idx) => (
                 <div key={entry.slug} className="flex items-center gap-3">
                   <span className="text-sm font-medium text-neutral-700 w-32">{entry.slug.replace(/-/g, ' ')}:</span>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={entry.quantity}
-                    onChange={e => {
+                  <AdminInput
+ type="number"
+ step="0.01"
+ min="0"
+ value={entry.quantity}
+ onChange={e => {
                       const updated = [...ratioEntries];
                       updated[idx] = { ...entry, quantity: parseFloat(e.target.value) || 0 };
                       setRatioEntries(updated);
@@ -591,12 +590,12 @@ export default function AdminTyroleneConfig() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-neutral-400">₦</span>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={prices[mat.slug] ?? ''}
-                        onChange={e => setPrices(prev => ({ ...prev, [mat.slug]: e.target.value }))}
+                      <AdminInput
+ type="number"
+ min="0"
+ step="0.01"
+ value={prices[mat.slug] ?? ''}
+ onChange={e => setPrices(prev => ({ ...prev, [mat.slug]: e.target.value }))}
                         placeholder="0.00"
                         className="w-32 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                       />
@@ -639,11 +638,11 @@ export default function AdminTyroleneConfig() {
             <div className="rounded-lg border border-neutral-200 p-3">
               <p className="text-sm font-medium text-neutral-900 mb-2">Outside Owerri. Minimum Partitions</p>
               <div className="flex items-center gap-3">
-                <input
-                  type="number"
-                  min="0"
-                  value={outsideOwerriMin}
-                  onChange={e => setOutsideOwerriMin(e.target.value)}
+                <AdminInput
+ type="number"
+ min="0"
+ value={outsideOwerriMin}
+ onChange={e => setOutsideOwerriMin(e.target.value)}
                   placeholder="Not configured"
                   className="w-40 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                 />

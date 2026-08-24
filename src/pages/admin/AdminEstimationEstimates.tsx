@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChevronDown, ChevronUp, Search, Filter, Calendar, User, Layers, AlertTriangle, Lightbulb } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, StateMessage, AdminInput} from '@/components/admin/AdminUi';
 
 interface EstimationEstimate {
   id: string;
@@ -234,11 +234,11 @@ export default function AdminEstimationEstimates() {
 
         <div className="relative w-full lg:w-72">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search estimate ref or description..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          <AdminInput
+ type="text"
+ placeholder="Search estimate ref or description..."
+ value={searchQuery}
+ onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-xs"
           />
         </div>

@@ -11,7 +11,7 @@ import {
 import { useToast } from '@/components/ui/Toast';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
 
 const CALC_TYPES: CalculatorType[] = ['paint', 'tile', 'pop', 'screeding'];
 
@@ -103,10 +103,10 @@ export default function AdminTemplates() {
       {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+        <AdminInput
+ type="text"
+ value={search}
+ onChange={(e) => setSearch(e.target.value)}
           placeholder="Search templates..."
           className="w-full rounded-lg border border-neutral-200 bg-white py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white"
         />
@@ -266,7 +266,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           {/* Name */}
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Name *</label>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <AdminInput type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
           </div>
 
           {/* Description */}
@@ -278,9 +278,9 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           {/* Calculator type */}
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Calculator Type</label>
-            <select value={calculatorType} onChange={(e) => setCalculatorType(e.target.value as CalculatorType)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white">
+            <AdminSelect value={calculatorType} onChange={(e) => setCalculatorType(e.target.value as CalculatorType)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white">
               {CALC_TYPES.map((t) => <option key={t} value={t}>{calculatorLabel(t)}</option>)}
-            </select>
+            </AdminSelect>
           </div>
 
           {/* Input JSON */}
@@ -294,17 +294,17 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">URL Slug</label>
-              <input type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+              <AdminInput type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
             </div>
             <div>
               <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Display Order</label>
-              <input type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+              <AdminInput type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
             </div>
           </div>
 
           <div>
             <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">SEO Title</label>
-            <input type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <AdminInput type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
           </div>
 
           <div>
@@ -315,11 +315,11 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           {/* Toggles */}
           <div className="flex flex-wrap gap-4">
             <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <input type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-neutral-300" />
+              <AdminInput type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-neutral-300" />
               Published
             </label>
             <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="rounded border-neutral-300" />
+              <AdminInput type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="rounded border-neutral-300" />
               Featured
             </label>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AdminHeader, AdminCard, AdminButton, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, AdminButton, StateMessage, AdminInput} from '@/components/admin/AdminUi';
 import { fetchQuotationSettings, updateQuotationSettings } from '@/lib/contractor';
 import type { DbQuotationSettings } from '@/types/database';
 import { Save, Check, AlertCircle } from 'lucide-react';
@@ -66,23 +66,23 @@ export default function AdminQuotationSettings() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Company Name</span>
-              <input value={settings.company_name ?? ''} onChange={e => setSettings({ ...settings, company_name: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.company_name ?? ''} onChange={e => setSettings({ ...settings, company_name: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Company Phone</span>
-              <input value={settings.company_phone ?? ''} onChange={e => setSettings({ ...settings, company_phone: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.company_phone ?? ''} onChange={e => setSettings({ ...settings, company_phone: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Company Email</span>
-              <input value={settings.company_email ?? ''} onChange={e => setSettings({ ...settings, company_email: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.company_email ?? ''} onChange={e => setSettings({ ...settings, company_email: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Logo URL</span>
-              <input value={settings.company_logo_url ?? ''} onChange={e => setSettings({ ...settings, company_logo_url: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.company_logo_url ?? ''} onChange={e => setSettings({ ...settings, company_logo_url: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block col-span-2">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Company Address</span>
-              <input value={settings.company_address ?? ''} onChange={e => setSettings({ ...settings, company_address: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.company_address ?? ''} onChange={e => setSettings({ ...settings, company_address: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
           </div>
         </AdminCard>
@@ -92,15 +92,15 @@ export default function AdminQuotationSettings() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Markup (%)</span>
-              <input type="number" value={settings.default_markup_percentage} onChange={e => setSettings({ ...settings, default_markup_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput type="number" value={settings.default_markup_percentage} onChange={e => setSettings({ ...settings, default_markup_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Profit (%)</span>
-              <input type="number" value={settings.default_profit_percentage} onChange={e => setSettings({ ...settings, default_profit_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput type="number" value={settings.default_profit_percentage} onChange={e => setSettings({ ...settings, default_profit_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Tax (%)</span>
-              <input type="number" value={settings.default_tax_percentage} onChange={e => setSettings({ ...settings, default_tax_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput type="number" value={settings.default_tax_percentage} onChange={e => setSettings({ ...settings, default_tax_percentage: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
           </div>
         </AdminCard>
@@ -114,11 +114,11 @@ export default function AdminQuotationSettings() {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Payment Terms</span>
-              <input value={settings.default_payment_terms} onChange={e => setSettings({ ...settings, default_payment_terms: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput value={settings.default_payment_terms} onChange={e => setSettings({ ...settings, default_payment_terms: e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Default Validity (days)</span>
-              <input type="number" value={settings.default_validity_days} onChange={e => setSettings({ ...settings, default_validity_days: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
+              <AdminInput type="number" value={settings.default_validity_days} onChange={e => setSettings({ ...settings, default_validity_days: +e.target.value })} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200" />
             </label>
           </div>
         </AdminCard>

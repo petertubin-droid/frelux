@@ -5,7 +5,7 @@ import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
-import {AdminButton, AdminIconButton} from '@/components/admin/AdminUi';
+import {AdminButton, AdminIconButton, AdminInput, AdminSelect} from '@/components/admin/AdminUi';
 
 // ============================================================
 // Admin SEO & Location Management
@@ -144,10 +144,10 @@ function LocationsTab() {
       <div className="mb-4 flex items-center justify-between">
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+          <AdminInput
+ type="text"
+ value={search}
+ onChange={(e) => setSearch(e.target.value)}
             placeholder="Search locations..."
             className="rounded-lg border border-neutral-200 py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
           />
@@ -186,14 +186,14 @@ function LocationsTab() {
                   <td className="py-2 pr-4 text-neutral-700 dark:text-neutral-200">{loc.city}</td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <input value={editSlug} onChange={(e) => setEditSlug(e.target.value)} className="w-28 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editSlug} onChange={(e) => setEditSlug(e.target.value)} className="w-28 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
                     ) : (
                       <span className="text-xs text-neutral-500">{loc.slug || '—'}</span>
                     )}
                   </td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <input value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
                     ) : (
                       <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-neutral-400')}>
                         {loc.latitude ? loc.latitude.toFixed(4) : '—'}
@@ -202,7 +202,7 @@ function LocationsTab() {
                   </td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <input value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
                     ) : (
                       <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-neutral-400')}>
                         {loc.longitude ? loc.longitude.toFixed(4) : '—'}
@@ -326,9 +326,9 @@ function CategoriesTab() {
                 <div className="mt-4 space-y-3 border-t border-neutral-100 pt-3 dark:border-white/5">
                   <div>
                     <label className="text-xs font-medium text-neutral-500">SEO Title</label>
-                    <input
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
+                    <AdminInput
+ value={editTitle}
+ onChange={(e) => setEditTitle(e.target.value)}
                       placeholder={`${cat.name} Services & Jobs — FRELUX Marketplace`}
                       className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
                     />
@@ -344,10 +344,10 @@ function CategoriesTab() {
                     />
                   </div>
                   <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={editIndexable}
-                      onChange={(e) => setEditIndexable(e.target.checked)}
+                    <AdminInput
+ type="checkbox"
+ checked={editIndexable}
+ onChange={(e) => setEditIndexable(e.target.checked)}
                       className="rounded"
                     />
                     <span className="text-neutral-700 dark:text-neutral-200">Allow search engines to index this category page</span>
@@ -446,7 +446,7 @@ function SeoPagesTab() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="text-xs font-medium text-neutral-500">Page Type</label>
-              <select
+              <AdminSelect
                 value={form.page_type}
                 onChange={(e) => setForm({ ...form, page_type: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
@@ -456,37 +456,37 @@ function SeoPagesTab() {
                 <option value="pro_category_location">Pro Category + Location</option>
                 <option value="seller_profile">Seller Profile</option>
                 <option value="listing_detail">Listing Detail</option>
-              </select>
+              </AdminSelect>
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500">Entity ID (optional)</label>
-              <input
-                value={form.entity_id}
-                onChange={(e) => setForm({ ...form, entity_id: e.target.value })}
+              <AdminInput
+ value={form.entity_id}
+ onChange={(e) => setForm({ ...form, entity_id: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               />
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500">Category Slug (optional)</label>
-              <input
-                value={form.category_slug}
-                onChange={(e) => setForm({ ...form, category_slug: e.target.value })}
+              <AdminInput
+ value={form.category_slug}
+ onChange={(e) => setForm({ ...form, category_slug: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               />
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500">Location Slug (optional)</label>
-              <input
-                value={form.location_slug}
-                onChange={(e) => setForm({ ...form, location_slug: e.target.value })}
+              <AdminInput
+ value={form.location_slug}
+ onChange={(e) => setForm({ ...form, location_slug: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               />
             </div>
             <div className="sm:col-span-2">
               <label className="text-xs font-medium text-neutral-500">SEO Title *</label>
-              <input
-                value={form.seo_title}
-                onChange={(e) => setForm({ ...form, seo_title: e.target.value })}
+              <AdminInput
+ value={form.seo_title}
+ onChange={(e) => setForm({ ...form, seo_title: e.target.value })}
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               />
             </div>
@@ -501,19 +501,19 @@ function SeoPagesTab() {
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500">Canonical Path (optional)</label>
-              <input
-                value={form.canonical_path}
-                onChange={(e) => setForm({ ...form, canonical_path: e.target.value })}
+              <AdminInput
+ value={form.canonical_path}
+ onChange={(e) => setForm({ ...form, canonical_path: e.target.value })}
                 placeholder="/marketplace/category/painting"
                 className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
               />
             </div>
             <div>
               <label className="flex items-center gap-2 text-sm pt-6">
-                <input
-                  type="checkbox"
-                  checked={form.is_indexable}
-                  onChange={(e) => setForm({ ...form, is_indexable: e.target.checked })}
+                <AdminInput
+ type="checkbox"
+ checked={form.is_indexable}
+ onChange={(e) => setForm({ ...form, is_indexable: e.target.checked })}
                   className="rounded"
                 />
                 <span className="text-neutral-700 dark:text-neutral-200">Indexable</span>

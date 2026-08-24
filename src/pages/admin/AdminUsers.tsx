@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminCard, StateMessage } from '@/components/admin/AdminUi';
+import {AdminHeader, AdminCard, StateMessage, AdminSelect} from '@/components/admin/AdminUi';
 import type { DbProfile, DbUserPaidStatus } from '@/types/database';
 import { classNames } from '@/lib/utils';
 import { Crown, Clock, X, Check } from 'lucide-react';
@@ -179,18 +179,18 @@ export default function AdminUsers() {
                     </td>
                     <td className="py-3 pr-4 text-neutral-600 dark:text-neutral-300">
                       {isEditing ? (
-                        <select value={editPlan} onChange={(e) => setEditPlan(e.target.value)} className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800">
+                        <AdminSelect value={editPlan} onChange={(e) => setEditPlan(e.target.value)} className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800">
                           {PLAN_OPTIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-                        </select>
+                        </AdminSelect>
                       ) : (
                         u.paid_status?.plan ? <span className="capitalize">{u.paid_status.plan}</span> : '—'
                       )}
                     </td>
                     <td className="py-3 pr-4 text-neutral-400 dark:text-neutral-500">
                       {isEditing ? (
-                        <select value={editDays} onChange={(e) => setEditDays(e.target.value)} className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800">
+                        <AdminSelect value={editDays} onChange={(e) => setEditDays(e.target.value)} className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800">
                           {DURATION_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}
-                        </select>
+                        </AdminSelect>
                       ) : u.paid_status?.paid_until ? (
                         new Date(u.paid_status.paid_until).toLocaleDateString()
                       ) : u.paid_status?.is_paid ? 'Lifetime' : '—'}

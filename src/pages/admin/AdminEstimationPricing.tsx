@@ -240,11 +240,11 @@ export default function AdminEstimationPricing() {
 
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
-          <input
-            type="text"
-            placeholder="Search price items..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          <AdminInput
+ type="text"
+ placeholder="Search price items..."
+ value={searchQuery}
+ onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-xs"
           />
         </div>
