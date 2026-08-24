@@ -8,6 +8,7 @@ import {
   calculatePaintRequired,
   calculateAdjustedPaintRequired,
   recommendContainerCombination,
+  recommendPracticalContainers,
   calculatePaint,
   calculatePaintCost,
   calculateMaterialCost,
@@ -623,5 +624,245 @@ describe('Edge cases: screeding mix waste', () => {
     expect(result.grandTotal).toBe(30000);
     // wasteAllowance is informational: 30000 × (0.1/1.1) ≈ 2727.27
     expect(result.wasteAmount).toBeCloseTo(2727.27, 0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Surface condition adjustment
+// ─────────────────────────────────────────────────────────
+describe('surface condition factors', () => {
+  it('reduces coverage for textured surfaces', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      surfaceCondition: 'textured',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    // Textured factor = 0.85 → adjusted coverage = 8.5 m²/L
+    expect(result.coverageRate).toBe(8.5);
+    expect(result.baseCoverageRate).toBe(10);
+    expect(result.surfaceConditionFactor).toBe(0.85);
+  });
+
+  it('reduces coverage more for rough surfaces', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      surfaceCondition: 'rough',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    // Rough factor = 0.75 → adjusted coverage = 7.5 m²/L
+    expect(result.coverageRate).toBe(7.5);
+  });
+
+  it('keeps base coverage for smooth surfaces', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      surfaceCondition: 'smooth',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.coverageRate).toBe(10);
+    expect(result.baseCoverageRate).toBe(10);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Color condition logic
+// ─────────────────────────────────────────────────────────
+describe('color condition logic', () => {
+  it('enforces minimum 3 coats for dark over light', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      colorCondition: 'dark_over_light',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    // Should bump to 3 coats minimum
+    expect(result.coats).toBe(3);
+    expect(result.colorWarning).toBeTruthy();
+  });
+
+  it('keeps user coats when already above minimum', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 4, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      colorCondition: 'dark_over_light',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.coats).toBe(4);
+  });
+
+  it('no warning for same/light colour', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      colorCondition: 'same_or_light',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.colorWarning).toBeNull();
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Primer calculation
+// ─────────────────────────────────────────────────────────
+describe('primer calculation', () => {
+  it('calculates primer when includePrimer is true', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      includePrimer: true,
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    // Primer: area / (10 * 1.3) with 1 coat
+    // Wall area = 60, primer coverage = 13
+    // primerLiters = 60 / 13 ≈ 4.62
+    expect(result.primerLiters).toBeGreaterThan(0);
+    expect(result.primerContainers.length).toBeGreaterThan(0);
+  });
+
+  it('auto-recommends primer for new plaster', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      surfaceCondition: 'new_plaster',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.primerRecommended).toBe(true);
+    // includePrimer defaults to primerRecommended when not explicitly set
+    expect(result.primerLiters).toBeGreaterThan(0);
+  });
+
+  it('no primer when not included', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      includePrimer: false,
+      surfaceCondition: 'smooth',
+      colorCondition: 'same_or_light',
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.primerLiters).toBe(0);
+    expect(result.primerContainers).toEqual([]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Practical container recommendation
+// ─────────────────────────────────────────────────────────
+describe('recommendPracticalContainers', () => {
+  it('prefers one 20L bucket over multiple small containers', () => {
+    const result = recommendPracticalContainers(19, [1, 4, 20]);
+    // 19L → 1 × 20L (practical) instead of 4×4L + 3×1L
+    expect(result).toEqual([{ size: 20, count: 1 }]);
+  });
+
+  it('uses single smallest when under smallest size', () => {
+    const result = recommendPracticalContainers(0.5, [1, 4, 20]);
+    expect(result).toEqual([{ size: 1, count: 1 }]);
+  });
+
+  it('handles exact multiples', () => {
+    const result = recommendPracticalContainers(40, [1, 4, 20]);
+    expect(result).toEqual([{ size: 20, count: 2 }]);
+  });
+
+  it('returns empty for 0 liters', () => {
+    expect(recommendPracticalContainers(0, [1, 4, 20])).toEqual([]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Leftover calculation
+// ─────────────────────────────────────────────────────────
+describe('leftover paint calculation', () => {
+  it('calculates leftover from container rounding', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 6, width: 4, wallHeight: 3,
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'meters',
+      includeCeiling: false, wasteMargin: 0,
+      surfaceCondition: 'smooth',
+      colorCondition: 'same_or_light',
+      includePrimer: false,
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    if (result.totalRecommendedLiters > result.adjustedLiters) {
+      expect(result.leftoverLiters).toBeGreaterThan(0);
+      expect(result.leftoverLiters).toBeCloseTo(
+        Math.round((result.totalRecommendedLiters - result.adjustedLiters) * 100) / 100, 1
+      );
+    }
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Height warning
+// ─────────────────────────────────────────────────────────
+describe('height warning', () => {
+  it('warns when wall height exceeds 8ft standard', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 12, width: 12, wallHeight: 12, // 12 feet > 8 feet standard
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'feet',
+      includeCeiling: false, wasteMargin: 0,
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.heightWarning).toBeTruthy();
+    expect(result.heightWarning).toContain('FRELUX standard');
+  });
+
+  it('no warning for standard height', () => {
+    const input: CalculatorInput = {
+      projectType: 'room',
+      length: 12, width: 12, wallHeight: 8, // 8 feet = standard
+      doors: 0, doorDims: { width: 0.8, height: 2.4 },
+      windows: 0, windowDims: { width: 1.2, height: 1.2 },
+      coats: 2, paintType: 'emulsion', unit: 'feet',
+      includeCeiling: false, wasteMargin: 0,
+    };
+    const result = calculatePaint(input, { coverageRate: 10 });
+    expect(result.heightWarning).toBeNull();
   });
 });

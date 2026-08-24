@@ -1,5 +1,7 @@
 export type ProjectType = 'room' | 'house' | 'exterior' | 'fence';
 export type Unit = 'meters' | 'feet';
+export type SurfaceCondition = 'smooth' | 'textured' | 'rough' | 'new_plaster';
+export type ColorCondition = 'same_or_light' | 'dark_over_light' | 'light_over_dark' | 'new_unpainted';
 
 // Re-export default opening dimensions from utils so all modules
 // share a single source of truth.
@@ -29,6 +31,9 @@ export interface CalculatorInput {
   unit: Unit;
   includeCeiling: boolean;
   wasteMargin: number; // percentage 0–100
+  surfaceCondition?: SurfaceCondition;
+  colorCondition?: ColorCondition;
+  includePrimer?: boolean;
 }
 
 export interface ContainerRecommendation {
@@ -52,6 +57,19 @@ export interface CalculatorResult {
   adjustedLiters: number; // after waste
   recommendedContainers: ContainerRecommendation[];
   totalRecommendedLiters: number;
+  leftoverLiters: number;
+  // Primer
+  primerLiters: number;
+  primerContainers: ContainerRecommendation[];
+  primerTotalLiters: number;
+  // Surface condition
+  baseCoverageRate: number;
+  surfaceCondition: SurfaceCondition;
+  surfaceConditionFactor: number;
+  // Warnings
+  heightWarning: string | null;
+  colorWarning: string | null;
+  primerRecommended: boolean;
 }
 
 export interface PaintContainerPurchase {

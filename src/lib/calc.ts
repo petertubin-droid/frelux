@@ -10,6 +10,8 @@ import type {
   ScreedingMixResult,
   AdvancedEstimateData,
   AdvancedEstimateLineItem,
+  SurfaceCondition,
+  ColorCondition,
 } from '@/types';
 import {
   feetToMeters,
@@ -28,6 +30,54 @@ export const DEFAULT_CONTAINER_SIZES_LITERS = [1, 4, 20];
 
 export const DEFAULT_DOOR_DIMS: OpeningDimensions = { width: DEFAULT_DOOR_WIDTH_M, height: DEFAULT_DOOR_HEIGHT_M };
 export const DEFAULT_WINDOW_DIMS: OpeningDimensions = { width: DEFAULT_WINDOW_WIDTH_M, height: DEFAULT_WINDOW_HEIGHT_M };
+
+// ─────────────────────────────────────────────────────────
+// Surface condition coverage adjustment factors
+// Rough/textured surfaces absorb more paint, reducing effective coverage.
+// These are industry-standard multipliers applied to the base coverage rate.
+// ─────────────────────────────────────────────────────────
+export const SURFACE_CONDITION_FACTORS: Record<SurfaceCondition, { factor: number; label: string; description: string }> = {
+  smooth:           { factor: 1.00, label: 'Smooth / Previously Painted', description: 'Sound, smooth surface — standard coverage applies.' },
+  textured:          { factor: 0.85, label: 'Textured',                    description: 'Textured surface — ~15% more paint absorbed due to surface profile.' },
+  rough:             { factor: 0.75, label: 'Rough',                       description: 'Rough surface — ~25% more paint absorbed. Consider surface preparation.' },
+  new_plaster:       { factor: 0.80, label: 'New / Bare Plaster',           description: 'New plaster is porous — ~20% more paint absorbed on first coat. Primer strongly recommended.' },
+};
+
+// ─────────────────────────────────────────────────────────
+// Color condition logic
+// Dark colors over light, or significant transitions, may require extra coats
+// or primer. These generate warnings, NOT automatic adjustments (per FRELUX rules).
+// ─────────────────────────────────────────────────────────
+export const COLOR_CONDITION_INFO: Record<ColorCondition, { label: string; warning: string | null; minCoats: number }> = {
+  same_or_light:     { label: 'Same / Light Colour',         warning: null,                                                                                   minCoats: 2 },
+  dark_over_light:   { label: 'Dark over Light',            warning: 'Dark colour over light surface typically requires 3+ coats or a tinted primer for full opacity.', minCoats: 3 },
+  light_over_dark:   { label: 'Light over Dark',            warning: 'Light colour over dark surface requires primer + 2-3 coats for complete coverage.',     minCoats: 3 },
+  new_unpainted:     { label: 'New / Unpainted',            warning: 'New/unpainted surfaces are porous. Primer/sealer is strongly recommended before painting.', minCoats: 2 },
+};
+
+// FRELUX standard height threshold (8 ft / 2.4384 m)
+const STANDARD_HEIGHT_FT = 8;
+const STANDARD_HEIGHT_M = 2.4384;
+
+export function getSurfaceConditionFactor(condition: SurfaceCondition | undefined): { factor: number; label: string; description: string } {
+  if (!condition) return SURFACE_CONDITION_FACTORS.smooth;
+  return SURFACE_CONDITION_FACTORS[condition] ?? SURFACE_CONDITION_FACTORS.smooth;
+}
+
+export function getColorConditionInfo(condition: ColorCondition | undefined): { label: string; warning: string | null; minCoats: number } {
+  if (!condition) return COLOR_CONDITION_INFO.same_or_light;
+  return COLOR_CONDITION_INFO[condition] ?? COLOR_CONDITION_INFO.same_or_light;
+}
+
+export function evaluateHeightWarning(heightM: number, unit: 'meters' | 'feet'): string | null {
+  const standardM = STANDARD_HEIGHT_M;
+  const standardFt = STANDARD_HEIGHT_FT;
+  if (heightM > standardM) {
+    const heightFt = unit === 'feet' ? heightM / 0.3048 : heightM * 3.28084;
+    return `Wall height exceeds the FRELUX standard (${standardFt} ft / ${standardM.toFixed(2)} m). Professional assessment recommended for non-standard heights.`;
+  }
+  return null;
+}
 
 // Config the calculator receives from the caller. All fields optional —
 // when omitted, the defaults above are used. The caller loads these from
@@ -159,12 +209,77 @@ export function recommendContainerCombination(
   return recommendations;
 }
 
+/**
+ * Practical container recommendation — prefers larger containers (20L buckets)
+ * over multiple smaller ones, even when it means buying slightly more paint.
+ * This follows FRELUX's "20-litre buckets as standard purchase unit" rule.
+ *
+ * Example: 19L needed → 1 × 20L bucket (practical) vs 4×4L + 3×1L (theoretical)
+ */
+export function recommendPracticalContainers(
+  liters: number,
+  containerSizes: number[]
+): ContainerRecommendation[] {
+  const sizes = containerSizes.length > 0
+    ? [...containerSizes].sort((a, b) => b - a)
+    : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
+
+  const need = Math.max(0, liters);
+  if (need === 0) return [];
+
+  // Find the smallest single container that covers the full requirement.
+  // sizes is sorted descending, so iterate from the end (smallest) to find
+  // the smallest container that can cover the entire need in one purchase.
+  for (let i = sizes.length - 1; i >= 0; i--) {
+    if (sizes[i] >= need) {
+      return [{ size: sizes[i], count: 1 }];
+    }
+  }
+
+  // No single container covers everything — use greedy fill, then round up last container.
+  let remaining = need;
+  const recommendations: ContainerRecommendation[] = [];
+
+  for (const size of sizes) {
+    if (remaining <= 0) break;
+    const count = Math.floor(remaining / size);
+    if (count > 0) {
+      recommendations.push({ size, count });
+      remaining -= count * size;
+    }
+  }
+
+  // If there's a remainder, round up to one more of the smallest practical size.
+  if (remaining > 0) {
+    // Prefer rounding up to a 20L bucket if the remainder is more than half a bucket
+    const largest = sizes[0];
+    const smallest = sizes[sizes.length - 1];
+    if (remaining > smallest * 0.5 && recommendations.length > 0) {
+      // Check if upgrading the last recommendation to a larger size is better
+      const lastRec = recommendations[recommendations.length - 1];
+      // Find next larger size
+      const nextSize = sizes.find(s => s > lastRec.size);
+      if (nextSize && remaining <= nextSize) {
+        // Replace last rec with one larger container
+        recommendations[recommendations.length - 1] = { size: nextSize, count: 1 };
+        remaining = 0;
+      } else {
+        recommendations.push({ size: smallest, count: 1 });
+      }
+    } else {
+      recommendations.push({ size: smallest, count: 1 });
+    }
+  }
+
+  return recommendations;
+}
+
 // ─────────────────────────────────────────────────────────
 // Full paint calculation
 // ─────────────────────────────────────────────────────────
 
 export function calculatePaint(input: CalculatorInput, config?: CalcConfig): CalculatorResult {
-  const coverageRate = config?.coverageRate ?? DEFAULT_COVERAGE_M2_PER_LITER;
+  const baseCoverageRate = config?.coverageRate ?? DEFAULT_COVERAGE_M2_PER_LITER;
   const containerSizes = config?.containerSizes ?? DEFAULT_CONTAINER_SIZES_LITERS;
 
   // Convert to meters internally.
@@ -178,10 +293,40 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
   const window = calculateWindowArea(input.windows, input.windowDims);
   const area = calculatePaintableArea(wall, ceiling, door, window, input.includeCeiling);
 
-  const baseLiters = calculatePaintRequired(area, input.coats, coverageRate);
+  // ── Surface condition adjustment ──
+  // Rough/textured surfaces reduce effective coverage — apply factor to base rate.
+  const surfaceCondition = input.surfaceCondition ?? 'smooth';
+  const surfaceInfo = getSurfaceConditionFactor(surfaceCondition);
+  const adjustedCoverageRate = round(baseCoverageRate * surfaceInfo.factor);
+
+  // ── Color condition logic ──
+  const colorCondition = input.colorCondition ?? 'same_or_light';
+  const colorInfo = getColorConditionInfo(colorCondition);
+  const effectiveCoats = Math.max(input.coats, colorInfo.minCoats);
+
+  // ── Height warning ──
+  const heightWarning = evaluateHeightWarning(heightM, input.unit);
+
+  // ── Paint calculation (with adjusted coverage and effective coats) ──
+  const baseLiters = calculatePaintRequired(area, effectiveCoats, adjustedCoverageRate);
   const adjustedLiters = calculateAdjustedPaintRequired(baseLiters, input.wasteMargin);
-  const containers = recommendContainerCombination(adjustedLiters, containerSizes);
+
+  // ── Practical container recommendation (prefers 20L buckets) ──
+  const containers = recommendPracticalContainers(adjustedLiters, containerSizes);
   const totalRecommended = containers.reduce((sum, c) => sum + c.count * c.size, 0);
+  const leftoverLiters = Math.max(0, round(totalRecommended - adjustedLiters));
+
+  // ── Primer calculation (if included or recommended) ──
+  const primerRecommended = surfaceCondition === 'new_plaster' || surfaceCondition === 'rough' || colorCondition === 'new_unpainted' || colorCondition === 'light_over_dark';
+  const includePrimer = input.includePrimer ?? primerRecommended;
+  // Primer typically covers more area per liter (~30% more than paint) and needs 1 coat
+  const primerCoverageRate = adjustedCoverageRate * 1.3;
+  const primerLiters = includePrimer ? calculateAdjustedPaintRequired(
+    calculatePaintRequired(area, 1, primerCoverageRate),
+    input.wasteMargin
+  ) : 0;
+  const primerContainers = primerLiters > 0 ? recommendPracticalContainers(primerLiters, containerSizes) : [];
+  const primerTotalLiters = primerContainers.reduce((sum, c) => sum + c.count * c.size, 0);
 
   return {
     projectType: input.projectType,
@@ -191,14 +336,24 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
     doorArea: round(door),
     windowArea: round(window),
     paintableArea: round(area),
-    coats: input.coats,
+    coats: effectiveCoats,
     paintType: input.paintType,
-    coverageRate,
+    coverageRate: adjustedCoverageRate,
+    baseCoverageRate,
+    surfaceCondition,
+    surfaceConditionFactor: surfaceInfo.factor,
     paintRequiredLiters: round(baseLiters),
     wasteMargin: input.wasteMargin,
     adjustedLiters: round(adjustedLiters),
     recommendedContainers: containers,
     totalRecommendedLiters: round(totalRecommended),
+    leftoverLiters,
+    primerLiters: round(primerLiters),
+    primerContainers,
+    primerTotalLiters: round(primerTotalLiters),
+    heightWarning,
+    colorWarning: colorInfo.warning,
+    primerRecommended,
   };
 }
 

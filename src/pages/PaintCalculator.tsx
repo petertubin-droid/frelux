@@ -7,7 +7,7 @@ import TemplatePicker from '@/components/ui/TemplatePicker';
 import CountUp from '@/components/ui/CountUp';
 import StickyActionBar from '@/components/ui/StickyActionBar';
 import { useToast } from '@/components/ui/Toast';
-import { calculatePaint, type CalcConfig } from '@/lib/calc';
+import { calculatePaint, type CalcConfig, SURFACE_CONDITION_FACTORS, COLOR_CONDITION_INFO } from '@/lib/calc';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPaintTypes, fetchScreedingMixConfig, saveUserProject } from '@/lib/queries';
 import { formatNumber } from '@/lib/utils';
@@ -15,7 +15,7 @@ import { useAuth } from '@/lib/auth';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
-import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig } from '@/types';
+import type { CalculatorInput, CalculatorResult, ProjectType, Unit, OpeningDimensions, ScreedingMixConfig, SurfaceCondition, ColorCondition } from '@/types';
 import type { DbPaintType } from '@/types/database';
 import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
 import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
@@ -99,9 +99,12 @@ export default function PaintCalculator() {
     windowDims: defaultWindowDims,
     coats: 2,
     paintType: '',
-    unit: 'meters',
+    unit: 'feet',
     includeCeiling: false,
     wasteMargin: 10,
+    surfaceCondition: 'smooth',
+    colorCondition: 'same_or_light',
+    includePrimer: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paintTypes, setPaintTypes] = useState<DbPaintType[]>([]);
@@ -212,9 +215,12 @@ export default function PaintCalculator() {
       windowDims: defaultWindowDims,
       coats: 2,
       paintType: paintTypes[0]?.id ?? '',
-      unit: 'meters',
+      unit: 'feet',
       includeCeiling: false,
       wasteMargin: 10,
+      surfaceCondition: 'smooth',
+      colorCondition: 'same_or_light',
+      includePrimer: false,
     });
   }
 
@@ -605,6 +611,60 @@ function Step3({
         </div>
         {errors.wasteMargin && <span className="mt-1 block text-xs text-red-600">{errors.wasteMargin}</span>}
       </div>
+
+      {/* Surface condition */}
+      <div className="mt-4">
+        <span className="block text-sm font-semibold text-neutral-700">Surface condition</span>
+        <p className="mt-0.5 text-xs text-neutral-400">Affects coverage — rough surfaces absorb more paint.</p>
+        <select
+          value={input.surfaceCondition ?? 'smooth'}
+          onChange={(e) => update('surfaceCondition', e.target.value as SurfaceCondition)}
+          className="input-field mt-2"
+        >
+          {Object.entries(SURFACE_CONDITION_FACTORS).map(([key, info]) => (
+            <option key={key} value={key}>
+              {info.label} ({Math.round((1 - info.factor) * 100)}% more paint)
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Colour condition */}
+      <div className="mt-4">
+        <span className="block text-sm font-semibold text-neutral-700">Colour change</span>
+        <p className="mt-0.5 text-xs text-neutral-400">Dark colours over light may need extra coats or primer.</p>
+        <select
+          value={input.colorCondition ?? 'same_or_light'}
+          onChange={(e) => update('colorCondition', e.target.value as ColorCondition)}
+          className="input-field mt-2"
+        >
+          {Object.entries(COLOR_CONDITION_INFO).map(([key, info]) => (
+            <option key={key} value={key}>{info.label}</option>
+          ))}
+        </select>
+        {COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light'].warning && (
+          <p className="mt-1 flex items-start gap-1.5 rounded-lg border border-amber-200 bg-amber-50 p-2 text-xs text-amber-700">
+            <AlertCircle className="mt-0.5 h-3 w-3 shrink-0" />
+            {COLOR_CONDITION_INFO[input.colorCondition ?? 'same_or_light'].warning}
+          </p>
+        )}
+      </div>
+
+      {/* Primer toggle */}
+      <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-200 p-4">
+        <Toggle
+          checked={input.includePrimer ?? false}
+          onChange={(v) => update('includePrimer', v)}
+        />
+        <div>
+          <p className="text-sm font-semibold text-neutral-700">Include primer / sealer</p>
+          <p className="text-xs text-neutral-400">
+            {input.surfaceCondition === 'new_plaster' || input.surfaceCondition === 'rough'
+              ? 'Recommended for this surface condition.'
+              : 'Recommended for new surfaces and strong colour transitions.'}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -643,8 +703,9 @@ function ResultCard({
           <span className="text-sm font-semibold uppercase tracking-widest">Your estimate</span>
         </div>
         <p className="relative mt-3 text-sm text-white/60">
-          {input.projectType} project · {input.coats} coat{input.coats > 1 ? 's' : ''} · {paintTypeName}
+          {input.projectType} project · {result.coats} coat{result.coats > 1 ? 's' : ''} · {paintTypeName}
           {input.wasteMargin > 0 && ` · ${input.wasteMargin}% waste margin`}
+          {result.surfaceCondition !== 'smooth' && ` · ${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? ''}`}
         </p>
         <p className="relative mt-1 text-4xl font-bold sm:text-5xl animate-count-glow">{formatNumber(result.adjustedLiters, 1)} L</p>
         <p className="relative mt-1 text-sm text-white/60">estimated paint required (incl. waste margin)</p>
@@ -659,7 +720,51 @@ function ResultCard({
           <Stat label="After waste margin" value={`${formatNumber(result.adjustedLiters, 1)} L`} countValue={result.adjustedLiters} decimals={1} suffix=" L" />
         )}
         <Stat label="Total to purchase" value={`${formatNumber(result.totalRecommendedLiters, 1)} L`} countValue={result.totalRecommendedLiters} decimals={1} suffix=" L" highlight />
+        {result.leftoverLiters > 0 && (
+          <Stat label="Excess from containers" value={`${formatNumber(result.leftoverLiters, 1)} L`} countValue={result.leftoverLiters} decimals={1} suffix=" L" />
+        )}
+        {result.coats !== input.coats && (
+          <Stat label="Effective coats" value={`${result.coats}`} />
+        )}
       </div>
+
+      {/* Warnings */}
+      {(result.heightWarning || result.colorWarning) && (
+        <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5 space-y-2">
+          {result.heightWarning && (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {result.heightWarning}
+            </div>
+          )}
+          {result.colorWarning && (
+            <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              {result.colorWarning}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Primer */}
+      {result.primerLiters > 0 && (
+        <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Primer / sealer</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {result.primerContainers.map((c, i) => (
+              <span key={i} className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white">
+                {c.count} × {c.size} L
+              </span>
+            ))}
+            <span className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-semibold text-brand-purple">
+              {formatNumber(result.primerLiters, 1)} L needed
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-neutral-400">
+            Primer covers ~30% more area per liter than paint. Applied as 1 coat before painting.
+          </p>
+        </div>
+      )}
 
       <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
         <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Recommended containers</p>
@@ -678,7 +783,8 @@ function ResultCard({
         {result.doorArea > 0 && ` · Doors: ${formatNumber(result.doorArea)} m²`}
         {result.windowArea > 0 && ` · Windows: ${formatNumber(result.windowArea)} m²`}
         <br />
-        Coverage ~{formatNumber(result.coverageRate, 1)} m² per liter per coat. Final amounts vary by surface texture,
+        Base coverage {formatNumber(result.baseCoverageRate, 1)} m²/L → adjusted {formatNumber(result.coverageRate, 1)} m²/L
+        ({SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? 'Smooth'}). {result.coats} coat(s). Final amounts vary by surface texture,
         application method, and product.
       </div>
 
@@ -695,10 +801,12 @@ function ResultCard({
         <HowCalculatedSection
           methodologyText={(calcDefaults.howCalculatedText as string) || ''}
           assumptions={[
-            { label: 'Coverage rate', value: `${formatNumber(result.coverageRate, 1)} m²/L per coat` },
-            { label: 'Coats', value: `${input.coats}` },
+            { label: 'Base coverage', value: `${formatNumber(result.baseCoverageRate, 1)} m²/L per coat` },
+            { label: 'Adjusted coverage', value: `${formatNumber(result.coverageRate, 1)} m²/L (${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? 'Smooth'})` },
+            { label: 'Coats', value: `${result.coats}${result.coats !== input.coats ? ` (min for colour change)` : ''}` },
             { label: 'Waste margin', value: `${input.wasteMargin}%` },
             { label: 'Container sizes', value: `${(calcDefaults.containerSizes as number[])?.join(', ') ?? '1, 4, 20'} L` },
+            { label: 'Primer', value: result.primerLiters > 0 ? `${formatNumber(result.primerLiters, 1)} L included` : 'Not included' },
             { label: 'Door dimensions', value: `${calcDefaults.doorWidthM}m × ${calcDefaults.doorHeightM}m` },
             { label: 'Window dimensions', value: `${calcDefaults.windowWidthM}m × ${calcDefaults.windowHeightM}m` },
           ]}
