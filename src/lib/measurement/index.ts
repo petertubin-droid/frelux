@@ -114,3 +114,13 @@ export {
   type UseMeasurementProjectOptions,
   type UseMeasurementProjectReturn,
 } from './use-measurement-project';
+
+// ── Engine Bridges ──
+export {
+  bridgeScreeding,
+  bridgeTiling,
+  bridgePainting,
+  bridgeGrafitex,
+  aggregateTilingResults,
+  type GrafitexBridgeResult,
+} from './bridges';

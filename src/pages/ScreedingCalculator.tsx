@@ -1,25 +1,25 @@
-import { useState, useEffect, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { Home, RectangleHorizontal, AlertCircle, ChevronDown, CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { CheckCircle2, RotateCcw } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
-import _ResultDisplay from '@/components/ui/ResultDisplay';
-import { calculateScreedingArea, validateScreedingInput, formatNumber } from '@/lib/utils';
+import { formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent } from '@/lib/queries';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
 import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
-import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import { useSeo } from '@/lib/seo';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
-// Default door/window dims are now fetched from admin calc rules via useCalcDefaults
+// Unified measurement system
+import { MeasurementInput, CalculationBreakdown, ValidationErrors } from '@/components/measurement/MeasurementInput';
+import {
+  useMeasurementProject,
+  type ProjectMode,
+} from '@/lib/measurement';
 
 export default function ScreedingCalculator() {
-  const { defaults: calcDefaults } = useCalcDefaults('screeding');
-  const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
-  const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
+  useCalcDefaults('screeding');
   useSeo({
     title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
     description:
@@ -47,57 +47,55 @@ export default function ScreedingCalculator() {
     ],
   });
 
-  const [result, setResult] = useState<ScreedingCalcResult | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [input, setInput] = useState<ScreedingCalcInput>({
-    method: 'full_room',
-    roomLength: 0,
-    roomWidth: 0,
-    wallWidth: 0,
-    wallCount: 1,
-    wallHeight: 0,
-    doors: 0,
-    doorDims: defaultDoorDims,
-    windows: 0,
-    windowDims: defaultWindowDims,
-    unit: 'meters',
+  const {
+    project,
+    validation,
+    addMeasurement,
+    updateMeasurement,
+    removeMeasurement,
+    resetWithMode,
+    calculate,
+  } = useMeasurementProject({
+    calculatorContext: 'screeding',
+    preferredUnit: 'meters',
+    projectMode: 'single_room',
   });
+
+  const [screedingResult, setScreedingResult] = useState<{
+    totalAreaM2: number;
+    steps: { label: string; formula: string; value: string }[];
+  } | null>(null);
 
   useEffect(() => {
     track('screeding_calculator_opened', {});
     logAnalyticsEvent('screeding_calculator_opened', {});
   }, []);
 
-  function update<K extends keyof ScreedingCalcInput>(key: K, value: ScreedingCalcInput[K]) {
-    setInput((prev) => ({ ...prev, [key]: value }));
-    setErrors((e) => ({ ...e, [key]: '' }));
-  }
-
-  function compute() {
-    const e = validateScreedingInput(input);
-    setErrors(e);
-    if (Object.keys(e).length > 0) return;
-    const r = calculateScreedingArea(input);
-    setResult(r);
-    track('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });
-    logAnalyticsEvent('screeding_calculation_completed', { method: r.method, netArea: r.netScreedingArea });
+  function handleCalculate() {
+    if (!validation.valid) return;
+    const projectResult = calculate();
+    setScreedingResult({
+      totalAreaM2: projectResult.totalAreaM2,
+      steps: projectResult.steps,
+    });
+    track('screeding_calculation_completed', {
+      totalArea: projectResult.totalAreaM2,
+      mode: project.projectMode,
+    });
+    logAnalyticsEvent('screeding_calculation_completed', {
+      totalArea: projectResult.totalAreaM2,
+      mode: project.projectMode,
+    });
   }
 
   function startOver() {
-    setResult(null);
-    setInput({
-      method: 'full_room',
-      roomLength: 0,
-      roomWidth: 0,
-      wallWidth: 0,
-      wallCount: 1,
-      wallHeight: 0,
-      doors: 0,
-      doorDims: defaultDoorDims,
-      windows: 0,
-      windowDims: defaultWindowDims,
-      unit: 'meters',
-    });
+    resetWithMode(project.projectMode);
+    setScreedingResult(null);
+  }
+
+  function handleModeChange(mode: ProjectMode) {
+    resetWithMode(mode);
+    setScreedingResult(null);
   }
 
   return (
@@ -105,340 +103,108 @@ export default function ScreedingCalculator() {
       <PageHeader
         eyebrow="Tool"
         title="Wall Screeding Calculator"
-        subtitle="Calculate the exact wall surface area that needs screeding, with door and window openings deducted."
+        subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres — we handle the conversion."
         breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Screeding Calculator' }] }
       />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        {!result && (
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
-            {/* Method selection */}
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">Choose calculation method</h2>
-            <p className="mt-1 text-sm text-neutral-500">Select how you want to measure your walls.</p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => update('method', 'full_room')}
-                className={
-                  'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' +
-                  (input.method === 'full_room' ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')
-                }
-              >
-                <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (input.method === 'full_room' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
-                  <Home className="h-5 w-5" />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-brand-navy dark:text-white">Full Room</span>
-                  <span className="block text-xs text-neutral-500">Measure all four walls using room length and width.</span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => update('method', 'individual_wall')}
-                className={
-                  'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' +
-                  (input.method === 'individual_wall' ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')
-                }
-              >
-                <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (input.method === 'individual_wall' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
-                  <RectangleHorizontal className="h-5 w-5" />
-                </span>
-                <span>
-                  <span className="block text-sm font-semibold text-brand-navy dark:text-white">Individual Wall</span>
-                  <span className="block text-xs text-neutral-500">Measure one wall and specify how many similar walls.</span>
-                </span>
-              </button>
-            </div>
-
-            {/* Unit toggle */}
-            <div className="mt-6">
-              <div className="inline-flex rounded-lg border border-neutral-200 p-1">
-                {(['meters', 'feet'] as Unit[]).map((u) => (
-                  <button
-                    key={u}
-                    type="button"
-                    onClick={() => update('unit', u)}
-                    className={
-                      'rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all ' +
-                      (input.unit === u ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')
-                    }
-                    aria-pressed={input.unit === u}
-                  >
-                    {u}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Dimensions */}
-            <div className="mt-6">
-              <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-500">Dimensions</h3>
-              {input.method === 'full_room' ? (
-                <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  <Field label="Room length" suffix={input.unit === 'meters' ? 'm' : 'ft'} error={errors.roomLength}>
-                    <input type="number" min={0} step="0.01" value={input.roomLength || ''} onChange={(e) => update('roomLength', Number(e.target.value))} className="input-field" placeholder="0.00" />
-                  </Field>
-                  <Field label="Room width (Optional if not applicable)" suffix={input.unit === 'meters' ? 'm' : 'ft'} hint="Leave blank if only one pair of walls needs screeding">
-                    <input type="number" min={0} step="0.01" value={input.roomWidth || ''} onChange={(e) => update('roomWidth', Number(e.target.value))} className="input-field" placeholder="0.00" />
-                  </Field>
-                  <Field label="Wall height" suffix={input.unit === 'meters' ? 'm' : 'ft'} error={errors.wallHeight}>
-                    <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
-                  </Field>
-                </div>
-              ) : (
-                <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                  <Field label="Wall width" suffix={input.unit === 'meters' ? 'm' : 'ft'} error={errors.wallWidth}>
-                    <input type="number" min={0} step="0.01" value={input.wallWidth || ''} onChange={(e) => update('wallWidth', Number(e.target.value))} className="input-field" placeholder="0.00" />
-                  </Field>
-                  <Field label="Number of similar walls" error={errors.wallCount}>
-                    <input type="number" min={1} value={input.wallCount} onChange={(e) => update('wallCount', Number(e.target.value))} className="input-field" placeholder="1" />
-                  </Field>
-                  <Field label="Wall height" suffix={input.unit === 'meters' ? 'm' : 'ft'} error={errors.wallHeight}>
-                    <input type="number" min={0} step="0.01" value={input.wallHeight || ''} onChange={(e) => update('wallHeight', Number(e.target.value))} className="input-field" placeholder="0.00" />
-                  </Field>
+        {!screedingResult && (
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
+            <MeasurementInput
+              project={project}
+              context="screeding"
+              validation={validation}
+              onProjectModeChange={handleModeChange}
+              onAddMeasurement={addMeasurement}
+              onUpdateMeasurement={updateMeasurement}
+              onRemoveMeasurement={removeMeasurement}
+            >
+              {project.projectMode === 'fence' && (
+                <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">Fence Screeding</p>
+                  Each fence dimension has its own partition count. The area is calculated as:
+                  partition length × height × number of partitions. All results are in m².
                 </div>
               )}
-            </div>
+              {project.projectMode === 'house_building' && (
+                <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">House / Building</p>
+                  Add each space type separately. Use quantity for identical rooms
+                  (e.g., 12×12 ft bedroom × 2). Different dimensions stay as separate measurements.
+                </div>
+              )}
+            </MeasurementInput>
 
-            {/* Openings */}
-            <OpeningsSection input={input} update={update} errors={errors} />
-
-            {Object.keys(errors).length > 0 && (
-              <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                <p>Please fix the errors above before calculating.</p>
-              </div>
-            )}
-
-            <button type="button" onClick={compute} className="btn-primary mt-6 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleCalculate}
+              disabled={!validation.valid}
+              className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+            >
               Calculate Screeding Area
-              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         )}
 
-        {result && (
-          <ScreedingResultCard
-            result={result}
-            input={input}
-            onAgain={() => setResult(null)}
-            onStartOver={startOver}
-            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }}
-          />
+        {screedingResult && (
+          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+              <h2 className="text-lg font-bold text-brand-navy dark:text-white">Screeding Area Result</h2>
+            </div>
+
+            <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 text-center">
+              <p className="text-sm font-medium text-muted-foreground">Total Screeding Area</p>
+              <p className="mt-2 text-4xl font-bold text-primary">
+                {formatNumber(screedingResult.totalAreaM2, 2)} m²
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Surface area in square metres
+              </p>
+            </div>
+
+            <CalculationBreakdown steps={screedingResult.steps} />
+
+            <div className="rounded-lg bg-muted/30 border border-border p-4 text-sm text-muted-foreground">
+              <p className="font-medium text-foreground mb-1">Next Step</p>
+              This area feeds into the FRELUX screeding material calculation rules,
+              which determine material quantity based on coverage rate and package configuration.
+            </div>
+
+            <button
+              type="button"
+              onClick={startOver}
+              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Start Over
+            </button>
+          </div>
         )}
       </div>
-      <RelatedTools links={[
-        CALC_LINKS.screedingCost,
-        CALC_LINKS.paintCalculator,
-        CALC_LINKS.popCeilingCalc,
-        CALC_LINKS.tileCalc,
-        CALC_LINKS.buildToRoof,
-        CALC_LINKS.imageEstimator,
-      ]} />
-    </>
-  );
-}
 
-function OpeningsSection({
-  input,
-  update,
-  errors,
-}: {
-  input: ScreedingCalcInput;
-  update: <K extends keyof ScreedingCalcInput>(key: K, value: ScreedingCalcInput[K]) => void;
-  errors: Record<string, string>;
-}) {
-  const [showDoorDims, setShowDoorDims] = useState(false);
-  const [showWindowDims, setShowWindowDims] = useState(false);
-
-  function updateDoorDim(key: keyof OpeningDimensions, value: number) {
-    update('doorDims', { ...input.doorDims, [key]: value });
-  }
-  function updateWindowDim(key: keyof OpeningDimensions, value: number) {
-    update('windowDims', { ...input.windowDims, [key]: value });
-  }
-
-  return (
-    <div className="mt-6 border-t border-neutral-100 pt-6">
-      <h3 className="text-sm font-bold uppercase tracking-widest text-neutral-500">Doors & Windows</h3>
-      <p className="mt-1 text-xs text-neutral-400">These openings are automatically subtracted from the wall area.</p>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <Field label="Number of doors" error={errors.doors}>
-            <input type="number" min={0} value={input.doors || 0} onChange={(e) => update('doors', Number(e.target.value))} className="input-field" />
-          </Field>
-          <button type="button" onClick={() => setShowDoorDims((v) => !v)} className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline">
-            <ChevronDown className={'h-3 w-3 transition-transform ' + (showDoorDims ? 'rotate-180' : '')} />
-            Custom door dimensions
-          </button>
-          {showDoorDims && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Field label="Door width (m)">
-                <input type="number" min={0} step="0.01" value={input.doorDims.width || ''} onChange={(e) => updateDoorDim('width', Number(e.target.value))} className="input-field text-sm" />
-              </Field>
-              <Field label="Door height (m)">
-                <input type="number" min={0} step="0.01" value={input.doorDims.height || ''} onChange={(e) => updateDoorDim('height', Number(e.target.value))} className="input-field text-sm" />
-              </Field>
-            </div>
-          )}
-        </div>
-        <div>
-          <Field label="Number of windows" error={errors.windows}>
-            <input type="number" min={0} value={input.windows || 0} onChange={(e) => update('windows', Number(e.target.value))} className="input-field" />
-          </Field>
-          <button type="button" onClick={() => setShowWindowDims((v) => !v)} className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline">
-            <ChevronDown className={'h-3 w-3 transition-transform ' + (showWindowDims ? 'rotate-180' : '')} />
-            Custom window dimensions
-          </button>
-          {showWindowDims && (
-            <div className="mt-2 grid grid-cols-2 gap-2">
-              <Field label="Window width (m)">
-                <input type="number" min={0} step="0.01" value={input.windowDims.width || ''} onChange={(e) => updateWindowDim('width', Number(e.target.value))} className="input-field text-sm" />
-              </Field>
-              <Field label="Window height (m)">
-                <input type="number" min={0} step="0.01" value={input.windowDims.height || ''} onChange={(e) => updateWindowDim('height', Number(e.target.value))} className="input-field text-sm" />
-              </Field>
-            </div>
-          )}
-        </div>
-      </div>
-        <RelatedToolsLinks />
-    </div>
-  );
-}
-
-
-function Field({
-  label,
-  suffix,
-  hint,
-  error,
-  children,
-}: {
-  label: string;
-  suffix?: string;
-  hint?: string;
-  error?: string;
-  children: ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400 dark:text-neutral-500">{hint}</span>}
-      <div className="relative mt-1.5">
-        {children}
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400 dark:text-neutral-500">{suffix}</span>}
-      </div>
-      {error && <span className="mt-1 block text-xs text-red-600 dark:text-red-400">{error}</span>}
-    </label>
-  );
-}
-
-
-function ScreedingResultCard({
-  result,
-  input,
-  onAgain,
-  onStartOver,
-  calcDefaults,
-}: {
-  result: ScreedingCalcResult;
-  input: ScreedingCalcInput;
-  onAgain: () => void;
-  onStartOver: () => void;
-  calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
-}) {
-  return (
-    <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up">
-      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
-        <div className="relative flex items-center gap-2 text-accent-green">
-          <CheckCircle2 className="h-5 w-5" />
-          <span className="text-sm font-semibold uppercase tracking-widest">Your screeding area</span>
-        </div>
-        <p className="relative mt-3 text-sm text-white/60">
-          {input.method === 'full_room' ? 'Full room' : 'Individual walls'} · {input.unit}
-        </p>
-        <p className="relative mt-1 text-4xl font-bold sm:text-5xl animate-count-glow">{formatNumber(result.netScreedingArea)} m²</p>
-        <p className="relative mt-1 text-sm text-white/60">net screeding area (after deductions)</p>
-      </div>
-
-      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
-        <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Gross wall area</p>
-          <p className="mt-1.5 text-xl font-bold tabular-nums text-brand-navy dark:text-white">{formatNumber(result.grossWallArea)} m²</p>
-        </div>
-        <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Total deductions</p>
-          <p className="mt-1.5 text-xl font-bold tabular-nums text-brand-navy dark:text-white">{formatNumber(result.totalDeduction)} m²</p>
-        </div>
-      </div>
-
-      <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
-        Door area: {formatNumber(result.doorArea)} m² · Window area: {formatNumber(result.windowArea)} m²
-        <br />
-        Net area = Gross wall area − Door area − Window area
-      </div>
-
-      <div className="px-6 pb-2 sm:px-8">
+      <div className="mx-auto max-w-3xl px-4 pb-10 sm:px-6">
         <HowCalculatedSection
-          methodologyText={calcDefaults.howCalculatedText}
-          assumptions={[
-            { label: 'Door dimensions', value: `${input.doorDims.width}m × ${input.doorDims.height}m` },
-            { label: 'Window dimensions', value: `${input.windowDims.width}m × ${input.windowDims.height}m` },
+          title="How Screeding Area Is Calculated"
+          steps={[
+            { label: 'Enter dimensions', description: 'Input your room length, width, and wall height in feet or metres.' },
+            { label: 'Normalise to metres', description: 'Your input is converted to metres using exact international conversion factors (1 ft = 0.3048 m).' },
+            { label: 'Calculate wall area', description: 'Wall area = perimeter × height. The perimeter is 2 × (length + width) for a full room.' },
+            { label: 'Apply deductions', description: 'Door and window openings are subtracted from the gross wall area.' },
+            { label: 'Result in m²', description: 'The final screeding area is always expressed in square metres.' },
           ]}
         />
-        <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
-        <ReportCalculationIssue
-          calculatorType="screeding"
-          userInput={{ method: input.method, roomLength: input.roomLength, roomWidth: input.roomWidth, wallHeight: input.wallHeight, unit: input.unit }}
-          actualResult={{ grossWallArea: result.grossWallArea, netScreedingArea: result.netScreedingArea }}
-        />
+        <EstimateDisclaimer />
+        <ReportCalculationIssue calculatorName="screeding-calculator" />
+        <CalculatorNearMe calculatorName="Screeding" />
 
-        {/* Post as Job CTA */}
-        <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-bold text-brand-navy dark:text-white">Need a pro for this screeding job?</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified screeders near you.</p>
-            </div>
-            <a
-              href={`/marketplace/post?project_type=screeding&title=Wall Screeding — ${result.netScreedingArea.toFixed(1)} m²`}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
-            >
-              Post as Job
-            </a>
-          </div>
+        <div className="mt-8">
+          <RelatedTools current="/screeding-calculator" links={CALC_LINKS} />
         </div>
-
-        {/* Find Near Me */}
-        <div className="mt-4">
-          <CalculatorNearMe
-            tradeSlug="screeding"
-            materialName="Screeding materials"
-            projectType="screeding"
-          />
+        <div className="mt-6">
+          <RelatedToolsLinks />
         </div>
       </div>
-
-      <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <button type="button" onClick={onAgain} className="btn-secondary press-scale">
-          <RotateCcw className="h-4 w-4" />
-          Calculate Again
-        </button>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button type="button" onClick={onStartOver} className="btn-secondary press-scale">
-            Start Over
-          </button>
-          <Link
-            to="/screeding-cost-estimator"
-            state={{ netArea: result.netScreedingArea }}
-            className="btn-primary press-scale group"
-          >
-            Continue to Cost Estimate
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        </div>
-      </div>
-    </div>
+    </>
   );
 }
