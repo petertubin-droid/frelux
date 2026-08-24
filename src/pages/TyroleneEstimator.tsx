@@ -56,6 +56,16 @@ import { classNames } from '@/lib/utils';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { TyroleneEstimatorSeo } from '@/components/seo/SeoContent';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineExplanationPanel,
+  EngineAlreadyHaveInput,
+  EngineWasteSelector,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 // =========================================================
 // Constants
 // =========================================================
@@ -130,6 +140,9 @@ const mountedRef = useRef(true);
 
   // ── State: Result ──
   const [result, setResult] = useState<TyroleneEstimateResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'tyrolene' });
+  const [alreadyHave, setAlreadyHave] = useState(0);
   const [calculating, setCalculating] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
@@ -946,6 +959,72 @@ const mountedRef = useRef(true);
                         ))}
                       </div>
                     )}
+
+                    {/* ── Engine Features (Additive) ── */}
+                    <div className="mt-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <EngineConfidenceBadge result={engine.assessConfidence({
+                          ruleValid: result.valid,
+                          inputComplete: true,
+                          materialSpecComplete: result.materials.length > 0,
+                          marketPriceAvailable: result.practical_purchase_cost > 0,
+                          sourceReliability: 'verified',
+                          productMatched: result.materials.length > 0,
+                        })} />
+                      </div>
+
+                      <EngineAlreadyHaveInput
+                        required={result.materials.reduce((sum, m) => sum + m.practical_purchase_quantity, 0)}
+                        alreadyHave={alreadyHave}
+                        onAlreadyHaveChange={setAlreadyHave}
+                        unit="units"
+                      />
+
+                      <EngineWasteSelector
+                        resolution={engine.wasteResolution}
+                        userWaste={engine.userWaste}
+                        onUserWasteChange={engine.setUserWaste}
+                      />
+
+                      <EngineExplanationPanel result={engine.buildExplanation({
+                        subject: 'Tyrolene Estimate',
+                        resultSummary: `${result.equivalent_standard_partitions} equivalent standard partitions, ${result.materials.length} materials`,
+                        steps: [
+                          { description: 'Standard partitions', value: String(result.equivalent_standard_partitions) },
+                          { description: 'Dimensional adjustment', value: result.has_dimensional_adjustment ? 'Yes' : 'No' },
+                          ...(result.has_dimensional_adjustment ? [{ description: 'Partition breakdown', value: `${result.partition_breakdown.length} sections` }] : []),
+                          ...result.materials.map((m) => ({
+                            description: m.material_name,
+                            value: `${m.practical_purchase_quantity} ${m.theoretical_unit}`,
+                          })),
+                          { description: 'Theoretical cost', value: formatCurrency(result.theoretical_material_cost) },
+                          { description: 'Practical purchase cost', value: formatCurrency(result.practical_purchase_cost) },
+                        ],
+                        notes: [
+                          ...(result.warnings ?? []),
+                          `Standard partition: ${result.standard_partition_width}m × ${result.standard_partition_height}m`,
+                        ],
+                      })} />
+
+                      <EngineConfidenceDetail result={engine.assessConfidence({
+                        ruleValid: result.valid,
+                        inputComplete: true,
+                        materialSpecComplete: result.materials.length > 0,
+                        marketPriceAvailable: result.practical_purchase_cost > 0,
+                        sourceReliability: 'verified',
+                        productMatched: result.materials.length > 0,
+                      })} />
+
+                      <EngineMaterialSummaryCard summary={engine.buildMaterialSummary(
+                        result.materials.map((m) => ({
+                          materialId: m.material_slug,
+                          productName: m.material_name,
+                          totalQuantity: m.practical_purchase_quantity,
+                          quantityUnit: m.theoretical_unit,
+                          spaceIds: ['exterior'],
+                        }))
+                      )} />
+                    </div>
 
                     <HowCalculatedSection
                       methodologyText={(calcDefaults.howCalculatedText as string) || ''}

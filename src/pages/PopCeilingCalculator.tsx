@@ -13,6 +13,16 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineExplanationPanel,
+  EngineAlreadyHaveInput,
+  EngineWasteSelector,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 import type { PopCalcInput, PopCalcResult, Unit } from '@/types';
 import type { DbPopMaterial, DbPopWorkflow, DbSiteSettings } from '@/types/database';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
@@ -70,6 +80,9 @@ const mountedRef = useRef(true);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<PopCalcResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'pop_ceiling' });
+  const [alreadyHave, setAlreadyHave] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
@@ -248,7 +261,8 @@ const mountedRef = useRef(true);
           <PopResultCard result={result} input={input} currencySymbol={currencySymbol}
             onAgain={() => setResult(null)} onStartOver={startOver}
             calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }}
-            user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg} />
+            user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg}
+            engine={engine} alreadyHave={alreadyHave} onAlreadyHaveChange={setAlreadyHave} />
         )}
       </div>
 
@@ -273,7 +287,7 @@ const mountedRef = useRef(true);
   );
 }
 
-function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults }: {
+function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults, engine, alreadyHave, onAlreadyHaveChange }: {
   result: PopCalcResult;
   input: PopCalcInput;
   currencySymbol: string;
@@ -284,6 +298,9 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
   saving: boolean;
   saveMsg: string;
   calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
+  engine: ReturnType<typeof useEngineFeatures>;
+  alreadyHave: number;
+  onAlreadyHaveChange: (n: number) => void;
 }) {
   const grouped = result.materials.reduce<Record<string, typeof result.materials>>((acc, m) => {
     (acc[m.category] ??= []).push(m);
@@ -342,6 +359,68 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
         </div>
 
         {saveMsg && <p className="mt-3 text-sm text-brand-purple">{saveMsg}</p>}
+
+        {/* ── Engine Features (Additive) ── */}
+        <div className="mt-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <EngineConfidenceBadge result={engine.assessConfidence({
+              ruleValid: true,
+              inputComplete: true,
+              materialSpecComplete: result.materials.length > 0,
+              marketPriceAvailable: result.materialCost > 0,
+              sourceReliability: 'verified',
+              productMatched: result.materials.some(m => m.packagesNeeded > 0),
+            })} />
+          </div>
+
+          <EngineAlreadyHaveInput
+            required={result.materials.reduce((sum, m) => sum + m.packagesNeeded, 0)}
+            alreadyHave={alreadyHave}
+            onAlreadyHaveChange={onAlreadyHaveChange}
+            unit="packages"
+          />
+
+          <EngineWasteSelector
+            resolution={engine.wasteResolution}
+            userWaste={engine.userWaste}
+            onUserWasteChange={engine.setUserWaste}
+          />
+
+          <EngineExplanationPanel result={engine.buildExplanation({
+            subject: 'POP Ceiling Calculation',
+            resultSummary: `${formatNumber(result.ceilingArea)} m² ceiling area, ${formatCurrency(result.grandTotal, currencySymbol)} total`,
+            steps: [
+              { description: 'Ceiling area', value: `${formatNumber(result.ceilingArea)} m²` },
+              { description: 'Waste allowance', value: `${formatNumber(result.wasteAmount)} m²` },
+              { description: 'Material cost', value: formatCurrency(result.materialCost, currencySymbol) },
+              { description: 'Labour cost', value: formatCurrency(result.labourCost, currencySymbol) },
+              { description: 'Grand total', value: formatCurrency(result.grandTotal, currencySymbol) },
+            ],
+            notes: [
+              `Workflow: ${input.workflow}`,
+              `Waste margin: ${input.wasteMargin}%`,
+            ],
+          })} />
+
+          <EngineConfidenceDetail result={engine.assessConfidence({
+            ruleValid: true,
+            inputComplete: true,
+            materialSpecComplete: result.materials.length > 0,
+            marketPriceAvailable: result.materialCost > 0,
+            sourceReliability: 'verified',
+            productMatched: result.materials.some(m => m.packagesNeeded > 0),
+          })} />
+
+          <EngineMaterialSummaryCard summary={engine.buildMaterialSummary(
+            result.materials.map((m, i) => ({
+              materialId: `pop-mat-${i}`,
+              productName: m.name,
+              totalQuantity: m.packagesNeeded,
+              quantityUnit: 'packages',
+              spaceIds: ['ceiling'],
+            }))
+          )} />
+        </div>
 
         <HowCalculatedSection
           methodologyText={(calcDefaults.howCalculatedText as string) || ''}

@@ -13,6 +13,16 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
 import { saveEstimateHistory } from '@/lib/crm';
 import ProConnectCTA from '@/components/pro-connect/ProConnectCTA';
+// Engine integration
+import { useEngineFeatures } from '@/lib/measurement';
+import {
+  EngineConfidenceBadge,
+  EngineConfidenceDetail,
+  EngineExplanationPanel,
+  EngineAlreadyHaveInput,
+  EngineWasteSelector,
+  EngineMaterialSummaryCard,
+} from '@/components/engine';
 import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import type { TileCalcInput, TileCalcResult, Unit } from '@/types';
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
@@ -70,6 +80,9 @@ const mountedRef = useRef(true);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
+  // Engine features
+  const engine = useEngineFeatures({ calculatorType: 'tile' });
+  const [alreadyHave, setAlreadyHave] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
@@ -452,7 +465,7 @@ const mountedRef = useRef(true);
   );
 }
 
-function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults }: {
+function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, user, onSave, saving, saveMsg, calcDefaults, engine, alreadyHave, onAlreadyHaveChange }: {
   result: TileCalcResult;
   input: TileCalcInput;
   currencySymbol: string;
@@ -463,6 +476,9 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
   saving: boolean;
   saveMsg: string;
   calcDefaults: { howCalculatedText: string; estimateDisclaimer: string };
+  engine: ReturnType<typeof useEngineFeatures>;
+  alreadyHave: number;
+  onAlreadyHaveChange: (n: number) => void;
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
@@ -504,6 +520,69 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
       </div>
 
       {saveMsg && <p className="px-6 pb-2 text-sm text-brand-purple sm:px-8">{saveMsg}</p>}
+
+      {/* ── Engine Features (Additive) ── */}
+      <div className="space-y-3 px-6 pb-4 sm:px-8">
+        <div className="flex items-center gap-2">
+          <EngineConfidenceBadge result={engine.assessConfidence({
+            ruleValid: true,
+            inputComplete: true,
+            materialSpecComplete: result.tilesNeeded > 0,
+            marketPriceAvailable: result.materialCost > 0,
+            sourceReliability: 'verified',
+            productMatched: result.boxesNeeded > 0,
+          })} />
+        </div>
+
+        <EngineAlreadyHaveInput
+          required={result.boxesNeeded}
+          alreadyHave={alreadyHave}
+          onAlreadyHaveChange={onAlreadyHaveChange}
+          unit="boxes"
+        />
+
+        <EngineWasteSelector
+          resolution={engine.wasteResolution}
+          userWaste={engine.userWaste}
+          onUserWasteChange={engine.setUserWaste}
+        />
+
+        <EngineExplanationPanel result={engine.buildExplanation({
+          subject: 'Tile Calculation',
+          resultSummary: `${result.boxesNeeded} boxes needed (${result.tilesNeeded} tiles) for ${formatNumber(result.surfaceArea)} m²`,
+          steps: [
+            { description: 'Surface area', value: `${formatNumber(result.surfaceArea)} m²` },
+            { description: 'Tile area', value: `${formatNumber(result.tileArea, 3)} m²` },
+            { description: 'Tiles needed', value: String(result.tilesNeeded) },
+            { description: 'Boxes needed', value: String(result.boxesNeeded) },
+            { description: 'Waste amount', value: `${result.wasteAmount} tiles` },
+            ...(result.method === 'adhesive' ? [{ description: 'Adhesive needed', value: `${result.adhesiveNeeded} bags` }] : []),
+            ...(result.method === 'traditional' ? [{ description: 'Cement needed', value: `${result.cementNeeded} bags` }] : []),
+            { description: 'Grout needed', value: `${result.groutNeeded} kg` },
+            { description: 'Grand total', value: formatCurrency(result.grandTotal, currencySymbol) },
+          ],
+          notes: [
+            `Method: ${result.method}`,
+            `Waste margin: ${input.wasteMargin}%`,
+          ],
+        })} />
+
+        <EngineConfidenceDetail result={engine.assessConfidence({
+          ruleValid: true,
+          inputComplete: true,
+          materialSpecComplete: result.tilesNeeded > 0,
+          marketPriceAvailable: result.materialCost > 0,
+          sourceReliability: 'verified',
+          productMatched: result.boxesNeeded > 0,
+        })} />
+
+        <EngineMaterialSummaryCard summary={engine.buildMaterialSummary([
+          { materialId: 'tiles', productName: 'Tiles', totalQuantity: result.boxesNeeded, quantityUnit: 'boxes', spaceIds: ['surface'] },
+          ...(result.method === 'adhesive' ? [{ materialId: 'adhesive', productName: 'Adhesive', totalQuantity: result.adhesiveNeeded, quantityUnit: 'bags', spaceIds: ['surface'] }] : []),
+          ...(result.method === 'traditional' ? [{ materialId: 'cement', productName: 'Cement', totalQuantity: result.cementNeeded, quantityUnit: 'bags', spaceIds: ['surface'] }] : []),
+          { materialId: 'grout', productName: 'Grout', totalQuantity: result.groutNeeded, quantityUnit: 'kg', spaceIds: ['surface'] },
+        ])} />
+      </div>
 
       <HowCalculatedSection
         methodologyText={calcDefaults.howCalculatedText}
