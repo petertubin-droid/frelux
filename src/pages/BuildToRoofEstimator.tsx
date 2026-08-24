@@ -619,11 +619,18 @@ export default function BuildToRoofEstimator() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <Field label="Cement per bag" unit="₦" value={input.prices.cement_per_bag} onChange={v => update('prices', { ...input.prices, cement_per_bag: parseFloat(v) || 0 })} />
                     <Field label="Block per piece" unit="₦" value={input.prices.block_per_piece} onChange={v => update('prices', { ...input.prices, block_per_piece: parseFloat(v) || 0 })} />
-                    <Field label="Sand per m³" unit="₦" value={input.prices.sand_per_m3} onChange={v => update('prices', { ...input.prices, sand_per_m3: parseFloat(v) || 0 })} />
-                    <Field label="Sand per trip" unit="₦" value={input.prices.sand_per_trip} onChange={v => update('prices', { ...input.prices, sand_per_trip: parseFloat(v) || 0 })} />
-                    <Field label="Granite per m³" unit="₦" value={input.prices.granite_per_m3} onChange={v => update('prices', { ...input.prices, granite_per_m3: parseFloat(v) || 0 })} />
-                    <Field label="Granite per trip" unit="₦" value={input.prices.granite_per_trip} onChange={v => update('prices', { ...input.prices, granite_per_trip: parseFloat(v) || 0 })} />
-                    <Field label="Reinforcement per tonne" unit="₦" value={input.prices.reinforcement_per_tonne} onChange={v => update('prices', { ...input.prices, reinforcement_per_tonne: parseFloat(v) || 0 })} />
+                    <Field label="Sand per m³ (ref)" unit="₦" value={input.prices.sand_per_m3} onChange={v => update('prices', { ...input.prices, sand_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Sand per trip (3.5m³)" unit="₦" value={input.prices.sand_per_trip} onChange={v => update('prices', { ...input.prices, sand_per_trip: parseFloat(v) || 0 })} />
+                    <Field label="Granite per m³ (ref)" unit="₦" value={input.prices.granite_per_m3} onChange={v => update('prices', { ...input.prices, granite_per_m3: parseFloat(v) || 0 })} />
+                    <Field label="Granite per trip (3.5m³)" unit="₦" value={input.prices.granite_per_trip} onChange={v => update('prices', { ...input.prices, granite_per_trip: parseFloat(v) || 0 })} />
+                    <Field label="Reinforcement per tonne (bulk)" unit="₦" value={input.prices.reinforcement_per_tonne} onChange={v => update('prices', { ...input.prices, reinforcement_per_tonne: parseFloat(v) || 0 })} />
+                    <div className="col-span-2">
+                      <p className="text-xs text-neutral-400 mb-1">Rebar prices (per 12m standard length):</p>
+                    </div>
+                    <Field label="12mm rebar/length" unit="₦" value={input.prices.rebar_12mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_12mm_per_length: parseFloat(v) || 0 })} />
+                    <Field label="16mm rebar/length" unit="₦" value={input.prices.rebar_16mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_16mm_per_length: parseFloat(v) || 0 })} />
+                    <Field label="20mm rebar/length" unit="₦" value={input.prices.rebar_20mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_20mm_per_length: parseFloat(v) || 0 })} />
+                    <Field label="25mm rebar/length" unit="₦" value={input.prices.rebar_25mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_25mm_per_length: parseFloat(v) || 0 })} />
                     <Field label="Binding wire per kg" unit="₦" value={input.prices.binding_wire_per_kg} onChange={v => update('prices', { ...input.prices, binding_wire_per_kg: parseFloat(v) || 0 })} />
                     <Field label="Timber per meter" unit="₦" value={input.prices.timber_per_m} onChange={v => update('prices', { ...input.prices, timber_per_m: parseFloat(v) || 0 })} />
                     <Field label="Roofing sheet per piece" unit="₦" value={input.prices.roofing_sheet_per_piece} onChange={v => update('prices', { ...input.prices, roofing_sheet_per_piece: parseFloat(v) || 0 })} />
@@ -946,6 +953,51 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
           </table>
         </div>
       </div>
+
+      {/* Reinforcement Breakdown */}
+      {result.reinforcement_breakdown && result.reinforcement_breakdown.items.length > 0 && (
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-1">Reinforcement Breakdown</h3>
+          <p className="text-sm text-neutral-500 mb-4">Steel rods split by diameter — priced per 12m standard length</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-neutral-200">
+                <tr>
+                  <th className="px-4 py-2 text-left font-medium text-neutral-500">Bar Type</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Diameter</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Total Length</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Std Lengths (12m)</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Weight</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Unit Price</th>
+                  <th className="px-4 py-2 text-right font-medium text-neutral-500">Cost</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {result.reinforcement_breakdown.items.map((item, i) => (
+                  <tr key={i} className="hover:bg-neutral-50">
+                    <td className="px-4 py-3 font-medium text-neutral-900">{item.label}</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{item.diameter_mm}mm</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{item.total_length_m.toFixed(1)} m</td>
+                    <td className="px-4 py-3 text-right font-medium text-neutral-900">{item.standard_lengths} lengths</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">{item.weight_tonnes.toFixed(3)} t</td>
+                    <td className="px-4 py-3 text-right text-neutral-600">₦{item.unit_price.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right font-semibold text-neutral-900">₦{item.total_cost.toLocaleString()}</td>
+                  </tr>
+                ))}
+                <tr className="bg-neutral-50 font-semibold">
+                  <td className="px-4 py-3" colSpan={3}>Total Steel</td>
+                  <td className="px-4 py-3 text-right">{result.reinforcement_breakdown.total_length_m.toFixed(1)} m</td>
+                  <td className="px-4 py-3 text-right">{result.reinforcement_breakdown.total_weight_tonnes.toFixed(3)} t</td>
+                  <td className="px-4 py-3 text-right" colSpan={2}>₦{result.reinforcement_breakdown.total_cost.toLocaleString()}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-xs text-neutral-400">
+            Binding wire: {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (₦{result.reinforcement_breakdown.binding_wire_cost.toLocaleString()})
+          </p>
+        </div>
+      )}
 
       {/* Detailed Quantities per Stage */}
       {result.stages.map((stage, i) => (

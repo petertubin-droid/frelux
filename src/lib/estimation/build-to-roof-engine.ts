@@ -34,6 +34,9 @@ import type {
   ConfidenceLevel,
   StructuralMemberInput,
   RoofingMaterial,
+  PriceConfig,
+  ReinforcementBreakdown,
+  ReinforcementBreakdownItem,
 } from '@/types/build-to-roof';
 
 // ── Constants ──
@@ -93,8 +96,51 @@ function ftToM(ft: number): number {
 }
 
 // Convert m³ to trips (Nigerian construction unit)
-function m3ToTrips(m3: number): number {
+export function m3ToTrips(m3: number): number {
   return m3 / M3_PER_TRIP;
+}
+
+// Round up to full trips (you can't buy 0.7 of a trip)
+function m3ToTripCeil(m3: number): number {
+  return Math.ceil(m3 / M3_PER_TRIP);
+}
+
+// Material line that shows trips (primary) but calculates from m³ volume
+// Uses trip-based pricing when available, falls back to per-m³
+function matLineTrips(
+  label: string,
+  volumeM3: number,
+  wastagePercent: number,
+  pricePerTrip: number,
+  pricePerM3: number,
+  priceSource: string
+): MaterialLine {
+  const finalM3 = applyWastage(volumeM3, wastagePercent);
+  const trips = m3ToTripCeil(finalM3);
+  // Use trip pricing (cheaper per m³ when bought in bulk)
+  // but if volume is very small (< 0.5 trip), use per-m³ for accuracy
+  if (finalM3 < M3_PER_TRIP * 0.5 && pricePerM3 > 0) {
+    return {
+      label,
+      unit: 'm³',
+      base_quantity: round(volumeM3),
+      wastage_percent: wastagePercent,
+      final_quantity: round(finalM3),
+      unit_price: pricePerM3,
+      total_cost: round(finalM3 * pricePerM3),
+      price_source: priceSource,
+    };
+  }
+  return {
+    label: label.replace(/ \(m³\)/, '').trim(),
+    unit: 'trips',
+    base_quantity: round(volumeM3 / M3_PER_TRIP * 10) / 10, // show base trips (decimal)
+    wastage_percent: wastagePercent,
+    final_quantity: trips, // ceil to full trips
+    unit_price: pricePerTrip,
+    total_cost: round(trips * pricePerTrip),
+    price_source: priceSource,
+  };
 }
 
 function applyWastage(baseQty: number, wastagePercent: number): number {
@@ -427,6 +473,140 @@ export function estimateReinforcementKg(member: StructuralMemberInput): number {
   return round(mainBarsKg + linksKg);
 }
 
+// ── Reinforcement breakdown by bar diameter ──
+
+interface RebarAggregate {
+  diameter_mm: number;
+  source: 'main' | 'links';
+  total_length_m: number;
+  weight_kg: number;
+}
+
+const REBAR_STANDARD_LENGTH = 12; // meters (Nigerian standard: 12m lengths)
+
+function getRebarPriceForDiameter(diameter_mm: number, prices: PriceConfig): number {
+  switch (diameter_mm) {
+    case 12: return prices.rebar_12mm_per_length;
+    case 16: return prices.rebar_16mm_per_length;
+    case 20: return prices.rebar_20mm_per_length;
+    case 25: return prices.rebar_25mm_per_length;
+    default:
+      // For non-standard diameters, estimate from per-tonne price
+      // weight per 12m length = d²/162 × 12
+      const weightPerLength = (diameter_mm * diameter_mm / 162) * REBAR_STANDARD_LENGTH;
+      return Math.round(prices.reinforcement_per_tonne / 1000 * weightPerLength);
+  }
+}
+
+export function buildReinforcementBreakdown(
+  members: StructuralMemberInput[],
+  wastagePercent: number,
+  prices: PriceConfig
+): ReinforcementBreakdown {
+  const aggregates = new Map<string, RebarAggregate>();
+
+  for (const member of members) {
+    // Main bars
+    if (member.bar_diameter_mm && member.bar_count_main) {
+      const key = `${member.bar_diameter_mm}_main`;
+      const mainBarLength = member.bar_length_main ?? member.length;
+      const totalLength = member.bar_count_main * mainBarLength * member.quantity;
+      const weightPerM = Math.pow(member.bar_diameter_mm, 2) / 162;
+      const weight = totalLength * weightPerM;
+
+      const existing = aggregates.get(key);
+      if (existing) {
+        existing.total_length_m += totalLength;
+        existing.weight_kg += weight;
+      } else {
+        aggregates.set(key, {
+          diameter_mm: member.bar_diameter_mm,
+          source: 'main',
+          total_length_m: totalLength,
+          weight_kg: weight,
+        });
+      }
+    }
+
+    // Links/stirrups
+    if (member.link_diameter_mm && member.bar_count_links) {
+      const key = `${member.link_diameter_mm}_links`;
+      const cover = (member.cover_mm ?? 25) / 1000;
+      const linkBodyLength = 2 * (member.width + member.depth - 4 * cover);
+      const hookLength = 2 * STIRRUP_HOOK_MULTIPLIER * (member.link_diameter_mm / 1000);
+      const linkTotalLength = linkBodyLength + hookLength;
+      const linksTotal = member.bar_count_links * member.length * member.quantity;
+      const totalLength = linksTotal * linkTotalLength;
+      const weightPerM = Math.pow(member.link_diameter_mm, 2) / 162;
+      const weight = totalLength * weightPerM;
+
+      const existing = aggregates.get(key);
+      if (existing) {
+        existing.total_length_m += totalLength;
+        existing.weight_kg += weight;
+      } else {
+        aggregates.set(key, {
+          diameter_mm: member.link_diameter_mm,
+          source: 'links',
+          total_length_m: totalLength,
+          weight_kg: weight,
+        });
+      }
+    }
+  }
+
+  const items: ReinforcementBreakdownItem[] = [];
+  let totalWeightKg = 0;
+  let totalLengthM = 0;
+  let totalCost = 0;
+
+  for (const agg of aggregates.values()) {
+    const lengthWithWastage = applyWastage(agg.total_length_m, wastagePercent);
+    const standardLengths = Math.ceil(lengthWithWastage / REBAR_STANDARD_LENGTH);
+    const weightWithWastage = applyWastage(agg.weight_kg, wastagePercent);
+    const unitPrice = getRebarPriceForDiameter(agg.diameter_mm, prices);
+    const cost = standardLengths * unitPrice;
+
+    const sourceLabel = agg.source === 'main' ? 'Main Bars' : 'Stirrups/Links';
+    const label = `${agg.diameter_mm}mm ${sourceLabel}`;
+
+    items.push({
+      diameter_mm: agg.diameter_mm,
+      label,
+      total_length_m: round(lengthWithWastage),
+      standard_lengths: standardLengths,
+      weight_kg: round(weightWithWastage),
+      weight_tonnes: round(weightWithWastage / 1000),
+      unit_price: unitPrice,
+      total_cost: round(cost),
+      source: agg.source,
+    });
+
+    totalWeightKg += weightWithWastage;
+    totalLengthM += lengthWithWastage;
+    totalCost += cost;
+  }
+
+  // Sort by diameter (ascending), main bars before links
+  items.sort((a, b) => {
+    if (a.diameter_mm !== b.diameter_mm) return a.diameter_mm - b.diameter_mm;
+    return a.source === 'main' ? -1 : 1;
+  });
+
+  // Binding wire (~2% of steel weight)
+  const bindingWireKg = totalWeightKg * 0.02;
+  const bindingWireCost = bindingWireKg * prices.binding_wire_per_kg;
+
+  return {
+    items,
+    total_weight_tonnes: round(totalWeightKg / 1000),
+    total_length_m: round(totalLengthM),
+    binding_wire_kg: round(bindingWireKg),
+    binding_wire_cost: round(bindingWireCost),
+    total_cost: round(totalCost + bindingWireCost),
+  };
+}
+
 // ── Stage A: Site & Foundation ──
 
 function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
@@ -463,8 +643,8 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   );
   const blindingMats = concreteToMaterials(blindingVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (blinding)', 'bags', blindingMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (blinding)', 'm³', blindingMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (blinding)', 'm³', blindingMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (blinding)', blindingMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Granite (blinding)', blindingMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Blinding labour', 'm³', blindingVol, input.labour.blinding_per_m3));
 
   // 4. Foundation concrete (strip footing) — FIX: uses configurable footing_thickness
@@ -476,8 +656,8 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   );
   const foundMats = concreteToMaterials(foundationConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (foundation)', 'bags', foundMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (foundation)', 'm³', foundMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (foundation)', 'm³', foundMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (foundation)', foundMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Granite (foundation)', foundMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour', 'm³', foundationConcreteVol, input.labour.concrete_per_m3));
 
   // 5. Hardcore filling — FIX: now has material cost
@@ -506,7 +686,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
       { footprint_area: footprintArea, thickness: sandFillThickness },
       sandFillVol, 'm³', input.wastage.sand)
   );
-  materials.push(matLine('Sand (filling)', 'm³', sandFillVol, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (filling)', sandFillVol, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
   labour.push(labLine('Sand filling labour', 'm³', sandFillVol, input.labour.sand_filling_per_m3));
 
   // 8. Backfilling — FIX: added backfilling (excavated soil returned into trench)
@@ -548,7 +728,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   const foundationMortarVol = foundationWallArea * 0.03;
   const foundMortarMats = mortarToMaterials(foundationMortarVol, input.mortar_mix_cement, input.mortar_mix_sand);
   materials.push(matLine('Cement (foundation mortar)', 'bags', foundMortarMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (foundation mortar)', 'm³', foundMortarMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (foundation mortar)', foundMortarMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
   labour.push(labLine('Blockwork labour (foundation)', 'blocks', foundationBlocks, input.labour.blockwork_per_block));
 
   const materialsTotal = materials.reduce((s, m) => s + m.total_cost, 0);
@@ -583,7 +763,7 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
       { footprint_area: footprintArea, thickness: gfSandFillThickness },
       gfSandFillVol, 'm³', input.wastage.sand)
   );
-  materials.push(matLine('Sand (ground floor filling)', 'm³', gfSandFillVol, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (ground floor filling)', gfSandFillVol, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
   labour.push(labLine('Sand filling labour (ground floor)', 'm³', gfSandFillVol, input.labour.sand_filling_per_m3));
 
   // Oversite concrete (ground floor slab)
@@ -597,8 +777,8 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
 
   const slabMats = concreteToMaterials(slabVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (ground floor)', 'bags', slabMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (ground floor)', 'm³', slabMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (ground floor)', 'm³', slabMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (ground floor)', slabMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Granite (ground floor)', slabMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour (ground floor)', 'm³', slabVol, input.labour.concrete_per_m3));
 
   // DPM under slab — FIX: uses dpm_per_m2 (not dpc_per_meter)
@@ -679,7 +859,7 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   const mortarVol = netWallArea * mortarPerM2;
   const mortarMats = mortarToMaterials(mortarVol, input.mortar_mix_cement, input.mortar_mix_sand);
   materials.push(matLine('Cement (wall mortar)', 'bags', mortarMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (wall mortar)', 'm³', mortarMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (wall mortar)', mortarMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
 
   // Labour
   labour.push(labLine('Blockwork labour', 'blocks', totalBlocks, input.labour.blockwork_per_block));
@@ -757,16 +937,29 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   // Concrete materials
   const concreteMats = concreteToMaterials(totalConcreteVol, input.concrete_mix_cement, input.concrete_mix_sand, input.concrete_mix_granite);
   materials.push(matLine('Cement (structural)', 'bags', concreteMats.cement_bags, input.wastage.cement, input.prices.cement_per_bag, input.prices.price_source));
-  materials.push(matLine('Sand (structural)', 'm³', concreteMats.sand_m3, input.wastage.sand, input.prices.sand_per_m3, input.prices.price_source));
-  materials.push(matLine('Granite (structural)', 'm³', concreteMats.granite_m3, input.wastage.granite, input.prices.granite_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Sand (structural)', concreteMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
+  materials.push(matLineTrips('Granite (structural)', concreteMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
 
-  // Reinforcement
-  const rebarTonnes = totalReinforcementKg / 1000;
-  materials.push(matLine('Reinforcement steel', 'tonnes', rebarTonnes, input.wastage.reinforcement, input.prices.reinforcement_per_tonne, input.prices.price_source));
+  // Reinforcement — split by bar diameter for user-friendly output
+  const rebarBreakdown = buildReinforcementBreakdown(input.structural_members, input.wastage.reinforcement, input.prices);
+  const rebarTonnes = rebarBreakdown.total_weight_tonnes;
 
-  // Binding wire (~2% of steel weight)
-  const bindingWireKg = totalReinforcementKg * 0.02;
-  materials.push(matLine('Binding wire', 'kg', bindingWireKg, 0, input.prices.binding_wire_per_kg, input.prices.price_source));
+  // Add per-diameter items as material lines
+  for (const item of rebarBreakdown.items) {
+    materials.push({
+      label: item.label,
+      unit: 'lengths',
+      base_quantity: round(item.total_length_m / 12), // base 12m lengths
+      wastage_percent: input.wastage.reinforcement,
+      final_quantity: item.standard_lengths,
+      unit_price: item.unit_price,
+      total_cost: item.total_cost,
+      price_source: input.prices.price_source,
+    });
+  }
+
+  // Binding wire
+  materials.push(matLine('Binding wire', 'kg', rebarBreakdown.binding_wire_kg, 0, input.prices.binding_wire_per_kg, input.prices.price_source));
 
   // Formwork
   materials.push(matLine('Formwork', 'm²', totalFormworkArea, 10, input.prices.formwork_per_m2, input.prices.price_source));
@@ -788,6 +981,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     materials_total: round(materialsTotal),
     labour_total: round(labourTotal),
     stage_total: round(materialsTotal + labourTotal),
+    reinforcement_breakdown: rebarBreakdown,
   };
 }
 
@@ -934,9 +1128,11 @@ function consolidateMaterials(stages: StageResult[]): ConsolidatedMaterial[] {
   };
 
   consolidate(l => l.toLowerCase().includes('cement'), 'Cement', 'bags');
-  consolidate(l => l.toLowerCase().includes('sand'), 'Sharp Sand', 'm³');
-  consolidate(l => l.toLowerCase().includes('granite'), 'Granite', 'm³');
-  consolidate(l => l.toLowerCase().includes('hardcore'), 'Hardcore Stone', 'm³');
+  // Sand & Granite are measured in trips (primary) or m³ (for small quantities)
+  // The unit is already set on each material line by matLineTrips
+  consolidate(l => l.toLowerCase().includes('sand'), 'Sharp Sand', 'trips');
+  consolidate(l => l.toLowerCase().includes('granite'), 'Granite', 'trips');
+  consolidate(l => l.toLowerCase().includes('hardcore'), 'Hardcore Stone', 'trips');
 
   // Add non-consolidated items
   for (const [key, val] of map) {
@@ -1112,6 +1308,7 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     confidence_reason: confidence.reason,
     stages,
     shopping_list: shoppingList,
+    reinforcement_breakdown: stages.find(s => s.reinforcement_breakdown)?.reinforcement_breakdown,
     materials_total: round(materialsTotal),
     labour_total: round(labourTotal),
     wastage_allowance: round(wastageAllowance),
@@ -1132,12 +1329,17 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
 export const DEFAULT_PRICES = {
   cement_per_bag: 10000,       // Dangote/BUA 50kg — updated Aug 2026
   block_per_piece: 450,        // 9-inch hollow block — updated
-  sand_per_m3: 55000,           // sharp sand per m³ — updated
-  sand_per_trip: 192500,        // 55000 × 3.5 m³ per trip
-  granite_per_m3: 110000,       // 3/4" granite per m³ — updated
-  granite_per_trip: 385000,     // 110000 × 3.5 m³ per trip
+  sand_per_m3: 55000,           // sharp sand per m³ (reference only)
+  sand_per_trip: 192500,        // per trip (3.5 m³, 5-tonne tipper) — PRIMARY
+  granite_per_m3: 110000,       // 3/4" granite per m³ (reference only)
+  granite_per_trip: 385000,     // per trip (3.5 m³) — PRIMARY
   hardcore_per_m3: 40000,       // hardcore stone/laterite — updated
-  reinforcement_per_tonne: 1350000, // high-tensile steel per tonne — updated
+  reinforcement_per_tonne: 1350000, // bulk steel per tonne (fallback)
+  // Per-diameter rebar prices (₦ per 12m standard length)
+  rebar_12mm_per_length: 9500,   // 12mm × 12m — common for columns/slabs
+  rebar_16mm_per_length: 16500,  // 16mm × 12m — common for columns/beams
+  rebar_20mm_per_length: 25500,  // 20mm × 12m — heavy columns/beams
+  rebar_25mm_per_length: 38000,  // 25mm × 12m — major beams/columns
   binding_wire_per_kg: 3000,    // annealed binding wire — updated
   timber_per_m: 3500,           // 2×4 timber per linear meter — updated
   roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm — updated

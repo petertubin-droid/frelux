@@ -29,6 +29,8 @@ import {
   calculateFasciaLength,
   estimateTimberMeters,
   estimateReinforcementKg,
+  buildReinforcementBreakdown,
+  m3ToTrips,
   roofingSheetsCount,
   getSheetCoverage,
   DEFAULT_PRICES,
@@ -741,5 +743,284 @@ describe('Smart Adjustments (Audit Phase)', () => {
     expect(DEFAULT_PRICES.block_per_piece).toBe(450);
     expect(DEFAULT_PRICES.sand_per_m3).toBe(55000);
     expect(DEFAULT_PRICES.granite_per_m3).toBe(110000);
+  });
+});
+
+// ── Trip-based sand/granite tests ──
+
+describe('m3ToTrips', () => {
+  it('converts m³ to trips correctly (3.5 m³ per trip)', () => {
+    expect(m3ToTrips(3.5)).toBe(1);
+    expect(m3ToTrips(7)).toBe(2);
+    expect(m3ToTrips(1.75)).toBe(0.5);
+  });
+
+  it('handles zero', () => {
+    expect(m3ToTrips(0)).toBe(0);
+  });
+});
+
+describe('sand and granite in trips', () => {
+  it('shopping list shows sand in trips (not m³)', () => {
+    const input = createTestInput();
+    const result = calculateBuildToRoof(input);
+    const sandItem = result.shopping_list.find(m => m.label.toLowerCase().includes('sand'));
+    expect(sandItem).toBeDefined();
+    expect(sandItem!.unit).toBe('trips');
+    expect(sandItem!.total_quantity).toBeGreaterThan(0);
+    // Trip price should be the per-trip price, not per-m³
+    expect(sandItem!.total_cost).toBeGreaterThan(0);
+  });
+
+  it('shopping list shows granite in trips (not m³)', () => {
+    const input = createTestInput();
+    const result = calculateBuildToRoof(input);
+    const graniteItem = result.shopping_list.find(m => m.label.toLowerCase().includes('granite'));
+    expect(graniteItem).toBeDefined();
+    expect(graniteItem!.unit).toBe('trips');
+    expect(graniteItem!.total_quantity).toBeGreaterThan(0);
+  });
+
+  it('trip quantity is rounded up to whole trips', () => {
+    const input = createTestInput();
+    const result = calculateBuildToRoof(input);
+    const sandItem = result.shopping_list.find(m => m.label.toLowerCase().includes('sand'));
+    // Trips should be a whole number (ceil)
+    expect(sandItem!.total_quantity % 1).toBe(0);
+  });
+
+  it('hardcore also shows in trips', () => {
+    const input = createTestInput();
+    const result = calculateBuildToRoof(input);
+    const hardcoreItem = result.shopping_list.find(m => m.label.toLowerCase().includes('hardcore'));
+    if (hardcoreItem) {
+      expect(hardcoreItem.unit).toBe('trips');
+    }
+  });
+});
+
+// ── Reinforcement breakdown tests ──
+
+describe('buildReinforcementBreakdown', () => {
+  it('splits reinforcement by bar diameter', () => {
+    const members: StructuralMemberInput[] = [
+      {
+        id: 'col1',
+        type: 'column',
+        label: 'Column C1',
+        length: 3,
+        width: 0.225,
+        depth: 0.225,
+        quantity: 12,
+        bar_diameter_mm: 16,
+        bar_count_main: 4,
+        bar_count_links: 8,
+        link_diameter_mm: 8,
+        cover_mm: 25,
+      },
+      {
+        id: 'beam1',
+        type: 'beam',
+        label: 'Beam B1',
+        length: 6,
+        width: 0.225,
+        depth: 0.3,
+        quantity: 4,
+        bar_diameter_mm: 20,
+        bar_count_main: 5,
+        bar_count_links: 6,
+        link_diameter_mm: 10,
+        cover_mm: 25,
+      },
+    ];
+
+    const breakdown = buildReinforcementBreakdown(members, 3, DEFAULT_PRICES);
+
+    // Should have entries for 16mm main, 8mm links, 20mm main, 10mm links
+    expect(breakdown.items.length).toBeGreaterThanOrEqual(4);
+
+    // Check 16mm main bars exist
+    const bars16mm = breakdown.items.find(i => i.diameter_mm === 16 && i.source === 'main');
+    expect(bars16mm).toBeDefined();
+    expect(bars16mm!.standard_lengths).toBeGreaterThan(0);
+    expect(bars16mm!.unit_price).toBe(DEFAULT_PRICES.rebar_16mm_per_length);
+
+    // Check 20mm main bars exist
+    const bars20mm = breakdown.items.find(i => i.diameter_mm === 20 && i.source === 'main');
+    expect(bars20mm).toBeDefined();
+    expect(bars20mm!.standard_lengths).toBeGreaterThan(0);
+    expect(bars20mm!.unit_price).toBe(DEFAULT_PRICES.rebar_20mm_per_length);
+  });
+
+  it('each diameter uses its own price, not a global per-tonne rate', () => {
+    const members: StructuralMemberInput[] = [
+      {
+        id: 'col1',
+        type: 'column',
+        label: 'Column C1',
+        length: 3,
+        width: 0.225,
+        depth: 0.225,
+        quantity: 12,
+        bar_diameter_mm: 12,
+        bar_count_main: 4,
+        cover_mm: 25,
+      },
+      {
+        id: 'col2',
+        type: 'column',
+        label: 'Column C2',
+        length: 3,
+        width: 0.225,
+        depth: 0.225,
+        quantity: 12,
+        bar_diameter_mm: 25,
+        bar_count_main: 4,
+        cover_mm: 25,
+      },
+    ];
+
+    const breakdown = buildReinforcementBreakdown(members, 3, DEFAULT_PRICES);
+
+    const bars12mm = breakdown.items.find(i => i.diameter_mm === 12 && i.source === 'main');
+    const bars25mm = breakdown.items.find(i => i.diameter_mm === 25 && i.source === 'main');
+
+    expect(bars12mm).toBeDefined();
+    expect(bars25mm).toBeDefined();
+
+    // 12mm and 25mm must have different unit prices
+    expect(bars12mm!.unit_price).toBe(DEFAULT_PRICES.rebar_12mm_per_length);
+    expect(bars25mm!.unit_price).toBe(DEFAULT_PRICES.rebar_25mm_per_length);
+    expect(bars12mm!.unit_price).not.toBe(bars25mm!.unit_price);
+  });
+
+  it('standard lengths are calculated as ceil(total_length / 12)', () => {
+    const members: StructuralMemberInput[] = [
+      {
+        id: 'slab1',
+        type: 'slab',
+        label: 'Slab S1',
+        length: 15,
+        width: 10,
+        depth: 0.15,
+        quantity: 1,
+        bar_diameter_mm: 12,
+        bar_count_main: 50,
+        bar_length_main: 10, // 50 × 10m = 500m total
+        cover_mm: 25,
+      },
+    ];
+
+    const breakdown = buildReinforcementBreakdown(members, 0, DEFAULT_PRICES);
+    const bars12mm = breakdown.items.find(i => i.diameter_mm === 12 && i.source === 'main');
+
+    expect(bars12mm).toBeDefined();
+    // 500m / 12m = 41.67 → ceil = 42 lengths
+    expect(bars12mm!.standard_lengths).toBe(42);
+    expect(bars12mm!.total_length_m).toBe(500);
+  });
+
+  it('includes binding wire in breakdown', () => {
+    const members: StructuralMemberInput[] = [
+      {
+        id: 'col1',
+        type: 'column',
+        label: 'Column C1',
+        length: 3,
+        width: 0.225,
+        depth: 0.225,
+        quantity: 12,
+        bar_diameter_mm: 16,
+        bar_count_main: 4,
+        cover_mm: 25,
+      },
+    ];
+
+    const breakdown = buildReinforcementBreakdown(members, 3, DEFAULT_PRICES);
+    expect(breakdown.binding_wire_kg).toBeGreaterThan(0);
+    expect(breakdown.binding_wire_cost).toBeGreaterThan(0);
+  });
+
+  it('handles empty members array', () => {
+    const breakdown = buildReinforcementBreakdown([], 3, DEFAULT_PRICES);
+    expect(breakdown.items).toHaveLength(0);
+    expect(breakdown.total_weight_tonnes).toBe(0);
+    expect(breakdown.total_cost).toBe(0);
+  });
+
+  it('falls back to per-tonne price for non-standard diameters', () => {
+    const members: StructuralMemberInput[] = [
+      {
+        id: 'col1',
+        type: 'column',
+        label: 'Column C1',
+        length: 3,
+        width: 0.225,
+        depth: 0.225,
+        quantity: 1,
+        bar_diameter_mm: 10, // non-standard (not 12/16/20/25)
+        bar_count_main: 4,
+        cover_mm: 25,
+      },
+    ];
+
+    const breakdown = buildReinforcementBreakdown(members, 0, DEFAULT_PRICES);
+    const item = breakdown.items.find(i => i.diameter_mm === 10);
+    expect(item).toBeDefined();
+    // Should estimate from per-tonne: weight per 12m = (10²/162) × 12 = 7.41 kg
+    // price per length = 1350000/1000 × 7.41 = ₦10,030 (approx)
+    expect(item!.unit_price).toBeGreaterThan(0);
+  });
+});
+
+describe('reinforcement breakdown in full estimate', () => {
+  it('result includes reinforcement_breakdown when structural members exist', () => {
+    const input = createTestInput({
+      has_engineer_schedule: true,
+      structural_members: [
+        {
+          id: 'col1',
+          type: 'column',
+          label: 'Column C1',
+          length: 3,
+          width: 0.225,
+          depth: 0.225,
+          quantity: 12,
+          bar_diameter_mm: 16,
+          bar_count_main: 4,
+          bar_count_links: 8,
+          link_diameter_mm: 8,
+          cover_mm: 25,
+        },
+      ],
+    });
+    const result = calculateBuildToRoof(input);
+    expect(result.reinforcement_breakdown).toBeDefined();
+    expect(result.reinforcement_breakdown!.items.length).toBeGreaterThan(0);
+  });
+
+  it('result reinforcement_breakdown is undefined when no structural members', () => {
+    const input = createTestInput({ structural_members: [] });
+    const result = calculateBuildToRoof(input);
+    // No structural frame stage → no breakdown
+    expect(result.reinforcement_breakdown).toBeUndefined();
+  });
+
+  it('default rebar prices are realistic for Nigerian market', () => {
+    // 12mm: ₦5,000–₦15,000 per 12m length
+    expect(DEFAULT_PRICES.rebar_12mm_per_length).toBeGreaterThanOrEqual(5000);
+    expect(DEFAULT_PRICES.rebar_12mm_per_length).toBeLessThanOrEqual(15000);
+
+    // 16mm: ₦10,000–₦25,000 per 12m length
+    expect(DEFAULT_PRICES.rebar_16mm_per_length).toBeGreaterThanOrEqual(10000);
+    expect(DEFAULT_PRICES.rebar_16mm_per_length).toBeLessThanOrEqual(25000);
+
+    // 20mm: ₦18,000–₦35,000 per 12m length
+    expect(DEFAULT_PRICES.rebar_20mm_per_length).toBeGreaterThanOrEqual(18000);
+    expect(DEFAULT_PRICES.rebar_20mm_per_length).toBeLessThanOrEqual(35000);
+
+    // 25mm: ₦30,000–₦50,000 per 12m length
+    expect(DEFAULT_PRICES.rebar_25mm_per_length).toBeGreaterThanOrEqual(30000);
+    expect(DEFAULT_PRICES.rebar_25mm_per_length).toBeLessThanOrEqual(50000);
   });
 });

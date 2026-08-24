@@ -171,7 +171,12 @@ export interface PriceConfig {
   granite_per_m3: number; // ₦ per cubic meter
   granite_per_trip: number; // ₦ per trip (1 trip ≈ 3.5 m³, 5-tonne tipper)
   hardcore_per_m3: number; // ₦ per cubic meter (hardcore stone/laterite)
-  reinforcement_per_tonne: number; // ₦ per tonne
+  reinforcement_per_tonne: number; // ₦ per tonne (bulk fallback)
+  // Per-diameter rebar prices (Nigerian market sells by diameter × length)
+  rebar_12mm_per_length: number; // ₦ per 12m length of 12mm bar
+  rebar_16mm_per_length: number; // ₦ per 12m length of 16mm bar
+  rebar_20mm_per_length: number; // ₦ per 12m length of 20mm bar
+  rebar_25mm_per_length: number; // ₦ per 12m length of 25mm bar
   binding_wire_per_kg: number; // ₦ per kg
   timber_per_m: number; // ₦ per linear meter (2x4 equivalent)
   roofing_sheet_per_piece: number; // ₦ per sheet
@@ -295,6 +300,7 @@ export interface StageResult {
   materials_total: number;
   labour_total: number;
   stage_total: number;
+  reinforcement_breakdown?: ReinforcementBreakdown;
 }
 
 export interface ConsolidatedMaterial {
@@ -304,6 +310,27 @@ export interface ConsolidatedMaterial {
   unit_price: number;
   total_cost: number;
   stages: string[];
+}
+
+export interface ReinforcementBreakdownItem {
+  diameter_mm: number;
+  label: string;           // e.g. "12mm Main Bars"
+  total_length_m: number;  // total length in meters
+  standard_lengths: number; // number of 12m standard lengths
+  weight_kg: number;       // total weight
+  weight_tonnes: number;   // total weight in tonnes
+  unit_price: number;      // ₦ per standard 12m length
+  total_cost: number;      // standard_lengths × unit_price
+  source: 'main' | 'links'; // main bars or stirrups/links
+}
+
+export interface ReinforcementBreakdown {
+  items: ReinforcementBreakdownItem[];
+  total_weight_tonnes: number;
+  total_length_m: number;
+  binding_wire_kg: number;
+  binding_wire_cost: number;
+  total_cost: number;
 }
 
 export interface BuildToRoofResult {
@@ -322,6 +349,9 @@ export interface BuildToRoofResult {
 
   // Consolidated shopping list
   shopping_list: ConsolidatedMaterial[];
+
+  // Reinforcement breakdown (user-friendly, split by bar diameter)
+  reinforcement_breakdown?: ReinforcementBreakdown;
 
   // Totals
   materials_total: number;
