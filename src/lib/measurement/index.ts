@@ -451,3 +451,26 @@ export {
   multiBuildingProjectToConstructionProject,
   duplicateBuildingResult,
 } from './multi-building';
+
+// ── Plan Intelligence (Feature 16: Plan → Space Engine Integration) ──
+export {
+  type RoomVerificationState,
+  VERIFICATION_STATE_LABELS,
+  type DetectedRoom,
+  type PlanDetectionResult,
+  type VerifiedSpace,
+  createDetectedRoom,
+  createPlanDetectionResult,
+  startRoomReview,
+  editDetectedRoom,
+  confirmDetectedRoom,
+  rejectDetectedRoom,
+  confirmAllRooms,
+  updateDetectionStatus,
+  detectedRoomToSpace,
+  detectionToVerifiedSpaces,
+  verifiedSpacesToSpaces,
+  selectForCalculation,
+  detectionSummary,
+  roomsByVerificationState,
+} from './plan-intelligence';
