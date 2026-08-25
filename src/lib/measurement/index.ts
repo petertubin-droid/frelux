@@ -591,3 +591,22 @@ export {
   type SmartRoofReport,
   buildSmartRoofReport,
 } from './smart-roof-report';
+
+// ── Smart AI Image Report (Feature 21) ──
+export {
+  type ImageReference,
+  type DetectedBuildingInfo,
+  type DetectedRoomInfo,
+  type DetectedDimension,
+  type DetectedRoofInfo,
+  type ScaleStatus,
+  type ScaleInfo,
+  type AiReviewStatus,
+  type AiReviewInfo,
+  type VerifiedMeasurement,
+  type CalculationResultEntry,
+  type AiMaterialRequirement,
+  type AiConfidenceSummary,
+  type SmartAiImageReport,
+  buildSmartAiImageReport,
+} from './smart-ai-report';
