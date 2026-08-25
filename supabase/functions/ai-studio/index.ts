@@ -8,6 +8,33 @@ const corsHeaders = {
 
 const GEMINI_MODEL = 'gemini-2.0-flash';
 
+interface ErrorContext {
+  errorId?: string;
+  errorData?: {
+    message: string;
+    error_type: string;
+    severity: string;
+    stack_trace: string | null;
+    route: string | null;
+    feature: string | null;
+    calculator: string | null;
+    http_status: number | null;
+    service: string | null;
+    browser: string | null;
+    operating_system: string | null;
+    device_type: string | null;
+    app_version: string | null;
+    occurrence_count: number;
+    first_seen: string;
+    last_seen: string;
+    metadata: Record<string, unknown>;
+  };
+  sourceCode?: {
+    fileName: string;
+    content: string;
+  };
+}
+
 interface StudioRequest {
   tool: string;
   prompt: string;
@@ -16,8 +43,11 @@ interface StudioRequest {
     fileContent?: string;
     artifactType?: string;
     sessionHistory?: { role: string; content: string }[];
+    errorContext?: ErrorContext;
   };
   sessionId?: string;
+  /** When tool is "error_analysis", this controls what the AI should produce */
+  errorAction?: 'diagnose' | 'generate_fix';
 }
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -42,6 +72,20 @@ async function isUserAdmin(supabase: ReturnType<typeof createClient>, userId: st
   return data?.role === 'admin';
 }
 
+// ── Protected FRELUX patterns — the AI must flag these ──
+const PROTECTED_PATTERNS = [
+  'calc.ts', 'finish-calc.ts', 'pop-tile-calc.ts', 'smart-waste.ts', 'smart-defaults.ts',
+  'measurement', 'roof', 'engine-integration',
+  'auth.tsx', 'supabase.ts', 'subscription.ts', 'premium-access.ts',
+  'paystack.ts', 'credits.ts', 'credits-context.tsx', 'achievements.ts',
+  'rewards-integration.ts', 'rewarded-access.ts', 'pro-connect.ts',
+];
+
+function isProtectedFile(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return PROTECTED_PATTERNS.some((p) => lower.includes(p));
+}
+
 const TOOL_SYSTEM_PROMPTS: Record<string, string> = {
   chat: 'You are an expert AI development assistant for the FRELUX PAINT CALC platform. You help with React, TypeScript, Tailwind CSS, Supabase, and general web development questions. Provide clear, actionable answers with code examples when relevant.',
   page_builder: 'You are an expert React page builder. Generate complete, production-ready React page components using TypeScript, Tailwind CSS, and lucide-react icons. Always include: proper imports, TypeScript types, responsive design, loading/error states, SEO meta tags, and clean component structure. Use the @/ path alias for imports.',
@@ -59,13 +103,68 @@ const TOOL_SYSTEM_PROMPTS: Record<string, string> = {
   test_generator: 'You are a QA engineer. Generate comprehensive test suites with: unit tests, integration tests, edge cases, error scenarios, and mocks. Use descriptive test names and cover both happy and unhappy paths.',
   docs_generator: 'You are a technical writer. Generate clear, comprehensive documentation with: overview, installation, API reference, usage examples, configuration, troubleshooting, and integration guides. Use Markdown format.',
   deploy_assistant: 'You are a deployment assistant. Help with: build optimization, environment configuration, deployment checklists, rollback procedures, and monitoring setup. Provide step-by-step instructions.',
+  // ── Error Analysis Tools ──
+  error_analysis: `You are a senior FRELUX platform error diagnostician. You analyze application errors and provide structured diagnoses.
+
+PROTECTED FRELUX FUNCTIONALITY (never auto-modify without explicit admin approval):
+- Painting, Screeding, Tyrolene, POP, Tile calculation rules and formulas
+- Building-to-Roof, Structural, Foundation, Construction calculations
+- FRELUX pricing rules
+- Authentication (auth.tsx)
+- Supabase RLS policies
+- Payment systems (paystack.ts)
+- Admin authorization
+- FRELUX Credits, Achievements, Reward logic
+- Pro Connect verification
+
+Your diagnosis MUST be returned as a JSON object with these fields:
+{
+  "what_failed": "Brief description of what failed",
+  "where_failed": "Where in the application the failure occurred",
+  "root_cause": "The probable root cause",
+  "affected_file": "The likely file/component responsible (or 'unknown' if unclear)",
+  "category": "frontend | backend | database | api | authentication | configuration | deployment",
+  "proposed_solution": "The safest proposed fix",
+  "risk_level": "low | medium | high | critical",
+  "protected_functionality_affected": true/false,
+  "recommended_action": "What the administrator should do next"
+}
+
+If you do not have sufficient code context to safely identify the affected file or propose a fix, set affected_file to "unknown" and say "Insufficient code context to safely propose a fix." in the proposed_solution field. Do NOT hallucinate file names or code.
+
+Always respond with ONLY the JSON object, no markdown formatting around it.`,
+  error_fix: `You are a senior FRELUX platform code fix generator. Given an error diagnosis and optionally source code context, generate a proposed code fix.
+
+PROTECTED FRELUX FUNCTIONALITY — if the fix touches any of these, you MUST set protected_functionality_affected to true:
+- Painting, Screeding, Tyrolene, POP, Tile calculation rules and formulas (calc.ts, finish-calc.ts, pop-tile-calc.ts)
+- Building-to-Roof, Structural, Foundation, Construction calculations
+- FRELUX pricing rules
+- Authentication (auth.tsx), Supabase RLS
+- Payment systems (paystack.ts)
+- Admin authorization
+- FRELUX Credits, Achievements, Reward logic
+
+Your fix MUST be returned as a JSON object:
+{
+  "file": "The file to modify",
+  "existing_code": "The existing code that needs to change (or 'see source' if too long)",
+  "proposed_code": "The new code",
+  "explanation": "Why this fix works",
+  "risk_level": "low | medium | high",
+  "expected_effect": "What should happen after applying this fix",
+  "protected_functionality_affected": true/false
+}
+
+If you cannot safely generate a fix, respond with { "file": "none", "existing_code": "", "proposed_code": "", "explanation": "Insufficient code context to safely propose a fix.", "risk_level": "unknown", "expected_effect": "none", "protected_functionality_affected": false }
+
+Respond with ONLY the JSON object.`,
 };
 
 function buildSystemPrompt(tool: string): string {
   return TOOL_SYSTEM_PROMPTS[tool] ?? TOOL_SYSTEM_PROMPTS.chat;
 }
 
-async function callGemini(apiKey: string, tool: string, prompt: string, context?: StudioRequest['context']): Promise<string> {
+async function callGemini(apiKey: string, tool: string, prompt: string, context?: StudioRequest['context'], errorAction?: string): Promise<string> {
   const systemPrompt = buildSystemPrompt(tool);
   const parts: unknown[] = [{ text: systemPrompt }];
 
@@ -77,7 +176,42 @@ async function callGemini(apiKey: string, tool: string, prompt: string, context?
     parts.push({ text: `Conversation history:\n${history}` });
   }
 
-  parts.push({ text: `${prompt}\n\nRespond with well-structured, production-ready output. Use markdown code blocks for code.` });
+  // ── Error context ──
+  if (context?.errorContext?.errorData) {
+    const ed = context.errorContext.errorData;
+    const errorInfo = `APPLICATION ERROR TO ANALYZE:
+- Message: ${ed.message}
+- Type: ${ed.error_type}
+- Severity: ${ed.severity}
+- Stack trace: ${ed.stack_trace ?? 'N/A'}
+- Route: ${ed.route ?? 'N/A'}
+- Feature: ${ed.feature ?? 'N/A'}
+- Calculator: ${ed.calculator ?? 'N/A'}
+- HTTP Status: ${ed.http_status ?? 'N/A'}
+- Service: ${ed.service ?? 'N/A'}
+- Browser: ${ed.browser ?? 'N/A'}
+- OS: ${ed.operating_system ?? 'N/A'}
+- Device: ${ed.device_type ?? 'N/A'}
+- App Version: ${ed.app_version ?? 'N/A'}
+- Occurrences: ${ed.occurrence_count}
+- First seen: ${ed.first_seen}
+- Last seen: ${ed.last_seen}
+- Metadata: ${JSON.stringify(ed.metadata ?? {})}`;
+
+    parts.push({ text: errorInfo });
+
+    if (context.errorContext.sourceCode) {
+      parts.push({ text: `Source code context from ${context.errorContext.sourceCode.fileName}:\n\`\`\`\n${context.errorContext.sourceCode.content.slice(0, 5000)}\n\`\`\`` });
+    }
+
+    if (errorAction === 'generate_fix') {
+      parts.push({ text: 'Generate a proposed code fix for this error. Return ONLY the JSON fix object as specified in your instructions.' });
+    } else {
+      parts.push({ text: 'Diagnose this error. Return ONLY the JSON diagnosis object as specified in your instructions.' });
+    }
+  } else {
+    parts.push({ text: `${prompt}\n\nRespond with well-structured, production-ready output. Use markdown code blocks for code.` });
+  }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
   const body = {
@@ -143,11 +277,78 @@ Deno.serve(async (req: Request) => {
   }
 
   if (!payload.tool || !payload.prompt?.trim()) {
-    return jsonResponse({ error: 'Tool and prompt are required', code: 'BAD_REQUEST' }, 400);
+    // For error analysis, prompt can be the error context
+    if (!payload.context?.errorContext?.errorData) {
+      return jsonResponse({ error: 'Tool and prompt are required', code: 'BAD_REQUEST' }, 400);
+    }
+    payload.prompt = 'Analyze this error';
   }
 
   try {
-    const response = await callGemini(apiKey, payload.tool, payload.prompt, payload.context);
+    const response = await callGemini(apiKey, payload.tool, payload.prompt, payload.context, payload.errorAction);
+
+    // ── If error analysis, record the fix history entry ──
+    if ((payload.tool === 'error_analysis' || payload.tool === 'error_fix') && payload.context?.errorContext?.errorId) {
+      try {
+        let diagnosis = {};
+        let proposedFix = {};
+        try {
+          diagnosis = JSON.parse(response);
+        } catch {
+          // AI might wrap in markdown, try to extract
+          const jsonMatch = response.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            diagnosis = JSON.parse(jsonMatch[0]);
+          }
+        }
+
+        if (payload.tool === 'error_fix') {
+          proposedFix = diagnosis;
+          diagnosis = {};
+        }
+
+        // Check if a record already exists for this error
+        const existing = await supabase
+          .from('error_fix_history')
+          .select('id, status')
+          .eq('error_id', payload.context.errorContext.errorId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (existing.data && existing.data.length > 0) {
+          // Update existing record
+          const updateData: Record<string, unknown> = {
+            updated_at: new Date().toISOString(),
+          };
+          if (payload.tool === 'error_analysis') {
+            updateData.diagnosis = diagnosis;
+            updateData.status = 'fix_proposed';
+          } else {
+            updateData.proposed_fix = proposedFix;
+            updateData.status = 'awaiting_approval';
+          }
+          await supabase.from('error_fix_history').update(updateData).eq('id', existing.data[0].id);
+        } else {
+          // Create new record
+          const insertData: Record<string, unknown> = {
+            error_id: payload.context.errorContext.errorId,
+            error_message: payload.context.errorContext.errorData?.message ?? 'Unknown error',
+            error_type: payload.context.errorContext.errorData?.error_type ?? null,
+            error_severity: payload.context.errorContext.errorData?.severity ?? null,
+            status: payload.tool === 'error_analysis' ? 'fix_proposed' : 'awaiting_approval',
+          };
+          if (payload.tool === 'error_analysis') {
+            insertData.diagnosis = diagnosis;
+          } else {
+            insertData.proposed_fix = proposedFix;
+          }
+          await supabase.from('error_fix_history').insert(insertData);
+        }
+      } catch (dbErr) {
+        // Don't fail the response if DB recording fails
+        console.error('Failed to record error fix history:', dbErr);
+      }
+    }
 
     if (payload.sessionId) {
       await supabase.from('ai_studio_chat').insert({

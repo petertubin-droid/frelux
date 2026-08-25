@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
-import { ArrowLeft, Menu, X, Code } from 'lucide-react';
+import { ArrowLeft, Menu, X, Code, Activity } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 
@@ -92,7 +92,10 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
 
       <div className="border-t border-neutral-200 dark:border-white/5 p-3">
-        <Link to="/admin" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100">
+        <Link to="/admin/system-health" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100">
+          <Activity className="h-4 w-4" /> System Health
+        </Link>
+        <Link to="/admin" className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100">
           <ArrowLeft className="h-4 w-4" /> Back to Admin
         </Link>
       </div>

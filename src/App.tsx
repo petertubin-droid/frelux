@@ -126,6 +126,7 @@ const StudioLayout = lazy(() => import('@/components/studio/StudioLayout'));
 const StudioOverview = lazy(() => import('@/pages/studio/StudioOverview'));
 const StudioTool = lazy(() => import('@/pages/studio/StudioTool'));
 const StudioManagement = lazy(() => import('@/pages/studio/StudioManagement'));
+const ErrorAnalysis = lazy(() => import('@/pages/studio/ErrorAnalysis'));
 
 // Pro Connect pages — professional network
 const Onboarding = lazy(() => import('@/pages/Onboarding'));
@@ -427,6 +428,7 @@ export default function App() {
               <Route path="workflow_builder" element={<StudioTool />} />
               <Route path="page/:pageId" element={<StudioTool />} />
               <Route path="management" element={<StudioManagement />} />
+              <Route path="error_analysis" element={<Suspense fallback={<PageLoader />}><ErrorAnalysis /></Suspense>} />
             </Route>
           </Route>
 

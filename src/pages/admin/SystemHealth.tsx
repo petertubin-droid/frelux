@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { AdminHeader, AdminCard, AdminButton } from '@/components/admin/AdminUi';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
+import { analyzeErrorWithAI, generateErrorFix, approveFix, type ErrorDiagnosis, type ErrorFix, type ErrorFixHistoryRecord } from '@/lib/error-analysis';
+
 
 // ── Types ──
 
@@ -112,6 +115,15 @@ export default function SystemHealth() {
   const [alertConfigs, setAlertConfigs] = useState<AlertConfig[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'errors' | 'health' | 'alerts'>('overview');
   const [resolving, setResolving] = useState(false);
+  // ── AI Error Analysis state ──
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+  const [aiDiagnosis, setAiDiagnosis] = useState<ErrorDiagnosis | null>(null);
+  const [aiFix, setAiFix] = useState<ErrorFix | null>(null);
+  const [generatingFix, setGeneratingFix] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [fixHistory, setFixHistory] = useState<ErrorFixHistoryRecord[]>([]);
+  const [approvingFix, setApprovingFix] = useState(false);
+  const [showFixHistory, setShowFixHistory] = useState(false);
 
   // ── Fetch errors ──
   const fetchErrors = useCallback(async () => {
@@ -352,6 +364,83 @@ export default function SystemHealth() {
     if (!error) {
       setAlertConfigs((prev) => prev.map((c) => c.id === id ? { ...c, ...updates } : c));
     }
+  };
+
+  // ── Analyze error with AI Studio ──
+  const handleAnalyzeError = async (error: AppError) => {
+    setAiAnalyzing(true);
+    setAiError(null);
+    setAiDiagnosis(null);
+    setAiFix(null);
+    try {
+      const { diagnosis } = await analyzeErrorWithAI(error);
+      setAiDiagnosis(diagnosis);
+      // Load fix history for this error
+      const history = await fetchFixHistoryForError(error.id);
+      setFixHistory(history);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Analysis failed');
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
+
+  // ── Generate fix with AI Studio ──
+  const handleGenerateFix = async (error: AppError) => {
+    setGeneratingFix(true);
+    setAiError(null);
+    try {
+      const { fix } = await generateErrorFix(error, aiDiagnosis ?? undefined);
+      setAiFix(fix);
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Fix generation failed');
+    } finally {
+      setGeneratingFix(false);
+    }
+  };
+
+  // ── Approve and apply fix ──
+  const handleApproveFix = async (errorId: string) => {
+    setApprovingFix(true);
+    try {
+      // Find the latest fix history record for this error
+      const latest = fixHistory[0];
+      if (latest) {
+        await approveFix(latest.id);
+        // Refresh fix history
+        const history = await fetchFixHistoryForError(errorId);
+        setFixHistory(history);
+      }
+    } catch (err) {
+      setAiError(err instanceof Error ? err.message : 'Approval failed');
+    } finally {
+      setApprovingFix(false);
+    }
+  };
+
+  // ── Fetch fix history for error ──
+  async function fetchFixHistoryForError(errorId: string): Promise<ErrorFixHistoryRecord[]> {
+    try {
+      const { data, error } = await supabase
+        .from('error_fix_history')
+        .select('*')
+        .eq('error_id', errorId)
+        .order('created_at', { ascending: false });
+      if (error) return [];
+      return (data ?? []) as ErrorFixHistoryRecord[];
+    } catch {
+      return [];
+    }
+  }
+
+  // ── Reset AI state when closing modal ──
+  const handleCloseModal = () => {
+    setSelectedError(null);
+    setAiDiagnosis(null);
+    setAiFix(null);
+    setAiError(null);
+    setFixHistory([]);
+    setShowFixHistory(false);
   };
 
   // ── Initial load ──
@@ -738,9 +827,165 @@ export default function SystemHealth() {
               </div>
             )}
 
+            {/* ── AI Studio Analysis section ── */}
+            <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-brand-purple">AI Studio Error Analysis</h4>
+                <div className="flex gap-2">
+                  <Link
+                    to="/admin/studio/error_analysis"
+                    state={{ errorId: selectedError.id }}
+                    className="text-xs font-medium text-brand-purple hover:underline"
+                  >
+                    Open in AI Studio →
+                  </Link>
+                </div>
+              </div>
+
+              {aiAnalyzing && (
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
+                  <svg className="h-4 w-4 animate-spin text-brand-purple" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Analyzing error with AI...
+                </div>
+              )}
+
+              {aiError && (
+                <div className="rounded-lg bg-red-50 p-3 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                  {aiError}
+                </div>
+              )}
+
+              {aiDiagnosis && !aiAnalyzing && (
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">What failed: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.what_failed}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Root cause: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.root_cause}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Affected file: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.affected_file}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Category: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.category}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Risk level: </span>
+                    <span className={classNames(
+                      'rounded px-1.5 py-0.5 text-[10px] font-medium',
+                      aiDiagnosis.risk_level === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                      aiDiagnosis.risk_level === 'high' ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400' :
+                      aiDiagnosis.risk_level === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
+                      'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
+                    )}>{aiDiagnosis.risk_level.toUpperCase()}</span>
+                  </div>
+                  {aiDiagnosis.protected_functionality_affected && (
+                    <div className="rounded-lg bg-amber-50 p-2 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                      ⚠️ Protected FRELUX Logic Detected — explicit admin approval required
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Proposed solution: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.proposed_solution}</span>
+                  </div>
+
+                  {/* Generate Fix button */}
+                  {!aiFix && (
+                    <button
+                      onClick={() => handleGenerateFix(selectedError)}
+                      disabled={generatingFix}
+                      className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90 disabled:opacity-50"
+                    >
+                      {generatingFix ? 'Generating fix...' : 'Generate Fix'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* AI Proposed Fix */}
+              {aiFix && (
+                <div className="space-y-2 border-t border-brand-purple/10 pt-3">
+                  <h5 className="text-xs font-semibold text-brand-purple">Proposed Fix</h5>
+                  <div className="text-xs">
+                    <span className="font-medium text-neutral-500 dark:text-neutral-400">File: </span>
+                    <span className="text-neutral-800 dark:text-neutral-200">{aiFix.file}</span>
+                  </div>
+                  {aiFix.explanation && (
+                    <div className="text-xs">
+                      <span className="font-medium text-neutral-500 dark:text-neutral-400">Explanation: </span>
+                      <span className="text-neutral-800 dark:text-neutral-200">{aiFix.explanation}</span>
+                    </div>
+                  )}
+                  {aiFix.expected_effect && (
+                    <div className="text-xs">
+                      <span className="font-medium text-neutral-500 dark:text-neutral-400">Expected effect: </span>
+                      <span className="text-neutral-800 dark:text-neutral-200">{aiFix.expected_effect}</span>
+                    </div>
+                  )}
+                  {aiFix.protected_functionality_affected && (
+                    <div className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
+                      ⚠️ Protected FRELUX Logic Detected — requires explicit admin approval before applying
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleApproveFix(selectedError.id)}
+                      disabled={approvingFix}
+                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                    >
+                      {approvingFix ? 'Approving...' : 'Approve & Apply Fix'}
+                    </button>
+                    <button
+                      onClick={() => setShowFixHistory(!showFixHistory)}
+                      className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+                    >
+                      {showFixHistory ? 'Hide' : 'Show'} Fix History
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Fix History */}
+              {showFixHistory && fixHistory.length > 0 && (
+                <div className="space-y-1 border-t border-brand-purple/10 pt-3">
+                  <h5 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Fix History</h5>
+                  {fixHistory.map((h) => (
+                    <div key={h.id} className="flex items-center gap-2 text-xs">
+                      <span className={classNames(
+                        'rounded px-1.5 py-0.5 text-[10px] font-medium',
+                        h.status === 'verified' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
+                        h.status === 'deployed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
+                        h.status === 'approved' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400' :
+                        h.status === 'failed' || h.status === 'rolled_back' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                        'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400'
+                      )}>{h.status.replace(/_/g, ' ')}</span>
+                      <span className="text-neutral-500 dark:text-neutral-400">{new Date(h.created_at).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Analyze button (initial) */}
+              {!aiDiagnosis && !aiAnalyzing && !aiError && (
+                <button
+                  onClick={() => handleAnalyzeError(selectedError)}
+                  className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90"
+                >
+                  Analyze with AI Studio
+                </button>
+              )}
+            </div>
+
             {/* Resolve/reopen actions */}
             <div className="flex justify-end gap-2 border-t border-neutral-100 pt-4 dark:border-white/5">
-              <AdminButton variant="secondary" onClick={() => setSelectedError(null)}>
+              <AdminButton variant="secondary" onClick={handleCloseModal}>
                 Close
               </AdminButton>
               {selectedError.resolved ? (

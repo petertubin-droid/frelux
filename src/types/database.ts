@@ -47,6 +47,24 @@ export interface DbSiteBranding {
   /** JSON: which words in the hero headline get a custom color. */
   hero_highlight_config: HeroHighlightConfig | null;
   hero_image_url: string | null;
+  /** Alt text for the hero image — displayed as caption overlay. */
+  hero_image_alt: string | null;
+  /** Label shown on the floating swatch card. */
+  hero_image_label: string | null;
+  /** Swatch colors for the floating palette card. */
+  hero_swatch_colors: string[] | null;
+  /** Name shown below the swatch colors. */
+  hero_swatch_name: string | null;
+  /** Label for the floating estimate chip. */
+  hero_chip_label: string | null;
+  /** Main value for the floating estimate chip. */
+  hero_chip_value: string | null;
+  /** Subtext for the floating estimate chip. */
+  hero_chip_subtext: string | null;
+  /** Label for the floating badge. */
+  hero_badge_label: string | null;
+  /** Value for the floating badge. */
+  hero_badge_value: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -39,6 +39,10 @@ export default function Hero() {
   const { content: hero } = useHeroContent();
   const { branding } = useBranding();
 
+  // ── Derive image metadata from branding ──
+  const heroImageUrl = branding?.hero_image_url || 'https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900';
+  const heroImageAlt = branding?.hero_image_alt || 'Painter rolling fresh color onto a wall';
+
   return (
     <section data-tour="hero" className="relative overflow-hidden bg-mesh text-white">
       {/* Grid pattern */}
@@ -179,41 +183,63 @@ export default function Hero() {
             {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
               <img
-                src={branding?.hero_image_url || 'https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900'}
-                alt="Painter rolling fresh color onto a wall"
+                src={heroImageUrl}
+                alt={heroImageAlt}
                 className="aspect-[4/5] w-full object-cover"
                 loading="eager"
+                onLoad={(e) => {
+                  const img = e.currentTarget;
+                  const caption = document.getElementById('hero-image-caption');
+                  if (caption && img.naturalWidth > 0) {
+                    caption.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+                  }
+                }}
               />
               {/* Gradient overlay for depth */}
               <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/50 via-transparent to-transparent" />
+              {/* Image caption overlay */}
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
+                <p className="text-xs font-medium text-white/80">{heroImageAlt}</p>
+                <span id="hero-image-caption" className="text-[10px] font-medium text-white/50" />
+              </div>
             </div>
 
-            {/* Floating swatch card */}
+            {/* Floating swatch card — derived from branding config */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white dark:bg-brand-navy-mid p-4 shadow-premium-lg animate-float">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
-                Suggested palette
+                {branding?.hero_image_label || 'FRELUX Tools'}
               </p>
               <div className="mt-2.5 flex gap-1.5">
-                <div className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105" style={{ background: '#F5F1E8' }} />
-                <div className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105" style={{ background: '#D9D2C5' }} />
-                <div className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105" style={{ background: '#7B9EA8' }} />
+                {(branding?.hero_swatch_colors ?? ['#F5F1E8', '#D9D2C5', '#7B9EA8']).map((color, idx) => (
+                  <div key={idx} className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105" style={{ background: color }} />
+                ))}
               </div>
-              <p className="mt-2.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200">Serene Living</p>
+              <p className="mt-2.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                {branding?.hero_swatch_name || 'Curated Palette'}
+              </p>
             </div>
 
-            {/* Floating estimate chip */}
+            {/* Floating estimate chip — uses hero content */}
             <div className="absolute -right-5 top-8 rounded-xl bg-white dark:bg-brand-navy-mid px-4 py-3.5 shadow-premium-lg animate-float-delayed">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
-                Paint needed
+                {branding?.hero_chip_label || 'Plan & Estimate'}
               </p>
-              <p className="mt-1 font-display text-2xl font-bold text-neutral-900 dark:text-white">14 L</p>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">2 coats, 38 m²</p>
+              <p className="mt-1 font-display text-2xl font-bold text-neutral-900 dark:text-white">
+                {branding?.hero_chip_value || 'Free'}
+              </p>
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+                {branding?.hero_chip_subtext || hero.ctaPrimaryLabel}
+              </p>
             </div>
 
-            {/* Floating accuracy badge */}
+            {/* Floating badge — uses branding config */}
             <div className="absolute -top-4 right-12 rounded-xl bg-brand-purple px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">Accuracy</p>
-              <p className="font-display text-sm font-bold text-white">98.4%</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
+                {branding?.hero_badge_label || 'Platform'}
+              </p>
+              <p className="font-display text-sm font-bold text-white">
+                {branding?.hero_badge_value || 'FRELUX'}
+              </p>
             </div>
           </div>
         </div>

@@ -31,7 +31,8 @@ export const TOOLS: ToolDef[] = [
   { slug: 'deploy_assistant', label: 'AI Deployment Assistant', shortLabel: 'Deploy', icon: Rocket, description: 'Deployment guides, checklists, and optimization', category: 'AI Generation' },
 
   // Code Quality
-  { slug: 'bug_detection', label: 'AI Bug Detection AI Bug Detection & Auto-Fix Auto Fix', shortLabel: 'Bug Fix', icon: Bug, description: 'Detect bugs, security issues, and auto-generate fixes', category: 'Code Quality' },
+  { slug: 'bug_detection', label: 'AI Bug Detection & Auto-Fix', shortLabel: 'Bug Fix', icon: Bug, description: 'Detect bugs, security issues, and auto-generate fixes', category: 'Code Quality' },
+  { slug: 'error_analysis', label: 'Error Analysis & AI Fix', shortLabel: 'Errors', icon: Bug, description: 'Diagnose application errors from System Health and generate safe fixes', category: 'Code Quality' },
   { slug: 'refactoring', label: 'AI Refactoring', shortLabel: 'Refactor', icon: RefreshCw, description: 'Improve code quality while preserving behavior', category: 'Code Quality' },
   { slug: 'test_generator', label: 'AI Test Generator', shortLabel: 'Tests', icon: TestTube2, description: 'Generate comprehensive test suites', category: 'Code Quality' },
   { slug: 'docs_generator', label: 'AI Documentation Generator', shortLabel: 'Docs', icon: FileText, description: 'Generate API docs, component docs, and guides', category: 'Code Quality' },

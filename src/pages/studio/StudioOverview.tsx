@@ -1,11 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Code } from 'lucide-react';
+import { ArrowRight, Code, AlertCircle } from 'lucide-react';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 import { supabase } from '@/lib/supabase';
+import { fetchRecentErrorsForStudio } from '@/lib/error-analysis';
 
 export default function StudioOverview() {
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [recentErrors, setRecentErrors] = useState<{ id: string; message: string; severity: string; feature: string | null; occurrence_count: number }[]>([]);
+
+  const loadRecentErrors = useCallback(async () => {
+    try {
+      const data = await fetchRecentErrorsForStudio(5);
+      setRecentErrors(data);
+    } catch {
+      // silent
+    }
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -16,7 +27,8 @@ export default function StudioOverview() {
       setCounts(next);
     }
     load();
-  }, []);
+    loadRecentErrors();
+  }, [loadRecentErrors]);
 
   const stats = [
     { label: 'Sessions', value: counts.ai_studio_sessions ?? 0 },
@@ -48,6 +60,39 @@ export default function StudioOverview() {
           </div>
         ))}
       </div>
+
+      {/* Recent Errors from System Health */}
+      {recentErrors.length > 0 && (
+        <div className="mb-8 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 text-brand-purple" />
+              <h2 className="text-sm font-semibold text-neutral-800 dark:text-white">Recent Errors from System Health</h2>
+            </div>
+            <Link to="/admin/studio/error_analysis" className="text-xs font-medium text-brand-purple hover:underline">
+              Analyze all →
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {recentErrors.map((e) => (
+              <Link
+                key={e.id}
+                to={`/admin/studio/error_analysis?errorId=${e.id}`}
+                className="flex items-center gap-3 rounded-lg border border-neutral-100 p-2 transition-colors hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/5"
+              >
+                <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                  e.severity === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
+                  e.severity === 'high' ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400' :
+                  e.severity === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
+                  'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
+                }`}>{e.severity.toUpperCase()}</span>
+                <span className="flex-1 truncate text-sm text-neutral-700 dark:text-neutral-300">{e.message}</span>
+                <span className="text-xs text-neutral-400">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : ''}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tool grid by category */}
       {TOOL_CATEGORIES.map((cat) => (
