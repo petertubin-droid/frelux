@@ -11,7 +11,7 @@ import {
   updateVerificationRecord,
   buildVerificationSummary,
   type VerificationState,
-  type _AiDetectionConfidence,
+  type AiDetectionConfidence,
 } from '../verification-states';
 
 describe('Feature 19: Confidence / Verification States', () => {

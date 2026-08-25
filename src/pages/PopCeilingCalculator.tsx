@@ -38,7 +38,7 @@ import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { monitoredCalc } from '@/lib/calculator-monitor';
 export default function PopCeilingCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'POP Ceiling Calculator: How Much POP Cement Do I Need?',
     description: 'Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for both Nigerian and international POP ceiling workflows.',
     canonicalPath: '/pop-ceiling-calculator',
@@ -70,7 +70,7 @@ export default function PopCeilingCalculator({ embedded = false }: { embedded?: 
         ],
       },
     ],
-  });
+  } : null);
 
 
   const { user } = useAuth();
@@ -279,7 +279,7 @@ const mountedRef = useRef(true);
       ]} />
 
       <RelatedTools links={[
-        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.popCeilingCalc,
         CALC_LINKS.paintCalculator,
         CALC_LINKS.screedingCalc,
         CALC_LINKS.tileCalc,

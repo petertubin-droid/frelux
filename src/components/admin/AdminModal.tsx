@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
-  _DialogHeader,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/shadcn/dialog';

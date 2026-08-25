@@ -52,7 +52,7 @@ export async function triggerCrawl(
 
     return {
       result: {
-        jobId: job.id ?? job.jobId ?? '',
+        jobId: job.id ?? '',
         started: true,
         status: (job.status ?? 'completed') as CrawlJob['status'],
         message: job.message ?? 'Crawl completed',

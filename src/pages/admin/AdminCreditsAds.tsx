@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Coins, Film, TrendingUp, TrendingDown, Settings, Users, AlertTriangle, Save, Loader2, Plus, Pencil, Check } from 'lucide-react';
+import { Coins, Film, TrendingUp, TrendingDown, Users, AlertTriangle, Save, Loader2, Plus, Pencil, Check } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 import { classNames } from '@/lib/utils';

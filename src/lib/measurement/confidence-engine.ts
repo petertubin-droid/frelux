@@ -144,7 +144,7 @@ export function assessCalculationConfidence(
       'Width provided',
       hasWidth,
       hasWidth
-        ? `Width: ${result.normalizedWidthM.toFixed(4)} m`
+        ? `Width: ${result.normalizedWidthM?.toFixed(4) ?? "N/A"} m`
         : 'Width is missing',
       1.5,
     ));
@@ -158,7 +158,7 @@ export function assessCalculationConfidence(
       'Height provided',
       hasHeight,
       hasHeight
-        ? `Height: ${result.normalizedHeightM.toFixed(4)} m`
+        ? `Height: ${result.normalizedHeightM?.toFixed(4) ?? "N/A"} m`
         : 'Height is missing',
       1.5,
     ));

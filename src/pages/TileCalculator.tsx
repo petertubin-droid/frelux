@@ -38,7 +38,7 @@ import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { monitoredCalc } from '@/lib/calculator-monitor';
 export default function TileCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('tile');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Tile Calculator: How Many Tiles Do I Need?',
     description: 'Free tile calculator. Enter your floor or wall dimensions and tile size to calculate tile quantity, boxes, adhesive, grout, and labour cost.',
     canonicalPath: '/tile-calculator',
@@ -70,7 +70,7 @@ export default function TileCalculator({ embedded = false }: { embedded?: boolea
         ],
       },
     ],
-  });
+  } : null);
 
 
   const { user } = useAuth();
@@ -84,8 +84,8 @@ const mountedRef = useRef(true);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
   // Engine features
-  const _engine = useEngineFeatures({ calculatorType: 'tile' });
-  const [_alreadyHave, _setAlreadyHave] = useState(0);
+  const engine = useEngineFeatures({ calculatorType: 'tile' });
+  const [alreadyHave, setAlreadyHave] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
@@ -444,7 +444,8 @@ const mountedRef = useRef(true);
           <TileResultCard result={result} input={input} currencySymbol={currencySymbol}
             onAgain={() => setResult(null)} onStartOver={startOver}
             user={user} onSave={handleSave} saving={saving} saveMsg={saveMsg}
-            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }} />
+            calcDefaults={{ howCalculatedText: calcDefaults.howCalculatedText as string || '', estimateDisclaimer: calcDefaults.estimateDisclaimer }}
+            engine={engine} alreadyHave={alreadyHave} onAlreadyHaveChange={setAlreadyHave} />
         )}
       </div>
 
@@ -457,7 +458,7 @@ const mountedRef = useRef(true);
       ]} />
 
       <RelatedTools links={[
-        CALC_LINKS.tileCost,
+        CALC_LINKS.tileCalc,
         CALC_LINKS.paintCalculator,
         CALC_LINKS.screedingCalc,
         CALC_LINKS.popCeilingCalc,

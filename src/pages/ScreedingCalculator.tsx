@@ -29,7 +29,7 @@ import {
 
 export default function ScreedingCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   useCalcDefaults('screeding');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
     description:
       'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
@@ -54,7 +54,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
         ]
       }
     ],
-  });
+  } : null);
 
 
   const {
@@ -249,21 +249,14 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
 
       <div className="mx-auto max-w-3xl px-4 pb-10 sm:px-6">
         <HowCalculatedSection
-          title="How Screeding Area Is Calculated"
-          steps={[
-            { label: 'Enter dimensions', description: 'Input your room length, width, and wall height in feet or metres.' },
-            { label: 'Normalise to metres', description: 'Your input is converted to metres using exact international conversion factors (1 ft = 0.3048 m).' },
-            { label: 'Calculate wall area', description: 'Wall area = perimeter × height. The perimeter is 2 × (length + width) for a full room.' },
-            { label: 'Apply deductions', description: 'Door and window openings are subtracted from the gross wall area.' },
-            { label: 'Result in m²', description: 'The final screeding area is always expressed in square metres.' },
-          ]}
+          methodologyText="Screeding area is calculated by measuring the room length, width, and wall height, normalising to metres using exact conversion factors (1 ft = 0.3048 m), computing wall area as perimeter × height (where perimeter = 2 × (length + width)), and subtracting door and window openings. The final result is in m²."
         />
         <EstimateDisclaimer />
-        <ReportCalculationIssue calculatorName="screeding-calculator" />
-        <CalculatorNearMe calculatorName="Screeding" />
+        <ReportCalculationIssue calculatorType="screeding-calculator" />
+        <CalculatorNearMe tradeSlug="screeding" />
 
         <div className="mt-8">
-          <RelatedTools current="/screeding-calculator" links={CALC_LINKS} />
+          <RelatedTools links={Object.values(CALC_LINKS)} />
         </div>
         <div className="mt-6">
           <RelatedToolsLinks />

@@ -10,7 +10,7 @@
 
 import type {
   MatchConfidence,
-  _MiProductAlias,
+  MiProductAlias,
 } from '@/types/market-intelligence';
 
 // ============================================================
@@ -232,11 +232,13 @@ export function normalizeProduct(
   normalized_package_size: number | null;
   normalized_package_unit: string | null;
 } {
+  const pkg = extractPackageInfo(rawName);
   return {
     normalized_name: normalizeProductName(rawName),
     normalized_brand: extractBrand(rawName),
     normalized_category: classifyCategory(rawName),
-    ...extractPackageInfo(rawName),
+    normalized_package_size: pkg.size,
+    normalized_package_unit: pkg.unit,
   };
 }
 

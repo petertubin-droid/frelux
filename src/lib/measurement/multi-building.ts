@@ -33,10 +33,10 @@ import type {
   ProjectElement,
   ProjectElementResult,
   ConstructionProject,
-  CalculationStep,
 } from './project-engine';
+import type { CalculationStep } from './types';
 import {
-  _createProjectElement,
+  createProjectElement,
   calculateProjectElement,
   createConstructionProject,
   PROJECT_ELEMENT_TYPE_LABELS,

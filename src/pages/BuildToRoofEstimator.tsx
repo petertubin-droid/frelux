@@ -941,7 +941,7 @@ export default function BuildToRoofEstimator() {
       <div className="mt-8">
       <RelatedTools links={[
         CALC_LINKS.paintCalculator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.structuralCalc,
         CALC_LINKS.foundationCalc,
         CALC_LINKS.constructionSeq,

@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase';
 import type {
   MarketCalculatorConfig,
   MarketCalculatorType,
-  _ResolvedMarketContext,
+  ResolvedMarketContext,
 } from '@/types/international';
 
 // ============================================================

@@ -14,7 +14,6 @@ export {
   type LengthUnit,
   type AreaUnit,
   type CalculatorContext,
-  type TileSizeUnit,
   FT_TO_M,
   INCH_TO_M,
   M_TO_FT,
@@ -632,3 +631,6 @@ export {
   createAiImageInput,
   canSharePipeline,
 } from './shared-engine-pipeline';
+
+// Re-export TileSizeUnit from types (moved from units block)
+export { type TileSizeUnit } from './types';

@@ -22,9 +22,9 @@ import {
   createMeasurementSection,
   createMeasurementGroup,
   createMeasurementEntry,
-  type _MeasurementEntry,
-  type _MeasurementProject,
-  type _CalculatorContext,
+  type MeasurementEntry,
+  type MeasurementProject,
+  type CalculatorContext,
 } from '../index';
 
 // =========================================================

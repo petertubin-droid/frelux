@@ -7,7 +7,7 @@ import {
 import { monitoredCalc } from '@/lib/calculator-monitor';
 import {
   Calendar, Clock, AlertTriangle, TrendingUp,
-  Flag, _Users,
+  Flag, Users,
 } from 'lucide-react';
 
 export default function ProjectTimeline() {

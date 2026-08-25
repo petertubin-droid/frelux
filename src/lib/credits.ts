@@ -592,7 +592,7 @@ export async function spendAiCredits(
     });
     if (error) return { success: false, error: error.message ?? 'Edge function error', code: 'EDGE_ERROR' };
     return data as SpendResult;
-  } catch (e) {
+  } catch (_e) {
     return { success: false, error: 'Unable to reach credit service', code: 'NETWORK_ERROR' };
   }
 }
@@ -614,7 +614,7 @@ export async function verifyRewardedAd(
     });
     if (error) return { success: false, error: error.message ?? 'Edge function error', code: 'EDGE_ERROR' };
     return data as EarnResult;
-  } catch (e) {
+  } catch (_e) {
     return { success: false, error: 'Unable to reach ad verification service', code: 'NETWORK_ERROR' };
   }
 }
@@ -636,7 +636,7 @@ export async function unlockFeatureViaAd(
     });
     if (error) return { success: false, error: error.message ?? 'Edge function error' };
     return data as { success: boolean; error?: string; message?: string };
-  } catch (e) {
+  } catch (_e) {
     return { success: false, error: 'Unable to reach unlock service' };
   }
 }
@@ -716,7 +716,7 @@ export async function adminGetAllAiFeatureUsage(limit = 50): Promise<Array<{ id:
     .order('created_at', { ascending: false })
     .limit(limit);
   if (error) return [];
-  return (data ?? []) as any;
+  return (data ?? []) as unknown as { id: string; user_id: string; feature_key: string; credits_spent: number; unlocked_via_ad: boolean; created_at: string; }[];
 }
 
 // ───────────────────────────────────────────────────────
@@ -739,10 +739,10 @@ export async function adminAdjustCreditsV2(
       p_reason: reason,
     });
     if (error) return { success: false, error: error.message };
-    const row = (data as any[])?.[0];
-    if (!row?.success) return { success: false, error: row?.error ?? 'Unknown error' };
-    return { success: true, newBalance: row.new_balance };
-  } catch (e) {
+    const row = (data as unknown as Record<string, unknown>[])?.[0];
+    if (!row?.success) return { success: false, error: (row?.error as string) ?? 'Unknown error' };
+    return { success: true, newBalance: row.new_balance as number };
+  } catch (_e) {
     return { success: false, error: 'Failed to adjust credits' };
   }
 }

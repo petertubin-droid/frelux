@@ -1,4 +1,5 @@
 import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
+import { captureAiError } from '@/lib/errorMonitor';
 import type { StudioToolType, DbStudioSession, DbStudioArtifact, DbStudioVersion, DbStudioPrompt, DbStudioPlugin, DbStudioIntegration, DbStudioFeature, DbStudioMetric, DbStudioRole, DbStudioChat } from '@/types/database';
 
 export interface StudioAiRequest {

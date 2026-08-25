@@ -33,7 +33,7 @@ interface PassedState {
 
 export default function TileCostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('tile_cost');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Tile Cost Estimator — Estimate Tile Installation Cost',
     description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
     canonicalPath: '/tile-cost-estimator',
@@ -48,7 +48,7 @@ export default function TileCostEstimator({ embedded = false }: { embedded?: boo
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
-  });
+  } : null);
 
 
   const location = useLocation();
@@ -369,9 +369,9 @@ const mountedRef = useRef(true);
       </div>
       <RelatedTools links={[
         CALC_LINKS.tileCalc,
-        CALC_LINKS.costEstimator,
-        CALC_LINKS.screedingCost,
-        CALC_LINKS.popCeilingCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.popCeilingCalc,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

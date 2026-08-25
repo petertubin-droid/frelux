@@ -18,11 +18,11 @@ const TABS = [
 ];
 
 const FAQS = [
-  { q: 'How does the FRELUX tile calculator work?', a: 'Enter your floor or wall dimensions and select your tile size. The calculator determines the exact number of tiles needed, accounts for waste, recommends boxes, and calculates adhesive and grout requirements.' },
-  { q: 'What is the difference between Tile Quantity and Cost Estimate?', a: 'Tile Quantity calculates how many tiles, boxes, and bags of adhesive/grout you need. Cost Estimate adds real market prices for tiles, adhesive, grout, and accessories for a complete cost analysis.' },
-  { q: 'Can I calculate tiles for both floors and walls?', a: 'Yes. The calculator works for both floor and wall tiling projects. Just enter the appropriate dimensions and select your tile size.' },
-  { q: 'Does the calculator account for waste?', a: 'Yes. You can set a waste percentage to account for cuts, breakages, and pattern matching. The calculator includes waste tiles in the total recommendation.' },
-  { q: 'Are tile prices in Nigerian Naira?', a: 'Yes. The FRELUX tile cost estimator uses real Nigerian market prices for tiles, adhesive, grout, and accessories.' },
+  { question: 'How does the FRELUX tile calculator work?', answer: 'Enter your floor or wall dimensions and select your tile size. The calculator determines the exact number of tiles needed, accounts for waste, recommends boxes, and calculates adhesive and grout requirements.' },
+  { question: 'What is the difference between Tile Quantity and Cost Estimate?', answer: 'Tile Quantity calculates how many tiles, boxes, and bags of adhesive/grout you need. Cost Estimate adds real market prices for tiles, adhesive, grout, and accessories for a complete cost analysis.' },
+  { question: 'Can I calculate tiles for both floors and walls?', answer: 'Yes. The calculator works for both floor and wall tiling projects. Just enter the appropriate dimensions and select your tile size.' },
+  { question: 'Does the calculator account for waste?', answer: 'Yes. You can set a waste percentage to account for cuts, breakages, and pattern matching. The calculator includes waste tiles in the total recommendation.' },
+  { question: 'Are tile prices in Nigerian Naira?', answer: 'Yes. The FRELUX tile cost estimator uses real Nigerian market prices for tiles, adhesive, grout, and accessories.' },
 ];
 
 export default function TileCalculatorHub() {
@@ -62,8 +62,8 @@ export default function TileCalculatorHub() {
         '@type': 'FAQPage',
         mainEntity: FAQS.map(f => ({
           '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       },
     ],

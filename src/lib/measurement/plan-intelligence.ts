@@ -31,7 +31,8 @@
  * It converts AI-detected rooms into the existing Space type.
  */
 
-import type { SpaceType, Space, SurfaceType } from './space-engine';
+import type { SpaceType, SurfaceType } from './types';
+import type { Space } from './space-engine';
 import { createSpace, type FinishType } from './space-engine';
 import type { LengthUnit } from './units';
 import { generateId } from './factory';

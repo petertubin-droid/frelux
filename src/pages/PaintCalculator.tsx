@@ -64,7 +64,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
   const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
   const { toast } = useToast();
   const { user } = useAuth();
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Paint Calculator — How Much Paint Do I Need?',
     description:
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
@@ -91,7 +91,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
         ]
       }
     ],
-  });
+  } : null);
 
 
   const [step, setStep] = useState(1);
@@ -626,7 +626,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
         )}
       </div>
       <RelatedTools links={[
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.screedingCalc,
         CALC_LINKS.popCeilingCalc,
         CALC_LINKS.tileCalc,

@@ -3,7 +3,6 @@ import AdSlot from '@/components/ui/AdSlot';
 import {
   Paintbrush,
   Calculator,
-  DollarSign,
   Grid3x3,
   Square,
   Layers,

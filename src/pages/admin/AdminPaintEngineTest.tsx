@@ -12,7 +12,7 @@ import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, AdminInp
 import {
   calculateRoom,
   getCoverageUnitLabel,
-  _COVERAGE_UNIT_OPTIONS,
+  COVERAGE_UNIT_OPTIONS,
   type PaintEngineRoomInput,
   type PaintEngineRoomResult,
 } from '@/lib/estimation/paint-engine';

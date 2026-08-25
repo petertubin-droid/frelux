@@ -24,7 +24,7 @@ function setupProject() {
   project.elements = [
     createProjectElement('Walls', 'interior', 'painting', [
       createSpace({ name: 'Bedroom', type: 'bedroom', length: 12, width: 12, height: 10, unit: 'feet', surfaceType: 'wall', finishType: 'paint' }),
-      createSpace({ name: 'Living Room', type: 'living', length: 15, width: 20, height: 10, unit: 'feet', surfaceType: 'wall', finishType: 'paint' }),
+      createSpace({ name: 'Living Room', type: 'living_room', length: 15, width: 20, height: 10, unit: 'feet', surfaceType: 'wall', finishType: 'paint' }),
     ]),
     createProjectElement('Floors', 'interior', 'tiling', [
       createSpace({ name: 'Kitchen', type: 'kitchen', length: 10, width: 12, unit: 'feet', surfaceType: 'floor', finishType: 'tiling' }),

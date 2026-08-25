@@ -26,9 +26,8 @@
  * - Aggregation: partition → dimension → total fence
  */
 
-import type { LengthUnit, CalculationStep } from './types';
-import type {} from './types';
-import { toMeters, lengthUnitShort, tileAreaM2 } from './units';
+import type { CalculationStep } from './types';
+import { toMeters, lengthUnitShort, tileAreaM2, type LengthUnit } from './units';
 import {
   singleSurfaceAreaM2,
   fenceDimensionAreaM2,
@@ -401,6 +400,7 @@ export function calculateFence(fence: Fence): FenceResult {
 // =========================================================
 
 import { createSpace } from './space-engine';
+import type { FinishType } from './space-engine';
 
 /**
  * Convert a fence dimension to a Space for the Space Engine.
@@ -418,7 +418,7 @@ export function fenceDimensionToSpace(
     unit: dimension.unit,
     quantity: dimension.partitionCount,
     surfaceType: 'fence',
-    finishType: finishType as string,
+    finishType: finishType as FinishType,
     wasteMarginPercent: dimension.wasteMarginPercent,
     partitionCount: dimension.partitionCount,
     tileConfig: dimension.tileConfig,

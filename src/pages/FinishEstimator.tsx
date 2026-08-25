@@ -26,7 +26,7 @@ export default function FinishEstimator({ embedded = false }: { embedded?: boole
   const { defaults: calcDefaults } = useCalcDefaults('finish');
   const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
   const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator',
     description: 'Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes.',
     canonicalPath: '/finish-estimator',
@@ -39,7 +39,7 @@ export default function FinishEstimator({ embedded = false }: { embedded?: boole
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
-  });
+  } : null);
 
 
   const [finishTypes, setFinishTypes] = useState<DbFinishType[]>([]);
@@ -524,10 +524,10 @@ const mountedRef = useRef(true);
         )}
       </div>
       <RelatedTools links={[
-        CALC_LINKS.paintingEstimator,
-        CALC_LINKS.tyroleneEstimator,
         CALC_LINKS.paintCalculator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.finishEstimator,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

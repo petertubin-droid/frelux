@@ -16,7 +16,7 @@ import {
   awardCredits,
   recordActivity,
   REWARD_EVENTS,
-  _generateReferenceId,
+  generateReferenceId,
 } from '@/lib/credits';
 
 type CalcType = 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai' | 'painting' | 'tyrolene';

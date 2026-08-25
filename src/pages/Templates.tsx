@@ -180,8 +180,8 @@ export default function Templates() {
         <RelatedTools links={[
           CALC_LINKS.paintCalculator,
           CALC_LINKS.screedingCalc,
-          CALC_LINKS.costEstimator,
-          CALC_LINKS.paintingEstimator,
+          CALC_LINKS.buildToRoof,
+          CALC_LINKS.paintCalculator,
         ]} />
 
       </div>

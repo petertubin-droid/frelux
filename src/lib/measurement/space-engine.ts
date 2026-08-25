@@ -28,7 +28,7 @@ import type {
   MeasurementGroup,
   MeasurementSection,
   MeasurementProject,
-  _MeasurementProjectResult,
+  MeasurementProjectResult,
   CalculationStep,
 } from './types';
 import { SPACE_TYPE_LABELS } from './types';

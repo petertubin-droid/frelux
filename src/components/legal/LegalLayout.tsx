@@ -77,8 +77,8 @@ export default function LegalLayout({
           {(updated || published) && (
             <p className="mt-3 text-sm text-white/50">
               Last updated {published
-                ? new Date(page!.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                : new Date(updated).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                ? new Date(page!.updated_at ?? new Date().toISOString()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                : new Date(updated ?? new Date().toISOString()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           )}
           {intro && !loading && !published && (

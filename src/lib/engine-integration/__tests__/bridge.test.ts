@@ -194,8 +194,8 @@ describe('Material Profile Bridge', () => {
     const profile = makeMaterialProfile({ coverage_value: 40, coverage_coats: 3 });
     const spec = dbProfileToMaterialSpec(profile);
 
-    expect(spec.coverage.value).toBe(40);
-    expect(spec.coverage.coats).toBe(3);
+    expect(spec.coverage?.value).toBe(40);
+    expect(spec.coverage?.coats).toBe(3);
   });
 
   it('preserves waste percentage', () => {

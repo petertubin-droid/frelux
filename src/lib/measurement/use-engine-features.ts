@@ -127,6 +127,8 @@ export interface UseEngineFeaturesOptions {
 // HOOK
 // ============================================================
 
+export type UseEngineFeaturesReturn = ReturnType<typeof useEngineFeatures>;
+
 export function useEngineFeatures(options: UseEngineFeaturesOptions) {
   const { calculatorType, marketCode = 'NG', fallbackWastePercent = 10 } = options;
 

@@ -7,13 +7,13 @@ import {
   createMaterialLineItem,
   groupByCategory,
   buildMaterialSummary,
-  _requirementsFromProject,
+  requirementsFromProject,
   summaryFromProject,
   materialSummaryToText,
 } from '../material-summary';
-import { createMaterialSpec } from '../material-engine';
+import { createMaterialSpec, type MaterialSpec } from '../material-engine';
 import { createConstructionProject, createProjectElement, calculateConstructionProject } from '../project-engine';
-import { createSpace } from '../space-engine';
+import { createSpace, type FinishType } from '../space-engine';
 
 describe('Material Line Item', () => {
   it('creates a line item from a requirement', () => {
@@ -169,12 +169,12 @@ describe('Summary from Project', () => {
     const paint = createMaterialSpec({ productName: 'Paint', category: 'paint', quantityUnit: 'buckets', coverage: { type: 'area', value: 50, unit: 'm2' } });
     const tiles = createMaterialSpec({ productName: 'Tiles', category: 'tiles', quantityUnit: 'cartons', coverage: { type: 'area', value: 1.44, unit: 'm2' } });
 
-    const materialMap = new Map([
+    const materialMap = new Map<string, MaterialSpec>([
       ['paint', paint],
       ['tiling', tiles],
     ]);
 
-    const summary = summaryFromProject(result, materialMap, 10);
+    const summary = summaryFromProject(result, materialMap as Map<any, MaterialSpec>, 10);
     expect(summary.projectName).toBe('Test House');
     expect(summary.lineItems.length).toBe(2);
     expect(summary.categorySubtotals.length).toBe(2);

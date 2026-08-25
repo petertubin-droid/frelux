@@ -10,7 +10,6 @@
  * This module provides a convenience function that handles the flow.
  */
 
-import { supabase } from '@/lib/supabase';
 import {
   getAiFeatureCost,
   spendAiCredits,

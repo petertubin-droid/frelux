@@ -133,18 +133,6 @@ export {
   validateCutout,
 } from './cutouts';
 
-// ── Roof Cutouts (Feature 8) ──
-export { CUTOUT_TYPES } from './cutouts';
-export type { CutoutType } from './cutouts';
-export {
-  createCutout,
-  addCutout,
-  updateCutout,
-  deleteCutout,
-  totalCutoutArea,
-  netAreaAfterCutouts,
-  validateCutout,
-} from './cutouts';
 
 // ── Plan Scanner (Feature 9) ──
 export type {

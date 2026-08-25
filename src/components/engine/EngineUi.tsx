@@ -31,7 +31,7 @@ import type {
   ConfidenceResult,
   ConfidenceLevel,
   MaterialSummary,
-  _AlreadyHaveResult,
+  AlreadyHaveResult,
   EstimateReportData,
 } from '@/lib/measurement/use-engine-features';
 

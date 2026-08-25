@@ -9,11 +9,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Loader2, Plus, Trash2, _Edit2, X, Save, Globe, DollarSign, AlertTriangle,
-  Activity, Check, Ban, _FileText, Server, TrendingUp, Zap, Eye, Clock,
+  Loader2, Plus, Trash2, Edit2, X, Save, Globe, DollarSign, AlertTriangle,
+  Activity, Check, Ban, FileText, Server, TrendingUp, Zap, Eye, Clock,
 } from 'lucide-react';
 import {
-  fetchProviders, toggleProvider, _upsertProvider,
+  fetchProviders, toggleProvider, upsertProvider,
   fetchSources, upsertSource, deleteSource,
   fetchObservations, updateObservationStatus,
   fetchApprovedPrices, deactivateApprovedPrice,
@@ -718,7 +718,7 @@ function ManualEntryModal({ onClose, onSaved }: { onClose: () => void; onSaved: 
     setSaving(true); setError('');
     try {
       // Find or create a manual source
-      const { data: sources } = await fetchSources(form.market_code);
+      const sources = await fetchSources(form.market_code);
       let manualSource = sources.find((s) => s.source_type === 'manual' && s.source_name === 'Manual Admin Entry');
       if (!manualSource) {
         manualSource = await upsertSource({

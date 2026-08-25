@@ -18,11 +18,11 @@ const TABS = [
 ];
 
 const FAQS = [
-  { q: 'How does the FRELUX POP ceiling calculator work?', a: 'Enter your room dimensions to calculate ceiling area, then the calculator determines POP cement quantities, fibreglass mesh, and other materials needed. It supports both Nigerian and international POP ceiling workflows.' },
-  { q: 'What is the difference between Material Quantity and Cost Estimate?', a: 'Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds real market prices for a complete cost breakdown including materials and waste.' },
-  { q: 'Does the calculator support different POP ceiling types?', a: 'Yes. The calculator supports multiple POP ceiling workflows including standard Nigerian POP, international workflows, and different design patterns with admin-configured material requirements.' },
-  { q: 'Can I save my POP ceiling calculations?', a: 'Yes. You can save calculations to your projects, export as PDF, and share via WhatsApp using the existing FRELUX functionality.' },
-  { q: 'Are material prices in Nigerian Naira?', a: 'Yes. The FRELUX POP ceiling cost estimator uses real Nigerian market prices for POP cement, fibreglass mesh, and other materials.' },
+  { question: 'How does the FRELUX POP ceiling calculator work?', answer: 'Enter your room dimensions to calculate ceiling area, then the calculator determines POP cement quantities, fibreglass mesh, and other materials needed. It supports both Nigerian and international POP ceiling workflows.' },
+  { question: 'What is the difference between Material Quantity and Cost Estimate?', answer: 'Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds real market prices for a complete cost breakdown including materials and waste.' },
+  { question: 'Does the calculator support different POP ceiling types?', answer: 'Yes. The calculator supports multiple POP ceiling workflows including standard Nigerian POP, international workflows, and different design patterns with admin-configured material requirements.' },
+  { question: 'Can I save my POP ceiling calculations?', answer: 'Yes. You can save calculations to your projects, export as PDF, and share via WhatsApp using the existing FRELUX functionality.' },
+  { question: 'Are material prices in Nigerian Naira?', answer: 'Yes. The FRELUX POP ceiling cost estimator uses real Nigerian market prices for POP cement, fibreglass mesh, and other materials.' },
 ];
 
 export default function PopCeilingCalculatorHub() {
@@ -62,8 +62,8 @@ export default function PopCeilingCalculatorHub() {
         '@type': 'FAQPage',
         mainEntity: FAQS.map(f => ({
           '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       },
     ],

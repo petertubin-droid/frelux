@@ -13,8 +13,10 @@
  */
 
 import type { MaterialSpec } from '@/lib/measurement/material-engine';
+import type { MaterialCategory, CoverageType } from '@/lib/measurement/material-engine';
 import type { WasteConfig } from '@/lib/measurement/waste-config';
 import type { WasteResolution } from '@/lib/measurement/waste-config';
+import type { QuantityUnit } from '@/lib/measurement/extended-units';
 import type { MarketProfile as EngineMarketProfile } from '@/lib/measurement/market-profile';
 import type {
   EmMaterialProfile,
@@ -38,12 +40,12 @@ export function dbProfileToMaterialSpec(profile: EmMaterialProfile): MaterialSpe
   const spec = createMaterialSpec({
     productName: profile.product_name,
     brand: profile.brand ?? undefined,
-    category: profile.category,
-    quantityUnit: profile.quantity_unit as string,
+    category: profile.category as MaterialCategory,
+    quantityUnit: profile.quantity_unit as QuantityUnit,
     coverage: {
-      type: profile.coverage_type as string,
+      type: profile.coverage_type as CoverageType,
       value: profile.coverage_value,
-      unit: profile.coverage_unit as string,
+      unit: profile.coverage_unit as "litres" | "pieces" | "m2" | "m3",
       coats: profile.coverage_coats,
     },
     defaultWastePercent: profile.default_waste_percent,
@@ -179,12 +181,12 @@ export function dbRoofMaterialToSpec(material: EmRoofMaterial): MaterialSpec {
   const spec = createMaterialSpec({
     productName: material.material_name,
     brand: material.brand ?? undefined,
-    category: material.category,
-    quantityUnit: material.quantity_unit as string,
+    category: material.category as MaterialCategory,
+    quantityUnit: material.quantity_unit as QuantityUnit,
     coverage: {
-      type: material.coverage_type as string,
+      type: material.coverage_type as CoverageType,
       value: material.coverage_value,
-      unit: material.coverage_unit as string,
+      unit: material.coverage_unit as "litres" | "pieces" | "m2" | "m3",
       coats: 1,
     },
     defaultWastePercent: material.default_waste_percent,

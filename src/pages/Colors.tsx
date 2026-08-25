@@ -405,7 +405,7 @@ export default function Colors() {
         CALC_LINKS.aiColor,
         CALC_LINKS.compareColors,
         CALC_LINKS.paintCalculator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

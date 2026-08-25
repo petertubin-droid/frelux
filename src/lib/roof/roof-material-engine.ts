@@ -38,6 +38,7 @@ import { calculateMaterialQuantity, createMaterialSpec } from '@/lib/measurement
 import type { MultiRoofCalculation, RoofSectionCalculation } from './section-model-types';
 import type { RoofingMaterial } from '@/types/build-to-roof';
 import { SCREWS_PER_SHEET } from '@/lib/estimation/build-to-roof-engine';
+import type { QuantityUnit } from '@/lib/measurement/extended-units';
 
 // =========================================================
 // ROOF MATERIAL SPECIFICATION
@@ -152,7 +153,7 @@ export function createRoofMaterialSpec(params: {
     productName: params.productName,
     brand: params.brand,
     category: 'roofing',
-    quantityUnit: params.quantityUnit as string,
+    quantityUnit: params.quantityUnit as QuantityUnit,
     coverage: {
       type: 'area',
       value: params.coverageM2,

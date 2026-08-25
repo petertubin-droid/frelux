@@ -131,7 +131,7 @@ describe('Version Lookup', () => {
     expect(hasMultipleVersions(registry, ruleId)).toBe(true);
 
     const singleReg = registerInitialVersion(createVersionRegistry(), createRule({ ruleName: 'Single' }));
-    expect(hasMultipleVersions(singleReg, singleReg.histories.keys().next().value)).toBe(false);
+    expect(hasMultipleVersions(singleReg, singleReg.histories.keys().next().value!)).toBe(false);
   });
 });
 

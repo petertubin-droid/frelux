@@ -38,7 +38,7 @@ import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 export default function CostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('cost');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
@@ -65,7 +65,7 @@ export default function CostEstimator({ embedded = false }: { embedded?: boolean
         ]
       }
     ],
-  });
+  } : null);
 
 
   const location = useLocation();
@@ -489,9 +489,9 @@ const mountedRef = useRef(true);
       </div>
       <RelatedTools links={[
         CALC_LINKS.paintCalculator,
-        CALC_LINKS.screedingCost,
-        CALC_LINKS.popCeilingCost,
-        CALC_LINKS.tileCost,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.popCeilingCalc,
+        CALC_LINKS.tileCalc,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

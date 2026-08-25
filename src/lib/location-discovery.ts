@@ -125,7 +125,7 @@ async function fallbackNearbyProfessionals(params: {
 
   const results: NearbyProfessional[] = [];
 
-  for (const p of (profiles ?? []) as Record<string, unknown>[]) {
+  for (const p of (profiles ?? []) as Record<string, any>[]) {
     // Find the closest location
     let minDist = Infinity;
     if (p.locations) {
@@ -242,7 +242,7 @@ async function fallbackNearbyListings(params: {
 
   const results: NearbyListing[] = [];
 
-  for (const l of (listings ?? []) as Record<string, unknown>[]) {
+  for (const l of (listings ?? []) as Record<string, any>[]) {
     if (categoryId && l.category_id !== categoryId) continue;
     const dist = haversineKm(params.latitude, params.longitude, l.latitude, l.longitude);
     if (dist <= params.radiusKm) {

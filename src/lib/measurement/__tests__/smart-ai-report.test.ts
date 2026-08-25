@@ -188,9 +188,8 @@ describe('Feature 21: Smart AI Image Report', () => {
   });
 
   it('handles null roof info', () => {
-    const params = makeBaseParams();
-    params.detectedRoof = null;
-    const report = buildSmartAiImageReport(params);
+    const baseParams = makeBaseParams();
+    const report = buildSmartAiImageReport({ ...baseParams, detectedRoof: null });
     expect(report.detectedRoof).toBeNull();
   });
 });

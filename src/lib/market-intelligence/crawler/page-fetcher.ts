@@ -22,7 +22,7 @@
 import type {
   CrawlerConfig,
   CrawlFetchResult,
-  _CrawlError,
+  CrawlError,
   CrawlErrorType,
 } from '@/types/crawler';
 import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';

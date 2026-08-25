@@ -89,7 +89,7 @@ export async function fetchFavoriteIds(userId: string, itemType: FavoriteItemTyp
     .eq('item_type', itemType)
     .not(col, 'is', null);
   if (error) throw error;
-  return new Set((data ?? []).map((r) => (r as Record<string, string>)[col]));
+  return new Set(((data ?? []) as Record<string, unknown>[]).map((r: Record<string, unknown>) => (r[col] as string)));
 }
 
 // ============================================================

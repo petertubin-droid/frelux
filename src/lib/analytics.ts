@@ -54,7 +54,8 @@ export type TrackEvent =
   | 'pop_category_clicked'
   | 'tiles_category_clicked'
   | 'exterior_finishing_clicked'
-  | 'colour_design_clicked';
+  | 'colour_design_clicked'
+  | 'calculator_tab_change';
 
 export function track(event: TrackEvent, params?: Record<string, unknown>): void {
   // Meta Pixel

@@ -34,7 +34,7 @@ interface PassedState {
 
 export default function PopCeilingCostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling_cost');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'POP Ceiling Cost Estimator: Estimate POP Ceiling Project Cost',
     description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
     canonicalPath: '/pop-ceiling-cost-estimator',
@@ -49,7 +49,7 @@ export default function PopCeilingCostEstimator({ embedded = false }: { embedded
       operatingSystem: 'Web',
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
-  });
+  } : null);
 
 
   const location = useLocation();
@@ -315,9 +315,9 @@ const mountedRef = useRef(true);
 
       <RelatedTools links={[
         CALC_LINKS.popCeilingCalc,
-        CALC_LINKS.costEstimator,
-        CALC_LINKS.screedingCost,
-        CALC_LINKS.tileCost,
+        CALC_LINKS.buildToRoof,
+        CALC_LINKS.screedingCalc,
+        CALC_LINKS.tileCalc,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

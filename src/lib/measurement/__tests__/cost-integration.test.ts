@@ -25,9 +25,9 @@ describe('Feature 18: Cost Integration', () => {
         materialName: 'Cement',
         unitPrice: 7500,
         currency: 'NGN',
-        source: 'market_intelligence',
-        freshness: 'fresh',
-        confidence: 'high',
+        source: 'market_intelligence' as const,
+        freshness: 'fresh' as const,
+        confidence: 'high' as const,
       };
 
       const item = buildCostLineItem(qty, price);
@@ -69,7 +69,7 @@ describe('Feature 18: Cost Integration', () => {
         materialName: 'Paint',
         unitPrice: 15000,
         currency: 'NGN',
-        source: 'user_override',
+        source: 'user_override' as const,
         overridden: true,
       };
 
@@ -85,10 +85,11 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Cement', category: 'foundation', quantity: 50, quantityUnit: 'bags', quantitySource: 'calculated' },
         { materialName: 'Sand', category: 'foundation', quantity: 5, quantityUnit: 'trips', quantitySource: 'calculated' },
       ];
-      const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence', freshness: 'fresh', confidence: 'high' },
-        { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence', freshness: 'recent', confidence: 'medium' },
-      ].map((p) => [p.materialName, p]));
+      const priceEntries: [string, MaterialPriceInput][] = [
+        ['Cement', { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'fresh' as const, confidence: 'high' as const }],
+        ['Sand', { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'recent' as const, confidence: 'medium' as const }],
+      ];
+      const prices = new Map<string, MaterialPriceInput>(priceEntries);
 
       const estimate = buildCostEstimate(quantities, prices);
       expect(estimate.lineItems).toHaveLength(2);
@@ -104,10 +105,10 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Paint', category: 'finishing', quantity: 10, quantityUnit: 'buckets', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' },
-        { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence' },
-        { materialName: 'Paint', unitPrice: 15000, currency: 'NGN', source: 'manual' },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const },
+        { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence' as const },
+        { materialName: 'Paint', unitPrice: 15000, currency: 'NGN', source: 'manual' as const },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices);
       expect(estimate.categories).toHaveLength(2);
@@ -121,8 +122,8 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Cement', category: 'foundation', quantity: 50, quantityUnit: 'bags', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices, {
         labourTotal: 100000,
@@ -144,8 +145,8 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Unknown Material', category: 'other', quantity: 10, quantityUnit: 'pcs', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices);
       expect(estimate.unpricedItemCount).toBe(1);
@@ -159,8 +160,8 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Cement', category: 'foundation', quantity: 50, quantityUnit: 'bags', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence', freshness: 'stale', confidence: 'low' },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'stale' as const, confidence: 'low' as const },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices);
       expect(estimate.stalePriceCount).toBe(1);
@@ -175,10 +176,10 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'C', category: 'cat', quantity: 1, quantityUnit: 'pcs', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'A', unitPrice: 100, currency: 'NGN', source: 'market_intelligence' },
-        { materialName: 'B', unitPrice: 200, currency: 'NGN', source: 'user_override' },
+        { materialName: 'A', unitPrice: 100, currency: 'NGN', source: 'market_intelligence' as const },
+        { materialName: 'B', unitPrice: 200, currency: 'NGN', source: 'user_override' as const },
         // C has no price
-      ].map((p) => [p.materialName, p]));
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices);
       expect(estimate.priceSourceBreakdown.market_intelligence).toBe(1);
@@ -199,8 +200,8 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Cement', category: 'foundation', quantity: 50, quantityUnit: 'bags', quantitySource: 'calculated' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices, { labourTotal: 50000, contingencyPercent: 5 });
       const text = estimate.explanation.join(' ');
@@ -326,11 +327,11 @@ describe('Feature 18: Cost Integration', () => {
         { materialName: 'Paint', category: 'finishing', quantity: 7, quantityUnit: 'buckets', quantitySource: 'user_verified' },
       ];
       const prices = new Map<string, MaterialPriceInput>([
-        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence', freshness: 'fresh', confidence: 'high' },
-        { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence', freshness: 'recent', confidence: 'medium' },
-        { materialName: 'Granite', unitPrice: 45000, currency: 'NGN', source: 'market_intelligence', freshness: 'fresh', confidence: 'high' },
-        { materialName: 'Paint', unitPrice: 15000, currency: 'NGN', source: 'user_override', overridden: true },
-      ].map((p) => [p.materialName, p]));
+        { materialName: 'Cement', unitPrice: 7500, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'fresh' as const, confidence: 'high' as const },
+        { materialName: 'Sand', unitPrice: 25000, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'recent' as const, confidence: 'medium' as const },
+        { materialName: 'Granite', unitPrice: 45000, currency: 'NGN', source: 'market_intelligence' as const, freshness: 'fresh' as const, confidence: 'high' as const },
+        { materialName: 'Paint', unitPrice: 15000, currency: 'NGN', source: 'user_override' as const, overridden: true },
+      ].map((p): [string, MaterialPriceInput] => [p.materialName, p]));
 
       const estimate = buildCostEstimate(quantities, prices, {
         labourTotal: 200000,

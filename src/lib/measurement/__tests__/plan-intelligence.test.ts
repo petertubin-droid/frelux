@@ -10,7 +10,7 @@ import {
   confirmDetectedRoom,
   rejectDetectedRoom,
   confirmAllRooms,
-  _updateDetectionStatus,
+  updateDetectionStatus,
   detectedRoomToSpace,
   detectionToVerifiedSpaces,
   verifiedSpacesToSpaces,

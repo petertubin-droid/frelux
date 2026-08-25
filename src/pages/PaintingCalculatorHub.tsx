@@ -20,11 +20,11 @@ const TABS = [
 ];
 
 const FAQS = [
-  { q: 'How does the FRELUX paint calculator work?', a: 'Enter your room dimensions, doors, windows, and number of coats. The calculator uses the FRELUX methodology to determine paintable area, applies coverage rates per paint type, and recommends the exact number of containers you need.' },
-  { q: 'What is the difference between Paint Quantity, Cost Estimate, and Room Estimate?', a: 'Paint Quantity tells you how many litres and containers of paint you need. Cost Estimate adds real product pricing for a full material cost breakdown. Room Estimate is a detailed room-by-room painting estimator using the FRELUX Phase 2 engine with production rules, surface conditions, and colour conditions.' },
-  { q: 'Does the calculator account for doors and windows?', a: 'Yes. You can specify the number and dimensions of doors and windows, and they are automatically deducted from the paintable surface area.' },
-  { q: 'Can I use this for exterior painting?', a: 'Yes. Select the "Exterior" project type. The calculator adjusts coverage rates and material recommendations for outdoor surfaces.' },
-  { q: 'Are the prices in Nigerian Naira?', a: 'Yes. The FRELUX Cost Estimator uses real product prices sourced from the Nigerian market. You can also switch currencies for international use.' },
+  { question: 'How does the FRELUX paint calculator work?', answer: 'Enter your room dimensions, doors, windows, and number of coats. The calculator uses the FRELUX methodology to determine paintable area, applies coverage rates per paint type, and recommends the exact number of containers you need.' },
+  { question: 'What is the difference between Paint Quantity, Cost Estimate, and Room Estimate?', answer: 'Paint Quantity tells you how many litres and containers of paint you need. Cost Estimate adds real product pricing for a full material cost breakdown. Room Estimate is a detailed room-by-room painting estimator using the FRELUX Phase 2 engine with production rules, surface conditions, and colour conditions.' },
+  { question: 'Does the calculator account for doors and windows?', answer: 'Yes. You can specify the number and dimensions of doors and windows, and they are automatically deducted from the paintable surface area.' },
+  { question: 'Can I use this for exterior painting?', answer: 'Yes. Select the "Exterior" project type. The calculator adjusts coverage rates and material recommendations for outdoor surfaces.' },
+  { question: 'Are the prices in Nigerian Naira?', answer: 'Yes. The FRELUX Cost Estimator uses real product prices sourced from the Nigerian market. You can also switch currencies for international use.' },
 ];
 
 export default function PaintingCalculatorHub() {
@@ -64,8 +64,8 @@ export default function PaintingCalculatorHub() {
         '@type': 'FAQPage',
         mainEntity: FAQS.map(f => ({
           '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       },
     ],

@@ -19,16 +19,16 @@ import type {
 } from './section-model-types';
 import type { RoofType } from '@/types/build-to-roof';
 import {
-  _calculateRoofArea,
+  calculateRoofArea,
   roofingSheetsCount,
   getSheetCoverage,
   calculateRidgeLength,
   calculateHipLength,
   calculateFasciaLength,
   estimateTimberMeters,
-  _SHEET_COVERAGE,
-  _SCREWS_PER_SHEET,
-  _RAFTER_SPACING,
+  SHEET_COVERAGE,
+  SCREWS_PER_SHEET,
+  RAFTER_SPACING,
 } from '@/lib/estimation/build-to-roof-engine';
 import { calculateRoofGeometry } from './geometry-engine';
 

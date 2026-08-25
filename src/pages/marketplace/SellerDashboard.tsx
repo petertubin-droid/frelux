@@ -123,7 +123,7 @@ export default function SellerDashboard() {
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard icon={<Package className="h-5 w-5" />} label="Active Products" value={products.filter(p => (p as Record<string, unknown>).status === 'active').length} />
+        <StatCard icon={<Package className="h-5 w-5" />} label="Active Products" value={products.filter(p => (p as unknown as Record<string, unknown>).status === 'active').length} />
         <StatCard icon={<TrendingUp className="h-5 w-5" />} label="Total Products" value={products.length} />
         <StatCard icon={<Star className="h-5 w-5" />} label="Rating" value={profile ? `${profile.rating_avg.toFixed(1)} (${profile.rating_count})` : '—'} />
         <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Sales" value={profile?.total_sales ?? 0} />
@@ -191,7 +191,7 @@ export default function SellerDashboard() {
               <AdminButton variant="primary" onClick={handleSaveProfile} disabled={saving}>
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Save Profile
               </AdminButton>
-              <AdminButton variant="ghost" onClick={() => setEditing(false)}>Cancel</AdminButton>
+              <AdminButton variant="secondary" onClick={() => setEditing(false)}>Cancel</AdminButton>
             </div>
           </div>
         )}
@@ -220,7 +220,7 @@ export default function SellerDashboard() {
         ) : (
           <div className="divide-y divide-neutral-100 dark:divide-white/5">
             {products.map((p) => {
-              const prod = p as Record<string, unknown>;
+              const prod = p as unknown as Record<string, unknown>;
               return (
                 <Link key={prod.id as string} to={`/marketplace/products/${prod.id}`} className="flex items-center gap-4 p-4 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5">
                   <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 dark:bg-white/5">

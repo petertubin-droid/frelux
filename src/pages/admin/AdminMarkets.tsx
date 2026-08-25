@@ -9,7 +9,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Loader2, Plus, Trash2, Edit2, _X, _Check, Globe, _Package, _DollarSign,
+  Loader2, Plus, Trash2, Edit2, X, Check, Globe, Package, DollarSign,
   Calculator as CalcIcon, FileText, Save,
 } from 'lucide-react';
 import {
@@ -286,7 +286,7 @@ function ProfileEditModal({ profile, onClose, onSaved }: {
           <Field label="Default Length Unit" value={form.default_length_unit} onChange={(v) => setForm({ ...form, default_length_unit: v })} placeholder="meters" />
           <Field label="Default Area Unit" value={form.default_area_unit} onChange={(v) => setForm({ ...form, default_area_unit: v })} placeholder="sqm" />
           <Field label="Profile Version" value={form.profile_version} onChange={(v) => setForm({ ...form, profile_version: v })} placeholder="1.0.0" />
-          <Field label="Sort Order" value={String(form.sort_order)} onChange={(v) => setForm({ ...form, sort_order: v })} placeholder="100" />
+          <Field label="Sort Order" value={String(form.sort_order)} onChange={(v) => setForm({ ...form, sort_order: Number(v) })} placeholder="100" />
           <Field label="Inherits From (country code)" value={form.inherits_from} onChange={(v) => setForm({ ...form, inherits_from: v })} placeholder="" />
           <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
             <input type="checkbox" checked={form.is_visible} onChange={(e) => setForm({ ...form, is_visible: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" />

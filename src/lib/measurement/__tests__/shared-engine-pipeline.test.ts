@@ -6,7 +6,7 @@ import {
   canSharePipeline,
   PIPELINE_SOURCE_LABELS,
   PIPELINE_STAGE_LABELS,
-  type _PipelineSource,
+  type PipelineSource,
   type PipelineStage,
 } from '../shared-engine-pipeline';
 import type { Space } from '../space-engine';
@@ -15,15 +15,18 @@ function makeSpace(overrides: Partial<Space> = {}): Space {
   return {
     id: 'sp_1',
     name: 'Bedroom 1',
-    spaceType: 'bedroom',
+    type: 'bedroom',
     length: 12,
     width: 12,
     height: 3,
-    unit: 'ft',
-    area: 144,
+    unit: 'feet',
+    quantity: 1,
+    includeCeiling: false,
     finishType: 'paint',
     surfaceType: 'wall',
     openings: [],
+    properties: {},
+    wasteMarginPercent: 0,
     ...overrides,
   };
 }
@@ -60,7 +63,7 @@ describe('Feature 22: Shared Engine Integration', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test House',
         buildingName: 'Main House',
-        unit: 'ft',
+        unit: 'feet',
         spaces: [makeSpace()],
         roofType: 'Hip',
         roofSections: [{ name: 'Main', grossArea: 200, netArea: 185, pitch: '30°' }],
@@ -74,10 +77,10 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('executes all 8 stages successfully', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test House',
-        unit: 'm',
+        unit: 'meters',
         spaces: [
-          makeSpace({ id: 'sp_1', name: 'Living Room', length: 5, width: 4, area: 20, unit: 'm' }),
-          makeSpace({ id: 'sp_2', name: 'Kitchen', length: 3, width: 3, area: 9, unit: 'm' }),
+          makeSpace({ id: 'sp_1', name: 'Living Room', length: 5, width: 4, unit: 'meters' }),
+          makeSpace({ id: 'sp_2', name: 'Kitchen', length: 3, width: 3, unit: 'meters' }),
         ],
         roofSections: [{ name: 'Main', grossArea: 35, netArea: 30, pitch: '30°' }],
       });
@@ -98,10 +101,10 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('aggregates total area across spaces', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
+        unit: 'meters',
         spaces: [
-          makeSpace({ id: 'sp_1', name: 'A', length: 5, width: 4, area: 20, unit: 'm' }),
-          makeSpace({ id: 'sp_2', name: 'B', length: 3, width: 3, area: 9, unit: 'm' }),
+          makeSpace({ id: 'sp_1', name: 'A', length: 5, width: 4, unit: 'meters' }),
+          makeSpace({ id: 'sp_2', name: 'B', length: 3, width: 3, unit: 'meters' }),
         ],
       });
       const result = executeSharedPipeline(input);
@@ -112,8 +115,8 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('includes roof calculations when roof sections provided', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
         roofSections: [
           { name: 'Main', grossArea: 100, netArea: 90, pitch: '30°' },
           { name: 'Garage', grossArea: 30, netArea: 28, pitch: '15°' },
@@ -128,8 +131,8 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('marks manual input as verified', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
       });
       const result = executeSharedPipeline(input);
       expect(result.stages.measurement.verificationState).toBe('manual_input');
@@ -141,7 +144,7 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('creates input from AI-detected measurements', () => {
       const input = createAiImageInput({
         projectName: 'AI House',
-        unit: 'ft',
+        unit: 'feet',
         spaces: [makeSpace()],
         userVerified: false,
         userCorrections: ['width: 10→12'],
@@ -157,7 +160,7 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('marks AI data as user_verified when user confirms', () => {
       const input = createAiImageInput({
         projectName: 'AI House',
-        unit: 'ft',
+        unit: 'feet',
         spaces: [makeSpace()],
         userVerified: true,
         scaleStatus: 'user_confirmed',
@@ -168,10 +171,10 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('executes all 8 stages for AI source', () => {
       const input = createAiImageInput({
         projectName: 'AI House',
-        unit: 'm',
+        unit: 'meters',
         spaces: [
-          makeSpace({ id: 'sp_1', name: 'Detected Room 1', length: 4, width: 4, area: 16, unit: 'm' }),
-          makeSpace({ id: 'sp_2', name: 'Detected Room 2', length: 3, width: 3, area: 9, unit: 'm' }),
+          makeSpace({ id: 'sp_1', name: 'Detected Room 1', length: 4, width: 4, unit: 'meters' }),
+          makeSpace({ id: 'sp_2', name: 'Detected Room 2', length: 3, width: 3, unit: 'meters' }),
         ],
         userVerified: true,
         scaleStatus: 'verified',
@@ -186,8 +189,8 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('flags scale issues in validation', () => {
       const input = createAiImageInput({
         projectName: 'AI House',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
         userVerified: false,
         scaleStatus: 'not_available',
       });
@@ -198,8 +201,8 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('flags review-required in validation', () => {
       const input = createAiImageInput({
         projectName: 'AI House',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
         userVerified: false,
         scaleStatus: 'estimated',
       });
@@ -220,8 +223,8 @@ describe('Feature 22: Shared Engine Integration', () => {
         projectName: 'Villa',
         buildingName: 'Main House',
         location: 'Lagos',
-        unit: 'm',
-        spaces: [makeSpace({ name: 'Living', area: 25, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ name: 'Living', unit: 'meters' })],
         roofSections: [{ name: 'Main', grossArea: 40, netArea: 36, pitch: '30°' }],
       });
       const result = executeSharedPipeline(input);
@@ -234,8 +237,8 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('produces a full pipeline trace', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
       });
       const result = executeSharedPipeline(input);
       expect(result.trace).toHaveLength(8);
@@ -249,19 +252,19 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('generates summary with source info', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
       });
       const result = executeSharedPipeline(input);
       expect(result.summary).toContain('Building-to-Roof');
-      expect(result.summary).toContain('20.00 m²');
+      expect(result.summary).toContain('144.00 m²');
     });
 
     it('reports no verified prices when market intelligence has none', () => {
       const input = createBuildingToRoofInput({
         projectName: 'Test',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
       });
       const result = executeSharedPipeline(input);
       expect(result.stages.marketIntelligence.hasVerifiedPrices).toBe(false);
@@ -273,13 +276,13 @@ describe('Feature 22: Shared Engine Integration', () => {
     it('uses the same pipeline for both sources', () => {
       const btrInput = createBuildingToRoofInput({
         projectName: 'BTR',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
       });
       const aiInput = createAiImageInput({
         projectName: 'AI',
-        unit: 'm',
-        spaces: [makeSpace({ area: 20, unit: 'm' })],
+        unit: 'meters',
+        spaces: [makeSpace({ unit: 'meters' })],
         userVerified: true,
       });
       const btrResult = executeSharedPipeline(btrInput);

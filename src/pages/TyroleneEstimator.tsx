@@ -80,7 +80,7 @@ const CALCULATOR_TYPE = 'tyrolene';
 
 export default function TyroleneEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('tyrolene');
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'FRELUX Tyrolene Estimator: Partition-Based Exterior Finishing Calculator',
     description: 'Professional Tyrolene estimator. Calculate cement, sand, acrylic bond, water seal, and anti-fungal requirements based on partition count. Exterior only. FRELUX production methodology.',
     canonicalPath: '/tyrolene-estimator',
@@ -112,7 +112,7 @@ export default function TyroleneEstimator({ embedded = false }: { embedded?: boo
         ],
       },
     ],
-  });
+  } : null);
 
 
 const mountedRef = useRef(true);
@@ -1077,8 +1077,8 @@ const mountedRef = useRef(true);
 
       <RelatedTools links={[
         CALC_LINKS.finishEstimator,
-        CALC_LINKS.paintingEstimator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.paintCalculator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.paintCalculator,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,

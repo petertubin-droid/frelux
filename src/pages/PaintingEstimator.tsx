@@ -86,7 +86,7 @@ export default function PaintingEstimator({ embedded = false }: { embedded?: boo
   const { defaults: _calcDefaults, rules: defaultCalcRules } = useCalcDefaults('painting');
   const DEFAULT_CEILING_COLOUR = (defaultCalcRules['ceiling_default_colour']?.rule_value as Record<string, unknown>)?.colour as string ?? 'white';
   const DEFAULT_COATS = (defaultCalcRules['standard_coat_count']?.rule_value as Record<string, unknown>)?.count as number ?? 2;
-  if (!embedded) useSeo({
+  useSeo(!embedded ? {
     title: 'FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator',
     description: 'Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.',
     canonicalPath: '/painting-estimator',
@@ -118,7 +118,7 @@ export default function PaintingEstimator({ embedded = false }: { embedded?: boo
         ],
       },
     ],
-  });
+  } : null);
 
 
 const mountedRef = useRef(true);
@@ -681,9 +681,9 @@ const mountedRef = useRef(true);
 
       <RelatedTools links={[
         CALC_LINKS.paintCalculator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.finishEstimator,
-        CALC_LINKS.tyroleneEstimator,
+        CALC_LINKS.finishEstimator,
         CALC_LINKS.buildToRoof,
         CALC_LINKS.imageEstimator,
       ]} />

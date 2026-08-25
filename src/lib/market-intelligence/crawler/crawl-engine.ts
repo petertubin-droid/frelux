@@ -22,17 +22,17 @@
 
 import type {
   MiSource,
-  _MiPriceObservation,
+  MiPriceObservation,
   ValidationStatus,
-  _MatchConfidence,
+  MatchConfidence,
   Freshness,
 } from '@/types/market-intelligence';
 import type {
   CrawlJob,
-  _CrawlError,
-  _CrawlFetchResult,
-  _CrawlErrorType,
-  _ExtractedProduct,
+  CrawlError,
+  CrawlFetchResult,
+  CrawlErrorType,
+  ExtractedProduct,
   CrawlerConfig,
 } from '@/types/crawler';
 import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';
@@ -162,7 +162,7 @@ export async function executeCrawl(
   job.status = 'fetching';
   job.pagesRequested = 1;
 
-  const { fetchResult, products, renderingRequired, _rawContent } = await fetchAndExtract(
+  const { fetchResult, products, renderingRequired, rawContent } = await fetchAndExtract(
     urlValidation.sanitized,
     source,
     config,
@@ -180,7 +180,7 @@ export async function executeCrawl(
     job.message = `Fetch failed: ${fetchResult.error?.message ?? 'unknown error'}`;
 
     // Update source health
-    await updateSourceHealth(source, false, fetchResult.error?.message);
+    await updateSourceHealth(source, false, fetchResult.error?.message ?? null);
 
     finishJob(job, startedAt);
     await logCrawlResult(job);
@@ -230,10 +230,10 @@ export async function executeCrawl(
   job.status = 'validating';
 
   // Fetch existing approved prices for anomaly comparison
-  // existingPrices removed (unused)
+  let existingPrices: { price: number; id: string }[] = [];
   try {
     const approved = await fetchApprovedPrices(source.country_code);
-    _existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
+    existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
   } catch {
     // If we can't fetch existing prices, skip anomaly comparison
   }
@@ -456,7 +456,7 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
       'crawl_started',
       `Crawl started for ${job.sourceName} (${job.mode} mode)`,
       { jobId: job.id, mode: job.mode, sourceId: job.sourceId },
-      { source_id: job.sourceId },
+      { sourceId: job.sourceId },
     );
 
     // Log crawl result
@@ -484,7 +484,7 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
         warnings: job.warnings,
         durationMs: job.durationMs,
       },
-      { source_id: job.sourceId },
+      { sourceId: job.sourceId },
     );
 
     // Log individual errors
@@ -493,7 +493,7 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
         'provider_error',
         `${error.type}: ${error.message}`,
         { errorType: error.type, url: error.url, statusCode: error.statusCode },
-        { source_id: job.sourceId },
+        { sourceId: job.sourceId },
       );
     }
   } catch {

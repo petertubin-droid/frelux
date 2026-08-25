@@ -30,9 +30,9 @@ import type {
 // ============================================================
 
 // Configurable thresholds (in days)
-const FRESH_THRESHOLD_DAYS = 7;
-const RECENT_THRESHOLD_DAYS = 30;
-const STALE_THRESHOLD_DAYS = 90;
+export const FRESH_THRESHOLD_DAYS = 7;
+export const RECENT_THRESHOLD_DAYS = 30;
+export const STALE_THRESHOLD_DAYS = 90;
 
 export function calculateFreshness(collectedAt: string | Date): Freshness {
   const date = typeof collectedAt === 'string' ? new Date(collectedAt) : collectedAt;

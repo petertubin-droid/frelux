@@ -21,7 +21,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Loader2, Plus, Trash2, Edit2, X, Check, Ban, Save, Settings,
   Package, Layers, TrendingUp, ShieldCheck, Globe, FileText,
-  Cpu, AlertTriangle, _Eye, Power,
+  Cpu, AlertTriangle, Eye, Power,
 } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
@@ -49,19 +49,19 @@ import {
   approveMaterialProfile,
   toggleMaterialProfileActive,
   fetchRoofMaterials,
-  _upsertRoofMaterial,
-  _deleteRoofMaterial,
+  upsertRoofMaterial,
+  deleteRoofMaterial,
   fetchRoofSections,
-  _upsertRoofSection,
-  _deleteRoofSection,
+  upsertRoofSection,
+  deleteRoofSection,
   fetchWasteConfigs,
-  _fetchWasteConfigsByScope,
-  _upsertWasteConfig,
-  _deleteWasteConfig,
+  fetchWasteConfigsByScope,
+  upsertWasteConfig,
+  deleteWasteConfig,
   fetchAiVerifications,
   updateAiVerificationState,
   fetchRuleMetadata,
-  _upsertRuleMetadata,
+  upsertRuleMetadata,
   deleteRuleMetadata,
   verifyRuleMetadata,
   fetchEngineSettings,
@@ -289,7 +289,7 @@ function MaterialProfileForm({ existing, onClose, onSaved }: {
         package_size: Number(form.package_size),
         default_waste_percent: Number(form.default_waste_percent),
         notes: form.notes || null,
-      } as Record<string, unknown>);
+      });
       onSaved();
     } catch (e) { console.error(e); alert('Failed to save'); }
     setSaving(false);
@@ -306,7 +306,7 @@ function MaterialProfileForm({ existing, onClose, onSaved }: {
         <Input label="Product Name" value={form.product_name} onChange={(v) => setForm({ ...form, product_name: v })} />
         <Input label="Brand" value={form.brand} onChange={(v) => setForm({ ...form, brand: v })} />
         <Input label="Category" value={form.category} onChange={(v) => setForm({ ...form, category: v })} />
-        <Select label="Coverage Type" value={form.coverage_type} onChange={(v) => setForm({ ...form, coverage_type: v })} options={Object.entries(COVERAGE_TYPE_LABELS)} />
+        <Select label="Coverage Type" value={form.coverage_type} onChange={(v) => setForm({ ...form, coverage_type: v as "count" | "linear" | "area" | "volume" | "weight" })} options={Object.entries(COVERAGE_TYPE_LABELS)} />
         <Input label="Coverage Value" type="number" value={String(form.coverage_value)} onChange={(v) => setForm({ ...form, coverage_value: Number(v) })} />
         <Input label="Coverage Unit" value={form.coverage_unit} onChange={(v) => setForm({ ...form, coverage_unit: v })} />
         <Input label="Coats" type="number" value={String(form.coverage_coats)} onChange={(v) => setForm({ ...form, coverage_coats: Number(v) })} />
@@ -766,7 +766,7 @@ function MarketsTab() {
     if (code !== 'NG' && newStatus === 'active') {
       if (!confirm(`Activate ${code}? Ensure all rules and market data are configured and approved first.`)) return;
     }
-    try { await toggleMarketActivation(code, newStatus as string); load(); } catch (e) { console.error(e); }
+    try { await toggleMarketActivation(code, newStatus as "active" | "coming_soon" | "unsupported" | "test_only"); load(); } catch (e) { console.error(e); }
   }
 
   if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;

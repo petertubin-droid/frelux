@@ -186,7 +186,7 @@ function BeamCalculator() {
         CALC_LINKS.buildToRoof,
         CALC_LINKS.constructionSeq,
         CALC_LINKS.imageEstimator,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
       ]} />
         <RelatedToolsLinks />
     </div>

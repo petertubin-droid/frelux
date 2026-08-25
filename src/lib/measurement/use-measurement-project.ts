@@ -20,8 +20,8 @@ import type {
   MeasurementSection,
   MeasurementEntry,
   MeasurementProjectResult,
-  ValidationResult,
 } from './types';
+import type { ValidationResult } from './validation';
 import type { CalculatorContext, LengthUnit } from './units';
 import { getAllowedUnits } from './units';
 import {

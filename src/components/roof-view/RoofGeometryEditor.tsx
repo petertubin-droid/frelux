@@ -20,11 +20,11 @@ import {
   Plus,
   Trash2,
   CheckCircle2,
-  _Undo2,
+  Undo2,
   MousePointer2,
   Move,
   Eraser,
-  _Eye,
+  Eye,
   Layers,
 } from 'lucide-react';
 import type { RoofGeometry } from '@/lib/roof/geometry-types';

@@ -20,7 +20,7 @@ import {
   createOpening,
   createSpaceCollection,
   calculateSpace,
-  _calculateSpaceGroup,
+  calculateSpaceGroup,
   calculateSpaceCollection,
   groupSpacesByType,
   spaceToMeasurementEntry,

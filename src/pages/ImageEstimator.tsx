@@ -12,7 +12,7 @@ import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
   checkEstimationAccess,
-  _saveEstimationResult,
+  saveEstimationResult,
 } from '@/lib/estimation-access';
 import type {
   EstimationAccessConfig,
@@ -71,7 +71,7 @@ export default function ImageEstimator() {
     keywords: 'AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI',
   });
 
-  const { user, _profile, isAdmin, isPaid } = useAuth();
+  const { user, profile, isAdmin, isPaid } = useAuth();
   const [phase, setPhase] = useState<Phase>('upload');
   const [config, setConfig] = useState<EstimationAccessConfig | null>(null);
   const [usage, setUsage] = useState<EstimationUsageStatus | null>(null);
@@ -547,7 +547,7 @@ const mountedRef = useRef(true);
       </div>
       <RelatedTools links={[
         CALC_LINKS.buildToRoof,
-        CALC_LINKS.costEstimator,
+        CALC_LINKS.buildToRoof,
         CALC_LINKS.paintCalculator,
         CALC_LINKS.structuralCalc,
         CALC_LINKS.foundationCalc,

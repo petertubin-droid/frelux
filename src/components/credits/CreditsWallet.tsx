@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Coins, PlayCircle, Gift, Clock, TrendingUp, TrendingDown, Loader2, X, CheckCircle2, AlertCircle, Film } from 'lucide-react';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import {
   getCreditWallet,
   getCreditTransactions,
@@ -41,12 +41,12 @@ export function CreditsWallet({ userId }: { userId: string }) {
     setLoading(true);
     const [w, tx, cfg, adHist] = await Promise.all([
       getCreditWallet(userId),
-      getCreditTransactions(userId, 20),
+      getCreditTransactions(userId, { limit: 20 }),
       getRewardedAdConfig(),
       getRewardedAdHistory(20),
     ]);
     setWallet(w);
-    setTransactions(tx);
+    setTransactions(tx.transactions);
     setConfig(cfg);
     setAdHistory(adHist);
 
@@ -266,7 +266,7 @@ function EarnCreditsModal({
   const [phase, setPhase] = useState<'idle' | 'loading' | 'watching' | 'verifying' | 'success' | 'error' | 'limit'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [earnedAmount, setEarnedAmount] = useState(0);
-  const adEventIdRef = useState(() => 'ad_' + Date.now() + '_' + Math.random().toString(36).slice(2))[0];
+  const _adEventIdRef = useState(() => 'ad_' + Date.now() + '_' + Math.random().toString(36).slice(2))[0];
 
   const creditsPerAd = config?.credits_per_ad ?? 5;
   const dailyLimit = config?.daily_earn_limit ?? 10;
@@ -478,7 +478,7 @@ export function AiFeatureGate({
   const [spending, setSpending] = useState(false);
   const [adUnlocking, setAdUnlocking] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [_success, setSuccess] = useState(false);
   const [mode, setMode] = useState<'choice' | 'ad_watching' | 'success'>('choice');
 
   useEffect(() => {

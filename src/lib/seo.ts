@@ -51,8 +51,9 @@ function removeStructuredData(id: string) {
   if (el) el.remove();
 }
 
-export function useSeo(meta: SeoMeta) {
+export function useSeo(meta: SeoMeta | null) {
   useEffect(() => {
+    if (!meta) return;
     const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PAINT CALC`;
     const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
@@ -124,7 +125,7 @@ export function useSeo(meta: SeoMeta) {
       removeStructuredData('page-structured-data');
       sdIds.forEach((id) => removeStructuredData(id));
     };
-  }, [meta.title, meta.description, meta.canonicalPath, meta.ogType, meta.ogImage, meta.noIndex, meta.keywords, meta.structuredData, meta.structuredDataArray]);
+  }, [meta]);
 }
 
 export { SITE_URL };

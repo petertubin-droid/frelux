@@ -232,8 +232,6 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   const measurementResult: MeasurementStageResult = {
     success: true,
     totalAreaM2: input.spaces.reduce((sum, s) => {
-      // Use space area if available, otherwise calculate from dimensions
-      if (s.area) return sum + s.area;
       const area = (s.length || 0) * (s.width || s.length || 0);
       return sum + area;
     }, 0),
@@ -259,24 +257,27 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   // ── Stage 2: Space / Element Engine ──
   const spaceStart = Date.now();
   const spaceResults: SpaceResult[] = input.spaces.map((s) => ({
-    id: s.id,
+    spaceId: s.id,
     name: s.name,
-    spaceType: s.spaceType,
-    area: s.area || ((s.length || 0) * (s.width || s.length || 0)),
-    unit: s.unit,
-    perimeter: s.length && s.width ? 2 * (s.length + s.width) : undefined,
+    type: s.type,
     finishType: s.finishType,
-    surfaceType: s.surfaceType,
+    areaM2: (s.length || 0) * (s.width || s.length || 0),
+    totalAreaM2: (s.length || 0) * (s.width || s.length || 0) * (s.quantity || 1),
+    normalizedLengthM: s.length || 0,
+    normalizedWidthM: s.width,
+    normalizedHeightM: s.height,
+    quantity: s.quantity || 1,
+    steps: [],
   } as SpaceResult));
 
   const spaceElementResult: SpaceElementStageResult = {
     success: true,
     spaceResults,
     totalSpaces: spaceResults.length,
-    totalAreaM2: spaceResults.reduce((sum, r) => sum + r.area, 0),
+    totalAreaM2: spaceResults.reduce((sum, r) => sum + r.totalAreaM2, 0),
     notes: [
       `Spaces processed: ${spaceResults.length}`,
-      `Total area: ${spaceResults.reduce((sum, r) => sum + r.area, 0).toFixed(2)} m²`,
+      `Total area: ${spaceResults.reduce((sum, r) => sum + r.totalAreaM2, 0).toFixed(2)} m²`,
     ],
   };
   trace.push({
@@ -294,7 +295,7 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   for (const sr of spaceResults) {
     calculationResults.push({
       calculator: `${sr.name} — Area`,
-      result: `${sr.area.toFixed(2)} ${sr.unit}`,
+      result: `${sr.totalAreaM2.toFixed(2)} m²`,
       verificationState: input.measurementVerification === 'user_verified' ? 'calculated' : 'calculated',
       explanation: `Area calculated from ${sr.name} dimensions`,
     });

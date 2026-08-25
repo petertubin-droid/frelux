@@ -18,11 +18,11 @@ const TABS = [
 ];
 
 const FAQS = [
-  { q: 'How does the FRELUX screeding calculator work?', a: 'Enter your room or wall dimensions, including doors and windows. The calculator determines the exact wall surface area that needs screeding in m², then calculates material requirements (cement, sand, bonding agents) based on the FRELUX mix configuration.' },
-  { q: 'Can I calculate screeding for fences?', a: 'Yes. You can enter fence dimensions in either feet or metres. The calculator converts the surface area to m² for accurate material calculation.' },
-  { q: 'What is the difference between Screeding Quantity and Cost Estimate?', a: 'Screeding Quantity calculates the wall surface area and material requirements. Cost Estimate adds real market prices for cement, sand, and bonding agents to give you a full cost breakdown.' },
-  { q: 'Does the calculator account for doors and windows?', a: 'Yes. Doors and windows are automatically deducted from the total wall surface area to give you the net screeding area.' },
-  { q: 'Are material prices in Nigerian Naira?', a: 'Yes. The FRELUX screeding cost estimator uses real Nigerian market prices for cement, sand, and other screeding materials.' },
+  { question: 'How does the FRELUX screeding calculator work?', answer: 'Enter your room or wall dimensions, including doors and windows. The calculator determines the exact wall surface area that needs screeding in m², then calculates material requirements (cement, sand, bonding agents) based on the FRELUX mix configuration.' },
+  { question: 'Can I calculate screeding for fences?', answer: 'Yes. You can enter fence dimensions in either feet or metres. The calculator converts the surface area to m² for accurate material calculation.' },
+  { question: 'What is the difference between Screeding Quantity and Cost Estimate?', answer: 'Screeding Quantity calculates the wall surface area and material requirements. Cost Estimate adds real market prices for cement, sand, and bonding agents to give you a full cost breakdown.' },
+  { question: 'Does the calculator account for doors and windows?', answer: 'Yes. Doors and windows are automatically deducted from the total wall surface area to give you the net screeding area.' },
+  { question: 'Are material prices in Nigerian Naira?', answer: 'Yes. The FRELUX screeding cost estimator uses real Nigerian market prices for cement, sand, and other screeding materials.' },
 ];
 
 export default function ScreedingCalculatorHub() {
@@ -62,8 +62,8 @@ export default function ScreedingCalculatorHub() {
         '@type': 'FAQPage',
         mainEntity: FAQS.map(f => ({
           '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       },
     ],

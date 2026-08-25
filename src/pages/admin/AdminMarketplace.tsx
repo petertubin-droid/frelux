@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Star, Eye, EyeOff, Trash2, Loader2, MapPin, Users, _AlertTriangle,
-  Check, X, ShieldAlert, _Package, Search, Flag, MessageSquare, Store, BadgeCheck,
+  Star, Eye, EyeOff, Trash2, Loader2, MapPin, Users, AlertTriangle,
+  Check, X, ShieldAlert, Package, Search, Flag, MessageSquare, Store, BadgeCheck,
 } from 'lucide-react';
 import {
   adminFetchAllListings, adminFetchAllOrders, adminFetchDisputes,

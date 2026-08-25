@@ -6,11 +6,11 @@
  */
 
 import type {
-  _MiSource,
-  _MiPriceObservation,
-  _ValidationStatus,
+  MiSource,
+  MiPriceObservation,
+  ValidationStatus,
   MatchConfidence,
-  _Freshness,
+  Freshness,
 } from '@/types/market-intelligence';
 
 // ============================================================

@@ -18,11 +18,11 @@ const TABS = [
 ];
 
 const FAQS = [
-  { q: 'What finishing types does the FRELUX Finishing Calculator support?', a: 'The Finishing Calculator supports Painting, Tyrolene, and Grafitex finishes. The Compare Finishes mode lets you compare material quantities and costs side by side. The Tyrolene Estimator provides detailed partition-based exterior finishing calculations.' },
-  { q: 'What is the FRELUX Tyrolene rule?', a: 'The established FRELUX Tyrolene rule is: 1 partition = 6 bags sand, 1 partition = 1/4 bag cement, 1 kg water seal, 3 kg acrylic bond, plus anti-fungal material where supported. The Tyrolene Estimator uses this exact methodology.' },
-  { q: 'What is the difference between Compare Finishes and Tyrolene Estimator?', a: 'Compare Finishes calculates material quantities and costs for Painting, Tyrolene, and Grafitex side by side. The Tyrolene Estimator is a detailed partition-based exterior finishing tool with production rules, material breakdowns, and saveable estimates.' },
-  { q: 'Can I save and export finishing calculations?', a: 'Yes. Both modes support saving to your projects, exporting as PDF, and sharing via WhatsApp using the existing FRELUX functionality.' },
-  { q: 'Are material prices in Nigerian Naira?', a: 'Yes. The FRELUX finishing calculator uses real Nigerian market prices for all finishing materials including cement, sand, acrylic bond, and additives.' },
+  { question: 'What finishing types does the FRELUX Finishing Calculator support?', answer: 'The Finishing Calculator supports Painting, Tyrolene, and Grafitex finishes. The Compare Finishes mode lets you compare material quantities and costs side by side. The Tyrolene Estimator provides detailed partition-based exterior finishing calculations.' },
+  { question: 'What is the FRELUX Tyrolene rule?', answer: 'The established FRELUX Tyrolene rule is: 1 partition = 6 bags sand, 1 partition = 1/4 bag cement, 1 kg water seal, 3 kg acrylic bond, plus anti-fungal material where supported. The Tyrolene Estimator uses this exact methodology.' },
+  { question: 'What is the difference between Compare Finishes and Tyrolene Estimator?', answer: 'Compare Finishes calculates material quantities and costs for Painting, Tyrolene, and Grafitex side by side. The Tyrolene Estimator is a detailed partition-based exterior finishing tool with production rules, material breakdowns, and saveable estimates.' },
+  { question: 'Can I save and export finishing calculations?', answer: 'Yes. Both modes support saving to your projects, exporting as PDF, and sharing via WhatsApp using the existing FRELUX functionality.' },
+  { question: 'Are material prices in Nigerian Naira?', answer: 'Yes. The FRELUX finishing calculator uses real Nigerian market prices for all finishing materials including cement, sand, acrylic bond, and additives.' },
 ];
 
 export default function FinishingCalculatorHub() {
@@ -62,8 +62,8 @@ export default function FinishingCalculatorHub() {
         '@type': 'FAQPage',
         mainEntity: FAQS.map(f => ({
           '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: { '@type': 'Answer', text: f.a },
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
         })),
       },
     ],
