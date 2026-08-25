@@ -479,7 +479,21 @@ export interface SpendResult {
   currentBalance?: number;
   requiredCredits?: number;
   adUnlockEnabled?: boolean;
+  /** Tiered pricing: which tier was charged (0-indexed) */
+  tier?: number;
+  /** Tiered pricing: cost of the NEXT tier, or null if last tier */
+  nextTierCost?: number | null;
+  /** Tiered pricing: remaining accesses today */
+  accessesRemaining?: number;
+  /** Tiered pricing: max accesses per day */
+  maxTier?: number;
 }
+
+/** Tiered AI credit pricing config */
+export const AI_CREDIT_TIERS = [5, 8, 12] as const;
+export const MAX_AI_ACCESSES_PER_DAY = 3;
+export const CREDITS_PER_AD = 5;
+export const MAX_ADS_PER_DAY = 5;
 
 export interface EarnResult {
   success: boolean;

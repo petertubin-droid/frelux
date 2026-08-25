@@ -33,6 +33,12 @@ export interface CreditGateResult {
   newBalance: number | null;
   /** Whether ad unlock is available as an alternative */
   adUnlockAvailable: boolean;
+  /** Tiered pricing: which tier was charged (0-indexed) */
+  tier?: number;
+  /** Tiered pricing: cost of the NEXT access, or null if last */
+  nextTierCost?: number | null;
+  /** Tiered pricing: remaining AI accesses today */
+  accessesRemaining?: number;
 }
 
 /**
@@ -71,6 +77,9 @@ export async function checkAndSpendCredits(featureKey: string): Promise<CreditGa
       error: null,
       newBalance: spend.newBalance ?? null,
       adUnlockAvailable: feature.ad_unlock_enabled,
+      tier: spend.tier,
+      nextTierCost: spend.nextTierCost,
+      accessesRemaining: spend.accessesRemaining,
     };
   }
 

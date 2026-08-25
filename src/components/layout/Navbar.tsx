@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
-  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem,
+  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem, Sparkles,
   Users, BarChart3, Search, ChevronRight, Crown,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
@@ -10,6 +10,7 @@ import { navWorkspaces, type NavChild } from '@/config/site';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useCredits } from '@/lib/credits-context';
+import { AI_CREDIT_TIERS, MAX_AI_ACCESSES_PER_DAY, CREDITS_PER_AD, MAX_ADS_PER_DAY } from '@/lib/credits';
 import { useTheme } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { AccessibilityToggle } from '@/components/ui/AccessibilityToggle';
@@ -341,6 +342,10 @@ export default function Navbar() {
                                 <Gem className="h-2.5 w-2.5" />
                                 {wallet?.balance ?? 0} Credits
                               </Link>
+                              <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
+                                <Sparkles className="h-2.5 w-2.5" />
+                                AI: {MAX_AI_ACCESSES_PER_DAY}/day · {CREDITS_PER_AD}cr/ad
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -444,7 +449,7 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            'absolute left-0 top-0 h-full w-[85%] max-w-sm overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy',
+            'absolute left-0 top-0 h-full w-[190px] max-w-[190px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy',
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
@@ -533,14 +538,35 @@ export default function Navbar() {
               </div>
             ))}
 
-            {/* Language & Accessibility */}
-            <div className="mt-4 flex items-center justify-around border-t border-neutral-100 pt-4 dark:border-white/5">
-              <AccessibilityToggle compact={false} />
-              <LanguageSwitcher compact={false} />
-              <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center gap-1.5 rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200">
-                {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
+            {/* Language, Accessibility & Theme — stacked for narrow drawer */}
+            <div className="mt-4 space-y-1 border-t border-neutral-100 pt-4 dark:border-white/5">
+              <AccessibilityToggle inline={true} />
+              <LanguageSwitcher inline={true} />
+              <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
+                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                <span>Dark mode</span>
+                <span className={classNames('ml-auto text-xs', theme === 'dark' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400')}>
+                  {theme === 'dark' ? 'On' : 'Off'}
+                </span>
               </button>
             </div>
+
+            {/* AI Credit info */}
+            {user && (
+              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-3 dark:bg-brand-purple/10">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
+                  <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">AI Credits</p>
+                </div>
+                <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+                  {MAX_AI_ACCESSES_PER_DAY} AI accesses/day: {AI_CREDIT_TIERS.join(' → ')} credits. Earn {CREDITS_PER_AD} credits per ad watch (max {MAX_ADS_PER_DAY}/day).
+                </p>
+                <Link to="/rewards" onClick={() => setMobileOpen(false)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
+                  <Gem className="h-3 w-3" />
+                  {wallet?.balance ?? 0} Credits balance
+                </Link>
+              </div>
+            )}
 
             {/* Primary CTA */}
             <Link

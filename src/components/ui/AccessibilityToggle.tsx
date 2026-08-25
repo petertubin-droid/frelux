@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Accessibility, Contrast, Type, Zap, Check } from 'lucide-react';
+import { Accessibility, Contrast, Type, Zap, Check, ChevronDown } from 'lucide-react';
 import { useAccessibility } from '@/lib/accessibility';
 import { classNames } from '@/lib/utils';
 
-export function AccessibilityToggle({ compact = false }: { compact?: boolean }) {
+export function AccessibilityToggle({ compact = false, inline = false }: { compact?: boolean; inline?: boolean }) {
   const { highContrast, toggleHighContrast, largeText, toggleLargeText, reducedMotion, toggleReducedMotion } = useAccessibility();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -20,6 +20,76 @@ export function AccessibilityToggle({ compact = false }: { compact?: boolean }) 
 
   const activeCount = [highContrast, largeText, reducedMotion].filter(Boolean).length;
 
+  // ── Inline mode: expandable section for narrow drawers ──
+  if (inline) {
+    return (
+      <div ref={ref} className="w-full">
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className={classNames(
+            'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+            activeCount > 0
+              ? 'text-brand-purple dark:text-brand-purple-lighter'
+              : 'text-neutral-600 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5'
+          )}
+        >
+          <span className="flex items-center gap-2">
+            <Accessibility className="h-4 w-4" />
+            Accessibility
+            {activeCount > 0 && (
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-purple text-[9px] font-bold text-white">
+                {activeCount}
+              </span>
+            )}
+          </span>
+          <ChevronDown className={classNames('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
+        </button>
+        {open && (
+          <div className="mt-1 space-y-1 rounded-lg border border-neutral-100 bg-neutral-50/50 p-2 dark:border-white/5 dark:bg-white/5">
+            <button
+              type="button"
+              onClick={toggleHighContrast}
+              className={classNames(
+                'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
+                highContrast ? 'bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5'
+              )}
+            >
+              <Contrast className="h-4 w-4" />
+              <span className="flex-1 text-left">High contrast</span>
+              {highContrast && <Check className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleLargeText}
+              className={classNames(
+                'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
+                largeText ? 'bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5'
+              )}
+            >
+              <Type className="h-4 w-4" />
+              <span className="flex-1 text-left">Larger text</span>
+              {largeText && <Check className="h-4 w-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleReducedMotion}
+              className={classNames(
+                'flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
+                reducedMotion ? 'bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5'
+              )}
+            >
+              <Zap className="h-4 w-4" />
+              <span className="flex-1 text-left">Reduce motion</span>
+              {reducedMotion && <Check className="h-4 w-4" />}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
       <button
