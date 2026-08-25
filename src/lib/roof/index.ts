@@ -169,3 +169,17 @@ export {
   computePixelsPerMeter,
   completeCalibration,
 } from './plan-scanner';
+
+// ── Roof Review (Feature 11) ──
+export type {
+  SectionReviewItem,
+  RoofReviewData,
+  ReviewIssue,
+} from './review';
+export {
+  buildRoofReview,
+  getErrorIssues,
+  getWarningIssues,
+  getInfoIssues,
+  getReadinessLabel,
+} from './review';
