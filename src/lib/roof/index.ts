@@ -119,3 +119,33 @@ export type {
   EdgeSummaryLine,
   EdgeSummary,
 } from './edge-classification';
+
+// ── Roof Cutouts (Feature 8) ──
+export { CUTOUT_TYPES } from './cutouts';
+export type { CutoutType } from './cutouts';
+export {
+  createCutout,
+  addCutout,
+  updateCutout,
+  deleteCutout,
+  totalCutoutArea,
+  netAreaAfterCutouts,
+  validateCutout,
+} from './cutouts';
+
+npx vitest run 2>&1 | tail -6
+echo "=== Build ==="
+npx vite build 2>&1 | tail -3
+
+// ── Roof Cutouts (Feature 8) ──
+export { CUTOUT_TYPES } from './cutouts';
+export type { CutoutType } from './cutouts';
+export {
+  createCutout,
+  addCutout,
+  updateCutout,
+  deleteCutout,
+  totalCutoutArea,
+  netAreaAfterCutouts,
+  validateCutout,
+} from './cutouts';
