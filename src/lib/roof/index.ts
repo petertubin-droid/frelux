@@ -183,3 +183,43 @@ export {
   getInfoIssues,
   getReadinessLabel,
 } from './review';
+
+// ── Source Tracking & Audit Trail (Feature 12, 13) ──
+export type {
+  DataSource,
+  SourceRecord,
+  AuditAction,
+  AuditEntry,
+  AuditTrail,
+} from './source-tracking';
+export {
+  createAuditEntry,
+  appendAuditEntry,
+  createEmptyAuditTrail,
+  getAuditForTarget,
+  getLatestAuditForTarget,
+  getAuditBySource,
+  getUnverifiedAiEstimates,
+  createSourceRecord,
+  verifySourceRecord,
+  SOURCE_LABELS,
+  SOURCE_COLORS,
+  requiresVerification,
+} from './source-tracking';
+
+// ── Rule Versioning (Feature 14) ──
+export type {
+  RuleVersionReference,
+  RuleSet,
+  RuleSetHistory,
+} from './rule-versioning';
+export {
+  computeContentHash,
+  createRuleSet,
+  publishRuleSetVersion,
+  getActiveRuleSet,
+  getRuleSetVersion,
+  toRuleVersionReference,
+  createRuleSetHistory,
+  verifyRuleVersion,
+} from './rule-versioning';
