@@ -537,3 +537,35 @@ export {
   generateQuotationNumber,
   buildQuotation,
 } from './quotation-engine';
+
+// ── Verification States (Feature 19) ──
+// Note: VERIFICATION_STATE_LABELS is also exported from plan-intelligence.ts
+// for RoomVerificationState. The verification-states module uses the same
+// name for the unified VerificationState system. We alias here to avoid
+// export conflicts in the barrel.
+export {
+  type VerificationState,
+  type AiDetectionConfidence,
+  VERIFICATION_STATE_DESCRIPTIONS as DATA_VERIFICATION_STATE_DESCRIPTIONS,
+  VERIFICATION_STATE_COLORS as DATA_VERIFICATION_STATE_COLORS,
+  VERIFICATION_STATE_VERIFIED as DATA_VERIFICATION_STATE_VERIFIED,
+  VERIFICATION_STATE_REQUIRES_ACTION as DATA_VERIFICATION_STATE_REQUIRES_ACTION,
+  VERIFICATION_STATE_ICONS as DATA_VERIFICATION_STATE_ICONS,
+  AI_CONFIDENCE_LABELS,
+  type UnifiedConfidenceAssessment,
+  type VerificationBadge,
+  type VerificationRecord,
+  type VerificationSummary,
+  canTransition,
+  transitionVerificationState,
+  assessUnifiedConfidence,
+  buildVerificationBadge,
+  createVerificationRecord,
+  updateVerificationRecord,
+  buildVerificationSummary,
+} from './verification-states';
+// VERIFICATION_STATE_LABELS from verification-states.ts is available
+// as VERIFICATION_STATE_LABELS from plan-intelligence.ts (same concept,
+// different type). For the unified labels, import directly from
+// the module: verification-states.ts
+export { VERIFICATION_STATE_LABELS as UNIFIED_VERIFICATION_STATE_LABELS } from './verification-states';
