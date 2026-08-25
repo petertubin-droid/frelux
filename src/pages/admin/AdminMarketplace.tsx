@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Star, Eye, EyeOff, Trash2, Loader2, MapPin, Users, AlertTriangle,
-  Check, X, ShieldAlert, Package, Search,
+  Check, X, ShieldAlert, Package, Search, Flag, MessageSquare, Store, BadgeCheck,
 } from 'lucide-react';
 import {
   adminFetchAllListings, adminFetchAllOrders, adminFetchDisputes,
@@ -16,8 +16,10 @@ import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketp
 import type { DbMarketplaceProduct, ProductStatus } from '@/types/marketplace-products';
 import {AdminButton, AdminIconButton, AdminInput, AdminSelect,
   AdminTabButton} from '@/components/admin/AdminUi';
+import type { DbMarketplaceReview, DbMarketplaceReport, DbMarketplaceSellerProfile } from '@/types/marketplace-expansion';
+import { REVIEW_STATUS_LABELS, REPORT_REASON_LABELS, REPORT_STATUS_LABELS, SELLER_TYPE_LABELS, SELLER_VERIFICATION_LABELS } from '@/types/marketplace-expansion';
 
-type Tab = 'listings' | 'products' | 'orders' | 'disputes';
+type Tab = 'listings' | 'products' | 'orders' | 'disputes' | 'reports' | 'reviews' | 'sellers';
 
 export default function AdminMarketplace() {
   const [tab, setTab] = useState<Tab>('listings');
@@ -32,6 +34,9 @@ export default function AdminMarketplace() {
           ['products', 'Products'],
           ['orders', 'Orders'],
           ['disputes', 'Disputes'],
+          ['reports', 'Reports'],
+          ['reviews', 'Reviews'],
+          ['sellers', 'Sellers'],
         ] as const).map(([key, label]) => (
           <AdminTabButton key={key} active={tab === key} onClick={() => setTab(key)}>
             {label}
@@ -43,6 +48,9 @@ export default function AdminMarketplace() {
       {tab === 'products' && <ProductsTab />}
       {tab === 'orders' && <OrdersTab />}
       {tab === 'disputes' && <DisputesTab />}
+      {tab === 'reports' && <ReportsTab />}
+      {tab === 'reviews' && <ReviewsTab />}
+      {tab === 'sellers' && <SellersTab />}
     </div>
   );
 }
@@ -412,6 +420,340 @@ function DisputesTab() {
           )}
         </div>
       ))}
+    </div>
+  );
+}
+
+
+// ============================================================
+// REPORTS TAB
+// ============================================================
+function ReportsTab() {
+  const [reports, setReports] = useState<DbMarketplaceReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('pending');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('marketplace_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (statusFilter) query = query.eq('status', statusFilter);
+      const { data, error } = await query.limit(100);
+      if (error) throw error;
+      setReports((data ?? []) as unknown as DbMarketplaceReport[]);
+    } catch { /* table may not exist yet */ }
+    finally { setLoading(false); }
+  }, [statusFilter]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleStatusUpdate(id: string, status: string) {
+    try {
+      const { error } = await supabase
+        .from('marketplace_reports')
+        .update({ status, resolved_at: status === 'resolved' || status === 'dismissed' ? new Date().toISOString() : null, resolved_by: (await supabase.auth.getUser()).data.user?.id })
+        .eq('id', id);
+      if (error) throw error;
+      load();
+    } catch { /* ignore */ }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-brand-purple" /></div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-neutral-500">{reports.length} reports</p>
+        <AdminSelect
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        >
+          <option value="">All Statuses</option>
+          {Object.entries(REPORT_STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </AdminSelect>
+      </div>
+
+      {reports.length === 0 ? (
+        <div className="py-12 text-center">
+          <Flag className="mx-auto h-10 w-10 text-neutral-300" />
+          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No reports found</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reports.map((r) => (
+            <div key={r.id} className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
+                      {REPORT_REASON_LABELS[r.reason] || r.reason}
+                    </span>
+                    <span className="text-xs text-neutral-400">{REPORT_STATUS_LABELS[r.status] || r.status}</span>
+                    <span className="text-xs text-neutral-400">· {r.report_type}</span>
+                  </div>
+                  {r.description && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{r.description}</p>}
+                  <p className="mt-2 text-xs text-neutral-400">Reported {new Date(r.created_at).toLocaleDateString()}</p>
+                </div>
+                {r.status === 'pending' && (
+                  <div className="flex gap-2">
+                    <AdminButton variant="success" onClick={() => handleStatusUpdate(r.id, 'resolved')} className="text-xs py-1.5">
+                      <Check className="h-3.5 w-3.5" /> Resolve
+                    </AdminButton>
+                    <AdminButton variant="danger" onClick={() => handleStatusUpdate(r.id, 'dismissed')} className="text-xs py-1.5">
+                      <X className="h-3.5 w-3.5" /> Dismiss
+                    </AdminButton>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// REVIEWS TAB
+// ============================================================
+function ReviewsTab() {
+  const [reviews, setReviews] = useState<DbMarketplaceReview[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState('published');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('marketplace_reviews')
+        .select('*, reviewer:profiles!reviewer_id(id, full_name, avatar_url)')
+        .order('created_at', { ascending: false });
+      if (statusFilter) query = query.eq('status', statusFilter);
+      const { data, error } = await query.limit(100);
+      if (error) throw error;
+      setReviews((data ?? []) as unknown as DbMarketplaceReview[]);
+    } catch { /* table may not exist yet */ }
+    finally { setLoading(false); }
+  }, [statusFilter]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleStatusUpdate(id: string, status: string) {
+    try {
+      const { error } = await supabase
+        .from('marketplace_reviews')
+        .update({ status })
+        .eq('id', id);
+      if (error) throw error;
+      load();
+    } catch { /* ignore */ }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-brand-purple" /></div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-neutral-500">{reviews.length} reviews</p>
+        <AdminSelect
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        >
+          <option value="">All Statuses</option>
+          {Object.entries(REVIEW_STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </AdminSelect>
+      </div>
+
+      {reviews.length === 0 ? (
+        <div className="py-12 text-center">
+          <MessageSquare className="mx-auto h-10 w-10 text-neutral-300" />
+          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No reviews found</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reviews.map((r) => (
+            <div key={r.id} className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[1,2,3,4,5].map((i) => (
+                        <Star key={i} className={classNames('h-3.5 w-3.5', i <= r.rating ? 'text-amber-400 fill-amber-400' : 'text-neutral-300')} />
+                      ))}
+                    </div>
+                    <span className="text-xs text-neutral-400">· {r.review_type}</span>
+                    <span className="text-xs text-neutral-400">· {REVIEW_STATUS_LABELS[r.status] || r.status}</span>
+                  </div>
+                  {r.title && <p className="mt-2 text-sm font-semibold text-neutral-900 dark:text-white">{r.title}</p>}
+                  {r.body && <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{r.body}</p>}
+                  {r.reviewer && <p className="mt-2 text-xs text-neutral-400">By {r.reviewer.full_name} · {new Date(r.created_at).toLocaleDateString()}</p>}
+                </div>
+                <div className="flex gap-2">
+                  {r.status === 'published' && (
+                    <AdminButton variant="danger" onClick={() => handleStatusUpdate(r.id, 'hidden')} className="text-xs py-1.5">
+                      <EyeOff className="h-3.5 w-3.5" /> Hide
+                    </AdminButton>
+                  )}
+                  {r.status === 'hidden' && (
+                    <AdminButton variant="success" onClick={() => handleStatusUpdate(r.id, 'published')} className="text-xs py-1.5">
+                      <Eye className="h-3.5 w-3.5" /> Publish
+                    </AdminButton>
+                  )}
+                  {r.status !== 'removed' && (
+                    <AdminButton variant="danger" onClick={() => handleStatusUpdate(r.id, 'removed')} className="text-xs py-1.5">
+                      <Trash2 className="h-3.5 w-3.5" /> Remove
+                    </AdminButton>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// SELLERS TAB
+// ============================================================
+function SellersTab() {
+  const [sellers, setSellers] = useState<DbMarketplaceSellerProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [verificationFilter, setVerificationFilter] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      let query = supabase
+        .from('marketplace_seller_profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (verificationFilter) query = query.eq('verification_status', verificationFilter);
+      const { data, error } = await query.limit(100);
+      if (error) throw error;
+      setSellers((data ?? []) as unknown as DbMarketplaceSellerProfile[]);
+    } catch { /* table may not exist yet */ }
+    finally { setLoading(false); }
+  }, [verificationFilter]);
+
+  useEffect(() => { load(); }, [load]);
+
+  async function handleVerify(id: string) {
+    try {
+      const { error } = await supabase
+        .from('marketplace_seller_profiles')
+        .update({
+          verification_status: 'verified',
+          verified_at: new Date().toISOString(),
+          verified_by: (await supabase.auth.getUser()).data.user?.id,
+        })
+        .eq('id', id);
+      if (error) throw error;
+      load();
+    } catch { /* ignore */ }
+  }
+
+  async function handleReject(id: string) {
+    try {
+      const { error } = await supabase
+        .from('marketplace_seller_profiles')
+        .update({ verification_status: 'rejected' })
+        .eq('id', id);
+      if (error) throw error;
+      load();
+    } catch { /* ignore */ }
+  }
+
+  async function handleSuspend(id: string) {
+    const reason = prompt('Reason for suspension?');
+    if (!reason) return;
+    try {
+      const { error } = await supabase
+        .from('marketplace_seller_profiles')
+        .update({ is_suspended: true, suspended_reason: reason, suspended_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw error;
+      load();
+    } catch { /* ignore */ }
+  }
+
+  if (loading) {
+    return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin text-brand-purple" /></div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-sm text-neutral-500">{sellers.length} sellers</p>
+        <AdminSelect
+          value={verificationFilter}
+          onChange={(e) => setVerificationFilter(e.target.value)}
+          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        >
+          <option value="">All Verification Statuses</option>
+          {Object.entries(SELLER_VERIFICATION_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </AdminSelect>
+      </div>
+
+      {sellers.length === 0 ? (
+        <div className="py-12 text-center">
+          <Store className="mx-auto h-10 w-10 text-neutral-300" />
+          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No sellers found</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sellers.map((s) => (
+            <div key={s.id} className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    {s.verification_status === 'verified' && <BadgeCheck className="h-4 w-4 text-brand-purple" />}
+                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">{s.business_name || 'Individual Seller'}</span>
+                    <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:bg-white/5">
+                      {SELLER_TYPE_LABELS[s.seller_type] || s.seller_type}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-400">
+                    <span>{SELLER_VERIFICATION_LABELS[s.verification_status] || s.verification_status}</span>
+                    <span>· {s.active_listing_count} active listings</span>
+                    <span>· {s.total_sales} sales</span>
+                    {s.rating_count > 0 && <span>· ⭐ {s.rating_avg.toFixed(1)} ({s.rating_count})</span>}
+                    {s.is_suspended && <span className="font-semibold text-red-500">· SUSPENDED</span>}
+                  </div>
+                  {s.business_phone && <p className="mt-1 text-xs text-neutral-400">{s.business_phone}</p>}
+                </div>
+                <div className="flex gap-2">
+                  {s.verification_status === 'pending' && (
+                    <>
+                      <AdminButton variant="success" onClick={() => handleVerify(s.id)} className="text-xs py-1.5">
+                        <Check className="h-3.5 w-3.5" /> Verify
+                      </AdminButton>
+                      <AdminButton variant="danger" onClick={() => handleReject(s.id)} className="text-xs py-1.5">
+                        <X className="h-3.5 w-3.5" /> Reject
+                      </AdminButton>
+                    </>
+                  )}
+                  {!s.is_suspended && s.verification_status === 'verified' && (
+                    <AdminButton variant="danger" onClick={() => handleSuspend(s.id)} className="text-xs py-1.5">
+                      <ShieldAlert className="h-3.5 w-3.5" /> Suspend
+                    </AdminButton>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
