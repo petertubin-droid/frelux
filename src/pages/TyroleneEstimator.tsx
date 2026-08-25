@@ -59,6 +59,7 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { TyroleneEstimatorSeo } from '@/components/seo/SeoContent';
 // Engine integration
 import { useEngineFeatures } from '@/lib/measurement';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
@@ -284,7 +285,7 @@ const mountedRef = useRef(true);
         calcVersionId,
       };
 
-      const calcResult = calculateTyroleneProject(input, config);
+      const calcResult = monitoredCalc('Tyrolene Estimator', () => calculateTyroleneProject(input, config));
       setResult(calcResult);
 
       track('tyrolene_estimator_calculated', {

@@ -71,73 +71,28 @@ function reportVital(name: string, value: number): void {
   });
 
   if (import.meta.env.DEV) {
-    if (import.meta.env.DEV) console.debug(`[WebVitals] ${name}: ${value.toFixed(2)} (${rating})`);
-  }
-}
-
-/**
- * Logs an unhandled error to the Supabase error_logs table.
- * Fire-and-forget — never throws or blocks.
- */
-async function logErrorToSupabase(
-  message: string,
-  stack: string | null,
-  source: string,
-): Promise<void> {
-  try {
-    const { supabase } = await import('@/lib/supabase');
-    await supabase.from('error_logs').insert({
-      error_message: message,
-      error_stack: stack,
-      component_stack: null,
-      boundary_name: source,
-      url: typeof window !== 'undefined' ? window.location.href : null,
-      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-    });
-  } catch {
-    // Silently fail — we don't want error logging to cause more errors
+    console.debug(`[WebVitals] ${name}: ${value.toFixed(2)} (${rating})`);
   }
 }
 
 /**
  * Observes and reports Core Web Vitals (CLS, LCP, FID, FCP, TTFB).
- * Also captures unhandled errors and unhandled promise rejections.
+ *
+ * Global error listeners are now handled by the FRELUX error monitor
+ * (initErrorMonitor in errorMonitor.ts) — this hook focuses solely
+ * on performance metrics.
+ *
  * Call this hook once at the app root.
  */
 export function useWebVitals(): void {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // ─────────────────────────────────────────
-    // Global error listeners
-    // ─────────────────────────────────────────
-    const handleUnhandledError = (event: ErrorEvent) => {
-      const message = event.message || event.error?.message || 'Unknown error';
-      const stack = event.error?.stack ?? null;
-      logErrorToSupabase(message, stack, 'window.onerror');
-    };
-
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      const reason = event.reason;
-      const message = typeof reason === 'string'
-        ? reason
-        : reason?.message ?? 'Unhandled promise rejection';
-      const stack = reason?.stack ?? null;
-      logErrorToSupabase(message, stack, 'unhandledrejection');
-    };
-
-    window.addEventListener('error', handleUnhandledError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    if (!('PerformanceObserver' in window)) return;
 
     // ─────────────────────────────────────────
     // Performance observers
     // ─────────────────────────────────────────
-    if (!('PerformanceObserver' in window)) {
-      return () => {
-        window.removeEventListener('error', handleUnhandledError);
-        window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-      };
-    }
 
     // CLS (Cumulative Layout Shift)
     const clsObserver = new PerformanceObserver((list) => {
@@ -203,8 +158,6 @@ export function useWebVitals(): void {
 
     return () => {
       reportAndCleanup();
-      window.removeEventListener('error', handleUnhandledError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       clsObserver.disconnect();
       lcpObserver.disconnect();

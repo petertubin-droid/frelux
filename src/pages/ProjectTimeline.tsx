@@ -4,6 +4,7 @@ import {
   estimateTimeline,
   type TimelineInput, type ProjectComplexity, type WorkforceSize, type Season,
 } from '@/lib/engineering/timeline-estimator';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 import {
   Calendar, Clock, AlertTriangle, TrendingUp,
   Flag, _Users,
@@ -35,7 +36,7 @@ export default function ProjectTimeline() {
       complexity, workforce, season, foundation_type: foundationType, roof_type: roofType,
       has_engineer_schedule: hasEngineer,
     };
-    setResult(estimateTimeline(input));
+    setResult(monitoredCalc('Project Timeline', () => estimateTimeline(input)));
   }, [buildingType, length, width, floors, complexity, workforce, season, foundationType, roofType, hasEngineer]);
 
   if (!result) calculate();

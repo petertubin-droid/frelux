@@ -159,6 +159,7 @@ const navModules: NavModule[] = [
       { label: 'Site Settings', to: '/admin/settings', icon: Settings },
       { label: 'Studio Management', to: '/admin/studio/management', icon: ShieldCheck },
       { label: 'Error Monitor', to: '/admin/errors', icon: AlertTriangle },
+      { label: 'System Health', to: '/admin/system-health', icon: ShieldCheck },
     ],
   },
 ];

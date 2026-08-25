@@ -11,6 +11,7 @@ import {
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 export default function FoundationCalculator() {
   useSeo({
@@ -43,7 +44,7 @@ export default function FoundationCalculator() {
       building_length: measurementUnit === 'ft' ? buildingLength * mPerFt : buildingLength,
       building_width: measurementUnit === 'ft' ? buildingWidth * mPerFt : buildingWidth,
     };
-    setResult(designFoundation(input));
+    setResult(monitoredCalc('Foundation Calculator', () => designFoundation(input)));
   }, [shape, soilType, customBearing, wallLoad, columnLoad, depth, buildingLength, buildingWidth, measurementUnit]);
 
   if (!result) calculate();

@@ -35,6 +35,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 export default function PopCeilingCalculator() {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling');
   useSeo({
@@ -134,7 +135,7 @@ const mountedRef = useRef(true);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    const r = calculatePopCeiling(input, materials, currency, currencySymbol);
+    const r = monitoredCalc('POP Ceiling Calculator', () => calculatePopCeiling(input, materials, currency, currencySymbol));
     trackCalculation('pop');
     trackCalculationWithRewards('pop', 'POP Ceiling Calculator');
     setResult(r);

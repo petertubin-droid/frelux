@@ -23,6 +23,7 @@ import {
 import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/database';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 interface PassedState {
   surfaceArea?: number;
@@ -140,7 +141,7 @@ const mountedRef = useRef(true);
         length: sqrtArea,
         width: sqrtArea,
       };
-      const rawResult = calculateTile({ ...inputWithArea, labourRatePerSqm: 0 }, tileMaterials, currency, currencySymbol);
+      const rawResult = monitoredCalc('Tile Cost Estimator', () => calculateTile({ ...inputWithArea, labourRatePerSqm: 0 }, tileMaterials, currency, currencySymbol));
       const labourCost = calculateLabourCost(labourConfig, rawResult.surfaceArea);
       const r: TileCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
       setResult(r);
@@ -153,7 +154,7 @@ const mountedRef = useRef(true);
   }
 
   function compute() {
-    const rawResult = calculateTile({ ...input, labourRatePerSqm: 0 }, tileMaterials, currency, currencySymbol);
+    const rawResult = monitoredCalc('Tile Cost Estimator', () => calculateTile({ ...input, labourRatePerSqm: 0 }, tileMaterials, currency, currencySymbol));
     const labourCost = calculateLabourCost(labourConfig, rawResult.surfaceArea);
     const r: TileCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
     setResult(r);

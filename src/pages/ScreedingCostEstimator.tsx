@@ -19,6 +19,7 @@ import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 // Engine integration
 import { useEngineFeatures } from '@/lib/measurement';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 import {
   EngineConfidenceBadge,
   EngineExplanationPanel,
@@ -119,7 +120,7 @@ const mountedRef = useRef(true);
       setResult(null);
       return;
     }
-    const rawResult = calculateScreedingMix(netArea, { ...config, labourRatePerSqm: 0 });
+    const rawResult = monitoredCalc('Screeding Cost Estimator', () => calculateScreedingMix(netArea, { ...config, labourRatePerSqm: 0 }));
     const labourCost = calculateLabourCost(labourConfig, netArea);
     const subtotal = rawResult.materialCost + labourCost;
     const taxFraction = Math.max(0, Math.min(100, config.taxVatPercentage)) / 100;

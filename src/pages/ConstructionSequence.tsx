@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 export default function ConstructionSequence() {
   useSeo({
@@ -15,7 +16,7 @@ export default function ConstructionSequence() {
     keywords: 'construction sequence, build order, construction steps, quality checks Nigeria',
   });
 
-  const plan = generateSequencePlan();
+  const plan = monitoredCalc('Construction Sequence', () => generateSequencePlan());
   const [openStep, setOpenStep] = useState<number | null>(1);
 
   return (

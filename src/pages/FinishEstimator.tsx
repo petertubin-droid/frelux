@@ -12,6 +12,7 @@ import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from
 import type { ScreedingCalcInput, ScreedingCalcResult, Unit, OpeningDimensions } from '@/types';
 import type { DbFinishType, DbSiteSettings } from '@/types/database';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -121,7 +122,7 @@ const mountedRef = useRef(true);
         ? dbMaterials.map(dbToFinishMaterialConfig)
         : [];
 
-    const calcResult = calculateFinish({
+    const calcResult = monitoredCalc('Finish Calculator', () => calculateFinish({
       finishType: selectedFinish,
       area,
       coats,
@@ -129,7 +130,7 @@ const mountedRef = useRef(true);
       materials: materials.length > 0 ? materials : undefined,
       currency,
       currencySymbol,
-    });
+    }));
 
     setResult(calcResult);
     setSaved(false);

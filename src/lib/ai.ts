@@ -5,6 +5,7 @@
 import { supabase } from '@/lib/supabase';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 import { getClientId } from '@/lib/ai-access';
+import { captureAiError } from '@/lib/errorMonitor';
 import type { AiColor, AiRecommendation } from '@/types/ai';
 
 export interface AiConsultResult {
@@ -29,6 +30,7 @@ interface ConsultParams {
 }
 
 export async function requestColorConsultation(params: ConsultParams): Promise<AiRecommendation> {
+  try {
   const clientId = getClientId();
   const { data } = await supabase.functions.invoke<AiConsultResult | { error: string; code?: string }>('ai-color-consult', {
     body: {
@@ -63,6 +65,10 @@ export async function requestColorConsultation(params: ConsultParams): Promise<A
   }
 
   return sanitizeRecommendation(data.recommendation);
+  } catch (error) {
+    captureAiError(error, { feature: 'Color Consultation', provider: 'google-ai' });
+    throw error;
+  }
 }
 
 // Ensure all colors have valid hex codes before they reach the UI.

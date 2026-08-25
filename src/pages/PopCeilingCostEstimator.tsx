@@ -25,6 +25,7 @@ import { PopCeilingCostEstimatorSeo } from '@/components/seo/SeoContent';
 import LabourCostSection, { useLabourConfig } from '@/components/labour/LabourCostSection';
 import { calculateLabourCost } from '@/lib/labour';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -103,7 +104,7 @@ const mountedRef = useRef(true);
         roomWidth: sqrtArea,
       };
       const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
-      const rawResult = calculatePopCeiling(inputWithArea, nonLabourMaterials, currency, currencySymbol);
+      const rawResult = monitoredCalc('POP Cost Estimator', () => calculatePopCeiling(inputWithArea, nonLabourMaterials, currency, currencySymbol));
       const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
       const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
       setResult(r);
@@ -119,7 +120,7 @@ const mountedRef = useRef(true);
 
   function compute() {
     const nonLabourMaterials = materials.filter((m) => m.category !== 'labour');
-    const rawResult = calculatePopCeiling(input, nonLabourMaterials, currency, currencySymbol);
+    const rawResult = monitoredCalc('POP Cost Estimator', () => calculatePopCeiling(input, nonLabourMaterials, currency, currencySymbol));
     const labourCost = calculateLabourCost(labourConfig, rawResult.ceilingArea);
     const r: PopCalcResult = { ...rawResult, labourCost, grandTotal: rawResult.materialCost + labourCost };
     setResult(r);

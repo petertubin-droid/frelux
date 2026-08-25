@@ -115,6 +115,7 @@ const AdminTileMaterials = lazy(() => import('@/pages/admin/AdminTileMaterials')
 const AdminMedia = lazy(() => import('@/pages/admin/AdminMedia'));
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminErrors = lazy(() => import('@/pages/admin/AdminErrors'));
+const SystemHealth = lazy(() => import('@/pages/admin/SystemHealth'));
 const AdminSeo = lazy(() => import('@/pages/admin/AdminSeo'));
 const AdminTemplates = lazy(() => import('@/pages/admin/AdminTemplates'));
 const AdminIntegrations = lazy(() => import('@/pages/admin/AdminIntegrations'));
@@ -390,6 +391,7 @@ export default function App() {
 
             {/* Error Monitor */}
             <Route path="errors" element={<Suspense fallback={<PageLoader />}><AdminErrors /></Suspense>} />
+            <Route path="system-health" element={<Suspense fallback={<PageLoader />}><SystemHealth /></Suspense>} />
             {/* Pro Connect */}
             <Route path="pro-connect" element={<AdminProConnect />} />
             <Route path="image-estimation" element={<AdminImageEstimation />} />

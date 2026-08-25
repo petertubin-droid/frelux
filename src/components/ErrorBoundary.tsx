@@ -1,6 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { track } from '@/lib/analytics';
-import { captureException } from '../instrument';
+import { reportError } from '@/lib/errorMonitor';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -16,7 +15,7 @@ interface ErrorBoundaryState {
 
 /**
  * Production-grade error boundary. Catches uncaught render errors,
- * logs them to analytics + Supabase, and shows a fallback UI.
+ * reports them to the FRELUX error monitoring system, and shows a fallback UI.
  *
  * In production, shows a user-friendly error page with a "try again"
  * button that reloads the route. In development, shows the full
@@ -35,43 +34,21 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     const boundary = this.props.boundaryName ?? 'unknown';
 
-    // Log to analytics for the admin dashboard
-    track('ai_request_failed', {
-      type: 'react_error_boundary',
-      boundary,
+    // Report to the FRELUX error monitoring system
+    reportError({
+      error_type: 'react',
       message: error.message,
-      stack: import.meta.env.DEV ? error.stack : undefined,
-      componentStack: import.meta.env.DEV ? errorInfo.componentStack : undefined,
-    });
-
-    // Send to Sentry (no-op if DSN not configured)
-    captureException(error, {
-      boundary,
-      componentStack: errorInfo.componentStack,
+      stack_trace: error.stack ?? null,
+      feature: boundary,
+      metadata: {
+        componentStack: import.meta.env.DEV ? errorInfo.componentStack : undefined,
+      },
     });
 
     // Log to console in dev
     if (import.meta.env.DEV) {
-      if (import.meta.env.DEV) console.error('[ErrorBoundary]', boundary, error, errorInfo);
+      console.error('[ErrorBoundary]', boundary, error, errorInfo);
     }
-
-    // Fire-and-forget to Supabase error_logs table
-    this.logError(error, errorInfo, boundary).catch((e) => {
-      if (import.meta.env.DEV) console.error('Failed to log error to Supabase:', e);
-    });
-  }
-
-  private async logError(error: Error, errorInfo: ErrorInfo, boundary: string): Promise<void> {
-    const { supabase } = await import('@/lib/supabase');
-    await supabase.from('error_logs').insert({
-      error_message: error.message,
-      error_stack: error.stack ?? null,
-      component_stack: errorInfo.componentStack ?? null,
-      boundary_name: boundary,
-      url: typeof window !== 'undefined' ? window.location.href : null,
-      user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
-      // user_id will be set by RLS if logged in
-    });
   }
 
   handleReset = (): void => {
@@ -121,7 +98,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
           </div>
           <h1 className="text-xl font-semibold text-neutral-800 dark:text-white">Something went wrong</h1>
           <p className="mt-2 max-w-sm text-sm text-neutral-500 dark:text-neutral-400">
-            An unexpected error occurred. Try refreshing the page, or return home to continue.
+            FRELUX couldn't complete that request.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
             <button
@@ -129,7 +106,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
               onClick={this.handleReload}
               className="rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-purple/90"
             >
-              Refresh page
+              Try Again
             </button>
             <a
               href="/"

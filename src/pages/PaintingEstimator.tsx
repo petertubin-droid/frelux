@@ -49,6 +49,7 @@ import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calcula
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 // Engine integration
 import { useEngineFeatures } from '@/lib/measurement';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
@@ -386,7 +387,7 @@ const mountedRef = useRef(true);
       calcVersionId,
     };
 
-    const calcResult = calculatePaintingProject(projectInput, config);
+    const calcResult = monitoredCalc('Painting Estimator', () => calculatePaintingProject(projectInput, config));
     setResult(calcResult);
     setShowCalculation(false);
     setCalculating(false);

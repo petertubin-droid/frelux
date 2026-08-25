@@ -25,6 +25,7 @@ import { RoofGeometryEditor } from '@/components/roof-view/RoofGeometryEditor';
 import { createDefaultRoofGeometry } from '@/lib/roof/geometry-engine';
 import type { RoofGeometry } from '@/lib/roof/geometry-types';
 import { trackBuildToRoofRewards } from '@/lib/rewards-integration';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 const STEPS = [
   { id: 'project', label: 'Project', icon: Home },
@@ -267,7 +268,7 @@ export default function BuildToRoofEstimator() {
   }, []);
 
   const calculate = useCallback(() => {
-    const r = calculateBuildToRoof(input);
+    const r = monitoredCalc('Build-to-Roof Estimator', () => calculateBuildToRoof(input));
     setResult(r);
     setStep(STEPS.length - 1);
     trackBuildToRoofRewards();

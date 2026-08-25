@@ -55,6 +55,7 @@ const ADVANCED_FEATURES = [
 import { useSeo } from '@/lib/seo';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 export default function PaintCalculator() {
   const { defaults: calcDefaults, rules: _calcRules } = useCalcDefaults('painting');
@@ -445,7 +446,7 @@ export default function PaintCalculator() {
 
     // Fall back to legacy calculation
     if (paintTypes.length === 0) return;
-    const r = calculatePaint(input, calcConfig);
+    const r = monitoredCalc('Painting Calculator', () => calculatePaint(input, calcConfig));
     setResult(r);
     track('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });
     logAnalyticsEvent('calculator_completed', { projectType: input.projectType, area: r.paintableArea, liters: r.adjustedLiters });

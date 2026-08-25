@@ -9,7 +9,11 @@ import { ThemeProvider } from '@/lib/theme';
 import { LanguageProvider } from '@/lib/i18n';
 import { AccessibilityProvider } from '@/lib/accessibility';
 import { Toaster } from '@/components/ui/shadcn/toast';
+import { initErrorMonitor } from '@/lib/errorMonitor';
 import './index.css';
+
+// Initialize FRELUX error monitoring — global error listeners
+initErrorMonitor();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

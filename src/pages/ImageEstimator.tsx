@@ -24,6 +24,7 @@ import { calculateBuildToRoof } from '@/lib/estimation/build-to-roof-engine';
 import type { BuildToRoofInput, BuildToRoofResult } from '@/types/build-to-roof';
 import { formatCurrency } from '@/lib/utils';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 type Phase = 'upload' | 'analyzing' | 'review' | 'result' | 'locked' | 'error';
 
@@ -217,7 +218,7 @@ const mountedRef = useRef(true);
   // ── Generate estimate from review ──
   const generateEstimate = useCallback(() => {
     if (!estimateInput) return;
-    const result = calculateBuildToRoof(estimateInput);
+    const result = monitoredCalc('AI Photo Estimator', () => calculateBuildToRoof(estimateInput));
     setEstimate(result);
     setPhase('result');
     trackAiPhotoEstimatorRewards();

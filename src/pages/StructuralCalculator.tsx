@@ -14,6 +14,7 @@ import {
 import { SubscriptionGate } from '@/components/subscription/SubscriptionGate';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 
 type Tab = 'beam' | 'column' | 'slab';
 
@@ -110,7 +111,7 @@ function BeamCalculator() {
       live_load: liveLoad, dead_load: deadLoad, tributary_width: tribWidth,
       concrete_grade: concreteGrade, steel_grade: steelGrade, cover_mm: cover,
     };
-    setResult(designBeam(input));
+    setResult(monitoredCalc('Structural Calculator', () => designBeam(input)));
   }, [span, beamType, support, liveLoad, deadLoad, tribWidth, concreteGrade, steelGrade, cover]);
 
   if (!result) { calculate(); }
@@ -210,7 +211,7 @@ function ColumnCalculator() {
       steel_grade: steelGrade, cover_mm: cover, is_rectangular: isRect,
       unbraced_height_ratio: 0,
     };
-    setResult(designColumn(input));
+    setResult(monitoredCalc('Structural Calculator', () => designColumn(input)));
   }, [axialLoad, height, concreteGrade, steelGrade, cover, isRect]);
 
   if (!result) calculate();
@@ -292,7 +293,7 @@ function SlabCalculator() {
       live_load: liveLoad, dead_load: deadLoad, concrete_grade: concreteGrade,
       steel_grade: steelGrade, cover_mm: cover,
     };
-    setResult(designSlab(input));
+    setResult(monitoredCalc('Structural Calculator', () => designSlab(input)));
   }, [spanX, spanY, slabType, support, liveLoad, deadLoad, concreteGrade, steelGrade, cover]);
 
   if (!result) calculate();

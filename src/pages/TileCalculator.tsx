@@ -35,6 +35,7 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { TileCalculatorSeo } from '@/components/seo/SeoContent';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { monitoredCalc } from '@/lib/calculator-monitor';
 export default function TileCalculator() {
   const { defaults: calcDefaults } = useCalcDefaults('tile');
   useSeo({
@@ -215,7 +216,7 @@ const mountedRef = useRef(true);
     setErrors(e);
     if (Object.keys(e).length > 0) return;
 
-    const r = calculateTile(input, tileMaterials, currency, currencySymbol);
+    const r = monitoredCalc('Tile Calculator', () => calculateTile(input, tileMaterials, currency, currencySymbol));
     trackCalculation('tile');
     trackCalculationWithRewards('tile', 'Tile Calculator');
     setResult(r);

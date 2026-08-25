@@ -30,6 +30,7 @@ export class StudioAiError extends Error {
 }
 
 export async function invokeStudioAi(req: StudioAiRequest): Promise<string> {
+  try {
   const { data, error } = await supabase.functions.invoke<StudioAiResponse | { error: string; code?: string }>('ai-studio', {
     body: req,
   });
@@ -60,6 +61,10 @@ export async function invokeStudioAi(req: StudioAiRequest): Promise<string> {
   }
 
   return data.response;
+  } catch (error) {
+    captureAiError(error, { feature: 'AI Studio' });
+    throw error;
+  }
 }
 
 // =========================================================
