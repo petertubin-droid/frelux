@@ -14,4 +14,3 @@ BEGIN
   END IF;
 END $$;
 
-COMMENT ON THIS MIGRATION IS 'Enable real-time updates on site_settings for maintenance mode sync';
