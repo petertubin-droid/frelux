@@ -12,6 +12,8 @@ export default function AdminSettings() {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [maintenanceSaving, setMaintenanceSaving] = useState(false);
+  const [maintenanceSaved, setMaintenanceSaved] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -142,9 +144,35 @@ export default function AdminSettings() {
         </AdminCard>
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Maintenance</h2>
-          <div className="flex items-center gap-3">
-            <Toggle checked={settings.maintenance_mode} onChange={(v) => update('maintenance_mode', v)} />
-            <div><p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Maintenance mode</p><p className="text-xs text-neutral-400 dark:text-neutral-500">When on, visitors see a maintenance notice instead of the tools.</p></div>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Maintenance mode</p>
+              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">When on, visitors see a maintenance notice instead of the tools. Changes take effect immediately across the site.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              {maintenanceSaving && <span className="text-xs text-neutral-400">Saving…</span>}
+              {maintenanceSaved && <span className="text-xs text-green-600">✓ Live</span>}
+              <Toggle
+                checked={settings.maintenance_mode}
+                onChange={async (v) => {
+                  update('maintenance_mode', v);
+                  setMaintenanceSaving(true);
+                  setMaintenanceSaved(false);
+                  const { error: mErr } = await supabase
+                    .from('site_settings')
+                    .update({ maintenance_mode: v })
+                    .eq('id', settings.id);
+                  setMaintenanceSaving(false);
+                  if (!mErr) {
+                    setMaintenanceSaved(true);
+                    window.setTimeout(() => setMaintenanceSaved(false), 3000);
+                  } else {
+                    setError(mErr.message);
+                    update('maintenance_mode', !v);
+                  }
+                }}
+              />
+            </div>
           </div>
         </AdminCard>
       </div>

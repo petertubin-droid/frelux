@@ -42,21 +42,61 @@ const mountedRef = useRef(true);
     return () => { mountedRef.current = false; };
   }, []);
 
+  // ── Maintenance mode check: runs on mount, on route change, and via real-time subscription ──
   useEffect(() => {
-    async function check() {
-      const { data } = await supabase.from('site_settings').select('maintenance_mode').limit(1).maybeSingle();
-      if (data?.maintenance_mode) {
-        const { data: session } = await supabase.auth.getSession();
-        if (session.session) {
-          const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.session.user.id).maybeSingle();
-          setIsAdmin(profile?.role === 'admin');
-        }
-        setMaintenance(true);
-      } else {
-        setMaintenance(false);
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+    async function checkMaintenance() {
+      // Always check admin status first (independent of maintenance state)
+      const { data: session } = await supabase.auth.getSession();
+      let admin = false;
+      if (session.session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.session.user.id)
+          .maybeSingle();
+        admin = profile?.role === 'admin';
       }
+      setIsAdmin(admin);
+
+      // Then check maintenance mode
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('maintenance_mode')
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.warn('[maintenance] Failed to check site_settings:', error.message);
+        return;
+      }
+
+      setMaintenance(!!data?.maintenance_mode);
     }
-    check();
+
+    checkMaintenance();
+
+    // Real-time subscription: detect maintenance_mode changes immediately
+    channel = supabase
+      .channel('site_settings_maintenance')
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'site_settings' },
+        (payload) => {
+          const newMode = (payload.new as Record<string, unknown>)?.maintenance_mode;
+          setMaintenance(!!newMode);
+        }
+      )
+      .subscribe();
+
+    // Polling fallback: check every 30 seconds in case real-time misses
+    pollTimer = setInterval(checkMaintenance, 30_000);
+
+    return () => {
+      if (channel) supabase.removeChannel(channel);
+      if (pollTimer) clearInterval(pollTimer);
+    };
   }, [location.pathname]);
 
   if (maintenance && !isAdmin) {
