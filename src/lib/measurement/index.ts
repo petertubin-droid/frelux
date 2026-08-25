@@ -610,3 +610,25 @@ export {
   type SmartAiImageReport,
   buildSmartAiImageReport,
 } from './smart-ai-report';
+
+// ── Shared Engine Pipeline (Feature 22) ──
+export {
+  type PipelineSource,
+  type PipelineStage,
+  PIPELINE_SOURCE_LABELS,
+  PIPELINE_STAGE_LABELS,
+  type PipelineInput,
+  type MeasurementStageResult,
+  type SpaceElementStageResult,
+  type CalculationStageResult,
+  type MaterialStageResult,
+  type MarketIntelligenceStageResult,
+  type ValidationStageResult,
+  type EstimateStageResult,
+  type ReportStageResult,
+  type PipelineResult,
+  executeSharedPipeline,
+  createBuildingToRoofInput,
+  createAiImageInput,
+  canSharePipeline,
+} from './shared-engine-pipeline';
