@@ -1,13 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useSeo } from '@/lib/seo';
-import { DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
 import {
   designBeam, designColumn, designSlab,
   type BeamDesignInput, type ColumnDesignInput, type SlabDesignInput,
   type ConcreteGrade, type SteelGrade, type SupportCondition,
   type BeamType, type SlabType,
 } from '@/lib/engineering/structural-calculator';
-import type { BuildToRoofResult } from '@/types/build-to-roof';
+import type {} from '@/types/build-to-roof';
 import {
   Calculator, Building2, AlertTriangle, CheckCircle2, ShieldCheck,
   Ruler, Layers, TrendingUp, ChevronRight, ChevronDown,

@@ -141,8 +141,8 @@ export function detectAnomalies(
 
   const prices = observations.map((o) => o.price).sort((a, b) => a - b);
   const median = calculateMedian(prices);
-  const min = prices[0];
-  const max = prices[prices.length - 1];
+  const _min = prices[0];
+  const _max = prices[prices.length - 1];
 
   // If only 2 sources, flag if they differ by >50%
   const deviationThreshold = observations.length <= 2 ? 0.50 : 0.35;

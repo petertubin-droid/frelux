@@ -15,7 +15,7 @@ import {
   getEdgeSummary,
   getMultiSectionEdgeSummary,
 } from '../edge-classification';
-import { createPoint, createRoofSection, generateEdges, classifyEdge } from '../geometry-engine';
+import { createPoint, createRoofSection, generateEdges } from '../geometry-engine';
 import type { EdgeType, RoofSectionGeometry } from '../geometry-types';
 
 // =========================================================

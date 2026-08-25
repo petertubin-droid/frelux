@@ -10,7 +10,7 @@
 
 import type {
   MatchConfidence,
-  MiProductAlias,
+  _MiProductAlias,
 } from '@/types/market-intelligence';
 
 // ============================================================

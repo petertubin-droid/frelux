@@ -24,22 +24,21 @@
 
 import type {
   SpaceType,
-  SurfaceType,
+  _SurfaceType,
   MeasurementProject,
-  MeasurementProjectResult,
+  _MeasurementProjectResult,
   CalculationStep,
 } from './types';
-import { SPACE_TYPE_LABELS } from './types';
 import type { CalculatorContext, LengthUnit } from './units';
-import type { Space, SpaceCollection, SpaceResult } from './space-engine';
+import type { Space, SpaceResult } from './space-engine';
 import {
-  createSpace,
+  _createSpace,
   createSpaceCollection,
   calculateSpace,
-  calculateSpaceCollection,
-  groupSpacesByType,
+  _calculateSpaceCollection,
+  _groupSpacesByType,
   spaceCollectionToMeasurementProject,
-  type SpaceCollectionResult,
+  type _SpaceCollectionResult,
 } from './space-engine';
 import { generateId } from './factory';
 import type { FinishType } from './space-engine';

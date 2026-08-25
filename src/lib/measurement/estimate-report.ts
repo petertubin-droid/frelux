@@ -19,11 +19,11 @@
 
 import type { ConstructionProjectResult } from './project-engine';
 import type { ProjectMaterialSummary } from './material-summary';
-import type { CalculationExplanation } from './explanation-engine';
+import type {} from './explanation-engine';
 import type { ConfidenceAssessment } from './confidence-engine';
 import type { RuleVersionReference } from './rule-versioning';
 import { explainProjectCalculation } from './explanation-engine';
-import { formatM2, roundForDisplay } from './geometry';
+import { formatM2 } from './geometry';
 
 // =========================================================
 // REPORT TYPES

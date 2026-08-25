@@ -82,8 +82,8 @@ const mountedRef = useRef(true);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
   // Engine features
-  const engine = useEngineFeatures({ calculatorType: 'tile' });
-  const [alreadyHave, setAlreadyHave] = useState(0);
+  const _engine = useEngineFeatures({ calculatorType: 'tile' });
+  const [_alreadyHave, _setAlreadyHave] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');

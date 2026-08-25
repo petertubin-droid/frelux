@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Gem, Users, TrendingUp, AlertTriangle, Save, Loader2, Gift, Settings } from 'lucide-react';
+import { Gem, TrendingUp, AlertTriangle, Save, Loader2, Gift, Settings } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 import { classNames } from '@/lib/utils';
@@ -24,7 +24,7 @@ export default function AdminRewards() {
   const [wallets, setWallets] = useState<CreditWallet[]>([]);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [rewards, setRewards] = useState<RewardItem[]>([]);
-  const [settings, setSettings] = useState<RSettings | null>(null);
+  const [_settings, setSettings] = useState<RSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingReward, setEditingReward] = useState<Record<string, { name: string; description: string; credit_cost: number; is_enabled: boolean }>>({});
   const [savingReward, setSavingReward] = useState<string | null>(null);

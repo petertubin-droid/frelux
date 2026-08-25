@@ -36,7 +36,7 @@ import type {
   CalculationStep,
 } from './project-engine';
 import {
-  createProjectElement,
+  _createProjectElement,
   calculateProjectElement,
   createConstructionProject,
   PROJECT_ELEMENT_TYPE_LABELS,

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MapPin, Save, Trash2, Loader2, Plus, Search, Globe, Shield, Eye, EyeOff, Navigation, Check, X, AlertCircle } from 'lucide-react';
+import { Save, Trash2, Loader2, Plus, Search, Globe, Eye, EyeOff, Navigation, X, AlertCircle } from 'lucide-react';
 import { fetchCategories, fetchLocations } from '@/lib/pro-connect';
 import { adminFetchSeoPageSettings, adminUpsertSeoPageSettings, adminDeleteSeoPageSettings, adminUpdateLocationCoords, adminUpdateCategorySeo, adminUpdateListingSeo, adminUpdateProProfileSeo, type SeoPageSetting } from '@/lib/location-discovery';
 import type { DbProCategory, DbProLocation } from '@/types/pro-connect';

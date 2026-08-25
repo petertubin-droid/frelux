@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight, ChevronDown } from 'lucide-react';
+import { Paintbrush, SprayCan, Layers, Loader2, AlertCircle, CheckCircle2, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import ResultCard from '@/components/ui/ResultCard';
 import { calculateFinish, getFinishTypeLabel, getFinishTypeDescription, getDefaultCoats, dbToFinishMaterialConfig, type FinishType, type FinishCalcResult, type FinishMaterialConfig } from '@/lib/finish-calc';
 import { fetchFinishTypes, fetchSiteSettings, saveUserProject, logAnalyticsEvent } from '@/lib/queries';
-import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber, DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
+import { calculateScreedingArea, validateScreedingInput, formatCurrency, formatNumber } from '@/lib/utils';
 import { track } from '@/lib/analytics';
 import { useSeo } from '@/lib/seo';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';

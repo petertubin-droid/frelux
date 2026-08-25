@@ -21,7 +21,7 @@
  */
 
 import type { FinishType } from './space-engine';
-import type { LengthUnit } from './units';
+import type {} from './units';
 import { generateId } from './factory';
 
 // =========================================================

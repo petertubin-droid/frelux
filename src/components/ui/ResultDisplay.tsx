@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type {} from 'react';
 import { CheckCircle2, RotateCcw, ArrowRight, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { classNames } from '@/lib/utils';

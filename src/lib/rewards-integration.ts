@@ -16,7 +16,7 @@ import {
   awardCredits,
   recordActivity,
   REWARD_EVENTS,
-  generateReferenceId,
+  _generateReferenceId,
 } from '@/lib/credits';
 
 type CalcType = 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai' | 'painting' | 'tyrolene';
@@ -24,7 +24,7 @@ type CalcType = 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai
 // Track which calculator types a user has used (for "3 different calculators" reward)
 const CALC_TYPES_KEY = 'frelux_calc_types_used';
 const CALC_COUNT_KEY = 'frelux_total_calc_count';
-const SESSION_TOKEN_KEY = 'frelux_session_token';
+const _SESSION_TOKEN_KEY = 'frelux_session_token';
 
 function getCalcTypesUsed(): string[] {
   try { return JSON.parse(localStorage.getItem(CALC_TYPES_KEY) ?? '[]'); } catch { return []; }

@@ -43,9 +43,9 @@ let healthCheckPassed = true;
 // ============================================================
 
 export const freluxCrawlerAdapter: PriceProviderAdapter = {
-  readonly name: 'FRELUX Crawler',
-  readonly type: 'crawler' as const,
-  readonly isFree: true,
+  name: 'FRELUX Crawler' as const,
+  type: 'crawler' as const,
+  isFree: true,
 
   /**
    * The FRELUX Direct Crawler is always configured — it requires no API key.

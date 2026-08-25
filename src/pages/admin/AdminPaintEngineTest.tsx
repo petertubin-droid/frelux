@@ -5,14 +5,14 @@
  * and see the full step-by-step calculation breakdown.
  */
 
-import { useState, useEffect, useCallback } from 'react';
-import { Calculator, Play, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Play, AlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, AdminInput } from '@/components/admin/AdminUi';
 import {
   calculateRoom,
   getCoverageUnitLabel,
-  COVERAGE_UNIT_OPTIONS,
+  _COVERAGE_UNIT_OPTIONS,
   type PaintEngineRoomInput,
   type PaintEngineRoomResult,
 } from '@/lib/estimation/paint-engine';

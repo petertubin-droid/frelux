@@ -28,7 +28,6 @@ import type {
   Freshness,
 } from '@/types/market-intelligence';
 import { NO_PRICE_AVAILABLE } from '@/types/market-intelligence';
-import { calculateFreshness } from './price-validator';
 
 // ============================================================
 // CACHE — approved prices cached per market+product for the session
@@ -151,7 +150,7 @@ export async function resolveCalculatorPriceByName(
 async function tryFallback(
   marketCode: string,
   productId: string,
-  options?: { packageSize?: number; packageUnit?: string; region?: string },
+  _options?: { packageSize?: number; packageUnit?: string; region?: string },
 ): Promise<ResolvedCalculatorPrice> {
   // Try any approved price for this product (ignore package size/unit)
   const { data } = await supabase

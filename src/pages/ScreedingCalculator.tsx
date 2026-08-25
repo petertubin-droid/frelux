@@ -12,7 +12,7 @@ import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
 // Unified measurement system
-import { MeasurementInput, CalculationBreakdown, ValidationErrors } from '@/components/measurement/MeasurementInput';
+import { MeasurementInput, CalculationBreakdown } from '@/components/measurement/MeasurementInput';
 import {
   useMeasurementProject,
   useEngineFeatures,

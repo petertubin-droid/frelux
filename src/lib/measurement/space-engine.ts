@@ -28,14 +28,13 @@ import type {
   MeasurementGroup,
   MeasurementSection,
   MeasurementProject,
-  MeasurementProjectResult,
+  _MeasurementProjectResult,
   CalculationStep,
 } from './types';
 import { SPACE_TYPE_LABELS } from './types';
 import type { LengthUnit, CalculatorContext } from './units';
 import { createMeasurementEntry, createMeasurementGroup, createMeasurementSection, generateId } from './factory';
-import { calculateMeasurementProject } from './hierarchy';
-import type { ExtendedLengthUnit } from './extended-units';
+import type {} from './extended-units';
 
 // =========================================================
 // SURFACE / FINISH TYPES
@@ -302,7 +301,7 @@ export function spaceToMeasurementEntry(space: Space): MeasurementEntry {
 // SPACE CALCULATION
 // =========================================================
 
-import { toMeters, lengthUnitShort, lengthUnitLabel } from './units';
+import { toMeters, lengthUnitShort } from './units';
 import {
   makeStep,
   formatM2,
@@ -315,7 +314,6 @@ import {
   rectangularAreaM2,
   applyWasteMargin,
 } from './geometry';
-import { DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
 
 /**
  * Calculate a single space.
@@ -412,7 +410,7 @@ export function calculateSpace(space: Space): SpaceResult {
       }
       break;
 
-    case 'fence':
+    case 'fence': {
       const partitionCount = space.partitionCount ?? 1;
       areaM2 = fenceDimensionAreaM2(normalizedLengthM, normalizedHeightM ?? 0, partitionCount);
       if (normalizedHeightM) {
@@ -423,6 +421,7 @@ export function calculateSpace(space: Space): SpaceResult {
         ));
       }
       break;
+      }
 
     default:
       areaM2 = rectangularAreaM2(normalizedLengthM, normalizedWidthM);

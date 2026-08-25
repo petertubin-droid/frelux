@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X, Plus } from 'lucide-react';
+import { Save, Loader2, AlertCircle, Palette, Image as ImageIcon, Type, Highlighter, X } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import {AdminHeader, AdminCard, AdminField, StateMessage, AdminIconButton, AdminButton, AdminInput} from '@/components/admin/AdminUi';
 import { MediaUploader } from '@/components/admin/MediaUploader';

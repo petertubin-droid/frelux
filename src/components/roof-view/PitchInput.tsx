@@ -10,7 +10,7 @@
  * Feature 5: Roof Pitch Per Section
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { AlertCircle, HelpCircle, CheckCircle2 } from 'lucide-react';
 
 // =========================================================

@@ -6,7 +6,7 @@ import {
   Building2, ChevronRight, ChevronLeft, Calculator, Upload, FileText,
   CheckCircle2, AlertTriangle, Info, Package, Users, DollarSign,
   TrendingUp, ShieldCheck, Layers, Home, Ruler, Hammer, FolderOpen,
-  Printer, ArrowRight, Settings, Camera, Gem, BadgeCheck, Award,
+  Printer, ArrowRight, Settings, Camera, Gem, BadgeCheck, _Award,
 } from 'lucide-react';
 import {
   calculateBuildToRoof,

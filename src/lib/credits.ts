@@ -7,7 +7,6 @@
  */
 
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { useAuth } from '@/lib/auth';
 
 // =========================================================
 // Types

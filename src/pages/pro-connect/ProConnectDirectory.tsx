@@ -9,7 +9,6 @@ import { useSeo } from '@/lib/seo';
 import _LocationPicker from '@/components/ui/LocationPicker';
 import { useLocation } from '@/lib/location';
 import { findNearbyProfessionals, type NearbyProfessional } from '@/lib/location-discovery';
-import { formatDistance } from '@/lib/location';
 
 export default function ProConnectDirectory() {
   useSeo({

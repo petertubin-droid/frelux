@@ -27,8 +27,8 @@
  */
 
 import type { LengthUnit, CalculationStep } from './types';
-import type { SpaceType, SurfaceType } from './types';
-import { toMeters, lengthUnitShort, lengthUnitLabel, tileAreaM2 } from './units';
+import type {} from './types';
+import { toMeters, lengthUnitShort, tileAreaM2 } from './units';
 import {
   singleSurfaceAreaM2,
   fenceDimensionAreaM2,
@@ -418,7 +418,7 @@ export function fenceDimensionToSpace(
     unit: dimension.unit,
     quantity: dimension.partitionCount,
     surfaceType: 'fence',
-    finishType: finishType as any,
+    finishType: finishType as string,
     wasteMarginPercent: dimension.wasteMarginPercent,
     partitionCount: dimension.partitionCount,
     tileConfig: dimension.tileConfig,

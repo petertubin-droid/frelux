@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader2, Send, Upload, X, Plus, Tag } from 'lucide-react';
+import { Loader2, Send, Upload, X, Plus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { createProduct, fetchProductCategories } from '@/lib/marketplace-products';
 import { uploadProductImage } from '@/lib/storage';

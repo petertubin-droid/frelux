@@ -26,7 +26,7 @@ import {
   X,
 } from 'lucide-react';
 import { useRoofView } from '@/lib/roof/use-roof-view';
-import type { RoofViewState } from '@/lib/roof/types';
+import type {} from '@/lib/roof/types';
 
 export function RoofViewPanel() {
   const {

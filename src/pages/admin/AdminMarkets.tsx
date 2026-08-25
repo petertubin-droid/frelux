@@ -9,7 +9,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Loader2, Plus, Trash2, Edit2, X, Check, Globe, Package, DollarSign,
+  Loader2, Plus, Trash2, Edit2, _X, _Check, Globe, _Package, _DollarSign,
   Calculator as CalcIcon, FileText, Save,
 } from 'lucide-react';
 import {

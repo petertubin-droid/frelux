@@ -36,7 +36,7 @@ function setupProject() {
 function setupSummary(result: ReturnType<typeof setupProject>) {
   const paint = createMaterialSpec({ productName: 'Paint', category: 'paint', quantityUnit: 'buckets', coverage: { type: 'area', value: 50, unit: 'm2' } });
   const tiles = createMaterialSpec({ productName: 'Tiles', category: 'tiles', quantityUnit: 'cartons', coverage: { type: 'area', value: 1.44, unit: 'm2' } });
-  const materialMap = new Map([['paint', paint], ['tiling', tiles]]);
+  const _materialMap = new Map([['paint', paint], ['tiling', tiles]]);
   const requirements = [
     { material: paint, areaM2: result.areaByFinishType.paint ?? 0, coats: 1, wastePercent: 10, source: 'Walls', finishType: 'paint' as const },
     { material: tiles, areaM2: result.areaByFinishType.tiling ?? 0, coats: 1, wastePercent: 10, source: 'Floors', finishType: 'tiling' as const },

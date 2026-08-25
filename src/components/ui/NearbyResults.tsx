@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { MapPin, Star, Shield, Loader2, Briefcase, ArrowRight, Navigation } from 'lucide-react';
 import { findNearbyProfessionals, findNearbyListings, type NearbyProfessional, type NearbyListing } from '@/lib/location-discovery';
 import { formatDistance } from '@/lib/location';
-import { DISTANCE_FILTERS } from '@/lib/location';
 import { classNames } from '@/lib/utils';
 import type { UserLocation } from '@/lib/location';
 import LocationPicker from '@/components/ui/LocationPicker';

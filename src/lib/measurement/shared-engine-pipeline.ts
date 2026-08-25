@@ -42,7 +42,7 @@
 
 import type { LengthUnit } from './units';
 import type { Space, SpaceResult } from './space-engine';
-import type { MaterialSpec, MaterialCalculationResult } from './material-engine';
+import type { MaterialCalculationResult } from './material-engine';
 import type { ConfidenceAssessment } from './confidence-engine';
 import type { VerificationState } from './verification-states';
 import type { SmartRoofReport } from './smart-roof-report';

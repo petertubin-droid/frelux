@@ -39,11 +39,11 @@ export function dbProfileToMaterialSpec(profile: EmMaterialProfile): MaterialSpe
     productName: profile.product_name,
     brand: profile.brand ?? undefined,
     category: profile.category,
-    quantityUnit: profile.quantity_unit as any,
+    quantityUnit: profile.quantity_unit as string,
     coverage: {
-      type: profile.coverage_type as any,
+      type: profile.coverage_type as string,
       value: profile.coverage_value,
-      unit: profile.coverage_unit as any,
+      unit: profile.coverage_unit as string,
       coats: profile.coverage_coats,
     },
     defaultWastePercent: profile.default_waste_percent,
@@ -72,7 +72,7 @@ export function dbProfilesToMaterialSpecs(profiles: EmMaterialProfile[]): Materi
 export function dbWasteConfigsToWasteConfig(
   configs: EmWasteConfig[],
   countryCode: string = 'NG',
-  marketCode?: string,
+  _marketCode?: string,
 ): WasteConfig {
   const globalDefault = configs.find((c) => c.scope_level === 'global');
   const countryConfig = configs.find(
@@ -180,11 +180,11 @@ export function dbRoofMaterialToSpec(material: EmRoofMaterial): MaterialSpec {
     productName: material.material_name,
     brand: material.brand ?? undefined,
     category: material.category,
-    quantityUnit: material.quantity_unit as any,
+    quantityUnit: material.quantity_unit as string,
     coverage: {
-      type: material.coverage_type as any,
+      type: material.coverage_type as string,
       value: material.coverage_value,
-      unit: material.coverage_unit as any,
+      unit: material.coverage_unit as string,
       coats: 1,
     },
     defaultWastePercent: material.default_waste_percent,

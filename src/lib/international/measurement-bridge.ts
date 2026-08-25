@@ -9,6 +9,7 @@
  */
 
 import type { ResolvedMarketContext, PreferredLengthUnit, PreferredAreaUnit } from '@/types/international';
+import { toMeters, toSqMeters, fromMeters, fromSqMeters } from '@/lib/measurement/units';
 
 // Re-export existing measurement utilities (no modifications)
 export {
@@ -97,7 +98,6 @@ export function normalizeLength(
   fromUnit: PreferredLengthUnit,
 ): number {
   // Re-use existing measurement system
-  const { toMeters } = require('@/lib/measurement/units');
   return toMeters(value, fromUnit);
 }
 
@@ -105,7 +105,6 @@ export function normalizeArea(
   value: number,
   fromUnit: PreferredAreaUnit,
 ): number {
-  const { toSqMeters } = require('@/lib/measurement/units');
   return toSqMeters(value, fromUnit);
 }
 
@@ -116,7 +115,6 @@ export function denormalizeLength(
   valueM: number,
   toUnit: PreferredLengthUnit,
 ): number {
-  const { fromMeters } = require('@/lib/measurement/units');
   return fromMeters(valueM, toUnit);
 }
 
@@ -124,6 +122,5 @@ export function denormalizeArea(
   valueSqm: number,
   toUnit: PreferredAreaUnit,
 ): number {
-  const { fromSqMeters } = require('@/lib/measurement/units');
   return fromSqMeters(valueSqm, toUnit);
 }

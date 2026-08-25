@@ -11,9 +11,8 @@ import { supabase } from '@/lib/supabase';
 import type {
   MarketCalculatorConfig,
   MarketCalculatorType,
-  ResolvedMarketContext,
+  _ResolvedMarketContext,
 } from '@/types/international';
-import { NIGERIA_DEFAULTS } from './market-context';
 
 // ============================================================
 // CACHE

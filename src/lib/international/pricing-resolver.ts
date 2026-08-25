@@ -91,7 +91,7 @@ export async function fetchMarketProducts(
   marketCode: string,
   calculatorType?: MarketCalculatorType,
 ): Promise<MarketProduct[]> {
-  let query = supabase
+  const query = supabase
     .from('market_products')
     .select('*')
     .eq('market_code', marketCode)

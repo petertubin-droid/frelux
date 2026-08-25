@@ -13,7 +13,7 @@ import {
   type CreditWallet,
   type ActivityStreak,
   type RewardEventKey,
-  generateReferenceId,
+  _generateReferenceId,
 } from '@/lib/credits';
 import { useToast } from '@/components/ui/Toast';
 

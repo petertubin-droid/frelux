@@ -19,7 +19,7 @@
  * Pure logic — no external dependencies. Works with any CostEstimate.
  */
 
-import type { CostEstimate, CostLineItem } from './cost-integration';
+import type { CostEstimate } from './cost-integration';
 
 // =========================================================
 // COMPARISON TYPES

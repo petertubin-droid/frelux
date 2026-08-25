@@ -13,7 +13,7 @@
  * - Fence partition: partition length × height
  */
 
-import type { SurfaceType } from './types';
+import type {} from './types';
 import type { CalculationStep } from './types';
 
 // =========================================================

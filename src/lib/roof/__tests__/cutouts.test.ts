@@ -7,7 +7,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   CUTOUT_TYPES,
-  CutoutType,
+  _CutoutType,
   createCutout,
   addCutout,
   updateCutout,

@@ -17,20 +17,20 @@ import type {
   RoofSectionCalculation,
   MultiRoofCalculation,
 } from './section-model-types';
-import type { RoofType, RoofingMaterial } from '@/types/build-to-roof';
+import type { RoofType } from '@/types/build-to-roof';
 import {
-  calculateRoofArea,
+  _calculateRoofArea,
   roofingSheetsCount,
   getSheetCoverage,
   calculateRidgeLength,
   calculateHipLength,
   calculateFasciaLength,
   estimateTimberMeters,
-  SHEET_COVERAGE,
-  SCREWS_PER_SHEET,
-  RAFTER_SPACING,
+  _SHEET_COVERAGE,
+  _SCREWS_PER_SHEET,
+  _RAFTER_SPACING,
 } from '@/lib/estimation/build-to-roof-engine';
-import { calculateRoofGeometry, polygonArea } from './geometry-engine';
+import { calculateRoofGeometry } from './geometry-engine';
 
 // =========================================================
 // Helpers

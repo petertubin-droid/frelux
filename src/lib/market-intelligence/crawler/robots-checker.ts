@@ -90,7 +90,7 @@ function parseRobotsTxt(
     if (directive === 'user-agent') {
       // If we were in a relevant section, save its rules
       if (inRelevantSection && currentUserAgents.length > 0) {
-        for (const ua of currentUserAgents) {
+        for (const _ua of currentUserAgents) {
           for (const path of disallowedPaths) {
             rules.set(path, { allowed: false, crawlDelay });
           }

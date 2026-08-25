@@ -16,9 +16,9 @@
  * The summary is purely visual — it does NOT change the calculation.
  */
 
-import type { SpaceResult } from './space-engine';
+import type {} from './space-engine';
 import type { ConstructionProjectResult } from './project-engine';
-import type { ProjectMaterialSummary, MaterialCategorySubtotal } from './material-summary';
+import type { ProjectMaterialSummary } from './material-summary';
 import { formatM2, roundForDisplay } from './geometry';
 
 // =========================================================

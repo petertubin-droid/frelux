@@ -21,7 +21,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   Loader2, Plus, Trash2, Edit2, X, Check, Ban, Save, Settings,
   Package, Layers, TrendingUp, ShieldCheck, Globe, FileText,
-  Cpu, AlertTriangle, Eye, Power,
+  Cpu, AlertTriangle, _Eye, Power,
 } from 'lucide-react';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
@@ -49,19 +49,19 @@ import {
   approveMaterialProfile,
   toggleMaterialProfileActive,
   fetchRoofMaterials,
-  upsertRoofMaterial,
-  deleteRoofMaterial,
+  _upsertRoofMaterial,
+  _deleteRoofMaterial,
   fetchRoofSections,
-  upsertRoofSection,
-  deleteRoofSection,
+  _upsertRoofSection,
+  _deleteRoofSection,
   fetchWasteConfigs,
-  fetchWasteConfigsByScope,
-  upsertWasteConfig,
-  deleteWasteConfig,
+  _fetchWasteConfigsByScope,
+  _upsertWasteConfig,
+  _deleteWasteConfig,
   fetchAiVerifications,
   updateAiVerificationState,
   fetchRuleMetadata,
-  upsertRuleMetadata,
+  _upsertRuleMetadata,
   deleteRuleMetadata,
   verifyRuleMetadata,
   fetchEngineSettings,
@@ -289,7 +289,7 @@ function MaterialProfileForm({ existing, onClose, onSaved }: {
         package_size: Number(form.package_size),
         default_waste_percent: Number(form.default_waste_percent),
         notes: form.notes || null,
-      } as any);
+      } as Record<string, unknown>);
       onSaved();
     } catch (e) { console.error(e); alert('Failed to save'); }
     setSaving(false);
@@ -766,7 +766,7 @@ function MarketsTab() {
     if (code !== 'NG' && newStatus === 'active') {
       if (!confirm(`Activate ${code}? Ensure all rules and market data are configured and approved first.`)) return;
     }
-    try { await toggleMarketActivation(code, newStatus as any); load(); } catch (e) { console.error(e); }
+    try { await toggleMarketActivation(code, newStatus as string); load(); } catch (e) { console.error(e); }
   }
 
   if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;

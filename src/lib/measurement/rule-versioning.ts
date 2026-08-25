@@ -16,8 +16,7 @@
  */
 
 import type { CalculationRule } from './rule-registry';
-import type { RuleStatus, RuleApprovalStatus } from './rule-registry';
-import { generateId } from './factory';
+import type { RuleStatus } from './rule-registry';
 
 // =========================================================
 // RULE VERSION HISTORY

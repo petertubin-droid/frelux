@@ -25,8 +25,6 @@ import {
   calculateMultiRoof,
   getSectionMissing,
 } from './section-model';
-import { calculateRoofAreaPipeline } from './area-pipeline';
-import { getMultiSectionEdgeSummary } from './edge-classification';
 
 // =========================================================
 // Review Data Types
@@ -181,34 +179,28 @@ export function buildRoofReview(
 
   // ── Readiness score ──
   let readinessScore = 0;
-  let maxScore = 0;
 
   // Plan imported (10 points)
-  maxScore += 10;
   if (planFile) readinessScore += 10;
 
   // Calibrated (15 points)
-  maxScore += 15;
   if (calibration?.calibrated) readinessScore += 15;
 
   // Sections complete (50 points, split across sections)
   if (spec.sections.length > 0) {
     const perSection = 50 / spec.sections.length;
     for (const section of spec.sections) {
-      maxScore += perSection;
       const missing = getSectionMissing(section);
       if (missing.length === 0) readinessScore += perSection;
     }
   }
 
   // All sections confirmed (15 points)
-  maxScore += 15;
   if (spec.sections.length > 0 && spec.sections.every(s => s.confirmed)) {
     readinessScore += 15;
   }
 
   // Edges reviewed (10 points)
-  maxScore += 10;
   if (edgeSummary && edgeSummary.unconfirmedCount === 0) {
     readinessScore += 10;
   }

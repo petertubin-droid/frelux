@@ -7,7 +7,7 @@ import {
   createMaterialLineItem,
   groupByCategory,
   buildMaterialSummary,
-  requirementsFromProject,
+  _requirementsFromProject,
   summaryFromProject,
   materialSummaryToText,
 } from '../material-summary';

@@ -6,7 +6,7 @@
  */
 
 import type { MeasurementEntry, MeasurementProject } from './types';
-import type { CalculatorContext, LengthUnit } from './units';
+import type { CalculatorContext } from './units';
 import { getAllowedUnits, isInchesAllowed, lengthUnitLabel } from './units';
 
 // =========================================================

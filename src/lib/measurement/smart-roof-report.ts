@@ -28,7 +28,7 @@
  *   AI DETECTED vs USER VERIFIED vs CALCULATED
  */
 
-import type { VerificationState, UnifiedConfidenceAssessment } from './verification-states';
+import type { VerificationState } from './verification-states';
 import type { ConfidenceLevel } from './confidence-engine';
 
 // =========================================================

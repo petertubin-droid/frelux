@@ -22,7 +22,7 @@
 import type { SpaceResult } from './space-engine';
 import type { MaterialSpec } from './material-engine';
 import type { MaterialCalculationResult } from './material-engine';
-import type { CalculationRule } from './rule-registry';
+import type {} from './rule-registry';
 
 // =========================================================
 // CONFIDENCE LEVELS

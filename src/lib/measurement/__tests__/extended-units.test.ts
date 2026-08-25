@@ -19,17 +19,17 @@ import {
   convertLength,
   extendedLengthUnitLabel,
   extendedLengthUnitShort,
-  MM_TO_M,
-  CM_TO_M,
+  _MM_TO_M,
+  _CM_TO_M,
   // Volume
   toCubicMeters,
   fromCubicMeters,
   convertVolume,
   volumeUnitLabel,
   volumeUnitShort,
-  CUBIC_FT_TO_CUBIC_M,
-  CUBIC_M_TO_LITRES,
-  LITRES_TO_CUBIC_M,
+  _CUBIC_FT_TO_CUBIC_M,
+  _CUBIC_M_TO_LITRES,
+  _LITRES_TO_CUBIC_M,
   // Quantity
   quantityUnitLabel,
   quantityUnitShort,
@@ -43,8 +43,8 @@ import {
   toSqMetersExtended,
   fromSqMetersExtended,
   extendedAreaUnitLabel,
-  SQCM_TO_SQM,
-  SQMM_TO_SQM,
+  _SQCM_TO_SQM,
+  _SQMM_TO_SQM,
   // System preference
   defaultLengthUnitForSystem,
   defaultAreaUnitForSystem,
@@ -52,7 +52,7 @@ import {
 } from '../extended-units';
 
 // Also test backward compatibility with existing units
-import { toMeters, fromMeters, FT_TO_M, INCH_TO_M, sqftToSqm, sqmToSqft } from '../units';
+import { toMeters, fromMeters, sqftToSqm, sqmToSqft } from '../units';
 
 describe('Extended Length Units', () => {
   describe('toMetersExtended', () => {

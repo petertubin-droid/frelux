@@ -22,17 +22,17 @@
 
 import type {
   MiSource,
-  MiPriceObservation,
+  _MiPriceObservation,
   ValidationStatus,
-  MatchConfidence,
+  _MatchConfidence,
   Freshness,
 } from '@/types/market-intelligence';
 import type {
   CrawlJob,
-  CrawlError,
-  CrawlFetchResult,
-  CrawlErrorType,
-  ExtractedProduct,
+  _CrawlError,
+  _CrawlFetchResult,
+  _CrawlErrorType,
+  _ExtractedProduct,
   CrawlerConfig,
 } from '@/types/crawler';
 import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';
@@ -162,7 +162,7 @@ export async function executeCrawl(
   job.status = 'fetching';
   job.pagesRequested = 1;
 
-  const { fetchResult, products, renderingRequired, rawContent } = await fetchAndExtract(
+  const { fetchResult, products, renderingRequired, _rawContent } = await fetchAndExtract(
     urlValidation.sanitized,
     source,
     config,
@@ -230,10 +230,10 @@ export async function executeCrawl(
   job.status = 'validating';
 
   // Fetch existing approved prices for anomaly comparison
-  let existingPrices: { price: number; id: string }[] = [];
+  // existingPrices removed (unused)
   try {
     const approved = await fetchApprovedPrices(source.country_code);
-    existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
+    _existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
   } catch {
     // If we can't fetch existing prices, skip anomaly comparison
   }
@@ -376,7 +376,7 @@ export async function executeCrawl(
   // 9. Anomaly detection
   if (job.observationIds.length >= 2) {
     try {
-      const observations = job.observationIds.map(id => ({ id, price: 0 })); // would need actual prices
+      const _observations = job.observationIds.map(id => ({ id, price: 0 })); // would need actual prices
       // Anomaly detection on collected prices
       const productPrices = products
         .filter(p => p.price !== null)

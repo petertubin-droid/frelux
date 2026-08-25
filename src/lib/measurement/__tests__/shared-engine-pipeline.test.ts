@@ -6,7 +6,7 @@ import {
   canSharePipeline,
   PIPELINE_SOURCE_LABELS,
   PIPELINE_STAGE_LABELS,
-  type PipelineSource,
+  type _PipelineSource,
   type PipelineStage,
 } from '../shared-engine-pipeline';
 import type { Space } from '../space-engine';

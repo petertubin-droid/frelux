@@ -10,7 +10,7 @@ import {
   confirmDetectedRoom,
   rejectDetectedRoom,
   confirmAllRooms,
-  updateDetectionStatus,
+  _updateDetectionStatus,
   detectedRoomToSpace,
   detectionToVerifiedSpaces,
   verifiedSpacesToSpaces,
@@ -19,7 +19,7 @@ import {
   roomsByVerificationState,
   VERIFICATION_STATE_LABELS,
 } from '../plan-intelligence';
-import type { LengthUnit } from '../units';
+import type {} from '../units';
 
 describe('Feature 16: Plan → Space Engine Integration', () => {
   describe('DetectedRoom factory', () => {

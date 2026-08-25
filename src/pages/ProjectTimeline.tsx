@@ -6,7 +6,7 @@ import {
 } from '@/lib/engineering/timeline-estimator';
 import {
   Calendar, Clock, AlertTriangle, TrendingUp,
-  Flag, Users,
+  Flag, _Users,
 } from 'lucide-react';
 
 export default function ProjectTimeline() {

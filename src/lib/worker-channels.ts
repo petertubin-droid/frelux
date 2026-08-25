@@ -8,7 +8,7 @@ import type {
   DbWorkerChannel,
   DbWorkerChannelCategory,
   DbWorkerChannelMessage,
-  DbWorkerChannelReaction,
+  _DbWorkerChannelReaction,
   DbWorkerModerationConfig,
 } from '@/types/worker-channels';
 

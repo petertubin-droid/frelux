@@ -159,7 +159,7 @@ export function classifyEdge(
 
   if (yRange < 0.01) return 'unclassified'; // degenerate
 
-  const midY = (minY + maxY) / 2;
+  const _midY = (minY + maxY) / 2;
   const edgeMidY = (from.y + to.y) / 2;
 
   // Threshold: within 20% of top or bottom

@@ -20,14 +20,14 @@ import {
   Plus,
   Trash2,
   CheckCircle2,
-  Undo2,
+  _Undo2,
   MousePointer2,
   Move,
   Eraser,
-  Eye,
+  _Eye,
   Layers,
 } from 'lucide-react';
-import type { RoofGeometry, RoofSectionGeometry } from '@/lib/roof/geometry-types';
+import type { RoofGeometry } from '@/lib/roof/geometry-types';
 import {
   addVertex,
   moveVertex,
@@ -145,7 +145,7 @@ export function RoofGeometryEditor({
     <div className="space-y-4">
       {/* Section tabs */}
       <div className="flex items-center gap-2 flex-wrap">
-        {geometry.sections.map((section, i) => (
+        {geometry.sections.map((section, _i) => (
           <button
             key={section.id}
             onClick={() => onChange({ ...geometry, activeSectionId: section.id })}

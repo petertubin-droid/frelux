@@ -64,7 +64,7 @@ import { DEFAULT_DOOR_WIDTH_M, DEFAULT_DOOR_HEIGHT_M, DEFAULT_WINDOW_WIDTH_M, DE
  */
 export function calculateMeasurementEntry(entry: MeasurementEntry): MeasurementEntryResult {
   const steps: CalculationStep[] = [];
-  const unitLabel = lengthUnitLabel(entry.unit);
+  const _unitLabel = lengthUnitLabel(entry.unit);
   const unitShort = lengthUnitShort(entry.unit);
 
   // --- Normalise dimensions to metres ---
@@ -150,7 +150,7 @@ export function calculateMeasurementEntry(entry: MeasurementEntry): MeasurementE
       }
       break;
 
-    case 'fence':
+    case 'fence': {
       // Fence: partition-based (spec section 10–11)
       const partitionCount = entry.partitionCount ?? 1;
       areaM2 = fenceDimensionAreaM2(normalizedLengthM, normalizedHeightM ?? 0, partitionCount);
@@ -167,6 +167,7 @@ export function calculateMeasurementEntry(entry: MeasurementEntry): MeasurementE
         ));
       }
       break;
+      }
 
     default:
       // Generic rectangular area (custom surfaces, tiling surfaces)
@@ -202,7 +203,7 @@ export function calculateMeasurementEntry(entry: MeasurementEntry): MeasurementE
 
   // --- Apply waste margin ---
   if (entry.wasteMarginPercent && entry.wasteMarginPercent > 0) {
-    const beforeWaste = areaM2;
+    const _beforeWaste = areaM2;
     areaM2 = applyWasteMargin(areaM2, entry.wasteMarginPercent);
     steps.push(makeStep(
       'Waste allowance',

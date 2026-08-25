@@ -18,9 +18,9 @@
  * - Final buy quantity (purchase − already-have)
  */
 
-import type { SpaceResult } from './space-engine';
+import type {} from './space-engine';
 import type { ConstructionProjectResult } from './project-engine';
-import type { MaterialSpec, MaterialCalculationResult } from './material-engine';
+import type { MaterialSpec } from './material-engine';
 import type { FinishType } from './space-engine';
 import { calculateMaterialQuantity } from './material-engine';
 import { roundForDisplay, formatM2 } from './geometry';

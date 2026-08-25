@@ -40,8 +40,8 @@ import {
 } from '../geometry-engine';
 import type {
   RoofPoint,
-  RoofGeometry,
-  GeometrySource,
+  _RoofGeometry,
+  _GeometrySource,
 } from '../geometry-types';
 
 // =========================================================

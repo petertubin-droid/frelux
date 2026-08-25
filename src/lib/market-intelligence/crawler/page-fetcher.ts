@@ -22,7 +22,7 @@
 import type {
   CrawlerConfig,
   CrawlFetchResult,
-  CrawlError,
+  _CrawlError,
   CrawlErrorType,
 } from '@/types/crawler';
 import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';
@@ -353,7 +353,7 @@ function makeErrorResult(
  * Heuristic detection of whether a page requires JavaScript rendering.
  * Checks for common signs that the page content is loaded client-side.
  */
-function detectJavascriptRenderingRequired(html: string, contentType: string): boolean {
+function detectJavascriptRenderingRequired(html: string, _contentType: string): boolean {
   // If there's substantial visible text, it's probably server-rendered
   const textContent = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
                           .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')

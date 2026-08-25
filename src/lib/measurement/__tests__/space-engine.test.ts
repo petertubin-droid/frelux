@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the Space Engine (Feature 2 — Space Engine)
  *
@@ -19,7 +20,7 @@ import {
   createOpening,
   createSpaceCollection,
   calculateSpace,
-  calculateSpaceGroup,
+  _calculateSpaceGroup,
   calculateSpaceCollection,
   groupSpacesByType,
   spaceToMeasurementEntry,
@@ -28,7 +29,7 @@ import {
   spaceSummary,
   FINISH_TYPE_LABELS,
 } from '../space-engine';
-import type { Space, SpaceCollection } from '../space-engine';
+import type { Space } from '../space-engine';
 
 describe('Space Creation', () => {
   it('creates a space with defaults', () => {

@@ -214,7 +214,7 @@ export function createMaterialSpec(
 // MATERIAL QUANTITY CALCULATION
 // =========================================================
 
-import { roundForDisplay, roundUpToWholeUnit, applyWasteMargin } from './geometry';
+import { roundForDisplay, roundUpToWholeUnit } from './geometry';
 import { makeStep } from './geometry';
 
 /**

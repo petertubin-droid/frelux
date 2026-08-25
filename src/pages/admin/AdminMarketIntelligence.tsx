@@ -9,11 +9,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  Loader2, Plus, Trash2, Edit2, X, Save, Globe, DollarSign, AlertTriangle,
-  Activity, Check, Ban, FileText, Server, TrendingUp, Zap, Eye, Clock,
+  Loader2, Plus, Trash2, _Edit2, X, Save, Globe, DollarSign, AlertTriangle,
+  Activity, Check, Ban, _FileText, Server, TrendingUp, Zap, Eye, Clock,
 } from 'lucide-react';
 import {
-  fetchProviders, toggleProvider, upsertProvider,
+  fetchProviders, toggleProvider, _upsertProvider,
   fetchSources, upsertSource, deleteSource,
   fetchObservations, updateObservationStatus,
   fetchApprovedPrices, deactivateApprovedPrice,
@@ -288,7 +288,7 @@ function SourcesTab() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { setSources(await fetchSources()); } catch {} finally { setLoading(false); }
+    try { setSources(await fetchSources()); } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -607,7 +607,7 @@ function AnomaliesTab() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try { setAnomalies(await fetchAnomalies()); } catch {} finally { setLoading(false); }
+    try { setAnomalies(await fetchAnomalies()); } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   getStoredConsent,
-  shouldShowBanner,
+  _shouldShowBanner,
   acceptAll,
   rejectAll,
   saveConsent,

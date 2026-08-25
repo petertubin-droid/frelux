@@ -12,7 +12,7 @@ import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
   checkEstimationAccess,
-  saveEstimationResult,
+  _saveEstimationResult,
 } from '@/lib/estimation-access';
 import type {
   EstimationAccessConfig,
@@ -20,9 +20,9 @@ import type {
   EstimationAccessDecision,
   BuildingAnalysisResult,
 } from '@/types/premium-estimation';
-import { calculateBuildToRoof, DEFAULT_WASTAGE } from '@/lib/estimation/build-to-roof-engine';
+import { calculateBuildToRoof } from '@/lib/estimation/build-to-roof-engine';
 import type { BuildToRoofInput, BuildToRoofResult } from '@/types/build-to-roof';
-import { formatCurrency, formatNumber } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 
 type Phase = 'upload' | 'analyzing' | 'review' | 'result' | 'locked' | 'error';
@@ -70,7 +70,7 @@ export default function ImageEstimator() {
     keywords: 'AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI',
   });
 
-  const { user, profile, isAdmin, isPaid } = useAuth();
+  const { user, _profile, isAdmin, isPaid } = useAuth();
   const [phase, setPhase] = useState<Phase>('upload');
   const [config, setConfig] = useState<EstimationAccessConfig | null>(null);
   const [usage, setUsage] = useState<EstimationUsageStatus | null>(null);
@@ -583,19 +583,19 @@ function LockedView({ decision, config, usage }: {
           </div>
         )}
 
-        {'nextAction' in decision ? decision.nextAction : undefined === 'rewarded' && (
+        {'nextAction' in decision && decision.nextAction === 'rewarded' && (
           <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">
             <Zap className="w-4 h-4" />
             Watch Ad to Unlock
           </button>
         )}
-        {'nextAction' in decision ? decision.nextAction : undefined === 'paid' && (
+        {'nextAction' in decision && decision.nextAction === 'paid' && (
           <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">
             <Crown className="w-4 h-4" />
             Upgrade to Premium
           </button>
         )}
-        {'nextAction' in decision ? decision.nextAction : undefined === 'login' && (
+        {'nextAction' in decision && decision.nextAction === 'login' && (
           <a
             href="/login"
             className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark"

@@ -233,7 +233,7 @@ export async function fetchRoofViewImagery(
       location,
       bounds: data.bounds,
     };
-  } catch (err) {
+  } catch (_err) {
     // Edge function not deployed — return error, don't fabricate
     return {
       available: false,

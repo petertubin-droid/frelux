@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Plus, Store, Trash2, Eye, MessageCircle } from 'lucide-react';
+import { Loader2, Plus, Store, Trash2, Eye } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { fetchMyProducts, deleteProduct } from '@/lib/marketplace-products';
 import type { DbMarketplaceProduct, ProductStatus } from '@/types/marketplace-products';

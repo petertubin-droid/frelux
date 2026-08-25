@@ -1,13 +1,12 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Plus, MapPin, Loader2, SlidersHorizontal, X, Store, Briefcase, Tag } from 'lucide-react';
+import { Search, Plus, MapPin, Loader2, SlidersHorizontal, X, Store, Briefcase } from 'lucide-react';
 import { fetchListings } from '@/lib/marketplace';
 import { searchProducts, fetchProductCategories } from '@/lib/marketplace-products';
 import type { DbMarketplaceListing } from '@/types/marketplace';
 import type { DbMarketplaceProduct, DbProductCategory, ProductCondition } from '@/types/marketplace-products';
-import type { DbProCategory } from '@/types/pro-connect';
-import { fetchCategories } from '@/lib/pro-connect';
-import { PROJECT_TYPE_LABELS, URGENCY_LABELS } from '@/types/marketplace';
+import type {} from '@/types/pro-connect';
+import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
 import { PRODUCT_CONDITION_LABELS } from '@/types/marketplace-products';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';

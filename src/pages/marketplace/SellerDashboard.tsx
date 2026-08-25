@@ -5,7 +5,6 @@ import {
   Edit, BadgeCheck, MapPin, Phone, Truck, CheckCircle2, Clock,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
 import { AdminButton, AdminInput, AdminSelect } from '@/components/admin/AdminUi';
 import type { DbMarketplaceSellerProfile, SellerType } from '@/types/marketplace-expansion';
