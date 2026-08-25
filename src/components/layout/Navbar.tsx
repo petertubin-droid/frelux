@@ -56,7 +56,7 @@ export default function Navbar() {
     { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
     { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
-    { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag },
+    { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag, external: true },
     { label: 'Pricing', to: '/pricing', icon: Crown },
     { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
     { label: 'My Products', to: '/marketplace/products/my', icon: Package },
@@ -197,6 +197,15 @@ export default function Navbar() {
                       </div>
                     )}
                   </>
+                ) : workspace.external ? (
+                  <a
+                    href={workspace.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg px-3.5 py-2 text-sm font-medium text-neutral-600 transition-all duration-200 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5"
+                  >
+                    {workspace.label}
+                  </a>
                 ) : (
                   <NavLink
                     to={workspace.path}
@@ -292,6 +301,8 @@ export default function Navbar() {
                             <Link
                               key={item.label}
                               to={item.to}
+                              target={item.external ? '_blank' : undefined}
+                              rel={item.external ? 'noopener noreferrer' : undefined}
                               onClick={() => setOpenDropdown(null)}
                               className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                             >
@@ -431,6 +442,15 @@ export default function Navbar() {
                       </div>
                     )}
                   </>
+                ) : workspace.external ? (
+                  <a
+                    href={workspace.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+                  >
+                    {workspace.label}
+                  </a>
                 ) : (
                   <NavLink
                     to={workspace.path}

@@ -153,6 +153,7 @@ const AdminSeoLocation = lazy(() => import('@/pages/admin/AdminSeoLocation'));
 const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
 const ProductDetail = lazy(() => import('@/pages/marketplace/ProductDetail'));
 const MyProducts = lazy(() => import('@/pages/marketplace/MyProducts'));
+const MarketplaceLayout = lazy(() => import('@/components/marketplace/MarketplaceLayout'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -285,19 +286,21 @@ export default function App() {
             <Route path="/pro-connect/dashboard" element={<Suspense fallback={<PageLoader />}><ProConnectDashboard /></Suspense>} />
             <Route path="/pro-connect/:slug" element={<Suspense fallback={<PageLoader />}><ProConnectProfile /></Suspense>} />
 
-            {/* Marketplace */}
-            <Route path="/marketplace" element={<Suspense fallback={<PageLoader />}><MarketplaceHome /></Suspense>} />
-            <Route path="/marketplace/post" element={<Suspense fallback={<PageLoader />}><PostListing /></Suspense>} />
-            <Route path="/marketplace/my-listings" element={<Suspense fallback={<PageLoader />}><MyListings /></Suspense>} />
-            <Route path="/marketplace/category/:categorySlug" element={<Suspense fallback={<PageLoader />}><MarketplaceCategoryPage /></Suspense>} />
-            <Route path="/marketplace/sellers/:locationSlug" element={<Suspense fallback={<PageLoader />}><MarketplaceLocationPage /></Suspense>} />
-            <Route path="/marketplace/:categorySlug/:locationSlug" element={<Suspense fallback={<PageLoader />}><MarketplaceCategoryLocationPage /></Suspense>} />
-            <Route path="/marketplace/products/post" element={<Suspense fallback={<PageLoader />}><PostProduct /></Suspense>} />
-            <Route path="/marketplace/products/my" element={<Suspense fallback={<PageLoader />}><MyProducts /></Suspense>} />
-            <Route path="/marketplace/products/:id" element={<Suspense fallback={<PageLoader />}><ProductDetail /></Suspense>} />
-            <Route path="/marketplace/products" element={<Suspense fallback={<PageLoader />}><MarketplaceHome /></Suspense>} />
-            <Route path="/marketplace/:id" element={<Suspense fallback={<PageLoader />}><ListingDetail /></Suspense>} />
-            <Route path="/marketplace/orders/:id" element={<Suspense fallback={<PageLoader />}><OrderDetail /></Suspense>} />
+            {/* Marketplace — wrapped in dedicated MarketplaceLayout */}
+            <Route path="/marketplace" element={<Suspense fallback={<PageLoader />}><MarketplaceLayout /></Suspense>}>
+              <Route index element={<MarketplaceHome />} />
+              <Route path="post" element={<PostListing />} />
+              <Route path="my-listings" element={<MyListings />} />
+              <Route path="category/:categorySlug" element={<MarketplaceCategoryPage />} />
+              <Route path="sellers/:locationSlug" element={<MarketplaceLocationPage />} />
+              <Route path=":categorySlug/:locationSlug" element={<MarketplaceCategoryLocationPage />} />
+              <Route path="products/post" element={<PostProduct />} />
+              <Route path="products/my" element={<MyProducts />} />
+              <Route path="products/:id" element={<ProductDetail />} />
+              <Route path="products" element={<MarketplaceHome />} />
+              <Route path="orders/:id" element={<OrderDetail />} />
+              <Route path=":id" element={<ListingDetail />} />
+            </Route>
             <Route path="/pro/:categorySlug/:locationSlug" element={<Suspense fallback={<PageLoader />}><ProCategoryLocationPage /></Suspense>} />
             <Route path="/messages" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />
             <Route path="/messages/:conversationId" element={<Suspense fallback={<PageLoader />}><Messages /></Suspense>} />

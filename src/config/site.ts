@@ -42,6 +42,7 @@ export interface NavWorkspace {
   label: string;
   path: string;
   children?: NavChild[];
+  external?: boolean;
 }
 
 export const navWorkspaces: NavWorkspace[] = [
@@ -87,6 +88,11 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Smart Color Assistant', path: '/ai-color-assistant', description: 'AI-powered color recommendations' },
       { label: 'AI Color Preview', path: '/color-preview', description: 'Before & after room visualization' },
     ],
+  },
+  {
+    label: 'Marketplace',
+    path: '/marketplace',
+    external: true,
   },
   {
     label: 'Community',
