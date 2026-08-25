@@ -1,7 +1,7 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import { haversineKm } from '@/lib/location';
-import type {} from '@/types/pro-connect';
-import type {} from '@/types/marketplace';
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { haversineKm } from "@/lib/location";
+import type {} from "@/types/pro-connect";
+import type {} from "@/types/marketplace";
 
 // ============================================================
 // Location-based discovery — nearby professionals and listings
@@ -59,7 +59,7 @@ export async function findNearbyProfessionals(params: {
   if (!isSupabaseConfigured) return [];
 
   try {
-    const { data, error } = await supabase.rpc('find_nearby_professionals', {
+    const { data, error } = await supabase.rpc("find_nearby_professionals", {
       user_lat: params.latitude,
       user_lng: params.longitude,
       radius_km: params.radiusKm,
@@ -69,14 +69,16 @@ export async function findNearbyProfessionals(params: {
     });
 
     if (error) {
-      if (import.meta.env.DEV) console.error('[location] findNearbyProfessionals:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[location] findNearbyProfessionals:", error.message);
       // Fallback: client-side filtering
       return fallbackNearbyProfessionals(params);
     }
 
     return (data ?? []) as NearbyProfessional[];
   } catch (err) {
-    if (import.meta.env.DEV) console.error('[location] findNearbyProfessionals:', err);
+    if (import.meta.env.DEV)
+      console.error("[location] findNearbyProfessionals:", err);
     return fallbackNearbyProfessionals(params);
   }
 }
@@ -94,37 +96,42 @@ async function fallbackNearbyProfessionals(params: {
   let categoryId: string | undefined;
   if (params.categorySlug) {
     const { data: cat } = await supabase
-      .from('pro_categories')
-      .select('id')
-      .eq('slug', params.categorySlug)
-      .eq('is_active', true)
+      .from("pro_categories")
+      .select("id")
+      .eq("slug", params.categorySlug)
+      .eq("is_active", true)
       .single();
     if (cat) categoryId = cat.id;
   }
 
   // Fetch profiles with their locations
   let profileQuery = supabase
-    .from('pro_profiles')
-    .select(`
+    .from("pro_profiles")
+    .select(
+      `
       id, display_name, business_name, slug, profile_image_url, bio,
       verification_status, availability, rating_avg, rating_count,
       project_count, years_experience, category_id,
       locations:pro_profile_locations(
         location:pro_locations(latitude, longitude)
       )
-    `)
-    .eq('is_listed', true)
-    .neq('verification_status', 'suspended');
+    `,
+    )
+    .eq("is_listed", true)
+    .neq("verification_status", "suspended");
 
-  if (categoryId) profileQuery = profileQuery.eq('category_id', categoryId);
-  if (params.minRating) profileQuery = profileQuery.gte('rating_avg', params.minRating);
-  if (params.verifiedOnly) profileQuery = profileQuery.eq('verification_status', 'verified');
+  if (categoryId) profileQuery = profileQuery.eq("category_id", categoryId);
+  if (params.minRating)
+    profileQuery = profileQuery.gte("rating_avg", params.minRating);
+  if (params.verifiedOnly)
+    profileQuery = profileQuery.eq("verification_status", "verified");
 
   const { data: profiles, error } = await profileQuery;
   if (error) return [];
 
   const results: NearbyProfessional[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const p of (profiles ?? []) as Record<string, any>[]) {
     // Find the closest location
     let minDist = Infinity;
@@ -132,7 +139,12 @@ async function fallbackNearbyProfessionals(params: {
       for (const ppl of p.locations) {
         const loc = ppl?.location;
         if (loc?.latitude && loc?.longitude) {
-          const dist = haversineKm(params.latitude, params.longitude, loc.latitude, loc.longitude);
+          const dist = haversineKm(
+            params.latitude,
+            params.longitude,
+            loc.latitude,
+            loc.longitude,
+          );
           if (dist < minDist) minDist = dist;
         }
       }
@@ -160,8 +172,18 @@ async function fallbackNearbyProfessionals(params: {
 
   // Sort: verified first, then distance, then rating
   results.sort((a, b) => {
-    const va = a.verification_status === 'verified' ? 0 : a.verification_status === 'pending' ? 1 : 2;
-    const vb = b.verification_status === 'verified' ? 0 : b.verification_status === 'pending' ? 1 : 2;
+    const va =
+      a.verification_status === "verified"
+        ? 0
+        : a.verification_status === "pending"
+          ? 1
+          : 2;
+    const vb =
+      b.verification_status === "verified"
+        ? 0
+        : b.verification_status === "pending"
+          ? 1
+          : 2;
     if (va !== vb) return va - vb;
     if (a.distance_km !== b.distance_km) return a.distance_km - b.distance_km;
     return b.rating_avg - a.rating_avg;
@@ -182,7 +204,7 @@ export async function findNearbyListings(params: {
   if (!isSupabaseConfigured) return [];
 
   try {
-    const { data, error } = await supabase.rpc('find_nearby_listings', {
+    const { data, error } = await supabase.rpc("find_nearby_listings", {
       user_lat: params.latitude,
       user_lng: params.longitude,
       radius_km: params.radiusKm,
@@ -191,13 +213,15 @@ export async function findNearbyListings(params: {
     });
 
     if (error) {
-      if (import.meta.env.DEV) console.error('[location] findNearbyListings:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[location] findNearbyListings:", error.message);
       return fallbackNearbyListings(params);
     }
 
     return (data ?? []) as NearbyListing[];
   } catch (err) {
-    if (import.meta.env.DEV) console.error('[location] findNearbyListings:', err);
+    if (import.meta.env.DEV)
+      console.error("[location] findNearbyListings:", err);
     return fallbackNearbyListings(params);
   }
 }
@@ -211,20 +235,22 @@ async function fallbackNearbyListings(params: {
   categorySlug?: string;
 }): Promise<NearbyListing[]> {
   let query = supabase
-    .from('marketplace_listings')
-    .select(`
+    .from("marketplace_listings")
+    .select(
+      `
       id, title, description, project_type, budget_min, budget_max,
       currency, location_state, location_city, location_area,
       status, urgency, is_featured, bid_count, created_at,
       latitude, longitude
-    `)
-    .eq('is_active', true)
-    .eq('admin_removed', false)
-    .in('status', ['open', 'awarded', 'in_progress'])
-    .not('latitude', 'is', null)
-    .not('longitude', 'is', null);
+    `,
+    )
+    .eq("is_active", true)
+    .eq("admin_removed", false)
+    .in("status", ["open", "awarded", "in_progress"])
+    .not("latitude", "is", null)
+    .not("longitude", "is", null);
 
-  if (params.projectType) query = query.eq('project_type', params.projectType);
+  if (params.projectType) query = query.eq("project_type", params.projectType);
 
   const { data: listings, error } = await query;
   if (error) return [];
@@ -232,19 +258,25 @@ async function fallbackNearbyListings(params: {
   let categoryId: string | undefined;
   if (params.categorySlug) {
     const { data: cat } = await supabase
-      .from('pro_categories')
-      .select('id')
-      .eq('slug', params.categorySlug)
-      .eq('is_active', true)
+      .from("pro_categories")
+      .select("id")
+      .eq("slug", params.categorySlug)
+      .eq("is_active", true)
       .single();
     if (cat) categoryId = cat.id;
   }
 
   const results: NearbyListing[] = [];
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   for (const l of (listings ?? []) as Record<string, any>[]) {
     if (categoryId && l.category_id !== categoryId) continue;
-    const dist = haversineKm(params.latitude, params.longitude, l.latitude, l.longitude);
+    const dist = haversineKm(
+      params.latitude,
+      params.longitude,
+      l.latitude,
+      l.longitude,
+    );
     if (dist <= params.radiusKm) {
       results.push({
         id: l.id,
@@ -300,16 +332,17 @@ export async function getSeoPageSettings(params: {
   if (!isSupabaseConfigured) return null;
 
   const { data, error } = await supabase
-    .from('seo_page_settings')
-    .select('*')
-    .eq('page_type', params.pageType)
-    .eq('entity_id', params.entityId ?? '')
-    .eq('category_slug', params.categorySlug ?? '')
-    .eq('location_slug', params.locationSlug ?? '')
+    .from("seo_page_settings")
+    .select("*")
+    .eq("page_type", params.pageType)
+    .eq("entity_id", params.entityId ?? "")
+    .eq("category_slug", params.categorySlug ?? "")
+    .eq("location_slug", params.locationSlug ?? "")
     .maybeSingle();
 
   if (error) {
-    if (import.meta.env.DEV) console.error('[location] getSeoPageSettings:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[location] getSeoPageSettings:", error.message);
     return null;
   }
   return data as SeoPageSetting | null;
@@ -320,22 +353,24 @@ export async function getSeoPageSettings(params: {
 export async function adminFetchSeoPageSettings(): Promise<SeoPageSetting[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('seo_page_settings')
-    .select('*')
-    .order('page_type, updated_at DESC');
+    .from("seo_page_settings")
+    .select("*")
+    .order("page_type, updated_at DESC");
   if (error) return [];
   return data as SeoPageSetting[];
 }
 
-export async function adminUpsertSeoPageSettings(settings: Partial<SeoPageSetting>): Promise<SeoPageSetting | null> {
+export async function adminUpsertSeoPageSettings(
+  settings: Partial<SeoPageSetting>,
+): Promise<SeoPageSetting | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
-    .from('seo_page_settings')
+    .from("seo_page_settings")
     .upsert({
       page_type: settings.page_type,
-      entity_id: settings.entity_id ?? '',
-      category_slug: settings.category_slug ?? '',
-      location_slug: settings.location_slug ?? '',
+      entity_id: settings.entity_id ?? "",
+      category_slug: settings.category_slug ?? "",
+      location_slug: settings.location_slug ?? "",
       seo_title: settings.seo_title,
       seo_description: settings.seo_description,
       canonical_path: settings.canonical_path,
@@ -345,7 +380,8 @@ export async function adminUpsertSeoPageSettings(settings: Partial<SeoPageSettin
     .select()
     .single();
   if (error) {
-    if (import.meta.env.DEV) console.error('[location] adminUpsertSeoPageSettings:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[location] adminUpsertSeoPageSettings:", error.message);
     return null;
   }
   return data as SeoPageSetting;
@@ -353,58 +389,74 @@ export async function adminUpsertSeoPageSettings(settings: Partial<SeoPageSettin
 
 export async function adminDeleteSeoPageSettings(id: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.from('seo_page_settings').delete().eq('id', id);
+  const { error } = await supabase
+    .from("seo_page_settings")
+    .delete()
+    .eq("id", id);
   return !error;
 }
 
 // -- Admin: update pro_location coordinates --
-export async function adminUpdateLocationCoords(id: string, lat: number, lng: number): Promise<boolean> {
+export async function adminUpdateLocationCoords(
+  id: string,
+  lat: number,
+  lng: number,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_locations')
+    .from("pro_locations")
     .update({ latitude: lat, longitude: lng })
-    .eq('id', id);
+    .eq("id", id);
   return !error;
 }
 
 // -- Admin: update category SEO --
-export async function adminUpdateCategorySeo(id: string, seo: {
-  seo_title?: string;
-  seo_description?: string;
-  seo_indexable?: boolean;
-}): Promise<boolean> {
+export async function adminUpdateCategorySeo(
+  id: string,
+  seo: {
+    seo_title?: string;
+    seo_description?: string;
+    seo_indexable?: boolean;
+  },
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_categories')
+    .from("pro_categories")
     .update(seo)
-    .eq('id', id);
+    .eq("id", id);
   return !error;
 }
 
 // -- Admin: update listing SEO --
-export async function adminUpdateListingSeo(id: string, seo: {
-  seo_title?: string;
-  seo_description?: string;
-  seo_indexable?: boolean;
-}): Promise<boolean> {
+export async function adminUpdateListingSeo(
+  id: string,
+  seo: {
+    seo_title?: string;
+    seo_description?: string;
+    seo_indexable?: boolean;
+  },
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('marketplace_listings')
+    .from("marketplace_listings")
     .update(seo)
-    .eq('id', id);
+    .eq("id", id);
   return !error;
 }
 
 // -- Admin: update pro profile SEO --
-export async function adminUpdateProProfileSeo(id: string, seo: {
-  seo_title?: string;
-  seo_description?: string;
-  seo_indexable?: boolean;
-}): Promise<boolean> {
+export async function adminUpdateProProfileSeo(
+  id: string,
+  seo: {
+    seo_title?: string;
+    seo_description?: string;
+    seo_indexable?: boolean;
+  },
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_profiles')
+    .from("pro_profiles")
     .update(seo)
-    .eq('id', id);
+    .eq("id", id);
   return !error;
 }

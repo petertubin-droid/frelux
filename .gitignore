@@ -27,3 +27,6 @@ dist-ssr
 # Vite build artifacts
 vite.config.ts.timestamp-*
 supabase/.temp/
+coverage/
+test-results/
+playwright-report/
