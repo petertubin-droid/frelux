@@ -1,7 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://freluxtools.netlify.app',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
 };
@@ -56,7 +56,6 @@ async function logAiRequest(
   });
 }
 
-// Fetch published learn articles as knowledge base context
 async function fetchKnowledgeBase(
   supabase: ReturnType<typeof createClient>
 ): Promise<string> {
@@ -117,7 +116,13 @@ async function callOpenAI(
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`OpenAI API error: ${res.status} ${errText}`);
+    if (res.status === 401 || res.status === 403) {
+      throw new Error(`OPENAI_AUTH_ERROR: ${res.status}`);
+    }
+    if (res.status === 429) {
+      throw new Error(`OPENAI_QUOTA_ERROR: ${res.status}`);
+    }
+    throw new Error(`OPENAI_API_ERROR: ${res.status}`);
   }
 
   const json = await res.json();
@@ -131,32 +136,33 @@ Deno.serve(async (req: Request) => {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
+  let parsedBody: LiveChatRequest | null = null;
+
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-    const apiKey = Deno.env.get('OPENAI_API_KEY') ?? '';
+    // Trim whitespace/newlines — secrets can accidentally include \n
+    const apiKey = (Deno.env.get('OPENAI_API_KEY') ?? '').trim();
 
     if (!apiKey) {
       return jsonResponse({
-        error: 'AI service is not configured. Set OPENAI_API_KEY in Supabase edge function secrets.',
+        error: 'AI service is not configured.',
         code: 'NO_API_KEY',
       }, 503);
     }
 
-    const body = await req.json() as LiveChatRequest;
+    parsedBody = await req.json() as LiveChatRequest;
 
-    // Validate input
-    if (!body.question?.trim()) {
+    if (!parsedBody.question?.trim()) {
       return jsonResponse({ error: 'Question is required.', code: 'BAD_REQUEST' }, 400);
     }
-    if (body.question.length > 2000) {
+    if (parsedBody.question.length > 2000) {
       return jsonResponse({ error: 'Question too long (max 2000 characters).', code: 'BAD_REQUEST' }, 400);
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Rate limiting
-    const clientHash = await sha256(body.clientId || crypto.randomUUID());
+    const clientHash = await sha256(parsedBody.clientId || crypto.randomUUID());
     const { allowed, count } = await checkHourlyRateLimit(supabase, clientHash);
     if (!allowed) {
       await logAiRequest(supabase, clientHash, 'rate_limited');
@@ -166,33 +172,51 @@ Deno.serve(async (req: Request) => {
       }, 429);
     }
 
-    // Fetch knowledge base
     const knowledgeBase = await fetchKnowledgeBase(supabase);
     const systemPrompt = SYSTEM_PROMPT.replace(
       '{{KNOWLEDGE_BASE}}',
       knowledgeBase || 'No published articles yet. Provide general expert guidance.'
     );
-    const userPrompt = `User question: ${body.question}\n\nProvide a helpful, practical answer. Keep it concise — this is a live chat.`;
+    const userPrompt = `User question: ${parsedBody.question}\n\nProvide a helpful, practical answer. Keep it concise — this is a live chat.`;
 
-    // Call OpenAI
     const result = await callOpenAI(apiKey, systemPrompt, userPrompt);
 
     await logAiRequest(supabase, clientHash, 'success');
 
     return jsonResponse({ result });
   } catch (error) {
-    console.error('Live chat error:', error);
-    // Try to log the error
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error('Live chat error:', errorMsg);
+
+    const isAuthError = errorMsg.includes('OPENAI_AUTH_ERROR');
+    const isQuotaError = errorMsg.includes('OPENAI_QUOTA_ERROR');
+
     try {
       const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
       const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
       if (supabaseUrl && serviceRoleKey) {
         const supabase = createClient(supabaseUrl, serviceRoleKey);
-        const body = await req.clone().json().catch(() => ({}));
-        const clientHash = await sha256(body.clientId || crypto.randomUUID());
-        await logAiRequest(supabase, clientHash, 'error', String(error));
+        const clientHash = await sha256(parsedBody?.clientId || crypto.randomUUID());
+        await logAiRequest(supabase, clientHash, 'error', errorMsg.slice(0, 500));
       }
-    } catch {}
+    } catch (logErr) {
+      console.error('Failed to log error:', logErr);
+    }
+
+    if (isAuthError) {
+      return jsonResponse({
+        error: 'Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we\'ll help right away.',
+        code: 'AI_AUTH_ERROR',
+      }, 503);
+    }
+
+    if (isQuotaError) {
+      return jsonResponse({
+        error: 'Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we\'ll help right away.',
+        code: 'AI_QUOTA_ERROR',
+      }, 503);
+    }
+
     return jsonResponse({
       error: 'Failed to get a response. Please try again or reach us on WhatsApp.',
       code: 'INTERNAL_ERROR',
