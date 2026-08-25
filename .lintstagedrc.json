@@ -1,0 +1,4 @@
+{
+  "*.{ts,tsx}": ["npx vitest related --run"],
+  "*.{ts,tsx,css,md,json}": ["npx prettier --write"]
+}

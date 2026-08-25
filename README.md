@@ -5,6 +5,7 @@ A production-grade construction estimation platform built for the Nigerian and A
 ## Features
 
 ### Calculators & Estimators
+
 - **Paint Calculator** — Wall area, coats, paint type selection, cost estimation
 - **Tile Calculator** — Floor & wall tiles with waste factor, adhesive, and grout
 - **Screeding Calculator** — Wall surface area with door/window deductions
@@ -17,6 +18,7 @@ A production-grade construction estimation platform built for the Nigerian and A
 - **Project Timeline** — Gantt-style project scheduling
 
 ### Platform
+
 - **Marketplace** — Buy/sell construction materials with seller dashboards
 - **Pro Connect** — Connect with contractors and professionals
 - **AI Studio** — Color recommendations, AI learning assistant, AI monetization
@@ -26,6 +28,7 @@ A production-grade construction estimation platform built for the Nigerian and A
 - **International Support** — Multi-currency, multi-country pricing rules
 
 ### Admin
+
 - 49 admin pages covering analytics, branding, SEO, pricing, materials, users, ads, integrations, and more
 - Full RBAC with admin-only routes
 - Real-time error monitoring and health dashboards
@@ -119,6 +122,7 @@ src/
 ## CI/CD
 
 GitHub Actions runs on every push and PR:
+
 1. **Type check** — `tsc --noEmit`
 2. **Unit tests** — All 1,293 tests must pass
 3. **Build** — Production build must succeed
@@ -135,3 +139,15 @@ GitHub Actions runs on every push and PR:
 ## License
 
 Proprietary — All rights reserved.
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow, code standards, and CI/CD requirements.
+
+## API Documentation
+
+See [docs/API.md](./docs/API.md) for Supabase backend API documentation, table schemas, and query patterns.
+
+## License
+
+Proprietary — All rights reserved. See [LICENSE](./LICENSE) for details.

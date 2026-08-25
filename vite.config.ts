@@ -1,71 +1,80 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { fileURLToPath, URL } from "node:url";
 
 // Only load Sentry plugin when auth token is available (prevents build issues on Netlify)
 const hasSentryToken = !!process.env.SENTRY_AUTH_TOKEN;
 const sentryVitePlugin = hasSentryToken
-  ? (await import('@sentry/vite-plugin')).sentryVitePlugin
+  ? (await import("@sentry/vite-plugin")).sentryVitePlugin
   : null;
 
 // https://vite.dev/config/
 // Build version — injected as VITE_APP_VERSION for error tracking
-const APP_VERSION = process.env.COMMIT_REF?.slice(0, 7) || process.env.npm_package_version || `dev-${Date.now()}`;
+const APP_VERSION =
+  process.env.COMMIT_REF?.slice(0, 7) ||
+  process.env.npm_package_version ||
+  `dev-${Date.now()}`;
 
 export default defineConfig({
   plugins: [
     react(),
-    ...(sentryVitePlugin ? [sentryVitePlugin({
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: process.env.SENTRY_AUTH_TOKEN,
-    })] : []),
+    ...(sentryVitePlugin
+      ? [
+          sentryVitePlugin({
+            org: process.env.SENTRY_ORG,
+            project: process.env.SENTRY_PROJECT,
+            authToken: process.env.SENTRY_AUTH_TOKEN,
+          }),
+        ]
+      : []),
   ],
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(APP_VERSION),
+    "import.meta.env.VITE_APP_VERSION": JSON.stringify(APP_VERSION),
   },
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
   build: {
-    target: 'es2020',
+    target: "es2020",
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
-    minify: 'esbuild',
+    minify: "esbuild",
     // Only generate hidden sourcemaps when Sentry is configured
-    sourcemap: hasSentryToken ? 'hidden' : false,
+    sourcemap: hasSentryToken ? "hidden" : false,
     rollupOptions: {
       output: {
         // Vendor chunk splitting for better caching
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'supabase-vendor': ['@supabase/supabase-js'],
+          "react-vendor": ["react", "react-dom", "react-router-dom"],
+          "supabase-vendor": ["@supabase/supabase-js"],
+          "pdf-vendor": ["jspdf"],
+          "canvas-vendor": ["html2canvas"],
         },
         // Use content-based hashing for long-term caching
-        chunkFileNames: 'assets/js/[name]-[hash].js',
-        entryFileNames: 'assets/js/[name]-[hash].js',
-        assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
+        chunkFileNames: "assets/js/[name]-[hash].js",
+        entryFileNames: "assets/js/[name]-[hash].js",
+        assetFileNames: "assets/[ext]/[name]-[hash].[ext]",
       },
     },
   },
   esbuild: {
     // Drop console.log and console.debug in production
-    drop: ['debugger'],
+    drop: ["debugger"],
   },
   server: {
     headers: {
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
   preview: {
     headers: {
-      'X-Content-Type-Options': 'nosniff',
-      'X-Frame-Options': 'DENY',
-      'Referrer-Policy': 'strict-origin-when-cross-origin',
+      "X-Content-Type-Options": "nosniff",
+      "X-Frame-Options": "DENY",
+      "Referrer-Policy": "strict-origin-when-cross-origin",
     },
   },
 });
