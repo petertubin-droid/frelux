@@ -190,7 +190,7 @@ export default function Calculators() {
                 <Link
                   key={tool.to}
                   to={tool.to}
-                  className={`card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid ${
+                  className={`calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid ${
                     isFeatured ? 'lg:col-span-2' : ''
                   }`}
                   style={{
@@ -236,7 +236,7 @@ export default function Calculators() {
             {/* Color & AI card */}
             <Link
               to="/colors"
-              className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid"
               style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(20px)',

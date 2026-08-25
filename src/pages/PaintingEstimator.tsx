@@ -651,7 +651,7 @@ const mountedRef = useRef(true);
           <button
             onClick={handleCalculate}
             disabled={calculating}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark active:scale-95 disabled:opacity-50"
+            className="btn-primary btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
           >
             {calculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calculator className="h-4 w-4" />}
             {calculating ? 'Calculating…' : 'Calculate Estimate'}
@@ -1020,7 +1020,7 @@ function EstimateResult({
 
       {/* Per-room results */}
       {result.rooms.map((room) => (
-        <div key={room.room_id} className="card overflow-hidden dark:border-white/5">
+        <div key={room.room_id} className="calc-card card overflow-hidden dark:border-white/5">
           <div className="bg-gradient-to-br from-brand-navy to-brand-purple px-5 py-4 text-white">
             <h3 className="text-base font-bold">{room.room_name}</h3>
             <p className="text-xs text-white/70">
@@ -1122,7 +1122,7 @@ function EstimateResult({
       ))}
 
       {/* Combined summary */}
-      <div className="card overflow-hidden dark:border-white/5">
+      <div className="calc-card card overflow-hidden dark:border-white/5">
         <div className="bg-gradient-to-br from-brand-purple to-brand-purple-deep px-5 py-4 text-white">
           <h3 className="text-lg font-bold">Project Summary</h3>
         </div>
@@ -1319,7 +1319,7 @@ function EstimateResult({
               </div>
               <a
                 href={`/marketplace/post?estimate_ref=${result.estimate_ref || ''}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? 'room' : 'rooms'}`}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
+                className="btn-primary btn-glow inline-flex items-center justify-center gap-2 px-4 py-2 whitespace-nowrap"
               >
                 <Briefcase className="h-4 w-4" />
                 Post as Job

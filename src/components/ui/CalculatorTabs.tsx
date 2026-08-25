@@ -20,26 +20,29 @@ export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel
         <div
           role="tablist"
           aria-label={ariaLabel}
-          className="flex gap-1 overflow-x-auto py-2 sm:justify-center"
+          className="flex gap-1.5 overflow-x-auto py-2.5 sm:justify-center"
         >
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              role="tab"
-              aria-selected={activeTab === tab.id}
-              aria-controls={`panel-${tab.id}`}
-              id={`tab-${tab.id}`}
-              onClick={() => onTabChange(tab.id)}
-              className={classNames(
-                'shrink-0 rounded-lg px-4 py-2 text-sm font-semibold transition-all',
-                activeTab === tab.id
-                  ? 'bg-brand-purple text-white shadow-sm'
-                  : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200'
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`panel-${tab.id}`}
+                id={`tab-${tab.id}`}
+                onClick={() => onTabChange(tab.id)}
+                className={classNames(
+                  'shrink-0 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300',
+                  isActive
+                    ? 'calc-tab-active bg-brand-purple text-white'
+                    : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200',
+                )}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

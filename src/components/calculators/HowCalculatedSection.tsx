@@ -1,13 +1,3 @@
-/**
- * HowCalculatedSection — shows the active assumptions and methodology
- * for a calculator. The text comes from the admin-configured
- * estimation_calc_rules table (how_calculated_text rule).
- *
- * Also renders the active admin-configured values (coverage rates,
- * waste margins, etc.) so users can see exactly what assumptions
- * are driving their estimate.
- */
-
 import { useState } from 'react';
 import { ChevronDown, Info } from 'lucide-react';
 
@@ -29,11 +19,11 @@ export default function HowCalculatedSection({
   if (!methodologyText && assumptions.length === 0) return null;
 
   return (
-    <div className="mt-4 rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5">
+    <div className="calc-card mt-4 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-white/5"
         aria-expanded={expanded}
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
@@ -41,12 +31,12 @@ export default function HowCalculatedSection({
           How this estimate is calculated
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-neutral-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
         />
       </button>
 
       {expanded && (
-        <div className="border-t border-neutral-200 px-4 py-3 dark:border-white/5">
+        <div className="animate-content-reveal border-t border-neutral-200 px-4 py-3 dark:border-white/5">
           {methodologyText && (
             <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
               {methodologyText}

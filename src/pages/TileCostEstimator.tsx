@@ -188,7 +188,7 @@ const mountedRef = useRef(true);
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
             <Section title="Surface">
               <Field label="Surface type">
                 <select value={input.surfaceType} onChange={(e) => update('surfaceType', e.target.value as 'floor' | 'wall')} className="input-field dark:bg-brand-navy-mid dark:border-white/10">

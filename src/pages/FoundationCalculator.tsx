@@ -66,7 +66,7 @@ export default function FoundationCalculator() {
 
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Inputs */}
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+        <div className="calc-card rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-medium text-neutral-500">Measurement unit:</span>
             <div className="inline-flex rounded-lg border border-neutral-200 overflow-hidden">
@@ -92,7 +92,7 @@ export default function FoundationCalculator() {
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Foundation type</label>
               <select value={shape} onChange={e => setShape(e.target.value as FoundationShape)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none">
+                className="input-field">
                 <option value="strip">Strip Footing (walls)</option>
                 <option value="pad">Pad Footing (columns)</option>
                 <option value="raft">Raft Foundation</option>
@@ -101,7 +101,7 @@ export default function FoundationCalculator() {
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Soil type</label>
               <select value={soilType} onChange={e => setSoilType(e.target.value as SoilType)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none">
+                className="input-field">
                 {(Object.keys(SOIL_BEARING_CAPACITY) as SoilType[]).map(s => (
                   <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
                 ))}
@@ -111,29 +111,29 @@ export default function FoundationCalculator() {
               <div>
                 <label className="text-xs font-medium text-neutral-500 mb-1 block">Bearing capacity (kN/m²)</label>
                 <input type="number" value={customBearing} onChange={e => setCustomBearing(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+                  className="input-field" />
               </div>
             )}
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">{shape === 'pad' ? 'Column load (kN)' : 'Wall load (kN/m)'}</label>
               <input type="number" value={shape === 'pad' ? columnLoad : wallLoad}
                 onChange={e => shape === 'pad' ? setColumnLoad(parseFloat(e.target.value) || 0) : setWallLoad(parseFloat(e.target.value) || 0)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+                className="input-field" />
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Foundation depth ({measurementUnit})</label>
               <input type="number" value={depth} step="0.1" onChange={e => setDepth(parseFloat(e.target.value) || 0)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+                className="input-field" />
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Building length ({measurementUnit})</label>
               <input type="number" value={buildingLength} step="0.5" onChange={e => setBuildingLength(parseFloat(e.target.value) || 0)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+                className="input-field" />
             </div>
             <div>
               <label className="text-xs font-medium text-neutral-500 mb-1 block">Building width ({measurementUnit})</label>
               <input type="number" value={buildingWidth} step="0.5" onChange={e => setBuildingWidth(parseFloat(e.target.value) || 0)}
-                className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+                className="input-field" />
             </div>
           </div>
 
@@ -151,7 +151,7 @@ export default function FoundationCalculator() {
 
         {/* Results */}
         {result && (
-          <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+          <div className="calc-card rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               {result.shape !== 'raft' && (
                 <div className="rounded-xl bg-brand-navy p-4 text-white">

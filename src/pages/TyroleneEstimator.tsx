@@ -518,7 +518,7 @@ const mountedRef = useRef(true);
         )}
 
         {/* Project Info */}
-        <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 p-5 space-y-4">
+        <div className="calc-card rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 p-5 space-y-4">
           <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
             <Building2 className="h-4 w-4 text-brand-purple" />
             Project Information
@@ -532,7 +532,7 @@ const mountedRef = useRef(true);
               value={projectDescription}
               onChange={e => setProjectDescription(e.target.value)}
               placeholder="e.g., Residential fence. Owerri"
-              className="w-full rounded-lg border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-sm text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
+              className="input-field"
             />
           </div>
           <div>
@@ -718,7 +718,7 @@ const mountedRef = useRef(true);
           <button
             onClick={handleCalculate}
             disabled={calculating || (inputMode === 'actual' && (!standardPartition.width || !standardPartition.height))}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white hover:bg-brand-purple-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary btn-glow flex flex-1 items-center justify-center gap-2 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {calculating ? (
               <><Loader2 className="h-4 w-4 animate-spin" /> Calculating…</>

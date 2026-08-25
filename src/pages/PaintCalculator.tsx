@@ -579,7 +579,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
                   Continue
                 </button>
               ) : (
-                <button type="button" onClick={compute} className="btn-primary">
+                <button type="button" onClick={compute} className="btn-primary btn-glow">
                   Calculate
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -658,8 +658,8 @@ function Step1({
               type="button"
               onClick={() => update('projectType', p.value)}
               className={
-                'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' +
-                (selected ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')
+                'select-card flex items-start gap-3 rounded-xl border p-4 text-left '  +
+                (selected ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200')
               }
             >
               <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>

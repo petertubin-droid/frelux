@@ -285,7 +285,7 @@ const mountedRef = useRef(true);
         )}
 
         <div className="grid gap-6 lg:grid-cols-5">
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
             {/* Project summary */}
             <Section title="Project summary">
               <div className="grid gap-4 sm:grid-cols-3">
@@ -395,7 +395,7 @@ const mountedRef = useRef(true);
               last
             />
 
-            <button type="button" onClick={compute} className="btn-primary mt-6 w-full sm:w-auto">
+            <button type="button" onClick={compute} className="btn-primary btn-glow mt-6 w-full sm:w-auto">
               Calculate estimate
               <ArrowRight className="h-4 w-4" />
             </button>

@@ -259,7 +259,7 @@ const mountedRef = useRef(true);
         </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
             {/* Surface type */}
             <h2 className="text-lg font-bold text-brand-navy dark:text-white">Surface type</h2>
             <p className="mt-1 text-sm text-neutral-500">Are you tiling a floor or a wall?</p>
@@ -271,7 +271,7 @@ const mountedRef = useRef(true);
                 const selected = input.surfaceType === s.value;
                 return (
                   <button key={s.value} type="button" onClick={() => update('surfaceType', s.value)}
-                    className={'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' + (selected ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
+                    className={'select-card flex items-start gap-3 rounded-xl border p-4 text-left ' + (selected ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200')}>
                     <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
                       <Grid3x3 className="h-5 w-5" />
                     </span>
@@ -354,7 +354,7 @@ const mountedRef = useRef(true);
                   const selected = input.method === m.value;
                   return (
                     <button key={m.value} type="button" onClick={() => update('method', m.value)}
-                      className={'flex items-start gap-3 rounded-lg border p-4 text-left transition-all ' + (selected ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
+                      className={'select-card flex items-start gap-3 rounded-xl border p-4 text-left ' + (selected ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200')}>
                       <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
                         <Grid3x3 className="h-5 w-5" />
                       </span>
@@ -434,7 +434,7 @@ const mountedRef = useRef(true);
               </div>
             )}
 
-            <button type="button" onClick={compute} className="btn-primary mt-6 w-full sm:w-auto">
+            <button type="button" onClick={compute} className="btn-primary btn-glow mt-6 w-full sm:w-auto">
               Calculate Tiles <ArrowRight className="h-4 w-4" />
             </button>
           </div>

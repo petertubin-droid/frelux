@@ -21,16 +21,21 @@ export default function PageHeader({
   breadcrumbs?: { label: string; path?: string }[];
 }) {
   return (
-    <div className="relative border-b border-neutral-200/80 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
-      {/* Subtle gradient accent */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/15 to-transparent" aria-hidden="true" />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="relative overflow-hidden border-b border-neutral-200/80 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+      {/* Premium gradient mesh background */}
+      <div className="calc-header-mesh pointer-events-none absolute inset-0" aria-hidden="true" />
+      {/* Floating accent orb */}
+      <div className="calc-orb pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-brand-purple/5 blur-3xl" aria-hidden="true" />
+      {/* Top accent line */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/20 to-transparent" aria-hidden="true" />
+
+      <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
         {backTo && (
           <Link
             to={backTo}
             className="group mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
           >
-            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             {backLabel ?? 'Back'}
           </Link>
         )}
@@ -42,7 +47,7 @@ export default function PageHeader({
                 {crumb.path ? (
                   <Link to={crumb.path} className="transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter">{crumb.label}</Link>
                 ) : (
-                  <span className="text-neutral-700 dark:text-neutral-300">{crumb.label}</span>
+                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{crumb.label}</span>
                 )}
               </span>
             ))}
@@ -50,6 +55,7 @@ export default function PageHeader({
         )}
         {eyebrow && (
           <p className="section-label mb-3 animate-fade-in-up">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple animate-pulse" />
             {eyebrow}
           </p>
         )}

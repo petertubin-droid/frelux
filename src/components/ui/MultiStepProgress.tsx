@@ -28,7 +28,7 @@ export default function MultiStepProgress({
                 <div
                   className={classNames(
                     'flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:text-sm',
-                    isComplete && 'bg-brand-purple text-white',
+                    isComplete && 'bg-brand-purple text-white shadow-sm shadow-brand-purple/30',
                     isCurrent && 'bg-brand-purple text-white ring-4 ring-brand-purple/20 animate-success-pop',
                     !isComplete && !isCurrent && 'bg-neutral-200 text-neutral-400 dark:bg-white/10 dark:text-neutral-500',
                   )}
@@ -55,7 +55,11 @@ export default function MultiStepProgress({
               {!isLast && (
                 <div className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-white/10">
                   <div
-                    className="absolute inset-y-0 left-0 bg-brand-purple transition-all duration-500 ease-out"
+                    className={classNames(
+                      'absolute inset-y-0 left-0 transition-all duration-500 ease-out',
+                      isComplete && 'step-line-glow',
+                      !isComplete && 'bg-transparent',
+                    )}
                     style={{ width: isComplete ? '100%' : '0%' }}
                   />
                 </div>

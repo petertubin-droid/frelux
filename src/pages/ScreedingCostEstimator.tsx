@@ -177,7 +177,7 @@ const mountedRef = useRef(true);
         {config && (
           <div className="grid gap-6 lg:grid-cols-5">
             {/* Input panel */}
-            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
               <Section title="Screeding Area">
                 <Field label="Net screeding area (m²)" hint="From the calculator or enter manually">
                   <input

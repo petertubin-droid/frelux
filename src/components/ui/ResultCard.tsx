@@ -35,11 +35,12 @@ export default function ResultCard({
   children?: ReactNode;
 }) {
   return (
-    <div className="card overflow-hidden animate-fade-in-up dark:border-white/5">
-      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple px-6 py-5 text-white">
-        {/* Shimmer accent */}
+    <div className="calc-card card overflow-hidden animate-fade-in-up dark:border-white/5">
+      {/* Premium gradient header with shimmer */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-brand-navy to-brand-purple px-6 py-5 text-white">
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-1/2 -right-10 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
+          <div className="calc-orb absolute -right-10 -top-1/2 h-40 w-40 rounded-full bg-white/5 blur-3xl" />
+          <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-20" aria-hidden="true" />
         </div>
         <div className="relative flex items-center gap-2">
           <Gem className="h-4 w-4 text-brand-purple-light" />
@@ -49,17 +50,18 @@ export default function ResultCard({
       </div>
 
       <div className="p-6 dark:bg-brand-navy-mid">
+        {/* Stats grid with stagger entrance */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {stats.map((stat, i) => (
             <div
               key={i}
               className={classNames(
-                'rounded-xl border p-4 transition-all duration-300 animate-fade-in-up',
+                'animate-stagger-in rounded-xl border p-4 transition-all duration-300',
                 stat.highlight
                   ? 'stat-card-highlight'
                   : 'stat-card',
               )}
-              style={{ animationDelay: `${i * 0.05}s` }}
+              style={{ animationDelay: `${i * 0.08}s` }}
             >
               <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
                 {stat.icon}
@@ -72,12 +74,13 @@ export default function ResultCard({
           ))}
         </div>
 
+        {/* Grand total with premium glow */}
         <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple/10 to-accent-orange/10 p-6 text-center dark:from-brand-purple/15 dark:to-accent-orange/5">
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            <div className="absolute -top-1/2 left-1/2 h-32 w-64 -translate-x-1/2 rounded-full bg-brand-purple/5 blur-3xl" />
+            <div className="calc-orb absolute -top-1/2 left-1/2 h-32 w-64 -translate-x-1/2 rounded-full bg-brand-purple/5 blur-3xl" />
           </div>
           <p className="relative text-sm font-medium text-neutral-500 dark:text-neutral-400">Grand Total</p>
-          <p className="relative mt-1 text-3xl font-extrabold text-brand-navy sm:text-4xl dark:text-white animate-count-glow">
+          <p className="relative mt-1 text-3xl font-extrabold text-brand-navy sm:text-4xl dark:text-white grand-total-glow">
             {currencySymbol}
             <span className="tabular-nums">{grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>
           </p>
@@ -85,9 +88,10 @@ export default function ResultCard({
 
         {children}
 
+        {/* Action buttons with glow on primary */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {onSave && (
-            <button type="button" onClick={onSave} className="btn-primary press-scale">
+            <button type="button" onClick={onSave} className="btn-primary press-scale btn-glow">
               <Save className="h-4 w-4" />
               Save
             </button>

@@ -150,7 +150,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!screedingResult && (
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
             <MeasurementInput
               project={project}
               context="screeding"
@@ -188,7 +188,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
         )}
 
         {screedingResult && (
-          <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
               <h2 className="text-lg font-bold text-brand-navy dark:text-white">Screeding Area Result</h2>

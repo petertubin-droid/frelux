@@ -148,7 +148,7 @@ function BeamCalculator() {
         <NumInput label="Cover (mm)" value={cover} onChange={setCover} step="5" />
       </InputGrid>
 
-      <button onClick={calculate} className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark">
+      <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
         <Calculator className="w-4 h-4" /> Calculate Beam
       </button>
 
@@ -238,7 +238,7 @@ function ColumnCalculator() {
         ]} />
       </InputGrid>
 
-      <button onClick={calculate} className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark">
+      <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
         <Calculator className="w-4 h-4" /> Calculate Column
       </button>
 
@@ -328,7 +328,7 @@ function SlabCalculator() {
         <NumInput label="Cover (mm)" value={cover} onChange={setCover} step="5" />
       </InputGrid>
 
-      <button onClick={calculate} className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark">
+      <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
         <Calculator className="w-4 h-4" /> Calculate Slab
       </button>
 
@@ -373,7 +373,7 @@ function NumInput({ label, value, onChange, step }: { label: string; value: numb
     <div>
       <label className="text-xs font-medium text-neutral-500 mb-1 block">{label}</label>
       <input type="number" value={value} step={step} onChange={e => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none" />
+        className="input-field" />
     </div>
   );
 }
@@ -383,7 +383,7 @@ function SelectInput({ label, value, onChange, options }: { label: string; value
     <div>
       <label className="text-xs font-medium text-neutral-500 mb-1 block">{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none">
+        className="input-field">
         {options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
       </select>
     </div>
@@ -391,7 +391,7 @@ function SelectInput({ label, value, onChange, options }: { label: string; value
 }
 
 function ResultCard({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">{children}</div>;
+  return <div className="calc-card rounded-2xl border border-neutral-200 bg-white shadow-card p-6">{children}</div>;
 }
 
 function StatBox({ label, value, unit }: { label: string; value: string; unit: string }) {

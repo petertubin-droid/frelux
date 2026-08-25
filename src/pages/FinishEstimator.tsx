@@ -190,7 +190,7 @@ const mountedRef = useRef(true);
         {!loading && !result && (
           <div className="space-y-8">
             {/* Step 1: Finish Type Selection */}
-            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
               <h2 className="font-display text-lg font-bold text-neutral-900">Choose finish type</h2>
               <p className="mt-1 text-sm text-neutral-500">Select the wall finish you want to estimate.</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -204,9 +204,9 @@ const mountedRef = useRef(true);
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
                       className={
-                        'flex flex-col items-start gap-3 rounded-xl border p-4 text-left transition-all ' +
+                        'select-card flex flex-col items-start gap-3 rounded-xl border p-4 text-left ' +
                         (selected
-                          ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20'
+                          ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20'
                           : 'border-neutral-200 hover:border-neutral-300')
                       }
                     >
@@ -229,7 +229,7 @@ const mountedRef = useRef(true);
             </div>
 
             {/* Step 2: Area Input */}
-            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
               <h2 className="font-display text-lg font-bold text-neutral-900">Surface area</h2>
               <p className="mt-1 text-sm text-neutral-500">Enter your wall dimensions to calculate the paintable area.</p>
 
@@ -402,7 +402,7 @@ const mountedRef = useRef(true);
               <button
                 type="button"
                 onClick={compute}
-                className="btn-primary mt-6 w-full"
+                className="btn-primary btn-glow mt-6 w-full"
                 disabled={loading}
               >
                 Calculate Estimate
