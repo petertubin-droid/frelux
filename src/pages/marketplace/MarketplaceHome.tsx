@@ -201,6 +201,91 @@ export default function MarketplaceHome() {
 
   return (
     <div>
+      {/* ── Hero Section: BUILD. BUY. SELL. CONNECT. ── */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-brand-navy via-brand-navy to-brand-purple/20">
+        {/* Decorative grid pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-brand-purple/20 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-brand-purple/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+          <div className="text-center">
+            {/* Tagline words */}
+            <div className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
+              <span className="text-white">BUILD.</span>
+              <span className="text-brand-purple-lighter">BUY.</span>
+              <span className="text-white">SELL.</span>
+              <span className="text-brand-purple-lighter">CONNECT.</span>
+            </div>
+
+            <p className="mx-auto max-w-2xl text-sm text-neutral-300 sm:text-base">
+              Nigeria's #1 marketplace for construction materials, professional services, and building projects.
+              Find trusted suppliers, hire verified pros, and get your project done.
+            </p>
+
+            {/* Quick action buttons */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              <Link to="/marketplace/post" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark hover:shadow-lg">
+                <Plus className="h-4 w-4" /> Post a Job
+              </Link>
+              <Link to="/marketplace/products/post" className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10">
+                <Store className="h-4 w-4" /> Sell a Product
+              </Link>
+              <Link to="/pro-connect/register" className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10">
+                <Briefcase className="h-4 w-4" /> Become a Pro
+              </Link>
+            </div>
+
+            {/* Stats bar */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400 sm:gap-10">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-white">{jobsTotal + productsTotal}</span>
+                <span>Active Listings</span>
+              </div>
+              <div className="hidden h-8 w-px bg-white/10 sm:block" />
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-white">14</span>
+                <span>Categories</span>
+              </div>
+              <div className="hidden h-8 w-px bg-white/10 sm:block" />
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-bold text-white">36</span>
+                <span>States Covered</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Category Showcase ── */}
+      <div className="border-b border-neutral-100 dark:border-white/5">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Browse by Category</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+            {[
+              { slug: 'building-materials', label: 'Building Materials', icon: '🏗️', count: null },
+              { slug: 'painting-materials', label: 'Paint & Decoration', icon: '🎨', count: null },
+              { slug: 'roofing', label: 'Roofing', icon: '🏠', count: null },
+              { slug: 'flooring', label: 'Tiles & Flooring', icon: '📐', count: null },
+              { slug: 'pop-ceiling', label: 'POP & Ceiling', icon: '✨', count: null },
+              { slug: 'tools-kits', label: 'Tools & Equipment', icon: '🔧', count: null },
+              { slug: 'services', label: 'Services', icon: '🛠️', count: null },
+            ].map((cat) => (
+              <Link
+                key={cat.slug}
+                to={`/marketplace/category/${cat.slug}`}
+                className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-200 p-4 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 dark:border-white/10 dark:hover:bg-white/5"
+              >
+                <span className="text-2xl">{cat.icon}</span>
+                <span className="text-center text-xs font-medium text-neutral-700 group-hover:text-brand-purple dark:text-neutral-300 dark:group-hover:text-brand-purple-lighter">{cat.label}</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="border-b border-neutral-100 dark:border-white/5">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
