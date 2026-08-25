@@ -223,3 +223,14 @@ export {
   createRuleSetHistory,
   verifyRuleVersion,
 } from './rule-versioning';
+
+// ── Roof Material Engine (Feature 17: Roof → Material Engine) ──
+export {
+  type RoofMaterialSpec,
+  type RoofSectionMaterialResult,
+  type RoofMaterialResult,
+  createRoofMaterialSpec,
+  calculateRoofSectionMaterials,
+  calculateRoofMaterials,
+  calculateRoofMaterialsFromArea,
+} from './roof-material-engine';
