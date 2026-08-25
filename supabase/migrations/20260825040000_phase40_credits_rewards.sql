@@ -527,6 +527,7 @@ $$;
 -- FUNCTION: generate_weekly_mission (auto-creates weekly period)
 -- =========================================================
 CREATE OR REPLACE FUNCTION public.generate_weekly_mission_if_needed()
+RETURNS VOID
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
