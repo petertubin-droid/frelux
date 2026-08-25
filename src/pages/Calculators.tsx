@@ -8,7 +8,6 @@ import {
   Layers,
   Building2,
   Camera,
-  _Hammer,
   Calendar,
   ListChecks,
   Palette,

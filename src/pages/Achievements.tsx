@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { AchievementBadges } from '@/components/ui/AchievementBadges';
 import { ACHIEVEMENTS, getAchievements, type UnlockedAchievement, type UsageStats } from '@/lib/achievements';
 import { useSeo } from '@/lib/seo';
 import { classNames } from '@/lib/utils';
@@ -116,10 +115,6 @@ export default function Achievements() {
         );
       })}
 
-      {/* Compact badge widget */}
-      <div className="mt-8">
-        <AchievementBadges />
-      </div>
     </div>
   );
 }
