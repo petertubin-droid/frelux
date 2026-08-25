@@ -425,3 +425,29 @@ export {
   type UseEngineFeaturesOptions,
   type UseEngineFeaturesReturn,
 } from './use-engine-features';
+
+// ── Multi-Building Project Engine (Feature 15: Multi-Building Projects) ──
+export {
+  type BuildingType,
+  type Building,
+  type BuildingResult,
+  type MultiBuildingProject,
+  type MultiBuildingProjectResult,
+  BUILDING_TYPE_LABELS,
+  createBuilding,
+  createMultiBuildingProject,
+  addBuilding,
+  renameBuilding,
+  removeBuilding,
+  updateBuilding,
+  getBuilding,
+  addElementToBuilding,
+  setBuildingRoofSpec,
+  calculateBuilding,
+  calculateMultiBuildingProject,
+  totalAreaByBuildingType,
+  getBuildingSpaces,
+  buildingSummary,
+  multiBuildingProjectToConstructionProject,
+  duplicateBuildingResult,
+} from './multi-building';
