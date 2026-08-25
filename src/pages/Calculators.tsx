@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import AdSlot from '@/components/ui/AdSlot';
 import {
   Paintbrush,
   Calculator,
@@ -262,6 +263,7 @@ export default function Calculators() {
             </Link>
           </div>
 
+          <AdSlot slotKey="calculators_bottom" className="mt-10" />
           {/* Back to home */}
           <div className="mt-12 text-center">
             <Link to="/" className="text-sm font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-lighter">

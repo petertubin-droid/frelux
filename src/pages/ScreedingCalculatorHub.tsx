@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
+import AdSlot from '@/components/ui/AdSlot';
 import { useSearchParams } from 'react-router-dom';
 import CalculatorTabs from '@/components/ui/CalculatorTabs';
 import PageHeader from '@/components/ui/PageHeader';
@@ -124,6 +125,7 @@ export default function ScreedingCalculatorHub() {
           ]}
         />
         <RelatedToolsLinks />
+        <AdSlot slotKey="calculator_hub_bottom" className="mt-8" />
         <EstimateDisclaimer />
       </section>
     </>

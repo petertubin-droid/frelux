@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AdSlot from '@/components/ui/AdSlot';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Loader2, AlertCircle, Clock, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -107,6 +108,7 @@ export default function LearnArticle() {
           <ArrowLeft className="h-4 w-4" /> Back to {article.category_slug.replace(/-/g, ' ')}
         </Link>
       </div>
+      <AdSlot slotKey="learn_article_bottom" className="mt-8" />
     </article>
   );
 }

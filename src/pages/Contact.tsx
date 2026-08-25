@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import AdSlot from "@/components/ui/AdSlot";
 import { MessageCircle, Mail, Send, CheckCircle2, AlertCircle } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { siteConfig } from '@/config/site';
@@ -180,6 +181,7 @@ export default function Contact() {
             </div>
           </div>
         </div>
+      <AdSlot slotKey="contact_bottom" className="mt-10" />
       </div>
     </>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AdSlot from "@/components/ui/AdSlot";
 import { Link } from 'react-router-dom';
 import { BookOpen, ArrowRight, Loader2, AlertCircle, Clock, Award } from 'lucide-react';
 import { getIcon } from '@/lib/icon-map';
@@ -160,6 +161,7 @@ export default function Learn() {
             <p className="mt-1 text-xs text-neutral-400">We're preparing guides, tutorials, and tips. Check back shortly.</p>
           </div>
         )}
+      <AdSlot slotKey="learn_bottom" className="mt-8" />
       </div>
       <AskAiWidget />
     </>

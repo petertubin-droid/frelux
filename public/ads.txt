@@ -1,13 +1,1 @@
-# ads.txt — FRELUX PAINT CALC
-#
-# After your Google AdSense account is approved, replace the line below
-# with your real publisher ID. This file must be publicly accessible at
-# https://freluxtools.netlify.app/ads.txt
-#
-# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
-#
-# You can also configure AdSense from the admin panel (Admin > Ads > Providers)
-# which stores the publisher ID in the database and is read by AnalyticsScripts.
-#
-# Placeholder — replace with your real publisher ID after AdSense approval:
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-3404100134534192, DIRECT, f08c47fec0942fa0

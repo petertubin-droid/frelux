@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import AdSlot from '@/components/ui/AdSlot';
 import { Link, useParams } from 'react-router-dom';
 import { BookOpen, ArrowRight, ArrowLeft, Loader2, AlertCircle, Clock } from 'lucide-react';
 import { getIcon } from '@/lib/icon-map';
@@ -113,6 +114,7 @@ export default function LearnCategory() {
             <ArrowLeft className="h-4 w-4" /> All topics
           </Link>
         </div>
+        <AdSlot slotKey="learn_category_bottom" className="mt-8" />
       </div>
     </>
   );
