@@ -490,3 +490,50 @@ export {
   roofMaterialResultToQuantities,
   materialCalculationsToQuantities,
 } from './cost-integration';
+
+// ── Labour Cost Engine (Feature 19) ──
+export {
+  type LabourRateType,
+  type TradeCategory,
+  TRADE_LABELS,
+  type LabourRate,
+  type LabourActivityInput,
+  type LabourLineItem,
+  type LabourTradeSubtotal,
+  type LabourCostResult,
+  buildLabourLineItem,
+  calculateLabourCost,
+  generateDefaultLabourActivities,
+} from './labour-engine';
+
+// ── Project Comparison (Feature 20) ──
+export {
+  type ComparisonColumn,
+  type ComparisonRow,
+  type CategoryComparisonRow,
+  type ComparisonSummary,
+  type ComparisonResult,
+  compareEstimates,
+} from './project-comparison';
+
+// ── Timeline Engine (Feature 21) ──
+export {
+  type PhaseStatus,
+  type TimelinePhase,
+  type TimelineResult,
+  type TimelineMilestone,
+  type PhaseTemplate,
+  DEFAULT_PHASE_TEMPLATES,
+  estimateTimeline,
+} from './timeline-engine';
+
+// ── Quotation & Export (Feature 22) ──
+export {
+  type QuotationSettings,
+  DEFAULT_QUOTATION_SETTINGS,
+  type QuotationSection,
+  type QuotationSectionType,
+  type QuotationDocument,
+  generateQuotationNumber,
+  buildQuotation,
+} from './quotation-engine';
