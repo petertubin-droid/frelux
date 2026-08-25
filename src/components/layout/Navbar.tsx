@@ -53,19 +53,39 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const accountMenuItems = [
-    { label: 'My Profile', to: '/profile', icon: UserCircle },
-    { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
-    { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
-    { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
-    { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag, external: true },
-    { label: 'Pricing', to: '/pricing', icon: Crown },
-    { label: 'Rewards', to: '/rewards', icon: Gem },
-    { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
-    { label: 'My Products', to: '/marketplace/products/my', icon: Package },
-    { label: 'My Projects', to: '/contractor', icon: FileStack },
-    { label: 'Clients', to: '/clients', icon: Users },
-    { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+  const accountMenuSections = [
+    {
+      section: 'Account',
+      items: [
+        { label: 'My Profile', to: '/profile', icon: UserCircle },
+        { label: 'Dashboard', to: '/dashboard', icon: LayoutDashboard },
+        { label: 'My Estimates', to: '/my-projects', icon: ClipboardList },
+        { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
+      ],
+    },
+    {
+      section: 'Marketplace',
+      items: [
+        { label: 'Browse Marketplace', to: '/marketplace', icon: ShoppingBag, external: true },
+        { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
+        { label: 'My Products', to: '/marketplace/products/my', icon: Package },
+      ],
+    },
+    {
+      section: 'Business',
+      items: [
+        { label: 'My Projects', to: '/contractor', icon: FileStack },
+        { label: 'Clients', to: '/clients', icon: Users },
+        { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+      ],
+    },
+    {
+      section: 'Plan',
+      items: [
+        { label: 'Pricing', to: '/pricing', icon: Crown },
+        { label: 'Rewards', to: '/rewards', icon: Gem },
+      ],
+    },
   ];
 
   // Group children by section for premium dropdown rendering
@@ -290,84 +310,104 @@ export default function Navbar() {
 
               {openDropdown === 'account' && (
                 <div
-                  className="absolute right-0 top-full z-50 min-w-[240px] rounded-2xl border border-neutral-200/40 bg-white/95 py-2 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
-                  style={{ animationDuration: '0.15s' }}
+                  className="absolute right-0 top-full z-50 w-[300px] rounded-2xl border border-neutral-200/40 bg-white/97 shadow-premium-lg backdrop-blur-2xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/97"
+                  style={{ animationDuration: '0.18s', transformOrigin: 'top right' }}
+                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
-                      <div className="px-4 py-2.5 border-b border-neutral-100 dark:border-white/5">
-                        <div className="flex items-center gap-2.5">
+                      {/* Premium profile header with gradient */}
+                      <div className="relative overflow-hidden rounded-t-2xl px-5 py-4">
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/8 via-brand-purple/3 to-transparent dark:from-brand-purple/15 dark:via-brand-purple/5" />
+                        <div className="relative flex items-center gap-3">
                           {profile?.avatar_url ? (
-                            <img src={profile.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                            <img src={profile.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-white/20 dark:ring-white/10" />
                           ) : (
-                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
+                            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-sm font-bold text-white ring-2 ring-white/20 dark:ring-white/10">
                               {(profile?.full_name?.charAt(0) || (user.email ?? '?')).charAt(0).toUpperCase()}
                             </span>
                           )}
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold text-neutral-700 truncate dark:text-neutral-200">{profile?.full_name || user.email?.split('@')[0]}</p>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-semibold text-neutral-800 truncate dark:text-neutral-100">{profile?.full_name || user.email?.split('@')[0]}</p>
                             <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
-                            {isPaid && (
-                              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple">
-                                <Crown className="h-2.5 w-2.5" />
-                                {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
-                              </span>
-                            )}
-                            {user && (
-                              <Link to="/rewards" className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                              {isPaid && (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
+                                  <Crown className="h-2.5 w-2.5" />
+                                  {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
+                                </span>
+                              )}
+                              <Link to="/rewards" onClick={() => setOpenDropdown(null)} className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-600 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20">
                                 <Gem className="h-2.5 w-2.5" />
                                 {wallet?.balance ?? 0} Credits
                               </Link>
-                            )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                      <div className="py-1">
-                        {accountMenuItems.map((item) => {
-                          const Icon = item.icon;
-                          return (
-                            <Link
-                              key={item.label}
-                              to={item.to}
-                              target={item.external ? '_blank' : undefined}
-                              rel={item.external ? 'noopener noreferrer' : undefined}
-                              onClick={() => setOpenDropdown(null)}
-                              className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-                            >
-                              <Icon className="h-4 w-4 shrink-0" />
-                              {item.label}
-                            </Link>
-                          );
-                        })}
+
+                      {/* Grouped menu sections */}
+                      <div className="max-h-[min(70vh,460px)] overflow-y-auto nav-scroll px-2 py-1" style={{ scrollbarWidth: 'thin' }}>
+                        {accountMenuSections.map((section, si) => (
+                          <div key={section.section}>
+                            {si > 0 && <div className="mx-2 my-1.5 border-t border-neutral-100 dark:border-white/5" />}
+                            <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">{section.section}</p>
+                            {section.items.map((item) => {
+                              const Icon = item.icon;
+                              return (
+                                <Link
+                                  key={item.label}
+                                  to={item.to}
+                                  target={item.external ? '_blank' : undefined}
+                                  rel={item.external ? 'noopener noreferrer' : undefined}
+                                  onClick={() => setOpenDropdown(null)}
+                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-neutral-600 transition-all duration-150 hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                >
+                                  <Icon className="h-4 w-4 shrink-0 text-neutral-400 transition-colors group-hover:text-brand-purple dark:text-neutral-500 dark:group-hover:text-brand-purple-lighter" />
+                                  {item.label}
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        ))}
                       </div>
-                      <div className="my-1 border-t border-neutral-100 dark:border-white/5" />
-                      <button
-                        type="button"
-                        onClick={() => { signOut(); setOpenDropdown(null); }}
-                        className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-neutral-600 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-neutral-300 dark:hover:bg-red-500/10 dark:hover:text-red-400"
-                      >
-                        <LogOut className="h-4 w-4 shrink-0" />
-                        Sign Out
-                      </button>
+
+                      {/* Sign out footer */}
+                      <div className="border-t border-neutral-100 px-2 py-2 dark:border-white/5">
+                        <button
+                          type="button"
+                          onClick={() => { signOut(); setOpenDropdown(null); }}
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-neutral-500 transition-all duration-150 hover:bg-red-50 hover:text-red-600 dark:text-neutral-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                        >
+                          <LogOut className="h-4 w-4 shrink-0" />
+                          Sign Out
+                        </button>
+                      </div>
                     </>
                   ) : (
-                    <div className="py-1">
-                      <Link
-                        to="/login"
-                        onClick={() => setOpenDropdown(null)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-200 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-                      >
-                        <LogIn className="h-4 w-4 shrink-0" />
-                        Sign In
-                      </Link>
-                      <Link
-                        to="/login?mode=signup"
-                        onClick={() => setOpenDropdown(null)}
-                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-                      >
-                        <User className="h-4 w-4 shrink-0" />
-                        Create Account
-                      </Link>
+                    <div className="py-2">
+                      <div className="px-5 py-2 pb-3">
+                        <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Welcome to FRELUX</p>
+                        <p className="text-xs text-neutral-400 dark:text-neutral-500">Sign in to access your projects, estimates, and rewards.</p>
+                      </div>
+                      <div className="px-2">
+                        <Link
+                          to="/login"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex items-center gap-2.5 rounded-xl bg-brand-purple/5 px-3 py-2.5 text-sm font-semibold text-brand-purple transition-all hover:bg-brand-purple/10 dark:bg-brand-purple/10 dark:text-brand-purple-lighter dark:hover:bg-brand-purple/20"
+                        >
+                          <LogIn className="h-4 w-4 shrink-0" />
+                          Sign In
+                        </Link>
+                        <Link
+                          to="/login?mode=signup"
+                          onClick={() => setOpenDropdown(null)}
+                          className="mt-1 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-600 transition-all hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+                        >
+                          <User className="h-4 w-4 shrink-0" />
+                          Create Account
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>

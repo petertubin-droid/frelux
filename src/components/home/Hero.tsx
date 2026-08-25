@@ -36,7 +36,7 @@ const trustPoints = [
 ];
 
 export default function Hero() {
-  const { content: hero } = useHeroContent();
+  const { content: hero, loaded: heroLoaded } = useHeroContent();
   const { branding } = useBranding();
 
   // ── Derive image metadata from branding ──
@@ -44,7 +44,7 @@ export default function Hero() {
   const heroImageAlt = branding?.hero_image_alt || 'Painter rolling fresh color onto a wall';
 
   return (
-    <section data-tour="hero" className="relative overflow-hidden bg-mesh text-white">
+    <section data-tour="hero" className={`relative overflow-hidden bg-mesh text-white transition-opacity duration-300 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}>
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
 
