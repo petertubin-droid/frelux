@@ -6,7 +6,7 @@ import {
   Building2, ChevronRight, ChevronLeft, Calculator, Upload, FileText,
   CheckCircle2, AlertTriangle, Info, Package, Users, DollarSign,
   TrendingUp, ShieldCheck, Layers, Home, Ruler, Hammer, FolderOpen,
-  Printer, ArrowRight, Settings, Camera, Gem, BadgeCheck, _Award,
+  Printer, ArrowRight, Settings, Camera, Gem, BadgeCheck,
 } from 'lucide-react';
 import {
   calculateBuildToRoof,
@@ -89,7 +89,7 @@ function Field({ label, value, onChange, type = 'number', unit, placeholder, ste
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-neutral-600 mb-1 block">{label}</label>
+      <label className="text-xs sm:text-sm font-medium text-neutral-600 mb-1.5 block">{label}</label>
       <div className="relative">
         <input
           type={type}
@@ -97,10 +97,10 @@ function Field({ label, value, onChange, type = 'number', unit, placeholder, ste
           step={step}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
+          className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 sm:py-3 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-neutral-300"
         />
         {unit && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 pointer-events-none">{unit}</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 pointer-events-none font-medium">{unit}</span>
         )}
       </div>
     </div>
@@ -113,11 +113,11 @@ function SelectField({ label, value, onChange, options }: {
 }) {
   return (
     <div>
-      <label className="text-sm font-medium text-neutral-600 mb-1 block">{label}</label>
+      <label className="text-xs sm:text-sm font-medium text-neutral-600 mb-1.5 block">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
+        className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 sm:py-3 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-neutral-300 cursor-pointer"
       >
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
@@ -129,12 +129,12 @@ function SectionCard({ title, icon: Icon, children, className = '' }: {
   title: string; icon: React.ComponentType<{ className?: string }>; children: React.ReactNode; className?: string;
 }) {
   return (
-    <div className={`rounded-2xl border border-neutral-200 bg-white shadow-card p-6 ${className}`}>
-      <div className="flex items-center gap-2.5 mb-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
-          <Icon className="w-4 h-4 text-brand-purple" />
+    <div className={`rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 transition-shadow duration-300 hover:shadow-card-hover ${className}`}>
+      <div className="flex items-center gap-2.5 mb-4 sm:mb-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/15 to-brand-purple/5 ring-1 ring-brand-purple/10">
+          <Icon className="w-4.5 h-4.5 text-brand-purple" />
         </div>
-        <h3 className="font-semibold text-neutral-900">{title}</h3>
+        <h3 className="font-semibold text-neutral-900 text-base sm:text-lg">{title}</h3>
       </div>
       {children}
     </div>
@@ -144,8 +144,8 @@ function SectionCard({ title, icon: Icon, children, className = '' }: {
 // ── Main component ──
 
 
-// ── Premium rotating text slide component ──
-function RotatingText({ messages, interval = 3500 }: { messages: string[]; interval?: number }) {
+// ── Premium rotating text slide component with smooth slide animation ──
+function RotatingText({ messages, interval = 3800 }: { messages: string[]; interval?: number }) {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -156,20 +156,28 @@ function RotatingText({ messages, interval = 3500 }: { messages: string[]; inter
   }, [messages.length, interval]);
 
   return (
-    <div className="relative h-6 overflow-hidden">
-      {messages.map((msg, i) => (
-        <div
-          key={i}
-          className="absolute inset-0 flex items-center gap-2 transition-all duration-500"
-          style={{
-            opacity: i === index ? 1 : 0,
-            transform: i === index ? 'translateY(0)' : i < index ? 'translateY(-100%)' : 'translateY(100%)',
-          }}
-        >
-          <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
-          <span className="text-xs font-medium text-white/80">{msg}</span>
-        </div>
-      ))}
+    <div className="relative h-7 overflow-hidden">
+      {messages.map((msg, i) => {
+        const isActive = i === index;
+        const isPrev = i === (index - 1 + messages.length) % messages.length;
+        return (
+          <div
+            key={i}
+            className="absolute inset-0 flex items-center gap-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            style={{
+              opacity: isActive ? 1 : 0,
+              transform: isActive
+                ? 'translateY(0) translateX(0)'
+                : isPrev
+                ? 'translateY(-100%) translateX(-8px)'
+                : 'translateY(100%) translateX(8px)',
+            }}
+          >
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent-green shrink-0 animate-pulse" />
+            <span className="text-xs sm:text-sm font-medium text-white/80 whitespace-nowrap">{msg}</span>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -277,23 +285,28 @@ export default function BuildToRoofEstimator() {
 
   return (
     <SubscriptionGate feature="build_to_roof_estimator">
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100/50">
       {/* Premium Header with mesh gradient */}
       <div className="relative overflow-hidden bg-brand-navy text-white">
         {/* Animated mesh background */}
         <div className="absolute inset-0 animate-mesh-float" style={{
-          background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.25) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.12) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(109, 40, 217, 0.08) 0px, transparent 50%)`,
+          background: `radial-gradient(at 15% 20%, rgba(109, 40, 217, 0.28) 0px, transparent 50%), radial-gradient(at 85% 80%, rgba(34, 197, 94, 0.15) 0px, transparent 50%), radial-gradient(at 50% 50%, rgba(109, 40, 217, 0.1) 0px, transparent 50%)`,
         }} />
         <div className="absolute inset-0 animate-premium-shimmer" />
+        {/* Grid overlay for premium texture */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+        }} />
 
-        <div className="relative max-w-6xl mx-auto px-4 py-12">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-              <Building2 className="w-7 h-7 text-accent-green" />
+        <div className="relative max-w-6xl mx-auto px-4 py-10 sm:py-14">
+          <div className="flex items-center gap-3 sm:gap-4 mb-2">
+            <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
+              <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-accent-green" />
             </div>
-            <div>
-              <h1 className="text-2xl md:text-4xl font-bold tracking-tight">Build-to-Roof Estimator</h1>
-              <div className="mt-1">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-3xl md:text-4xl font-bold tracking-tight">Build-to-Roof Estimator</h1>
+              <div className="mt-1.5">
                 <RotatingText
                   messages={[
                     'Foundation → Block walls → Structural frame → Roof — all in one estimate',
@@ -307,27 +320,31 @@ export default function BuildToRoofEstimator() {
           </div>
 
           {/* Feature badges row */}
-          <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+          <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in" style={{ animationDelay: '0.1s' }}>
               <ShieldCheck className="w-3.5 h-3.5 text-accent-green" />
-              Foundation to Roof
+              <span className="hidden sm:inline">Foundation to Roof</span>
+              <span className="sm:hidden">F→R</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in" style={{ animationDelay: '0.2s' }}>
               <BadgeCheck className="w-3.5 h-3.5 text-accent-green" />
-              Transparent Pricing
+              <span className="hidden sm:inline">Transparent Pricing</span>
+              <span className="sm:hidden">Pricing</span>
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 backdrop-blur-md">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in" style={{ animationDelay: '0.3s' }}>
               <Gem className="w-3.5 h-3.5 text-brand-purple-light" />
-              11-Step Professional Flow
+              <span className="hidden sm:inline">11-Step Professional Flow</span>
+              <span className="sm:hidden">11-Step</span>
             </span>
           </div>
 
           <Link
             to="/image-estimator"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-2.5 text-sm font-semibold text-accent-green backdrop-blur-md transition-all hover:bg-accent-green/20 hover:border-accent-green/40"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-3.5 sm:px-4 py-2.5 text-sm font-semibold text-accent-green backdrop-blur-md transition-all hover:bg-accent-green/20 hover:border-accent-green/40 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Camera className="w-4 h-4" />
-            Estimate from a Photo — Try our AI Photo Estimator
+            <span className="hidden sm:inline">Estimate from a Photo — Try our AI Photo Estimator</span>
+            <span className="sm:hidden">Try AI Photo Estimator</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -335,8 +352,8 @@ export default function BuildToRoofEstimator() {
 
       {/* Premium sticky progress bar */}
       <div className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-lg shadow-sm">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-hide">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4">
+          <div className="flex items-center gap-1 overflow-x-auto py-2.5 sm:py-3 scrollbar-hide snap-x">
             {STEPS.map((s, i) => {
               const Icon = s.icon;
               const isActive = i === step;
@@ -345,37 +362,38 @@ export default function BuildToRoofEstimator() {
                 <button
                   key={s.id}
                   onClick={() => i <= step && setStep(i)}
-                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 snap-start ${
                     isActive
-                      ? 'bg-gradient-to-r from-brand-purple to-brand-purple-light text-white shadow-md shadow-brand-purple/20'
+                      ? 'bg-gradient-to-r from-brand-purple to-brand-purple-light text-white shadow-md shadow-brand-purple/20 scale-105'
                       : isDone
                       ? 'bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/15'
                       : 'text-neutral-400 hover:bg-neutral-50'
                   }`}
                 >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">{s.label}</span>
-                  <span className="sm:hidden">{i + 1}</span>
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden md:inline">{s.label}</span>
+                  <span className="md:hidden">{i + 1}</span>
                 </button>
               );
             })}
           </div>
-          {/* Progress line */}
-          <div className="h-0.5 w-full bg-neutral-100">
+          {/* Progress line with glow */}
+          <div className="h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-brand-purple to-accent-green transition-all duration-500 ease-out"
+              className="h-full bg-gradient-to-r from-brand-purple to-accent-green transition-all duration-500 ease-out animate-progress-glow rounded-full"
               style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
             />
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-6">
+      <div className="max-w-6xl mx-auto px-4 py-4 sm:py-6">
         {/* Step content */}
         {result && step === STEPS.length - 1 ? (
           <EstimateResult result={result} onBack={() => { setResult(null); setStep(STEPS.length - 2); }} />
         ) : (
           <>
+          <div key={step} className="animate-step-slide-in">
             {/* Step 0: Project */}
             {step === 0 && (
               <div className="space-y-4">
@@ -442,7 +460,7 @@ export default function BuildToRoofEstimator() {
                   <Field label="Internal wall total length" unit={input.measurement_unit} value={input.internal_wall_length} onChange={v => update('internal_wall_length', parseFloat(v) || 0)} step="0.5" />
                   <Field label="Internal wall thickness" unit={input.measurement_unit} value={input.internal_wall_thickness} onChange={v => update('internal_wall_thickness', parseFloat(v) || 0)} step="0.025" />
                 </div>
-                <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-3 flex items-start gap-2">
+                <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3 sm:p-4 flex items-start gap-2">
                   <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                   <p className="text-xs text-blue-700">
                     Enter the total length of all internal partition walls combined. This is used for block and mortar calculations.
@@ -459,7 +477,7 @@ export default function BuildToRoofEstimator() {
                 </p>
                 <div className="space-y-3">
                   {input.openings.map((opening, i) => (
-                    <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-3 items-end p-3 rounded-lg bg-neutral-50 border border-neutral-100">
+                    <div key={i} className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-neutral-50 border border-neutral-100">
                       <div>
                         <label className="text-xs font-medium text-neutral-500 mb-1 block">Type</label>
                         <select
@@ -605,7 +623,7 @@ export default function BuildToRoofEstimator() {
             {/* Step 6: Structural */}
             {step === 6 && (
               <div className="space-y-4">
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:p-6">
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                     <div>
@@ -631,7 +649,7 @@ export default function BuildToRoofEstimator() {
                   {input.has_engineer_schedule && (
                     <div className="space-y-3">
                       {input.structural_members.map((member, i) => (
-                        <div key={i} className="grid grid-cols-2 md:grid-cols-6 gap-2 items-end p-3 rounded-lg bg-neutral-50 border border-neutral-100">
+                        <div key={i} className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-neutral-50 border border-neutral-100">
                           <div>
                             <label className="text-xs font-medium text-neutral-500 mb-1 block">Type</label>
                             <select
@@ -829,7 +847,7 @@ export default function BuildToRoofEstimator() {
             {/* Step 9: Drawing upload */}
             {step === 9 && (
               <SectionCard title="Upload Architectural Drawing (Optional)" icon={Upload}>
-                <div className="border-2 border-dashed border-neutral-300 rounded-xl p-8 text-center">
+                <div className="border-2 border-dashed border-neutral-300 rounded-xl p-6 sm:p-8 text-center">
                   <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
                   <p className="text-sm text-neutral-600 mb-2">Upload floor plans, elevations, sections, or roof plans</p>
                   <p className="text-xs text-neutral-400 mb-4">PDF, JPG, PNG supported</p>
@@ -881,41 +899,45 @@ export default function BuildToRoofEstimator() {
               </SectionCard>
             )}
 
+          </div>
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-8 pt-4 border-t border-neutral-100">
+            <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-neutral-100">
               <button
                 onClick={prev}
                 disabled={step === 0}
-                className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 transition-colors"
+                className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 transition-colors active:scale-95"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Back
+                <span className="hidden sm:inline">Back</span>
               </button>
               <span className="text-xs text-neutral-400 font-medium">
-                Step {step + 1} of {STEPS.length - 1}
+                <span className="hidden sm:inline">Step </span>{step + 1} <span className="hidden sm:inline">of {STEPS.length - 1}</span>
+                <span className="sm:hidden">/{STEPS.length - 1}</span>
               </span>
               {step < STEPS.length - 2 ? (
                 <button
                   onClick={next}
                   disabled={!canProceed}
-                  className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple-light px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all"
+                  className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-light px-4 sm:px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
                 >
-                  Next
+                  <span className="hidden sm:inline">Next</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>
               ) : step === STEPS.length - 2 ? (
                 <button
                   onClick={calculate}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent-green to-green-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all"
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
                 >
                   <Calculator className="w-4 h-4" />
-                  Generate Estimate
+                  <span className="hidden sm:inline">Generate Estimate</span>
+                  <span className="sm:hidden">Calculate</span>
                 </button>
               ) : null}
             </div>
           </>
         )}
       </div>
+      <div className="mt-8">
       <RelatedTools links={[
         CALC_LINKS.paintCalculator,
         CALC_LINKS.costEstimator,
@@ -924,6 +946,7 @@ export default function BuildToRoofEstimator() {
         CALC_LINKS.constructionSeq,
         CALC_LINKS.imageEstimator,
       ]} />
+      </div>
     </div>
   </SubscriptionGate>
   );
@@ -939,15 +962,15 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 animate-step-slide-in">
       {/* Project Summary */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-neutral-900">{result.project_name}</h2>
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal">
+        <div className="flex items-start justify-between flex-wrap gap-3 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg sm:text-xl font-bold text-neutral-900 truncate">{result.project_name}</h2>
             <p className="text-sm text-neutral-500 mt-1">{result.location} · {result.total_floor_area} m² total floor area</p>
           </div>
-          <div className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${confidenceColors[result.confidence]}`}>
+          <div className={`rounded-lg border px-3 py-1.5 text-xs font-medium ${confidenceColors[result.confidence]} animate-badge-pop-in`}>
             {result.confidence === 'high' ? 'High Confidence' : result.confidence === 'moderate' ? 'Moderate Confidence' : 'Preliminary Estimate'}
           </div>
         </div>
@@ -959,28 +982,31 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       </div>
 
       {/* Grand Total */}
-      <div className="grid md:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-neutral-200 bg-brand-navy p-6 text-white">
-          <p className="text-xs text-white/60 mb-1">Estimated Build-to-Roof Cost</p>
-          <p className="text-2xl font-bold">{formatCurrency(result.grand_total)}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div className="rounded-2xl border border-neutral-200 bg-brand-navy p-4 sm:p-6 text-white animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(at 70% 30%, rgba(109, 40, 217, 0.4) 0px, transparent 60%)' }} />
+          <div className="relative">
+            <p className="text-xs text-white/60 mb-1">Estimated Build-to-Roof Cost</p>
+            <p className="text-xl sm:text-2xl font-bold">{formatCurrency(result.grand_total)}</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in" style={{ animationDelay: '0.1s' }}>
           <p className="text-xs text-neutral-500 mb-1">Materials</p>
-          <p className="text-xl font-bold text-neutral-900">{formatCurrency(result.materials_total)}</p>
+          <p className="text-lg sm:text-xl font-bold text-neutral-900">{formatCurrency(result.materials_total)}</p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in" style={{ animationDelay: '0.2s' }}>
           <p className="text-xs text-neutral-500 mb-1">Labour</p>
-          <p className="text-xl font-bold text-neutral-900">{formatCurrency(result.labour_total)}</p>
+          <p className="text-lg sm:text-xl font-bold text-neutral-900">{formatCurrency(result.labour_total)}</p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in col-span-2 md:col-span-1" style={{ animationDelay: '0.3s' }}>
           <p className="text-xs text-neutral-500 mb-1">Contingency</p>
-          <p className="text-xl font-bold text-neutral-900">{formatCurrency(result.contingency)}</p>
+          <p className="text-lg sm:text-xl font-bold text-neutral-900">{formatCurrency(result.contingency)}</p>
           <p className="text-xs text-neutral-400 mt-1">Wastage: {formatCurrency(result.wastage_allowance)}</p>
         </div>
       </div>
 
       {/* Premium Cost Breakdown Table */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden animate-card-reveal" style={{ animationDelay: '0.4s' }}>
         <div className="flex items-center justify-between p-6 pb-3">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
@@ -997,22 +1023,22 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
                 <th className="px-6 py-3 font-medium text-neutral-500">Stage</th>
                 <th className="px-6 py-3 font-medium text-neutral-500 text-right">Materials</th>
                 <th className="px-6 py-3 font-medium text-neutral-500 text-right">Labour</th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">Total</th>
+                <th className="px-4 sm:px-6 py-3 font-medium text-neutral-500 text-right">Total</th>
               </tr>
             </thead>
             <tbody>
               {result.stages.map((stage, i) => (
                 <tr key={i} className="border-b border-neutral-50 hover:bg-neutral-50/50 transition-colors">
-                  <td className="px-6 py-3 font-medium text-neutral-900">{stage.stage_label}</td>
-                  <td className="px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.materials_total)}</td>
-                  <td className="px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.labour_total)}</td>
-                  <td className="px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(stage.stage_total)}</td>
+                  <td className="px-4 sm:px-6 py-3 font-medium text-neutral-900">{stage.stage_label}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.materials_total)}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">{formatCurrency(stage.labour_total)}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(stage.stage_total)}</td>
                 </tr>
               ))}
               <tr className="border-t-2 border-neutral-200 bg-neutral-50">
-                <td className="px-6 py-3 font-bold text-neutral-900">TOTAL</td>
-                <td className="px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(result.materials_total)}</td>
-                <td className="px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(result.labour_total)}</td>
+                <td className="px-4 sm:px-6 py-3 font-bold text-neutral-900">TOTAL</td>
+                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(result.materials_total)}</td>
+                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(result.labour_total)}</td>
                 <td className="px-6 py-3 text-right font-bold text-brand-purple">{formatCurrency(result.materials_total + result.labour_total)}</td>
               </tr>
             </tbody>
@@ -1021,8 +1047,8 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       </div>
 
       {/* Premium Shopping List */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
-        <div className="flex items-center justify-between p-6 pb-3">
+      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden animate-card-reveal" style={{ animationDelay: '0.5s' }}>
+        <div className="flex items-center justify-between p-4 sm:p-6 pb-3">
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
               <Package className="w-4 h-4 text-brand-purple" />
@@ -1035,7 +1061,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
           <table className="w-full text-sm">
             <thead>
               <tr className="border-y border-neutral-100 bg-neutral-50 text-left">
-                <th className="px-6 py-3 font-medium text-neutral-500">Material</th>
+                <th className="px-4 sm:px-6 py-3 font-medium text-neutral-500">Material</th>
                 <th className="px-6 py-3 font-medium text-neutral-500 text-right">Quantity</th>
                 <th className="px-6 py-3 font-medium text-neutral-500 text-right">Unit</th>
                 <th className="px-6 py-3 font-medium text-neutral-500 text-right">Est. Cost</th>
@@ -1044,10 +1070,10 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             <tbody>
               {result.shopping_list.map((item, i) => (
                 <tr key={i} className="border-b border-neutral-50">
-                  <td className="px-6 py-3 font-medium text-neutral-900">{item.label}</td>
-                  <td className="px-6 py-3 text-right text-neutral-600">{formatNumber(item.total_quantity)}</td>
-                  <td className="px-6 py-3 text-right text-neutral-400">{item.unit}</td>
-                  <td className="px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(item.total_cost)}</td>
+                  <td className="px-4 sm:px-6 py-3 font-medium text-neutral-900">{item.label}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">{formatNumber(item.total_quantity)}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-400">{item.unit}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(item.total_cost)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1057,7 +1083,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
 
       {/* Premium Reinforcement Breakdown */}
       {result.reinforcement_breakdown && result.reinforcement_breakdown.items.length > 0 && (
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal" style={{ animationDelay: '0.6s' }}>
           <div className="flex items-center gap-2.5 mb-1">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
               <TrendingUp className="w-4 h-4 text-brand-purple" />
@@ -1108,7 +1134,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       {/* Detailed Quantities per Stage */}
       {result.stages.map((stage, i) => (
         <details key={i} className="rounded-2xl border border-neutral-200 bg-white shadow-card">
-          <summary className="cursor-pointer p-6 flex items-center justify-between">
+          <summary className="cursor-pointer p-4 sm:p-6 flex items-center justify-between">
             <span className="font-semibold text-neutral-900 flex items-center gap-2">
               <Layers className="w-5 h-5 text-brand-purple" />
               {stage.stage_label} — Detailed Quantities
@@ -1196,7 +1222,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
 
       {/* Premium Assumptions & Limitations */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal" style={{ animationDelay: '0.7s' }}>
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
               <Info className="w-4 h-4 text-blue-500" />
@@ -1212,7 +1238,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             ))}
           </ul>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal" style={{ animationDelay: '0.8s' }}>
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
@@ -1237,7 +1263,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       </div>
 
       {/* Premium Price Info with Freshness Indicator */}
-      <div className={`rounded-2xl border p-6 ${result.price_stale ? 'border-amber-300 bg-gradient-to-r from-amber-50 to-amber-50/30' : 'border-neutral-200 bg-gradient-to-r from-neutral-50 to-neutral-50/30'}`}>
+      <div className={`rounded-2xl border p-4 sm:p-6 animate-card-reveal ${result.price_stale ? 'border-amber-300 bg-gradient-to-r from-amber-50 to-amber-50/30' : 'border-neutral-200 bg-gradient-to-r from-neutral-50 to-neutral-50/30'}`} style={{ animationDelay: '0.9s' }}>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
             <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${result.price_stale ? 'bg-amber-100' : 'bg-green-100'}`}>
@@ -1267,18 +1293,20 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
       <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
+          className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100 transition-colors active:scale-95"
         >
           <ChevronLeft className="w-4 h-4" />
-          Edit Inputs
+          <span className="hidden sm:inline">Edit Inputs</span>
+          <span className="sm:hidden">Edit</span>
         </button>
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-all"
+            className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-all active:scale-95"
           >
             <Printer className="w-4 h-4" />
-            Print Estimate
+            <span className="hidden sm:inline">Print Estimate</span>
+            <span className="sm:hidden">Print</span>
           </button>
         </div>
       </div>
