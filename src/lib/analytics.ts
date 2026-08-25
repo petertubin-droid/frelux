@@ -4,6 +4,13 @@
 
 import { siteConfig } from '@/config/site';
 import { logAnalyticsEvent } from '@/lib/queries';
+declare global {
+  interface Window {
+    fbq?: (action: string, event: string, params?: Record<string, unknown>) => void;
+    gtag?: (action: string, event: string, params?: Record<string, unknown>) => void;
+  }
+}
+
 
 export type TrackEvent =
   | 'calculator_started'
@@ -60,19 +67,15 @@ export type TrackEvent =
 export function track(event: TrackEvent, params?: Record<string, unknown>): void {
   // Meta Pixel
   if (siteConfig.metaPixel.pixelId && typeof window !== 'undefined') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
-    if (typeof w.fbq === 'function') {
-      w.fbq('trackCustom', event, params);
+    if (typeof window.fbq === 'function') {
+      window.fbq('trackCustom', event, params);
     }
   }
 
   // GA4
   if (siteConfig.analytics.gaMeasurementId && typeof window !== 'undefined') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const w = window as any;
-    if (typeof w.gtag === 'function') {
-      w.gtag('event', event, params);
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', event, params);
     }
   }
 

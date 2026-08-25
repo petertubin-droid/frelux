@@ -3,6 +3,14 @@ import { fetchAdConfig, getProvidersForPlacement, getAdUnitId, shouldDisplayPlac
 import { supabase } from '@/lib/supabase';
 import type { DbAdProvider, DbAdPlacement } from '@/types/database';
 
+declare global {
+  interface Window {
+    adsbygoogle?: unknown[];
+    _bsa?: { reload: (el: HTMLElement | null) => void };
+  }
+}
+
+
 /**
  * Provider-agnostic ad slot. Reads placement + provider config from the database.
  * Supports fallback chains — if the primary provider has no ad unit configured
@@ -112,9 +120,7 @@ export default function AdSlot({
       if (slug === 'google_adsense' || slug === 'media_net') {
         pushRef.current = true;
         try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const w = window as any;
-          (w.adsbygoogle = w.adsbygoogle || []).push({});
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch {
           // AdSense not loaded yet — script will handle it when ready
         }
@@ -123,10 +129,8 @@ export default function AdSlot({
       if (slug === 'buysellads') {
         pushRef.current = true;
         try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const w = window as any;
-          if (w._bsa) {
-            w._bsa.reload(containerRef.current);
+          if (window._bsa) {
+            window._bsa.reload(containerRef.current);
           }
         } catch {
           // BSA not loaded yet

@@ -11,6 +11,7 @@ import {
 import type { AccountType } from '@/types/pro-connect';
 import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
 
 export default function ProConnectRegister() {
   const navigate = useNavigate();
@@ -197,8 +198,10 @@ export default function ProConnectRegister() {
     setOtpError('');
     setOtpSuccess('');
     try {
-      // TODO: Integrate with actual OTP provider
-      // For now, simulate OTP send
+      const { error: otpError } = await supabase.auth.signInWithOtp({
+        phone: mobileNumber,
+      });
+      if (otpError) throw otpError;
       setOtpSent(true);
       setOtpSuccess('OTP sent to ' + mobileNumber);
       setResendCooldown(30);
@@ -220,8 +223,12 @@ export default function ProConnectRegister() {
     setOtpSending(true);
     setOtpError('');
     try {
-      // TODO: Integrate with actual OTP verification
-      // For now, accept any 6-digit code
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        phone: mobileNumber,
+        token: otpCode,
+        type: 'sms',
+      });
+      if (verifyError) throw verifyError;
       setOtpSuccess('Phone number verified successfully!');
       setOtpVerified(true);
     } catch (err: unknown) {
@@ -237,8 +244,11 @@ export default function ProConnectRegister() {
     setNinError('');
     setNinSuccess('');
     try {
-      // TODO: Integrate with NIN verification API
-      // For now, simulate verification
+      const { error: ninError } = await supabase
+        .from('pro_profiles')
+        .update({ nin_number: ninNumber, nin_status: 'pending' })
+        .eq('user_id', user?.id);
+      if (ninError) throw ninError;
       setNinSuccess('NIN verification submitted. Status will be updated once verified.');
       setNinSubmitted(true);
     } catch (err: unknown) {
