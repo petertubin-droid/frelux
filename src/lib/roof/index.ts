@@ -97,3 +97,25 @@ export type {
 } from './area-pipeline';
 
 export { calculateRoofAreaPipeline } from './area-pipeline';
+
+// ── Edge Classification (Feature 7) ──
+export type {
+  // re-export EdgeType from geometry-types (already exported above)
+} from './geometry-types';
+
+export {
+  EDGE_TYPE_LABELS,
+  EDGE_TYPE_COLORS,
+  LINEAR_EDGE_TYPES,
+  reclassifyEdge,
+  confirmAllEdges,
+  getUnconfirmedEdges,
+  calculateEdgeLengths,
+  getEdgeSummary,
+  getMultiSectionEdgeSummary,
+} from './edge-classification';
+
+export type {
+  EdgeSummaryLine,
+  EdgeSummary,
+} from './edge-classification';
