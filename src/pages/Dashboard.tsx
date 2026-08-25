@@ -13,18 +13,18 @@ import type { DbUserProject, DbPaintColor } from '@/types/database';
 const PROJECT_ROUTES: Record<string, string> = {
   screeding: '/screeding-calculator',
   paint_calc: '/paint-calculator',
-  cost_estimate: '/cost-estimator',
+  cost_estimate: '/paint-calculator?mode=cost',
   ai_recommendation: '/ai-color-assistant',
   custom: '/paint-calculator',
   pop_ceiling: '/pop-ceiling-calculator',
-  pop_estimate: '/pop-ceiling-cost-estimator',
+  pop_estimate: '/pop-ceiling-calculator?mode=cost',
   tile: '/tile-calculator',
-  tile_estimate: '/tile-cost-estimator',
+  tile_estimate: '/tile-calculator?mode=cost',
 };
 
 const QUICK_ACTIONS = [
   { to: '/paint-calculator', label: 'Paint Calc', icon: Calculator, color: 'text-brand-purple bg-brand-purple/8' },
-  { to: '/cost-estimator', label: 'Cost Est', icon: TrendingUp, color: 'text-accent-green bg-accent-green/8' },
+  { to: '/paint-calculator?mode=cost', label: 'Cost Est', icon: TrendingUp, color: 'text-accent-green bg-accent-green/8' },
   { to: '/ai-color-assistant', label: 'AI Color', icon: Gem, color: 'text-accent-orange bg-accent-orange/8' },
   { to: '/colors', label: 'Colors', icon: Heart, color: 'text-rose-400 bg-rose-400/8' },
 ];

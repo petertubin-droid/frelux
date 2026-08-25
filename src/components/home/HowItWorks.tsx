@@ -99,7 +99,7 @@ export default function HowItWorks() {
         {/* CTA */}
         <div className="mt-12 text-center">
           <Link
-            to="/painting-estimator"
+            to="/paint-calculator?mode=room-estimate"
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             Start Calculating

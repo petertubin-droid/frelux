@@ -36,9 +36,9 @@ import { trackRecentTool } from '@/lib/smart-defaults';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 
-export default function CostEstimator() {
+export default function CostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('cost');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Cost Estimator — Estimate Your Painting Project Cost',
     description:
       'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
@@ -66,6 +66,7 @@ export default function CostEstimator() {
       }
     ],
   });
+
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};

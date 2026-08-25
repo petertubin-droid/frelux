@@ -237,7 +237,7 @@ export default function InteractiveEstimatePreview() {
                 Materials, primer, and labour are calculated in the full cost estimator.
               </p>
               <Link
-                to="/painting-estimator"
+                to="/paint-calculator?mode=room-estimate"
                 className="group inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all hover:gap-2.5 dark:text-brand-purple-lighter"
               >
                 Try it yourself

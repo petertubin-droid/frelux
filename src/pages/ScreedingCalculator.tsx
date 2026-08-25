@@ -27,9 +27,9 @@ import {
   EngineWasteSelector,
 } from '@/components/engine';
 
-export default function ScreedingCalculator() {
+export default function ScreedingCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   useCalcDefaults('screeding');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
     description:
       'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
@@ -55,6 +55,7 @@ export default function ScreedingCalculator() {
       }
     ],
   });
+
 
   const {
     project,

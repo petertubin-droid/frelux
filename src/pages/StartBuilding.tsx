@@ -200,8 +200,8 @@ export default function StartBuilding() {
             description="Estimate paint quantities, finishes and material requirements for rooms, homes and projects."
             tools={[
               { label: 'Paint Calculator', to: '/paint-calculator' },
-              { label: 'Painting Estimator', to: '/painting-estimator' },
-              { label: 'Paint Cost Estimator', to: '/cost-estimator' },
+              { label: 'Painting Estimator', to: '/paint-calculator?mode=room-estimate' },
+              { label: 'Paint Cost Estimator', to: '/paint-calculator?mode=cost' },
             ]}
             onClick={() => track('painting_category_clicked', { source: 'start_building' })}
           />
@@ -213,7 +213,7 @@ export default function StartBuilding() {
             description="Calculate screeding materials and estimate the requirements for your project."
             tools={[
               { label: 'Screeding Calculator', to: '/screeding-calculator' },
-              { label: 'Screeding Cost Estimator', to: '/screeding-cost-estimator' },
+              { label: 'Screeding Cost Estimator', to: '/screeding-calculator?mode=cost' },
             ]}
             onClick={() => track('screeding_category_clicked', { source: 'start_building' })}
           />
@@ -225,7 +225,7 @@ export default function StartBuilding() {
             description="Estimate POP ceiling materials and project requirements."
             tools={[
               { label: 'POP Ceiling Calculator', to: '/pop-ceiling-calculator' },
-              { label: 'POP Ceiling Cost Estimator', to: '/pop-ceiling-cost-estimator' },
+              { label: 'POP Ceiling Cost Estimator', to: '/pop-ceiling-calculator?mode=cost' },
             ]}
             onClick={() => track('pop_category_clicked', { source: 'start_building' })}
           />
@@ -237,7 +237,7 @@ export default function StartBuilding() {
             description="Calculate tile quantities, cartons, wastage and project requirements."
             tools={[
               { label: 'Tile Calculator', to: '/tile-calculator' },
-              { label: 'Tile Cost Estimator', to: '/tile-cost-estimator' },
+              { label: 'Tile Cost Estimator', to: '/tile-calculator?mode=cost' },
             ]}
             onClick={() => track('tiles_category_clicked', { source: 'start_building' })}
           />
@@ -248,7 +248,7 @@ export default function StartBuilding() {
             title="Exterior Finishing"
             description="Estimate exterior wall finishes including Tyrolene and other coatings."
             tools={[
-              { label: 'Tyrolene Estimator', to: '/tyrolene-estimator' },
+              { label: 'Tyrolene Estimator', to: '/finish-estimator?mode=tyrolene' },
               { label: 'Finish Estimator', to: '/finish-estimator' },
             ]}
             onClick={() => track('exterior_finishing_clicked', { source: 'start_building' })}

@@ -94,17 +94,11 @@ export function SeoContent({ children }: { children: ReactNode }) {
 // ── Standard related calculator groups ──────────────────────────────
 
 const CALC_LINKS = {
-  paintCalculator: { label: 'Paint Calculator', path: '/paint-calculator', description: 'How much paint you need' },
-  screedingCalc: { label: 'Wall Screeding Calculator', path: '/screeding-calculator', description: 'Screeding area calculation' },
-  popCeilingCalc: { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator', description: 'POP material quantities' },
-  tileCalc: { label: 'Tile Calculator', path: '/tile-calculator', description: 'Tile quantity & layout' },
-  costEstimator: { label: 'Paint Cost Estimator', path: '/cost-estimator', description: 'Paint project cost' },
-  screedingCost: { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator', description: 'Screeding project cost' },
-  popCeilingCost: { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator', description: 'POP project cost' },
-  tileCost: { label: 'Tile Cost Estimator', path: '/tile-cost-estimator', description: 'Tiling project cost' },
-  finishEstimator: { label: 'Finish Estimator', path: '/finish-estimator', description: 'Painting, Tyrolene & Grafitex' },
-  paintingEstimator: { label: 'Painting Estimator', path: '/painting-estimator', description: 'Room-based paint & cost' },
-  tyroleneEstimator: { label: 'Tyrolene Estimator', path: '/tyrolene-estimator', description: 'Exterior finishing' },
+  paintCalculator: { label: 'Painting Calculator', path: '/paint-calculator', description: 'Paint quantity, cost & room estimate' },
+  screedingCalc: { label: 'Screeding Calculator', path: '/screeding-calculator', description: 'Screeding quantity & cost' },
+  popCeilingCalc: { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator', description: 'POP material quantity & cost' },
+  tileCalc: { label: 'Tile Calculator', path: '/tile-calculator', description: 'Tile quantity, boxes & cost' },
+  finishEstimator: { label: 'Finishing Calculator', path: '/finish-estimator', description: 'Painting, Tyrolene & Grafitex' },
   aiColor: { label: 'Smart Color Assistant', path: '/ai-color-assistant', description: 'AI color ideas' },
   colors: { label: 'Color Library', path: '/colors', description: 'Browse paint colors' },
   compareColors: { label: 'Compare Colors', path: '/colors/compare', description: 'Side-by-side comparison' },

@@ -57,14 +57,14 @@ import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { monitoredCalc } from '@/lib/calculator-monitor';
 
-export default function PaintCalculator() {
+export default function PaintCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults, rules: _calcRules } = useCalcDefaults('painting');
   const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [0, 5, 10, 15];
   const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
   const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
   const { toast } = useToast();
   const { user } = useAuth();
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Paint Calculator — How Much Paint Do I Need?',
     description:
       'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
@@ -92,6 +92,7 @@ export default function PaintCalculator() {
       }
     ],
   });
+
 
   const [step, setStep] = useState(1);
   const [result, setResult] = useState<CalculatorResult | null>(null);
@@ -1087,7 +1088,7 @@ function ResultCard({
             Start Over
           </button>
           <Link
-            to="/cost-estimator"
+            to="/paint-calculator?mode=cost"
             state={{
               projectType: input.projectType,
               paintableArea: result.paintableArea,

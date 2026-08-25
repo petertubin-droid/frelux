@@ -6,17 +6,18 @@ import { whatsappUrl } from '@/lib/analytics';
 import { withdrawConsent } from '@/lib/cookie-consent';
 
 const calculateLinks = [
-  { label: 'Wall Screeding Calculator', path: '/screeding-calculator' },
-  { label: 'Paint Calculator', path: '/paint-calculator' },
+  { label: 'Painting Calculator', path: '/paint-calculator' },
+  { label: 'Screeding Calculator', path: '/screeding-calculator' },
   { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
   { label: 'Tile Calculator', path: '/tile-calculator' },
+  { label: 'Finishing Calculator', path: '/finish-estimator' },
 ];
 
 const estimateLinks = [
-  { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator' },
-  { label: 'Paint Cost Estimator', path: '/cost-estimator' },
-  { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator' },
-  { label: 'Tile Cost Estimator', path: '/tile-cost-estimator' },
+  { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator' },
+  { label: 'AI Photo Estimator', path: '/image-estimator' },
+  { label: 'Structural Calculator', path: '/structural-calculator' },
+  { label: 'Foundation Calculator', path: '/foundation-calculator' },
 ];
 
 const colorLinks = [

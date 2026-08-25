@@ -26,10 +26,10 @@ const ALL_COMMANDS: CommandItem[] = [
   { id: 'finish-calc', label: 'Finish Estimator', description: 'Estimate finishing options', icon: Calculator, path: '/finish-estimator', keywords: 'finish estimator', category: 'Calculators' },
 
   // Estimators
-  { id: 'cost-est', label: 'Cost Estimator', description: 'Estimate total painting cost', icon: DollarSign, path: '/cost-estimator', keywords: 'cost price budget money', category: 'Estimators' },
-  { id: 'screeding-cost', label: 'Screeding Cost Estimator', description: 'Estimate screeding cost', icon: DollarSign, path: '/screeding-cost-estimator', keywords: 'screeding cost price', category: 'Estimators' },
-  { id: 'pop-cost', label: 'POP Ceiling Cost Estimator', description: 'Estimate POP ceiling cost', icon: DollarSign, path: '/pop-ceiling-cost-estimator', keywords: 'pop ceiling cost price', category: 'Estimators' },
-  { id: 'tile-cost', label: 'Tile Cost Estimator', description: 'Estimate tile cost', icon: DollarSign, path: '/tile-cost-estimator', keywords: 'tile cost price', category: 'Estimators' },
+  { id: 'cost-est', label: 'Cost Estimator', description: 'Estimate total painting cost', icon: DollarSign, path: '/paint-calculator?mode=cost', keywords: 'cost price budget money', category: 'Estimators' },
+  { id: 'screeding-cost', label: 'Screeding Cost Estimator', description: 'Estimate screeding cost', icon: DollarSign, path: '/screeding-calculator?mode=cost', keywords: 'screeding cost price', category: 'Estimators' },
+  { id: 'pop-cost', label: 'POP Ceiling Cost Estimator', description: 'Estimate POP ceiling cost', icon: DollarSign, path: '/pop-ceiling-calculator?mode=cost', keywords: 'pop ceiling cost price', category: 'Estimators' },
+  { id: 'tile-cost', label: 'Tile Cost Estimator', description: 'Estimate tile cost', icon: DollarSign, path: '/tile-calculator?mode=cost', keywords: 'tile cost price', category: 'Estimators' },
 
   // Colors
   { id: 'colors', label: 'Browse Colors', description: 'Explore paint color library', icon: Palette, path: '/colors', keywords: 'color paint browse palette', category: 'Colors' },

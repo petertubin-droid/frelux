@@ -31,7 +31,7 @@ export default function NotFound() {
             Back to home
             <ArrowLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-0.5" />
           </Link>
-          <Link to="/painting-estimator" className="btn-secondary">
+          <Link to="/paint-calculator?mode=room-estimate" className="btn-secondary">
             <ArrowLeft className="h-4 w-4" />
             Try the calculator
           </Link>

@@ -65,9 +65,9 @@ function dbToConfig(db: DbScreedingMixConfig): ScreedingMixConfig {
   };
 }
 
-export default function ScreedingCostEstimator() {
+export default function ScreedingCostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('screeding_cost');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Wall Screeding Cost Estimator — Paint + Cement Mix Calculator',
     description:
       'Estimate wall screeding costs with real-world mix calculations. Screeding Paint (20L buckets) + White Cement (40kg bags), labour, waste, VAT, and a professional quotation.',
@@ -82,6 +82,7 @@ export default function ScreedingCostEstimator() {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
+
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};

@@ -52,16 +52,16 @@ export const navWorkspaces: NavWorkspace[] = [
   },
   {
     label: 'Calculators',
-    path: '/painting-estimator',
+    path: '/paint-calculator?mode=room-estimate',
     children: [
       // Section: All Calculators
       { label: 'View All Calculators', path: '/calculators', section: 'Browse', description: 'Browse every FRELUX calculator in one place' },
       // Section: Quantity Estimators
-      { label: 'Painting Estimator', path: '/painting-estimator', section: 'Estimators', description: 'Room-based paint quantity calculator' },
+      { label: 'Painting Estimator', path: '/paint-calculator?mode=room-estimate', section: 'Estimators', description: 'Room-based paint quantity calculator' },
       { label: 'Screeding Calculator', path: '/screeding-calculator', section: 'Estimators', description: 'Screeding material quantities' },
       { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator', section: 'Estimators', description: 'POP ceiling board & material estimate' },
       { label: 'Tile Calculator', path: '/tile-calculator', section: 'Estimators', description: 'Tile quantity & layout planner' },
-      { label: 'Tyrolene Estimator', path: '/tyrolene-estimator', section: 'Estimators', description: 'Tyrolene putty estimator' },
+      { label: 'Tyrolene Estimator', path: '/finish-estimator?mode=tyrolene', section: 'Estimators', description: 'Tyrolene putty estimator' },
       { label: 'Finish Estimator', path: '/finish-estimator', section: 'Estimators', description: 'Multi-surface finish calculator' },
       { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator', section: 'Estimators', description: 'Foundation to roof construction cost estimator' },
       { label: 'AI Photo Estimator', path: '/image-estimator', section: 'Estimators', description: 'Upload a building photo and get an instant AI cost estimate (Premium)' },
@@ -70,10 +70,10 @@ export const navWorkspaces: NavWorkspace[] = [
       { label: 'Project Timeline', path: '/project-timeline', section: 'Engineering', description: 'How long will your build take? Stage-by-stage schedule' },
       { label: 'Construction Sequence', path: '/construction-sequence', section: 'Engineering', description: 'The correct build order with quality gates and checks' },
       // Section: Cost Estimators
-      { label: 'Paint Cost Estimator', path: '/cost-estimator', section: 'Cost Estimators', description: 'Full painting project cost breakdown' },
-      { label: 'Screeding Cost Estimator', path: '/screeding-cost-estimator', section: 'Cost Estimators', description: 'Screeding project cost analysis' },
-      { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-cost-estimator', section: 'Cost Estimators', description: 'POP ceiling cost estimation' },
-      { label: 'Tile Cost Estimator', path: '/tile-cost-estimator', section: 'Cost Estimators', description: 'Tile installation cost breakdown' },
+      { label: 'Paint Cost Estimator', path: '/paint-calculator?mode=cost', section: 'Cost Estimators', description: 'Full painting project cost breakdown' },
+      { label: 'Screeding Cost Estimator', path: '/screeding-calculator?mode=cost', section: 'Cost Estimators', description: 'Screeding project cost analysis' },
+      { label: 'POP Ceiling Cost Estimator', path: '/pop-ceiling-calculator?mode=cost', section: 'Cost Estimators', description: 'POP ceiling cost estimation' },
+      { label: 'Tile Cost Estimator', path: '/tile-calculator?mode=cost', section: 'Cost Estimators', description: 'Tile installation cost breakdown' },
       // Section: Tools
       { label: 'Calculator Templates', path: '/templates', section: 'Tools', description: 'Save & reuse calculator presets' },
       { label: 'Paint Calculator (Legacy)', path: '/paint-calculator', section: 'Tools', description: 'Original quick paint calculator' },

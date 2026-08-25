@@ -22,11 +22,11 @@ const finishTypeMeta: Record<FinishType, { icon: typeof Paintbrush; color: strin
   grafitex: { icon: Layers, color: 'text-emerald-600' },
 };
 
-export default function FinishEstimator() {
+export default function FinishEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('finish');
   const defaultDoorDims: OpeningDimensions = { width: calcDefaults.doorWidthM, height: calcDefaults.doorHeightM };
   const defaultWindowDims: OpeningDimensions = { width: calcDefaults.windowWidthM, height: calcDefaults.windowHeightM };
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator',
     description: 'Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes.',
     canonicalPath: '/finish-estimator',
@@ -40,6 +40,7 @@ export default function FinishEstimator() {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
+
 
   const [finishTypes, setFinishTypes] = useState<DbFinishType[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);

@@ -56,7 +56,7 @@ const projectCards: ProjectCard[] = [
     icon: Building2,
     title: 'Tyrolene',
     description: 'Calculate Tyrolene exterior finish: cement, sand, acrylic bond, and additives.',
-    to: '/tyrolene-estimator',
+    to: '/finish-estimator?mode=tyrolene',
     accent: 'text-amber-600',
     iconBg: 'bg-amber-100 dark:bg-amber-500/10',
   },

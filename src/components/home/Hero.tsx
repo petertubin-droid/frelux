@@ -25,7 +25,7 @@ function renderHighlightedHeadline(headline: string, highlights: { wordIndex: nu
 const heroSteps = [
   { icon: Layers, label: 'Screeding', to: '/screeding-calculator' },
   { icon: Calculator, label: 'Paint', to: '/paint-calculator' },
-  { icon: DollarSign, label: 'Cost', to: '/cost-estimator' },
+  { icon: DollarSign, label: 'Cost', to: '/paint-calculator?mode=cost' },
   { icon: Palette, label: 'Colors', to: '/ai-color-assistant' },
 ];
 

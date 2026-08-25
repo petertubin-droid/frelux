@@ -36,9 +36,9 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { TileCalculatorSeo } from '@/components/seo/SeoContent';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { monitoredCalc } from '@/lib/calculator-monitor';
-export default function TileCalculator() {
+export default function TileCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('tile');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Tile Calculator: How Many Tiles Do I Need?',
     description: 'Free tile calculator. Enter your floor or wall dimensions and tile size to calculate tile quantity, boxes, adhesive, grout, and labour cost.',
     canonicalPath: '/tile-calculator',
@@ -71,6 +71,7 @@ export default function TileCalculator() {
       },
     ],
   });
+
 
   const { user } = useAuth();
 const mountedRef = useRef(true);
@@ -639,7 +640,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
           />
         </div>
 
-          <Link to="/tile-cost-estimator" state={{ surfaceArea: result.surfaceArea, grandTotal: result.grandTotal, input }}
+          <Link to="/tile-calculator?mode=cost" state={{ surfaceArea: result.surfaceArea, grandTotal: result.grandTotal, input }}
             className="btn-primary">
             Continue to Cost Estimate <ArrowRight className="h-4 w-4" />
           </Link>

@@ -31,9 +31,9 @@ interface PassedState {
   input?: Partial<TileCalcInput>;
 }
 
-export default function TileCostEstimator() {
+export default function TileCostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('tile_cost');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'Tile Cost Estimator — Estimate Tile Installation Cost',
     description: 'Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.',
     canonicalPath: '/tile-cost-estimator',
@@ -49,6 +49,7 @@ export default function TileCostEstimator() {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
+
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};

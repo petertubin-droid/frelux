@@ -25,7 +25,7 @@ const capabilities = [
     icon: DollarSign,
     title: 'Estimate Project Costs',
     description: 'Convert material quantities into real cost estimates using current Nigerian market prices. Adjust prices to match your local supplier.',
-    to: '/cost-estimator',
+    to: '/paint-calculator?mode=cost',
     linkText: 'Estimate costs',
   },
   {
@@ -46,7 +46,7 @@ const capabilities = [
     icon: MapPin,
     title: 'Nigerian-Market Calculations',
     description: 'Coverage rates, product sizes, and prices calibrated for Nigerian brands and building practices. Not generic formulas copied from abroad.',
-    to: '/cost-estimator',
+    to: '/paint-calculator?mode=cost',
     linkText: 'See how it works',
   },
   {
@@ -119,7 +119,7 @@ export default function CommercialReadiness() {
             </p>
           </div>
           <Link
-            to="/painting-estimator"
+            to="/paint-calculator?mode=room-estimate"
             className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <Calculator className="h-4 w-4" />

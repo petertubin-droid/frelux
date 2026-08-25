@@ -11,6 +11,44 @@
   # in the build output, which fails the build.
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY"
 
+
+# 301 redirects — consolidated calculator routes
+[[redirects]]
+  from = "/cost-estimator"
+  to = "/paint-calculator?mode=cost"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/painting-estimator"
+  to = "/paint-calculator?mode=room-estimate"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/screeding-cost-estimator"
+  to = "/screeding-calculator?mode=cost"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pop-ceiling-cost-estimator"
+  to = "/pop-ceiling-calculator?mode=cost"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tile-cost-estimator"
+  to = "/tile-calculator?mode=cost"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/tyrolene-estimator"
+  to = "/finish-estimator?mode=tyrolene"
+  status = 301
+  force = true
+
 # 404 page — return real 404 for unknown routes
 [[redirects]]
   from = "/*"

@@ -28,9 +28,12 @@ import { useTypography } from '@/lib/useTypography';
 // Lazy-loaded public pages for code splitting
 const ColorDetail = lazy(() => import('@/pages/ColorDetail'));
 const Learn = lazy(() => import('@/pages/learn/Learn'));
-const PaintCalculator = lazy(() => import('@/pages/PaintCalculator'));
+const PaintingCalculatorHub = lazy(() => import('@/pages/PaintingCalculatorHub'));
+const ScreedingCalculatorHub = lazy(() => import('@/pages/ScreedingCalculatorHub'));
+const PopCeilingCalculatorHub = lazy(() => import('@/pages/PopCeilingCalculatorHub'));
+const TileCalculatorHub = lazy(() => import('@/pages/TileCalculatorHub'));
+const FinishingCalculatorHub = lazy(() => import('@/pages/FinishingCalculatorHub'));
 const Calculators = lazy(() => import('@/pages/Calculators'));
-const CostEstimator = lazy(() => import('@/pages/CostEstimator'));
 const AiColorAssistant = lazy(() => import('@/pages/AiColorAssistant'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const About = lazy(() => import('@/pages/legal/About'));
@@ -39,14 +42,8 @@ const Terms = lazy(() => import('@/pages/legal/Terms'));
 const CookiePolicy = lazy(() => import('@/pages/legal/CookiePolicy'));
 const Disclaimer = lazy(() => import('@/pages/legal/Disclaimer'));
 const AiDisclaimer = lazy(() => import('@/pages/legal/AiDisclaimer'));
-const ScreedingCalculator = lazy(() => import('@/pages/ScreedingCalculator'));
-const ScreedingCostEstimator = lazy(() => import('@/pages/ScreedingCostEstimator'));
 const LearnCategory = lazy(() => import('@/pages/learn/LearnCategory'));
 const LearnArticle = lazy(() => import('@/pages/learn/LearnArticle'));
-const PopCeilingCalculator = lazy(() => import('@/pages/PopCeilingCalculator'));
-const PopCeilingCostEstimator = lazy(() => import('@/pages/PopCeilingCostEstimator'));
-const TileCalculator = lazy(() => import('@/pages/TileCalculator'));
-const TileCostEstimator = lazy(() => import('@/pages/TileCostEstimator'));
 const PaintColorDetail = lazy(() => import('@/pages/PaintColorDetail'));
 const CompareColors = lazy(() => import('@/pages/CompareColors'));
 const MyProjects = lazy(() => import('@/pages/MyProjects'));
@@ -54,9 +51,6 @@ const SharedProject = lazy(() => import('@/pages/SharedProject'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Profile = lazy(() => import('@/pages/Profile'));
 const Pricing = lazy(() => import('@/pages/Pricing'));
-const FinishEstimator = lazy(() => import('@/pages/FinishEstimator'));
-const PaintingEstimator = lazy(() => import('@/pages/PaintingEstimator'));
-const TyroleneEstimator = lazy(() => import('@/pages/TyroleneEstimator'));
 const BuildToRoofEstimator = lazy(() => import('@/pages/BuildToRoofEstimator'));
 const ImageEstimator = lazy(() => import('@/pages/ImageEstimator'));
 const StructuralCalculator = lazy(() => import('@/pages/StructuralCalculator'));
@@ -197,6 +191,17 @@ function NotificationClickHandler() {
   return null;
 }
 
+// Redirect old calculator routes to consolidated hubs with mode preserved
+function RedirectToHub({ to, mode }: { to: string; mode?: string }) {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const search = mode ? `?mode=${mode}` : '';
+    navigate(`${to}${search}`, { replace: true });
+  }, [navigate, to, mode]);
+  return null;
+}
+
+
 export default function App() {
   useTypography();
   useWebVitals();
@@ -217,32 +222,34 @@ export default function App() {
           {/* PUBLIC SITE — all public-facing pages under Layout */}
           {/* No admin links, routes, or components appear here. */}
           {/* ─────────────────────────────────────────────────────── */}
+
           <Route element={<Layout />}>
             {/* Home workspace */}
             <Route path="/" element={<Home />} />
             <Route path="/start-building" element={<Suspense fallback={<PageLoader />}><StartBuilding /></Suspense>} />
             <Route path="/calculators" element={<Suspense fallback={<PageLoader />}><Calculators /></Suspense>} />
 
-            {/* Calculate workspace */}
-            <Route path="/paint-calculator" element={<Suspense fallback={<PageLoader />}><PaintCalculator /></Suspense>} />
-            <Route path="/screeding-calculator" element={<Suspense fallback={<PageLoader />}><ScreedingCalculator /></Suspense>} />
-            <Route path="/pop-ceiling-calculator" element={<Suspense fallback={<PageLoader />}><PopCeilingCalculator /></Suspense>} />
-            <Route path="/tile-calculator" element={<Suspense fallback={<PageLoader />}><TileCalculator /></Suspense>} />
+            {/* Consolidated calculator hubs */}
+            <Route path="/paint-calculator" element={<Suspense fallback={<PageLoader />}><PaintingCalculatorHub /></Suspense>} />
+            <Route path="/screeding-calculator" element={<Suspense fallback={<PageLoader />}><ScreedingCalculatorHub /></Suspense>} />
+            <Route path="/pop-ceiling-calculator" element={<Suspense fallback={<PageLoader />}><PopCeilingCalculatorHub /></Suspense>} />
+            <Route path="/tile-calculator" element={<Suspense fallback={<PageLoader />}><TileCalculatorHub /></Suspense>} />
+            <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishingCalculatorHub /></Suspense>} />
 
-            {/* Estimate workspace */}
-            <Route path="/cost-estimator" element={<Suspense fallback={<PageLoader />}><CostEstimator /></Suspense>} />
-            <Route path="/screeding-cost-estimator" element={<Suspense fallback={<PageLoader />}><ScreedingCostEstimator /></Suspense>} />
-            <Route path="/pop-ceiling-cost-estimator" element={<Suspense fallback={<PageLoader />}><PopCeilingCostEstimator /></Suspense>} />
-            <Route path="/tile-cost-estimator" element={<Suspense fallback={<PageLoader />}><TileCostEstimator /></Suspense>} />
-            <Route path="/finish-estimator" element={<Suspense fallback={<PageLoader />}><FinishEstimator /></Suspense>} />
-            <Route path="/painting-estimator" element={<Suspense fallback={<PageLoader />}><PaintingEstimator /></Suspense>} />
+            {/* 301 redirects from old secondary routes to consolidated hubs */}
+            <Route path="/cost-estimator" element={<RedirectToHub to="/paint-calculator" mode="cost" />} />
+            <Route path="/painting-estimator" element={<RedirectToHub to="/paint-calculator" mode="room-estimate" />} />
+            <Route path="/screeding-cost-estimator" element={<RedirectToHub to="/screeding-calculator" mode="cost" />} />
+            <Route path="/pop-ceiling-cost-estimator" element={<RedirectToHub to="/pop-ceiling-calculator" mode="cost" />} />
+            <Route path="/tile-cost-estimator" element={<RedirectToHub to="/tile-calculator" mode="cost" />} />
+            <Route path="/tyrolene-estimator" element={<RedirectToHub to="/finish-estimator" mode="tyrolene" />} />
             <Route path="/image-estimator" element={<Suspense fallback={<PageLoader />}><ImageEstimator /></Suspense>} />
             <Route path="/structural-calculator" element={<Suspense fallback={<PageLoader />}><StructuralCalculator /></Suspense>} />
             <Route path="/foundation-calculator" element={<Suspense fallback={<PageLoader />}><FoundationCalculator /></Suspense>} />
             <Route path="/project-timeline" element={<Suspense fallback={<PageLoader />}><ProjectTimeline /></Suspense>} />
             <Route path="/construction-sequence" element={<Suspense fallback={<PageLoader />}><ConstructionSequence /></Suspense>} />
 <Route path="/build-to-roof-estimator" element={<Suspense fallback={<PageLoader />}><BuildToRoofEstimator /></Suspense>} />
-            <Route path="/tyrolene-estimator" element={<Suspense fallback={<PageLoader />}><TyroleneEstimator /></Suspense>} />
+            
 
             {/* Colors workspace */}
             <Route path="/colors" element={<Suspense fallback={<PageLoader />}><Colors /></Suspense>} />

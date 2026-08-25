@@ -32,9 +32,9 @@ interface PassedState {
   grandTotal?: number;
 }
 
-export default function PopCeilingCostEstimator() {
+export default function PopCeilingCostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling_cost');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'POP Ceiling Cost Estimator: Estimate POP Ceiling Project Cost',
     description: 'Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.',
     canonicalPath: '/pop-ceiling-cost-estimator',
@@ -50,6 +50,7 @@ export default function PopCeilingCostEstimator() {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
     },
   });
+
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
@@ -140,7 +141,7 @@ const mountedRef = useRef(true);
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'POP Ceiling Cost Estimator' }]} />
+        <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/paint-calculator?mode=cost' }, { label: 'POP Ceiling Cost Estimator' }]} />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
@@ -148,7 +149,7 @@ const mountedRef = useRef(true);
 
   return (
     <>
-      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/cost-estimator' }, { label: 'POP Ceiling Cost Estimator' }]} />
+      <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/paint-calculator?mode=cost' }, { label: 'POP Ceiling Cost Estimator' }]} />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">

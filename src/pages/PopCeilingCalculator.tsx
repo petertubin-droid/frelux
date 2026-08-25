@@ -36,9 +36,9 @@ import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSectio
 import { PopCeilingCalculatorSeo } from '@/components/seo/SeoContent';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
 import { monitoredCalc } from '@/lib/calculator-monitor';
-export default function PopCeilingCalculator() {
+export default function PopCeilingCalculator({ embedded = false }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults('pop_ceiling');
-  useSeo({
+  if (!embedded) useSeo({
     title: 'POP Ceiling Calculator: How Much POP Cement Do I Need?',
     description: 'Free POP ceiling calculator. Enter your room dimensions to calculate ceiling area, material quantities, and labour for both Nigerian and international POP ceiling workflows.',
     canonicalPath: '/pop-ceiling-calculator',
@@ -71,6 +71,7 @@ export default function PopCeilingCalculator() {
       },
     ],
   });
+
 
   const { user } = useAuth();
 const mountedRef = useRef(true);
@@ -476,7 +477,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
               </button>
             )}
             <button type="button" onClick={onStartOver} className="btn-secondary">Start Over</button>
-            <Link to="/pop-ceiling-cost-estimator" state={{ ceilingArea: result.ceilingArea, workflow: input.workflow, grandTotal: result.grandTotal }}
+            <Link to="/pop-ceiling-calculator?mode=cost" state={{ ceilingArea: result.ceilingArea, workflow: input.workflow, grandTotal: result.grandTotal }}
               className="btn-primary">
               Continue to Cost Estimate <ArrowRight className="h-4 w-4" />
             </Link>

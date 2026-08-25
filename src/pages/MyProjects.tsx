@@ -93,17 +93,17 @@ export default function MyProjects() {
   const PROJECT_ROUTES: Record<string, string> = {
     screeding: '/screeding-calculator',
     paint_calc: '/paint-calculator',
-    cost_estimate: '/cost-estimator',
+    cost_estimate: '/paint-calculator?mode=cost',
     ai_recommendation: '/ai-color-assistant',
     custom: '/paint-calculator',
     pop_ceiling: '/pop-ceiling-calculator',
-    pop_estimate: '/pop-ceiling-cost-estimator',
+    pop_estimate: '/pop-ceiling-calculator?mode=cost',
     tile: '/tile-calculator',
-    tile_estimate: '/tile-cost-estimator',
-    painting: '/painting-estimator',
-    tyrolene: '/tyrolene-estimator',
+    tile_estimate: '/tile-calculator?mode=cost',
+    painting: '/paint-calculator?mode=room-estimate',
+    tyrolene: '/finish-estimator?mode=tyrolene',
     finish: '/finish-estimator',
-    screeding_cost: '/screeding-cost-estimator',
+    screeding_cost: '/screeding-calculator?mode=cost',
   };
 
   function handleOpenProject(p: DbUserProject) {
