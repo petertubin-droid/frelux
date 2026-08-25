@@ -32,7 +32,6 @@ export const PRICING_PLANS: PricingPlan[] = [
       'Screeding Calculator',
       'POP Ceiling Calculator',
       'Tile Calculator',
-      '3 free AI Photo Estimations / day',
       'Community marketplace access',
       'Pro Connect profile',
     ],

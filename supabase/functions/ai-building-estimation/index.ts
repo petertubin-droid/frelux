@@ -547,8 +547,11 @@ Deno.serve(async (req: Request) => {
         const usedToday = await getDailyUsage(supabase, clientId, userId);
 
         if (usedToday >= config.estimation_daily_free_uses) {
+          const limitMsg = config.estimation_daily_free_uses === 0
+            ? 'Free AI estimations are no longer included in the Free plan. Use FRELUX Credits to access AI features.'
+            : 'You have used all your free image estimations for today.';
           return jsonResponse({
-            error: 'You have used all your free image estimations for today.',
+            error: limitMsg,
             code: 'USAGE_LIMIT_REACHED',
             usedToday,
             limit: config.estimation_daily_free_uses,

@@ -429,8 +429,11 @@ Deno.serve(async (req: Request) => {
     const usedToday = await getDailyUsage(supabase, clientId, userId);
     if (usedToday >= config.ai_daily_free_uses) {
       await logRequest(supabase, payload.mode, clientHash, 'usage_limited', 'DAILY_LIMIT');
+      const limitMsg = config.ai_daily_free_uses === 0
+        ? 'Free AI recommendations are no longer included in the Free plan. Use FRELUX Credits to access AI features.'
+        : `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`;
       return jsonResponse({
-        error: `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`,
+        error: limitMsg,
         code: 'USAGE_LIMIT_REACHED',
         dailyLimit: config.ai_daily_free_uses,
         usedToday,

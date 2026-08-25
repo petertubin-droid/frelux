@@ -74,7 +74,7 @@ export async function fetchAiAccessConfig(): Promise<AiAccessConfig | null> {
   return {
     aiEnabled: data.ai_enabled ?? true,
     accessMode: data.ai_access_mode ?? 'free',
-    dailyFreeUses: data.ai_daily_free_uses ?? 3,
+    dailyFreeUses: data.ai_daily_free_uses ?? 0,
     rewardedEnabled: data.ai_rewarded_enabled ?? false,
     paidEnabled: data.ai_paid_enabled ?? false,
     paidPrice: Number(data.ai_paid_price) || 0,
