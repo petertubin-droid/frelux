@@ -149,3 +149,23 @@ export {
   netAreaAfterCutouts,
   validateCutout,
 } from './cutouts';
+
+// ── Plan Scanner (Feature 9) ──
+export type {
+  PlanFileType,
+  PlanFile,
+  PlanRenderResult,
+  PlanMetadata,
+  ScaleCalibration,
+} from './plan-scanner';
+export {
+  detectPlanFileType,
+  isSupportedPlanType,
+  MAX_PLAN_FILE_SIZE,
+  validatePlanFile,
+  createPlanFile,
+  extractPlanMetadata,
+  createDefaultCalibration,
+  computePixelsPerMeter,
+  completeCalibration,
+} from './plan-scanner';
