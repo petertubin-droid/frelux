@@ -64,3 +64,26 @@ export {
   confirmGeometry,
   setSectionSource,
 } from './geometry-engine';
+
+// ── Roof Section Model (Feature 4) ──
+export type {
+  RoofSectionSpec,
+  MultiRoofSpec,
+  RoofSectionCalculation,
+  MultiRoofCalculation,
+} from './section-model-types';
+
+export {
+  pitchAdjustedArea,
+  getSectionPlanArea,
+  getSectionMissing,
+  calculateRoofSection,
+  calculateMultiRoof,
+  createRoofSectionSpec,
+  createDefaultMultiRoofSpec,
+  addRoofSection,
+  removeRoofSection,
+  updateRoofSection,
+  renameRoofSection,
+  confirmMultiRoofSpec,
+} from './section-model';
