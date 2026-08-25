@@ -29,6 +29,20 @@ interface ConsultParams {
   imageDataUrl?: string;
 }
 
+export async function requestColorConsultationWithCredits(params: ConsultParams): Promise<{ result?: AiRecommendation; gateError?: string; insufficientCredits?: boolean; adUnlockAvailable?: boolean; currentBalance?: number; requiredCredits?: number }> {
+  const { checkAndSpendCredits } = await import('@/lib/ai-credit-gate');
+  const gate = await checkAndSpendCredits('ai_color_consult');
+  if (!gate.allowed) {
+    return { gateError: gate.error ?? 'Credit required', insufficientCredits: true, adUnlockAvailable: gate.adUnlockAvailable, currentBalance: gate.newBalance ?? 0, requiredCredits: gate.feature?.credit_cost ?? 0 };
+  }
+  try {
+    const recommendation = await requestColorConsultation(params);
+    return { result: recommendation };
+  } catch (e) {
+    return { gateError: (e as Error).message };
+  }
+}
+
 export async function requestColorConsultation(params: ConsultParams): Promise<AiRecommendation> {
   try {
   const clientId = getClientId();

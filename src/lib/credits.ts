@@ -425,3 +425,310 @@ export function getDailyRefId(prefix: string, date: Date = new Date()): string {
   const dateStr = date.toISOString().split('T')[0];
   return `${prefix}_${dateStr}`;
 }
+
+// =========================================================
+// FRELUX Credits — Rewarded Ads & AI Feature Access
+// New functions built on top of the existing credit system.
+// All operations are server-side verified via edge functions.
+// =========================================================
+
+// ───────────────────────────────────────────────────────
+// Types
+// ───────────────────────────────────────────────────────
+
+export interface AiFeatureCost {
+  id: string;
+  feature_key: string;
+  feature_name: string;
+  description: string | null;
+  credit_cost: number;
+  requires_credits: boolean;
+  ad_unlock_enabled: boolean;
+  ad_unlock_credits: number;
+  daily_usage_limit: number;
+  is_enabled: boolean;
+  sort_order: number;
+}
+
+export interface RewardedAdCreditConfig {
+  id: number;
+  credits_per_ad: number;
+  daily_earn_limit: number;
+  cooldown_seconds: number;
+  min_interval_seconds: number;
+  is_enabled: boolean;
+}
+
+export interface RewardedAdCreditEvent {
+  id: string;
+  user_id: string;
+  ad_provider: string;
+  ad_event_id: string;
+  credits_awarded: number;
+  status: 'completed' | 'failed' | 'rejected';
+  metadata: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface SpendResult {
+  success: boolean;
+  error?: string;
+  code?: string;
+  newBalance?: number;
+  cost?: number;
+  currentBalance?: number;
+  requiredCredits?: number;
+  adUnlockEnabled?: boolean;
+}
+
+export interface EarnResult {
+  success: boolean;
+  error?: string;
+  code?: string;
+  creditsEarned?: number;
+  newBalance?: number;
+  message?: string;
+}
+
+// ───────────────────────────────────────────────────────
+// AI Feature Costs — public read
+// ───────────────────────────────────────────────────────
+
+export async function getAiFeatureCosts(): Promise<AiFeatureCost[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('ai_feature_costs')
+    .select('*')
+    .eq('is_enabled', true)
+    .order('sort_order', { ascending: true });
+  if (error) return [];
+  return (data ?? []) as AiFeatureCost[];
+}
+
+export async function getAiFeatureCost(featureKey: string): Promise<AiFeatureCost | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('ai_feature_costs')
+    .select('*')
+    .eq('feature_key', featureKey)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as AiFeatureCost;
+}
+
+// ───────────────────────────────────────────────────────
+// Rewarded Ad Credit Config — public read
+// ───────────────────────────────────────────────────────
+
+export async function getRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('rewarded_ad_credit_config')
+    .select('*')
+    .eq('id', 1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as RewardedAdCreditConfig;
+}
+
+// ───────────────────────────────────────────────────────
+// Rewarded Ad Credit Events — user reads own history
+// ───────────────────────────────────────────────────────
+
+export async function getRewardedAdHistory(limit = 20): Promise<RewardedAdCreditEvent[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('rewarded_ad_credit_events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return (data ?? []) as RewardedAdCreditEvent[];
+}
+
+// ───────────────────────────────────────────────────────
+// AI Feature Usage — user reads own
+// ───────────────────────────────────────────────────────
+
+export async function getAiFeatureUsageToday(featureKey: string): Promise<number> {
+  if (!isSupabaseConfigured) return 0;
+  const today = new Date().toISOString().split('T')[0];
+  const { count, error } = await supabase
+    .from('ai_feature_usage')
+    .select('id', { count: 'exact', head: true })
+    .eq('feature_key', featureKey)
+    .gte('created_at', today + 'T00:00:00Z');
+  if (error) return 0;
+  return count ?? 0;
+}
+
+// ───────────────────────────────────────────────────────
+// Spend Credits for AI Feature — server-side via edge function
+// ───────────────────────────────────────────────────────
+
+export async function spendAiCredits(
+  featureKey: string,
+  idempotencyKey: string,
+  metadata?: Record<string, unknown>
+): Promise<SpendResult> {
+  if (!isSupabaseConfigured) return { success: false, error: 'Not configured', code: 'CONFIG_ERROR' };
+  try {
+    const { data, error } = await supabase.functions.invoke('spend-ai-credits', {
+      body: { featureKey, idempotencyKey, metadata },
+    });
+    if (error) return { success: false, error: error.message ?? 'Edge function error', code: 'EDGE_ERROR' };
+    return data as SpendResult;
+  } catch (e) {
+    return { success: false, error: 'Unable to reach credit service', code: 'NETWORK_ERROR' };
+  }
+}
+
+// ───────────────────────────────────────────────────────
+// Verify Rewarded Ad & Earn Credits — server-side via edge function
+// ───────────────────────────────────────────────────────
+
+export async function verifyRewardedAd(
+  adProvider: string,
+  adEventId: string,
+  mode: 'earn_credits' = 'earn_credits',
+  metadata?: Record<string, unknown>
+): Promise<EarnResult> {
+  if (!isSupabaseConfigured) return { success: false, error: 'Not configured', code: 'CONFIG_ERROR' };
+  try {
+    const { data, error } = await supabase.functions.invoke('verify-rewarded-ad', {
+      body: { adProvider, adEventId, mode, metadata },
+    });
+    if (error) return { success: false, error: error.message ?? 'Edge function error', code: 'EDGE_ERROR' };
+    return data as EarnResult;
+  } catch (e) {
+    return { success: false, error: 'Unable to reach ad verification service', code: 'NETWORK_ERROR' };
+  }
+}
+
+// ───────────────────────────────────────────────────────
+// Unlock AI Feature via Ad (no credit spend)
+// ───────────────────────────────────────────────────────
+
+export async function unlockFeatureViaAd(
+  featureKey: string,
+  adProvider: string,
+  adEventId: string,
+  metadata?: Record<string, unknown>
+): Promise<{ success: boolean; error?: string; message?: string }> {
+  if (!isSupabaseConfigured) return { success: false, error: 'Not configured' };
+  try {
+    const { data, error } = await supabase.functions.invoke('verify-rewarded-ad', {
+      body: { adProvider, adEventId, mode: 'unlock_feature', featureKey, metadata },
+    });
+    if (error) return { success: false, error: error.message ?? 'Edge function error' };
+    return data as { success: boolean; error?: string; message?: string };
+  } catch (e) {
+    return { success: false, error: 'Unable to reach unlock service' };
+  }
+}
+
+// ───────────────────────────────────────────────────────
+// Admin: AI Feature Cost management
+// ───────────────────────────────────────────────────────
+
+export async function adminGetAllFeatureCosts(): Promise<AiFeatureCost[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('ai_feature_costs')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) return [];
+  return (data ?? []) as AiFeatureCost[];
+}
+
+export async function adminUpdateFeatureCost(
+  featureId: string,
+  updates: Partial<Pick<AiFeatureCost, 'feature_name' | 'description' | 'credit_cost' | 'requires_credits' | 'ad_unlock_enabled' | 'ad_unlock_credits' | 'daily_usage_limit' | 'is_enabled' | 'sort_order'>>
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('ai_feature_costs')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', featureId);
+  return !error;
+}
+
+export async function adminCreateFeatureCost(
+  feature: Omit<AiFeatureCost, 'id' | 'created_at' | 'updated_at'>
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase.from('ai_feature_costs').insert(feature);
+  return !error;
+}
+
+export async function adminUpdateAdConfig(
+  updates: Partial<Pick<RewardedAdCreditConfig, 'credits_per_ad' | 'daily_earn_limit' | 'cooldown_seconds' | 'min_interval_seconds' | 'is_enabled'>>
+): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  const { error } = await supabase
+    .from('rewarded_ad_credit_config')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', 1);
+  return !error;
+}
+
+export async function adminGetRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data, error } = await supabase
+    .from('rewarded_ad_credit_config')
+    .select('*')
+    .eq('id', 1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as RewardedAdCreditConfig;
+}
+
+export async function adminGetAllAdCreditEvents(limit = 50): Promise<RewardedAdCreditEvent[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('rewarded_ad_credit_events')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return (data ?? []) as RewardedAdCreditEvent[];
+}
+
+export async function adminGetAllAiFeatureUsage(limit = 50): Promise<Array<{ id: string; user_id: string; feature_key: string; credits_spent: number; unlocked_via_ad: boolean; created_at: string }>> {
+  if (!isSupabaseConfigured) return [];
+  const { data, error } = await supabase
+    .from('ai_feature_usage')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) return [];
+  return (data ?? []) as any;
+}
+
+// ───────────────────────────────────────────────────────
+// Admin: enhanced credit adjustment with audit
+// ───────────────────────────────────────────────────────
+
+export async function adminAdjustCreditsV2(
+  targetUserId: string,
+  amount: number,
+  reason: string
+): Promise<{ success: boolean; newBalance?: number; error?: string }> {
+  if (!isSupabaseConfigured) return { success: false, error: 'Not configured' };
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, error: 'Not authenticated' };
+  try {
+    const { data, error } = await supabase.rpc('admin_adjust_credits_v2', {
+      p_admin_id: user.id,
+      p_target_user_id: targetUserId,
+      p_amount: amount,
+      p_reason: reason,
+    });
+    if (error) return { success: false, error: error.message };
+    const row = (data as any[])?.[0];
+    if (!row?.success) return { success: false, error: row?.error ?? 'Unknown error' };
+    return { success: true, newBalance: row.new_balance };
+  } catch (e) {
+    return { success: false, error: 'Failed to adjust credits' };
+  }
+}

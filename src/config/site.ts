@@ -106,6 +106,10 @@ export const navWorkspaces: NavWorkspace[] = [
     ],
   },
   {
+    label: 'Credits',
+    path: '/credits',
+  },
+  {
     label: 'Learn',
     path: '/learn',
     children: [

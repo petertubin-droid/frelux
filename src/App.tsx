@@ -156,6 +156,8 @@ const AdminImageEstimation = lazy(() => import('@/pages/admin/AdminImageEstimati
 const AdminMarketplace = lazy(() => import('@/pages/admin/AdminMarketplace'));
 const AdminSeoLocation = lazy(() => import('@/pages/admin/AdminSeoLocation'));
 const AdminRewards = lazy(() => import('@/pages/admin/AdminRewards'));
+const AdminCreditsAds = lazy(() => import('@/pages/admin/AdminCreditsAds'));
+const CreditsPage = lazy(() => import('@/pages/Credits'));
 const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
 const ProductDetail = lazy(() => import('@/pages/marketplace/ProductDetail'));
 const MyProducts = lazy(() => import('@/pages/marketplace/MyProducts'));
@@ -402,6 +404,7 @@ export default function App() {
             <Route path="engine-config" element={<Suspense fallback={<PageLoader />}><AdminEngineConfig /></Suspense>} />
             <Route path="seo-location" element={<Suspense fallback={<PageLoader />}><AdminSeoLocation /></Suspense>} />
             <Route path="rewards" element={<AdminRewards />} />
+            <Route path="credits-ads" element={<AdminCreditsAds />} />
 
             {/* Contractor Config */}
             <Route path="material-catalog" element={<Suspense fallback={<PageLoader />}><AdminMaterialCatalog /></Suspense>} />
@@ -432,6 +435,7 @@ export default function App() {
             </Route>
           </Route>
 
+          <Route path="/credits" element={<Suspense fallback={<PageLoader />}><CreditsPage /></Suspense>} />
           {/* Fallback for unmatched admin routes */}
           <Route path="/admin/*" element={<NotFound />} />
         </SentryRoutes>
