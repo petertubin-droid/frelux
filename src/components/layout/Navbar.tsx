@@ -140,63 +140,82 @@ export default function Navbar() {
                     </button>
                     {openDropdown === workspace.label && (
                       <div
-                        className="absolute left-0 top-full z-50 min-w-[320px] max-w-[400px] rounded-2xl border border-neutral-200/40 bg-white/95 py-2 shadow-premium-lg backdrop-blur-xl animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
-                        style={{ animationDuration: '0.15s' }}
+                        className="absolute left-0 top-full z-50 pt-1"
                         onMouseLeave={() => setOpenDropdown(null)}
                       >
-                        {/* Dropdown header */}
-                        <div className="px-4 py-2">
-                          <NavLink
-                            to={workspace.path}
-                            className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-neutral-400 transition-colors hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter"
-                          >
-                            {workspace.label}
-                            <ChevronRight className="h-3 w-3" />
-                          </NavLink>
-                        </div>
-                        {/* Grouped sections */}
-                        {groupBySection(workspace.children).map((group, gi) => (
-                          <div key={gi}>
-                            {group.section && (
-                              <div className="px-4 pb-1.5 pt-3">
-                                <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
-                                  {group.section}
-                                </p>
-                              </div>
-                            )}
-                            {group.items.map((child) => (
-                              <NavLink
-                                key={child.path}
-                                to={child.path}
-                                className={({ isActive }) => classNames(
-                                  'group flex items-start gap-3 rounded-lg px-4 py-2 transition-all',
-                                  isActive
-                                    ? 'bg-brand-purple/5'
-                                    : 'hover:bg-brand-purple/5'
-                                )}
-                              >
-                                <div className="min-w-0 flex-1">
-                                  <p className={classNames(
-                                    'text-sm font-medium transition-colors',
-                                    location.pathname === child.path
-                                      ? 'text-brand-purple dark:text-brand-purple-lighter'
-                                      : 'text-neutral-700 group-hover:text-brand-purple dark:text-neutral-200 dark:group-hover:text-brand-purple-lighter'
-                                  )}>
-                                    {child.label}
-                                  </p>
-                                  {child.description && (
-                                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
-                                      {child.description}
-                                    </p>
-                                  )}
-                                </div>
-                              </NavLink>
-                            ))}
-                            {gi < groupBySection(workspace.children).length - 1 && (
-                              <div className="mx-4 my-1 border-t border-neutral-100 dark:border-white/5" />
-                            )}
+                        {/* Premium mega-menu panel */}
+                        <div
+                          className="origin-top-left rounded-2xl border border-neutral-200/50 bg-white/97 shadow-premium-lg backdrop-blur-2xl dark:border-white/10 dark:bg-brand-navy-mid/97"
+                          style={{ animation: 'navDropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both' }}
+                        >
+                          {/* Dropdown header bar */}
+                          <div className="flex items-center justify-between rounded-t-2xl border-b border-neutral-100 bg-gradient-to-r from-brand-purple/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-brand-purple/10">
+                            <NavLink
+                              to={workspace.path}
+                              className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-neutral-400 transition-colors hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter"
+                            >
+                              {workspace.label}
+                              <ChevronRight className="h-3 w-3" />
+                            </NavLink>
                           </div>
-                        ))}
+
+                          {/* Grouped sections — multi-column for large menus */}
+                          {(() => {
+                            const groups = groupBySection(workspace.children);
+                            const totalItems = (workspace.children ?? []).length;
+                            const isMega = totalItems > 8;
+                            const maxHeight = isMega ? 'max-h-[min(70vh,560px)]' : 'max-h-[min(60vh,440px)]';
+                            const colsClass = isMega ? 'grid grid-cols-2 gap-x-1' : 'flex flex-col';
+                            return (
+                              <div className={classNames('overflow-y-auto px-2 py-2 nav-scroll', maxHeight, colsClass)} style={{ scrollbarWidth: 'thin' }}>
+                                {groups.map((group, gi) => (
+                                  <div key={gi} className={isMega ? 'col-span-2' : ''}>
+                                    {/* Section label */}
+                                    {group.section && (
+                                      <div className="px-3 pb-1 pt-2.5">
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                                          {group.section}
+                                        </p>
+                                      </div>
+                                    )}
+                                    {/* Section items */}
+                                    {group.items.map((child) => (
+                                      <NavLink
+                                        key={child.path}
+                                        to={child.path}
+                                        className={({ isActive }) => classNames(
+                                          'group flex items-start gap-3 rounded-xl px-3 py-2 transition-all duration-150',
+                                          isActive
+                                            ? 'bg-brand-purple/8'
+                                            : 'hover:bg-brand-purple/5'
+                                        )}
+                                      >
+                                        <div className="min-w-0 flex-1">
+                                          <p className={classNames(
+                                            'text-[13px] font-medium leading-tight transition-colors',
+                                            location.pathname === child.path
+                                              ? 'text-brand-purple dark:text-brand-purple-lighter'
+                                              : 'text-neutral-700 group-hover:text-brand-purple dark:text-neutral-200 dark:group-hover:text-brand-purple-lighter'
+                                          )}>
+                                            {child.label}
+                                          </p>
+                                          {child.description && (
+                                            <p className="mt-0.5 text-[11px] leading-snug text-neutral-400 dark:text-neutral-500">
+                                              {child.description}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </NavLink>
+                                    ))}
+                                    {gi < groups.length - 1 && (
+                                      <div className="mx-3 my-1.5 border-t border-neutral-100 dark:border-white/5" />
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          })()}
+                        </div>
                       </div>
                     )}
                   </>
