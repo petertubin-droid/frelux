@@ -474,3 +474,19 @@ export {
   detectionSummary,
   roomsByVerificationState,
 } from './plan-intelligence';
+
+// ── Cost Integration (Feature 18: Cost Integration) ──
+export {
+  type PriceSource,
+  type QuantitySource,
+  type CostLineItem,
+  type CostCategory,
+  type CostEstimate,
+  type CostIssue,
+  type MaterialPriceInput,
+  type MaterialQuantityInput,
+  buildCostLineItem,
+  buildCostEstimate,
+  roofMaterialResultToQuantities,
+  materialCalculationsToQuantities,
+} from './cost-integration';
