@@ -99,7 +99,7 @@ const routes = [
   {
     path: '/paint-calculator',
     title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX',
-    description: 'Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.',
+    description: 'Room-based paint calculator for Nigerian projects. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using admin-configured coverage rates.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -109,15 +109,16 @@ const routes = [
         { '@type': 'ListItem', position: 2, name: 'Paint Calculator', item: `${SITE_URL}/paint-calculator` },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'How do I calculate how much paint I need?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length, width, and wall height into the FRELUX Paint Calculator. Deduct doors and windows, select the number of coats, and the calculator estimates paint quantity in litres.' } },
-        { '@type': 'Question', name: 'How accurate is the paint calculator?', acceptedAnswer: { '@type': 'Answer', text: 'The calculator uses standard paint coverage rates and factors in wall area, openings, and coats. Results are estimates for planning.' } },
+        { '@type': 'Question', name: 'How does the FRELUX paint calculator differ from a generic area-based calculator?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX uses a room-based approach: you enter room dimensions (not raw m²), and the calculator handles all area math internally. Coverage rates are admin-configured from the database. Surface condition, colour condition, and wall height all affect the final quantity.' } },
+        { '@type': 'Question', name: 'Why does the calculator recommend 20-litre buckets?', acceptedAnswer: { '@type': 'Answer', text: '20-litre buckets are the standard purchase unit in the Nigerian paint market. The calculator shows both theoretical litres needed and the practical number of buckets to buy.' } },
+        { '@type': 'Question', name: 'Do I need primer?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX recommends primer for new/unpainted surfaces and when painting light colours over dark surfaces. The calculator flags these conditions automatically based on your colour condition selection.' } },
       ]},
     ],
   },
   {
     path: '/screeding-calculator',
     title: 'Wall Screeding Calculator: FRELUX',
-    description: 'Calculate wall screeding area and material quantities. Enter room dimensions to get cement, sand, and labour estimates for wall screeding.',
+    description: 'Calculate wall screeding area in m² and estimate screeding paint (litres) and white cement (kg). Enter room or fence dimensions in feet or metres.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -125,6 +126,11 @@ const routes = [
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
         { '@type': 'ListItem', position: 2, name: 'Screeding Calculator', item: `${SITE_URL}/screeding-calculator` },
+      ]},
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
+        { '@type': 'Question', name: 'Does FRELUX use a cement:sand mix ratio for screeding?', acceptedAnswer: { '@type': 'Answer', text: 'No. The FRELUX screeding methodology calculates screeding paint (litres) and white cement (kg) based on the surface area in m² and admin-configured coverage and consumption rates.' } },
+        { '@type': 'Question', name: 'Can I calculate screeding for fences?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Enter fence dimensions in feet or metres. The calculator converts the surface area to m² and calculates materials using the same methodology.' } },
+        { '@type': 'Question', name: 'Is the screeding area shown in m²?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. All screeding calculations use square metres (m²) as the unit of measurement, even when input dimensions are in feet.' } },
       ]},
     ],
   },
@@ -232,13 +238,13 @@ const routes = [
   {
     path: '/tyrolene-estimator',
     title: 'Tyrolene Estimator: Exterior Wall Finish | FRELUX',
-    description: 'Calculate Tyrolene material quantities and costs. Cement, sand, acrylic bond, water seal, and anti-fungal estimates for exterior walls.',
+    description: 'Partition-based Tyrolene estimator for exterior walls. Calculate sand, cement, acrylic bond, water seal, and anti-fungal material quantities per standard partition.',
     priority: '0.7',
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Tyrolene Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Tyrolene Estimator', item: 'https://freluxtools.netlify.app/tyrolene-estimator' }] },
-      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is Tyrolene?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is a textured exterior wall finish made from cement, sand, acrylic bond, and water seal. It provides weather resistance and decorative texture to building exteriors.' } }, { '@type': 'Question', name: 'How is Tyrolene calculated?', acceptedAnswer: { '@type': 'Answer', text: 'Tyrolene is calculated based on wall area and number of coats. The estimator determines cement, sand, acrylic bond, water seal, and anti-fungal quantities.' } }] },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What is a standard partition in FRELUX?', acceptedAnswer: { '@type': 'Answer', text: 'A standard partition is 3m × 3m (9m²). You can enter the number of standard partitions directly, or provide actual wall dimensions and the calculator converts them to equivalent standard partitions.' } }, { '@type': 'Question', name: 'Can I use the Tyrolene estimator for interior walls?', acceptedAnswer: { '@type': 'Answer', text: 'No. Tyrolene is an exterior-only finish. The FRELUX Tyrolene Estimator is designed for exterior wall applications only.' } }, { '@type': 'Question', name: 'Does the calculator include labour costs?', acceptedAnswer: { '@type': 'Answer', text: 'No. Labour is negotiated separately and is not part of the Tyrolene material estimation.' } }] },
     ],
   },
   {
@@ -356,7 +362,7 @@ const routes = [
   {
     path: '/image-estimator',
     title: 'AI Photo Estimator: Estimate from a Photo | FRELUX',
-    description: 'Upload a photo of your construction site or room and get an AI-powered material and cost estimate. Quick, visual estimation for Nigerian building projects.',
+    description: 'Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for Nigerian painting, tiling, and construction projects.',
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
