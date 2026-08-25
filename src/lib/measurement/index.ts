@@ -569,3 +569,25 @@ export {
 // different type). For the unified labels, import directly from
 // the module: verification-states.ts
 export { VERIFICATION_STATE_LABELS as UNIFIED_VERIFICATION_STATE_LABELS } from './verification-states';
+
+// ── Smart Roof Report (Feature 20) ──
+export {
+  type MeasurementSource,
+  type ReportMetadata,
+  type RoofSectionSummary,
+  type RoofSummarySection,
+  type LinearMeasurementEntry,
+  type LinearMeasurementsSection,
+  type CutoutEntry,
+  type CutoutsSection,
+  type MaterialRequirementEntry,
+  type MaterialRequirementsSection,
+  type WasteSection,
+  type MarketPriceEntry,
+  type MarketPriceSection,
+  type ConfidenceSection,
+  type CalculationExplanationEntry,
+  type CalculationExplanationSection,
+  type SmartRoofReport,
+  buildSmartRoofReport,
+} from './smart-roof-report';
