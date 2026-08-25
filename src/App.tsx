@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/lib/auth';
 import { MarketProvider } from '@/lib/international/market-context';
+import { CreditsProvider } from '@/lib/credits-context';
 import { ToastProvider } from '@/components/ui/Toast';
 import AnalyticsScripts from '@/components/AnalyticsScripts';
 import { AdBlockNotice } from '@/components/ui/AdBlockNotice';
@@ -144,12 +145,14 @@ const MyListings = lazy(() => import('@/pages/marketplace/MyListings'));
 const OrderDetail = lazy(() => import('@/pages/marketplace/OrderDetail'));
 const WorkerChannels = lazy(() => import('@/pages/worker-channels/WorkerChannels'));
 const Achievements = lazy(() => import("@/pages/Achievements"));
+const Rewards = lazy(() => import("@/pages/Rewards"));
 
 // Admin Pro Connect
 const AdminProConnect = lazy(() => import('@/pages/admin/AdminProConnect'));
 const AdminImageEstimation = lazy(() => import('@/pages/admin/AdminImageEstimation'));
 const AdminMarketplace = lazy(() => import('@/pages/admin/AdminMarketplace'));
 const AdminSeoLocation = lazy(() => import('@/pages/admin/AdminSeoLocation'));
+const AdminRewards = lazy(() => import('@/pages/admin/AdminRewards'));
 const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
 const ProductDetail = lazy(() => import('@/pages/marketplace/ProductDetail'));
 const MyProducts = lazy(() => import('@/pages/marketplace/MyProducts'));
@@ -197,6 +200,7 @@ export default function App() {
       <AuthProvider>
         <MarketProvider>
         <ToastProvider>
+        <CreditsProvider>
           <AnalyticsScripts />
           <AdBlockNotice />
           <BrowserRouter>
@@ -257,6 +261,7 @@ export default function App() {
             <Route path="/profile" element={<Suspense fallback={<PageLoader />}><Profile /></Suspense>} />
             <Route path="/pricing" element={<Suspense fallback={<PageLoader />}><Pricing /></Suspense>} />
             <Route path="/achievements" element={<Suspense fallback={<PageLoader />}><Achievements /></Suspense>} />
+            <Route path="/rewards" element={<Suspense fallback={<PageLoader />}><Rewards /></Suspense>} />
 
             {/* Contractor Experience */}
             <Route path="/contractor" element={<Suspense fallback={<PageLoader />}><ContractorProjects /></Suspense>} />
@@ -391,6 +396,7 @@ export default function App() {
             <Route path="market-intelligence" element={<AdminMarketIntelligence />} />
             <Route path="engine-config" element={<Suspense fallback={<PageLoader />}><AdminEngineConfig /></Suspense>} />
             <Route path="seo-location" element={<Suspense fallback={<PageLoader />}><AdminSeoLocation /></Suspense>} />
+            <Route path="rewards" element={<AdminRewards />} />
 
             {/* Contractor Config */}
             <Route path="material-catalog" element={<Suspense fallback={<PageLoader />}><AdminMaterialCatalog /></Suspense>} />
@@ -424,6 +430,7 @@ export default function App() {
           <Route path="/admin/*" element={<NotFound />} />
         </SentryRoutes>
           </BrowserRouter>
+        </CreditsProvider>
         </ToastProvider>
         </MarketProvider>
       </AuthProvider>

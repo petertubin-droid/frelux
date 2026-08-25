@@ -2,13 +2,14 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
-  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack,
+  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem,
   Users, BarChart3, Search, ChevronRight, Crown,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces, type NavChild } from '@/config/site';
 import { classNames } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
+import { useCredits } from '@/lib/credits-context';
 import { useTheme } from '@/lib/theme';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { AccessibilityToggle } from '@/components/ui/AccessibilityToggle';
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const location = useLocation();
   const { user, profile, signOut, isPaid, paidStatus } = useAuth();
+  const { wallet } = useCredits();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +60,7 @@ export default function Navbar() {
     { label: 'Calculator Templates', to: '/my-templates', icon: FileStack },
     { label: 'Marketplace', to: '/marketplace', icon: ShoppingBag, external: true },
     { label: 'Pricing', to: '/pricing', icon: Crown },
+    { label: 'Rewards', to: '/rewards', icon: Gem },
     { label: 'My Job Listings', to: '/marketplace/my-listings', icon: Briefcase },
     { label: 'My Products', to: '/marketplace/products/my', icon: Package },
     { label: 'My Projects', to: '/contractor', icon: FileStack },
@@ -290,6 +293,12 @@ export default function Navbar() {
                                 <Crown className="h-2.5 w-2.5" />
                                 {paidStatus?.plan ? paidStatus.plan.toUpperCase() : 'PREMIUM'}
                               </span>
+                            )}
+                            {user && (
+                              <Link to="/rewards" className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                                <Gem className="h-2.5 w-2.5" />
+                                {wallet?.balance ?? 0} Credits
+                              </Link>
                             )}
                           </div>
                         </div>

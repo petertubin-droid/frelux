@@ -29,6 +29,7 @@ import { useTemplateLoader } from "@/lib/useTemplateLoader";
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { trackCalculation } from '@/lib/achievements';
+import { trackCalculationWithRewards } from '@/lib/rewards-integration';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
@@ -135,6 +136,7 @@ const mountedRef = useRef(true);
 
     const r = calculatePopCeiling(input, materials, currency, currencySymbol);
     trackCalculation('pop');
+    trackCalculationWithRewards('pop', 'POP Ceiling Calculator');
     setResult(r);
     track('pop_ceiling_calculated', { workflow: input.workflow, area: r.ceilingArea });
     void saveEstimateHistory(user?.id ?? null, { calculator_type: 'pop', project_name: `POP Ceiling: ${input.workflow}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});

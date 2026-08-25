@@ -40,7 +40,7 @@ export default function Hero() {
   const { branding } = useBranding();
 
   return (
-    <section className="relative overflow-hidden bg-mesh text-white">
+    <section data-tour="hero" className="relative overflow-hidden bg-mesh text-white">
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
 

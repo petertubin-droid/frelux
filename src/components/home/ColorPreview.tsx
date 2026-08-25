@@ -29,7 +29,7 @@ const mountedRef = useRef(true);
   }
 
   return (
-    <section className="relative bg-white py-24 sm:py-28 dark:bg-brand-navy">
+    <section data-tour="colors" className="relative bg-white py-24 sm:py-28 dark:bg-brand-navy">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading

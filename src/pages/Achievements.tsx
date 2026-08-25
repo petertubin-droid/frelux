@@ -49,6 +49,9 @@ export default function Achievements() {
         <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
           Unlock badges as you use FRELUX. Track your progress and milestones.
         </p>
+        <Link to="/rewards" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90">
+          💎 View FRELUX Rewards
+        </Link>
       </div>
 
       {/* Progress overview */}

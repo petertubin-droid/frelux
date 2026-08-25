@@ -81,7 +81,7 @@ export default function InteractiveEstimatePreview() {
   }, [result, totalBuckets, isVisible]);
 
   return (
-    <section className="relative overflow-hidden bg-neutral-50/50 py-20 sm:py-24 dark:bg-brand-navy-mid bg-noise">
+    <section data-tour="cost" className="relative overflow-hidden bg-neutral-50/50 py-20 sm:py-24 dark:bg-brand-navy-mid bg-noise">
       <div className="pointer-events-none absolute inset-0 bg-grid opacity-30 dark:bg-grid-dark dark:opacity-20" aria-hidden="true" />
 
       <Container className="relative">

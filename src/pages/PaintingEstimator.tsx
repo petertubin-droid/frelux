@@ -38,6 +38,7 @@ import type {
 import { fetchEstimationProducts, fetchProductQualityLevels, fetchActivePrice, fetchCalcRules, fetchColourConditions, fetchSurfaceConditions, createEstimate, createEstimateItem, createAdjustment, createAuditLog } from '@/lib/estimation/queries';
 import { saveUserProject } from '@/lib/queries';
 import { trackCalculation } from '@/lib/achievements';
+import { trackCalculationWithRewards } from '@/lib/rewards-integration';
 import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
@@ -396,6 +397,7 @@ const mountedRef = useRef(true);
       total_cost: calcResult.total_material_cost,
     });
     trackCalculation('painting');
+    trackCalculationWithRewards('painting', 'Painting Estimator');
   }, [rooms, products, qualities, prices, calcRules, colourConditions, surfaceConditions, productionRules, calcVersionId, projectDescription, customerLocation, addPrimer]);
 
   // =========================================================

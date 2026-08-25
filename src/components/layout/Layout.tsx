@@ -13,6 +13,7 @@ import { OnboardingTour } from '@/components/ui/OnboardingTour';
 import { AchievementToast } from '@/components/ui/AchievementBadges';
 import { isOnboardingComplete } from '@/lib/onboarding';
 import { trackVisit } from '@/lib/achievements';
+import { trackReturnVisitRewards } from '@/lib/rewards-integration';
 import type { Achievement } from '@/lib/achievements';
 import { supabase } from '@/lib/supabase';
 
@@ -32,6 +33,8 @@ const mountedRef = useRef(true);
       setNewAchievements(newlyUnlocked);
       setTimeout(() => setNewAchievements([]), 5000);
     }
+    // Fire-and-forget: track return visit for credits/streak (authenticated users only)
+    trackReturnVisitRewards();
     if (!isOnboardingComplete() && location.pathname === '/') {
       setTimeout(() => setShowOnboarding(true), 800);
     }

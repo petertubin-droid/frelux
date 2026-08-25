@@ -29,6 +29,7 @@ import type { DbTileSize, DbTileMaterial, DbSiteSettings } from '@/types/databas
 import SaveTemplateButton from '@/components/templates/SaveTemplateButton';
 import LoadTemplateButton from '@/components/templates/LoadTemplateButton';
 import { trackCalculation } from '@/lib/achievements';
+import { trackCalculationWithRewards } from '@/lib/rewards-integration';
 import { trackRecentTool } from '@/lib/smart-defaults';
 
 import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
@@ -216,6 +217,7 @@ const mountedRef = useRef(true);
 
     const r = calculateTile(input, tileMaterials, currency, currencySymbol);
     trackCalculation('tile');
+    trackCalculationWithRewards('tile', 'Tile Calculator');
     setResult(r);
     track('tile_calculated', { surfaceType: input.surfaceType, area: r.surfaceArea, tiles: r.tilesNeeded });
     void saveEstimateHistory(user?.id ?? null, { calculator_type: 'tile', project_name: `Tile: ${input.surfaceType}`, input_data: input as unknown as Record<string, unknown>, result_data: r as unknown as Record<string, unknown> }).catch(() => {});

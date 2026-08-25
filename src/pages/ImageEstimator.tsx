@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSeo } from '@/lib/seo';
 import { useAuth } from '@/lib/auth';
+import { trackAiPhotoEstimatorRewards } from '@/lib/rewards-integration';
 import { supabase } from '@/lib/supabase';
 import {
   ImagePlus, Zap, BadgeCheck, Lock, Crown, Loader2, AlertCircle,
@@ -219,6 +220,7 @@ const mountedRef = useRef(true);
     const result = calculateBuildToRoof(estimateInput);
     setEstimate(result);
     setPhase('result');
+    trackAiPhotoEstimatorRewards();
   }, [estimateInput]);
 
   // ── Adjust analysis and recalculate ──

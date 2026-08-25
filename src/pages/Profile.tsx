@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { User, Camera, Save, Copy, Check, Mail, Phone, Shield, ShoppingBag, Calendar, Loader2, Crown, Clock } from 'lucide-react';
+import { User, Camera, Save, Copy, Check, Mail, Phone, Shield, ShoppingBag, Calendar, Loader2, Crown, Clock, Gem, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PageHeader from '@/components/ui/PageHeader';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/auth';
+import { useCredits } from '@/lib/credits-context';
 import { useSeo } from '@/lib/seo';
 import { supabase } from '@/lib/supabase';
 
@@ -16,6 +17,7 @@ export default function Profile() {
   });
 
   const { user, profile, refreshProfile, isPaid, paidStatus } = useAuth();
+  const { wallet, streak } = useCredits();
   const { toast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -314,6 +316,30 @@ export default function Profile() {
               <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 This unique ID will be used to identify you in the upcoming FRELUX marketplace. Share it with clients and partners so they can find you easily.
               </p>
+            </div>
+          </div>
+        </div>
+
+        {/* FRELUX Credits & Rewards */}
+        <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/15">
+                <Gem className="h-5 w-5 text-brand-purple" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-neutral-400">FRELUX Credits</p>
+                <p className="text-lg font-bold text-brand-navy dark:text-white">{wallet?.balance ?? 0}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1.5 dark:bg-amber-500/10">
+                <Flame className="h-3.5 w-3.5 text-amber-500" />
+                <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{streak?.current_streak ?? 0} day{(streak?.current_streak ?? 0) === 1 ? '' : 's'}</span>
+              </div>
+              <Link to="/rewards" className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-purple/90 transition-colors">
+                View Rewards
+              </Link>
             </div>
           </div>
         </div>

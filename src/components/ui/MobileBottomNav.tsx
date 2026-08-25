@@ -18,7 +18,7 @@ export default function MobileBottomNav() {
     { to: '/paint-calculator', label: 'Calculate', icon: Calculator },
     { to: '/marketplace', label: 'Market', icon: ShoppingBag },
     { to: '/my-projects', label: 'Projects', icon: FolderOpen },
-    { to: '/achievements', label: 'Rewards', icon: Trophy, badge: unlockedCount },
+    { to: '/rewards', label: 'Rewards', icon: Trophy, badge: unlockedCount },
   ];
 
   return (

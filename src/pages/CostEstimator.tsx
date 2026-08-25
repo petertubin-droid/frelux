@@ -31,6 +31,7 @@ interface PassedState {
 
 import { useSeo } from '@/lib/seo';
 import { trackCalculation } from '@/lib/achievements';
+import { trackCalculationWithRewards } from '@/lib/rewards-integration';
 import { trackRecentTool } from '@/lib/smart-defaults';
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
@@ -227,6 +228,7 @@ const mountedRef = useRef(true);
     const r: CostEstimateResult = { ...rawResult, laborCost, total: rawResult.total + laborCost };
     setResult(r);
     trackCalculation('cost');
+    trackCalculationWithRewards('cost', 'Cost Estimator');
     track('cost_estimate_completed', { total: r.total });
     logAnalyticsEvent('cost_estimate_completed', { total: r.total });
   }

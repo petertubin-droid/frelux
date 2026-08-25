@@ -51,6 +51,7 @@ import {
 } from '@/lib/estimation/queries';
 import { saveUserProject } from '@/lib/queries';
 import { trackCalculation } from '@/lib/achievements';
+import { trackCalculationWithRewards } from '@/lib/rewards-integration';
 import { trackRecentTool } from '@/lib/smart-defaults';
 import { classNames } from '@/lib/utils';
 
@@ -384,7 +385,8 @@ const mountedRef = useRef(true);
       );
 
       setSaved(true);
-      trackCalculation('tyrolene'); // reuses achievement infrastructure
+      trackCalculation('tyrolene');
+      trackCalculationWithRewards('tyrolene', 'Tyrolene Estimator');
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : 'Failed to save estimate.');
     } finally {

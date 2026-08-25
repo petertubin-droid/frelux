@@ -34,6 +34,7 @@ import type {
   ShareableResourceType,
 } from '@/types/database';
 import type { ColorFilter } from '@/types';
+import { trackProjectSaveWithRewards } from '@/lib/rewards-integration';
 
 // Centralized data access for the public (anon-key) frontend.
 // Each function returns { data, error } so callers can render loading/error/empty states.
@@ -486,6 +487,9 @@ export async function fetchUserProjects(): Promise<{ data: DbUserProject[]; erro
 
 export async function saveUserProject(name: string, projectType: DbUserProject['project_type'], projectData: Record<string, unknown>, description?: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from('user_projects').insert({ name, project_type: projectType, project_data: projectData, description });
+  if (!error) {
+    trackProjectSaveWithRewards();
+  }
   return { error: error ? error.message : null };
 }
 
