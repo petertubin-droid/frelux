@@ -87,3 +87,13 @@ export {
   renameRoofSection,
   confirmMultiRoofSpec,
 } from './section-model';
+
+// ── Roof Area Pipeline (Feature 6) ──
+export type {
+  RoofCutout,
+  RoofAreaPipelineInput,
+  RoofAreaPipelineResult,
+  RoofAreaExplanation,
+} from './area-pipeline';
+
+export { calculateRoofAreaPipeline } from './area-pipeline';
