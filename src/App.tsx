@@ -154,6 +154,7 @@ const PostProduct = lazy(() => import('@/pages/marketplace/PostProduct'));
 const ProductDetail = lazy(() => import('@/pages/marketplace/ProductDetail'));
 const MyProducts = lazy(() => import('@/pages/marketplace/MyProducts'));
 const MarketplaceLayout = lazy(() => import('@/components/marketplace/MarketplaceLayout'));
+const SellerDashboard = lazy(() => import('@/pages/marketplace/SellerDashboard'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -296,6 +297,7 @@ export default function App() {
               <Route path=":categorySlug/:locationSlug" element={<MarketplaceCategoryLocationPage />} />
               <Route path="products/post" element={<PostProduct />} />
               <Route path="products/my" element={<MyProducts />} />
+              <Route path="seller-dashboard" element={<SellerDashboard />} />
               <Route path="products/:id" element={<ProductDetail />} />
               <Route path="products" element={<MarketplaceHome />} />
               <Route path="orders/:id" element={<OrderDetail />} />
