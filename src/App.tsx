@@ -127,6 +127,7 @@ const StudioTool = lazy(() => import('@/pages/studio/StudioTool'));
 const StudioManagement = lazy(() => import('@/pages/studio/StudioManagement'));
 
 // Pro Connect pages — professional network
+const Onboarding = lazy(() => import('@/pages/Onboarding'));
 const ProConnectDirectory = lazy(() => import('@/pages/pro-connect/ProConnectDirectory'));
 const ProConnectProfile = lazy(() => import('@/pages/pro-connect/ProConnectProfile'));
 const ProConnectRegister = lazy(() => import('@/pages/pro-connect/ProConnectRegister'));
@@ -258,6 +259,7 @@ export default function App() {
 
             {/* Dashboard */}
             <Route path="/dashboard" element={<Suspense fallback={<PageLoader />}><Dashboard /></Suspense>} />
+            <Route path="/onboarding" element={<Suspense fallback={<PageLoader />}><Onboarding /></Suspense>} />
             <Route path="/profile" element={<Suspense fallback={<PageLoader />}><Profile /></Suspense>} />
             <Route path="/pricing" element={<Suspense fallback={<PageLoader />}><Pricing /></Suspense>} />
             <Route path="/achievements" element={<Suspense fallback={<PageLoader />}><Achievements /></Suspense>} />

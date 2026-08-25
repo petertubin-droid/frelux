@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Wrench } from 'lucide-react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,8 +16,11 @@ import { trackVisit } from '@/lib/achievements';
 import { trackReturnVisitRewards } from '@/lib/rewards-integration';
 import type { Achievement } from '@/lib/achievements';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth';
 
 export default function Layout() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [maintenance, setMaintenance] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -98,6 +101,26 @@ const mountedRef = useRef(true);
       if (pollTimer) clearInterval(pollTimer);
     };
   }, [location.pathname]);
+
+  // ── Client onboarding redirect: if logged-in client hasn't completed onboarding, redirect there ──
+  useEffect(() => {
+    if (!user) return;
+    // Don't redirect if already on onboarding, login, or admin pages
+    if (location.pathname === '/onboarding' || location.pathname.startsWith('/login') || location.pathname.startsWith('/admin')) return;
+    // Only check once per session
+    if (sessionStorage.getItem('frelux_onboarding_checked')) return;
+    (async () => {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('account_type, onboarding_completed')
+        .eq('id', user.id)
+        .maybeSingle();
+      if (profile?.account_type === 'client' && !profile.onboarding_completed) {
+        navigate('/onboarding', { replace: true });
+      }
+      sessionStorage.setItem('frelux_onboarding_checked', '1');
+    })();
+  }, [user, location.pathname, navigate]);
 
   if (maintenance && !isAdmin) {
     return (

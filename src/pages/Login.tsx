@@ -91,7 +91,8 @@ export default function Login() {
         setPassword('');
       } else {
         setShowSuccess(true);
-        setTimeout(() => navigate(redirectTo), 2500);
+        const postSignupRedirect = accountType === 'pro_worker' ? '/pro-connect/register' : '/onboarding';
+        setTimeout(() => navigate(postSignupRedirect), 2500);
       }
       return;
     }

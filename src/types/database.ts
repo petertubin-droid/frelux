@@ -9,6 +9,9 @@ export interface DbProfile {
   phone: string;
   avatar_url: string;
   marketplace_id: string;
+  onboarding_completed: boolean;
+  onboarding_goals: string[];
+  onboarding_state: string | null;
   created_at: string;
   updated_at: string;
 }

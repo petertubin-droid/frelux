@@ -6,6 +6,7 @@ import {
   getMyProProfile, getProProfileServices, getProProfileLocations,
   getProPortfolio, getProReviews, addPortfolioItem, deletePortfolioItem,
   getMyConversations, getUnreadCount, getMyVerificationRequests,
+  createVerificationRequest,
 } from '@/lib/pro-connect';
 import type { DbProProfile, DbProService, DbProLocation, DbProPortfolioItem, DbProReview, DbProConversation } from '@/types/pro-connect';
 import { supabase } from '@/lib/supabase';
@@ -31,6 +32,16 @@ export default function ProConnectDashboard() {
   const [verificationRequests, setVerificationRequests] = useState<DbProVerificationRequest[]>([]);
   const [proLevelEligible, setProLevelEligible] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
+  // Verification form state
+  const [verifType, setVerifType] = useState<'contact' | 'identity'>('contact');
+  const [verifName, setVerifName] = useState('');
+  const [verifBusiness, setVerifBusiness] = useState('');
+  const [verifYears, setVerifYears] = useState('');
+  const [verifIdType, setVerifIdType] = useState('national_id');
+  const [verifIdNumber, setVerifIdNumber] = useState('');
+  const [verifSubmitting, setVerifSubmitting] = useState(false);
+  const [verifError, setVerifError] = useState('');
+  const [verifSuccess, setVerifSuccess] = useState(false);
   const [myBids, setMyBids] = useState<(DbMarketplaceBid & { listing: DbMarketplaceListing })[]>([]);
   const [myOrders, setMyOrders] = useState<DbMarketplaceOrder[]>([]);
 
@@ -354,11 +365,157 @@ export default function ProConnectDashboard() {
         {/* Request verification button */}
         {(profile.verification_status === 'unverified' || profile.verification_status === 'rejected' || profile.verification_status === 'more_info') && (
           <button
-            onClick={() => setShowVerificationForm(!showVerificationForm)}
+            onClick={() => { setShowVerificationForm(!showVerificationForm); setVerifSuccess(false); setVerifError(''); }}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white"
           >
-            Request Verification
+            {showVerificationForm ? 'Cancel' : 'Request Verification'}
           </button>
+        )}
+
+        {/* Verification submission form */}
+        {showVerificationForm && !verifSuccess && (
+          <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+            <h3 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Request Verification</h3>
+
+            {/* Verification type selector */}
+            <div className="mb-4">
+              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Verification Type</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setVerifType('contact')}
+                  className={classNames(
+                    'rounded-lg border p-3 text-left text-sm transition-colors',
+                    verifType === 'contact'
+                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-400'
+                  )}
+                >
+                  <span className="block font-semibold">Level 1: Contact</span>
+                  <span className="text-xs">Verify your contact info &amp; profile</span>
+                </button>
+                <button
+                  onClick={() => setVerifType('identity')}
+                  className={classNames(
+                    'rounded-lg border p-3 text-left text-sm transition-colors',
+                    verifType === 'identity'
+                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-400'
+                  )}
+                >
+                  <span className="block font-semibold">Level 2: Identity</span>
+                  <span className="text-xs">Verify your identity (NIN/ID)</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Common fields */}
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Professional Name *</label>
+                <input
+                  type="text" value={verifName}
+                  onChange={(e) => setVerifName(e.target.value)}
+                  placeholder="Your full name"
+                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Business Name</label>
+                <input
+                  type="text" value={verifBusiness}
+                  onChange={(e) => setVerifBusiness(e.target.value)}
+                  placeholder="Optional"
+                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                />
+              </div>
+            </div>
+
+            <div className="mt-3">
+              <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Years of Experience</label>
+              <input
+                type="number" value={verifYears} min="0" max="50"
+                onChange={(e) => setVerifYears(e.target.value)}
+                placeholder="e.g. 5"
+                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              />
+            </div>
+
+            {/* Identity verification fields */}
+            {verifType === 'identity' && (
+              <div className="mt-3 space-y-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">ID Document Type *</label>
+                  <select
+                    value={verifIdType}
+                    onChange={(e) => setVerifIdType(e.target.value)}
+                    className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  >
+                    <option value="national_id">National ID</option>
+                    <option value="drivers_license">Driver's License</option>
+                    <option value="international_passport">International Passport</option>
+                    <option value="voters_card">Voter's Card</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">ID Document Number *</label>
+                  <input
+                    type="text" value={verifIdNumber}
+                    onChange={(e) => setVerifIdNumber(e.target.value)}
+                    placeholder="Enter your ID number"
+                    className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  />
+                  <p className="mt-1 text-xs text-neutral-400">
+                    Your ID number is stored securely and only visible to FRELUX administrators.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {verifError && (
+              <p className="mt-3 flex items-center gap-1.5 text-sm text-red-500">{verifError}</p>
+            )}
+
+            <button
+              onClick={async () => {
+                if (!verifName.trim()) { setVerifError('Please enter your professional name.'); return; }
+                if (verifType === 'identity' && !verifIdNumber.trim()) { setVerifError('Please enter your ID document number.'); return; }
+                setVerifSubmitting(true); setVerifError('');
+                const req = await createVerificationRequest(profile.id, {
+                  request_type: verifType,
+                  professional_name: verifName,
+                  business_name: verifBusiness || undefined,
+                  years_experience: verifYears ? parseInt(verifYears) : undefined,
+                  identity_document_type: verifType === 'identity' ? verifIdType : undefined,
+                  identity_document_number: verifType === 'identity' ? verifIdNumber : undefined,
+                  category_id: profile.category_id || undefined,
+                });
+                setVerifSubmitting(false);
+                if (req) {
+                  setVerifSuccess(true);
+                  setShowVerificationForm(false);
+                  const verifReqs = await getMyVerificationRequests(profile.id);
+                  setVerificationRequests(verifReqs);
+                  const p = await getMyProProfile(user!.id);
+                  if (p) setProfile(p);
+                } else {
+                  setVerifError('Failed to submit verification request. Please try again.');
+                }
+              }}
+              disabled={verifSubmitting}
+              className="mt-4 w-full rounded-lg bg-brand-purple py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {verifSubmitting ? 'Submitting…' : 'Submit Verification Request'}
+            </button>
+          </div>
+        )}
+
+        {/* Verification success message */}
+        {verifSuccess && (
+          <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10">
+            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+              ✓ Verification request submitted! An admin will review your request shortly.
+            </p>
+          </div>
         )}
       </div>
 
