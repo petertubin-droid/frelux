@@ -12,7 +12,7 @@ export const siteConfig = {
   email: 'frenzyanthony39@gmail.com',
   // AdSense — leave empty until approved; ads component renders nothing when unset.
   adsense: {
-    publisherId: '', // e.g. 'ca-pub-XXXXXXXXXXXXXXXX'
+    publisherId: 'ca-pub-3404100134534192',
     adSlots: {} as Record<string, string>,
   },
   // Meta Pixel — leave empty until real ID is provided.
