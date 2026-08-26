@@ -615,6 +615,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
                 selectedQualityId={selectedQualityId}
                 onSelectQuality={setSelectedQualityId}
                 selectedQualityPrice={selectedQualityPrice}
+                qualityPriceMap={estPrices}
               />
             )}
 
@@ -642,6 +643,9 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
             input={input}
             paintTypeName={selectedPaintType?.name ?? input.paintType}
             qualityName={selectedQuality?.name ?? null}
+            qualityId={selectedQuality?.id ?? null}
+            qualityPrice={selectedQualityPrice?.price ?? null}
+            qualityPriceCurrency={selectedQualityPrice?.currency ?? null}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
             calcDefaults={calcDefaults}
@@ -810,6 +814,7 @@ function Step3({
   selectedQualityId,
   onSelectQuality,
   selectedQualityPrice,
+  qualityPriceMap,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
@@ -824,6 +829,7 @@ function Step3({
   selectedQualityId: string;
   onSelectQuality: (id: string) => void;
   selectedQualityPrice: EstimationPrice | null;
+  qualityPriceMap: Map<string, EstimationPrice>;
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
@@ -928,8 +934,9 @@ function Step3({
               >
                 <option value="">— Select quality —</option>
                 {availableQualities.map((q) => {
-                  const price = selectedQualityPrice && q.id === selectedQualityId
-                    ? ` · ${selectedQualityPrice.currency === 'NGN' ? '₦' : ''}${selectedQualityPrice.price.toLocaleString()} / bucket`
+                  const qp = qualityPriceMap.get(q.id);
+                  const price = qp
+                    ? ` · ${qp.currency === 'NGN' ? '₦' : ''}${qp.price.toLocaleString()} / bucket`
                     : '';
                   const coverage = q.coverage ? ` · ${q.coverage} m²/L` : '';
                   return (
@@ -1047,6 +1054,9 @@ function ResultCard({
   input,
   paintTypeName,
   qualityName,
+  qualityId,
+  qualityPrice,
+  qualityPriceCurrency,
   onAgain,
   onStartOver,
   onSave: _onSave,
@@ -1059,6 +1069,9 @@ function ResultCard({
   input: CalculatorInput;
   paintTypeName: string;
   qualityName: string | null;
+  qualityId: string | null;
+  qualityPrice: number | null;
+  qualityPriceCurrency: string | null;
   onAgain: () => void;
   onStartOver: () => void;
   onSave?: () => void;
@@ -1214,8 +1227,10 @@ function ResultCard({
               coats: input.coats,
               paintType: input.paintType,
               paintTypeName,
-              qualityId: selectedQuality?.id ?? null,
-              qualityName: selectedQuality?.name ?? null,
+              qualityId,
+              qualityName,
+              qualityPrice,
+              qualityPriceCurrency,
               recommendedContainers: result.recommendedContainers,
               totalRecommendedLiters: result.totalRecommendedLiters,
             }}

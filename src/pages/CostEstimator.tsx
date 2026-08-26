@@ -27,6 +27,8 @@ interface PassedState {
   paintTypeName?: string;
   qualityId?: string | null;
   qualityName?: string | null;
+  qualityPrice?: number | null;
+  qualityPriceCurrency?: string | null;
   recommendedContainers?: ContainerRecommendation[];
   totalRecommendedLiters?: number;
 }
@@ -145,6 +147,26 @@ const mountedRef = useRef(true);
       if (primer) {
         setInput((prev) => ({ ...prev, primerPricePerLiter: Number(primer.price) }));
       }
+
+      // If quality-level pricing was passed from the Paint Calculator,
+      // auto-fill the paint price per liter so the user doesn't have to
+      // manually select a product or enter a price.
+      if (passed.qualityPrice && passed.qualityPrice > 0) {
+        const containerSizes = passed.recommendedContainers
+          ?.map((c) => c.size)
+          ?.filter((s): s is number => s > 0) ?? [];
+        const containerSize = containerSizes[0] ?? 20;
+        const containerPrice = passed.qualityPrice * containerSize;
+        setInput((prev) => ({
+          ...prev,
+          paintPricePerLiter: passed.qualityPrice!,
+          paintContainerSize: containerSize,
+          paintContainerPrice: containerPrice,
+          paintUseContainerPricing: true,
+          paintProductName: passed.qualityName ?? '',
+        }));
+      }
+
       setLoading(false);
     }
     loadAll();
