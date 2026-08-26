@@ -28,7 +28,7 @@ export function AdBlockNotice() {
   if (!blocked || dismissed) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 max-w-sm rounded-xl border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900">
+    <div className="fixed bottom-36 right-4 z-[45] max-w-[calc(100vw-2rem)] rounded-xl border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 sm:bottom-20 sm:max-w-sm">
       <button
         type="button"
         onClick={() => setDismissed(true)}
