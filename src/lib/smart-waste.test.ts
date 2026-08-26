@@ -1,100 +1,128 @@
 import { describe, it, expect } from "vitest";
-import { calculateSmartWaste } from "./smart-waste";
+import {
+  calculateSmartWaste,
+  type SurfaceCondition,
+  type ApplicationMethod,
+} from "./smart-waste";
+import type { ProjectType } from "@/types";
 
-describe("calculateSmartWaste", () => {
-  it("computes the base margin for a smooth-surface room with roller and 2 coats", () => {
+describe("smart-waste", () => {
+  it("returns base waste for smooth room with roller", () => {
     const result = calculateSmartWaste({
-      projectType: "room",
-      surfaceCondition: "smooth",
-      applicationMethod: "roller",
+      projectType: "room" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
       coats: 2,
     });
-    // base 8, smooth -2, roller 0 => 6
+    // room=8, smooth=-2, roller=0 => 6
     expect(result.wasteMargin).toBe(6);
+    expect(result.breakdown.length).toBeGreaterThanOrEqual(2);
   });
 
-  it("increases margin for rough surfaces and spray application", () => {
+  it("adds waste for rough surface", () => {
     const result = calculateSmartWaste({
-      projectType: "exterior",
-      surfaceCondition: "rough",
-      applicationMethod: "spray",
+      projectType: "room" as ProjectType,
+      surfaceCondition: "rough" as SurfaceCondition,
       coats: 1,
     });
-    // base 15 + rough 6 + spray 5 = 26
-    expect(result.wasteMargin).toBe(26);
+    // room=8, rough=+6 => 14
+    expect(result.wasteMargin).toBe(14);
   });
 
-  it("adds extra margin for repair work", () => {
-    const withoutRepair = calculateSmartWaste({
-      projectType: "house",
-      surfaceCondition: "textured",
+  it("adds waste for spray application", () => {
+    const result = calculateSmartWaste({
+      projectType: "room" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
+      applicationMethod: "spray" as ApplicationMethod,
       coats: 1,
     });
-    const withRepair = calculateSmartWaste({
-      projectType: "house",
-      surfaceCondition: "textured",
+    // room=8, smooth=-2, spray=+5 => 11
+    expect(result.wasteMargin).toBe(11);
+  });
+
+  it("adds waste for repair work", () => {
+    const result = calculateSmartWaste({
+      projectType: "room" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
       coats: 1,
       isRepair: true,
     });
-    expect(withRepair.wasteMargin).toBe(withoutRepair.wasteMargin + 5);
+    // room=8, smooth=-2, repair=+5 => 11
+    expect(result.wasteMargin).toBe(11);
   });
 
-  it("gives an efficiency discount for 3+ coats", () => {
-    const twoCoats = calculateSmartWaste({
-      projectType: "fence",
-      surfaceCondition: "smooth",
-      coats: 2,
-    });
-    const threeCoats = calculateSmartWaste({
-      projectType: "fence",
-      surfaceCondition: "smooth",
+  it("reduces waste for 3+ coats", () => {
+    const result = calculateSmartWaste({
+      projectType: "room" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
       coats: 3,
     });
-    expect(threeCoats.wasteMargin).toBe(twoCoats.wasteMargin - 2);
+    // room=8, smooth=-2, coats_eff=-2 => 4
+    expect(result.wasteMargin).toBe(4);
   });
 
-  it("clamps the margin between 0 and 30", () => {
+  it("exterior has higher base waste", () => {
     const result = calculateSmartWaste({
-      projectType: "exterior",
-      surfaceCondition: "rough",
-      applicationMethod: "spray",
+      projectType: "exterior" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
+      coats: 2,
+    });
+    // exterior=15, smooth=-2 => 13
+    expect(result.wasteMargin).toBe(13);
+  });
+
+  it("fence has lowest base waste", () => {
+    const result = calculateSmartWaste({
+      projectType: "fence" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
+      coats: 1,
+    });
+    // fence=5, smooth=-2 => 3
+    expect(result.wasteMargin).toBe(3);
+  });
+
+  it("generates reason string", () => {
+    const result = calculateSmartWaste({
+      projectType: "exterior" as ProjectType,
+      surfaceCondition: "rough" as SurfaceCondition,
+      coats: 2,
+    });
+    expect(result.reason).toContain("waste margin");
+    expect(result.reason).toContain("Exterior");
+    expect(result.reason).toContain("rough");
+  });
+
+  it("clamps waste between 0 and 30", () => {
+    // Very low: fence=5, smooth=-2, 3+ coats=-2 => 1 (still > 0)
+    const low = calculateSmartWaste({
+      projectType: "fence" as ProjectType,
+      surfaceCondition: "smooth" as SurfaceCondition,
+      coats: 5,
+    });
+    expect(low.wasteMargin).toBeGreaterThanOrEqual(0);
+
+    // Very high: exterior=15, rough=+6, spray=+5, repair=+5 => 31 -> 30
+    const high = calculateSmartWaste({
+      projectType: "exterior" as ProjectType,
+      surfaceCondition: "rough" as SurfaceCondition,
+      applicationMethod: "spray" as ApplicationMethod,
       coats: 1,
       isRepair: true,
     });
-    expect(result.wasteMargin).toBeLessThanOrEqual(30);
-    expect(result.wasteMargin).toBeGreaterThanOrEqual(0);
+    expect(high.wasteMargin).toBeLessThanOrEqual(30);
   });
 
-  it("defaults to roller when no application method is given", () => {
-    const withDefault = calculateSmartWaste({
-      projectType: "room",
-      surfaceCondition: "smooth",
-      coats: 1,
-    });
-    const withRoller = calculateSmartWaste({
-      projectType: "room",
-      surfaceCondition: "smooth",
-      applicationMethod: "roller",
-      coats: 1,
-    });
-    expect(withDefault.wasteMargin).toBe(withRoller.wasteMargin);
-  });
-
-  it("produces a human-readable reason string mentioning the margin", () => {
+  it("breakdown contains factor and adjustment for each step", () => {
     const result = calculateSmartWaste({
-      projectType: "fence",
-      surfaceCondition: "smooth",
+      projectType: "room" as ProjectType,
+      surfaceCondition: "textured" as SurfaceCondition,
+      applicationMethod: "brush" as ApplicationMethod,
       coats: 1,
+      isRepair: true,
     });
-    expect(result.reason).toContain(`${result.wasteMargin}%`);
-  });
-
-  it("includes a breakdown entry for the base margin", () => {
-    const result = calculateSmartWaste({
-      projectType: "room",
-      surfaceCondition: "smooth",
-      coats: 1,
-    });
-    expect(result.breakdown[0].factor).toContain("Base");
+    const factors = result.breakdown.map((b) => b.factor);
+    expect(factors).toContain("Base (room)");
+    expect(factors).toContain("Surface (textured)");
+    expect(factors).toContain("Method (brush)");
+    expect(factors).toContain("Repair work");
   });
 });

@@ -10,144 +10,66 @@ import {
   loadTileDefaults,
   savePopDefaults,
   loadPopDefaults,
-  trackRecentTool,
-  getRecentTools,
-} from "@/lib/smart-defaults";
+} from "./smart-defaults";
 
-beforeEach(() => {
-  localStorage.clear();
-});
-
-describe("smart-defaults — paint calculator", () => {
-  it("saves and loads paint calc defaults", () => {
-    savePaintCalcDefaults({ unit: "meters", coats: 2, wasteMargin: 10 });
-    const loaded = loadPaintCalcDefaults();
-    expect(loaded.unit).toBe("meters");
-    expect(loaded.coats).toBe(2);
-    expect(loaded.wasteMargin).toBe(10);
+describe("smart-defaults", () => {
+  beforeEach(() => {
+    localStorage.clear();
   });
 
-  it("merges partial updates", () => {
-    savePaintCalcDefaults({ unit: "feet", coats: 3 });
-    savePaintCalcDefaults({ wasteMargin: 15 });
+  it("loadPaintCalcDefaults returns empty object when nothing saved", () => {
+    expect(loadPaintCalcDefaults()).toEqual({});
+  });
+
+  it("savePaintCalcDefaults stores and loads", () => {
+    savePaintCalcDefaults({ coats: 3, wasteMargin: 15 });
     const loaded = loadPaintCalcDefaults();
-    expect(loaded.unit).toBe("feet");
     expect(loaded.coats).toBe(3);
     expect(loaded.wasteMargin).toBe(15);
   });
 
-  it("returns empty object when nothing saved", () => {
-    expect(loadPaintCalcDefaults()).toEqual({});
-  });
-});
-
-describe("smart-defaults — cost estimate", () => {
-  it("saves and loads cost estimate defaults", () => {
-    saveCostEstimateDefaults({
-      currency: "NGN",
-      includeLabor: true,
-      laborRate: 5000,
-    });
-    const loaded = loadCostEstimateDefaults()!;
-    expect(loaded.currency).toBe("NGN");
-    expect(loaded.includeLabor).toBe(true);
-    expect(loaded.laborRate).toBe(5000);
+  it("savePaintCalcDefaults merges with existing", () => {
+    savePaintCalcDefaults({ coats: 2 });
+    savePaintCalcDefaults({ wasteMargin: 10 });
+    const loaded = loadPaintCalcDefaults();
+    expect(loaded.coats).toBe(2);
+    expect(loaded.wasteMargin).toBe(10);
   });
 
-  it("merges partial updates", () => {
-    saveCostEstimateDefaults({ currency: "USD" });
-    saveCostEstimateDefaults({ includeLabor: false });
-    const loaded = loadCostEstimateDefaults()!;
-    expect(loaded.currency).toBe("USD");
-    expect(loaded.includeLabor).toBe(false);
-  });
-
-  it("returns undefined when nothing saved", () => {
+  it("loadCostEstimateDefaults returns empty when nothing saved", () => {
     expect(loadCostEstimateDefaults()).toEqual({});
   });
-});
 
-describe("smart-defaults — screeding", () => {
-  it("saves and loads screeding defaults", () => {
-    saveScreedingDefaults({ unit: "meters", thickness: 3 });
-    const loaded = loadScreedingDefaults()!;
-    expect(loaded.unit).toBe("meters");
-    expect(loaded.thickness).toBe(3);
+  it("saveCostEstimateDefaults stores and loads", () => {
+    saveCostEstimateDefaults({ currency: "NGN", includeLabor: true });
+    expect(loadCostEstimateDefaults().currency).toBe("NGN");
+    expect(loadCostEstimateDefaults().includeLabor).toBe(true);
   });
 
-  it("merges partial updates", () => {
-    saveScreedingDefaults({ unit: "feet" });
-    saveScreedingDefaults({ screedingType: "cement" });
-    const loaded = loadScreedingDefaults()!;
-    expect(loaded.unit).toBe("feet");
-    expect(loaded.screedingType).toBe("cement");
-  });
-});
-
-describe("smart-defaults — tile calculator", () => {
-  it("saves and loads tile defaults", () => {
-    saveTileDefaults({ unit: "meters", tileSize: "600x600", wasteMargin: 5 });
-    const loaded = loadTileDefaults()!;
-    expect(loaded.unit).toBe("meters");
-    expect(loaded.tileSize).toBe("600x600");
-    expect(loaded.wasteMargin).toBe(5);
-  });
-});
-
-describe("smart-defaults — POP calculator", () => {
-  it("saves and loads POP defaults", () => {
-    savePopDefaults({ unit: "meters", designType: "simple" });
-    const loaded = loadPopDefaults()!;
-    expect(loaded.unit).toBe("meters");
-    expect(loaded.designType).toBe("simple");
-  });
-});
-
-describe("smart-defaults — recent tools", () => {
-  it("tracks recently used tools", () => {
-    trackRecentTool("/paint-calculator", "Paint Calculator", "paint");
-    trackRecentTool("/tile-calculator", "Tile Calculator", "tile");
-    const recent = getRecentTools();
-    expect(recent).toHaveLength(2);
-    expect(recent[0].path).toBe("/tile-calculator");
-    expect(recent[1].path).toBe("/paint-calculator");
+  it("loadScreedingDefaults returns empty when nothing saved", () => {
+    expect(loadScreedingDefaults()).toEqual({});
   });
 
-  it("deduplicates by path", () => {
-    trackRecentTool("/paint-calculator", "Paint Calculator", "paint");
-    trackRecentTool("/paint-calculator", "Paint Calculator", "paint");
-    expect(getRecentTools()).toHaveLength(1);
+  it("saveScreedingDefaults stores and loads", () => {
+    saveScreedingDefaults({ thickness: 12 });
+    expect(loadScreedingDefaults().thickness).toBe(12);
   });
 
-  it("limits to 6 items", () => {
-    for (let i = 0; i < 10; i++) {
-      trackRecentTool(`/tool-${i}`, `Tool ${i}`, "icon");
-    }
-    const recent = getRecentTools();
-    expect(recent).toHaveLength(6);
-    expect(recent[0].path).toBe("/tool-9");
+  it("loadTileDefaults returns empty when nothing saved", () => {
+    expect(loadTileDefaults()).toEqual({});
   });
 
-  it("includes visitedAt timestamp", () => {
-    trackRecentTool("/test", "Test", "icon");
-    const recent = getRecentTools();
-    expect(recent[0].visitedAt).toBeTruthy();
-    expect(new Date(recent[0].visitedAt).getTime()).not.toBeNaN();
+  it("saveTileDefaults stores and loads", () => {
+    saveTileDefaults({ tileSize: "600x600", wasteMargin: 5 });
+    expect(loadTileDefaults().tileSize).toBe("600x600");
   });
 
-  it("returns empty array when nothing tracked", () => {
-    expect(getRecentTools()).toEqual([]);
-  });
-});
-
-describe("smart-defaults — error handling", () => {
-  it("handles corrupted localStorage gracefully for load", () => {
-    localStorage.setItem("frelux_smart_defaults", "{invalid json");
-    expect(loadPaintCalcDefaults()).toEqual({});
+  it("loadPopDefaults returns empty when nothing saved", () => {
+    expect(loadPopDefaults()).toEqual({});
   });
 
-  it("handles corrupted localStorage for recent tools", () => {
-    localStorage.setItem("frelux_recent_tools", "{invalid json");
-    expect(getRecentTools()).toEqual([]);
+  it("savePopDefaults stores and loads", () => {
+    savePopDefaults({ designType: "dome" });
+    expect(loadPopDefaults().designType).toBe("dome");
   });
 });

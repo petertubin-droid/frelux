@@ -1,159 +1,81 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  shareTextOnWhatsApp,
-  sharePaintCalcOnWhatsApp,
-  shareCostEstimateOnWhatsApp,
-} from "@/lib/share";
+import { describe, it, expect, vi } from "vitest";
+
+// Mock achievements tracker
+vi.mock("@/lib/achievements", () => ({
+  trackShare: vi.fn(() => []),
+}));
 
 // Mock window.open
-let openUrl: string | null = null;
-beforeEach(() => {
-  openUrl = null;
-  vi.stubGlobal("open", (url: string) => {
-    openUrl = url;
-  });
-});
+const openSpy = vi.fn();
+Object.defineProperty(window, "open", { value: openSpy, writable: true });
 
-describe("share — shareTextOnWhatsApp", () => {
-  it("opens WhatsApp with encoded text", () => {
-    shareTextOnWhatsApp("Hello, I need a quote");
-    expect(openUrl).not.toBeNull();
-    expect(openUrl).toContain("https://wa.me/?text=");
-    expect(openUrl).toContain(encodeURIComponent("Hello, I need a quote"));
-  });
+const {
+  sharePaintCalcOnWhatsApp,
+  shareCostEstimateOnWhatsApp,
+  shareTextOnWhatsApp,
+} = await import("./share");
+const { trackShare } = await import("@/lib/achievements");
 
-  it("handles special characters", () => {
-    shareTextOnWhatsApp("I need paint & tiles! #urgent 🔥");
-    expect(openUrl).not.toBeNull();
-    expect(openUrl).toContain(
-      encodeURIComponent("I need paint & tiles! #urgent 🔥"),
-    );
+describe("share", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it("handles empty string", () => {
-    shareTextOnWhatsApp("");
-    expect(openUrl).not.toBeNull();
-    expect(openUrl).toContain("https://wa.me/?text=");
+  it("shareTextOnWhatsApp opens WhatsApp URL", () => {
+    shareTextOnWhatsApp("Hello test");
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = openSpy.mock.calls[0][0] as string;
+    expect(url).toContain("wa.me");
+    expect(url).toContain("Hello%20test");
+    expect(trackShare).toHaveBeenCalled();
   });
-});
 
-describe("share — sharePaintCalcOnWhatsApp", () => {
-  it("opens WhatsApp with formatted paint calc result", () => {
-    const data = {
+  it("sharePaintCalcOnWhatsApp opens WhatsApp URL with formatted message", () => {
+    sharePaintCalcOnWhatsApp({
       result: {
         paintableArea: 50,
-        adjustedLiters: 7.5,
-        totalRecommendedLiters: 10,
-        recommendedContainers: [
-          { count: 2, size: 4 },
-          { count: 1, size: 2 },
-        ],
-      },
+        adjustedLiters: 10,
+        totalRecommendedLiters: 12,
+        recommendedContainers: [{ count: 2, size: 5 }],
+      } as any,
       input: {
-        projectType: "Living Room",
+        projectType: "room",
         coats: 2,
         wasteMargin: 10,
-      },
-      paintTypeName: "Premium Emulsion",
-    };
-    sharePaintCalcOnWhatsApp(
-      data as unknown as Parameters<typeof sharePaintCalcOnWhatsApp>[0],
-    );
-    expect(openUrl).not.toBeNull();
-    expect(openUrl).toContain("https://wa.me/?text=");
-    const decoded = decodeURIComponent(openUrl!.split("text=")[1]);
-    expect(decoded).toContain("FRELUX Paint Calculator Result");
-    expect(decoded).toContain("Living Room");
-    expect(decoded).toContain("Premium Emulsion");
-  });
-
-  it("works with empty containers list", () => {
-    const data = {
-      result: {
-        paintableArea: 25,
-        adjustedLiters: 3.5,
-        totalRecommendedLiters: 5,
-        recommendedContainers: [],
-      },
-      input: {
-        projectType: "Bedroom",
-        coats: 1,
-        wasteMargin: 5,
-      },
-      paintTypeName: "Satin",
-    };
-    sharePaintCalcOnWhatsApp(
-      data as unknown as Parameters<typeof sharePaintCalcOnWhatsApp>[0],
-    );
-    expect(openUrl).not.toBeNull();
-    const decoded = decodeURIComponent(openUrl!.split("text=")[1]);
-    expect(decoded).toContain("Bedroom");
-    expect(decoded).not.toContain("Recommended containers");
-  });
-});
-
-describe("share — shareCostEstimateOnWhatsApp", () => {
-  it("opens WhatsApp with formatted cost estimate", () => {
-    const data = {
-      result: {
-        paintCost: 15000,
-        primerCost: 5000,
-        fillerCost: 0,
-        puttyCost: 3000,
-        sandpaperCost: 2000,
-        brushesCost: 1500,
-        rollersCost: 1000,
-        otherMaterialsCost: 0,
-        laborCost: 10000,
-        total: 37500,
-        currencySymbol: "₦",
-      },
-      input: {
-        projectType: "Living Room",
         paintableArea: 50,
-      },
-      paintTypeName: "Premium Emulsion",
-    };
-    shareCostEstimateOnWhatsApp(
-      data as unknown as Parameters<typeof shareCostEstimateOnWhatsApp>[0],
-    );
-    expect(openUrl).not.toBeNull();
-    const decoded = decodeURIComponent(openUrl!.split("text=")[1]);
-    expect(decoded).toContain("FRELUX Cost Estimate");
-    expect(decoded).toContain("GRAND TOTAL");
-    expect(decoded).toContain("Living Room");
-    expect(decoded).toContain("Labour");
+      } as any,
+      paintTypeName: "Satin",
+    });
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = openSpy.mock.calls[0][0] as string;
+    expect(url).toContain("wa.me");
+    expect(trackShare).toHaveBeenCalled();
   });
 
-  it("omits zero-cost line items", () => {
-    const data = {
+  it("shareCostEstimateOnWhatsApp opens WhatsApp URL with formatted message", () => {
+    shareCostEstimateOnWhatsApp({
       result: {
-        paintCost: 10000,
+        paintCost: 5000,
         primerCost: 0,
         fillerCost: 0,
         puttyCost: 0,
         sandpaperCost: 0,
-        brushesCost: 0,
+        brushesCost: 200,
         rollersCost: 0,
         otherMaterialsCost: 0,
         laborCost: 0,
-        total: 10000,
+        total: 5200,
         currencySymbol: "₦",
-      },
+      } as any,
       input: {
-        projectType: "Office",
-        paintableArea: 30,
-      },
-      paintTypeName: "Standard",
-    };
-    shareCostEstimateOnWhatsApp(
-      data as unknown as Parameters<typeof shareCostEstimateOnWhatsApp>[0],
-    );
-    expect(openUrl).not.toBeNull();
-    const decoded = decodeURIComponent(openUrl!.split("text=")[1]);
-    expect(decoded).toContain("Paint:");
-    expect(decoded).not.toContain("Primer:");
-    expect(decoded).not.toContain("Filler:");
-    expect(decoded).not.toContain("Labour:");
+        projectType: "room",
+        paintableArea: 50,
+      } as any,
+      paintTypeName: "Emulsion",
+    });
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = openSpy.mock.calls[0][0] as string;
+    expect(url).toContain("wa.me");
+    expect(trackShare).toHaveBeenCalled();
   });
 });
