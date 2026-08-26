@@ -146,6 +146,9 @@ const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminAiMonetization = lazy(
   () => import("@/pages/admin/AdminAiMonetization"),
 );
+const AdminAiSettings = lazy(
+  () => import("@/pages/admin/AdminAiSettings"),
+);
 const AdminAds = lazy(() => import("@/pages/admin/AdminAds"));
 const AdminRewardedAccess = lazy(
   () => import("@/pages/admin/AdminRewardedAccess"),
@@ -1010,6 +1013,10 @@ export default function App() {
                     <Route
                       path="ai-monetization"
                       element={<AdminAiMonetization />}
+                    />
+                    <Route
+                      path="ai-settings"
+                      element={<AdminAiSettings />}
                     />
                     <Route path="ads" element={<AdminAds />} />
                     <Route
