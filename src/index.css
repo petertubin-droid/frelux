@@ -280,6 +280,11 @@
 
   /* --- Background colors: white/light bg → dark bg in dark mode --- */
   .dark .bg-white { background-color: hsl(var(--card)); }
+  .dark .bg-white\/60 { background-color: hsl(var(--card) / 0.6); }
+  .dark .bg-white\/70 { background-color: hsl(var(--card) / 0.7); }
+  .dark .bg-white\/80 { background-color: hsl(var(--card) / 0.8); }
+  .dark .bg-white\/90 { background-color: hsl(var(--card) / 0.9); }
+  .dark .bg-white\/95 { background-color: hsl(var(--card) / 0.95); }
   .dark .bg-neutral-50 { background-color: hsl(var(--muted)); }
   .dark .bg-neutral-100 { background-color: hsl(var(--muted)); }
   .dark .bg-neutral-200 { background-color: hsl(var(--secondary)); }
