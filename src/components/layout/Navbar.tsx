@@ -147,8 +147,10 @@ export default function Navbar() {
                   <>
                     <button
                       type="button"
-                      onClick={() => setOpenDropdown(openDropdown === workspace.label ? null : workspace.label)}
+                      onClick={() => setOpenDropdown(workspace.label)}
                       onMouseEnter={() => setOpenDropdown(workspace.label)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpenDropdown(workspace.label); } }}
+                      onFocus={() => setOpenDropdown(workspace.label)}
                       className={classNames(
                         'flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200',
                         location.pathname.startsWith(workspace.path) || openDropdown === workspace.label
