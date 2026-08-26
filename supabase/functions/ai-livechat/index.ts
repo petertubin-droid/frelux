@@ -1,12 +1,13 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const OPENAI_MODEL = 'gpt-4o-mini';
+const OPENAI_MODEL = "gpt-4o-mini";
 const MAX_REQUESTS_PER_HOUR = 20;
 
 interface LiveChatRequest {
@@ -17,27 +18,29 @@ interface LiveChatRequest {
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
 async function sha256(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 async function checkHourlyRateLimit(
   supabase: ReturnType<typeof createClient>,
-  clientHash: string
+  clientHash: string,
 ): Promise<{ allowed: boolean; count: number }> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count, error } = await supabase
-    .from('ai_request_log')
-    .select('*', { count: 'exact', head: true })
-    .eq('client_hash', clientHash)
-    .eq('request_type', 'livechat')
-    .gte('created_at', oneHourAgo);
+    .from("ai_request_log")
+    .select("*", { count: "exact", head: true })
+    .eq("client_hash", clientHash)
+    .eq("request_type", "livechat")
+    .gte("created_at", oneHourAgo);
   if (error) return { allowed: true, count: 0 };
   return { allowed: (count ?? 0) < MAX_REQUESTS_PER_HOUR, count: count ?? 0 };
 }
@@ -45,11 +48,11 @@ async function checkHourlyRateLimit(
 async function logAiRequest(
   supabase: ReturnType<typeof createClient>,
   clientHash: string,
-  status: 'success' | 'error' | 'rate_limited',
-  providerError?: string
+  status: "success" | "error" | "rate_limited",
+  providerError?: string,
 ): Promise<void> {
-  await supabase.from('ai_request_log').insert({
-    request_type: 'livechat',
+  await supabase.from("ai_request_log").insert({
+    request_type: "livechat",
     client_hash: clientHash,
     status,
     provider_error: providerError ?? null,
@@ -57,20 +60,20 @@ async function logAiRequest(
 }
 
 async function fetchKnowledgeBase(
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof createClient>,
 ): Promise<string> {
   const { data } = await supabase
-    .from('learn_articles')
-    .select('title, excerpt, content, category_slug')
-    .eq('status', 'published')
+    .from("learn_articles")
+    .select("title, excerpt, content, category_slug")
+    .eq("status", "published")
     .limit(20);
-  if (!data || data.length === 0) return '';
+  if (!data || data.length === 0) return "";
   return data
     .map(
       (a) =>
-        `## ${a.title}\nCategory: ${a.category_slug}\n${a.excerpt ?? ''}\n${a.content.slice(0, 800)}`
+        `## ${a.title}\nCategory: ${a.category_slug}\n${a.excerpt ?? ""}\n${a.content.slice(0, 800)}`,
     )
-    .join('\n\n---\n\n');
+    .join("\n\n---\n\n");
 }
 
 const SYSTEM_PROMPT = `You are the FRELUX PAINT CALC live chat assistant. You help website visitors with questions about painting, POP ceiling installation, tile installation, screeding, color selection, and paint products.
@@ -94,19 +97,19 @@ When the knowledge base has relevant content, reference it. When it doesn't, pro
 async function callOpenAI(
   apiKey: string,
   systemPrompt: string,
-  userPrompt: string
+  userPrompt: string,
 ): Promise<string> {
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
       model: OPENAI_MODEL,
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
       ],
       temperature: 0.7,
       max_tokens: 500,
@@ -115,7 +118,7 @@ async function callOpenAI(
   });
 
   if (!res.ok) {
-    const errText = await res.text();
+    const _errText = await res.text();
     if (res.status === 401 || res.status === 403) {
       throw new Error(`OPENAI_AUTH_ERROR: ${res.status}`);
     }
@@ -127,37 +130,49 @@ async function callOpenAI(
 
   const json = await res.json();
   const text = json?.choices?.[0]?.message?.content;
-  if (!text) throw new Error('Empty response from OpenAI');
+  if (!text) throw new Error("Empty response from OpenAI");
   return text.trim();
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
   let parsedBody: LiveChatRequest | null = null;
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     // Trim whitespace/newlines — secrets can accidentally include \n
-    const apiKey = (Deno.env.get('OPENAI_API_KEY') ?? '').trim();
+    const apiKey = (Deno.env.get("OPENAI_API_KEY") ?? "").trim();
 
     if (!apiKey) {
-      return jsonResponse({
-        error: 'AI service is not configured.',
-        code: 'NO_API_KEY',
-      }, 503);
+      return jsonResponse(
+        {
+          error: "AI service is not configured.",
+          code: "NO_API_KEY",
+        },
+        503,
+      );
     }
 
-    parsedBody = await req.json() as LiveChatRequest;
+    parsedBody = (await req.json()) as LiveChatRequest;
 
     if (!parsedBody.question?.trim()) {
-      return jsonResponse({ error: 'Question is required.', code: 'BAD_REQUEST' }, 400);
+      return jsonResponse(
+        { error: "Question is required.", code: "BAD_REQUEST" },
+        400,
+      );
     }
     if (parsedBody.question.length > 2000) {
-      return jsonResponse({ error: 'Question too long (max 2000 characters).', code: 'BAD_REQUEST' }, 400);
+      return jsonResponse(
+        {
+          error: "Question too long (max 2000 characters).",
+          code: "BAD_REQUEST",
+        },
+        400,
+      );
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);
@@ -165,61 +180,84 @@ Deno.serve(async (req: Request) => {
     const clientHash = await sha256(parsedBody.clientId || crypto.randomUUID());
     const { allowed, count } = await checkHourlyRateLimit(supabase, clientHash);
     if (!allowed) {
-      await logAiRequest(supabase, clientHash, 'rate_limited');
-      return jsonResponse({
-        error: `Rate limit exceeded (${count}/${MAX_REQUESTS_PER_HOUR} messages per hour). Please try again later or reach us on WhatsApp.`,
-        code: 'RATE_LIMITED',
-      }, 429);
+      await logAiRequest(supabase, clientHash, "rate_limited");
+      return jsonResponse(
+        {
+          error: `Rate limit exceeded (${count}/${MAX_REQUESTS_PER_HOUR} messages per hour). Please try again later or reach us on WhatsApp.`,
+          code: "RATE_LIMITED",
+        },
+        429,
+      );
     }
 
     const knowledgeBase = await fetchKnowledgeBase(supabase);
     const systemPrompt = SYSTEM_PROMPT.replace(
-      '{{KNOWLEDGE_BASE}}',
-      knowledgeBase || 'No published articles yet. Provide general expert guidance.'
+      "{{KNOWLEDGE_BASE}}",
+      knowledgeBase ||
+        "No published articles yet. Provide general expert guidance.",
     );
     const userPrompt = `User question: ${parsedBody.question}\n\nProvide a helpful, practical answer. Keep it concise — this is a live chat.`;
 
     const result = await callOpenAI(apiKey, systemPrompt, userPrompt);
 
-    await logAiRequest(supabase, clientHash, 'success');
+    await logAiRequest(supabase, clientHash, "success");
 
     return jsonResponse({ result });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error('Live chat error:', errorMsg);
+    console.error("Live chat error:", errorMsg);
 
-    const isAuthError = errorMsg.includes('OPENAI_AUTH_ERROR');
-    const isQuotaError = errorMsg.includes('OPENAI_QUOTA_ERROR');
+    const isAuthError = errorMsg.includes("OPENAI_AUTH_ERROR");
+    const isQuotaError = errorMsg.includes("OPENAI_QUOTA_ERROR");
 
     try {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+      const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
       if (supabaseUrl && serviceRoleKey) {
         const supabase = createClient(supabaseUrl, serviceRoleKey);
-        const clientHash = await sha256(parsedBody?.clientId || crypto.randomUUID());
-        await logAiRequest(supabase, clientHash, 'error', errorMsg.slice(0, 500));
+        const clientHash = await sha256(
+          parsedBody?.clientId || crypto.randomUUID(),
+        );
+        await logAiRequest(
+          supabase,
+          clientHash,
+          "error",
+          errorMsg.slice(0, 500),
+        );
       }
     } catch (logErr) {
-      console.error('Failed to log error:', logErr);
+      console.error("Failed to log error:", logErr);
     }
 
     if (isAuthError) {
-      return jsonResponse({
-        error: 'Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we\'ll help right away.',
-        code: 'AI_AUTH_ERROR',
-      }, 503);
+      return jsonResponse(
+        {
+          error:
+            "Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we'll help right away.",
+          code: "AI_AUTH_ERROR",
+        },
+        503,
+      );
     }
 
     if (isQuotaError) {
-      return jsonResponse({
-        error: 'Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we\'ll help right away.',
-        code: 'AI_QUOTA_ERROR',
-      }, 503);
+      return jsonResponse(
+        {
+          error:
+            "Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we'll help right away.",
+          code: "AI_QUOTA_ERROR",
+        },
+        503,
+      );
     }
 
-    return jsonResponse({
-      error: 'Failed to get a response. Please try again or reach us on WhatsApp.',
-      code: 'INTERNAL_ERROR',
-    }, 500);
+    return jsonResponse(
+      {
+        error:
+          "Failed to get a response. Please try again or reach us on WhatsApp.",
+        code: "INTERNAL_ERROR",
+      },
+      500,
+    );
   }
 });

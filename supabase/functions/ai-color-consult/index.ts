@@ -1,16 +1,17 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const GEMINI_MODEL = 'gemini-3.6-flash';
+const GEMINI_MODEL = "gemini-3.6-flash";
 const MAX_REQUESTS_PER_HOUR = 20;
 
 interface ConsultRequest {
-  mode: 'text' | 'image';
+  mode: "text" | "image";
   description?: string;
   imageDataUrl?: string;
   clientId?: string;
@@ -19,7 +20,7 @@ interface ConsultRequest {
 interface AiColor {
   name: string;
   hex: string;
-  role: 'main' | 'secondary' | 'accent';
+  role: "main" | "secondary" | "accent";
 }
 
 interface AiRecommendation {
@@ -40,22 +41,28 @@ interface SiteAiConfig {
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
 async function sha256(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 // Extract the authenticated user ID from the JWT in the Authorization header.
 // Returns null for anonymous requests. NEVER trust a user-supplied userId
 // in the request body — only the JWT is authoritative.
-async function getAuthenticatedUserId(req: Request, supabaseUrl: string, anonKey: string): Promise<string | null> {
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader.startsWith('Bearer ')) return null;
+async function getAuthenticatedUserId(
+  req: Request,
+  supabaseUrl: string,
+  anonKey: string,
+): Promise<string | null> {
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!authHeader.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
 
   // Use the anon-key client to verify the JWT (not the service role key)
@@ -66,21 +73,27 @@ async function getAuthenticatedUserId(req: Request, supabaseUrl: string, anonKey
 }
 
 // Check if the authenticated user is an admin (from profiles table)
-async function isUserAdmin(supabase: ReturnType<typeof createClient>, userId: string): Promise<boolean> {
+async function isUserAdmin(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<boolean> {
   const { data } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
     .maybeSingle();
-  return data?.role === 'admin';
+  return data?.role === "admin";
 }
 
 // Check if the authenticated user has verified paid status
-async function getUserPaidStatus(supabase: ReturnType<typeof createClient>, userId: string): Promise<boolean> {
+async function getUserPaidStatus(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<boolean> {
   const { data } = await supabase
-    .from('user_paid_status')
-    .select('is_paid, paid_until')
-    .eq('user_id', userId)
+    .from("user_paid_status")
+    .select("is_paid, paid_until")
+    .eq("user_id", userId)
     .maybeSingle();
   if (!data || !data.is_paid) return false;
   // Check if paid access has expired
@@ -91,28 +104,33 @@ async function getUserPaidStatus(supabase: ReturnType<typeof createClient>, user
   return true;
 }
 
-async function getAiConfig(supabase: ReturnType<typeof createClient>): Promise<SiteAiConfig | null> {
+async function getAiConfig(
+  supabase: ReturnType<typeof createClient>,
+): Promise<SiteAiConfig | null> {
   const { data, error } = await supabase
-    .from('site_settings')
-    .select('ai_enabled, ai_access_mode, ai_daily_free_uses, ai_admin_override')
+    .from("site_settings")
+    .select("ai_enabled, ai_access_mode, ai_daily_free_uses, ai_admin_override")
     .limit(1)
     .maybeSingle();
   if (error || !data) return null;
   return {
     ai_enabled: data.ai_enabled ?? true,
-    ai_access_mode: data.ai_access_mode ?? 'free',
+    ai_access_mode: data.ai_access_mode ?? "free",
     ai_daily_free_uses: data.ai_daily_free_uses ?? 3,
     ai_admin_override: data.ai_admin_override ?? true,
   };
 }
 
-async function checkHourlyRateLimit(supabase: ReturnType<typeof createClient>, clientHash: string): Promise<{ allowed: boolean; count: number }> {
+async function checkHourlyRateLimit(
+  supabase: ReturnType<typeof createClient>,
+  clientHash: string,
+): Promise<{ allowed: boolean; count: number }> {
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
   const { count, error } = await supabase
-    .from('ai_request_log')
-    .select('*', { count: 'exact', head: true })
-    .eq('client_hash', clientHash)
-    .gte('created_at', oneHourAgo);
+    .from("ai_request_log")
+    .select("*", { count: "exact", head: true })
+    .eq("client_hash", clientHash)
+    .gte("created_at", oneHourAgo);
   if (error) return { allowed: false, count: 0 };
   return { allowed: (count ?? 0) < MAX_REQUESTS_PER_HOUR, count: count ?? 0 };
 }
@@ -122,23 +140,23 @@ async function checkHourlyRateLimit(supabase: ReturnType<typeof createClient>, c
 async function getDailyUsage(
   supabase: ReturnType<typeof createClient>,
   clientId: string,
-  userId: string | null
+  userId: string | null,
 ): Promise<number> {
   const today = new Date().toISOString().slice(0, 10);
   let query;
   if (userId) {
     query = supabase
-      .from('ai_usage_daily')
-      .select('uses_consumed')
-      .eq('user_id', userId)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("uses_consumed")
+      .eq("user_id", userId)
+      .eq("usage_date", today)
       .maybeSingle();
   } else {
     query = supabase
-      .from('ai_usage_daily')
-      .select('uses_consumed')
-      .eq('client_hash', clientId)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("uses_consumed")
+      .eq("client_hash", clientId)
+      .eq("usage_date", today)
       .maybeSingle();
   }
   const { data } = await query;
@@ -150,7 +168,7 @@ async function getDailyUsage(
 async function consumeDailyUse(
   supabase: ReturnType<typeof createClient>,
   clientId: string,
-  userId: string | null
+  userId: string | null,
 ): Promise<void> {
   const today = new Date().toISOString().slice(0, 10);
   const now = new Date().toISOString();
@@ -158,52 +176,69 @@ async function consumeDailyUse(
   if (userId) {
     // Authenticated user: upsert by user_id + date
     const { data: existing } = await supabase
-      .from('ai_usage_daily')
-      .select('id, uses_consumed')
-      .eq('user_id', userId)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("id, uses_consumed")
+      .eq("user_id", userId)
+      .eq("usage_date", today)
       .maybeSingle();
 
     if (existing) {
       await supabase
-        .from('ai_usage_daily')
-        .update({ uses_consumed: (existing.uses_consumed ?? 0) + 1, last_used_at: now })
-        .eq('id', existing.id);
+        .from("ai_usage_daily")
+        .update({
+          uses_consumed: (existing.uses_consumed ?? 0) + 1,
+          last_used_at: now,
+        })
+        .eq("id", existing.id);
     } else {
       await supabase
-        .from('ai_usage_daily')
-        .insert({ user_id: userId, client_hash: clientId, usage_date: today, uses_consumed: 1, last_used_at: now });
+        .from("ai_usage_daily")
+        .insert({
+          user_id: userId,
+          client_hash: clientId,
+          usage_date: today,
+          uses_consumed: 1,
+          last_used_at: now,
+        });
     }
   } else {
     // Anonymous user: upsert by client_hash + date
     const { data: existing } = await supabase
-      .from('ai_usage_daily')
-      .select('id, uses_consumed')
-      .eq('client_hash', clientId)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("id, uses_consumed")
+      .eq("client_hash", clientId)
+      .eq("usage_date", today)
       .maybeSingle();
 
     if (existing) {
       await supabase
-        .from('ai_usage_daily')
-        .update({ uses_consumed: (existing.uses_consumed ?? 0) + 1, last_used_at: now })
-        .eq('id', existing.id);
+        .from("ai_usage_daily")
+        .update({
+          uses_consumed: (existing.uses_consumed ?? 0) + 1,
+          last_used_at: now,
+        })
+        .eq("id", existing.id);
     } else {
       await supabase
-        .from('ai_usage_daily')
-        .insert({ client_hash: clientId, usage_date: today, uses_consumed: 1, last_used_at: now });
+        .from("ai_usage_daily")
+        .insert({
+          client_hash: clientId,
+          usage_date: today,
+          uses_consumed: 1,
+          last_used_at: now,
+        });
     }
   }
 }
 
 async function logRequest(
   supabase: ReturnType<typeof createClient>,
-  requestType: 'text' | 'image',
+  requestType: "text" | "image",
   clientHash: string,
-  status: 'success' | 'error' | 'rate_limited' | 'usage_limited' | 'disabled',
-  providerError?: string
+  status: "success" | "error" | "rate_limited" | "usage_limited" | "disabled",
+  providerError?: string,
 ): Promise<void> {
-  await supabase.from('ai_request_log').insert({
+  await supabase.from("ai_request_log").insert({
     request_type: requestType,
     client_hash: clientHash,
     status,
@@ -245,11 +280,17 @@ You MUST respond with ONLY a valid JSON object matching this exact TypeScript ty
 function buildTextContents(description: string) {
   return [
     { text: SYSTEM_PROMPT },
-    { text: `Room description from the user: "${description}"\n\nProvide your color recommendation as the JSON object.` },
+    {
+      text: `Room description from the user: "${description}"\n\nProvide your color recommendation as the JSON object.`,
+    },
   ];
 }
 
-function buildImageContents(description: string | undefined, imageDataUrl: string, mimeType: string) {
+function buildImageContents(
+  description: string | undefined,
+  imageDataUrl: string,
+  mimeType: string,
+) {
   const parts: unknown[] = [
     { text: SYSTEM_PROMPT },
     {
@@ -266,22 +307,30 @@ function buildImageContents(description: string | undefined, imageDataUrl: strin
   return parts;
 }
 
-function extractBase64FromDataUrl(dataUrl: string): { data: string; mimeType: string } {
+function extractBase64FromDataUrl(dataUrl: string): {
+  data: string;
+  mimeType: string;
+} {
   const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
-  if (!match) throw new Error('Invalid data URL format');
+  if (!match) throw new Error("Invalid data URL format");
   return { data: match[2], mimeType: match[1] };
 }
 
-async function callGemini(apiKey: string, mode: 'text' | 'image', description: string | undefined, imageDataUrl?: string): Promise<AiRecommendation> {
+async function callGemini(
+  apiKey: string,
+  mode: "text" | "image",
+  description: string | undefined,
+  imageDataUrl?: string,
+): Promise<AiRecommendation> {
   const model = GEMINI_MODEL;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
   let parts: unknown[];
-  if (mode === 'image' && imageDataUrl) {
+  if (mode === "image" && imageDataUrl) {
     const { data, mimeType: mt } = extractBase64FromDataUrl(imageDataUrl);
     parts = buildImageContents(description, data, mt);
   } else {
-    parts = buildTextContents(description ?? 'No description provided.');
+    parts = buildTextContents(description ?? "No description provided.");
   }
 
   const body = {
@@ -290,27 +339,29 @@ async function callGemini(apiKey: string, mode: 'text' | 'image', description: s
       temperature: 0.7,
       topP: 0.9,
       maxOutputTokens: 4096,
-      responseMimeType: 'application/json',
+      responseMimeType: "application/json",
     },
   };
 
   const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   if (!res.ok) {
     const errText = await res.text();
-    let code = 'PROVIDER_ERROR';
-    if (res.status === 429) code = 'RATE_LIMITED';
-    else if (res.status === 400 || res.status === 401 || res.status === 403) code = 'AUTH_ERROR';
+    let code = "PROVIDER_ERROR";
+    if (res.status === 429) code = "RATE_LIMITED";
+    else if (res.status === 400 || res.status === 401 || res.status === 403)
+      code = "AUTH_ERROR";
     throw new Error(`${code}:${res.status}:${errText.slice(0, 200)}`);
   }
 
   const json = await res.json();
   const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('EMPTY_RESPONSE:No content returned by AI provider');
+  if (!text)
+    throw new Error("EMPTY_RESPONSE:No content returned by AI provider");
 
   let parsed: AiRecommendation;
   try {
@@ -325,70 +376,109 @@ async function callGemini(apiKey: string, mode: 'text' | 'image', description: s
     }
     cleanText = cleanText.trim();
     parsed = JSON.parse(cleanText);
-  } catch (e) {
-    throw new Error('MALFORMED_JSON:AI returned non-JSON content');
+  } catch (_e) {
+    throw new Error("MALFORMED_JSON:AI returned non-JSON content");
   }
 
-  if (!parsed.colors || !Array.isArray(parsed.colors) || parsed.colors.length === 0) {
-    throw new Error('INVALID_STRUCTURE:AI response missing colors array');
+  if (
+    !parsed.colors ||
+    !Array.isArray(parsed.colors) ||
+    parsed.colors.length === 0
+  ) {
+    throw new Error("INVALID_STRUCTURE:AI response missing colors array");
   }
 
   return parsed;
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const apiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+  const apiKey = Deno.env.get("GOOGLE_AI_API_KEY");
   if (!apiKey) {
-    return jsonResponse({ error: 'AI service not configured', code: 'NO_API_KEY' }, 503);
+    return jsonResponse(
+      { error: "AI service not configured", code: "NO_API_KEY" },
+      503,
+    );
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   let payload: ConsultRequest;
   try {
     payload = await req.json();
   } catch {
-    return jsonResponse({ error: 'Invalid JSON body', code: 'BAD_REQUEST' }, 400);
+    return jsonResponse(
+      { error: "Invalid JSON body", code: "BAD_REQUEST" },
+      400,
+    );
   }
 
-  if (!payload.mode || (payload.mode !== 'text' && payload.mode !== 'image')) {
-    return jsonResponse({ error: 'Invalid mode', code: 'BAD_REQUEST' }, 400);
+  if (!payload.mode || (payload.mode !== "text" && payload.mode !== "image")) {
+    return jsonResponse({ error: "Invalid mode", code: "BAD_REQUEST" }, 400);
   }
-  if (payload.mode === 'text' && !payload.description?.trim()) {
-    return jsonResponse({ error: 'Description is required for text mode', code: 'BAD_REQUEST' }, 400);
+  if (payload.mode === "text" && !payload.description?.trim()) {
+    return jsonResponse(
+      { error: "Description is required for text mode", code: "BAD_REQUEST" },
+      400,
+    );
   }
   if (payload.description && payload.description.length > 5000) {
-    return jsonResponse({ error: 'Description too long (max 5000 characters)', code: 'BAD_REQUEST' }, 400);
+    return jsonResponse(
+      {
+        error: "Description too long (max 5000 characters)",
+        code: "BAD_REQUEST",
+      },
+      400,
+    );
   }
-  if (payload.mode === 'image' && !payload.imageDataUrl) {
-    return jsonResponse({ error: 'Image is required for image mode', code: 'BAD_REQUEST' }, 400);
+  if (payload.mode === "image" && !payload.imageDataUrl) {
+    return jsonResponse(
+      { error: "Image is required for image mode", code: "BAD_REQUEST" },
+      400,
+    );
   }
-  if (payload.mode === 'image' && payload.imageDataUrl) {
-    const { data: base64Data, mimeType } = extractBase64FromDataUrl(payload.imageDataUrl);
-    const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+  if (payload.mode === "image" && payload.imageDataUrl) {
+    const { data: base64Data, mimeType } = extractBase64FromDataUrl(
+      payload.imageDataUrl,
+    );
+    const ALLOWED_MIME_TYPES = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/heic",
+      "image/heif",
+    ];
     if (!ALLOWED_MIME_TYPES.includes(mimeType)) {
-      return jsonResponse({ error: 'Unsupported image format. Use JPEG, PNG, or WebP.', code: 'BAD_REQUEST' }, 400);
+      return jsonResponse(
+        {
+          error: "Unsupported image format. Use JPEG, PNG, or WebP.",
+          code: "BAD_REQUEST",
+        },
+        400,
+      );
     }
     const byteLength = Math.ceil((base64Data.length * 3) / 4);
     if (byteLength > 5 * 1024 * 1024) {
-      return jsonResponse({ error: 'Image exceeds 5 MB limit', code: 'IMAGE_TOO_LARGE' }, 400);
+      return jsonResponse(
+        { error: "Image exceeds 5 MB limit", code: "IMAGE_TOO_LARGE" },
+        400,
+      );
     }
   }
 
   // Client fingerprint for rate limiting (always computed from request headers)
-  const forwarded = req.headers.get('x-forwarded-for') ?? '';
-  const userAgent = req.headers.get('user-agent') ?? '';
+  const forwarded = req.headers.get("x-forwarded-for") ?? "";
+  const userAgent = req.headers.get("user-agent") ?? "";
   const clientHash = await sha256(`${forwarded}:${userAgent}`);
 
   // Determine user identity. The JWT in the Authorization header is the ONLY
@@ -396,16 +486,22 @@ Deno.serve(async (req: Request) => {
   // only as a fallback for anonymous usage tracking — never for authenticated
   // users. A user cannot submit another user's ID to use their allowance.
   const userId = await getAuthenticatedUserId(req, supabaseUrl, anonKey);
-  const clientId = userId ? clientHash : (payload.clientId || clientHash);
+  const clientId = userId ? clientHash : payload.clientId || clientHash;
 
   // 1. Check AI config from DB
   const config = await getAiConfig(supabase);
   if (!config) {
-    return jsonResponse({ error: 'AI configuration not available', code: 'NOT_CONFIGURED' }, 503);
+    return jsonResponse(
+      { error: "AI configuration not available", code: "NOT_CONFIGURED" },
+      503,
+    );
   }
-  if (!config.ai_enabled || config.ai_access_mode === 'disabled') {
-    await logRequest(supabase, payload.mode, clientHash, 'disabled');
-    return jsonResponse({ error: 'AI features are currently disabled.', code: 'AI_DISABLED' }, 403);
+  if (!config.ai_enabled || config.ai_access_mode === "disabled") {
+    await logRequest(supabase, payload.mode, clientHash, "disabled");
+    return jsonResponse(
+      { error: "AI features are currently disabled.", code: "AI_DISABLED" },
+      403,
+    );
   }
 
   // 2. Check if authenticated user is admin (bypasses limits)
@@ -428,46 +524,76 @@ Deno.serve(async (req: Request) => {
   if (!bypassesLimit) {
     const usedToday = await getDailyUsage(supabase, clientId, userId);
     if (usedToday >= config.ai_daily_free_uses) {
-      await logRequest(supabase, payload.mode, clientHash, 'usage_limited', 'DAILY_LIMIT');
-      const limitMsg = config.ai_daily_free_uses === 0
-        ? 'Free AI recommendations are no longer included in the Free plan. Use FRELUX Credits to access AI features.'
-        : `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`;
-      return jsonResponse({
-        error: limitMsg,
-        code: 'USAGE_LIMIT_REACHED',
-        dailyLimit: config.ai_daily_free_uses,
-        usedToday,
-      }, 429);
+      await logRequest(
+        supabase,
+        payload.mode,
+        clientHash,
+        "usage_limited",
+        "DAILY_LIMIT",
+      );
+      const limitMsg =
+        config.ai_daily_free_uses === 0
+          ? "Free AI recommendations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
+          : `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`;
+      return jsonResponse(
+        {
+          error: limitMsg,
+          code: "USAGE_LIMIT_REACHED",
+          dailyLimit: config.ai_daily_free_uses,
+          usedToday,
+        },
+        429,
+      );
     }
   }
 
   // 5. Hourly rate limit (abuse prevention — applies to everyone)
   const { allowed, count } = await checkHourlyRateLimit(supabase, clientHash);
   if (!allowed) {
-    await logRequest(supabase, payload.mode, clientHash, 'rate_limited', 'HOURLY_LIMIT');
+    await logRequest(
+      supabase,
+      payload.mode,
+      clientHash,
+      "rate_limited",
+      "HOURLY_LIMIT",
+    );
     return jsonResponse(
-      { error: `Rate limit reached. Please try again later.`, code: 'RATE_LIMITED', requestsMade: count },
-      429
+      {
+        error: `Rate limit reached. Please try again later.`,
+        code: "RATE_LIMITED",
+        requestsMade: count,
+      },
+      429,
     );
   }
 
   // 6. Call AI provider
   try {
-    const recommendation = await callGemini(apiKey, payload.mode, payload.description, payload.imageDataUrl);
+    const recommendation = await callGemini(
+      apiKey,
+      payload.mode,
+      payload.description,
+      payload.imageDataUrl,
+    );
     // Only consume daily usage on SUCCESS, and only for non-paid, non-admin users
     if (!bypassesLimit) {
       await consumeDailyUse(supabase, clientId, userId);
     }
-    await logRequest(supabase, payload.mode, clientHash, 'success');
+    await logRequest(supabase, payload.mode, clientHash, "success");
     return jsonResponse({ recommendation });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    const [code] = message.split(':');
-    await logRequest(supabase, payload.mode, clientHash, 'error', code);
-    const status = code === 'RATE_LIMITED' ? 429 : code === 'AUTH_ERROR' ? 503 : 502;
+    const message = err instanceof Error ? err.message : "Unknown error";
+    const [code] = message.split(":");
+    await logRequest(supabase, payload.mode, clientHash, "error", code);
+    const status =
+      code === "RATE_LIMITED" ? 429 : code === "AUTH_ERROR" ? 503 : 502;
     return jsonResponse(
-      { error: 'The AI service could not process your request. Please try again later.', code: code || 'PROVIDER_ERROR' },
-      status
+      {
+        error:
+          "The AI service could not process your request. Please try again later.",
+        code: code || "PROVIDER_ERROR",
+      },
+      status,
     );
   }
 });

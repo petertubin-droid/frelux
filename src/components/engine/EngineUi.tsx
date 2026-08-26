@@ -19,27 +19,31 @@
  * ADDITIVE — existing calculator UI is not modified.
  */
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
-  Info, ChevronDown, ChevronUp, ShieldCheck, AlertTriangle,
-  Package, FileText,
-} from 'lucide-react';
-import { classNames } from '@/lib/utils';
+  Info,
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
+  AlertTriangle,
+  Package,
+  FileText,
+} from "lucide-react";
+import { classNames } from "@/lib/utils";
 import type {
   WasteResolution,
   ExplanationResult,
   ConfidenceResult,
   ConfidenceLevel,
   MaterialSummary,
-  AlreadyHaveResult,
   EstimateReportData,
-} from '@/lib/measurement/use-engine-features';
+} from "@/lib/measurement/use-engine-features";
 
 // ============================================================
 // WASTE SELECTOR
 // ============================================================
 
-export type WasteMode = 'system' | 'user' | 'none';
+export type WasteMode = "system" | "user" | "none";
 
 export function EngineWasteSelector({
   resolution,
@@ -51,14 +55,15 @@ export function EngineWasteSelector({
   onUserWasteChange: (waste: number | undefined) => void;
 }) {
   const [mode, setMode] = useState<WasteMode>(
-    userWaste === undefined ? 'system' : 'user',
+    userWaste === undefined ? "system" : "user",
   );
 
   function handleModeChange(newMode: WasteMode) {
     setMode(newMode);
-    if (newMode === 'system') onUserWasteChange(undefined);
-    else if (newMode === 'none') onUserWasteChange(0);
-    else if (newMode === 'user' && userWaste === undefined) onUserWasteChange(resolution.wastePercent);
+    if (newMode === "system") onUserWasteChange(undefined);
+    else if (newMode === "none") onUserWasteChange(0);
+    else if (newMode === "user" && userWaste === undefined)
+      onUserWasteChange(resolution.wastePercent);
   }
 
   return (
@@ -67,19 +72,21 @@ export function EngineWasteSelector({
         Waste Allowance
       </label>
       <div className="flex gap-2">
-        {([
-          ['system', 'System Recommended'],
-          ['user', 'Custom'],
-          ['none', 'No Waste'],
-        ] as const).map(([key, label]) => (
+        {(
+          [
+            ["system", "System Recommended"],
+            ["user", "Custom"],
+            ["none", "No Waste"],
+          ] as const
+        ).map(([key, label]) => (
           <button
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
-              'rounded-md px-3 py-1.5 text-xs font-medium transition-colors',
+              "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               mode === key
-                ? 'bg-brand-purple text-white'
-                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400'
+                ? "bg-brand-purple text-white"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400",
             )}
           >
             {label}
@@ -87,13 +94,13 @@ export function EngineWasteSelector({
         ))}
       </div>
 
-      {mode === 'system' && (
+      {mode === "system" && (
         <p className="mt-2 text-xs text-neutral-500">
           Using {resolution.wastePercent}% waste ({resolution.source})
         </p>
       )}
 
-      {mode === 'user' && (
+      {mode === "user" && (
         <div className="mt-2 flex items-center gap-2">
           <input
             type="number"
@@ -108,7 +115,7 @@ export function EngineWasteSelector({
         </div>
       )}
 
-      {mode === 'none' && (
+      {mode === "none" && (
         <p className="mt-2 text-xs text-neutral-500">
           No waste allowance — exact quantity only
         </p>
@@ -142,7 +149,9 @@ export function EngineAlreadyHaveInput({
       <div className="grid grid-cols-3 gap-3 text-sm">
         <div>
           <div className="text-xs text-neutral-500">Required</div>
-          <div className="font-semibold">{required} {unit}</div>
+          <div className="font-semibold">
+            {required} {unit}
+          </div>
         </div>
         <div>
           <div className="text-xs text-neutral-500">Already Have</div>
@@ -150,19 +159,24 @@ export function EngineAlreadyHaveInput({
             type="number"
             min={0}
             max={required}
-            value={alreadyHave || ''}
-            onChange={(e) => onAlreadyHaveChange(parseFloat(e.target.value) || 0)}
+            value={alreadyHave || ""}
+            onChange={(e) =>
+              onAlreadyHaveChange(parseFloat(e.target.value) || 0)
+            }
             className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900"
           />
         </div>
         <div>
           <div className="text-xs text-neutral-500">Purchase</div>
-          <div className="font-semibold text-brand-purple">{purchase} {unit}</div>
+          <div className="font-semibold text-brand-purple">
+            {purchase} {unit}
+          </div>
         </div>
       </div>
       {alreadyHave > 0 && (
         <p className="mt-2 text-xs text-green-600">
-          You already have {alreadyHave} {unit} — purchase {purchase} {unit} more.
+          You already have {alreadyHave} {unit} — purchase {purchase} {unit}{" "}
+          more.
         </p>
       )}
     </div>
@@ -173,33 +187,66 @@ export function EngineAlreadyHaveInput({
 // CONFIDENCE BADGE
 // ============================================================
 
-const CONFIDENCE_STYLES: Record<ConfidenceLevel, { bg: string; text: string; icon: typeof ShieldCheck }> = {
-  high: { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-700 dark:text-green-400', icon: ShieldCheck },
-  medium: { bg: 'bg-blue-100 dark:bg-blue-900/20', text: 'text-blue-700 dark:text-blue-400', icon: ShieldCheck },
-  low: { bg: 'bg-amber-100 dark:bg-amber-900/20', text: 'text-amber-700 dark:text-amber-400', icon: AlertTriangle },
-  review_required: { bg: 'bg-red-100 dark:bg-red-900/20', text: 'text-red-700 dark:text-red-400', icon: AlertTriangle },
+const CONFIDENCE_STYLES: Record<
+  ConfidenceLevel,
+  { bg: string; text: string; icon: typeof ShieldCheck }
+> = {
+  high: {
+    bg: "bg-green-100 dark:bg-green-900/20",
+    text: "text-green-700 dark:text-green-400",
+    icon: ShieldCheck,
+  },
+  medium: {
+    bg: "bg-blue-100 dark:bg-blue-900/20",
+    text: "text-blue-700 dark:text-blue-400",
+    icon: ShieldCheck,
+  },
+  low: {
+    bg: "bg-amber-100 dark:bg-amber-900/20",
+    text: "text-amber-700 dark:text-amber-400",
+    icon: AlertTriangle,
+  },
+  review_required: {
+    bg: "bg-red-100 dark:bg-red-900/20",
+    text: "text-red-700 dark:text-red-400",
+    icon: AlertTriangle,
+  },
 };
 
 const CONFIDENCE_LABELS: Record<ConfidenceLevel, string> = {
-  high: 'High Confidence',
-  medium: 'Medium Confidence',
-  low: 'Low Confidence',
-  review_required: 'Review Required',
+  high: "High Confidence",
+  medium: "Medium Confidence",
+  low: "Low Confidence",
+  review_required: "Review Required",
 };
 
-export function EngineConfidenceBadge({ result }: { result: ConfidenceResult }) {
+export function EngineConfidenceBadge({
+  result,
+}: {
+  result: ConfidenceResult;
+}) {
   const style = CONFIDENCE_STYLES[result.level];
   const Icon = style.icon;
 
   return (
-    <span className={classNames('inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium', style.bg, style.text)}>
+    <span
+      className={classNames(
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium",
+        style.bg,
+        style.text,
+      )}
+    >
       <Icon className="h-3 w-3" />
       {CONFIDENCE_LABELS[result.level]}
     </span>
   );
 }
 
-export function EngineConfidenceDetail({ result }: { result: ConfidenceResult }) {
+export function EngineConfidenceDetail({
+  result,
+}: {
+  result: ConfidenceResult;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -212,25 +259,42 @@ export function EngineConfidenceDetail({ result }: { result: ConfidenceResult })
           <ShieldCheck className="h-4 w-4 text-brand-purple" />
           Result Confidence
         </span>
-        {expanded ? <ChevronUp className="h-4 w-4 text-neutral-400" /> : <ChevronDown className="h-4 w-4 text-neutral-400" />}
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-neutral-400" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-neutral-400" />
+        )}
       </button>
       {expanded && (
         <div className="border-t border-neutral-200 px-4 py-3 dark:border-white/5">
           <div className="space-y-2 text-sm">
             {result.factors.map((factor, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">{factor.name}</span>
-                <span className={factor.passed ? 'text-green-600' : 'text-amber-600'}>
-                  {factor.passed ? '✓' : '⚠'} <span className="ml-1 text-xs text-neutral-400">{factor.detail}</span>
+                <span className="text-neutral-600 dark:text-neutral-400">
+                  {factor.name}
+                </span>
+                <span
+                  className={
+                    factor.passed ? "text-green-600" : "text-amber-600"
+                  }
+                >
+                  {factor.passed ? "✓" : "⚠"}{" "}
+                  <span className="ml-1 text-xs text-neutral-400">
+                    {factor.detail}
+                  </span>
                 </span>
               </div>
             ))}
           </div>
           {result.recommendations.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">Recommendations</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+                Recommendations
+              </p>
               {result.recommendations.map((rec, i) => (
-                <p key={i} className="text-xs text-neutral-500">• {rec}</p>
+                <p key={i} className="text-xs text-neutral-500">
+                  • {rec}
+                </p>
               ))}
             </div>
           )}
@@ -244,7 +308,11 @@ export function EngineConfidenceDetail({ result }: { result: ConfidenceResult })
 // EXPLANATION PANEL
 // ============================================================
 
-export function EngineExplanationPanel({ result }: { result: ExplanationResult }) {
+export function EngineExplanationPanel({
+  result,
+}: {
+  result: ExplanationResult;
+}) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -257,7 +325,11 @@ export function EngineExplanationPanel({ result }: { result: ExplanationResult }
           <Info className="h-4 w-4 text-brand-purple" />
           How FRELUX Calculated This
         </span>
-        {expanded ? <ChevronUp className="h-4 w-4 text-neutral-400" /> : <ChevronDown className="h-4 w-4 text-neutral-400" />}
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-neutral-400" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-neutral-400" />
+        )}
       </button>
       {expanded && (
         <div className="border-t border-neutral-200 px-4 py-3 dark:border-white/5">
@@ -268,9 +340,13 @@ export function EngineExplanationPanel({ result }: { result: ExplanationResult }
                   {i + 1}
                 </span>
                 <div>
-                  <span className="text-neutral-600 dark:text-neutral-400">{step.description}</span>
+                  <span className="text-neutral-600 dark:text-neutral-400">
+                    {step.description}
+                  </span>
                   {step.value !== undefined && step.value !== null && (
-                    <span className="ml-1 font-medium text-neutral-800 dark:text-neutral-200">{step.value}</span>
+                    <span className="ml-1 font-medium text-neutral-800 dark:text-neutral-200">
+                      {step.value}
+                    </span>
                   )}
                 </div>
               </div>
@@ -284,7 +360,9 @@ export function EngineExplanationPanel({ result }: { result: ExplanationResult }
           {result.notes.length > 0 && (
             <div className="mt-2 space-y-0.5">
               {result.notes.map((note, i) => (
-                <p key={i} className="text-xs text-neutral-400">• {note}</p>
+                <p key={i} className="text-xs text-neutral-400">
+                  • {note}
+                </p>
               ))}
             </div>
           )}
@@ -298,7 +376,11 @@ export function EngineExplanationPanel({ result }: { result: ExplanationResult }
 // MATERIAL SUMMARY CARD
 // ============================================================
 
-export function EngineMaterialSummaryCard({ summary }: { summary: MaterialSummary }) {
+export function EngineMaterialSummaryCard({
+  summary,
+}: {
+  summary: MaterialSummary;
+}) {
   if (summary.entries.length === 0) return null;
 
   return (
@@ -313,19 +395,28 @@ export function EngineMaterialSummaryCard({ summary }: { summary: MaterialSummar
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
-              <th className="pb-2 pr-3 font-medium text-neutral-500">Material</th>
-              <th className="pb-2 pr-3 font-medium text-neutral-500">Total Qty</th>
+              <th className="pb-2 pr-3 font-medium text-neutral-500">
+                Material
+              </th>
+              <th className="pb-2 pr-3 font-medium text-neutral-500">
+                Total Qty
+              </th>
               <th className="pb-2 pr-3 font-medium text-neutral-500">Unit</th>
               <th className="pb-2 font-medium text-neutral-500">Sources</th>
             </tr>
           </thead>
           <tbody>
             {summary.entries.map((entry, i) => (
-              <tr key={i} className="border-b border-neutral-100 dark:border-white/5">
+              <tr
+                key={i}
+                className="border-b border-neutral-100 dark:border-white/5"
+              >
                 <td className="py-2 pr-3 font-medium">{entry.productName}</td>
                 <td className="py-2 pr-3">{entry.totalQuantity}</td>
                 <td className="py-2 pr-3">{entry.quantityUnit}</td>
-                <td className="py-2 text-neutral-500">{entry.spaceIds.length}</td>
+                <td className="py-2 text-neutral-500">
+                  {entry.spaceIds.length}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -333,7 +424,8 @@ export function EngineMaterialSummaryCard({ summary }: { summary: MaterialSummar
       </div>
       {summary.totalEntries > 0 && (
         <p className="mt-2 text-xs text-neutral-400">
-          {summary.totalEntries} entries across {summary.entries.length} material types
+          {summary.totalEntries} entries across {summary.entries.length}{" "}
+          material types
         </p>
       )}
     </div>
@@ -344,12 +436,18 @@ export function EngineMaterialSummaryCard({ summary }: { summary: MaterialSummar
 // ESTIMATE REPORT VIEW
 // ============================================================
 
-export function EngineEstimateReportView({ report }: { report: EstimateReportData }) {
+export function EngineEstimateReportView({
+  report,
+}: {
+  report: EstimateReportData;
+}) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white p-6 dark:border-white/10 dark:bg-neutral-900">
       {/* Header */}
       <div className="mb-4 border-b border-neutral-200 pb-4 dark:border-white/10">
-        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">{report.projectName}</h2>
+        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+          {report.projectName}
+        </h2>
         {report.location && (
           <p className="text-sm text-neutral-500">{report.location}</p>
         )}
@@ -363,9 +461,14 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
       {/* Spaces */}
       {report.spaces.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Spaces</h3>
+          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+            Spaces
+          </h3>
           {report.spaces.map((space, i) => (
-            <div key={i} className="mb-2 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-white/5">
+            <div
+              key={i}
+              className="mb-2 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-white/5"
+            >
               <span className="font-medium">{space.name}</span>
               <span className="ml-2 text-neutral-500">{space.dimensions}</span>
             </div>
@@ -376,7 +479,9 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
       {/* Materials */}
       {report.materials.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Materials</h3>
+          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+            Materials
+          </h3>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
@@ -387,7 +492,10 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
             </thead>
             <tbody>
               {report.materials.map((mat, i) => (
-                <tr key={i} className="border-b border-neutral-100 dark:border-white/5">
+                <tr
+                  key={i}
+                  className="border-b border-neutral-100 dark:border-white/5"
+                >
                   <td className="py-1.5">{mat.productName}</td>
                   <td className="py-1.5">{mat.totalQuantity}</td>
                   <td className="py-1.5">{mat.quantityUnit}</td>
@@ -401,11 +509,15 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
       {/* Unit prices */}
       {report.unitPrices.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">Unit Prices</h3>
+          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+            Unit Prices
+          </h3>
           {report.unitPrices.map((price, i) => (
             <div key={i} className="flex justify-between text-sm">
               <span>{price.material}</span>
-              <span>{price.unitPrice} {price.currency}</span>
+              <span>
+                {price.unitPrice} {price.currency}
+              </span>
             </div>
           ))}
         </div>
@@ -416,7 +528,9 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
         <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
           <div className="flex justify-between text-base font-bold">
             <span>Total</span>
-            <span>{report.total.toLocaleString()} {report.currency}</span>
+            <span>
+              {report.total.toLocaleString()} {report.currency}
+            </span>
           </div>
         </div>
       )}
@@ -424,9 +538,13 @@ export function EngineEstimateReportView({ report }: { report: EstimateReportDat
       {/* Notes */}
       {report.notes.length > 0 && (
         <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-white/10">
-          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">Notes</p>
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">
+            Notes
+          </p>
           {report.notes.map((note, i) => (
-            <p key={i} className="text-xs text-neutral-500">• {note}</p>
+            <p key={i} className="text-xs text-neutral-500">
+              • {note}
+            </p>
           ))}
         </div>
       )}

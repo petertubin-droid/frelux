@@ -46,7 +46,12 @@ const CRAWLER_CONFIG = {
   anomalyDeviationThreshold: 0.35,
   autoApproveEnabled: false,
   userAgent: "FRELUX-Market-Intelligence-Bot/1.0 (+https://freluxtools.com)",
-  acceptedContentTypes: ["text/html", "application/xhtml+xml", "application/xml", "text/plain"],
+  acceptedContentTypes: [
+    "text/html",
+    "application/xhtml+xml",
+    "application/xml",
+    "text/plain",
+  ],
 };
 
 // ============================================================
@@ -60,7 +65,8 @@ Deno.serve(async (req: Request) => {
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+        "Access-Control-Allow-Headers":
+          "authorization, x-client-info, apikey, content-type",
       },
     });
   }
@@ -99,18 +105,25 @@ async function handleManualCrawl(req: Request): Promise<Response> {
   }
 
   // Create client with user's auth to verify admin status
-  const userSupabase = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-    auth: { persistSession: false, autoRefreshToken: false },
-    global: { headers: { Authorization: authHeader } },
-  });
+  const userSupabase = createClient(
+    SUPABASE_URL,
+    Deno.env.get("SUPABASE_ANON_KEY")!,
+    {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: { headers: { Authorization: authHeader } },
+    },
+  );
 
-  const { data: userData, error: userError } = await userSupabase.auth.getUser();
+  const { data: userData, error: userError } =
+    await userSupabase.auth.getUser();
   if (userError || !userData.user) {
     return jsonResponse({ error: "Unauthorized — invalid session" }, 401);
   }
 
   // Verify admin status
-  const { data: isAdmin } = await supabase.rpc("is_admin", { user_id: userData.user.id });
+  const { data: isAdmin } = await supabase.rpc("is_admin", {
+    user_id: userData.user.id,
+  });
   if (!isAdmin) {
     return jsonResponse({ error: "Forbidden — admin access required" }, 403);
   }
@@ -140,7 +153,12 @@ async function handleManualCrawl(req: Request): Promise<Response> {
   }
 
   // Execute crawl
-  const result = await executeCrawlServerSide(source, mode, targetUrl, userData.user.id);
+  const result = await executeCrawlServerSide(
+    source,
+    mode,
+    targetUrl,
+    userData.user.id,
+  );
 
   return jsonResponse(result, 200);
 }
@@ -152,7 +170,7 @@ async function handleManualCrawl(req: Request): Promise<Response> {
 async function handleScheduledCrawl(): Promise<Response> {
   // Find sources that need crawling based on crawl_frequency
   const now = new Date();
-  const today = now.toISOString().split("T")[0];
+  const _today = now.toISOString().split("T")[0];
 
   // Get active sources with scheduled frequency (not manual)
   const { data: sources, error } = await supabase
@@ -171,7 +189,8 @@ async function handleScheduledCrawl(): Promise<Response> {
   const dueSources = sources.filter((source) => {
     if (!source.last_checked_at) return true;
     const lastChecked = new Date(source.last_checked_at);
-    const daysSince = (now.getTime() - lastChecked.getTime()) / (1000 * 60 * 60 * 24);
+    const daysSince =
+      (now.getTime() - lastChecked.getTime()) / (1000 * 60 * 60 * 24);
     if (source.crawl_frequency === "daily") return daysSince >= 1;
     if (source.crawl_frequency === "weekly") return daysSince >= 7;
     if (source.crawl_frequency === "monthly") return daysSince >= 30;
@@ -186,14 +205,32 @@ async function handleScheduledCrawl(): Promise<Response> {
   const results = [];
   for (const source of dueSources) {
     try {
-      const result = await executeCrawlServerSide(source, "production", null, null);
-      results.push({ sourceId: source.id, sourceName: source.source_name, status: result.status });
+      const result = await executeCrawlServerSide(
+        source,
+        "production",
+        null,
+        null,
+      );
+      results.push({
+        sourceId: source.id,
+        sourceName: source.source_name,
+        status: result.status,
+      });
     } catch (error) {
-      results.push({ sourceId: source.id, sourceName: source.source_name, status: "failed", error: error.message });
+      results.push({
+        sourceId: source.id,
+        sourceName: source.source_name,
+        status: "failed",
+        error: error.message,
+      });
     }
   }
 
-  return jsonResponse({ message: "Scheduled crawl completed", sources: dueSources.length, results });
+  return jsonResponse({
+    message: "Scheduled crawl completed",
+    sources: dueSources.length,
+    results,
+  });
 }
 
 // ============================================================
@@ -235,7 +272,9 @@ async function executeCrawlServerSide(
   if (!crawlUrl) {
     job.status = "failed";
     job.message = "No URL to crawl";
-    job.errors = [{ type: "INVALID_URL", message: "Source has no URL configured" }];
+    job.errors = [
+      { type: "INVALID_URL", message: "Source has no URL configured" },
+    ];
     return finishAndLog(job, startedAt, source, supabase);
   }
 
@@ -244,7 +283,9 @@ async function executeCrawlServerSide(
   if (!urlValidation.valid) {
     job.status = "failed";
     job.message = `URL validation failed: ${urlValidation.reason}`;
-    job.errors = [{ type: "SSRF_BLOCKED", message: urlValidation.reason, url: crawlUrl }];
+    job.errors = [
+      { type: "SSRF_BLOCKED", message: urlValidation.reason, url: crawlUrl },
+    ];
     return finishAndLog(job, startedAt, source, supabase);
   }
 
@@ -253,18 +294,31 @@ async function executeCrawlServerSide(
   job.pagesRequested = 1;
 
   try {
-    const fetchResult = await fetchPageServerSide(urlValidation.sanitized!, CRAWLER_CONFIG, source.domain as string);
+    const fetchResult = await fetchPageServerSide(
+      urlValidation.sanitized!,
+      CRAWLER_CONFIG,
+      source.domain as string,
+    );
 
     if (!fetchResult.success) {
       job.status = "failed";
       job.message = `Fetch failed: ${fetchResult.error}`;
-      job.errors = [{ type: fetchResult.errorType, message: fetchResult.error, url: crawlUrl }];
+      job.errors = [
+        {
+          type: fetchResult.errorType,
+          message: fetchResult.error,
+          url: crawlUrl,
+        },
+      ];
 
       // Update source health
-      await supabase.from("mi_sources").update({
-        last_checked_at: new Date().toISOString(),
-        last_error: fetchResult.error,
-      }).eq("id", source.id);
+      await supabase
+        .from("mi_sources")
+        .update({
+          last_checked_at: new Date().toISOString(),
+          last_error: fetchResult.error,
+        })
+        .eq("id", source.id);
 
       return finishAndLog(job, startedAt, source, supabase);
     }
@@ -272,19 +326,30 @@ async function executeCrawlServerSide(
     job.pagesFetched = 1;
 
     // Extract products
-    const extraction = extractFromHtmlServerSide(fetchResult.html, urlValidation.sanitized!);
+    const extraction = extractFromHtmlServerSide(
+      fetchResult.html,
+      urlValidation.sanitized!,
+    );
     job.productsDiscovered = extraction.products.length;
 
     if (extraction.renderingRequired && extraction.products.length === 0) {
       job.status = "skipped";
       job.warnings = ["Page requires JavaScript rendering"];
-      job.errors = [{ type: "RENDERING_REQUIRED", message: "JavaScript rendering required" }];
+      job.errors = [
+        {
+          type: "RENDERING_REQUIRED",
+          message: "JavaScript rendering required",
+        },
+      ];
       job.message = "Rendering required — direct crawler cannot extract data";
 
-      await supabase.from("mi_sources").update({
-        last_checked_at: new Date().toISOString(),
-        last_error: "RENDERING_REQUIRED",
-      }).eq("id", source.id);
+      await supabase
+        .from("mi_sources")
+        .update({
+          last_checked_at: new Date().toISOString(),
+          last_error: "RENDERING_REQUIRED",
+        })
+        .eq("id", source.id);
 
       return finishAndLog(job, startedAt, source, supabase);
     }
@@ -294,10 +359,13 @@ async function executeCrawlServerSide(
       job.warnings = ["No products found"];
       job.message = "Crawl completed — no products found";
 
-      await supabase.from("mi_sources").update({
-        last_checked_at: new Date().toISOString(),
-        last_success_at: new Date().toISOString(),
-      }).eq("id", source.id);
+      await supabase
+        .from("mi_sources")
+        .update({
+          last_checked_at: new Date().toISOString(),
+          last_success_at: new Date().toISOString(),
+        })
+        .eq("id", source.id);
 
       return finishAndLog(job, startedAt, source, supabase);
     }
@@ -308,11 +376,14 @@ async function executeCrawlServerSide(
 
     for (const product of extraction.products) {
       if (product.price === null || product.price <= 0) {
-        (job.warnings as string[]).push(`Product "${product.productName}" — no price`);
+        (job.warnings as string[]).push(
+          `Product "${product.productName}" — no price`,
+        );
         continue;
       }
 
-      (job as Record<string, unknown>).pricesDiscovered = (job.pricesDiscovered as number) + 1;
+      (job as Record<string, unknown>).pricesDiscovered =
+        (job.pricesDiscovered as number) + 1;
 
       // Determine currency
       let currency = product.currency;
@@ -338,7 +409,8 @@ async function executeCrawlServerSide(
           price: product.price,
           currency_code: currency,
           match_confidence: product.confidence,
-          validation_status: mode === "test" ? "review_required" : "review_required",
+          validation_status:
+            mode === "test" ? "review_required" : "review_required",
           freshness: "fresh",
           source_url: urlValidation.sanitized,
           collected_at: new Date().toISOString(),
@@ -358,37 +430,46 @@ async function executeCrawlServerSide(
 
       if (mode === "production" && product.confidence === "high") {
         // Auto-approve high-confidence observations only in production mode
-        await supabase.from("mi_price_observations").update({
-          validation_status: "approved",
-          reviewed_at: new Date().toISOString(),
-          review_action: "auto_approved",
-        }).eq("id", observation.id);
+        await supabase
+          .from("mi_price_observations")
+          .update({
+            validation_status: "approved",
+            reviewed_at: new Date().toISOString(),
+            review_action: "auto_approved",
+          })
+          .eq("id", observation.id);
 
-        (job as Record<string, unknown>).pricesAccepted = (job.pricesAccepted as number) + 1;
+        (job as Record<string, unknown>).pricesAccepted =
+          (job.pricesAccepted as number) + 1;
 
         // Upsert approved price
-        await supabase.from("mi_approved_prices").upsert({
-          market_code: source.country_code,
-          product_name: product.productName,
-          brand: product.brand,
-          category: product.category ?? "uncategorized",
-          package_size: product.packageSize ?? 1,
-          package_unit: product.packageUnit ?? "unit",
-          price: product.price,
-          currency_code: currency,
-          source_count: 1,
-          confidence: product.confidence,
-          freshness: "fresh",
-          source_observations: [observation.id],
-          auto_approved: true,
-          region: source.region,
-          city: source.city,
-          is_active: true,
-        }, {
-          onConflict: "market_code,canonical_product_id,package_size,package_unit",
-        });
+        await supabase.from("mi_approved_prices").upsert(
+          {
+            market_code: source.country_code,
+            product_name: product.productName,
+            brand: product.brand,
+            category: product.category ?? "uncategorized",
+            package_size: product.packageSize ?? 1,
+            package_unit: product.packageUnit ?? "unit",
+            price: product.price,
+            currency_code: currency,
+            source_count: 1,
+            confidence: product.confidence,
+            freshness: "fresh",
+            source_observations: [observation.id],
+            auto_approved: true,
+            region: source.region,
+            city: source.city,
+            is_active: true,
+          },
+          {
+            onConflict:
+              "market_code,canonical_product_id,package_size,package_unit",
+          },
+        );
       } else {
-        (job as Record<string, unknown>).pricesReviewRequired = (job.pricesReviewRequired as number) + 1;
+        (job as Record<string, unknown>).pricesReviewRequired =
+          (job.pricesReviewRequired as number) + 1;
       }
     }
 
@@ -397,7 +478,10 @@ async function executeCrawlServerSide(
     // Final status
     if ((job.errors as unknown[]).length > 0 && observationIds.length > 0) {
       job.status = "partial";
-    } else if ((job.errors as unknown[]).length > 0 && observationIds.length === 0) {
+    } else if (
+      (job.errors as unknown[]).length > 0 &&
+      observationIds.length === 0
+    ) {
       job.status = "failed";
     } else {
       job.status = "completed";
@@ -407,11 +491,16 @@ async function executeCrawlServerSide(
 
     // Update source health
     const success = job.status === "completed" || job.status === "partial";
-    await supabase.from("mi_sources").update({
-      last_checked_at: new Date().toISOString(),
-      last_success_at: success ? new Date().toISOString() : null,
-      last_error: success ? null : (job.errors as Array<{ message: string }>)[0]?.message ?? null,
-    }).eq("id", source.id);
+    await supabase
+      .from("mi_sources")
+      .update({
+        last_checked_at: new Date().toISOString(),
+        last_success_at: success ? new Date().toISOString() : null,
+        last_error: success
+          ? null
+          : ((job.errors as Array<{ message: string }>)[0]?.message ?? null),
+      })
+      .eq("id", source.id);
 
     return finishAndLog(job, startedAt, source, supabase);
   } catch (error) {
@@ -419,10 +508,13 @@ async function executeCrawlServerSide(
     job.message = `Crawl failed: ${error.message}`;
     (job.errors as unknown[]).push({ type: "UNKNOWN", message: error.message });
 
-    await supabase.from("mi_sources").update({
-      last_checked_at: new Date().toISOString(),
-      last_error: error.message,
-    }).eq("id", source.id);
+    await supabase
+      .from("mi_sources")
+      .update({
+        last_checked_at: new Date().toISOString(),
+        last_error: error.message,
+      })
+      .eq("id", source.id);
 
     return finishAndLog(job, startedAt, source, supabase);
   }
@@ -432,7 +524,11 @@ async function executeCrawlServerSide(
 // URL VALIDATION (Server-Side)
 // ============================================================
 
-function validateUrlServerSide(rawUrl: string): { valid: boolean; reason: string | null; sanitized: string | null } {
+function validateUrlServerSide(rawUrl: string): {
+  valid: boolean;
+  reason: string | null;
+  sanitized: string | null;
+} {
   if (!rawUrl || typeof rawUrl !== "string") {
     return { valid: false, reason: "URL is empty", sanitized: null };
   }
@@ -440,7 +536,9 @@ function validateUrlServerSide(rawUrl: string): { valid: boolean; reason: string
   const trimmed = rawUrl.trim();
 
   // Reject dangerous protocols
-  if (/^(file|ftp|gopher|ws|wss|ldap|dict|sftp|tftp|jar|netdoc)/i.test(trimmed)) {
+  if (
+    /^(file|ftp|gopher|ws|wss|ldap|dict|sftp|tftp|jar|netdoc)/i.test(trimmed)
+  ) {
     return { valid: false, reason: "Protocol not allowed", sanitized: null };
   }
 
@@ -452,28 +550,57 @@ function validateUrlServerSide(rawUrl: string): { valid: boolean; reason: string
   }
 
   if (!["http:", "https:"].includes(parsed.protocol)) {
-    return { valid: false, reason: `Protocol "${parsed.protocol}" not allowed`, sanitized: null };
+    return {
+      valid: false,
+      reason: `Protocol "${parsed.protocol}" not allowed`,
+      sanitized: null,
+    };
   }
 
   const hostname = parsed.hostname.toLowerCase();
 
   // Block private/internal hosts
-  const blocked = ["localhost", "0.0.0.0", "::1", "169.254.169.254", "metadata.google.internal"];
+  const blocked = [
+    "localhost",
+    "0.0.0.0",
+    "::1",
+    "169.254.169.254",
+    "metadata.google.internal",
+  ];
   if (blocked.includes(hostname)) {
-    return { valid: false, reason: `Blocked hostname: ${hostname}`, sanitized: null };
+    return {
+      valid: false,
+      reason: `Blocked hostname: ${hostname}`,
+      sanitized: null,
+    };
   }
 
   // Check for private IPs
   if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(hostname)) {
     const parts = hostname.split(".").map((p) => parseInt(p));
     const [a, b] = parts;
-    if (a === 10 || a === 127 || a === 0 || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 169 && b === 254)) {
-      return { valid: false, reason: `Private IP blocked: ${hostname}`, sanitized: null };
+    if (
+      a === 10 ||
+      a === 127 ||
+      a === 0 ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168) ||
+      (a === 169 && b === 254)
+    ) {
+      return {
+        valid: false,
+        reason: `Private IP blocked: ${hostname}`,
+        sanitized: null,
+      };
     }
   }
 
   if (parsed.username || parsed.password) {
-    return { valid: false, reason: "URLs with credentials are not allowed", sanitized: null };
+    return {
+      valid: false,
+      reason: "URLs with credentials are not allowed",
+      sanitized: null,
+    };
   }
 
   return { valid: true, reason: null, sanitized: parsed.toString() };
@@ -487,10 +614,18 @@ async function fetchPageServerSide(
   url: string,
   config: typeof CRAWLER_CONFIG,
   _allowedDomain: string | null,
-): Promise<{ success: boolean; html: string; error: string | null; errorType: string | null }> {
+): Promise<{
+  success: boolean;
+  html: string;
+  error: string | null;
+  errorType: string | null;
+}> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), config.requestTimeoutMs);
+    const timeout = setTimeout(
+      () => controller.abort(),
+      config.requestTimeoutMs,
+    );
 
     // Check robots.txt first
     const robotsUrl = `${new URL(url).protocol}//${new URL(url).hostname}/robots.txt`;
@@ -504,7 +639,9 @@ async function fetchPageServerSide(
         const robotsText = await robotsResponse.text();
         // Simple check: if our user-agent or * is explicitly disallowed for the path
         const path = new URL(url).pathname;
-        const disallowLines = robotsText.split("\n").filter((l) => /^\s*Disallow:/i.test(l));
+        const disallowLines = robotsText
+          .split("\n")
+          .filter((l) => /^\s*Disallow:/i.test(l));
         for (const line of disallowLines) {
           const disallowPath = line.replace(/^\s*Disallow:\s*/i, "").trim();
           if (disallowPath === "/") {
@@ -522,7 +659,12 @@ async function fetchPageServerSide(
     }
 
     if (!robotsAllowed) {
-      return { success: false, html: "", error: "Blocked by robots.txt", errorType: "ROBOTS_DISALLOWED" };
+      return {
+        success: false,
+        html: "",
+        error: "Blocked by robots.txt",
+        errorType: "ROBOTS_DISALLOWED",
+      };
     }
 
     const response = await fetch(url, {
@@ -540,31 +682,62 @@ async function fetchPageServerSide(
     clearTimeout(timeout);
 
     if (!response.ok) {
-      const errorType = response.status === 403 ? "HTTP_403" :
-        response.status === 404 ? "HTTP_404" :
-        response.status >= 500 ? "HTTP_500" : "HTTP_OTHER";
-      return { success: false, html: "", error: `HTTP ${response.status}`, errorType };
+      const errorType =
+        response.status === 403
+          ? "HTTP_403"
+          : response.status === 404
+            ? "HTTP_404"
+            : response.status >= 500
+              ? "HTTP_500"
+              : "HTTP_OTHER";
+      return {
+        success: false,
+        html: "",
+        error: `HTTP ${response.status}`,
+        errorType,
+      };
     }
 
     const contentType = response.headers.get("content-type") ?? "";
-    const isAccepted = config.acceptedContentTypes.some((t) => contentType.toLowerCase().includes(t));
+    const isAccepted = config.acceptedContentTypes.some((t) =>
+      contentType.toLowerCase().includes(t),
+    );
     if (!isAccepted) {
-      return { success: false, html: "", error: `Unsupported content type: ${contentType}`, errorType: "UNSUPPORTED_CONTENT_TYPE" };
+      return {
+        success: false,
+        html: "",
+        error: `Unsupported content type: ${contentType}`,
+        errorType: "UNSUPPORTED_CONTENT_TYPE",
+      };
     }
 
-    const contentLength = parseInt(response.headers.get("content-length") ?? "0", 10);
+    const contentLength = parseInt(
+      response.headers.get("content-length") ?? "0",
+      10,
+    );
     if (contentLength > config.maxResponseSizeBytes) {
-      return { success: false, html: "", error: "Content too large", errorType: "CONTENT_TOO_LARGE" };
+      return {
+        success: false,
+        html: "",
+        error: "Content too large",
+        errorType: "CONTENT_TOO_LARGE",
+      };
     }
 
     const html = await response.text();
     if (html.length > config.maxResponseSizeBytes) {
-      return { success: false, html: "", error: "Content too large", errorType: "CONTENT_TOO_LARGE" };
+      return {
+        success: false,
+        html: "",
+        error: "Content too large",
+        errorType: "CONTENT_TOO_LARGE",
+      };
     }
 
     return { success: true, html, error: null, errorType: null };
   } catch (error) {
-    const errorType = error.name === "AbortError" ? "FETCH_TIMEOUT" : "CONNECTION_ERROR";
+    const errorType =
+      error.name === "AbortError" ? "FETCH_TIMEOUT" : "CONNECTION_ERROR";
     return { success: false, html: "", error: error.message, errorType };
   }
 }
@@ -573,14 +746,18 @@ async function fetchPageServerSide(
 // HTML EXTRACTION (Server-Side)
 // ============================================================
 
-function extractFromHtmlServerSide(html: string, url: string): {
+function extractFromHtmlServerSide(
+  html: string,
+  _url: string,
+): {
   products: Array<Record<string, unknown>>;
   renderingRequired: boolean;
 } {
   const products: Array<Record<string, unknown>> = [];
 
   // 1. JSON-LD extraction
-  const jsonLdRegex = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  const jsonLdRegex =
+    /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
   let match: RegExpExecArray | null;
 
   while ((match = jsonLdRegex.exec(html)) !== null) {
@@ -590,7 +767,10 @@ function extractFromHtmlServerSide(html: string, url: string): {
       for (const item of items) {
         const graphItems = item["@graph"] ? item["@graph"] : [item];
         for (const graphItem of graphItems) {
-          if (graphItem["@type"] && String(graphItem["@type"]).toLowerCase().includes("product")) {
+          if (
+            graphItem["@type"] &&
+            String(graphItem["@type"]).toLowerCase().includes("product")
+          ) {
             const name = graphItem.name;
             if (!name) continue;
 
@@ -601,11 +781,18 @@ function extractFromHtmlServerSide(html: string, url: string): {
               const offerList = Array.isArray(offers) ? offers : [offers];
               for (const offer of offerList) {
                 if (offer.price !== undefined) {
-                  price = typeof offer.price === "string" ? parseFloat(offer.price) : offer.price;
+                  price =
+                    typeof offer.price === "string"
+                      ? parseFloat(offer.price)
+                      : offer.price;
                 } else if (offer.lowPrice !== undefined) {
-                  price = typeof offer.lowPrice === "string" ? parseFloat(offer.lowPrice) : offer.lowPrice;
+                  price =
+                    typeof offer.lowPrice === "string"
+                      ? parseFloat(offer.lowPrice)
+                      : offer.lowPrice;
                 }
-                if (offer.priceCurrency) currency = String(offer.priceCurrency).toUpperCase();
+                if (offer.priceCurrency)
+                  currency = String(offer.priceCurrency).toUpperCase();
                 if (price !== null) break;
               }
             }
@@ -614,8 +801,14 @@ function extractFromHtmlServerSide(html: string, url: string): {
               productName: name,
               price,
               currency,
-              brand: typeof graphItem.brand === "string" ? graphItem.brand : graphItem.brand?.name ?? null,
-              category: typeof graphItem.category === "string" ? graphItem.category : graphItem.category?.name ?? null,
+              brand:
+                typeof graphItem.brand === "string"
+                  ? graphItem.brand
+                  : (graphItem.brand?.name ?? null),
+              category:
+                typeof graphItem.category === "string"
+                  ? graphItem.category
+                  : (graphItem.category?.name ?? null),
               packageSize: extractPackageServerSide(name),
               packageUnit: extractPackageUnitServerSide(name),
               stockStatus: null,
@@ -635,15 +828,20 @@ function extractFromHtmlServerSide(html: string, url: string): {
 
   // 2. Open Graph extraction
   const getMeta = (prop: string): string | null => {
-    const regex = new RegExp(`<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`, "i");
+    const regex = new RegExp(
+      `<meta[^>]*property=["']${prop}["'][^>]*content=["']([^"']*)["']`,
+      "i",
+    );
     const m = html.match(regex);
     return m ? m[1] : null;
   };
 
   const ogTitle = getMeta("og:title");
   if (ogTitle) {
-    const priceStr = getMeta("product:price:amount") || getMeta("og:price:amount");
-    const currency = getMeta("product:price:currency") || getMeta("og:price:currency");
+    const priceStr =
+      getMeta("product:price:amount") || getMeta("og:price:amount");
+    const currency =
+      getMeta("product:price:currency") || getMeta("og:price:currency");
     let price: number | null = null;
     if (priceStr) {
       price = parseFloat(priceStr.replace(/[^0-9.]/g, ""));
@@ -671,7 +869,18 @@ function extractFromHtmlServerSide(html: string, url: string): {
     const productName = h1Match[1].replace(/<[^>]+>/g, "").trim();
     // Only extract if it looks like a construction product
     const lower = productName.toLowerCase();
-    const isConstruction = ["cement", "paint", "tile", "screeding", "pop", "roofing", "block", "white cement", "grout", "adhesive"].some((kw) => lower.includes(kw));
+    const isConstruction = [
+      "cement",
+      "paint",
+      "tile",
+      "screeding",
+      "pop",
+      "roofing",
+      "block",
+      "white cement",
+      "grout",
+      "adhesive",
+    ].some((kw) => lower.includes(kw));
 
     if (isConstruction) {
       // Try to find a price
@@ -691,28 +900,46 @@ function extractFromHtmlServerSide(html: string, url: string): {
   }
 
   // Check for JS rendering requirement
-  const textContent = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, "").trim();
-  const renderingRequired = textContent.length < 200 && (html.match(/<script\b/gi) || []).length > 5;
+  const textContent = html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+  const renderingRequired =
+    textContent.length < 200 && (html.match(/<script\b/gi) || []).length > 5;
 
   return { products, renderingRequired };
 }
 
 function extractPackageServerSide(name: string): number | null {
-  const match = name.toLowerCase().match(/(\d+(?:\.\d+)?)\s*(kg|kilogram|l|litre|liters?|litres?|carton|pack|bag|bucket)/);
+  const match = name
+    .toLowerCase()
+    .match(
+      /(\d+(?:\.\d+)?)\s*(kg|kilogram|l|litre|liters?|litres?|carton|pack|bag|bucket)/,
+    );
   return match ? parseFloat(match[1]) : null;
 }
 
 function extractPackageUnitServerSide(name: string): string | null {
-  const match = name.toLowerCase().match(/\d+(?:\.\d+)?\s*(kg|kilogram|l|litre|liters?|litres?|carton|pack|bag|bucket)/);
+  const match = name
+    .toLowerCase()
+    .match(
+      /\d+(?:\.\d+)?\s*(kg|kilogram|l|litre|liters?|litres?|carton|pack|bag|bucket)/,
+    );
   if (!match) return null;
   const unit = match[1];
   if (unit === "kg" || unit === "kilogram") return "kg";
-  if (unit === "l" || unit.startsWith("litre") || unit.startsWith("liter")) return "litres";
+  if (unit === "l" || unit.startsWith("litre") || unit.startsWith("liter"))
+    return "litres";
   return unit;
 }
 
-function extractPriceServerSide(html: string): { price: number | null; currency: string | null } {
-  const text = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "").replace(/<[^>]+>/g, " ");
+function extractPriceServerSide(html: string): {
+  price: number | null;
+  currency: string | null;
+} {
+  const text = html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<[^>]+>/g, " ");
   const patterns: Array<{ regex: RegExp; currency: string }> = [
     { regex: /₦\s*([\d,]+(?:\.\d+)?)/, currency: "NGN" },
     { regex: /\bNGN\s*([\d,]+(?:\.\d+)?)/i, currency: "NGN" },
@@ -733,7 +960,12 @@ function extractPriceServerSide(html: string): { price: number | null; currency:
 }
 
 function deriveCurrency(marketCode: string): string {
-  const map: Record<string, string> = { NG: "NGN", GH: "GHS", KE: "KES", ZA: "ZAR" };
+  const map: Record<string, string> = {
+    NG: "NGN",
+    GH: "GHS",
+    KE: "KES",
+    ZA: "ZAR",
+  };
   return map[marketCode] ?? "NGN";
 }
 
@@ -752,7 +984,8 @@ async function finishAndLog(
 
   // Log to mi_crawl_logs
   try {
-    const eventType = job.status === "completed" ? "crawl_completed" : "crawl_failed";
+    const eventType =
+      job.status === "completed" ? "crawl_completed" : "crawl_failed";
     await supabaseClient.from("mi_crawl_logs").insert({
       event_type: eventType,
       message: job.message,

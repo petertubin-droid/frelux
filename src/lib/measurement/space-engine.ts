@@ -28,13 +28,17 @@ import type {
   MeasurementGroup,
   MeasurementSection,
   MeasurementProject,
-  MeasurementProjectResult,
   CalculationStep,
-} from './types';
-import { SPACE_TYPE_LABELS } from './types';
-import type { LengthUnit, CalculatorContext } from './units';
-import { createMeasurementEntry, createMeasurementGroup, createMeasurementSection, generateId } from './factory';
-import type {} from './extended-units';
+} from "./types";
+import { SPACE_TYPE_LABELS } from "./types";
+import type { LengthUnit, CalculatorContext } from "./units";
+import {
+  createMeasurementEntry,
+  createMeasurementGroup,
+  createMeasurementSection,
+  generateId,
+} from "./factory";
+import type {} from "./extended-units";
 
 // =========================================================
 // SURFACE / FINISH TYPES
@@ -46,26 +50,26 @@ import type {} from './extended-units';
  * FinishType describes WHAT material/treatment is applied.
  */
 export type FinishType =
-  | 'paint'
-  | 'screeding'
-  | 'tiling'
-  | 'grafitex'
-  | 'pop'
-  | 'tyrolene'
-  | 'block'
-  | 'none'
-  | 'custom';
+  | "paint"
+  | "screeding"
+  | "tiling"
+  | "grafitex"
+  | "pop"
+  | "tyrolene"
+  | "block"
+  | "none"
+  | "custom";
 
 export const FINISH_TYPE_LABELS: Record<FinishType, string> = {
-  paint: 'Paint',
-  screeding: 'Screeding',
-  tiling: 'Tiling',
-  grafitex: 'Grafitex',
-  pop: 'POP (Plaster of Paris)',
-  tyrolene: 'Tyrolene',
-  block: 'Block Work',
-  none: 'No Finish',
-  custom: 'Custom Finish',
+  paint: "Paint",
+  screeding: "Screeding",
+  tiling: "Tiling",
+  grafitex: "Grafitex",
+  pop: "POP (Plaster of Paris)",
+  tyrolene: "Tyrolene",
+  block: "Block Work",
+  none: "No Finish",
+  custom: "Custom Finish",
 };
 
 // =========================================================
@@ -79,7 +83,7 @@ export const FINISH_TYPE_LABELS: Record<FinishType, string> = {
  */
 export interface SpaceOpening {
   id: string;
-  type: 'door' | 'window' | 'archway' | 'vent' | 'other';
+  type: "door" | "window" | "archway" | "vent" | "other";
   width: number;
   height: number;
   unit: LengthUnit;
@@ -127,7 +131,7 @@ export interface Space {
   /** Partition count (for fence spaces) */
   partitionCount?: number;
   /** Tile config (for tiling spaces) */
-  tileConfig?: import('./types').TileConfig;
+  tileConfig?: import("./types").TileConfig;
 }
 
 /**
@@ -206,17 +210,17 @@ export interface SpaceCollectionResult {
  */
 export function createSpace(partial: Partial<Space> = {}): Space {
   return {
-    id: generateId('space'),
-    name: partial.name ?? 'New Space',
-    type: partial.type ?? 'other',
+    id: generateId("space"),
+    name: partial.name ?? "New Space",
+    type: partial.type ?? "other",
     length: partial.length ?? 0,
     width: partial.width,
     height: partial.height,
-    unit: partial.unit ?? 'feet',
+    unit: partial.unit ?? "feet",
     quantity: partial.quantity ?? 1,
     includeCeiling: partial.includeCeiling ?? false,
-    surfaceType: partial.surfaceType ?? 'wall',
-    finishType: partial.finishType ?? 'none',
+    surfaceType: partial.surfaceType ?? "wall",
+    finishType: partial.finishType ?? "none",
     openings: partial.openings ?? [],
     properties: partial.properties ?? {},
     wasteMarginPercent: partial.wasteMarginPercent ?? 0,
@@ -228,13 +232,15 @@ export function createSpace(partial: Partial<Space> = {}): Space {
 /**
  * Create an opening (door, window, etc.) with dimensions.
  */
-export function createOpening(partial: Partial<SpaceOpening> = {}): SpaceOpening {
+export function createOpening(
+  partial: Partial<SpaceOpening> = {},
+): SpaceOpening {
   return {
-    id: generateId('opening'),
-    type: partial.type ?? 'door',
+    id: generateId("opening"),
+    type: partial.type ?? "door",
     width: partial.width ?? 3,
     height: partial.height ?? 7,
-    unit: partial.unit ?? 'feet',
+    unit: partial.unit ?? "feet",
     count: partial.count ?? 1,
   };
 }
@@ -243,12 +249,12 @@ export function createOpening(partial: Partial<SpaceOpening> = {}): SpaceOpening
  * Create a space collection.
  */
 export function createSpaceCollection(
-  name: string = 'New Collection',
-  preferredUnit: LengthUnit = 'feet',
+  name: string = "New Collection",
+  preferredUnit: LengthUnit = "feet",
   spaces: Space[] = [],
 ): SpaceCollection {
   return {
-    id: generateId('collection'),
+    id: generateId("collection"),
     name,
     spaces,
     preferredUnit,
@@ -271,9 +277,9 @@ export function spaceToMeasurementEntry(space: Space): MeasurementEntry {
   let doorCount = 0;
   let windowCount = 0;
   for (const opening of space.openings) {
-    if (opening.type === 'door' || opening.type === 'archway') {
+    if (opening.type === "door" || opening.type === "archway") {
       doorCount += opening.count;
-    } else if (opening.type === 'window' || opening.type === 'vent') {
+    } else if (opening.type === "window" || opening.type === "vent") {
       windowCount += opening.count;
     }
   }
@@ -289,7 +295,8 @@ export function spaceToMeasurementEntry(space: Space): MeasurementEntry {
     includeCeiling: space.includeCeiling,
     doors: doorCount > 0 ? doorCount : undefined,
     windows: windowCount > 0 ? windowCount : undefined,
-    wasteMarginPercent: space.wasteMarginPercent > 0 ? space.wasteMarginPercent : undefined,
+    wasteMarginPercent:
+      space.wasteMarginPercent > 0 ? space.wasteMarginPercent : undefined,
     partitionCount: space.partitionCount,
     tileConfig: space.tileConfig,
     description: space.name,
@@ -301,7 +308,7 @@ export function spaceToMeasurementEntry(space: Space): MeasurementEntry {
 // SPACE CALCULATION
 // =========================================================
 
-import { toMeters, lengthUnitShort } from './units';
+import { toMeters, lengthUnitShort } from "./units";
 import {
   makeStep,
   formatM2,
@@ -313,7 +320,7 @@ import {
   fenceDimensionAreaM2,
   rectangularAreaM2,
   applyWasteMargin,
-} from './geometry';
+} from "./geometry";
 
 /**
  * Calculate a single space.
@@ -330,119 +337,153 @@ export function calculateSpace(space: Space): SpaceResult {
 
   // Normalize dimensions to metres
   const normalizedLengthM = toMeters(space.length, space.unit);
-  steps.push(makeStep(
-    'Convert length',
-    `${space.length} ${unitShort} → metres`,
-    `${roundForDisplay(normalizedLengthM, 4)} m`,
-  ));
+  steps.push(
+    makeStep(
+      "Convert length",
+      `${space.length} ${unitShort} → metres`,
+      `${roundForDisplay(normalizedLengthM, 4)} m`,
+    ),
+  );
 
   let normalizedWidthM: number | undefined;
   if (space.width !== undefined && space.width > 0) {
     normalizedWidthM = toMeters(space.width, space.unit);
-    steps.push(makeStep(
-      'Convert width',
-      `${space.width} ${unitShort} → metres`,
-      `${roundForDisplay(normalizedWidthM, 4)} m`,
-    ));
+    steps.push(
+      makeStep(
+        "Convert width",
+        `${space.width} ${unitShort} → metres`,
+        `${roundForDisplay(normalizedWidthM, 4)} m`,
+      ),
+    );
   }
 
   let normalizedHeightM: number | undefined;
   if (space.height !== undefined && space.height > 0) {
     normalizedHeightM = toMeters(space.height, space.unit);
-    steps.push(makeStep(
-      'Convert height',
-      `${space.height} ${unitShort} → metres`,
-      `${roundForDisplay(normalizedHeightM, 4)} m`,
-    ));
+    steps.push(
+      makeStep(
+        "Convert height",
+        `${space.height} ${unitShort} → metres`,
+        `${roundForDisplay(normalizedHeightM, 4)} m`,
+      ),
+    );
   }
 
   // Calculate area based on surface type
   let areaM2 = 0;
 
   switch (space.surfaceType) {
-    case 'wall':
-      areaM2 = wallAreaM2(normalizedLengthM, normalizedWidthM, normalizedHeightM ?? 0);
+    case "wall":
+      areaM2 = wallAreaM2(
+        normalizedLengthM,
+        normalizedWidthM,
+        normalizedHeightM ?? 0,
+      );
       if (normalizedWidthM && normalizedHeightM) {
-        steps.push(makeStep(
-          `Wall area (${space.name})`,
-          `perimeter × height = 2 × (${roundForDisplay(normalizedLengthM)} + ${roundForDisplay(normalizedWidthM)}) × ${roundForDisplay(normalizedHeightM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Wall area (${space.name})`,
+            `perimeter × height = 2 × (${roundForDisplay(normalizedLengthM)} + ${roundForDisplay(normalizedWidthM)}) × ${roundForDisplay(normalizedHeightM)}`,
+            formatM2(areaM2),
+          ),
+        );
       } else if (normalizedHeightM) {
-        steps.push(makeStep(
-          `Wall area (${space.name})`,
-          `2 × ${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Wall area (${space.name})`,
+            `2 × ${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)}`,
+            formatM2(areaM2),
+          ),
+        );
       }
       break;
 
-    case 'ceiling':
+    case "ceiling":
       areaM2 = ceilingAreaM2(normalizedLengthM, normalizedWidthM);
       if (normalizedWidthM) {
-        steps.push(makeStep(
-          `Ceiling area (${space.name})`,
-          `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Ceiling area (${space.name})`,
+            `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
+            formatM2(areaM2),
+          ),
+        );
       }
       break;
 
-    case 'floor':
+    case "floor":
       areaM2 = floorAreaM2(normalizedLengthM, normalizedWidthM);
       if (normalizedWidthM) {
-        steps.push(makeStep(
-          `Floor area (${space.name})`,
-          `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Floor area (${space.name})`,
+            `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
+            formatM2(areaM2),
+          ),
+        );
       }
       break;
 
-    case 'exterior':
+    case "exterior":
       areaM2 = singleSurfaceAreaM2(normalizedLengthM, normalizedHeightM ?? 0);
       if (normalizedHeightM) {
-        steps.push(makeStep(
-          `Exterior area (${space.name})`,
-          `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Exterior area (${space.name})`,
+            `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)}`,
+            formatM2(areaM2),
+          ),
+        );
       }
       break;
 
-    case 'fence': {
+    case "fence": {
       const partitionCount = space.partitionCount ?? 1;
-      areaM2 = fenceDimensionAreaM2(normalizedLengthM, normalizedHeightM ?? 0, partitionCount);
+      areaM2 = fenceDimensionAreaM2(
+        normalizedLengthM,
+        normalizedHeightM ?? 0,
+        partitionCount,
+      );
       if (normalizedHeightM) {
-        steps.push(makeStep(
-          `Fence area (${space.name})`,
-          `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)} × ${partitionCount} partitions`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Fence area (${space.name})`,
+            `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedHeightM)} × ${partitionCount} partitions`,
+            formatM2(areaM2),
+          ),
+        );
       }
       break;
-      }
+    }
 
     default:
       areaM2 = rectangularAreaM2(normalizedLengthM, normalizedWidthM);
       if (normalizedWidthM) {
-        steps.push(makeStep(
-          `Area (${space.name})`,
-          `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
-          formatM2(areaM2),
-        ));
+        steps.push(
+          makeStep(
+            `Area (${space.name})`,
+            `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
+            formatM2(areaM2),
+          ),
+        );
       }
   }
 
   // Include ceiling if requested (adds ceiling area to wall area)
-  if (space.includeCeiling && space.surfaceType === 'wall' && normalizedWidthM) {
+  if (
+    space.includeCeiling &&
+    space.surfaceType === "wall" &&
+    normalizedWidthM
+  ) {
     const ceilingArea = ceilingAreaM2(normalizedLengthM, normalizedWidthM);
     areaM2 += ceilingArea;
-    steps.push(makeStep(
-      `Add ceiling (${space.name})`,
-      `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
-      `+${formatM2(ceilingArea)}`,
-    ));
+    steps.push(
+      makeStep(
+        `Add ceiling (${space.name})`,
+        `${roundForDisplay(normalizedLengthM)} × ${roundForDisplay(normalizedWidthM)}`,
+        `+${formatM2(ceilingArea)}`,
+      ),
+    );
   }
 
   // Apply opening deductions
@@ -451,31 +492,37 @@ export function calculateSpace(space: Space): SpaceResult {
     const openHeightM = toMeters(opening.height, opening.unit);
     const openArea = openWidthM * openHeightM * opening.count;
     areaM2 = Math.max(0, areaM2 - openArea);
-    steps.push(makeStep(
-      `${opening.type} deduction (${opening.count}×)`,
-      `${opening.count} × ${roundForDisplay(openWidthM)} × ${roundForDisplay(openHeightM)} m`,
-      `−${formatM2(openArea)}`,
-    ));
+    steps.push(
+      makeStep(
+        `${opening.type} deduction (${opening.count}×)`,
+        `${opening.count} × ${roundForDisplay(openWidthM)} × ${roundForDisplay(openHeightM)} m`,
+        `−${formatM2(openArea)}`,
+      ),
+    );
   }
 
   // Apply waste margin
   if (space.wasteMarginPercent > 0) {
     areaM2 = applyWasteMargin(areaM2, space.wasteMarginPercent);
-    steps.push(makeStep(
-      'Waste allowance',
-      `+${space.wasteMarginPercent}%`,
-      formatM2(areaM2),
-    ));
+    steps.push(
+      makeStep(
+        "Waste allowance",
+        `+${space.wasteMarginPercent}%`,
+        formatM2(areaM2),
+      ),
+    );
   }
 
   // Multiply by quantity
   const totalAreaM2 = areaM2 * space.quantity;
   if (space.quantity > 1) {
-    steps.push(makeStep(
-      `Multiply by quantity (${space.quantity})`,
-      `${formatM2(areaM2)} × ${space.quantity}`,
-      formatM2(totalAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        `Multiply by quantity (${space.quantity})`,
+        `${formatM2(areaM2)} × ${space.quantity}`,
+        formatM2(totalAreaM2),
+      ),
+    );
   }
 
   return {
@@ -514,7 +561,7 @@ export function groupSpacesByType(spaces: Space[]): SpaceGroup[] {
   const result: SpaceGroup[] = [];
   for (const [type, groupSpaces] of groups) {
     result.push({
-      id: generateId('sgroup'),
+      id: generateId("sgroup"),
       label: SPACE_TYPE_LABELS[type],
       spaces: groupSpaces,
     });
@@ -535,18 +582,22 @@ export function calculateSpaceGroup(group: SpaceGroup): SpaceGroupResult {
     const result = calculateSpace(space);
     spaceResults.push(result);
     totalAreaM2 += result.totalAreaM2;
-    steps.push(makeStep(
-      `${space.name} (×${space.quantity})`,
-      'space total',
-      formatM2(result.totalAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        `${space.name} (×${space.quantity})`,
+        "space total",
+        formatM2(result.totalAreaM2),
+      ),
+    );
   }
 
-  steps.push(makeStep(
-    `Group: ${group.label}`,
-    `sum of ${spaceResults.length} space${spaceResults.length > 1 ? 's' : ''}`,
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Group: ${group.label}`,
+      `sum of ${spaceResults.length} space${spaceResults.length > 1 ? "s" : ""}`,
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     groupId: group.id,
@@ -568,7 +619,9 @@ export function calculateSpaceGroup(group: SpaceGroup): SpaceGroupResult {
  * This is the MAIN entry point for the Space Engine.
  * It returns the total area and a transparent breakdown.
  */
-export function calculateSpaceCollection(collection: SpaceCollection): SpaceCollectionResult {
+export function calculateSpaceCollection(
+  collection: SpaceCollection,
+): SpaceCollectionResult {
   const spaceResults: SpaceResult[] = [];
   const groupResults: SpaceGroupResult[] = [];
   let totalAreaM2 = 0;
@@ -589,11 +642,13 @@ export function calculateSpaceCollection(collection: SpaceCollection): SpaceColl
     steps.push(...groupResult.steps);
   }
 
-  steps.push(makeStep(
-    `Total: ${collection.name}`,
-    `sum of all groups`,
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Total: ${collection.name}`,
+      `sum of all groups`,
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     collectionId: collection.id,
@@ -626,7 +681,7 @@ export function spaceCollectionToMeasurementProject(
     const measurementGroups: MeasurementGroup[] = group.spaces.map((space) => {
       const entry = spaceToMeasurementEntry(space);
       return createMeasurementGroup(
-        `${space.name} (${space.length}${space.width ? ` × ${space.width}` : ''} ${space.unit}${space.quantity > 1 ? ` × ${space.quantity}` : ''})`,
+        `${space.name} (${space.length}${space.width ? ` × ${space.width}` : ""} ${space.unit}${space.quantity > 1 ? ` × ${space.quantity}` : ""})`,
         entry,
       );
     });
@@ -634,9 +689,9 @@ export function spaceCollectionToMeasurementProject(
   }
 
   return {
-    id: generateId('project'),
+    id: generateId("project"),
     calculatorContext,
-    projectMode: 'house_building',
+    projectMode: "house_building",
     sections,
     preferredUnit: collection.preferredUnit,
     description: collection.name,
@@ -663,7 +718,9 @@ export function totalAreaByFinishType(
 /**
  * Get a summary of all spaces grouped by type with their areas.
  */
-export function spaceSummary(results: SpaceResult[]): { type: SpaceType; label: string; areaM2: number; count: number }[] {
+export function spaceSummary(
+  results: SpaceResult[],
+): { type: SpaceType; label: string; areaM2: number; count: number }[] {
   const summary = new Map<SpaceType, { areaM2: number; count: number }>();
 
   for (const result of results) {

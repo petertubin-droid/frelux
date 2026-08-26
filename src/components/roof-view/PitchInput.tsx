@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * FRELUX ROOF PITCH — Per-Section Pitch Input
  *
@@ -10,8 +11,8 @@
  * Feature 5: Roof Pitch Per Section
  */
 
-import { useState } from 'react';
-import { AlertCircle, HelpCircle, CheckCircle2 } from 'lucide-react';
+import { useState } from "react";
+import { AlertCircle, HelpCircle, CheckCircle2 } from "lucide-react";
 
 // =========================================================
 // Pitch Ratio ↔ Degrees Conversion
@@ -20,19 +21,20 @@ import { AlertCircle, HelpCircle, CheckCircle2 } from 'lucide-react';
 /**
  * Common pitch ratios and their degree equivalents.
  */
-export const PITCH_RATIOS: { ratio: string; degrees: number; label: string }[] = [
-  { ratio: '1:12', degrees: 4.76, label: 'Nearly flat (1:12)' },
-  { ratio: '2:12', degrees: 9.46, label: 'Low slope (2:12)' },
-  { ratio: '3:12', degrees: 14.04, label: 'Low slope (3:12)' },
-  { ratio: '4:12', degrees: 18.43, label: 'Moderate (4:12)' },
-  { ratio: '5:12', degrees: 22.62, label: 'Moderate (5:12)' },
-  { ratio: '6:12', degrees: 26.57, label: 'Standard (6:12)' },
-  { ratio: '7:12', degrees: 30.26, label: 'Steep (7:12)' },
-  { ratio: '8:12', degrees: 33.69, label: 'Steep (8:12)' },
-  { ratio: '9:12', degrees: 36.87, label: 'Very steep (9:12)' },
-  { ratio: '10:12', degrees: 39.81, label: 'Very steep (10:12)' },
-  { ratio: '12:12', degrees: 45.00, label: 'Half pitch (12:12)' },
-];
+export const PITCH_RATIOS: { ratio: string; degrees: number; label: string }[] =
+  [
+    { ratio: "1:12", degrees: 4.76, label: "Nearly flat (1:12)" },
+    { ratio: "2:12", degrees: 9.46, label: "Low slope (2:12)" },
+    { ratio: "3:12", degrees: 14.04, label: "Low slope (3:12)" },
+    { ratio: "4:12", degrees: 18.43, label: "Moderate (4:12)" },
+    { ratio: "5:12", degrees: 22.62, label: "Moderate (5:12)" },
+    { ratio: "6:12", degrees: 26.57, label: "Standard (6:12)" },
+    { ratio: "7:12", degrees: 30.26, label: "Steep (7:12)" },
+    { ratio: "8:12", degrees: 33.69, label: "Steep (8:12)" },
+    { ratio: "9:12", degrees: 36.87, label: "Very steep (9:12)" },
+    { ratio: "10:12", degrees: 39.81, label: "Very steep (10:12)" },
+    { ratio: "12:12", degrees: 45.0, label: "Half pitch (12:12)" },
+  ];
 
 /**
  * Convert a pitch ratio string (e.g. "4:12") to degrees.
@@ -90,12 +92,12 @@ export function PitchInput({
   aiEstimated,
   disabled,
 }: PitchInputProps) {
-  const [inputMode, setInputMode] = useState<'degrees' | 'ratio' | 'unknown'>(
-    pitchDegrees === null ? 'unknown' : 'degrees'
+  const [inputMode, setInputMode] = useState<"degrees" | "ratio" | "unknown">(
+    pitchDegrees === null ? "unknown" : "degrees",
   );
 
   // Flat roofs don't need pitch
-  if (roofType === 'flat') {
+  if (roofType === "flat") {
     return (
       <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2.5">
         <div className="flex items-center gap-2 text-xs text-neutral-500">
@@ -116,34 +118,38 @@ export function PitchInput({
           Roof Pitch — {sectionName}
         </label>
         <div className="flex items-center gap-1">
-          {(['degrees', 'ratio', 'unknown'] as const).map(mode => (
+          {(["degrees", "ratio", "unknown"] as const).map((mode) => (
             <button
               key={mode}
               type="button"
               onClick={() => {
                 setInputMode(mode);
-                if (mode === 'unknown') onChange(null);
+                if (mode === "unknown") onChange(null);
               }}
               disabled={disabled}
               className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
                 inputMode === mode
-                  ? 'bg-neutral-900 text-white'
-                  : 'bg-neutral-100 text-neutral-500 hover:bg-neutral-200'
+                  ? "bg-neutral-900 text-white"
+                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
               }`}
             >
-              {mode === 'degrees' ? 'Degrees' : mode === 'ratio' ? 'Ratio' : 'Unknown'}
+              {mode === "degrees"
+                ? "Degrees"
+                : mode === "ratio"
+                  ? "Ratio"
+                  : "Unknown"}
             </button>
           ))}
         </div>
       </div>
 
       {/* Degrees input */}
-      {inputMode === 'degrees' && (
+      {inputMode === "degrees" && (
         <div className="flex items-center gap-2">
           <input
             type="number"
-            value={hasPitch ? pitchDegrees! : ''}
-            onChange={e => {
+            value={hasPitch ? pitchDegrees! : ""}
+            onChange={(e) => {
               const v = parseFloat(e.target.value);
               onChange(isNaN(v) || v <= 0 ? null : Math.min(89, v));
             }}
@@ -162,10 +168,10 @@ export function PitchInput({
       )}
 
       {/* Ratio select */}
-      {inputMode === 'ratio' && (
+      {inputMode === "ratio" && (
         <select
-          value={nearestRatio ?? ''}
-          onChange={e => {
+          value={nearestRatio ?? ""}
+          onChange={(e) => {
             const degrees = pitchRatioToDegrees(e.target.value);
             onChange(degrees);
           }}
@@ -173,7 +179,7 @@ export function PitchInput({
           className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm"
         >
           <option value="">Select a pitch ratio...</option>
-          {PITCH_RATIOS.map(r => (
+          {PITCH_RATIOS.map((r) => (
             <option key={r.ratio} value={r.ratio}>
               {r.label} ({r.degrees.toFixed(1)}°)
             </option>
@@ -182,7 +188,7 @@ export function PitchInput({
       )}
 
       {/* Unknown — shows required / estimation warning */}
-      {inputMode === 'unknown' && (
+      {inputMode === "unknown" && (
         <div className="space-y-2">
           {aiEstimated ? (
             <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2.5">
@@ -193,7 +199,8 @@ export function PitchInput({
                     PITCH ESTIMATION — USER VERIFICATION REQUIRED
                   </p>
                   <p className="text-xs text-amber-600 mt-0.5">
-                    Pitch was estimated by AI. Please verify or enter the correct pitch for accurate surface area calculation.
+                    Pitch was estimated by AI. Please verify or enter the
+                    correct pitch for accurate surface area calculation.
                   </p>
                 </div>
               </div>
@@ -207,7 +214,8 @@ export function PitchInput({
                     PITCH REQUIRED
                   </p>
                   <p className="text-xs text-red-600 mt-0.5">
-                    Accurate roof surface area calculation requires pitch. Enter the pitch in degrees or as a ratio.
+                    Accurate roof surface area calculation requires pitch. Enter
+                    the pitch in degrees or as a ratio.
                   </p>
                 </div>
               </div>
@@ -216,7 +224,7 @@ export function PitchInput({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setInputMode('degrees')}
+              onClick={() => setInputMode("degrees")}
               disabled={disabled}
               className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90"
             >
@@ -224,7 +232,7 @@ export function PitchInput({
             </button>
             <button
               type="button"
-              onClick={() => setInputMode('ratio')}
+              onClick={() => setInputMode("ratio")}
               disabled={disabled}
               className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50"
             >

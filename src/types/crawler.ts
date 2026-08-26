@@ -5,35 +5,29 @@
  * Does NOT modify existing types — all additions are new.
  */
 
-import type {
-  MiSource,
-  MiPriceObservation,
-  ValidationStatus,
-  MatchConfidence,
-  Freshness,
-} from '@/types/market-intelligence';
+import type { MatchConfidence } from "@/types/market-intelligence";
 
 // ============================================================
 // CRAWL JOB — tracks a single crawl execution
 // ============================================================
 
 export type CrawlJobStatus =
-  | 'pending'
-  | 'fetching'
-  | 'extracting'
-  | 'validating'
-  | 'completed'
-  | 'failed'
-  | 'partial'
-  | 'skipped';
+  | "pending"
+  | "fetching"
+  | "extracting"
+  | "validating"
+  | "completed"
+  | "failed"
+  | "partial"
+  | "skipped";
 
 export interface CrawlJob {
-  id: string;                    // generated UUID
+  id: string; // generated UUID
   sourceId: string;
   sourceName: string;
   providerName: string;
   status: CrawlJobStatus;
-  mode: 'test' | 'production';
+  mode: "test" | "production";
   startedAt: string;
   endedAt: string | null;
   durationMs: number | null;
@@ -47,7 +41,7 @@ export interface CrawlJob {
   pricesRejected: number;
   pricesReviewRequired: number;
   anomaliesDetected: number;
-  observationIds: string[];       // created observation IDs
+  observationIds: string[]; // created observation IDs
 
   // Errors
   errors: CrawlError[];
@@ -65,29 +59,29 @@ export interface CrawlJob {
 // ============================================================
 
 export type CrawlErrorType =
-  | 'FETCH_TIMEOUT'
-  | 'HTTP_403'
-  | 'HTTP_404'
-  | 'HTTP_500'
-  | 'HTTP_OTHER'
-  | 'ROBOTS_DISALLOWED'
-  | 'CONTENT_TOO_LARGE'
-  | 'UNSUPPORTED_CONTENT_TYPE'
-  | 'RENDERING_REQUIRED'
-  | 'PRICE_NOT_FOUND'
-  | 'CURRENCY_NOT_FOUND'
-  | 'PACKAGE_NOT_FOUND'
-  | 'PRODUCT_MATCH_LOW_CONFIDENCE'
-  | 'PRICE_ANOMALY'
-  | 'PROVIDER_DISABLED'
-  | 'SOURCE_DISABLED'
-  | 'SSRF_BLOCKED'
-  | 'INVALID_URL'
-  | 'RATE_LIMITED'
-  | 'CONNECTION_ERROR'
-  | 'PARSE_ERROR'
-  | 'REDIRECT_TOO_MANY'
-  | 'UNKNOWN';
+  | "FETCH_TIMEOUT"
+  | "HTTP_403"
+  | "HTTP_404"
+  | "HTTP_500"
+  | "HTTP_OTHER"
+  | "ROBOTS_DISALLOWED"
+  | "CONTENT_TOO_LARGE"
+  | "UNSUPPORTED_CONTENT_TYPE"
+  | "RENDERING_REQUIRED"
+  | "PRICE_NOT_FOUND"
+  | "CURRENCY_NOT_FOUND"
+  | "PACKAGE_NOT_FOUND"
+  | "PRODUCT_MATCH_LOW_CONFIDENCE"
+  | "PRICE_ANOMALY"
+  | "PROVIDER_DISABLED"
+  | "SOURCE_DISABLED"
+  | "SSRF_BLOCKED"
+  | "INVALID_URL"
+  | "RATE_LIMITED"
+  | "CONNECTION_ERROR"
+  | "PARSE_ERROR"
+  | "REDIRECT_TOO_MANY"
+  | "UNKNOWN";
 
 export interface CrawlError {
   type: CrawlErrorType;
@@ -122,7 +116,7 @@ export interface CrawlExtractionResult {
   url: string;
   products: ExtractedProduct[];
   renderingRequired: boolean;
-  extractionMethod: 'jsonld' | 'opengraph' | 'html' | 'meta' | 'none';
+  extractionMethod: "jsonld" | "opengraph" | "html" | "meta" | "none";
   warnings: string[];
 }
 
@@ -147,21 +141,21 @@ export interface ExtractedProduct {
 
 export interface CrawlerConfig {
   // Request limits
-  requestTimeoutMs: number;       // default: 15000
-  maxResponseSizeBytes: number;   // default: 5MB (5_242_880)
-  maxRedirects: number;           // default: 5
+  requestTimeoutMs: number; // default: 15000
+  maxResponseSizeBytes: number; // default: 5MB (5_242_880)
+  maxRedirects: number; // default: 5
 
   // Rate limiting (per domain)
-  minDelayBetweenRequestsMs: number;  // default: 2000
-  maxPagesPerCrawl: number;           // default: 10
-  maxCrawlDurationMs: number;          // default: 120000 (2 min)
+  minDelayBetweenRequestsMs: number; // default: 2000
+  maxPagesPerCrawl: number; // default: 10
+  maxCrawlDurationMs: number; // default: 120000 (2 min)
 
   // Anomaly detection
-  anomalyDeviationThreshold: number;   // default: 0.35 (35% from median)
+  anomalyDeviationThreshold: number; // default: 0.35 (35% from median)
 
   // Auto-approval
-  autoApproveEnabled: boolean;          // default: false
-  autoApproveMinConfidence: MatchConfidence;  // default: 'high'
+  autoApproveEnabled: boolean; // default: false
+  autoApproveMinConfidence: MatchConfidence; // default: 'high'
 
   // User agent
   userAgent: string;
@@ -179,13 +173,13 @@ export const DEFAULT_CRAWLER_CONFIG: CrawlerConfig = {
   maxCrawlDurationMs: 120_000,
   anomalyDeviationThreshold: 0.35,
   autoApproveEnabled: false,
-  autoApproveMinConfidence: 'high',
-  userAgent: 'FRELUX-Market-Intelligence-Bot/1.0 (+https://freluxtools.com)',
+  autoApproveMinConfidence: "high",
+  userAgent: "FRELUX-Market-Intelligence-Bot/1.0 (+https://freluxtools.com)",
   acceptedContentTypes: [
-    'text/html',
-    'application/xhtml+xml',
-    'application/xml',
-    'text/plain',
+    "text/html",
+    "application/xhtml+xml",
+    "application/xml",
+    "text/plain",
   ],
 };
 
@@ -195,7 +189,7 @@ export const DEFAULT_CRAWLER_CONFIG: CrawlerConfig = {
 
 export interface RobotsRule {
   allowed: boolean;
-  crawlDelay: number | null;  // seconds
+  crawlDelay: number | null; // seconds
 }
 
 // ============================================================
@@ -215,8 +209,8 @@ export interface CrawlTriggerResult {
 
 export interface ScheduledCrawlConfig {
   sourceId: string;
-  frequency: 'daily' | 'weekly' | 'monthly';
-  mode: 'test' | 'production';
+  frequency: "daily" | "weekly" | "monthly";
+  mode: "test" | "production";
   enabled: boolean;
   lastRunAt: string | null;
   nextRunAt: string | null;

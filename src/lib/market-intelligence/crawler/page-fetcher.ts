@@ -22,13 +22,12 @@
 import type {
   CrawlerConfig,
   CrawlFetchResult,
-  CrawlError,
   CrawlErrorType,
-} from '@/types/crawler';
-import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';
-import type { RawPageContent } from '@/types/market-intelligence';
-import { validateUrl, isUrlInDomain } from './url-validator';
-import { fetchRobotsTxt, isUrlAllowed } from './robots-checker';
+} from "@/types/crawler";
+import { DEFAULT_CRAWLER_CONFIG } from "@/types/crawler";
+import type { RawPageContent } from "@/types/market-intelligence";
+import { validateUrl, isUrlInDomain } from "./url-validator";
+import { fetchRobotsTxt, isUrlAllowed } from "./robots-checker";
 
 // ============================================================
 // RATE LIMITER (per domain)
@@ -79,14 +78,17 @@ export async function fetchPage(
         success: false,
         statusCode: 0,
         contentLength: 0,
-        contentType: '',
+        contentType: "",
         fetchDurationMs: Date.now() - startedAt,
         redirected: false,
         finalUrl: url,
         error: {
-          type: urlValidation.reason?.includes('Private') || urlValidation.reason?.includes('Blocked')
-            ? 'SSRF_BLOCKED' : 'INVALID_URL',
-          message: urlValidation.reason ?? 'Invalid URL',
+          type:
+            urlValidation.reason?.includes("Private") ||
+            urlValidation.reason?.includes("Blocked")
+              ? "SSRF_BLOCKED"
+              : "INVALID_URL",
+          message: urlValidation.reason ?? "Invalid URL",
           url,
           timestamp: new Date().toISOString(),
         },
@@ -100,19 +102,22 @@ export async function fetchPage(
   const domain = urlValidation.domain!;
 
   // 2. Domain restriction check
-  if (options?.allowedDomain && !isUrlInDomain(sanitizedUrl, options.allowedDomain)) {
+  if (
+    options?.allowedDomain &&
+    !isUrlInDomain(sanitizedUrl, options.allowedDomain)
+  ) {
     return {
       result: {
         url,
         success: false,
         statusCode: 0,
         contentLength: 0,
-        contentType: '',
+        contentType: "",
         fetchDurationMs: Date.now() - startedAt,
         redirected: false,
         finalUrl: sanitizedUrl,
         error: {
-          type: 'SSRF_BLOCKED',
+          type: "SSRF_BLOCKED",
           message: `URL outside allowed domain: ${options.allowedDomain}`,
           url: sanitizedUrl,
           timestamp: new Date().toISOString(),
@@ -126,7 +131,11 @@ export async function fetchPage(
   // 3. Robots.txt check
   if (!options?.skipRobotsCheck) {
     try {
-      const robotsRules = await fetchRobotsTxt(domain, urlValidation.protocol ?? 'https', config.userAgent);
+      const robotsRules = await fetchRobotsTxt(
+        domain,
+        urlValidation.protocol ?? "https",
+        config.userAgent,
+      );
       const robotsCheck = isUrlAllowed(sanitizedUrl, robotsRules);
       if (!robotsCheck.allowed) {
         return {
@@ -135,12 +144,12 @@ export async function fetchPage(
             success: false,
             statusCode: 0,
             contentLength: 0,
-            contentType: '',
+            contentType: "",
             fetchDurationMs: Date.now() - startedAt,
             redirected: false,
             finalUrl: sanitizedUrl,
             error: {
-              type: 'ROBOTS_DISALLOWED',
+              type: "ROBOTS_DISALLOWED",
               message: `Blocked by robots.txt for ${domain}`,
               url: sanitizedUrl,
               timestamp: new Date().toISOString(),
@@ -170,19 +179,22 @@ export async function fetchPage(
   // 5. Fetch the page
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), config.requestTimeoutMs);
+    const timeout = setTimeout(
+      () => controller.abort(),
+      config.requestTimeoutMs,
+    );
 
     const response = await fetch(sanitizedUrl, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'User-Agent': config.userAgent,
-        'Accept': config.acceptedContentTypes.join(', '),
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Accept-Encoding': 'gzip, deflate',
-        'Connection': 'close',
+        "User-Agent": config.userAgent,
+        Accept: config.acceptedContentTypes.join(", "),
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",
+        Connection: "close",
       },
       signal: controller.signal,
-      redirect: 'follow',
+      redirect: "follow",
     });
 
     clearTimeout(timeout);
@@ -190,34 +202,103 @@ export async function fetchPage(
     const fetchDurationMs = Date.now() - startedAt;
     const finalUrl = response.url;
     const redirected = finalUrl !== sanitizedUrl;
-    const contentType = response.headers.get('content-type') ?? '';
-    const contentLength = parseInt(response.headers.get('content-length') ?? '0', 10);
+    const contentType = response.headers.get("content-type") ?? "";
+    const contentLength = parseInt(
+      response.headers.get("content-length") ?? "0",
+      10,
+    );
 
     // 6. Handle HTTP status codes
     if (response.status === 403) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'HTTP_403', `HTTP 403 Forbidden from ${domain}`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "HTTP_403",
+        `HTTP 403 Forbidden from ${domain}`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
     if (response.status === 404) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'HTTP_404', `HTTP 404 Not Found at ${domain}`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "HTTP_404",
+        `HTTP 404 Not Found at ${domain}`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
     if (response.status >= 500) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'HTTP_500', `HTTP ${response.status} from ${domain}`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "HTTP_500",
+        `HTTP ${response.status} from ${domain}`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
     if (response.status >= 400) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'HTTP_OTHER', `HTTP ${response.status} from ${domain}`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "HTTP_OTHER",
+        `HTTP ${response.status} from ${domain}`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
 
     // 7. Content-type validation
     const isAcceptedType = config.acceptedContentTypes.some((type) =>
-      contentType.toLowerCase().includes(type.toLowerCase())
+      contentType.toLowerCase().includes(type.toLowerCase()),
     );
     if (options?.requireContentTypeMatch && !isAcceptedType) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'UNSUPPORTED_CONTENT_TYPE', `Content-Type "${contentType}" not supported`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "UNSUPPORTED_CONTENT_TYPE",
+        `Content-Type "${contentType}" not supported`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
 
     // 8. Response size check (Content-Length header)
     if (contentLength > config.maxResponseSizeBytes) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'CONTENT_TOO_LARGE', `Response too large: ${contentLength} bytes (limit: ${config.maxResponseSizeBytes})`, response.status, fetchDurationMs, redirected, contentType, contentLength);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "CONTENT_TOO_LARGE",
+        `Response too large: ${contentLength} bytes (limit: ${config.maxResponseSizeBytes})`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        contentLength,
+      );
     }
 
     // 9. Read the body (with size limit enforcement)
@@ -236,25 +317,61 @@ export async function fetchPage(
             totalSize += value.length;
             if (totalSize > config.maxResponseSizeBytes) {
               reader.cancel();
-              return makeErrorResult(url, sanitizedUrl, finalUrl, 'CONTENT_TOO_LARGE', `Response body exceeded size limit: ${totalSize} bytes`, response.status, fetchDurationMs, redirected, contentType, totalSize);
+              return makeErrorResult(
+                url,
+                sanitizedUrl,
+                finalUrl,
+                "CONTENT_TOO_LARGE",
+                `Response body exceeded size limit: ${totalSize} bytes`,
+                response.status,
+                fetchDurationMs,
+                redirected,
+                contentType,
+                totalSize,
+              );
             }
             chunks.push(value);
           }
         }
-        const decoder = new TextDecoder('utf-8');
+        const decoder = new TextDecoder("utf-8");
         html = decoder.decode(Buffer.concat(chunks));
       } else {
         html = await response.text();
         if (html.length > config.maxResponseSizeBytes) {
-          return makeErrorResult(url, sanitizedUrl, finalUrl, 'CONTENT_TOO_LARGE', `Response text exceeded size limit: ${html.length} bytes`, response.status, fetchDurationMs, redirected, contentType, html.length);
+          return makeErrorResult(
+            url,
+            sanitizedUrl,
+            finalUrl,
+            "CONTENT_TOO_LARGE",
+            `Response text exceeded size limit: ${html.length} bytes`,
+            response.status,
+            fetchDurationMs,
+            redirected,
+            contentType,
+            html.length,
+          );
         }
       }
     } catch (e) {
-      return makeErrorResult(url, sanitizedUrl, finalUrl, 'PARSE_ERROR', `Failed to read response body: ${e instanceof Error ? e.message : 'unknown'}`, response.status, fetchDurationMs, redirected, contentType, 0);
+      return makeErrorResult(
+        url,
+        sanitizedUrl,
+        finalUrl,
+        "PARSE_ERROR",
+        `Failed to read response body: ${e instanceof Error ? e.message : "unknown"}`,
+        response.status,
+        fetchDurationMs,
+        redirected,
+        contentType,
+        0,
+      );
     }
 
     // 10. Check for JavaScript-rendered pages (heuristic)
-    const renderingRequired = detectJavascriptRenderingRequired(html, contentType);
+    const renderingRequired = detectJavascriptRenderingRequired(
+      html,
+      contentType,
+    );
 
     // 11. Success
     const result: CrawlFetchResult = {
@@ -280,18 +397,21 @@ export async function fetchPage(
     return { result, content };
   } catch (e) {
     const fetchDurationMs = Date.now() - startedAt;
-    let errorType: CrawlErrorType = 'CONNECTION_ERROR';
-    let errorMessage = 'Connection failed';
+    let errorType: CrawlErrorType = "CONNECTION_ERROR";
+    let errorMessage = "Connection failed";
 
     if (e instanceof Error) {
-      if (e.name === 'AbortError') {
-        errorType = 'FETCH_TIMEOUT';
+      if (e.name === "AbortError") {
+        errorType = "FETCH_TIMEOUT";
         errorMessage = `Request timed out after ${config.requestTimeoutMs}ms`;
-      } else if (e.message.includes('redirect')) {
-        errorType = 'REDIRECT_TOO_MANY';
+      } else if (e.message.includes("redirect")) {
+        errorType = "REDIRECT_TOO_MANY";
         errorMessage = `Too many redirects`;
-      } else if (e.message.includes('ECONNREFUSED') || e.message.includes('ENOTFOUND')) {
-        errorType = 'CONNECTION_ERROR';
+      } else if (
+        e.message.includes("ECONNREFUSED") ||
+        e.message.includes("ENOTFOUND")
+      ) {
+        errorType = "CONNECTION_ERROR";
         errorMessage = `Connection failed: ${e.message}`;
       } else {
         errorMessage = e.message;
@@ -304,11 +424,16 @@ export async function fetchPage(
         success: false,
         statusCode: 0,
         contentLength: 0,
-        contentType: '',
+        contentType: "",
         fetchDurationMs,
         redirected: false,
         finalUrl: sanitizedUrl,
-        error: { type: errorType, message: errorMessage, url: sanitizedUrl, timestamp: new Date().toISOString() },
+        error: {
+          type: errorType,
+          message: errorMessage,
+          url: sanitizedUrl,
+          timestamp: new Date().toISOString(),
+        },
         renderingRequired: false,
       },
       content: null,
@@ -342,7 +467,13 @@ function makeErrorResult(
       fetchDurationMs: durationMs,
       redirected,
       finalUrl,
-      error: { type, message, url: sanitizedUrl, statusCode, timestamp: new Date().toISOString() },
+      error: {
+        type,
+        message,
+        url: sanitizedUrl,
+        statusCode,
+        timestamp: new Date().toISOString(),
+      },
       renderingRequired: false,
     },
     content: null,
@@ -353,12 +484,16 @@ function makeErrorResult(
  * Heuristic detection of whether a page requires JavaScript rendering.
  * Checks for common signs that the page content is loaded client-side.
  */
-function detectJavascriptRenderingRequired(html: string, _contentType: string): boolean {
+function detectJavascriptRenderingRequired(
+  html: string,
+  _contentType: string,
+): boolean {
   // If there's substantial visible text, it's probably server-rendered
-  const textContent = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-                          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-                          .replace(/<[^>]+>/g, '')
-                          .trim();
+  const textContent = html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+    .replace(/<[^>]+>/g, "")
+    .trim();
 
   // If there's very little visible text but lots of script tags
   const scriptTags = (html.match(/<script\b/gi) || []).length;
@@ -372,13 +507,16 @@ function detectJavascriptRenderingRequired(html: string, _contentType: string): 
   if (html.includes('id="root"') && textLength < 500) {
     return true;
   }
-  if (html.includes('id="__next"') && !html.includes('__NEXT_DATA__')) {
+  if (html.includes('id="__next"') && !html.includes("__NEXT_DATA__")) {
     // Next.js without SSR data
     return true;
   }
 
   // Check for noscript messages indicating JS is required
-  if (html.includes('enable javascript') || html.includes('requires javascript')) {
+  if (
+    html.includes("enable javascript") ||
+    html.includes("requires javascript")
+  ) {
     return true;
   }
 

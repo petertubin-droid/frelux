@@ -22,26 +22,16 @@
  * It provides the structure and aggregated areas/quantities.
  */
 
-import type {
-  SpaceType,
-  SurfaceType,
-  MeasurementProject,
-  MeasurementProjectResult,
-  CalculationStep,
-} from './types';
-import type { CalculatorContext, LengthUnit } from './units';
-import type { Space, SpaceResult } from './space-engine';
+import type { SpaceType, MeasurementProject, CalculationStep } from "./types";
+import type { CalculatorContext, LengthUnit } from "./units";
+import type { Space, SpaceResult } from "./space-engine";
 import {
-  createSpace,
   createSpaceCollection,
   calculateSpace,
-  calculateSpaceCollection,
-  groupSpacesByType,
   spaceCollectionToMeasurementProject,
-  type SpaceCollectionResult,
-} from './space-engine';
-import { generateId } from './factory';
-import type { FinishType } from './space-engine';
+} from "./space-engine";
+import { generateId } from "./factory";
+import type { FinishType } from "./space-engine";
 
 // =========================================================
 // PROJECT ELEMENT TYPES
@@ -52,20 +42,20 @@ import type { FinishType } from './space-engine';
  * A project can have interior spaces, exterior surfaces, fence elements, etc.
  */
 export type ProjectElementType =
-  | 'interior'    // rooms, bathrooms, kitchen, corridor, etc.
-  | 'exterior'    // external walls, building facade
-  | 'fence'       // fence with partitions
-  | 'roof'        // roof elements
-  | 'compound'    // compound/garden features
-  | 'custom';     // user-defined elements
+  | "interior" // rooms, bathrooms, kitchen, corridor, etc.
+  | "exterior" // external walls, building facade
+  | "fence" // fence with partitions
+  | "roof" // roof elements
+  | "compound" // compound/garden features
+  | "custom"; // user-defined elements
 
 export const PROJECT_ELEMENT_TYPE_LABELS: Record<ProjectElementType, string> = {
-  interior: 'Interior Spaces',
-  exterior: 'Exterior',
-  fence: 'Fence',
-  roof: 'Roof',
-  compound: 'Compound / Garden',
-  custom: 'Custom Elements',
+  interior: "Interior Spaces",
+  exterior: "Exterior",
+  fence: "Fence",
+  roof: "Roof",
+  compound: "Compound / Garden",
+  custom: "Custom Elements",
 };
 
 /**
@@ -129,7 +119,7 @@ export interface ConstructionProject {
   /** Project location/market context */
   marketCode?: string;
   /** Project status */
-  status: 'draft' | 'in_progress' | 'completed';
+  status: "draft" | "in_progress" | "completed";
   /** Created date */
   createdAt: string;
   /** Updated date */
@@ -162,16 +152,16 @@ export interface ConstructionProjectResult {
  * Create a new construction project.
  */
 export function createConstructionProject(
-  name: string = 'New Project',
-  preferredUnit: LengthUnit = 'feet',
+  name: string = "New Project",
+  preferredUnit: LengthUnit = "feet",
 ): ConstructionProject {
   const now = new Date().toISOString();
   return {
-    id: generateId('project'),
+    id: generateId("project"),
     name,
     preferredUnit,
     elements: [],
-    status: 'draft',
+    status: "draft",
     createdAt: now,
     updatedAt: now,
   };
@@ -187,7 +177,7 @@ export function createProjectElement(
   spaces: Space[] = [],
 ): ProjectElement {
   return {
-    id: generateId('element'),
+    id: generateId("element"),
     name,
     elementType,
     primaryCalculator,
@@ -199,13 +189,15 @@ export function createProjectElement(
 // PROJECT ELEMENT CALCULATION
 // =========================================================
 
-import { makeStep, formatM2 } from './geometry';
+import { makeStep, formatM2 } from "./geometry";
 
 /**
  * Calculate a project element.
  * Computes all spaces within the element and aggregates the total area.
  */
-export function calculateProjectElement(element: ProjectElement): ProjectElementResult {
+export function calculateProjectElement(
+  element: ProjectElement,
+): ProjectElementResult {
   const spaceResults: SpaceResult[] = [];
   let totalAreaM2 = 0;
   const steps: CalculationStep[] = [];
@@ -217,11 +209,13 @@ export function calculateProjectElement(element: ProjectElement): ProjectElement
     steps.push(...result.steps);
   }
 
-  steps.push(makeStep(
-    `Element: ${element.name}`,
-    `sum of ${spaceResults.length} space${spaceResults.length !== 1 ? 's' : ''}`,
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Element: ${element.name}`,
+      `sum of ${spaceResults.length} space${spaceResults.length !== 1 ? "s" : ""}`,
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     elementId: element.id,
@@ -272,26 +266,32 @@ export function calculateConstructionProject(
 
     // Aggregate by element type
     const elementTypeKey = element.elementType;
-    areaByElementType[elementTypeKey] = (areaByElementType[elementTypeKey] ?? 0) + elementResult.totalAreaM2;
+    areaByElementType[elementTypeKey] =
+      (areaByElementType[elementTypeKey] ?? 0) + elementResult.totalAreaM2;
 
     // Aggregate by finish type
     for (const spaceResult of elementResult.spaceResults) {
       const finishKey = spaceResult.finishType;
-      areaByFinishType[finishKey] = (areaByFinishType[finishKey] ?? 0) + spaceResult.totalAreaM2;
+      areaByFinishType[finishKey] =
+        (areaByFinishType[finishKey] ?? 0) + spaceResult.totalAreaM2;
     }
 
-    steps.push(makeStep(
-      element.name,
-      `${PROJECT_ELEMENT_TYPE_LABELS[element.elementType]}`,
-      formatM2(elementResult.totalAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        element.name,
+        `${PROJECT_ELEMENT_TYPE_LABELS[element.elementType]}`,
+        formatM2(elementResult.totalAreaM2),
+      ),
+    );
   }
 
-  steps.push(makeStep(
-    `Total: ${project.name}`,
-    'sum of all elements',
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Total: ${project.name}`,
+      "sum of all elements",
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     projectId: project.id,
@@ -332,7 +332,11 @@ export function projectToMeasurementProject(
     allSpaces.push(...element.spaces);
   }
 
-  const collection = createSpaceCollection(project.name, project.preferredUnit, allSpaces);
+  const collection = createSpaceCollection(
+    project.name,
+    project.preferredUnit,
+    allSpaces,
+  );
   return spaceCollectionToMeasurementProject(collection, calculatorContext);
 }
 
@@ -402,7 +406,12 @@ export function getSpaceCount(project: ConstructionProject): number {
  */
 export function elementSummary(
   result: ConstructionProjectResult,
-): { name: string; elementType: ProjectElementType; areaM2: number; spaceCount: number }[] {
+): {
+  name: string;
+  elementType: ProjectElementType;
+  areaM2: number;
+  spaceCount: number;
+}[] {
   return result.elementResults.map((er) => ({
     name: er.name,
     elementType: er.elementType,

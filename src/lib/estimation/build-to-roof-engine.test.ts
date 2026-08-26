@@ -17,7 +17,7 @@
 // - Edge cases
 // =========================================================
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   calculateBuildToRoof,
   concreteToMaterials,
@@ -39,18 +39,22 @@ import {
   CEMENT_VOLUME_PER_BAG,
   DRY_WET_RATIO,
   MORTAR_DRY_WET_RATIO,
-  SHEET_COVERAGE,
-} from './build-to-roof-engine';
-import type { BuildToRoofInput, StructuralMemberInput } from '@/types/build-to-roof';
+} from "./build-to-roof-engine";
+import type {
+  BuildToRoofInput,
+  StructuralMemberInput,
+} from "@/types/build-to-roof";
 
 // ── Helper: create a standard test input ──
 
-function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoofInput {
+function createTestInput(
+  overrides: Partial<BuildToRoofInput> = {},
+): BuildToRoofInput {
   return {
-    project_name: 'Test Bungalow',
-    location: 'Lagos',
-    building_type: 'bungalow',
-    measurement_unit: 'm',
+    project_name: "Test Bungalow",
+    location: "Lagos",
+    building_type: "bungalow",
+    measurement_unit: "m",
     number_of_floors: 1,
     building_length: 15,
     building_width: 10,
@@ -59,17 +63,17 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
     internal_wall_length: 25,
     internal_wall_thickness: 0.15,
     openings: [
-      { type: 'door', width: 0.9, height: 2.1, count: 6 },
-      { type: 'window', width: 1.2, height: 1.2, count: 8 },
+      { type: "door", width: 0.9, height: 2.1, count: 6 },
+      { type: "window", width: 1.2, height: 1.2, count: 8 },
     ],
-    foundation_type: 'strip_footing',
+    foundation_type: "strip_footing",
     foundation_depth: 0.9,
     foundation_width: 0.675,
     footing_thickness: 0.225,
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: '9inch',
+    block_size: "9inch",
     block_length: 450,
     block_height: 225,
     block_width: 225,
@@ -78,10 +82,10 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
     concrete_mix_granite: 4,
     mortar_mix_cement: 1,
     mortar_mix_sand: 6,
-    roof_type: 'gable',
+    roof_type: "gable",
     roof_pitch_degrees: 25,
     roof_overhang: 0.6,
-    roofing_material: 'long_span_aluminium',
+    roofing_material: "long_span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
     wastage: DEFAULT_WASTAGE,
@@ -94,8 +98,8 @@ function createTestInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoof
 
 // ── Concrete mix tests ──
 
-describe('concreteToMaterials', () => {
-  it('converts 1m³ of 1:2:4 concrete correctly', () => {
+describe("concreteToMaterials", () => {
+  it("converts 1m³ of 1:2:4 concrete correctly", () => {
     const result = concreteToMaterials(1, 1, 2, 4);
     // dryVolume = 1 × 1.54 = 1.54
     // totalParts = 7
@@ -106,28 +110,36 @@ describe('concreteToMaterials', () => {
     expect(result.granite_m3).toBeCloseTo(0.88, 1);
   });
 
-  it('mass balance: cement + sand + aggregate volumes = dry volume', () => {
-    for (const [c, s, a] of [[1, 2, 4], [1, 3, 6], [1, 1.5, 3], [1, 4, 8]]) {
+  it("mass balance: cement + sand + aggregate volumes = dry volume", () => {
+    for (const [c, s, a] of [
+      [1, 2, 4],
+      [1, 3, 6],
+      [1, 1.5, 3],
+      [1, 4, 8],
+    ]) {
       const result = concreteToMaterials(5, c, s, a);
-      const total = result.cement_bags * CEMENT_VOLUME_PER_BAG + result.sand_m3 + result.granite_m3;
+      const total =
+        result.cement_bags * CEMENT_VOLUME_PER_BAG +
+        result.sand_m3 +
+        result.granite_m3;
       const expected = 5 * DRY_WET_RATIO;
       expect(total).toBeCloseTo(expected, 4);
     }
   });
 
-  it('returns zeros for zero volume', () => {
+  it("returns zeros for zero volume", () => {
     const result = concreteToMaterials(0, 1, 2, 4);
     expect(result.cement_bags).toBe(0);
     expect(result.sand_m3).toBe(0);
     expect(result.granite_m3).toBe(0);
   });
 
-  it('returns zeros for invalid mix (zero parts)', () => {
+  it("returns zeros for invalid mix (zero parts)", () => {
     const result = concreteToMaterials(10, 0, 0, 0);
     expect(result.cement_bags).toBe(0);
   });
 
-  it('handles 1:3:6 mix', () => {
+  it("handles 1:3:6 mix", () => {
     const result = concreteToMaterials(10, 1, 3, 6);
     // dryVolume = 15.4, totalParts = 10
     // cementVol = 1.54, bags = 44.38
@@ -139,8 +151,8 @@ describe('concreteToMaterials', () => {
 
 // ── Mortar mix tests ──
 
-describe('mortarToMaterials', () => {
-  it('converts 1m³ of 1:6 mortar', () => {
+describe("mortarToMaterials", () => {
+  it("converts 1m³ of 1:6 mortar", () => {
     const result = mortarToMaterials(1, 1, 6);
     // dryVolume = 1.33, totalParts = 7
     // cementVol = 0.19, bags = 5.48
@@ -148,14 +160,14 @@ describe('mortarToMaterials', () => {
     expect(result.sand_m3).toBeCloseTo(1.14, 0);
   });
 
-  it('mass balance: cement vol + sand vol = dry volume', () => {
+  it("mass balance: cement vol + sand vol = dry volume", () => {
     const result = mortarToMaterials(5, 1, 6);
     const total = result.cement_bags * CEMENT_VOLUME_PER_BAG + result.sand_m3;
     const expected = 5 * MORTAR_DRY_WET_RATIO;
     expect(total).toBeCloseTo(expected, 4);
   });
 
-  it('returns zeros for zero volume', () => {
+  it("returns zeros for zero volume", () => {
     const result = mortarToMaterials(0, 1, 6);
     expect(result.cement_bags).toBe(0);
     expect(result.sand_m3).toBe(0);
@@ -164,7 +176,7 @@ describe('mortarToMaterials', () => {
 
 // ── Block calculation tests ──
 
-describe('blocksPerM2', () => {
+describe("blocksPerM2", () => {
   // NOTE: blocksPerM2 takes INCHES (matches real app usage — e.g. a
   // Nigerian 9-inch block is entered as 18" long × 9" high).
   it('calculates blocks per m² for an 18"×9" block (9-inch block)', () => {
@@ -181,7 +193,7 @@ describe('blocksPerM2', () => {
     expect(result).toBeCloseTo(14.35, 1);
   });
 
-  it('returns 0 for invalid dimensions', () => {
+  it("returns 0 for invalid dimensions", () => {
     expect(blocksPerM2(0, 9)).toBe(0);
     expect(blocksPerM2(18, 0)).toBe(0);
     expect(blocksPerM2(-1, 9)).toBe(0);
@@ -190,55 +202,55 @@ describe('blocksPerM2', () => {
 
 // ── Roof geometry tests ──
 
-describe('calculateRoofArea', () => {
-  it('calculates flat roof area = footprint', () => {
-    const area = calculateRoofArea(15, 10, 0, 0.6, 'flat');
+describe("calculateRoofArea", () => {
+  it("calculates flat roof area = footprint", () => {
+    const area = calculateRoofArea(15, 10, 0, 0.6, "flat");
     expect(area).toBeCloseTo((15 + 1.2) * (10 + 1.2), 1);
   });
 
-  it('calculates gable roof area with pitch (verified formula)', () => {
-    const area = calculateRoofArea(15, 10, 25, 0.6, 'gable');
+  it("calculates gable roof area with pitch (verified formula)", () => {
+    const area = calculateRoofArea(15, 10, 25, 0.6, "gable");
     const footprint = (15 + 1.2) * (10 + 1.2);
     const slopeFactor = 1 / Math.cos((25 * Math.PI) / 180);
     // Gable: 2 × (L+2oh) × (W/2+oh)/cos(pitch) = (L+2oh) × (W+2oh) / cos(pitch) = footprint × slopeFactor
     expect(area).toBeCloseTo(footprint * slopeFactor, 1);
   });
 
-  it('handles 0° pitch (equals footprint)', () => {
-    const area = calculateRoofArea(10, 8, 0, 0, 'gable');
+  it("handles 0° pitch (equals footprint)", () => {
+    const area = calculateRoofArea(10, 8, 0, 0, "gable");
     expect(area).toBeCloseTo(80, 1);
   });
 
-  it('handles 90° pitch gracefully (returns footprint)', () => {
-    const area = calculateRoofArea(10, 8, 90, 0, 'gable');
+  it("handles 90° pitch gracefully (returns footprint)", () => {
+    const area = calculateRoofArea(10, 8, 90, 0, "gable");
     expect(area).toBe(80);
   });
 });
 
-describe('calculateRidgeLength', () => {
-  it('gable ridge = building length', () => {
-    expect(calculateRidgeLength(15, 10, 'gable')).toBe(15);
+describe("calculateRidgeLength", () => {
+  it("gable ridge = building length", () => {
+    expect(calculateRidgeLength(15, 10, "gable")).toBe(15);
   });
 
-  it('hip ridge = length - width', () => {
-    expect(calculateRidgeLength(15, 10, 'hip')).toBe(5);
+  it("hip ridge = length - width", () => {
+    expect(calculateRidgeLength(15, 10, "hip")).toBe(5);
   });
 
-  it('hip ridge = 0 when length = width (square building)', () => {
-    expect(calculateRidgeLength(10, 10, 'hip')).toBe(0);
+  it("hip ridge = 0 when length = width (square building)", () => {
+    expect(calculateRidgeLength(10, 10, "hip")).toBe(0);
   });
 
-  it('flat ridge = 0', () => {
-    expect(calculateRidgeLength(15, 10, 'flat')).toBe(0);
+  it("flat ridge = 0", () => {
+    expect(calculateRidgeLength(15, 10, "flat")).toBe(0);
   });
 
-  it('mono-pitch ridge = 0', () => {
-    expect(calculateRidgeLength(15, 10, 'mono_pitch')).toBe(0);
+  it("mono-pitch ridge = 0", () => {
+    expect(calculateRidgeLength(15, 10, "mono_pitch")).toBe(0);
   });
 });
 
-describe('calculateHipLength', () => {
-  it('calculates 4 hip lengths for hip roof', () => {
+describe("calculateHipLength", () => {
+  it("calculates 4 hip lengths for hip roof", () => {
     const hipLen = calculateHipLength(15, 10, 25);
     // halfWidth = 5, cos(25°) ≈ 0.906
     // hipSlope = 5 / 0.906 ≈ 5.52
@@ -247,14 +259,14 @@ describe('calculateHipLength', () => {
   });
 });
 
-describe('calculateFasciaLength', () => {
-  it('calculates fascia perimeter including overhang', () => {
+describe("calculateFasciaLength", () => {
+  it("calculates fascia perimeter including overhang", () => {
     const fascia = calculateFasciaLength(15, 10, 0.6);
     // 2×(15+1.2) + 2×(10+1.2) = 32.4 + 22.4 = 54.8
     expect(fascia).toBeCloseTo(54.8, 1);
   });
 
-  it('handles zero overhang', () => {
+  it("handles zero overhang", () => {
     const fascia = calculateFasciaLength(10, 8, 0);
     expect(fascia).toBeCloseTo(36, 1);
   });
@@ -262,34 +274,34 @@ describe('calculateFasciaLength', () => {
 
 // ── Timber estimation ──
 
-describe('estimateTimberMeters', () => {
-  it('includes overhang in rafter length (FIX)', () => {
-    const timber = estimateTimberMeters(200, 15, 10, 25, 0.6, 'gable');
+describe("estimateTimberMeters", () => {
+  it("includes overhang in rafter length (FIX)", () => {
+    const timber = estimateTimberMeters(200, 15, 10, 25, 0.6, "gable");
     // With overhang: slope = (10/2 + 0.6) / cos(25°) = 5.6 / 0.906 = 6.18m
     // Without overhang (old bug): slope = 5 / 0.906 = 5.52m
     expect(timber).toBeGreaterThan(100); // should be substantial
   });
 
-  it('returns minimal timber for flat roof', () => {
-    const timber = estimateTimberMeters(100, 10, 8, 0, 0, 'flat');
+  it("returns minimal timber for flat roof", () => {
+    const timber = estimateTimberMeters(100, 10, 8, 0, 0, "flat");
     expect(timber).toBeGreaterThanOrEqual(200);
   });
 
-  it('returns more timber with overhang than without (overhang adds length)', () => {
-    const withOverhang = estimateTimberMeters(200, 15, 10, 25, 0.6, 'gable');
-    const noOverhang = estimateTimberMeters(200, 15, 10, 25, 0, 'gable');
+  it("returns more timber with overhang than without (overhang adds length)", () => {
+    const withOverhang = estimateTimberMeters(200, 15, 10, 25, 0.6, "gable");
+    const noOverhang = estimateTimberMeters(200, 15, 10, 25, 0, "gable");
     expect(withOverhang).toBeGreaterThan(noOverhang);
   });
 });
 
 // ── Reinforcement estimation ──
 
-describe('estimateReinforcementKg', () => {
-  it('calculates reinforcement for a column with hooks (FIX)', () => {
+describe("estimateReinforcementKg", () => {
+  it("calculates reinforcement for a column with hooks (FIX)", () => {
     const member: StructuralMemberInput = {
-      id: 'col1',
-      type: 'column',
-      label: 'Column C1',
+      id: "col1",
+      type: "column",
+      label: "Column C1",
       length: 3,
       width: 0.225,
       depth: 0.225,
@@ -313,11 +325,11 @@ describe('estimateReinforcementKg', () => {
     expect(kg).toBeLessThan(330);
   });
 
-  it('returns 0 when no reinforcement spec provided', () => {
+  it("returns 0 when no reinforcement spec provided", () => {
     const member: StructuralMemberInput = {
-      id: 'col1',
-      type: 'column',
-      label: 'Column C1',
+      id: "col1",
+      type: "column",
+      label: "Column C1",
       length: 3,
       width: 0.225,
       depth: 0.225,
@@ -326,11 +338,11 @@ describe('estimateReinforcementKg', () => {
     expect(estimateReinforcementKg(member)).toBe(0);
   });
 
-  it('handles slab with main bars but no links', () => {
+  it("handles slab with main bars but no links", () => {
     const member: StructuralMemberInput = {
-      id: 'slab1',
-      type: 'slab',
-      label: 'Slab S1',
+      id: "slab1",
+      type: "slab",
+      label: "Slab S1",
       length: 15,
       width: 10,
       depth: 0.15,
@@ -347,76 +359,87 @@ describe('estimateReinforcementKg', () => {
 
 // ── Roofing sheets ──
 
-describe('roofingSheetsCount', () => {
-  it('calculates sheets needed', () => {
+describe("roofingSheetsCount", () => {
+  it("calculates sheets needed", () => {
     expect(roofingSheetsCount(150, 1.5)).toBe(100);
   });
 
-  it('rounds up', () => {
+  it("rounds up", () => {
     expect(roofingSheetsCount(151, 1.5)).toBe(Math.ceil(151 / 1.5));
   });
 
-  it('returns 0 for invalid coverage', () => {
+  it("returns 0 for invalid coverage", () => {
     expect(roofingSheetsCount(100, 0)).toBe(0);
   });
 });
 
-describe('getSheetCoverage', () => {
-  it('returns different coverage for different materials (FIX)', () => {
-    expect(getSheetCoverage('long_span_aluminium')).toBe(1.5);
-    expect(getSheetCoverage('stone_coated')).toBe(0.53);
-    expect(getSheetCoverage('gi_sheet')).toBe(1.52);
-    expect(getSheetCoverage('shingle')).toBe(0.93);
-    expect(getSheetCoverage('custom')).toBe(1.5);
+describe("getSheetCoverage", () => {
+  it("returns different coverage for different materials (FIX)", () => {
+    expect(getSheetCoverage("long_span_aluminium")).toBe(1.5);
+    expect(getSheetCoverage("stone_coated")).toBe(0.53);
+    expect(getSheetCoverage("gi_sheet")).toBe(1.52);
+    expect(getSheetCoverage("shingle")).toBe(0.93);
+    expect(getSheetCoverage("custom")).toBe(1.5);
   });
 
-  it('stone coated needs more sheets than long span', () => {
+  it("stone coated needs more sheets than long span", () => {
     const area = 200;
-    const longSpan = roofingSheetsCount(area, getSheetCoverage('long_span_aluminium'));
-    const stoneCoated = roofingSheetsCount(area, getSheetCoverage('stone_coated'));
+    const longSpan = roofingSheetsCount(
+      area,
+      getSheetCoverage("long_span_aluminium"),
+    );
+    const stoneCoated = roofingSheetsCount(
+      area,
+      getSheetCoverage("stone_coated"),
+    );
     expect(stoneCoated).toBeGreaterThan(longSpan);
   });
 });
 
 // ── Full estimate tests ──
 
-describe('calculateBuildToRoof — Bungalow', () => {
+describe("calculateBuildToRoof — Bungalow", () => {
   const input = createTestInput();
   const result = calculateBuildToRoof(input);
 
-  it('produces 5 stages', () => {
+  it("produces 5 stages", () => {
     expect(result.stages).toHaveLength(5);
-    expect(result.stages[0].stage_label).toBe('Site & Foundation');
-    expect(result.stages[1].stage_label).toBe('Ground Floor');
-    expect(result.stages[2].stage_label).toBe('Wall Construction');
-    expect(result.stages[3].stage_label).toBe('Structural Frame');
-    expect(result.stages[4].stage_label).toBe('Roofing');
+    expect(result.stages[0].stage_label).toBe("Site & Foundation");
+    expect(result.stages[1].stage_label).toBe("Ground Floor");
+    expect(result.stages[2].stage_label).toBe("Wall Construction");
+    expect(result.stages[3].stage_label).toBe("Structural Frame");
+    expect(result.stages[4].stage_label).toBe("Roofing");
   });
 
-  it('calculates total floor area', () => {
+  it("calculates total floor area", () => {
     expect(result.total_floor_area).toBe(150);
   });
 
-  it('foundation stage has materials and labour', () => {
+  it("foundation stage has materials and labour", () => {
     const foundation = result.stages[0];
     expect(foundation.materials.length).toBeGreaterThan(0);
     expect(foundation.labour.length).toBeGreaterThan(0);
-    expect(foundation.stage_total).toBeCloseTo(foundation.materials_total + foundation.labour_total, 2);
+    expect(foundation.stage_total).toBeCloseTo(
+      foundation.materials_total + foundation.labour_total,
+      2,
+    );
   });
 
-  it('wall stage deducts openings', () => {
+  it("wall stage deducts openings", () => {
     const walls = result.stages[2];
-    const openingDeduction = walls.quantities.find(q => q.label === 'Opening deductions');
+    const openingDeduction = walls.quantities.find(
+      (q) => q.label === "Opening deductions",
+    );
     expect(openingDeduction).toBeDefined();
     // 6 doors × 0.9×2.1 = 11.34, 8 windows × 1.2×1.2 = 11.52 → total = 22.86
     expect(Math.abs(openingDeduction!.base_quantity)).toBeCloseTo(22.86, 1);
   });
 
-  it('structural frame is zero when no members provided', () => {
+  it("structural frame is zero when no members provided", () => {
     expect(result.stages[3].stage_total).toBe(0);
   });
 
-  it('grand total reconciles: materials + labour (incl. role-based) + contingency', () => {
+  it("grand total reconciles: materials + labour (incl. role-based) + contingency", () => {
     // grand_total = materials_total + labour_total (task-based + role-based day-rate labour) + contingency.
     // Note: role-based labour (bricklayer/foreman/etc. day rates) is a separate cost
     // bucket on top of per-stage totals, so we reconcile against the aggregate fields
@@ -426,55 +449,70 @@ describe('calculateBuildToRoof — Bungalow', () => {
     expect(result.grand_total).toBeCloseTo(base + contingency, 0);
   });
 
-  it('materials + labour = stage total for each stage', () => {
+  it("materials + labour = stage total for each stage", () => {
     for (const stage of result.stages) {
-      expect(stage.stage_total).toBeCloseTo(stage.materials_total + stage.labour_total, 0);
+      expect(stage.stage_total).toBeCloseTo(
+        stage.materials_total + stage.labour_total,
+        0,
+      );
     }
   });
 
-  it('confidence is moderate with dimensions but no engineer schedule', () => {
-    expect(result.confidence).toBe('moderate');
+  it("confidence is moderate with dimensions but no engineer schedule", () => {
+    expect(result.confidence).toBe("moderate");
   });
 
-  it('has assumptions and limitations', () => {
+  it("has assumptions and limitations", () => {
     expect(result.assumptions.length).toBeGreaterThan(5);
     expect(result.limitations.length).toBeGreaterThan(3);
     expect(result.missing_info.length).toBeGreaterThan(0);
   });
 
-  it('shopping list consolidates cement', () => {
-    const cement = result.shopping_list.find(m => m.label === 'Cement');
+  it("shopping list consolidates cement", () => {
+    const cement = result.shopping_list.find((m) => m.label === "Cement");
     expect(cement).toBeDefined();
     expect(cement!.total_quantity).toBeGreaterThan(0);
   });
 
-  it('shopping list includes hardcore (FIX: now has material cost)', () => {
-    const hardcore = result.shopping_list.find(m => m.label === 'Hardcore Stone');
+  it("shopping list includes hardcore (FIX: now has material cost)", () => {
+    const hardcore = result.shopping_list.find(
+      (m) => m.label === "Hardcore Stone",
+    );
     expect(hardcore).toBeDefined();
     expect(hardcore!.total_quantity).toBeGreaterThan(0);
     expect(hardcore!.total_cost).toBeGreaterThan(0);
   });
 
-  it('does not include finishing works', () => {
-    const allLabels = result.stages.flatMap(s => s.materials.map(m => m.label));
-    expect(allLabels.some(l => l.toLowerCase().includes('paint'))).toBe(false);
-    expect(allLabels.some(l => l.toLowerCase().includes('tile'))).toBe(false);
-    expect(allLabels.some(l => l.toLowerCase().includes('plaster'))).toBe(false);
-    expect(allLabels.some(l => l.toLowerCase().includes('door'))).toBe(false);
-    expect(allLabels.some(l => l.toLowerCase().includes('window'))).toBe(false);
+  it("does not include finishing works", () => {
+    const allLabels = result.stages.flatMap((s) =>
+      s.materials.map((m) => m.label),
+    );
+    expect(allLabels.some((l) => l.toLowerCase().includes("paint"))).toBe(
+      false,
+    );
+    expect(allLabels.some((l) => l.toLowerCase().includes("tile"))).toBe(false);
+    expect(allLabels.some((l) => l.toLowerCase().includes("plaster"))).toBe(
+      false,
+    );
+    expect(allLabels.some((l) => l.toLowerCase().includes("door"))).toBe(false);
+    expect(allLabels.some((l) => l.toLowerCase().includes("window"))).toBe(
+      false,
+    );
   });
 
-  it('foundation concrete uses footing_thickness (not hardcoded 0.225)', () => {
+  it("foundation concrete uses footing_thickness (not hardcoded 0.225)", () => {
     const inputWithThickerFooting = createTestInput({ footing_thickness: 0.3 });
     const resultThicker = calculateBuildToRoof(inputWithThickerFooting);
     const inputThinner = createTestInput({ footing_thickness: 0.15 });
     const resultThinner = calculateBuildToRoof(inputThinner);
 
     // Thicker footing → more concrete → higher cost
-    expect(resultThicker.stages[0].stage_total).toBeGreaterThan(resultThinner.stages[0].stage_total);
+    expect(resultThicker.stages[0].stage_total).toBeGreaterThan(
+      resultThinner.stages[0].stage_total,
+    );
   });
 
-  it('DPM membrane uses dpm_per_m2 price (FIX: not dpc_per_meter)', () => {
+  it("DPM membrane uses dpm_per_m2 price (FIX: not dpc_per_meter)", () => {
     const inputWithHighDpm = createTestInput({
       prices: { ...DEFAULT_PRICES, dpm_per_m2: 5000 },
     });
@@ -485,55 +523,87 @@ describe('calculateBuildToRoof — Bungalow', () => {
     const resultLow = calculateBuildToRoof(inputWithLowDpm);
 
     // Higher DPM price → higher ground floor cost
-    expect(resultHigh.stages[1].stage_total).toBeGreaterThan(resultLow.stages[1].stage_total);
+    expect(resultHigh.stages[1].stage_total).toBeGreaterThan(
+      resultLow.stages[1].stage_total,
+    );
   });
 
-  it('backfilling is calculated (FIX: added)', () => {
+  it("backfilling is calculated (FIX: added)", () => {
     const foundation = result.stages[0];
-    const backfill = foundation.quantities.find(q => q.label === 'Backfilling volume');
+    const backfill = foundation.quantities.find(
+      (q) => q.label === "Backfilling volume",
+    );
     expect(backfill).toBeDefined();
     expect(backfill!.base_quantity).toBeGreaterThan(0);
   });
 
-  it('compaction is calculated (FIX: added)', () => {
+  it("compaction is calculated (FIX: added)", () => {
     const foundation = result.stages[0];
-    const compaction = foundation.quantities.find(q => q.label === 'Compaction volume');
+    const compaction = foundation.quantities.find(
+      (q) => q.label === "Compaction volume",
+    );
     expect(compaction).toBeDefined();
     expect(compaction!.base_quantity).toBeGreaterThan(0);
   });
 
-  it('sand filling in ground floor stage (FIX: added)', () => {
+  it("sand filling in ground floor stage (FIX: added)", () => {
     const groundFloor = result.stages[1];
-    const sandFilling = groundFloor.quantities.find(q => q.label === 'Sand filling (under slab)');
+    const sandFilling = groundFloor.quantities.find(
+      (q) => q.label === "Sand filling (under slab)",
+    );
     expect(sandFilling).toBeDefined();
     expect(sandFilling!.base_quantity).toBeGreaterThan(0);
   });
 });
 
-describe('calculateBuildToRoof — Duplex with structural schedule', () => {
+describe("calculateBuildToRoof — Duplex with structural schedule", () => {
   const structuralMembers: StructuralMemberInput[] = [
     {
-      id: 'col1', type: 'column', label: 'Column C1',
-      length: 3, width: 0.225, depth: 0.225, quantity: 20,
-      bar_diameter_mm: 16, bar_count_main: 4, bar_count_links: 8,
-      link_diameter_mm: 8, cover_mm: 25,
+      id: "col1",
+      type: "column",
+      label: "Column C1",
+      length: 3,
+      width: 0.225,
+      depth: 0.225,
+      quantity: 20,
+      bar_diameter_mm: 16,
+      bar_count_main: 4,
+      bar_count_links: 8,
+      link_diameter_mm: 8,
+      cover_mm: 25,
     },
     {
-      id: 'beam1', type: 'ground_beam', label: 'Ground Beam B1',
-      length: 50, width: 0.225, depth: 0.45, quantity: 1,
-      bar_diameter_mm: 16, bar_count_main: 4, bar_count_links: 6,
-      link_diameter_mm: 10, cover_mm: 25,
+      id: "beam1",
+      type: "ground_beam",
+      label: "Ground Beam B1",
+      length: 50,
+      width: 0.225,
+      depth: 0.45,
+      quantity: 1,
+      bar_diameter_mm: 16,
+      bar_count_main: 4,
+      bar_count_links: 6,
+      link_diameter_mm: 10,
+      cover_mm: 25,
     },
     {
-      id: 'slab1', type: 'slab', label: 'First Floor Slab',
-      length: 15, width: 10, depth: 0.15, quantity: 1,
-      bar_diameter_mm: 12, bar_count_main: 50, bar_count_links: 0,
-      bar_length_main: 10, cover_mm: 20,
+      id: "slab1",
+      type: "slab",
+      label: "First Floor Slab",
+      length: 15,
+      width: 10,
+      depth: 0.15,
+      quantity: 1,
+      bar_diameter_mm: 12,
+      bar_count_main: 50,
+      bar_count_links: 0,
+      bar_length_main: 10,
+      cover_mm: 20,
     },
   ];
 
   const input = createTestInput({
-    building_type: 'duplex',
+    building_type: "duplex",
     number_of_floors: 2,
     structural_members: structuralMembers,
     has_engineer_schedule: true,
@@ -541,167 +611,206 @@ describe('calculateBuildToRoof — Duplex with structural schedule', () => {
   });
   const result = calculateBuildToRoof(input);
 
-  it('has structural frame quantities', () => {
+  it("has structural frame quantities", () => {
     expect(result.stages[3].materials.length).toBeGreaterThan(0);
     expect(result.stages[3].stage_total).toBeGreaterThan(0);
   });
 
-  it('total floor area is doubled for 2 floors', () => {
+  it("total floor area is doubled for 2 floors", () => {
     expect(result.total_floor_area).toBe(300);
   });
 
-  it('confidence is moderate with dimensions + engineer schedule but no drawing', () => {
-    expect(result.confidence).toBe('moderate');
+  it("confidence is moderate with dimensions + engineer schedule but no drawing", () => {
+    expect(result.confidence).toBe("moderate");
   });
 
-  it('wall area accounts for 2 floors', () => {
+  it("wall area accounts for 2 floors", () => {
     const walls = result.stages[2];
-    const ext = walls.quantities.find(q => q.label === 'External wall gross area');
+    const ext = walls.quantities.find(
+      (q) => q.label === "External wall gross area",
+    );
     // perimeter = 2×(15+10) = 50, height = 3.3×2 = 6.6
     // area = 50 × 6.6 = 330
     expect(ext!.base_quantity).toBeCloseTo(330, 0);
   });
 
-  it('reconciliation: grand total = materials + labour (incl. role-based) + contingency', () => {
+  it("reconciliation: grand total = materials + labour (incl. role-based) + contingency", () => {
     const base = result.materials_total + result.labour_total;
     const contingency = base * (input.contingency_percent / 100);
     expect(result.grand_total).toBeCloseTo(base + contingency, 0);
   });
 });
 
-describe('calculateBuildToRoof — Roofing material variations (FIX)', () => {
-  it('stone coated sheets cost more than long span for same roof', () => {
-    const longSpan = calculateBuildToRoof(createTestInput({ roofing_material: 'long_span_aluminium' }));
-    const stoneCoated = calculateBuildToRoof(createTestInput({ roofing_material: 'stone_coated' }));
+describe("calculateBuildToRoof — Roofing material variations (FIX)", () => {
+  it("stone coated sheets cost more than long span for same roof", () => {
+    const longSpan = calculateBuildToRoof(
+      createTestInput({ roofing_material: "long_span_aluminium" }),
+    );
+    const stoneCoated = calculateBuildToRoof(
+      createTestInput({ roofing_material: "stone_coated" }),
+    );
 
-    const longSpanSheets = longSpan.stages[4].materials.find(m => m.label === 'Roofing sheets');
-    const stoneCoatedSheets = stoneCoated.stages[4].materials.find(m => m.label === 'Roofing sheets');
+    const longSpanSheets = longSpan.stages[4].materials.find(
+      (m) => m.label === "Roofing sheets",
+    );
+    const stoneCoatedSheets = stoneCoated.stages[4].materials.find(
+      (m) => m.label === "Roofing sheets",
+    );
 
     // Stone coated needs more sheets (smaller coverage per sheet)
-    expect(stoneCoatedSheets!.base_quantity).toBeGreaterThan(longSpanSheets!.base_quantity);
+    expect(stoneCoatedSheets!.base_quantity).toBeGreaterThan(
+      longSpanSheets!.base_quantity,
+    );
   });
 });
 
-describe('calculateBuildToRoof — Edge cases', () => {
-  it('handles zero contingency', () => {
+describe("calculateBuildToRoof — Edge cases", () => {
+  it("handles zero contingency", () => {
     const input = createTestInput({ contingency_percent: 0 });
     const result = calculateBuildToRoof(input);
-    expect(result.grand_total).toBeCloseTo(result.materials_total + result.labour_total, 0);
+    expect(result.grand_total).toBeCloseTo(
+      result.materials_total + result.labour_total,
+      0,
+    );
     expect(result.contingency).toBe(0);
   });
 
-  it('handles flat roof', () => {
-    const input = createTestInput({ roof_type: 'flat', roof_pitch_degrees: 0 });
+  it("handles flat roof", () => {
+    const input = createTestInput({ roof_type: "flat", roof_pitch_degrees: 0 });
     const result = calculateBuildToRoof(input);
-    const roofArea = result.stages[4].quantities.find(q => q.label === 'Roof surface area');
+    const roofArea = result.stages[4].quantities.find(
+      (q) => q.label === "Roof surface area",
+    );
     expect(roofArea).toBeDefined();
     expect(roofArea!.base_quantity).toBeCloseTo((15 + 1.2) * (10 + 1.2), 0);
   });
 
-  it('handles no openings', () => {
+  it("handles no openings", () => {
     const input = createTestInput({ openings: [] });
     const result = calculateBuildToRoof(input);
     const walls = result.stages[2];
-    const openingDeduction = walls.quantities.find(q => q.label === 'Opening deductions');
+    const openingDeduction = walls.quantities.find(
+      (q) => q.label === "Opening deductions",
+    );
     expect(Math.abs(openingDeduction!.base_quantity)).toBe(0);
-    expect(result.missing_info).toContain('Door/window openings not specified — wall quantities include the full gross area with no deductions.');
+    expect(result.missing_info).toContain(
+      "Door/window openings not specified — wall quantities include the full gross area with no deductions.",
+    );
   });
 
-  it('handles hip roof', () => {
-    const input = createTestInput({ roof_type: 'hip' });
+  it("handles hip roof", () => {
+    const input = createTestInput({ roof_type: "hip" });
     const result = calculateBuildToRoof(input);
-    const hipMat = result.stages[4].materials.find(m => m.label === 'Hip accessories');
+    const hipMat = result.stages[4].materials.find(
+      (m) => m.label === "Hip accessories",
+    );
     expect(hipMat).toBeDefined();
   });
 
-  it('net wall area never goes negative (excessive openings)', () => {
+  it("net wall area never goes negative (excessive openings)", () => {
     const input = createTestInput({
       openings: [
-        { type: 'window', width: 10, height: 10, count: 100 }, // absurdly large
+        { type: "window", width: 10, height: 10, count: 100 }, // absurdly large
       ],
     });
     const result = calculateBuildToRoof(input);
     const walls = result.stages[2];
-    const netArea = walls.quantities.find(q => q.label === 'Net wall area');
+    const netArea = walls.quantities.find((q) => q.label === "Net wall area");
     expect(netArea!.base_quantity).toBeGreaterThanOrEqual(0);
     // Blocks should be 0 when net area is 0
-    const blocks = walls.materials.find(m => m.label === 'Blocks (walls)');
+    const blocks = walls.materials.find((m) => m.label === "Blocks (walls)");
     expect(blocks!.base_quantity).toBeGreaterThanOrEqual(0);
   });
 
-  it('zero dimensions produce zero estimate', () => {
+  it("zero dimensions produce zero estimate", () => {
     const input = createTestInput({
-      building_length: 0, building_width: 0, internal_wall_length: 0,
+      building_length: 0,
+      building_width: 0,
+      internal_wall_length: 0,
     });
     const result = calculateBuildToRoof(input);
     expect(result.total_floor_area).toBe(0);
-    expect(result.confidence).toBe('preliminary');
+    expect(result.confidence).toBe("preliminary");
   });
 });
 
-
 // ── Smart Adjustment Tests ──
 
-describe('Smart Adjustments (Audit Phase)', () => {
-  it('mortar volume scales with wall thickness', () => {
+describe("Smart Adjustments (Audit Phase)", () => {
+  it("mortar volume scales with wall thickness", () => {
     const input225 = createTestInput({ wall_thickness: 0.225 });
-    const input150 = createTestInput({ wall_thickness: 0.150 });
+    const input150 = createTestInput({ wall_thickness: 0.15 });
     const result225 = calculateBuildToRoof(input225);
     const result150 = calculateBuildToRoof(input150);
 
-    const walls225 = result225.stages.find(s => s.stage === 'walls')!;
-    const walls150 = result150.stages.find(s => s.stage === 'walls')!;
+    const walls225 = result225.stages.find((s) => s.stage === "walls")!;
+    const walls150 = result150.stages.find((s) => s.stage === "walls")!;
 
-    const sand225 = walls225.materials.find(m => m.label.includes('Sand (wall mortar)'))!;
-    const sand150 = walls150.materials.find(m => m.label.includes('Sand (wall mortar)'))!;
+    const sand225 = walls225.materials.find((m) =>
+      m.label.includes("Sand (wall mortar)"),
+    )!;
+    const sand150 = walls150.materials.find((m) =>
+      m.label.includes("Sand (wall mortar)"),
+    )!;
 
     // 150mm wall should use less mortar than 225mm
     expect(sand150.base_quantity).toBeLessThan(sand225.base_quantity);
   });
 
-  it('sand filling thickness is configurable', () => {
+  it("sand filling thickness is configurable", () => {
     const inputDefault = createTestInput({});
-    const inputThick = createTestInput({ sand_filling_thickness: 0.10 });
+    const inputThick = createTestInput({ sand_filling_thickness: 0.1 });
 
     const resultDefault = calculateBuildToRoof(inputDefault);
     const resultThick = calculateBuildToRoof(inputThick);
 
-    const foundationDefault = resultDefault.stages.find(s => s.stage === 'site_preparation')!;
-    const foundationThick = resultThick.stages.find(s => s.stage === 'site_preparation')!;
+    const foundationDefault = resultDefault.stages.find(
+      (s) => s.stage === "site_preparation",
+    )!;
+    const foundationThick = resultThick.stages.find(
+      (s) => s.stage === "site_preparation",
+    )!;
 
-    const sandDefault = foundationDefault.materials.find(m => m.label.includes('Sand (filling)'))!;
-    const sandThick = foundationThick.materials.find(m => m.label.includes('Sand (filling)'))!;
+    const sandDefault = foundationDefault.materials.find((m) =>
+      m.label.includes("Sand (filling)"),
+    )!;
+    const sandThick = foundationThick.materials.find((m) =>
+      m.label.includes("Sand (filling)"),
+    )!;
 
     // 100mm thickness should produce more sand volume than default 50mm
     expect(sandThick.base_quantity).toBeGreaterThan(sandDefault.base_quantity);
   });
 
-  it('price freshness: age_days is calculated', () => {
+  it("price freshness: age_days is calculated", () => {
     const input = createTestInput({
-      prices: { ...DEFAULT_PRICES, price_date: '2026-01-01' },
+      prices: { ...DEFAULT_PRICES, price_date: "2026-01-01" },
     });
     const result = calculateBuildToRoof(input);
     expect(result.price_age_days).toBeGreaterThan(0);
   });
 
-  it('price freshness: stale flag triggers when older than 30 days', () => {
+  it("price freshness: stale flag triggers when older than 30 days", () => {
     const input = createTestInput({
-      prices: { ...DEFAULT_PRICES, price_date: '2026-01-01' },
+      prices: { ...DEFAULT_PRICES, price_date: "2026-01-01" },
     });
     const result = calculateBuildToRoof(input);
     expect(result.price_stale).toBe(true);
   });
 
-  it('price freshness: stale flag false for recent prices', () => {
+  it("price freshness: stale flag false for recent prices", () => {
     const input = createTestInput({
-      prices: { ...DEFAULT_PRICES, price_date: new Date().toISOString().split('T')[0] },
+      prices: {
+        ...DEFAULT_PRICES,
+        price_date: new Date().toISOString().split("T")[0],
+      },
     });
     const result = calculateBuildToRoof(input);
     expect(result.price_stale).toBe(false);
     expect(result.price_age_days).toBeLessThanOrEqual(1);
   });
 
-  it('default prices are realistic for Nigerian market (Aug 2026)', () => {
+  it("default prices are realistic for Nigerian market (Aug 2026)", () => {
     // Cement should be between ₦7,000 and ₦15,000
     expect(DEFAULT_PRICES.cement_per_bag).toBeGreaterThanOrEqual(7000);
     expect(DEFAULT_PRICES.cement_per_bag).toBeLessThanOrEqual(15000);
@@ -719,11 +828,13 @@ describe('Smart Adjustments (Audit Phase)', () => {
     expect(DEFAULT_PRICES.granite_per_m3).toBeLessThanOrEqual(150000);
 
     // Reinforcement per tonne should be between ₦900,000 and ₦1,800,000
-    expect(DEFAULT_PRICES.reinforcement_per_tonne).toBeGreaterThanOrEqual(900000);
+    expect(DEFAULT_PRICES.reinforcement_per_tonne).toBeGreaterThanOrEqual(
+      900000,
+    );
     expect(DEFAULT_PRICES.reinforcement_per_tonne).toBeLessThanOrEqual(1800000);
   });
 
-  it('default labour rates are realistic for Nigerian market', () => {
+  it("default labour rates are realistic for Nigerian market", () => {
     // Excavation per m³: ₦2,000–₦6,000
     expect(DEFAULT_LABOUR.excavation_per_m3).toBeGreaterThanOrEqual(2000);
     expect(DEFAULT_LABOUR.excavation_per_m3).toBeLessThanOrEqual(6000);
@@ -737,7 +848,7 @@ describe('Smart Adjustments (Audit Phase)', () => {
     expect(DEFAULT_LABOUR.concrete_per_m3).toBeLessThanOrEqual(40000);
   });
 
-  it('price scanner fallback prices are within market range', () => {
+  it("price scanner fallback prices are within market range", () => {
     // Import fallback prices
     // These should match the updated DEFAULT_PRICES
     expect(DEFAULT_PRICES.cement_per_bag).toBe(10000);
@@ -749,66 +860,74 @@ describe('Smart Adjustments (Audit Phase)', () => {
 
 // ── Trip-based sand/granite tests ──
 
-describe('m3ToTrips', () => {
-  it('converts m³ to trips correctly (3.5 m³ per trip)', () => {
+describe("m3ToTrips", () => {
+  it("converts m³ to trips correctly (3.5 m³ per trip)", () => {
     expect(m3ToTrips(3.5)).toBe(1);
     expect(m3ToTrips(7)).toBe(2);
     expect(m3ToTrips(1.75)).toBe(0.5);
   });
 
-  it('handles zero', () => {
+  it("handles zero", () => {
     expect(m3ToTrips(0)).toBe(0);
   });
 });
 
-describe('sand and granite in trips', () => {
-  it('shopping list shows sand in trips (not m³)', () => {
+describe("sand and granite in trips", () => {
+  it("shopping list shows sand in trips (not m³)", () => {
     const input = createTestInput();
     const result = calculateBuildToRoof(input);
-    const sandItem = result.shopping_list.find(m => m.label.toLowerCase().includes('sand'));
+    const sandItem = result.shopping_list.find((m) =>
+      m.label.toLowerCase().includes("sand"),
+    );
     expect(sandItem).toBeDefined();
-    expect(sandItem!.unit).toBe('trips');
+    expect(sandItem!.unit).toBe("trips");
     expect(sandItem!.total_quantity).toBeGreaterThan(0);
     // Trip price should be the per-trip price, not per-m³
     expect(sandItem!.total_cost).toBeGreaterThan(0);
   });
 
-  it('shopping list shows granite in trips (not m³)', () => {
+  it("shopping list shows granite in trips (not m³)", () => {
     const input = createTestInput();
     const result = calculateBuildToRoof(input);
-    const graniteItem = result.shopping_list.find(m => m.label.toLowerCase().includes('granite'));
+    const graniteItem = result.shopping_list.find((m) =>
+      m.label.toLowerCase().includes("granite"),
+    );
     expect(graniteItem).toBeDefined();
-    expect(graniteItem!.unit).toBe('trips');
+    expect(graniteItem!.unit).toBe("trips");
     expect(graniteItem!.total_quantity).toBeGreaterThan(0);
   });
 
-  it('trip quantity is rounded up to whole trips', () => {
+  it("trip quantity is rounded up to whole trips", () => {
     const input = createTestInput();
     const result = calculateBuildToRoof(input);
-    const sandItem = result.shopping_list.find(m => m.label.toLowerCase().includes('sand'));
+    const sandItem = result.shopping_list.find((m) =>
+      m.label.toLowerCase().includes("sand"),
+    );
     // Trips should be a whole number (ceil)
     expect(sandItem!.total_quantity % 1).toBe(0);
   });
 
-  it('hardcore also shows in trips', () => {
+  it("hardcore also shows in trips", () => {
     const input = createTestInput();
     const result = calculateBuildToRoof(input);
-    const hardcoreItem = result.shopping_list.find(m => m.label.toLowerCase().includes('hardcore'));
+    const hardcoreItem = result.shopping_list.find((m) =>
+      m.label.toLowerCase().includes("hardcore"),
+    );
     if (hardcoreItem) {
-      expect(hardcoreItem.unit).toBe('trips');
+      expect(hardcoreItem.unit).toBe("trips");
     }
   });
 });
 
 // ── Reinforcement breakdown tests ──
 
-describe('buildReinforcementBreakdown', () => {
-  it('splits reinforcement by bar diameter', () => {
+describe("buildReinforcementBreakdown", () => {
+  it("splits reinforcement by bar diameter", () => {
     const members: StructuralMemberInput[] = [
       {
-        id: 'col1',
-        type: 'column',
-        label: 'Column C1',
+        id: "col1",
+        type: "column",
+        label: "Column C1",
         length: 3,
         width: 0.225,
         depth: 0.225,
@@ -820,9 +939,9 @@ describe('buildReinforcementBreakdown', () => {
         cover_mm: 25,
       },
       {
-        id: 'beam1',
-        type: 'suspended_beam',
-        label: 'Beam B1',
+        id: "beam1",
+        type: "suspended_beam",
+        label: "Beam B1",
         length: 6,
         width: 0.225,
         depth: 0.3,
@@ -841,24 +960,28 @@ describe('buildReinforcementBreakdown', () => {
     expect(breakdown.items.length).toBeGreaterThanOrEqual(4);
 
     // Check 16mm main bars exist
-    const bars16mm = breakdown.items.find(i => i.diameter_mm === 16 && i.source === 'main');
+    const bars16mm = breakdown.items.find(
+      (i) => i.diameter_mm === 16 && i.source === "main",
+    );
     expect(bars16mm).toBeDefined();
     expect(bars16mm!.standard_lengths).toBeGreaterThan(0);
     expect(bars16mm!.unit_price).toBe(DEFAULT_PRICES.rebar_16mm_per_length);
 
     // Check 20mm main bars exist
-    const bars20mm = breakdown.items.find(i => i.diameter_mm === 20 && i.source === 'main');
+    const bars20mm = breakdown.items.find(
+      (i) => i.diameter_mm === 20 && i.source === "main",
+    );
     expect(bars20mm).toBeDefined();
     expect(bars20mm!.standard_lengths).toBeGreaterThan(0);
     expect(bars20mm!.unit_price).toBe(DEFAULT_PRICES.rebar_20mm_per_length);
   });
 
-  it('each diameter uses its own price, not a global per-tonne rate', () => {
+  it("each diameter uses its own price, not a global per-tonne rate", () => {
     const members: StructuralMemberInput[] = [
       {
-        id: 'col1',
-        type: 'column',
-        label: 'Column C1',
+        id: "col1",
+        type: "column",
+        label: "Column C1",
         length: 3,
         width: 0.225,
         depth: 0.225,
@@ -868,9 +991,9 @@ describe('buildReinforcementBreakdown', () => {
         cover_mm: 25,
       },
       {
-        id: 'col2',
-        type: 'column',
-        label: 'Column C2',
+        id: "col2",
+        type: "column",
+        label: "Column C2",
         length: 3,
         width: 0.225,
         depth: 0.225,
@@ -883,8 +1006,12 @@ describe('buildReinforcementBreakdown', () => {
 
     const breakdown = buildReinforcementBreakdown(members, 3, DEFAULT_PRICES);
 
-    const bars12mm = breakdown.items.find(i => i.diameter_mm === 12 && i.source === 'main');
-    const bars25mm = breakdown.items.find(i => i.diameter_mm === 25 && i.source === 'main');
+    const bars12mm = breakdown.items.find(
+      (i) => i.diameter_mm === 12 && i.source === "main",
+    );
+    const bars25mm = breakdown.items.find(
+      (i) => i.diameter_mm === 25 && i.source === "main",
+    );
 
     expect(bars12mm).toBeDefined();
     expect(bars25mm).toBeDefined();
@@ -895,12 +1022,12 @@ describe('buildReinforcementBreakdown', () => {
     expect(bars12mm!.unit_price).not.toBe(bars25mm!.unit_price);
   });
 
-  it('standard lengths are calculated as ceil(total_length / 12)', () => {
+  it("standard lengths are calculated as ceil(total_length / 12)", () => {
     const members: StructuralMemberInput[] = [
       {
-        id: 'slab1',
-        type: 'slab',
-        label: 'Slab S1',
+        id: "slab1",
+        type: "slab",
+        label: "Slab S1",
         length: 15,
         width: 10,
         depth: 0.15,
@@ -913,7 +1040,9 @@ describe('buildReinforcementBreakdown', () => {
     ];
 
     const breakdown = buildReinforcementBreakdown(members, 0, DEFAULT_PRICES);
-    const bars12mm = breakdown.items.find(i => i.diameter_mm === 12 && i.source === 'main');
+    const bars12mm = breakdown.items.find(
+      (i) => i.diameter_mm === 12 && i.source === "main",
+    );
 
     expect(bars12mm).toBeDefined();
     // 500m / 12m = 41.67 → ceil = 42 lengths
@@ -921,12 +1050,12 @@ describe('buildReinforcementBreakdown', () => {
     expect(bars12mm!.total_length_m).toBe(500);
   });
 
-  it('includes binding wire in breakdown', () => {
+  it("includes binding wire in breakdown", () => {
     const members: StructuralMemberInput[] = [
       {
-        id: 'col1',
-        type: 'column',
-        label: 'Column C1',
+        id: "col1",
+        type: "column",
+        label: "Column C1",
         length: 3,
         width: 0.225,
         depth: 0.225,
@@ -942,19 +1071,19 @@ describe('buildReinforcementBreakdown', () => {
     expect(breakdown.binding_wire_cost).toBeGreaterThan(0);
   });
 
-  it('handles empty members array', () => {
+  it("handles empty members array", () => {
     const breakdown = buildReinforcementBreakdown([], 3, DEFAULT_PRICES);
     expect(breakdown.items).toHaveLength(0);
     expect(breakdown.total_weight_tonnes).toBe(0);
     expect(breakdown.total_cost).toBe(0);
   });
 
-  it('falls back to per-tonne price for non-standard diameters', () => {
+  it("falls back to per-tonne price for non-standard diameters", () => {
     const members: StructuralMemberInput[] = [
       {
-        id: 'col1',
-        type: 'column',
-        label: 'Column C1',
+        id: "col1",
+        type: "column",
+        label: "Column C1",
         length: 3,
         width: 0.225,
         depth: 0.225,
@@ -966,7 +1095,7 @@ describe('buildReinforcementBreakdown', () => {
     ];
 
     const breakdown = buildReinforcementBreakdown(members, 0, DEFAULT_PRICES);
-    const item = breakdown.items.find(i => i.diameter_mm === 10);
+    const item = breakdown.items.find((i) => i.diameter_mm === 10);
     expect(item).toBeDefined();
     // Should estimate from per-tonne: weight per 12m = (10²/162) × 12 = 7.41 kg
     // price per length = 1350000/1000 × 7.41 = ₦10,030 (approx)
@@ -974,15 +1103,15 @@ describe('buildReinforcementBreakdown', () => {
   });
 });
 
-describe('reinforcement breakdown in full estimate', () => {
-  it('result includes reinforcement_breakdown when structural members exist', () => {
+describe("reinforcement breakdown in full estimate", () => {
+  it("result includes reinforcement_breakdown when structural members exist", () => {
     const input = createTestInput({
       has_engineer_schedule: true,
       structural_members: [
         {
-          id: 'col1',
-          type: 'column',
-          label: 'Column C1',
+          id: "col1",
+          type: "column",
+          label: "Column C1",
           length: 3,
           width: 0.225,
           depth: 0.225,
@@ -1000,14 +1129,14 @@ describe('reinforcement breakdown in full estimate', () => {
     expect(result.reinforcement_breakdown!.items.length).toBeGreaterThan(0);
   });
 
-  it('result reinforcement_breakdown is undefined when no structural members', () => {
+  it("result reinforcement_breakdown is undefined when no structural members", () => {
     const input = createTestInput({ structural_members: [] });
     const result = calculateBuildToRoof(input);
     // No structural frame stage → no breakdown
     expect(result.reinforcement_breakdown).toBeUndefined();
   });
 
-  it('default rebar prices are realistic for Nigerian market', () => {
+  it("default rebar prices are realistic for Nigerian market", () => {
     // 12mm: ₦5,000–₦15,000 per 12m length
     expect(DEFAULT_PRICES.rebar_12mm_per_length).toBeGreaterThanOrEqual(5000);
     expect(DEFAULT_PRICES.rebar_12mm_per_length).toBeLessThanOrEqual(15000);

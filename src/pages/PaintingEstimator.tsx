@@ -7,17 +7,34 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Plus, Trash2, ChevronDown, ChevronUp, AlertCircle, CheckCircle2,
-  Calculator, Save, RotateCcw, Layers, DoorOpen, Square, Paintbrush,
-  Palette, Shield, Building2, Info, MapPin, Loader2, Briefcase,
-} from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import { supabase } from '@/lib/supabase';
-import { formatCurrency } from '@/lib/estimation/pricing';
-import { useSeo } from '@/lib/seo';
-import { track } from '@/lib/analytics';
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  CheckCircle2,
+  Calculator,
+  Save,
+  RotateCcw,
+  Layers,
+  DoorOpen,
+  Square,
+  Paintbrush,
+  Palette,
+  Shield,
+  Building2,
+  Info,
+  MapPin,
+  Loader2,
+  Briefcase,
+} from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { supabase } from "@/lib/supabase";
+import { formatCurrency } from "@/lib/estimation/pricing";
+import { useSeo } from "@/lib/seo";
+import { track } from "@/lib/analytics";
 import {
   calculatePaintingProject,
   validateRoomInput,
@@ -25,7 +42,7 @@ import {
   type PaintingProjectInput,
   type PaintingEstimateResult,
   type ProductionRuleRow,
-} from '@/lib/estimation/painting-engine';
+} from "@/lib/estimation/painting-engine";
 import type {
   EstimationProduct,
   EstimationProductQuality,
@@ -34,22 +51,40 @@ import type {
   EstimationColourCondition,
   EstimationSurfaceCondition,
   OpeningInput,
-} from '@/types/estimation';
-import { fetchEstimationProducts, fetchProductQualityLevels, fetchActivePrice, fetchCalcRules, fetchColourConditions, fetchSurfaceConditions, createEstimate, createEstimateItem, createAdjustment, createAuditLog } from '@/lib/estimation/queries';
-import { saveUserProject } from '@/lib/queries';
-import { trackCalculation } from '@/lib/achievements';
-import { trackCalculationWithRewards } from '@/lib/rewards-integration';
-import { trackRecentTool } from '@/lib/smart-defaults';
-import { classNames } from '@/lib/utils';
+} from "@/types/estimation";
+import {
+  fetchEstimationProducts,
+  fetchProductQualityLevels,
+  fetchActivePrice,
+  fetchCalcRules,
+  fetchColourConditions,
+  fetchSurfaceConditions,
+  createEstimate,
+  createEstimateItem,
+  createAdjustment,
+  createAuditLog,
+} from "@/lib/estimation/queries";
+import { saveUserProject } from "@/lib/queries";
+import { trackCalculation } from "@/lib/achievements";
+import { trackCalculationWithRewards } from "@/lib/rewards-integration";
+import { trackRecentTool } from "@/lib/smart-defaults";
+import { classNames } from "@/lib/utils";
 
-import { FaqSection, RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import { PaintingEstimatorSeo } from '@/components/seo/SeoContent';
-import { useCalcDefaults } from '@/lib/use-calc-defaults';
-import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
-import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import {
+  FaqSection,
+  RelatedTools,
+  CALC_LINKS,
+} from "@/components/seo/SeoSections";
+import { PaintingEstimatorSeo } from "@/components/seo/SeoContent";
+import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import {
+  EstimateDisclaimer,
+  ReportCalculationIssue,
+} from "@/components/calculators";
+import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 // Engine integration
-import { useEngineFeatures } from '@/lib/measurement';
-import { monitoredCalc } from '@/lib/calculator-monitor';
+import { useEngineFeatures } from "@/lib/measurement";
+import { monitoredCalc } from "@/lib/calculator-monitor";
 import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
@@ -57,7 +92,7 @@ import {
   EngineAlreadyHaveInput,
   EngineWasteSelector,
   EngineMaterialSummaryCard,
-} from '@/components/engine';
+} from "@/components/engine";
 // =========================================================
 // Types
 // =========================================================
@@ -74,7 +109,7 @@ interface AdminAdjustmentState {
 // Constants
 // =========================================================
 
-const PAINT_CATEGORIES = ['emulsion', 'matt', 'satin'];
+const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 // DEFAULT_CEILING_COLOUR and DEFAULT_COATS are now fetched from admin calc rules
 // via useCalcDefaults hook in the component
 
@@ -82,75 +117,137 @@ const PAINT_CATEGORIES = ['emulsion', 'matt', 'satin'];
 // Component
 // =========================================================
 
-export default function PaintingEstimator({ embedded = false }: { embedded?: boolean } = {}) {
-  const { defaults: _calcDefaults, rules: defaultCalcRules } = useCalcDefaults('painting');
-  const DEFAULT_CEILING_COLOUR = (defaultCalcRules['ceiling_default_colour']?.rule_value as Record<string, unknown>)?.colour as string ?? 'white';
-  const DEFAULT_COATS = (defaultCalcRules['standard_coat_count']?.rule_value as Record<string, unknown>)?.count as number ?? 2;
-  useSeo(!embedded ? {
-    title: 'FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator',
-    description: 'Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.',
-    canonicalPath: '/painting-estimator',
-    ogType: 'website',
-    keywords: 'painting estimator, room painting cost, paint quantity estimator, professional paint calculator, FRELUX methodology',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        name: 'FRELUX Painting Estimator',
-        applicationCategory: 'CalculatorApplication',
-        operatingSystem: 'Web',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' },
-        ],
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: [
-          { '@type': 'Question', name: 'What is the FRELUX painting estimation methodology?', acceptedAnswer: { '@type': 'Answer', text: 'The FRELUX methodology calculates paint quantity based on room dimensions, ceiling area, openings, quality tiers, and surface conditions using admin-configured rates.' } },
-          { '@type': 'Question', name: 'Can I estimate paint for multiple rooms?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Add each room with its dimensions and conditions for a combined project estimate.' } },
-        ],
-      },
-    ],
-  } : null);
+export default function PaintingEstimator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
+  const { defaults: _calcDefaults, rules: defaultCalcRules } =
+    useCalcDefaults("painting");
+  const DEFAULT_CEILING_COLOUR =
+    ((
+      defaultCalcRules["ceiling_default_colour"]?.rule_value as Record<
+        string,
+        unknown
+      >
+    )?.colour as string) ?? "white";
+  const DEFAULT_COATS =
+    ((
+      defaultCalcRules["standard_coat_count"]?.rule_value as Record<
+        string,
+        unknown
+      >
+    )?.count as number) ?? 2;
+  useSeo(
+    !embedded
+      ? {
+          title:
+            "FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator",
+          description:
+            "Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.",
+          canonicalPath: "/painting-estimator",
+          ogType: "website",
+          keywords:
+            "painting estimator, room painting cost, paint quantity estimator, professional paint calculator, FRELUX methodology",
+          structuredDataArray: [
+            {
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "FRELUX Painting Estimator",
+              applicationCategory: "CalculatorApplication",
+              operatingSystem: "Web",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://freluxtools.netlify.app",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Painting Estimator",
+                  item: "https://freluxtools.netlify.app/painting-estimator",
+                },
+              ],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              mainEntity: [
+                {
+                  "@type": "Question",
+                  name: "What is the FRELUX painting estimation methodology?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "The FRELUX methodology calculates paint quantity based on room dimensions, ceiling area, openings, quality tiers, and surface conditions using admin-configured rates.",
+                  },
+                },
+                {
+                  "@type": "Question",
+                  name: "Can I estimate paint for multiple rooms?",
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: "Yes. Add each room with its dimensions and conditions for a combined project estimate.",
+                  },
+                },
+              ],
+            },
+          ],
+        }
+      : null,
+  );
 
-
-const mountedRef = useRef(true);
-    useEffect(() => { trackRecentTool('/painting-estimator', 'Painting Estimator', 'Calculator'); 
-    return () => { mountedRef.current = false; };
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    trackRecentTool("/painting-estimator", "Painting Estimator", "Calculator");
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   // ── State: Configuration data from DB ──
   const [products, setProducts] = useState<EstimationProduct[]>([]);
-  const [qualities, setQualities] = useState<Map<string, EstimationProductQuality[]>>(new Map());
+  const [qualities, setQualities] = useState<
+    Map<string, EstimationProductQuality[]>
+  >(new Map());
   const [prices, setPrices] = useState<Map<string, EstimationPrice>>(new Map());
-  const [calcRules, setCalcRules] = useState<Map<string, EstimationCalcRule>>(new Map());
-  const [colourConditions, setColourConditions] = useState<EstimationColourCondition[]>([]);
-  const [surfaceConditions, setSurfaceConditions] = useState<EstimationSurfaceCondition[]>([]);
-  const [productionRules, setProductionRules] = useState<ProductionRuleRow[]>([]);
+  const [calcRules, setCalcRules] = useState<Map<string, EstimationCalcRule>>(
+    new Map(),
+  );
+  const [colourConditions, setColourConditions] = useState<
+    EstimationColourCondition[]
+  >([]);
+  const [surfaceConditions, setSurfaceConditions] = useState<
+    EstimationSurfaceCondition[]
+  >([]);
+  const [productionRules, setProductionRules] = useState<ProductionRuleRow[]>(
+    [],
+  );
   const [calcVersionId, setCalcVersionId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [configWarnings, setConfigWarnings] = useState<string[]>([]);
 
   // ── State: Project input ──
-  const [projectDescription, setProjectDescription] = useState('');
-  const [customerLocation, setCustomerLocation] = useState<'owerri' | 'outside_owerri' | 'unknown'>('unknown');
+  const [projectDescription, setProjectDescription] = useState("");
+  const [customerLocation, setCustomerLocation] = useState<
+    "owerri" | "outside_owerri" | "unknown"
+  >("unknown");
   const [addPrimer] = useState(false);
-  const [rooms, setRooms] = useState<PaintingRoomInput[]>([createDefaultRoom()]);
+  const [rooms, setRooms] = useState<PaintingRoomInput[]>([
+    createDefaultRoom(),
+  ]);
   const [expandedRoom, setExpandedRoom] = useState(0);
   const [showCalculation, setShowCalculation] = useState(false);
 
   // ── State: Result ──
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
   // Engine features hook (additive — existing logic unchanged)
-  const engine = useEngineFeatures({ calculatorType: 'painting' });
+  const engine = useEngineFeatures({ calculatorType: "painting" });
   const [alreadyHave, setAlreadyHave] = useState(0);
   const [calculating, setCalculating] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -168,13 +265,15 @@ const mountedRef = useRef(true);
       try {
         // Fetch products (paint categories only: emulsion, matt, satin)
         const { data: allProducts } = await fetchEstimationProducts(true);
-        const paintProducts = (allProducts ?? []).filter(
-          (p) => PAINT_CATEGORIES.includes(p.category)
+        const paintProducts = (allProducts ?? []).filter((p) =>
+          PAINT_CATEGORIES.includes(p.category),
         );
         setProducts(paintProducts);
 
         if (paintProducts.length === 0) {
-          warnings.push('No paint products configured. Admin must configure Emulsion, Matt, and Satin products before estimates can be calculated.');
+          warnings.push(
+            "No paint products configured. Admin must configure Emulsion, Matt, and Satin products before estimates can be calculated.",
+          );
         }
 
         // Fetch quality levels for each product
@@ -183,9 +282,11 @@ const mountedRef = useRef(true);
           const { data: quals } = await fetchProductQualityLevels(product.id);
           qualMap.set(product.id, quals ?? []);
           // Check if coverage is configured
-          for (const q of (quals ?? [])) {
+          for (const q of quals ?? []) {
             if (q.coverage === null || q.coverage === undefined) {
-              warnings.push(`Coverage not configured for ${product.name}, ${q.name}. Accurate calculation requires Admin coverage configuration.`);
+              warnings.push(
+                `Coverage not configured for ${product.name}, ${q.name}. Accurate calculation requires Admin coverage configuration.`,
+              );
             }
           }
         }
@@ -196,19 +297,22 @@ const mountedRef = useRef(true);
         for (const product of paintProducts) {
           const quals = qualMap.get(product.id) ?? [];
           for (const q of quals) {
-            const { data: price } = await fetchActivePrice('quality', q.id);
+            const { data: price } = await fetchActivePrice("quality", q.id);
             if (price) priceMap.set(q.id, price);
           }
           // Also try product-level price
-          const { data: prodPrice } = await fetchActivePrice('product', product.id);
+          const { data: prodPrice } = await fetchActivePrice(
+            "product",
+            product.id,
+          );
           if (prodPrice) priceMap.set(product.id, prodPrice);
         }
         setPrices(priceMap);
 
         // Fetch calc rules for painting
-        const { data: rules } = await fetchCalcRules('painting');
+        const { data: rules } = await fetchCalcRules("painting");
         const ruleMap = new Map<string, EstimationCalcRule>();
-        for (const rule of (rules ?? [])) {
+        for (const rule of rules ?? []) {
           ruleMap.set(rule.rule_key, rule);
         }
         setCalcRules(ruleMap);
@@ -221,21 +325,21 @@ const mountedRef = useRef(true);
 
         // Fetch production rules
         const { data: prodRules, error: prodError } = await supabase
-          .from('estimation_production_rules')
-          .select('*')
-          .eq('is_active', true)
-          .order('sort_order', { ascending: true });
+          .from("estimation_production_rules")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true });
         if (!prodError && prodRules) {
           setProductionRules(prodRules as ProductionRuleRow[]);
         }
 
         // Fetch calc version
         const { data: versions } = await supabase
-          .from('estimation_calc_versions')
-          .select('*')
-          .eq('calculator_type', 'painting')
-          .eq('is_active', true)
-          .order('version_number', { ascending: false })
+          .from("estimation_calc_versions")
+          .select("*")
+          .eq("calculator_type", "painting")
+          .eq("is_active", true)
+          .order("version_number", { ascending: false })
           .limit(1);
         if (versions && versions.length > 0) {
           setCalcVersionId(versions[0].id);
@@ -243,7 +347,9 @@ const mountedRef = useRef(true);
 
         setConfigWarnings(warnings);
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : 'Failed to load configuration.');
+        setLoadError(
+          err instanceof Error ? err.message : "Failed to load configuration.",
+        );
       } finally {
         setLoading(false);
       }
@@ -257,19 +363,19 @@ const mountedRef = useRef(true);
   function createDefaultRoom(): PaintingRoomInput {
     return {
       room_id: `room-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      room_name: 'Room 1',
+      room_name: "Room 1",
       length: 10,
       breadth: 12,
       height: 8,
-      unit: 'feet',
+      unit: "feet",
       doors: [{ quantity: 1, width: 3, height: 7 }],
       windows: [{ quantity: 1, width: 4, height: 4 }],
       doors_unknown: false,
       windows_unknown: false,
-      product_id: '',
-      quality_id: '',
-      colour_condition_key: 'new_unpainted',
-      surface_condition_key: 'new_plastered',
+      product_id: "",
+      quality_id: "",
+      colour_condition_key: "new_unpainted",
+      surface_condition_key: "new_plastered",
       coats: DEFAULT_COATS,
       include_ceiling: false,
       ceiling_colour: DEFAULT_CEILING_COLOUR,
@@ -284,65 +390,98 @@ const mountedRef = useRef(true);
     });
     setExpandedRoom(rooms.length);
     setResult(null);
-  }, [rooms.length]);
+  }, [rooms.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const removeRoom = useCallback((index: number) => {
     setRooms((prev) => prev.filter((_, i) => i !== index));
     setResult(null);
   }, []);
 
-  const updateRoom = useCallback((index: number, updates: Partial<PaintingRoomInput>) => {
-    setRooms((prev) => prev.map((r, i) => (i === index ? { ...r, ...updates } : r)));
-    setResult(null);
-  }, []);
+  const updateRoom = useCallback(
+    (index: number, updates: Partial<PaintingRoomInput>) => {
+      setRooms((prev) =>
+        prev.map((r, i) => (i === index ? { ...r, ...updates } : r)),
+      );
+      setResult(null);
+    },
+    [],
+  );
 
-  const updateDoor = useCallback((roomIndex: number, doorIndex: number, updates: Partial<OpeningInput>) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      const doors = r.doors.map((d, j) => (j === doorIndex ? { ...d, ...updates } : d));
-      return { ...r, doors };
-    }));
-    setResult(null);
-  }, []);
+  const updateDoor = useCallback(
+    (roomIndex: number, doorIndex: number, updates: Partial<OpeningInput>) => {
+      setRooms((prev) =>
+        prev.map((r, i) => {
+          if (i !== roomIndex) return r;
+          const doors = r.doors.map((d, j) =>
+            j === doorIndex ? { ...d, ...updates } : d,
+          );
+          return { ...r, doors };
+        }),
+      );
+      setResult(null);
+    },
+    [],
+  );
 
   const addDoor = useCallback((roomIndex: number) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      return { ...r, doors: [...r.doors, { quantity: 1, width: 3, height: 7 }] };
-    }));
+    setRooms((prev) =>
+      prev.map((r, i) => {
+        if (i !== roomIndex) return r;
+        return {
+          ...r,
+          doors: [...r.doors, { quantity: 1, width: 3, height: 7 }],
+        };
+      }),
+    );
     setResult(null);
   }, []);
 
   const removeDoor = useCallback((roomIndex: number, doorIndex: number) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      return { ...r, doors: r.doors.filter((_, j) => j !== doorIndex) };
-    }));
+    setRooms((prev) =>
+      prev.map((r, i) => {
+        if (i !== roomIndex) return r;
+        return { ...r, doors: r.doors.filter((_, j) => j !== doorIndex) };
+      }),
+    );
     setResult(null);
   }, []);
 
-  const updateWindow = useCallback((roomIndex: number, winIndex: number, updates: Partial<OpeningInput>) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      const windows = r.windows.map((w, j) => (j === winIndex ? { ...w, ...updates } : w));
-      return { ...r, windows };
-    }));
-    setResult(null);
-  }, []);
+  const updateWindow = useCallback(
+    (roomIndex: number, winIndex: number, updates: Partial<OpeningInput>) => {
+      setRooms((prev) =>
+        prev.map((r, i) => {
+          if (i !== roomIndex) return r;
+          const windows = r.windows.map((w, j) =>
+            j === winIndex ? { ...w, ...updates } : w,
+          );
+          return { ...r, windows };
+        }),
+      );
+      setResult(null);
+    },
+    [],
+  );
 
   const addWindow = useCallback((roomIndex: number) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      return { ...r, windows: [...r.windows, { quantity: 1, width: 4, height: 4 }] };
-    }));
+    setRooms((prev) =>
+      prev.map((r, i) => {
+        if (i !== roomIndex) return r;
+        return {
+          ...r,
+          windows: [...r.windows, { quantity: 1, width: 4, height: 4 }],
+        };
+      }),
+    );
     setResult(null);
   }, []);
 
   const removeWindow = useCallback((roomIndex: number, winIndex: number) => {
-    setRooms((prev) => prev.map((r, i) => {
-      if (i !== roomIndex) return r;
-      return { ...r, windows: r.windows.filter((_, j) => j !== winIndex) };
-    }));
+    setRooms((prev) =>
+      prev.map((r, i) => {
+        if (i !== roomIndex) return r;
+        return { ...r, windows: r.windows.filter((_, j) => j !== winIndex) };
+      }),
+    );
     setResult(null);
   }, []);
 
@@ -369,7 +508,7 @@ const mountedRef = useRef(true);
 
     const projectInput: PaintingProjectInput = {
       rooms,
-      currency: 'NGN',
+      currency: "NGN",
       user_id: null,
       client_hash: null,
       project_description: projectDescription,
@@ -388,19 +527,34 @@ const mountedRef = useRef(true);
       calcVersionId,
     };
 
-    const calcResult = monitoredCalc('Painting Estimator', () => calculatePaintingProject(projectInput, config));
+    const calcResult = monitoredCalc("Painting Estimator", () =>
+      calculatePaintingProject(projectInput, config),
+    );
     setResult(calcResult);
     setShowCalculation(false);
     setCalculating(false);
 
-    track('painting_estimator_calculated', {
+    track("painting_estimator_calculated", {
       rooms: rooms.length,
       total_buckets: calcResult.combined_practical_buckets,
       total_cost: calcResult.total_material_cost,
     });
-    trackCalculation('painting');
-    trackCalculationWithRewards('painting', 'Painting Estimator');
-  }, [rooms, products, qualities, prices, calcRules, colourConditions, surfaceConditions, productionRules, calcVersionId, projectDescription, customerLocation, addPrimer]);
+    trackCalculation("painting");
+    trackCalculationWithRewards("painting", "Painting Estimator");
+  }, [
+    rooms,
+    products,
+    qualities,
+    prices,
+    calcRules,
+    colourConditions,
+    surfaceConditions,
+    productionRules,
+    calcVersionId,
+    projectDescription,
+    customerLocation,
+    addPrimer,
+  ]);
 
   // =========================================================
   // Save estimate
@@ -416,10 +570,13 @@ const mountedRef = useRef(true);
         estimate_ref: estimateRef,
         user_id: null,
         client_hash: null,
-        calculator_type: 'painting',
-        project_description: projectDescription || 'Painting Estimate',
-        inputs: { rooms, customerLocation, addPrimer } as Record<string, unknown>,
-        calculation_method: 'room_based',
+        calculator_type: "painting",
+        project_description: projectDescription || "Painting Estimate",
+        inputs: { rooms, customerLocation, addPrimer } as Record<
+          string,
+          unknown
+        >,
+        calculation_method: "room_based",
         calc_version_id: calcVersionId,
         calculated_quantities: {
           combined_theoretical_litres: result.combined_theoretical_litres,
@@ -434,15 +591,16 @@ const mountedRef = useRef(true);
         } as Record<string, unknown>,
         total_material_cost: result.total_material_cost,
         currency: result.currency,
-        labour_status: 'not_included',
+        labour_status: "not_included",
         warnings: result.warnings,
         recommendations: result.recommendations,
         notes: null,
-        status: 'calculated',
+        status: "calculated",
       });
 
       if (estError || !estimate) {
-        if (import.meta.env.DEV) console.error('Failed to save estimate:', estError);
+        if (import.meta.env.DEV)
+          console.error("Failed to save estimate:", estError);
         return;
       }
 
@@ -464,7 +622,7 @@ const mountedRef = useRef(true);
           total_price: item.total_price,
           price_snapshot: item.price_snapshot,
           calculation_source: item.calculation_source,
-          adjustment_status: 'none',
+          adjustment_status: "none",
           notes: item.notes ?? null,
           sort_order: i,
         });
@@ -484,33 +642,53 @@ const mountedRef = useRef(true);
 
       // Audit log
       await createAuditLog({
-        entity_type: 'estimate',
+        entity_type: "estimate",
         entity_id: estimate.id,
-        action: 'create',
+        action: "create",
         old_value: null,
-        new_value: { estimate_ref: estimateRef, calculator_type: 'painting' },
+        new_value: { estimate_ref: estimateRef, calculator_type: "painting" },
       });
 
       // Also save to user projects (local)
       await saveUserProject(
-        projectDescription || 'Painting Estimate',
-        'custom',
+        projectDescription || "Painting Estimate",
+        "custom",
         { rooms, result, estimateRef } as Record<string, unknown>,
-        'FRELUX Painting Estimator'
+        "FRELUX Painting Estimator",
       );
 
       setSaved(true);
     } catch (err) {
-      if (import.meta.env.DEV) console.error('Save failed:', err);
+      if (import.meta.env.DEV) console.error("Save failed:", err);
     }
-  }, [result, rooms, projectDescription, customerLocation, addPrimer, calcVersionId, adjustments]);
+  }, [
+    result,
+    rooms,
+    projectDescription,
+    customerLocation,
+    addPrimer,
+    calcVersionId,
+    adjustments,
+  ]);
 
   // =========================================================
   // Manual professional adjustment
   // =========================================================
-  const addAdjustment = useCallback((roomIndex: number, fieldName: string, originalValue: string, adjustedValue: string, reason: string) => {
-    setAdjustments((prev) => [...prev, { roomIndex, fieldName, originalValue, adjustedValue, reason }]);
-  }, []);
+  const addAdjustment = useCallback(
+    (
+      roomIndex: number,
+      fieldName: string,
+      originalValue: string,
+      adjustedValue: string,
+      reason: string,
+    ) => {
+      setAdjustments((prev) => [
+        ...prev,
+        { roomIndex, fieldName, originalValue, adjustedValue, reason },
+      ]);
+    },
+    [],
+  );
 
   // =========================================================
   // Render
@@ -523,7 +701,10 @@ const mountedRef = useRef(true);
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
           subtitle="Professional room-based paint quantity and cost estimation."
-        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
+          breadcrumbs={[
+            { label: "Calculators", path: "/paint-calculator" },
+            { label: "Painting Estimator" },
+          ]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="flex items-center justify-center gap-3 text-neutral-500">
@@ -542,12 +723,17 @@ const mountedRef = useRef(true);
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
           subtitle="Professional room-based paint quantity and cost estimation."
-        breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
+          breadcrumbs={[
+            { label: "Calculators", path: "/paint-calculator" },
+            { label: "Painting Estimator" },
+          ]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
             <AlertCircle className="mx-auto h-8 w-8 text-red-500" />
-            <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400">Failed to load</p>
+            <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400">
+              Failed to load
+            </p>
             <p className="mt-1 text-xs text-red-500">{loadError}</p>
           </div>
         </div>
@@ -561,7 +747,10 @@ const mountedRef = useRef(true);
         eyebrow="FRELUX Estimator"
         title="Painting Estimator"
         subtitle="Professional room-based paint quantity and cost estimation using FRELUX methodology."
-      breadcrumbs={[{ label: 'Calculators', path: '/paint-calculator' }, { label: 'Painting Estimator' }]}
+        breadcrumbs={[
+          { label: "Calculators", path: "/paint-calculator" },
+          { label: "Painting Estimator" },
+        ]}
       />
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         {/* Configuration warnings */}
@@ -570,10 +759,17 @@ const mountedRef = useRef(true);
             <div className="flex items-start gap-3">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
               <div>
-                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Configuration Required</p>
+                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                  Configuration Required
+                </p>
                 <ul className="mt-1 space-y-1">
                   {configWarnings.map((w, i) => (
-                    <li key={i} className="text-xs text-amber-600 dark:text-amber-500">{w}</li>
+                    <li
+                      key={i}
+                      className="text-xs text-amber-600 dark:text-amber-500"
+                    >
+                      {w}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -589,7 +785,9 @@ const mountedRef = useRef(true);
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Project Description</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                Project Description
+              </span>
               <input
                 type="text"
                 value={projectDescription}
@@ -599,10 +797,16 @@ const mountedRef = useRef(true);
               />
             </label>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Customer Location</span>
+              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                Customer Location
+              </span>
               <select
                 value={customerLocation}
-                onChange={(e) => setCustomerLocation(e.target.value as 'owerri' | 'outside_owerri' | 'unknown')}
+                onChange={(e) =>
+                  setCustomerLocation(
+                    e.target.value as "owerri" | "outside_owerri" | "unknown",
+                  )
+                }
                 className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
               >
                 <option value="unknown">Select location…</option>
@@ -620,7 +824,9 @@ const mountedRef = useRef(true);
             room={room}
             roomIndex={roomIndex}
             isExpanded={expandedRoom === roomIndex}
-            onToggle={() => setExpandedRoom(expandedRoom === roomIndex ? -1 : roomIndex)}
+            onToggle={() =>
+              setExpandedRoom(expandedRoom === roomIndex ? -1 : roomIndex)
+            }
             onUpdate={(updates) => updateRoom(roomIndex, updates)}
             onRemove={() => removeRoom(roomIndex)}
             canRemove={rooms.length > 1}
@@ -653,12 +859,21 @@ const mountedRef = useRef(true);
             disabled={calculating}
             className="btn-primary btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
           >
-            {calculating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calculator className="h-4 w-4" />}
-            {calculating ? 'Calculating…' : 'Calculate Estimate'}
+            {calculating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Calculator className="h-4 w-4" />
+            )}
+            {calculating ? "Calculating…" : "Calculate Estimate"}
           </button>
           {result && (
             <button
-              onClick={() => { setRooms([createDefaultRoom()]); setResult(null); setSaved(false); setAdjustments([]); }}
+              onClick={() => {
+                setRooms([createDefaultRoom()]);
+                setResult(null);
+                setSaved(false);
+                setAdjustments([]);
+              }}
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
             >
               <RotateCcw className="h-4 w-4" />
@@ -668,25 +883,69 @@ const mountedRef = useRef(true);
         </div>
 
         {/* Results */}
-        {result && <EstimateResult result={result} showCalculation={showCalculation} onToggleCalculation={() => setShowCalculation(!showCalculation)} onSave={handleSave} saved={saved} onAddAdjustment={addAdjustment} engine={engine} alreadyHave={alreadyHave} onAlreadyHaveChange={setAlreadyHave} />}
+        {result && (
+          <EstimateResult
+            result={result}
+            showCalculation={showCalculation}
+            onToggleCalculation={() => setShowCalculation(!showCalculation)}
+            onSave={handleSave}
+            saved={saved}
+            onAddAdjustment={addAdjustment}
+            engine={engine}
+            alreadyHave={alreadyHave}
+            onAlreadyHaveChange={setAlreadyHave}
+          />
+        )}
       </div>
 
       <PaintingEstimatorSeo />
 
-      <FaqSection faqs={[
-        { question: "What is the FRELUX painting estimation methodology?", answer: <span>The FRELUX methodology calculates paint quantity based on room-by-room dimensions, ceiling area, door and window deductions, paint quality tiers, colour conditions, and surface conditions. It uses admin-configured coverage rates and product prices for accurate estimates.</span> },
-        { question: "Can I estimate paint for multiple rooms?", answer: <span>Yes. The Painting Estimator supports multiple rooms. Add each room with its dimensions and conditions to get a combined project estimate.</span> },
-        { question: "Does the Painting Estimator include labour costs?", answer: <span>Yes. The Painting Estimator includes configurable labour rates alongside material costs for a complete project budget estimate.</span> },
-      ]} />
+      <FaqSection
+        faqs={[
+          {
+            question: "What is the FRELUX painting estimation methodology?",
+            answer: (
+              <span>
+                The FRELUX methodology calculates paint quantity based on
+                room-by-room dimensions, ceiling area, door and window
+                deductions, paint quality tiers, colour conditions, and surface
+                conditions. It uses admin-configured coverage rates and product
+                prices for accurate estimates.
+              </span>
+            ),
+          },
+          {
+            question: "Can I estimate paint for multiple rooms?",
+            answer: (
+              <span>
+                Yes. The Painting Estimator supports multiple rooms. Add each
+                room with its dimensions and conditions to get a combined
+                project estimate.
+              </span>
+            ),
+          },
+          {
+            question: "Does the Painting Estimator include labour costs?",
+            answer: (
+              <span>
+                Yes. The Painting Estimator includes configurable labour rates
+                alongside material costs for a complete project budget estimate.
+              </span>
+            ),
+          },
+        ]}
+      />
 
-      <RelatedTools links={[
-        CALC_LINKS.paintCalculator,
-        CALC_LINKS.buildToRoof,
-        CALC_LINKS.finishEstimator,
-        CALC_LINKS.finishEstimator,
-        CALC_LINKS.buildToRoof,
-        CALC_LINKS.imageEstimator,
-      ]} />
+      <RelatedTools
+        links={[
+          CALC_LINKS.paintCalculator,
+          CALC_LINKS.buildToRoof,
+          CALC_LINKS.finishEstimator,
+          CALC_LINKS.finishEstimator,
+          CALC_LINKS.buildToRoof,
+          CALC_LINKS.imageEstimator,
+        ]}
+      />
     </>
   );
 }
@@ -696,10 +955,23 @@ const mountedRef = useRef(true);
 // =========================================================
 
 function RoomCard({
-  room, roomIndex, isExpanded, onToggle, onUpdate, onRemove, canRemove,
-  products, qualities, colourConditions, surfaceConditions,
-  onUpdateDoor, onAddDoor, onRemoveDoor,
-  onUpdateWindow, onAddWindow, onRemoveWindow,
+  room,
+  roomIndex,
+  isExpanded,
+  onToggle,
+  onUpdate,
+  onRemove,
+  canRemove,
+  products,
+  qualities,
+  colourConditions,
+  surfaceConditions,
+  onUpdateDoor,
+  onAddDoor,
+  onRemoveDoor,
+  onUpdateWindow,
+  onAddWindow,
+  onRemoveWindow,
 }: {
   room: PaintingRoomInput;
   roomIndex: number;
@@ -736,27 +1008,37 @@ function RoomCard({
             <input
               type="text"
               value={room.room_name}
-              onChange={(e) => { e.stopPropagation(); onUpdate({ room_name: e.target.value }); }}
+              onChange={(e) => {
+                e.stopPropagation();
+                onUpdate({ room_name: e.target.value });
+              }}
               onClick={(e) => e.stopPropagation()}
               className="rounded border-transparent bg-transparent text-base font-semibold text-neutral-900 focus:outline-none focus:ring-1 focus:ring-brand-purple dark:text-white"
               placeholder="Room name"
             />
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
               {room.length} × {room.breadth} × {room.height} {room.unit}
-              {room.include_ceiling ? ' • Ceiling' : ' • Walls only'}
+              {room.include_ceiling ? " • Ceiling" : " • Walls only"}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {canRemove && (
             <button
-              onClick={(e) => { e.stopPropagation(); onRemove(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
               className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
             >
               <Trash2 className="h-4 w-4" />
             </button>
           )}
-          {isExpanded ? <ChevronUp className="h-5 w-5 text-neutral-400" /> : <ChevronDown className="h-5 w-5 text-neutral-400" />}
+          {isExpanded ? (
+            <ChevronUp className="h-5 w-5 text-neutral-400" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-neutral-400" />
+          )}
         </div>
       </div>
 
@@ -764,16 +1046,38 @@ function RoomCard({
       {isExpanded && (
         <div className="border-t border-neutral-100 px-5 py-5 dark:border-white/5">
           {/* Dimensions */}
-          <Section icon={<Square className="h-4 w-4" />} title="Room Dimensions">
+          <Section
+            icon={<Square className="h-4 w-4" />}
+            title="Room Dimensions"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
-              <NumberField label="Length" value={room.length} onChange={(v) => onUpdate({ length: v })} unit={room.unit} />
-              <NumberField label="Breadth" value={room.breadth} onChange={(v) => onUpdate({ breadth: v })} unit={room.unit} />
-              <NumberField label="Wall Height" value={room.height} onChange={(v) => onUpdate({ height: v })} unit={room.unit} />
+              <NumberField
+                label="Length"
+                value={room.length}
+                onChange={(v) => onUpdate({ length: v })}
+                unit={room.unit}
+              />
+              <NumberField
+                label="Breadth"
+                value={room.breadth}
+                onChange={(v) => onUpdate({ breadth: v })}
+                unit={room.unit}
+              />
+              <NumberField
+                label="Wall Height"
+                value={room.height}
+                onChange={(v) => onUpdate({ height: v })}
+                unit={room.unit}
+              />
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">Unit</span>
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                  Unit
+                </span>
                 <select
                   value={room.unit}
-                  onChange={(e) => onUpdate({ unit: e.target.value as 'feet' | 'meters' })}
+                  onChange={(e) =>
+                    onUpdate({ unit: e.target.value as "feet" | "meters" })
+                  }
                   className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-2 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
                 >
                   <option value="feet">Feet (ft)</option>
@@ -792,20 +1096,41 @@ function RoomCard({
                 onChange={(e) => onUpdate({ doors_unknown: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-400">I don't know the door dimensions</span>
+              <span className="text-neutral-500 dark:text-neutral-400">
+                I don't know the door dimensions
+              </span>
             </label>
-            {!room.doors_unknown && room.doors.map((door, di) => (
-              <div key={di} className="mb-2 flex items-end gap-2">
-                <NumberField label={di === 0 ? "Qty" : ""} value={door.quantity} onChange={(v) => onUpdateDoor(di, { quantity: v })} />
-                <NumberField label={di === 0 ? "Width (ft)" : ""} value={door.width} onChange={(v) => onUpdateDoor(di, { width: v })} />
-                <NumberField label={di === 0 ? "Height (ft)" : ""} value={door.height} onChange={(v) => onUpdateDoor(di, { height: v })} />
-                <button onClick={() => onRemoveDoor(di)} className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
+            {!room.doors_unknown &&
+              room.doors.map((door, di) => (
+                <div key={di} className="mb-2 flex items-end gap-2">
+                  <NumberField
+                    label={di === 0 ? "Qty" : ""}
+                    value={door.quantity}
+                    onChange={(v) => onUpdateDoor(di, { quantity: v })}
+                  />
+                  <NumberField
+                    label={di === 0 ? "Width (ft)" : ""}
+                    value={door.width}
+                    onChange={(v) => onUpdateDoor(di, { width: v })}
+                  />
+                  <NumberField
+                    label={di === 0 ? "Height (ft)" : ""}
+                    value={door.height}
+                    onChange={(v) => onUpdateDoor(di, { height: v })}
+                  />
+                  <button
+                    onClick={() => onRemoveDoor(di)}
+                    className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
             {!room.doors_unknown && (
-              <button onClick={onAddDoor} className="text-xs font-semibold text-brand-purple hover:underline">
+              <button
+                onClick={onAddDoor}
+                className="text-xs font-semibold text-brand-purple hover:underline"
+              >
                 + Add door type
               </button>
             )}
@@ -817,50 +1142,87 @@ function RoomCard({
               <input
                 type="checkbox"
                 checked={room.windows_unknown}
-                onChange={(e) => onUpdate({ windows_unknown: e.target.checked })}
+                onChange={(e) =>
+                  onUpdate({ windows_unknown: e.target.checked })
+                }
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-400">I don't know the window dimensions</span>
+              <span className="text-neutral-500 dark:text-neutral-400">
+                I don't know the window dimensions
+              </span>
             </label>
-            {!room.windows_unknown && room.windows.map((win, wi) => (
-              <div key={wi} className="mb-2 flex items-end gap-2">
-                <NumberField label={wi === 0 ? "Qty" : ""} value={win.quantity} onChange={(v) => onUpdateWindow(wi, { quantity: v })} />
-                <NumberField label={wi === 0 ? "Width (ft)" : ""} value={win.width} onChange={(v) => onUpdateWindow(wi, { width: v })} />
-                <NumberField label={wi === 0 ? "Height (ft)" : ""} value={win.height} onChange={(v) => onUpdateWindow(wi, { height: v })} />
-                <button onClick={() => onRemoveWindow(wi)} className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
+            {!room.windows_unknown &&
+              room.windows.map((win, wi) => (
+                <div key={wi} className="mb-2 flex items-end gap-2">
+                  <NumberField
+                    label={wi === 0 ? "Qty" : ""}
+                    value={win.quantity}
+                    onChange={(v) => onUpdateWindow(wi, { quantity: v })}
+                  />
+                  <NumberField
+                    label={wi === 0 ? "Width (ft)" : ""}
+                    value={win.width}
+                    onChange={(v) => onUpdateWindow(wi, { width: v })}
+                  />
+                  <NumberField
+                    label={wi === 0 ? "Height (ft)" : ""}
+                    value={win.height}
+                    onChange={(v) => onUpdateWindow(wi, { height: v })}
+                  />
+                  <button
+                    onClick={() => onRemoveWindow(wi)}
+                    className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
             {!room.windows_unknown && (
-              <button onClick={onAddWindow} className="text-xs font-semibold text-brand-purple hover:underline">
+              <button
+                onClick={onAddWindow}
+                className="text-xs font-semibold text-brand-purple hover:underline"
+              >
                 + Add window type
               </button>
             )}
           </Section>
 
           {/* Paint selection */}
-          <Section icon={<Paintbrush className="h-4 w-4" />} title="Paint Type & Quality">
+          <Section
+            icon={<Paintbrush className="h-4 w-4" />}
+            title="Paint Type & Quality"
+          >
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">Paint Type</span>
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                  Paint Type
+                </span>
                 <select
                   value={room.product_id}
                   onChange={(e) => {
                     const productId = e.target.value;
                     const quals = qualities.get(productId) ?? [];
-                    onUpdate({ product_id: productId, quality_id: quals[0]?.id ?? '' });
+                    onUpdate({
+                      product_id: productId,
+                      quality_id: quals[0]?.id ?? "",
+                    });
                   }}
                   className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
                 >
                   <option value="">Select paint type…</option>
-                  {products.filter(p => PAINT_CATEGORIES.includes(p.category)).map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
+                  {products
+                    .filter((p) => PAINT_CATEGORIES.includes(p.category))
+                    .map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
                 </select>
               </label>
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">Quality Level</span>
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                  Quality Level
+                </span>
                 <select
                   value={room.quality_id}
                   onChange={(e) => onUpdate({ quality_id: e.target.value })}
@@ -869,61 +1231,88 @@ function RoomCard({
                 >
                   <option value="">Select quality…</option>
                   {roomQualities.map((q) => (
-                    <option key={q.id} value={q.id}>{q.name}</option>
+                    <option key={q.id} value={q.id}>
+                      {q.name}
+                    </option>
                   ))}
                 </select>
               </label>
             </div>
-            {room.product_id && room.quality_id && (() => {
-              const q = roomQualities.find((qu) => qu.id === room.quality_id);
-              if (q && (q.coverage === null || q.coverage === undefined)) {
-                return (
-                  <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                    Coverage not configured for this quality. Admin must configure coverage before accurate calculation.
-                  </p>
-                );
-              }
-              return null;
-            })()}
+            {room.product_id &&
+              room.quality_id &&
+              (() => {
+                const q = roomQualities.find((qu) => qu.id === room.quality_id);
+                if (q && (q.coverage === null || q.coverage === undefined)) {
+                  return (
+                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                      Coverage not configured for this quality. Admin must
+                      configure coverage before accurate calculation.
+                    </p>
+                  );
+                }
+                return null;
+              })()}
           </Section>
 
           {/* Colour condition */}
-          <Section icon={<Palette className="h-4 w-4" />} title="Colour Condition">
+          <Section
+            icon={<Palette className="h-4 w-4" />}
+            title="Colour Condition"
+          >
             <select
               value={room.colour_condition_key}
-              onChange={(e) => onUpdate({ colour_condition_key: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ colour_condition_key: e.target.value })
+              }
               className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
             >
               {colourConditions.map((c) => (
-                <option key={c.id} value={c.condition_key}>{c.name}</option>
+                <option key={c.id} value={c.condition_key}>
+                  {c.name}
+                </option>
               ))}
             </select>
-            {colourConditions.find((c) => c.condition_key === room.colour_condition_key)?.requires_warning && (
+            {colourConditions.find(
+              (c) => c.condition_key === room.colour_condition_key,
+            )?.requires_warning && (
               <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                ⚠ Strong colour transition detected. Additional preparation or paint may be required. Professional adjustment recommended.
+                ⚠ Strong colour transition detected. Additional preparation or
+                paint may be required. Professional adjustment recommended.
               </p>
             )}
           </Section>
 
           {/* Surface condition */}
-          <Section icon={<Shield className="h-4 w-4" />} title="Surface Condition">
+          <Section
+            icon={<Shield className="h-4 w-4" />}
+            title="Surface Condition"
+          >
             <select
               value={room.surface_condition_key}
-              onChange={(e) => onUpdate({ surface_condition_key: e.target.value })}
+              onChange={(e) =>
+                onUpdate({ surface_condition_key: e.target.value })
+              }
               className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
             >
               {surfaceConditions.map((s) => (
-                <option key={s.id} value={s.condition_key}>{s.name}</option>
+                <option key={s.id} value={s.condition_key}>
+                  {s.name}
+                </option>
               ))}
             </select>
-            {surfaceConditions.find((s) => s.condition_key === room.surface_condition_key)?.requires_preparation && (
+            {surfaceConditions.find(
+              (s) => s.condition_key === room.surface_condition_key,
+            )?.requires_preparation && (
               <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                 ⚠ Surface preparation may be required before painting.
               </p>
             )}
-            {surfaceConditions.find((s) => s.condition_key === room.surface_condition_key)?.primer_recommended && (
+            {surfaceConditions.find(
+              (s) => s.condition_key === room.surface_condition_key,
+            )?.primer_recommended && (
               <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-                Primer/sealer recommended. You can add it separately in the preparation step.
+                Primer/sealer recommended. You can add it separately in the
+                preparation step.
               </p>
             )}
           </Section>
@@ -935,34 +1324,48 @@ function RoomCard({
                 <input
                   type="checkbox"
                   checked={room.include_ceiling}
-                  onChange={(e) => onUpdate({ include_ceiling: e.target.checked })}
+                  onChange={(e) =>
+                    onUpdate({ include_ceiling: e.target.checked })
+                  }
                   className="rounded"
                 />
-                <span className="text-neutral-700 dark:text-neutral-200">Include ceiling</span>
+                <span className="text-neutral-700 dark:text-neutral-200">
+                  Include ceiling
+                </span>
               </label>
               {room.include_ceiling && (
                 <label className="flex items-center gap-2 text-sm">
-                  <span className="text-neutral-500 dark:text-neutral-400">Ceiling colour:</span>
+                  <span className="text-neutral-500 dark:text-neutral-400">
+                    Ceiling colour:
+                  </span>
                   <select
                     value={room.ceiling_colour}
-                    onChange={(e) => onUpdate({ ceiling_colour: e.target.value })}
+                    onChange={(e) =>
+                      onUpdate({ ceiling_colour: e.target.value })
+                    }
                     className="rounded-lg border border-neutral-200 bg-white px-2 py-1 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
                   >
                     <option value="white">White (FRELUX default)</option>
-                    <option value="custom">Custom (requires configuration)</option>
+                    <option value="custom">
+                      Custom (requires configuration)
+                    </option>
                   </select>
                 </label>
               )}
             </div>
             {!room.include_ceiling && (
-              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Ceiling excluded, ceiling quantity = 0.</p>
+              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
+                Ceiling excluded, ceiling quantity = 0.
+              </p>
             )}
           </Section>
 
           {/* Coats */}
           <Section icon={<Layers className="h-4 w-4" />} title="Coats">
             <div className="flex items-center gap-3">
-              <label className="text-sm text-neutral-500 dark:text-neutral-400">Number of coats:</label>
+              <label className="text-sm text-neutral-500 dark:text-neutral-400">
+                Number of coats:
+              </label>
               <select
                 value={room.coats}
                 onChange={(e) => onUpdate({ coats: parseInt(e.target.value) })}
@@ -976,7 +1379,7 @@ function RoomCard({
           </Section>
         </div>
       )}
-        <RelatedToolsLinks />
+      <RelatedToolsLinks />
     </div>
   );
 }
@@ -986,15 +1389,28 @@ function RoomCard({
 // =========================================================
 
 function EstimateResult({
-  result, showCalculation, onToggleCalculation, onSave, saved, onAddAdjustment: _onAddAdjustment,
-  engine, alreadyHave, onAlreadyHaveChange,
+  result,
+  showCalculation,
+  onToggleCalculation,
+  onSave,
+  saved,
+  onAddAdjustment: _onAddAdjustment,
+  engine,
+  alreadyHave,
+  onAlreadyHaveChange,
 }: {
   result: PaintingEstimateResult;
   showCalculation: boolean;
   onToggleCalculation: () => void;
   onSave: () => void;
   saved: boolean;
-  onAddAdjustment: (roomIndex: number, fieldName: string, originalValue: string, adjustedValue: string, reason: string) => void;
+  onAddAdjustment: (
+    roomIndex: number,
+    fieldName: string,
+    originalValue: string,
+    adjustedValue: string,
+    reason: string,
+  ) => void;
   engine: ReturnType<typeof useEngineFeatures>;
   alreadyHave: number;
   onAlreadyHaveChange: (n: number) => void;
@@ -1007,10 +1423,17 @@ function EstimateResult({
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>
-              <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">Warnings & Recommendations</p>
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                Warnings & Recommendations
+              </p>
               <ul className="mt-1 space-y-1">
                 {result.warnings.map((w, i) => (
-                  <li key={i} className="text-xs text-amber-600 dark:text-amber-500">{w}</li>
+                  <li
+                    key={i}
+                    className="text-xs text-amber-600 dark:text-amber-500"
+                  >
+                    {w}
+                  </li>
                 ))}
               </ul>
             </div>
@@ -1020,31 +1443,103 @@ function EstimateResult({
 
       {/* Per-room results */}
       {result.rooms.map((room) => (
-        <div key={room.room_id} className="calc-card card overflow-hidden dark:border-white/5">
+        <div
+          key={room.room_id}
+          className="calc-card card overflow-hidden dark:border-white/5"
+        >
           <div className="bg-gradient-to-br from-brand-navy to-brand-purple px-5 py-4 text-white">
             <h3 className="text-base font-bold">{room.room_name}</h3>
             <p className="text-xs text-white/70">
-              {room.length_m.toFixed(2)} × {room.breadth_m.toFixed(2)} × {room.height_m.toFixed(2)} m
-              {' • '}{room.product?.name ?? 'N/A'} ({room.quality?.name ?? 'N/A'})
+              {room.length_m.toFixed(2)} × {room.breadth_m.toFixed(2)} ×{" "}
+              {room.height_m.toFixed(2)} m{" • "}
+              {room.product?.name ?? "N/A"} ({room.quality?.name ?? "N/A"})
             </p>
           </div>
           <div className="p-5">
             {/* Customer-facing summary — painter language */}
             <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
-                <div><span className="text-neutral-400 dark:text-neutral-500">Room Size:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.room_size}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Wall Height:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.wall_height}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Paint:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.paint}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Coats:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.coats}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Ceiling:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.ceiling}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Doors:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.doors}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Windows:</span> <span className="font-medium text-neutral-700 dark:text-neutral-200">{room.customer_summary.windows}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Requirement:</span> <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">{room.customer_summary.calculated_requirement}</span></div>
-                <div><span className="text-neutral-400 dark:text-neutral-500">Purchase:</span> <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">{room.customer_summary.practical_purchase}</span></div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Room Size:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.room_size}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Wall Height:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.wall_height}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Paint:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.paint}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Coats:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.coats}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Ceiling:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.ceiling}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Doors:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.doors}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Windows:
+                  </span>{" "}
+                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                    {room.customer_summary.windows}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Requirement:
+                  </span>{" "}
+                  <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
+                    {room.customer_summary.calculated_requirement}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Purchase:
+                  </span>{" "}
+                  <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
+                    {room.customer_summary.practical_purchase}
+                  </span>
+                </div>
               </div>
-              {room.customer_summary.material_cost !== 'Not configured' && (
+              {room.customer_summary.material_cost !== "Not configured" && (
                 <div className="mt-2 border-t border-neutral-200 pt-2 dark:border-white/10">
-                  <span className="text-neutral-400 dark:text-neutral-500">Material Cost:</span> <span className="font-bold text-neutral-900 dark:text-white">{room.customer_summary.material_cost}</span>
+                  <span className="text-neutral-400 dark:text-neutral-500">
+                    Material Cost:
+                  </span>{" "}
+                  <span className="font-bold text-neutral-900 dark:text-white">
+                    {room.customer_summary.material_cost}
+                  </span>
                 </div>
               )}
             </div>
@@ -1053,24 +1548,44 @@ function EstimateResult({
             {room.height_adjustment?.is_high && (
               <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 dark:border-amber-500/20 dark:bg-amber-500/10">
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  <span className="font-semibold">⚠ Height Notice:</span> {room.height_adjustment.message}
+                  <span className="font-semibold">⚠ Height Notice:</span>{" "}
+                  {room.height_adjustment.message}
                 </p>
               </div>
             )}
 
             {/* Professional detail stats (supplementary, not primary) */}
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
-              <StatBox label="Theoretical Qty" value={`${room.theoretical_total_litres.toFixed(2)} L`} highlight />
-              <StatBox label="Purchase Qty" value={`${room.practical_total_buckets} bucket(s)`} highlight />
-              <StatBox label="Net Wall Area" value={`${room.net_wall_area_m2.toFixed(2)} m²`} />
-              <StatBox label="Coverage" value={room.coverage_m2_per_liter ? `${room.coverage_m2_per_liter} m²/L` : 'N/A'} />
+              <StatBox
+                label="Theoretical Qty"
+                value={`${room.theoretical_total_litres.toFixed(2)} L`}
+                highlight
+              />
+              <StatBox
+                label="Purchase Qty"
+                value={`${room.practical_total_buckets} bucket(s)`}
+                highlight
+              />
+              <StatBox
+                label="Net Wall Area"
+                value={`${room.net_wall_area_m2.toFixed(2)} m²`}
+              />
+              <StatBox
+                label="Coverage"
+                value={
+                  room.coverage_m2_per_liter
+                    ? `${room.coverage_m2_per_liter} m²/L`
+                    : "N/A"
+                }
+              />
             </div>
 
             {/* Ceiling info */}
             {room.include_ceiling && (
               <div className="mt-3 rounded-lg bg-blue-50 px-4 py-2 dark:bg-blue-500/10">
                 <p className="text-xs text-blue-700 dark:text-blue-400">
-                  Ceiling: {room.ceiling_quantity_buckets} bucket(s) · {room.ceiling_colour} · Calculated separately
+                  Ceiling: {room.ceiling_quantity_buckets} bucket(s) ·{" "}
+                  {room.ceiling_colour} · Calculated separately
                 </p>
               </div>
             )}
@@ -1078,7 +1593,8 @@ function EstimateResult({
             {/* Leftover */}
             {room.leftover_litres > 0 && (
               <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-                Estimated remaining: {room.leftover_litres.toFixed(2)} L after theoretical requirement
+                Estimated remaining: {room.leftover_litres.toFixed(2)} L after
+                theoretical requirement
               </div>
             )}
 
@@ -1087,14 +1603,18 @@ function EstimateResult({
               <div className="mt-3 space-y-1">
                 {room.colour_condition && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    <span className="font-semibold">Colour condition:</span> {room.colour_condition.name}
-                    {room.colour_condition.requires_warning && ', professional adjustment recommended'}
+                    <span className="font-semibold">Colour condition:</span>{" "}
+                    {room.colour_condition.name}
+                    {room.colour_condition.requires_warning &&
+                      ", professional adjustment recommended"}
                   </p>
                 )}
                 {room.surface_condition && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    <span className="font-semibold">Surface condition:</span> {room.surface_condition.name}
-                    {room.surface_condition.primer_recommended && ', primer/sealer recommended'}
+                    <span className="font-semibold">Surface condition:</span>{" "}
+                    {room.surface_condition.name}
+                    {room.surface_condition.primer_recommended &&
+                      ", primer/sealer recommended"}
                   </p>
                 )}
               </div>
@@ -1103,14 +1623,25 @@ function EstimateResult({
             {/* Calculation steps */}
             {showCalculation && room.calculation_steps.length > 0 && (
               <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
-                <p className="mb-2 text-xs font-bold text-neutral-600 dark:text-neutral-300">How was this calculated?</p>
+                <p className="mb-2 text-xs font-bold text-neutral-600 dark:text-neutral-300">
+                  How was this calculated?
+                </p>
                 <div className="space-y-1">
                   {room.calculation_steps.map((step, si) => (
-                    <div key={si} className="flex justify-between gap-4 text-xs">
-                      <span className="text-neutral-500 dark:text-neutral-400">{step.label}</span>
+                    <div
+                      key={si}
+                      className="flex justify-between gap-4 text-xs"
+                    >
+                      <span className="text-neutral-500 dark:text-neutral-400">
+                        {step.label}
+                      </span>
                       <span className="text-right font-medium text-neutral-700 dark:text-neutral-200">
                         {step.value}
-                        {step.detail && <span className="block text-neutral-400 dark:text-neutral-500">{step.detail}</span>}
+                        {step.detail && (
+                          <span className="block text-neutral-400 dark:text-neutral-500">
+                            {step.detail}
+                          </span>
+                        )}
                       </span>
                     </div>
                   ))}
@@ -1129,50 +1660,84 @@ function EstimateResult({
         <div className="p-5 space-y-4">
           {/* Combined quantities */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
-            <StatBox label="Total Theoretical" value={`${result.combined_theoretical_litres.toFixed(2)} L`} />
-            <StatBox label="Total Theoretical" value={`${result.combined_theoretical_buckets.toFixed(2)} buckets`} />
-            <StatBox label="Total Purchase" value={`${result.combined_practical_buckets} buckets`} highlight />
+            <StatBox
+              label="Total Theoretical"
+              value={`${result.combined_theoretical_litres.toFixed(2)} L`}
+            />
+            <StatBox
+              label="Total Theoretical"
+              value={`${result.combined_theoretical_buckets.toFixed(2)} buckets`}
+            />
+            <StatBox
+              label="Total Purchase"
+              value={`${result.combined_practical_buckets} buckets`}
+              highlight
+            />
           </div>
 
           {result.combined_leftover_litres > 0 && (
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Estimated remaining after theoretical requirement: {result.combined_leftover_litres.toFixed(2)} L
+              Estimated remaining after theoretical requirement:{" "}
+              {result.combined_leftover_litres.toFixed(2)} L
             </p>
           )}
 
           {/* Production eligibility */}
-          <div className={classNames(
-            'rounded-lg p-3',
-            result.production_eligible
-              ? 'bg-green-50 dark:bg-green-500/10'
-              : 'bg-orange-50 dark:bg-orange-500/10'
-          )}>
+          <div
+            className={classNames(
+              "rounded-lg p-3",
+              result.production_eligible
+                ? "bg-green-50 dark:bg-green-500/10"
+                : "bg-orange-50 dark:bg-orange-500/10",
+            )}
+          >
             <p className="flex items-center gap-2 text-xs font-semibold">
               <MapPin className="h-4 w-4" />
               {result.production_eligible ? (
-                <span className="text-green-700 dark:text-green-400">FRELUX Production Available</span>
+                <span className="text-green-700 dark:text-green-400">
+                  FRELUX Production Available
+                </span>
               ) : (
-                <span className="text-orange-700 dark:text-orange-400">FRELUX Production: Minimum Not Met</span>
+                <span className="text-orange-700 dark:text-orange-400">
+                  FRELUX Production: Minimum Not Met
+                </span>
               )}
             </p>
-            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">{result.production_message}</p>
+            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
+              {result.production_message}
+            </p>
           </div>
 
           {/* Breakdown by paint type/quality */}
           {result.breakdown.length > 0 && (
             <div>
-              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Breakdown by Paint Type & Quality</h4>
+              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">
+                Breakdown by Paint Type & Quality
+              </h4>
               <div className="space-y-2">
                 {result.breakdown.map((entry, i) => (
-                  <div key={i} className="flex flex-wrap justify-between gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-white/5">
+                  <div
+                    key={i}
+                    className="flex flex-wrap justify-between gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-white/5"
+                  >
                     <div>
-                      <span className="font-semibold text-neutral-700 dark:text-neutral-200">{entry.label}</span>
-                      <span className="ml-2 text-neutral-400 dark:text-neutral-500">{entry.room_count} room(s)</span>
+                      <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+                        {entry.label}
+                      </span>
+                      <span className="ml-2 text-neutral-400 dark:text-neutral-500">
+                        {entry.room_count} room(s)
+                      </span>
                     </div>
                     <div className="flex gap-4">
-                      <span className="text-neutral-500 dark:text-neutral-400">{entry.theoretical_litres.toFixed(2)} L theoretical</span>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-200">{entry.practical_buckets} buckets</span>
-                      <span className="font-semibold text-neutral-900 dark:text-white">{formatCurrency(entry.material_cost, result.currency)}</span>
+                      <span className="text-neutral-500 dark:text-neutral-400">
+                        {entry.theoretical_litres.toFixed(2)} L theoretical
+                      </span>
+                      <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                        {entry.practical_buckets} buckets
+                      </span>
+                      <span className="font-semibold text-neutral-900 dark:text-white">
+                        {formatCurrency(entry.material_cost, result.currency)}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -1188,17 +1753,28 @@ function EstimateResult({
           {/* Material cost */}
           {result.line_items.length > 0 && (
             <div>
-              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">Material Cost Breakdown</h4>
+              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">
+                Material Cost Breakdown
+              </h4>
               <div className="space-y-2">
                 {result.line_items.map((item, i) => (
                   <div key={i} className="flex justify-between gap-4 text-xs">
                     <div>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-200">{item.item_name}</span>
+                      <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                        {item.item_name}
+                      </span>
                       <span className="block text-neutral-400 dark:text-neutral-500">
-                        {item.practical_purchase_qty} L × {formatCurrency(item.unit_price, item.price_snapshot.currency ?? 'NGN')}/L
+                        {item.practical_purchase_qty} L ×{" "}
+                        {formatCurrency(
+                          item.unit_price,
+                          item.price_snapshot.currency ?? "NGN",
+                        )}
+                        /L
                       </span>
                     </div>
-                    <span className="font-semibold text-neutral-900 dark:text-white">{formatCurrency(item.total_price, result.currency)}</span>
+                    <span className="font-semibold text-neutral-900 dark:text-white">
+                      {formatCurrency(item.total_price, result.currency)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -1208,30 +1784,44 @@ function EstimateResult({
           {/* Total */}
           <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
             <div className="flex justify-between text-sm">
-              <span className="font-semibold text-neutral-600 dark:text-neutral-300">Estimated Material Cost</span>
-              <span className="text-lg font-bold text-brand-purple">{formatCurrency(result.total_material_cost, result.currency)}</span>
+              <span className="font-semibold text-neutral-600 dark:text-neutral-300">
+                Estimated Material Cost
+              </span>
+              <span className="text-lg font-bold text-brand-purple">
+                {formatCurrency(result.total_material_cost, result.currency)}
+              </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">Labour</span>
-              <span className="text-neutral-500 dark:text-neutral-400">Not included, negotiated separately.</span>
+              <span className="text-neutral-500 dark:text-neutral-400">
+                Labour
+              </span>
+              <span className="text-neutral-500 dark:text-neutral-400">
+                Not included, negotiated separately.
+              </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="font-semibold text-neutral-700 dark:text-neutral-200">Estimated Total Excluding Labour</span>
-              <span className="text-lg font-bold text-neutral-900 dark:text-white">{formatCurrency(result.total_material_cost, result.currency)}</span>
+              <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+                Estimated Total Excluding Labour
+              </span>
+              <span className="text-lg font-bold text-neutral-900 dark:text-white">
+                {formatCurrency(result.total_material_cost, result.currency)}
+              </span>
             </div>
           </div>
 
           {/* ── Engine Features (Additive) ── */}
           {/* Confidence badge */}
           <div className="flex items-center gap-2">
-            <EngineConfidenceBadge result={engine.assessConfidence({
-              ruleValid: true,
-              inputComplete: true,
-              materialSpecComplete: result.rooms.length > 0,
-              marketPriceAvailable: result.total_material_cost > 0,
-              sourceReliability: 'verified',
-              productMatched: result.rooms.some(r => r.product !== null),
-            })} />
+            <EngineConfidenceBadge
+              result={engine.assessConfidence({
+                ruleValid: true,
+                inputComplete: true,
+                materialSpecComplete: result.rooms.length > 0,
+                marketPriceAvailable: result.total_material_cost > 0,
+                sourceReliability: "verified",
+                productMatched: result.rooms.some((r) => r.product !== null),
+              })}
+            />
           </div>
 
           {/* Already-have / Purchase quantity */}
@@ -1250,63 +1840,97 @@ function EstimateResult({
           />
 
           {/* Engine explanation panel */}
-          <EngineExplanationPanel result={engine.buildExplanation({
-            subject: 'Painting Estimate',
-            resultSummary: `${result.combined_practical_buckets} buckets needed (${result.combined_theoretical_litres.toFixed(2)} L theoretical)`,
-            steps: [
-              { description: 'Number of rooms', value: String(result.rooms.length) },
-              { description: 'Total theoretical litres', value: `${result.combined_theoretical_litres.toFixed(2)} L` },
-              { description: 'Total theoretical buckets', value: `${result.combined_theoretical_buckets.toFixed(2)}` },
-              { description: 'Purchase quantity (with waste)', value: `${result.combined_practical_buckets} buckets` },
-              { description: 'Total material cost', value: result.total_material_cost > 0 ? `${result.total_material_cost.toLocaleString()} ${result.currency}` : 'Not configured' },
-            ],
-            notes: [
-              ...result.warnings,
-              ...(alreadyHave > 0 ? [`Already have: ${alreadyHave} buckets — purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`] : []),
-            ],
-          })} />
+          <EngineExplanationPanel
+            result={engine.buildExplanation({
+              subject: "Painting Estimate",
+              resultSummary: `${result.combined_practical_buckets} buckets needed (${result.combined_theoretical_litres.toFixed(2)} L theoretical)`,
+              steps: [
+                {
+                  description: "Number of rooms",
+                  value: String(result.rooms.length),
+                },
+                {
+                  description: "Total theoretical litres",
+                  value: `${result.combined_theoretical_litres.toFixed(2)} L`,
+                },
+                {
+                  description: "Total theoretical buckets",
+                  value: `${result.combined_theoretical_buckets.toFixed(2)}`,
+                },
+                {
+                  description: "Purchase quantity (with waste)",
+                  value: `${result.combined_practical_buckets} buckets`,
+                },
+                {
+                  description: "Total material cost",
+                  value:
+                    result.total_material_cost > 0
+                      ? `${result.total_material_cost.toLocaleString()} ${result.currency}`
+                      : "Not configured",
+                },
+              ],
+              notes: [
+                ...result.warnings,
+                ...(alreadyHave > 0
+                  ? [
+                      `Already have: ${alreadyHave} buckets — purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`,
+                    ]
+                  : []),
+              ],
+            })}
+          />
 
           {/* Confidence detail */}
-          <EngineConfidenceDetail result={engine.assessConfidence({
-            ruleValid: true,
-            inputComplete: true,
-            materialSpecComplete: result.rooms.length > 0,
-            marketPriceAvailable: result.total_material_cost > 0,
-            sourceReliability: 'verified',
-            productMatched: result.rooms.some(r => r.product !== null),
-          })} />
+          <EngineConfidenceDetail
+            result={engine.assessConfidence({
+              ruleValid: true,
+              inputComplete: true,
+              materialSpecComplete: result.rooms.length > 0,
+              marketPriceAvailable: result.total_material_cost > 0,
+              sourceReliability: "verified",
+              productMatched: result.rooms.some((r) => r.product !== null),
+            })}
+          />
 
           {/* Material summary */}
-          <EngineMaterialSummaryCard summary={engine.buildMaterialSummary(
-            result.rooms.map((room, i) => ({
-              materialId: room.product?.id ?? `paint-${i}`,
-              productName: room.product?.name ?? 'Paint',
-              totalQuantity: room.practical_total_buckets,
-              quantityUnit: 'buckets',
-              spaceIds: [room.room_id],
-            }))
-          )} />
+          <EngineMaterialSummaryCard
+            summary={engine.buildMaterialSummary(
+              result.rooms.map((room, i) => ({
+                materialId: room.product?.id ?? `paint-${i}`,
+                productName: room.product?.name ?? "Paint",
+                totalQuantity: room.practical_total_buckets,
+                quantityUnit: "buckets",
+                spaceIds: [room.room_id],
+              })),
+            )}
+          />
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-2">
             <button
               onClick={onSave}
               className={classNames(
-                'inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all',
+                "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
                 saved
-                  ? 'bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400'
-                  : 'bg-brand-purple text-white hover:bg-brand-purple-dark'
+                  ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+                  : "bg-brand-purple text-white hover:bg-brand-purple-dark",
               )}
             >
-              {saved ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-              {saved ? 'Saved' : 'Save Estimate'}
+              {saved ? (
+                <CheckCircle2 className="h-4 w-4" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              {saved ? "Saved" : "Save Estimate"}
             </button>
             <button
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
             >
               <Info className="h-4 w-4" />
-              {showCalculation ? 'Hide Calculation' : 'How was this calculated?'}
+              {showCalculation
+                ? "Hide Calculation"
+                : "How was this calculated?"}
             </button>
           </div>
 
@@ -1314,11 +1938,16 @@ function EstimateResult({
           <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-bold text-brand-navy dark:text-white">Need someone to do the work?</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified pros near you.</p>
+                <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  Need someone to do the work?
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  Post this estimate as a job and get bids from verified pros
+                  near you.
+                </p>
               </div>
               <a
-                href={`/marketplace/post?estimate_ref=${result.estimate_ref || ''}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? 'room' : 'rooms'}`}
+                href={`/marketplace/post?estimate_ref=${result.estimate_ref || ""}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? "room" : "rooms"}`}
                 className="btn-primary btn-glow inline-flex items-center justify-center gap-2 px-4 py-2 whitespace-nowrap"
               >
                 <Briefcase className="h-4 w-4" />
@@ -1337,8 +1966,14 @@ function EstimateResult({
           <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
           <ReportCalculationIssue
             calculatorType="painting"
-            userInput={{ rooms: result.rooms.length, totalTheoreticalLitres: result.combined_theoretical_litres }}
-            actualResult={{ totalMaterialCost: result.total_material_cost, totalBuckets: result.combined_practical_buckets }}
+            userInput={{
+              rooms: result.rooms.length,
+              totalTheoreticalLitres: result.combined_theoretical_litres,
+            }}
+            actualResult={{
+              totalMaterialCost: result.total_material_cost,
+              totalBuckets: result.combined_practical_buckets,
+            }}
           />
         </div>
       </div>
@@ -1350,7 +1985,15 @@ function EstimateResult({
 // Helper Components
 // =========================================================
 
-function Section({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function Section({
+  icon,
+  title,
+  children,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="mb-4">
       <h4 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
@@ -1362,10 +2005,24 @@ function Section({ icon, title, children }: { icon: React.ReactNode; title: stri
   );
 }
 
-function NumberField({ label, value, onChange, unit }: { label: string; value: number; onChange: (v: number) => void; unit?: string }) {
+function NumberField({
+  label,
+  value,
+  onChange,
+  unit,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  unit?: string;
+}) {
   return (
     <label className="block">
-      {label && <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">{label}</span>}
+      {label && (
+        <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+          {label}
+        </span>
+      )}
       <div className="flex items-center gap-1">
         <input
           type="number"
@@ -1381,19 +2038,35 @@ function NumberField({ label, value, onChange, unit }: { label: string; value: n
   );
 }
 
-function StatBox({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function StatBox({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
-    <div className={classNames(
-      'rounded-lg p-3',
-      highlight
-        ? 'bg-brand-purple/10 dark:bg-brand-purple/20'
-        : 'bg-neutral-50 dark:bg-white/5'
-    )}>
+    <div
+      className={classNames(
+        "rounded-lg p-3",
+        highlight
+          ? "bg-brand-purple/10 dark:bg-brand-purple/20"
+          : "bg-neutral-50 dark:bg-white/5",
+      )}
+    >
       <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
-      <p className={classNames(
-        'mt-1 text-sm font-bold',
-        highlight ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-900 dark:text-white'
-      )}>{value}</p>
+      <p
+        className={classNames(
+          "mt-1 text-sm font-bold",
+          highlight
+            ? "text-brand-purple dark:text-brand-purple-lighter"
+            : "text-neutral-900 dark:text-white",
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

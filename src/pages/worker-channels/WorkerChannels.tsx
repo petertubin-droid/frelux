@@ -1,27 +1,46 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState, useRef, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  MessageSquare, TrendingUp, Send, Users, MapPin,
-  Shield, Trash2, Hash, ShoppingCart,
-} from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+  MessageSquare,
+  TrendingUp,
+  Send,
+  Users,
+  MapPin,
+  Shield,
+  Trash2,
+  Hash,
+  ShoppingCart,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import {
-  fetchChannels, fetchChannelBySlug, joinChannel, isMember,
-  fetchMessages, sendMessage, deleteMessage, toggleReaction,
-  subscribeToChannelMessages, fetchChannelCategories,
-  fetchModerationConfig, isWorkerAccount,
-  getUserVerificationTier, canAccessChannels,
-  fetchChatUserProfile, type ChatUserProfile,
-} from '@/lib/worker-channels';
+  fetchChannels,
+  fetchChannelBySlug,
+  joinChannel,
+  isMember,
+  fetchMessages,
+  sendMessage,
+  deleteMessage,
+  toggleReaction,
+  subscribeToChannelMessages,
+  fetchChannelCategories,
+  fetchModerationConfig,
+  isWorkerAccount,
+  getUserVerificationTier,
+  canAccessChannels,
+  fetchChatUserProfile,
+  type ChatUserProfile,
+} from "@/lib/worker-channels";
 import type {
-  DbWorkerChannel, DbWorkerChannelCategory, DbWorkerChannelMessage,
+  DbWorkerChannel,
+  DbWorkerChannelCategory,
+  DbWorkerChannelMessage,
   DbWorkerModerationConfig,
-} from '@/types/worker-channels';
-import { supabase } from '@/lib/supabase';
-import { classNames } from '@/lib/utils';
-import PageHeader from '@/components/ui/PageHeader';
+} from "@/types/worker-channels";
+import { supabase } from "@/lib/supabase";
+import { classNames } from "@/lib/utils";
+import PageHeader from "@/components/ui/PageHeader";
 
-const QUICK_EMOJIS = ['👍', '❤️', '🔥', '📈', '🇳🇬', '💰'];
+const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
 export default function WorkerChannels() {
   const { channelSlug } = useParams();
@@ -29,29 +48,42 @@ export default function WorkerChannels() {
   const { user, profile } = useAuth();
   const [channels, setChannels] = useState<DbWorkerChannel[]>([]);
   const [_categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
-  const [activeChannel, setActiveChannel] = useState<DbWorkerChannel | null>(null);
+  const [activeChannel, setActiveChannel] = useState<DbWorkerChannel | null>(
+    null,
+  );
   const [messages, setMessages] = useState<DbWorkerChannelMessage[]>([]);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [isWorker, setIsWorker] = useState(false);
   const [verificationTier, setVerificationTier] = useState(0);
   const [tierChecked, setTierChecked] = useState(false);
-  const [modConfig, setModConfig] = useState<DbWorkerModerationConfig | null>(null);
-  const [viewingProfile, setViewingProfile] = useState<ChatUserProfile | null>(null);
+  const [modConfig, setModConfig] = useState<DbWorkerModerationConfig | null>(
+    null,
+  );
+  const [viewingProfile, setViewingProfile] = useState<ChatUserProfile | null>(
+    null,
+  );
   const [profileLoading, setProfileLoading] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportDesc, setReportDesc] = useState('');
+  const [reportReason, setReportReason] = useState("");
+  const [reportDesc, setReportDesc] = useState("");
   const [reportingUserId, setReportingUserId] = useState<string | null>(null);
   const [reportSubmitting, setReportSubmitting] = useState(false);
-  const [reportResult, setReportResult] = useState('');
+  const [reportResult, setReportResult] = useState("");
   const [showPriceUpdate, setShowPriceUpdate] = useState(false);
-  const [priceForm, setPriceForm] = useState({ item: '', amount: '', location: '', store: '' });
+  const [priceForm, setPriceForm] = useState({
+    item: "",
+    amount: "",
+    location: "",
+    store: "",
+  });
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const realtimeRef = useRef<ReturnType<typeof subscribeToChannelMessages> | null>(null);
+  const realtimeRef = useRef<ReturnType<
+    typeof subscribeToChannelMessages
+  > | null>(null);
 
   // Check if user has a worker account + verification tier
   useEffect(() => {
@@ -76,16 +108,16 @@ export default function WorkerChannels() {
   function openReportModal(userId: string) {
     setReportingUserId(userId);
     setShowReportModal(true);
-    setReportReason('');
-    setReportDesc('');
-    setReportResult('');
+    setReportReason("");
+    setReportDesc("");
+    setReportResult("");
   }
 
   async function handleSubmitReport() {
     if (!user || !reportingUserId || !reportReason) return;
     setReportSubmitting(true);
-    setReportResult('');
-    const { error } = await supabase.from('worker_reports').insert({
+    setReportResult("");
+    const { error } = await supabase.from("worker_reports").insert({
       reporter_id: user.id,
       reported_user_id: reportingUserId,
       channel_id: activeChannel?.id ?? null,
@@ -94,10 +126,13 @@ export default function WorkerChannels() {
     });
     setReportSubmitting(false);
     if (error) {
-      setReportResult('Error: ' + error.message);
+      setReportResult("Error: " + error.message);
     } else {
-      setReportResult('Report submitted. An admin will review it shortly.');
-      setTimeout(() => { setShowReportModal(false); setViewingProfile(null); }, 2000);
+      setReportResult("Report submitted. An admin will review it shortly.");
+      setTimeout(() => {
+        setShowReportModal(false);
+        setViewingProfile(null);
+      }, 2000);
     }
   }
 
@@ -127,14 +162,14 @@ export default function WorkerChannels() {
     (async () => {
       const ch = await fetchChannelBySlug(channelSlug);
       if (!ch) {
-        navigate('/worker-channels', { replace: true });
+        navigate("/worker-channels", { replace: true });
         return;
       }
       setActiveChannel(ch);
 
       const member = await isMember(ch.id, user.id);
       if (!member) {
-        if (isWorker || profile?.account_type === 'pro_worker') {
+        if (isWorker || profile?.account_type === "pro_worker") {
           await joinChannel(ch.id, user.id);
         }
       }
@@ -143,23 +178,26 @@ export default function WorkerChannels() {
       setMessages(msgs);
       scrollToBottom();
     })();
-  }, [channelSlug, user, isWorker, profile]);
+  }, [channelSlug, user, isWorker, profile, navigate]);
 
   // Realtime subscription
   useEffect(() => {
     if (!activeChannel || !user) return;
 
-    realtimeRef.current = subscribeToChannelMessages(activeChannel.id, (msg) => {
-      if (msg.id === '__reaction_update__') {
-        fetchMessages(activeChannel.id).then(setMessages);
-        return;
-      }
-      setMessages((prev) => {
-        if (prev.find((m) => m.id === msg.id)) return prev;
-        return [...prev, msg];
-      });
-      scrollToBottom();
-    });
+    realtimeRef.current = subscribeToChannelMessages(
+      activeChannel.id,
+      (msg) => {
+        if (msg.id === "__reaction_update__") {
+          fetchMessages(activeChannel.id).then(setMessages);
+          return;
+        }
+        setMessages((prev) => {
+          if (prev.find((m) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+        scrollToBottom();
+      },
+    );
 
     return () => {
       realtimeRef.current?.unsubscribe();
@@ -173,19 +211,26 @@ export default function WorkerChannels() {
 
   function scrollToBottom() {
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   }
 
   function getAuthorName(msg: DbWorkerChannelMessage): string {
-    if (msg.message_type === 'system' || msg.message_type === 'moderation') return 'FRELUX';
-    return msg.author_name ?? 'Worker';
+    if (msg.message_type === "system" || msg.message_type === "moderation")
+      return "FRELUX";
+    return msg.author_name ?? "Worker";
   }
 
   function getTierBadge(tier: number): { label: string; color: string } | null {
-    if (tier === 3) return { label: 'FRELUX Pro', color: 'text-amber-500 bg-amber-500/10' };
-    if (tier === 2) return { label: 'Verified', color: 'text-emerald-500 bg-emerald-500/10' };
-    if (tier === 1) return { label: 'Contact Verified', color: 'text-blue-500 bg-blue-500/10' };
+    if (tier === 3)
+      return { label: "FRELUX Pro", color: "text-amber-500 bg-amber-500/10" };
+    if (tier === 2)
+      return { label: "Verified", color: "text-emerald-500 bg-emerald-500/10" };
+    if (tier === 1)
+      return {
+        label: "Contact Verified",
+        color: "text-blue-500 bg-blue-500/10",
+      };
     return null;
   }
 
@@ -202,7 +247,7 @@ export default function WorkerChannels() {
       setMessages((prev) => [...prev, msg]);
       scrollToBottom();
       try {
-        await supabase.functions.invoke('moderate-worker-message', {
+        await supabase.functions.invoke("moderate-worker-message", {
           body: {
             messageId: msg.id,
             content: msg.content,
@@ -214,23 +259,24 @@ export default function WorkerChannels() {
         // Moderation failure is silent
       }
     }
-    setNewMessage('');
+    setNewMessage("");
     setReplyingTo(null);
     setSending(false);
   }
 
   async function handleSendPriceUpdate() {
-    if (!priceForm.item.trim() || !priceForm.amount || !activeChannel || !user) return;
+    if (!priceForm.item.trim() || !priceForm.amount || !activeChannel || !user)
+      return;
     setSending(true);
-    const content = `📊 PRICE UPDATE: ${priceForm.item} — ₦${Number(priceForm.amount).toLocaleString()}${priceForm.location ? ` in ${priceForm.location}` : ''}${priceForm.store ? ` (${priceForm.store})` : ''}`;
+    const content = `📊 PRICE UPDATE: ${priceForm.item} — ₦${Number(priceForm.amount).toLocaleString()}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
     const msg = await sendMessage({
       channelId: activeChannel.id,
       userId: user.id,
       content,
-      messageType: 'price_update',
+      messageType: "price_update",
       priceItem: priceForm.item.trim(),
       priceAmount: Number(priceForm.amount),
-      priceCurrency: 'NGN',
+      priceCurrency: "NGN",
       priceLocation: priceForm.location.trim() || undefined,
       priceStore: priceForm.store.trim() || undefined,
     });
@@ -238,7 +284,7 @@ export default function WorkerChannels() {
       setMessages((prev) => [...prev, msg]);
       scrollToBottom();
       try {
-        await supabase.functions.invoke('moderate-worker-message', {
+        await supabase.functions.invoke("moderate-worker-message", {
           body: {
             messageId: msg.id,
             content: msg.content,
@@ -250,7 +296,7 @@ export default function WorkerChannels() {
         // Silent failure
       }
     }
-    setPriceForm({ item: '', amount: '', location: '', store: '' });
+    setPriceForm({ item: "", amount: "", location: "", store: "" });
     setShowPriceUpdate(false);
     setSending(false);
   }
@@ -270,7 +316,7 @@ export default function WorkerChannels() {
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -281,11 +327,17 @@ export default function WorkerChannels() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Users className="mx-auto mb-4 h-12 w-12 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Worker Channels</h1>
+        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+          Worker Channels
+        </h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          You need to sign in with a worker account to access the nationwide worker channels.
+          You need to sign in with a worker account to access the nationwide
+          worker channels.
         </p>
-        <Link to="/login" className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white">
+        <Link
+          to="/login"
+          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+        >
           Sign In
         </Link>
       </div>
@@ -293,15 +345,21 @@ export default function WorkerChannels() {
   }
 
   // Not a worker account
-  if (!loading && !isWorker && profile?.account_type !== 'pro_worker') {
+  if (!loading && !isWorker && profile?.account_type !== "pro_worker") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Worker Access Only</h1>
+        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+          Worker Access Only
+        </h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          These channels are exclusive to FRELUX worker accounts. Register as a professional to join the conversation.
+          These channels are exclusive to FRELUX worker accounts. Register as a
+          professional to join the conversation.
         </p>
-        <Link to="/pro-connect/register" className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white">
+        <Link
+          to="/pro-connect/register"
+          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+        >
           Become a Professional
         </Link>
       </div>
@@ -311,23 +369,33 @@ export default function WorkerChannels() {
   // Worker but not verified (tier < 2)
   if (tierChecked && isWorker && !canAccessChannels(verificationTier)) {
     const tierLabels: Record<number, string> = {
-      0: 'Unverified',
-      1: 'Contact Verified',
+      0: "Unverified",
+      1: "Contact Verified",
     };
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Verification Required</h1>
+        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+          Verification Required
+        </h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          Worker Channels are available to <strong>FRELUX Verified</strong> (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
+          Worker Channels are available to <strong>FRELUX Verified</strong>{" "}
+          (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
         </p>
         <p className="mt-1 text-sm text-neutral-400">
-          Your current tier: <span className="font-semibold text-amber-500">{tierLabels[verificationTier] ?? 'Tier ' + verificationTier}</span>
+          Your current tier:{" "}
+          <span className="font-semibold text-amber-500">
+            {tierLabels[verificationTier] ?? "Tier " + verificationTier}
+          </span>
         </p>
         <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
-          Complete mobile number verification and NIN (National ID) verification to reach Tier 2 and unlock channel access.
+          Complete mobile number verification and NIN (National ID) verification
+          to reach Tier 2 and unlock channel access.
         </p>
-        <Link to="/pro-connect/register" className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white">
+        <Link
+          to="/pro-connect/register"
+          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+        >
           Complete Verification
         </Link>
       </div>
@@ -352,7 +420,10 @@ export default function WorkerChannels() {
       {modConfig?.is_enabled && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-4 py-2.5 text-sm text-neutral-600 dark:text-neutral-300">
           <Shield className="h-4 w-4 text-brand-purple" />
-          <span>AI moderation is active. Messages are automatically checked for spam, offensive content, and misinformation.</span>
+          <span>
+            AI moderation is active. Messages are automatically checked for
+            spam, offensive content, and misinformation.
+          </span>
         </div>
       )}
 
@@ -361,21 +432,23 @@ export default function WorkerChannels() {
         <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-neutral-200/40 bg-white/60 p-3 dark:border-white/10 dark:bg-brand-navy-mid/40 lg:max-h-[calc(100vh-220px)]">
           <div className="mb-2 flex items-center gap-2 px-2">
             <Hash className="h-4 w-4 text-brand-purple" />
-            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Channels</span>
+            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+              Channels
+            </span>
           </div>
           {channels.map((ch) => (
             <button
               key={ch.id}
               onClick={() => navigate(`/worker-channels/${ch.slug}`)}
               className={classNames(
-                'flex items-start gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-all',
+                "flex items-start gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-all",
                 channelSlug === ch.slug
-                  ? 'bg-brand-purple/10 text-brand-purple font-semibold'
-                  : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5'
+                  ? "bg-brand-purple/10 text-brand-purple font-semibold"
+                  : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5",
               )}
             >
               <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-xs">
-                {ch.is_official ? '✓' : '#'}
+                {ch.is_official ? "✓" : "#"}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{ch.name.trim()}</div>
@@ -405,7 +478,9 @@ export default function WorkerChannels() {
                     {activeChannel.name.trim()}
                   </h2>
                   {activeChannel.description && (
-                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{activeChannel.description}</p>
+                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+                      {activeChannel.description}
+                    </p>
                   )}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-neutral-400">
@@ -415,12 +490,17 @@ export default function WorkerChannels() {
               </div>
 
               {/* Messages */}
-              <div ref={messagesContainerRef} className="flex-1 space-y-3 overflow-y-auto p-4">
+              <div
+                ref={messagesContainerRef}
+                className="flex-1 space-y-3 overflow-y-auto p-4"
+              >
                 {messages.length === 0 && (
                   <div className="flex h-full items-center justify-center text-center text-sm text-neutral-400">
                     <div>
                       <MessageSquare className="mx-auto mb-2 h-8 w-8 opacity-50" />
-                      <p>No messages yet. Be the first to start the conversation!</p>
+                      <p>
+                        No messages yet. Be the first to start the conversation!
+                      </p>
                     </div>
                   </div>
                 )}
@@ -433,7 +513,9 @@ export default function WorkerChannels() {
                     onReact={handleReaction}
                     onDelete={handleDeleteMessage}
                     onReply={(id) => setReplyingTo(id)}
-                    onProfileView={() => msg.user_id && handleViewProfile(msg.user_id)}
+                    onProfileView={() =>
+                      msg.user_id && handleViewProfile(msg.user_id)
+                    }
                     replyTo={replyingTo}
                   />
                 ))}
@@ -446,7 +528,10 @@ export default function WorkerChannels() {
                   <span className="text-xs text-neutral-500">
                     Replying to a message
                   </span>
-                  <button onClick={() => setReplyingTo(null)} className="text-xs text-brand-purple">
+                  <button
+                    onClick={() => setReplyingTo(null)}
+                    className="text-xs text-brand-purple"
+                  >
                     Cancel
                   </button>
                 </div>
@@ -466,37 +551,53 @@ export default function WorkerChannels() {
                         placeholder="Item (e.g. 20L Premium Paint)"
                         className="input-field"
                         value={priceForm.item}
-                        onChange={(e) => setPriceForm({ ...priceForm, item: e.target.value })}
+                        onChange={(e) =>
+                          setPriceForm({ ...priceForm, item: e.target.value })
+                        }
                       />
                       <input
                         type="number"
                         placeholder="Price (₦)"
                         className="input-field"
                         value={priceForm.amount}
-                        onChange={(e) => setPriceForm({ ...priceForm, amount: e.target.value })}
+                        onChange={(e) =>
+                          setPriceForm({ ...priceForm, amount: e.target.value })
+                        }
                       />
                       <input
                         type="text"
                         placeholder="Location (e.g. Lagos Mainland)"
                         className="input-field"
                         value={priceForm.location}
-                        onChange={(e) => setPriceForm({ ...priceForm, location: e.target.value })}
+                        onChange={(e) =>
+                          setPriceForm({
+                            ...priceForm,
+                            location: e.target.value,
+                          })
+                        }
                       />
                       <input
                         type="text"
                         placeholder="Store/Market (optional)"
                         className="input-field"
                         value={priceForm.store}
-                        onChange={(e) => setPriceForm({ ...priceForm, store: e.target.value })}
+                        onChange={(e) =>
+                          setPriceForm({ ...priceForm, store: e.target.value })
+                        }
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setShowPriceUpdate(false)} className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5">
+                      <button
+                        onClick={() => setShowPriceUpdate(false)}
+                        className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5"
+                      >
                         Cancel
                       </button>
                       <button
                         onClick={handleSendPriceUpdate}
-                        disabled={sending || !priceForm.item.trim() || !priceForm.amount}
+                        disabled={
+                          sending || !priceForm.item.trim() || !priceForm.amount
+                        }
                         className="rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
                       >
                         Share Price
@@ -536,7 +637,9 @@ export default function WorkerChannels() {
             <div className="flex h-full min-h-[400px] items-center justify-center text-center">
               <div>
                 <MessageSquare className="mx-auto mb-3 h-10 w-10 text-neutral-300 dark:text-neutral-600" />
-                <p className="text-sm text-neutral-500">Select a channel to start chatting</p>
+                <p className="text-sm text-neutral-500">
+                  Select a channel to start chatting
+                </p>
               </div>
             </div>
           )}
@@ -545,30 +648,50 @@ export default function WorkerChannels() {
 
       {/* User Profile Modal */}
       {profileLoading && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setProfileLoading(false)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setProfileLoading(false)}
+        >
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-brand-purple border-t-transparent" />
         </div>
       )}
       {viewingProfile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setViewingProfile(null)}>
-          <div className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setViewingProfile(null)}
+        >
+          <div
+            className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 {viewingProfile.profile_image_url ? (
-                  <img src={viewingProfile.profile_image_url} alt={viewingProfile.display_name} className="h-14 w-14 rounded-full object-cover" />
+                  <img
+                    src={viewingProfile.profile_image_url}
+                    alt={viewingProfile.display_name}
+                    className="h-14 w-14 rounded-full object-cover"
+                  />
                 ) : (
                   <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/10 text-lg font-bold text-brand-purple">
                     {viewingProfile.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">{viewingProfile.display_name}</h3>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+                    {viewingProfile.display_name}
+                  </h3>
                   {viewingProfile.business_name && (
-                    <p className="text-sm text-neutral-500">{viewingProfile.business_name}</p>
+                    <p className="text-sm text-neutral-500">
+                      {viewingProfile.business_name}
+                    </p>
                   )}
                 </div>
               </div>
-              <button onClick={() => setViewingProfile(null)} className="text-neutral-400 hover:text-neutral-600">
+              <button
+                onClick={() => setViewingProfile(null)}
+                className="text-neutral-400 hover:text-neutral-600"
+              >
                 ✕
               </button>
             </div>
@@ -576,41 +699,58 @@ export default function WorkerChannels() {
             <div className="mt-4 flex flex-wrap gap-2">
               {(() => {
                 const badge = getTierBadge(viewingProfile.verification_tier);
-                if (badge) return <span className={`rounded-full px-3 py-1 text-xs font-semibold ${badge.color}`}>{badge.label}</span>;
+                if (badge)
+                  return (
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-semibold ${badge.color}`}
+                    >
+                      {badge.label}
+                    </span>
+                  );
                 return null;
               })()}
               {viewingProfile.category_name && (
-                <span className="rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple">{viewingProfile.category_name}</span>
+                <span className="rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple">
+                  {viewingProfile.category_name}
+                </span>
               )}
             </div>
 
             {viewingProfile.bio && (
-              <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">{viewingProfile.bio}</p>
+              <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">
+                {viewingProfile.bio}
+              </p>
             )}
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               {viewingProfile.years_experience != null && (
                 <div>
                   <p className="text-xs text-neutral-400">Experience</p>
-                  <p className="font-semibold text-brand-navy dark:text-white">{viewingProfile.years_experience} years</p>
+                  <p className="font-semibold text-brand-navy dark:text-white">
+                    {viewingProfile.years_experience} years
+                  </p>
                 </div>
               )}
               <div>
                 <p className="text-xs text-neutral-400">Phone Verified</p>
                 <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-neutral-400'}">
-                  {viewingProfile.phone_verified ? '✓ Yes' : '✗ No'}
+                  {viewingProfile.phone_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-neutral-400">NIN Verified</p>
-                <p className={`font-semibold ${viewingProfile.nin_verified ? 'text-emerald-500' : 'text-neutral-400'}`}>
-                  {viewingProfile.nin_verified ? '✓ Yes' : '✗ No'}
+                <p
+                  className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-neutral-400"}`}
+                >
+                  {viewingProfile.nin_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-neutral-400">Mobile OTP</p>
-                <p className={`font-semibold ${viewingProfile.mobile_otp_verified ? 'text-emerald-500' : 'text-neutral-400'}`}>
-                  {viewingProfile.mobile_otp_verified ? '✓ Yes' : '✗ No'}
+                <p
+                  className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-neutral-400"}`}
+                >
+                  {viewingProfile.mobile_otp_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
             </div>
@@ -624,7 +764,9 @@ export default function WorkerChannels() {
             </Link>
             {viewingProfile.id && (
               <button
-                onClick={() => viewingProfile && openReportModal(viewingProfile.id)}
+                onClick={() =>
+                  viewingProfile && openReportModal(viewingProfile.id)
+                }
                 className="mt-2 w-full rounded-lg border border-red-200 py-2 text-center text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
               >
                 Report This User
@@ -636,16 +778,27 @@ export default function WorkerChannels() {
 
       {/* Report User Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4" onClick={() => setShowReportModal(false)}>
-          <div className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-brand-navy dark:text-white">Report User</h3>
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setShowReportModal(false)}
+        >
+          <div
+            className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+              Report User
+            </h3>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Report inappropriate behavior. The user's NIN and verification data will be referenced during admin review.
+              Report inappropriate behavior. The user's NIN and verification
+              data will be referenced during admin review.
             </p>
 
             <div className="mt-4 space-y-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Reason *</label>
+                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                  Reason *
+                </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
@@ -661,7 +814,9 @@ export default function WorkerChannels() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Description (optional)</label>
+                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                  Description (optional)
+                </label>
                 <textarea
                   value={reportDesc}
                   onChange={(e) => setReportDesc(e.target.value)}
@@ -672,7 +827,11 @@ export default function WorkerChannels() {
               </div>
 
               {reportResult && (
-                <p className={`text-sm ${reportResult.startsWith('Error') ? 'text-red-500' : 'text-emerald-500'}`}>{reportResult}</p>
+                <p
+                  className={`text-sm ${reportResult.startsWith("Error") ? "text-red-500" : "text-emerald-500"}`}
+                >
+                  {reportResult}
+                </p>
               )}
 
               <div className="flex gap-2">
@@ -687,7 +846,7 @@ export default function WorkerChannels() {
                   disabled={reportSubmitting || !reportReason}
                   className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
                 >
-                  {reportSubmitting ? 'Submitting...' : 'Submit Report'}
+                  {reportSubmitting ? "Submitting..." : "Submit Report"}
                 </button>
               </div>
             </div>
@@ -722,8 +881,9 @@ function MessageBubble({
 }) {
   const [showReactions, setShowReactions] = useState(false);
   const isOwn = message.user_id === currentUserId;
-  const isSystem = message.message_type === 'system' || message.message_type === 'moderation';
-  const isPriceUpdate = message.message_type === 'price_update';
+  const isSystem =
+    message.message_type === "system" || message.message_type === "moderation";
+  const isPriceUpdate = message.message_type === "price_update";
 
   if (isSystem) {
     return (
@@ -736,8 +896,20 @@ function MessageBubble({
   }
 
   return (
-    <div className={classNames('group relative flex gap-2', isOwn && 'flex-row-reverse')}>
-      <div className={classNames('max-w-[75%] rounded-2xl px-3.5 py-2.5', isOwn ? 'bg-brand-purple text-white' : 'bg-neutral-100 dark:bg-white/5 dark:text-neutral-100')}>
+    <div
+      className={classNames(
+        "group relative flex gap-2",
+        isOwn && "flex-row-reverse",
+      )}
+    >
+      <div
+        className={classNames(
+          "max-w-[75%] rounded-2xl px-3.5 py-2.5",
+          isOwn
+            ? "bg-brand-purple text-white"
+            : "bg-neutral-100 dark:bg-white/5 dark:text-neutral-100",
+        )}
+      >
         {!isOwn && (
           <button
             onClick={onProfileView}
@@ -748,13 +920,23 @@ function MessageBubble({
         )}
 
         {message.reply_to && replyTo !== message.reply_to && (
-          <div className={classNames('mb-1 rounded-md px-2 py-1 text-xs opacity-60', isOwn ? 'bg-white/10' : 'bg-neutral-200 dark:bg-white/5')}>
+          <div
+            className={classNames(
+              "mb-1 rounded-md px-2 py-1 text-xs opacity-60",
+              isOwn ? "bg-white/10" : "bg-neutral-200 dark:bg-white/5",
+            )}
+          >
             Replying to a message
           </div>
         )}
 
         {isPriceUpdate && message.price_item && (
-          <div className={classNames('mb-2 rounded-lg p-2.5', isOwn ? 'bg-white/10' : 'bg-brand-purple/5')}>
+          <div
+            className={classNames(
+              "mb-2 rounded-lg p-2.5",
+              isOwn ? "bg-white/10" : "bg-brand-purple/5",
+            )}
+          >
             <div className="flex items-center gap-1.5 text-xs font-semibold">
               <ShoppingCart className="h-3.5 w-3.5" />
               <span>PRICE UPDATE</span>
@@ -766,7 +948,9 @@ function MessageBubble({
               </div>
             )}
             <div className="flex flex-wrap gap-2 text-xs opacity-80">
-              {message.price_location && <span>📍 {message.price_location}</span>}
+              {message.price_location && (
+                <span>📍 {message.price_location}</span>
+              )}
               {message.price_store && <span>🏪 {message.price_store}</span>}
             </div>
           </div>
@@ -774,8 +958,16 @@ function MessageBubble({
 
         <div className="text-sm">{message.content}</div>
 
-        <div className={classNames('mt-1 text-[10px]', isOwn ? 'text-white/60' : 'text-neutral-400')}>
-          {new Date(message.created_at).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' })}
+        <div
+          className={classNames(
+            "mt-1 text-[10px]",
+            isOwn ? "text-white/60" : "text-neutral-400",
+          )}
+        >
+          {new Date(message.created_at).toLocaleTimeString("en-NG", {
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
         </div>
       </div>
 
@@ -831,7 +1023,7 @@ function MessageBubble({
             message.reactions.reduce<Record<string, number>>((acc, r) => {
               acc[r.emoji] = (acc[r.emoji] ?? 0) + 1;
               return acc;
-            }, {})
+            }, {}),
           ).map(([emoji, count]) => (
             <button
               key={emoji}

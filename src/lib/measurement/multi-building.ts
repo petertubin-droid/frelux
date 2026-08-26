@@ -33,20 +33,22 @@ import type {
   ProjectElement,
   ProjectElementResult,
   ConstructionProject,
-} from './project-engine';
-import type { CalculationStep } from './types';
+} from "./project-engine";
+import type { CalculationStep } from "./types";
 import {
-  createProjectElement,
   calculateProjectElement,
   createConstructionProject,
   PROJECT_ELEMENT_TYPE_LABELS,
-} from './project-engine';
-import type { LengthUnit } from './units';
-import type { Space } from './space-engine';
-import type { MultiRoofSpec, MultiRoofCalculation } from '@/lib/roof/section-model-types';
-import { calculateMultiRoof } from '@/lib/roof/section-model';
-import { generateId } from './factory';
-import { makeStep, formatM2 } from './geometry';
+} from "./project-engine";
+import type { LengthUnit } from "./units";
+import type { Space } from "./space-engine";
+import type {
+  MultiRoofSpec,
+  MultiRoofCalculation,
+} from "@/lib/roof/section-model-types";
+import { calculateMultiRoof } from "@/lib/roof/section-model";
+import { generateId } from "./factory";
+import { makeStep, formatM2 } from "./geometry";
 
 // =========================================================
 // BUILDING TYPES
@@ -78,28 +80,28 @@ export interface Building {
  * Building types for categorization.
  */
 export type BuildingType =
-  | 'main_house'
-  | 'boys_quarters'
-  | 'garage'
-  | 'store'
-  | 'detached_kitchen'
-  | 'guardhouse'
-  | 'guest_house'
-  | 'office'
-  | 'warehouse'
-  | 'other';
+  | "main_house"
+  | "boys_quarters"
+  | "garage"
+  | "store"
+  | "detached_kitchen"
+  | "guardhouse"
+  | "guest_house"
+  | "office"
+  | "warehouse"
+  | "other";
 
 export const BUILDING_TYPE_LABELS: Record<BuildingType, string> = {
-  main_house: 'Main House',
+  main_house: "Main House",
   boys_quarters: "Boys' Quarters",
-  garage: 'Garage',
-  store: 'Store',
-  detached_kitchen: 'Detached Kitchen',
-  guardhouse: 'Guardhouse',
-  guest_house: 'Guest House',
-  office: 'Office',
-  warehouse: 'Warehouse',
-  other: 'Other Building',
+  garage: "Garage",
+  store: "Store",
+  detached_kitchen: "Detached Kitchen",
+  guardhouse: "Guardhouse",
+  guest_house: "Guest House",
+  office: "Office",
+  warehouse: "Warehouse",
+  other: "Other Building",
 };
 
 /**
@@ -122,7 +124,13 @@ export interface BuildingResult {
   /** Area breakdown by finish type */
   areaByFinishType: Record<string, number>;
   /** All space results flattened */
-  allSpaceResults: { id: string; name: string; type: string; totalAreaM2: number; finishType: string }[];
+  allSpaceResults: {
+    id: string;
+    name: string;
+    type: string;
+    totalAreaM2: number;
+    finishType: string;
+  }[];
   /** Calculation steps */
   steps: CalculationStep[];
 }
@@ -152,7 +160,7 @@ export interface MultiBuildingProject {
   /** Project location/market context */
   marketCode?: string;
   /** Project status */
-  status: 'draft' | 'in_progress' | 'completed';
+  status: "draft" | "in_progress" | "completed";
   /** Created date */
   createdAt: string;
   /** Updated date */
@@ -192,11 +200,11 @@ export interface MultiBuildingProjectResult {
  */
 export function createBuilding(
   name: string,
-  buildingType: BuildingType = 'main_house',
+  buildingType: BuildingType = "main_house",
   numberOfFloors: number = 1,
 ): Building {
   return {
-    id: generateId('building'),
+    id: generateId("building"),
     name,
     buildingType,
     elements: [],
@@ -209,16 +217,16 @@ export function createBuilding(
  * Create a new multi-building project.
  */
 export function createMultiBuildingProject(
-  name: string = 'New Project',
-  preferredUnit: LengthUnit = 'feet',
+  name: string = "New Project",
+  preferredUnit: LengthUnit = "feet",
 ): MultiBuildingProject {
   const now = new Date().toISOString();
   return {
-    id: generateId('mbproject'),
+    id: generateId("mbproject"),
     name,
     preferredUnit,
     buildings: [],
-    status: 'draft',
+    status: "draft",
     createdAt: now,
     updatedAt: now,
   };
@@ -254,7 +262,7 @@ export function renameBuilding(
   return {
     ...project,
     buildings: project.buildings.map((b) =>
-      b.id === buildingId ? { ...b, name: newName } : b
+      b.id === buildingId ? { ...b, name: newName } : b,
     ),
     updatedAt: new Date().toISOString(),
   };
@@ -280,12 +288,12 @@ export function removeBuilding(
 export function updateBuilding(
   project: MultiBuildingProject,
   buildingId: string,
-  updates: Partial<Omit<Building, 'id'>>,
+  updates: Partial<Omit<Building, "id">>,
 ): MultiBuildingProject {
   return {
     ...project,
     buildings: project.buildings.map((b) =>
-      b.id === buildingId ? { ...b, ...updates } : b
+      b.id === buildingId ? { ...b, ...updates } : b,
     ),
     updatedAt: new Date().toISOString(),
   };
@@ -312,9 +320,7 @@ export function addElementToBuilding(
   return {
     ...project,
     buildings: project.buildings.map((b) =>
-      b.id === buildingId
-        ? { ...b, elements: [...b.elements, element] }
-        : b
+      b.id === buildingId ? { ...b, elements: [...b.elements, element] } : b,
     ),
     updatedAt: new Date().toISOString(),
   };
@@ -331,7 +337,7 @@ export function setBuildingRoofSpec(
   return {
     ...project,
     buildings: project.buildings.map((b) =>
-      b.id === buildingId ? { ...b, roofSpec } : b
+      b.id === buildingId ? { ...b, roofSpec } : b,
     ),
     updatedAt: new Date().toISOString(),
   };
@@ -353,7 +359,13 @@ export function calculateBuilding(building: Building): BuildingResult {
   const steps: CalculationStep[] = [];
   const areaByElementType: Record<string, number> = {};
   const areaByFinishType: Record<string, number> = {};
-  const allSpaceResults: { id: string; name: string; type: string; totalAreaM2: number; finishType: string }[] = [];
+  const allSpaceResults: {
+    id: string;
+    name: string;
+    type: string;
+    totalAreaM2: number;
+    finishType: string;
+  }[] = [];
 
   // Calculate elements
   for (const element of building.elements) {
@@ -363,12 +375,14 @@ export function calculateBuilding(building: Building): BuildingResult {
 
     // Aggregate by element type
     const elementTypeKey = element.elementType;
-    areaByElementType[elementTypeKey] = (areaByElementType[elementTypeKey] ?? 0) + elementResult.totalAreaM2;
+    areaByElementType[elementTypeKey] =
+      (areaByElementType[elementTypeKey] ?? 0) + elementResult.totalAreaM2;
 
     // Aggregate by finish type
     for (const spaceResult of elementResult.spaceResults) {
       const finishKey = spaceResult.finishType;
-      areaByFinishType[finishKey] = (areaByFinishType[finishKey] ?? 0) + spaceResult.totalAreaM2;
+      areaByFinishType[finishKey] =
+        (areaByFinishType[finishKey] ?? 0) + spaceResult.totalAreaM2;
       allSpaceResults.push({
         id: spaceResult.spaceId,
         name: spaceResult.name,
@@ -378,11 +392,13 @@ export function calculateBuilding(building: Building): BuildingResult {
       });
     }
 
-    steps.push(makeStep(
-      `${building.name} → ${element.name}`,
-      PROJECT_ELEMENT_TYPE_LABELS[element.elementType],
-      formatM2(elementResult.totalAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        `${building.name} → ${element.name}`,
+        PROJECT_ELEMENT_TYPE_LABELS[element.elementType],
+        formatM2(elementResult.totalAreaM2),
+      ),
+    );
   }
 
   // Calculate roof if spec exists
@@ -393,18 +409,22 @@ export function calculateBuilding(building: Building): BuildingResult {
     roofResult = calculateMultiRoof(building.roofSpec);
     roofSurfaceAreaM2 = roofResult.totalSurfaceAreaM2;
 
-    steps.push(makeStep(
-      `${building.name} → Roof`,
-      `${roofResult.sections.length} section(s)`,
-      formatM2(roofSurfaceAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        `${building.name} → Roof`,
+        `${roofResult.sections.length} section(s)`,
+        formatM2(roofSurfaceAreaM2),
+      ),
+    );
   }
 
-  steps.push(makeStep(
-    `Building: ${building.name}`,
-    `${building.elements.length} element(s)${roofResult ? ' + roof' : ''}`,
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Building: ${building.name}`,
+      `${building.elements.length} element(s)${roofResult ? " + roof" : ""}`,
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     buildingId: building.id,
@@ -451,7 +471,8 @@ export function calculateMultiBuildingProject(
 
     // Aggregate by building type
     const btKey = building.buildingType;
-    areaByBuildingType[btKey] = (areaByBuildingType[btKey] ?? 0) + buildingResult.totalAreaM2;
+    areaByBuildingType[btKey] =
+      (areaByBuildingType[btKey] ?? 0) + buildingResult.totalAreaM2;
 
     // Aggregate by element type (across buildings)
     for (const [key, val] of Object.entries(buildingResult.areaByElementType)) {
@@ -463,18 +484,22 @@ export function calculateMultiBuildingProject(
       areaByFinishType[key] = (areaByFinishType[key] ?? 0) + val;
     }
 
-    steps.push(makeStep(
-      building.name,
-      BUILDING_TYPE_LABELS[building.buildingType],
-      formatM2(buildingResult.totalAreaM2),
-    ));
+    steps.push(
+      makeStep(
+        building.name,
+        BUILDING_TYPE_LABELS[building.buildingType],
+        formatM2(buildingResult.totalAreaM2),
+      ),
+    );
   }
 
-  steps.push(makeStep(
-    `Total: ${project.name}`,
-    `${project.buildings.length} building(s)`,
-    formatM2(totalAreaM2),
-  ));
+  steps.push(
+    makeStep(
+      `Total: ${project.name}`,
+      `${project.buildings.length} building(s)`,
+      formatM2(totalAreaM2),
+    ),
+  );
 
   return {
     projectId: project.id,
@@ -520,7 +545,12 @@ export function getBuildingSpaces(building: Building): Space[] {
  */
 export function buildingSummary(
   result: MultiBuildingProjectResult,
-): { name: string; buildingType: BuildingType; areaM2: number; elementCount: number }[] {
+): {
+  name: string;
+  buildingType: BuildingType;
+  areaM2: number;
+  elementCount: number;
+}[] {
   return result.buildingResults.map((br) => ({
     name: br.buildingName,
     buildingType: br.buildingType,

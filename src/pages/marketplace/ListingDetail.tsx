@@ -1,22 +1,50 @@
-import { useEffect, useState, useCallback } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState, useCallback } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-  ArrowLeft, MapPin, Clock, Users, Eye, Loader2, Send, Check, X,
-  Star, ShieldCheck, Briefcase, Calendar, Wallet,
-} from 'lucide-react';
-import { fetchListing, fetchBidsForListing, createBid, updateBidStatus, incrementListingView } from '@/lib/marketplace';
-import { useAuth } from '@/lib/auth';
-import type { DbMarketplaceListing, DbMarketplaceBid } from '@/types/marketplace';
-import { PROJECT_TYPE_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
-import { classNames } from '@/lib/utils';
-import { useSeo } from '@/lib/seo';
+  ArrowLeft,
+  MapPin,
+  Clock,
+  Users,
+  Eye,
+  Loader2,
+  Send,
+  Check,
+  X,
+  Star,
+  ShieldCheck,
+  Briefcase,
+  Calendar,
+} from "lucide-react";
+import {
+  fetchListing,
+  fetchBidsForListing,
+  createBid,
+  updateBidStatus,
+  incrementListingView,
+} from "@/lib/marketplace";
+import { useAuth } from "@/lib/auth";
+import type {
+  DbMarketplaceListing,
+  DbMarketplaceBid,
+} from "@/types/marketplace";
+import {
+  PROJECT_TYPE_LABELS,
+  LISTING_STATUS_LABELS,
+} from "@/types/marketplace";
+import { classNames } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 
-function formatBudget(min: number | null, max: number | null, currency: string) {
-  const sym = currency === 'NGN' ? '₦' : '';
-  if (min && max) return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
+function formatBudget(
+  min: number | null,
+  max: number | null,
+  currency: string,
+) {
+  const sym = currency === "NGN" ? "₦" : "";
+  if (min && max)
+    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
   if (min) return `From ${sym}${min.toLocaleString()}`;
   if (max) return `Up to ${sym}${max.toLocaleString()}`;
-  return 'Budget negotiable';
+  return "Budget negotiable";
 }
 
 export default function ListingDetail() {
@@ -28,27 +56,58 @@ export default function ListingDetail() {
   const [bids, setBids] = useState<DbMarketplaceBid[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBidForm, setShowBidForm] = useState(false);
-  const [bidPrice, setBidPrice] = useState('');
-  const [bidTimeline, setBidTimeline] = useState('');
-  const [bidMessage, setBidMessage] = useState('');
+  const [bidPrice, setBidPrice] = useState("");
+  const [bidTimeline, setBidTimeline] = useState("");
+  const [bidMessage, setBidMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [viewIncremented, setViewIncremented] = useState(false);
 
   useSeo({
-    title: listing?.seo_title || listing?.title || 'Job Details — FRELUX Marketplace',
-    description: listing?.seo_description || (listing?.description ? listing.description.slice(0, 160) : 'View this construction job listing on FRELUX Marketplace and submit your bid.'),
+    title:
+      listing?.seo_title ||
+      listing?.title ||
+      "Job Details — FRELUX Marketplace",
+    description:
+      listing?.seo_description ||
+      (listing?.description
+        ? listing.description.slice(0, 160)
+        : "View this construction job listing on FRELUX Marketplace and submit your bid."),
     canonicalPath: `/marketplace/${id}`,
     noIndex: false,
-    structuredData: listing ? {
-      '@context': 'https://schema.org',
-      '@type': 'JobPosting',
-      title: listing.title,
-      description: listing.description || listing.title,
-      datePosted: listing.created_at,
-      ...(listing.budget_min ? { baseSalary: { '@type': 'MonetaryAmount', currency: listing.currency, minValue: listing.budget_min, ...(listing.budget_max ? { maxValue: listing.budget_max } : {}) } } : {}),
-      ...(listing.location_city || listing.location_state ? { jobLocation: { '@type': 'Place', address: { addressLocality: listing.location_city || '', addressRegion: listing.location_state || '', addressCountry: 'NG' } } } : {}),
-    } : undefined,
+    structuredData: listing
+      ? {
+          "@context": "https://schema.org",
+          "@type": "JobPosting",
+          title: listing.title,
+          description: listing.description || listing.title,
+          datePosted: listing.created_at,
+          ...(listing.budget_min
+            ? {
+                baseSalary: {
+                  "@type": "MonetaryAmount",
+                  currency: listing.currency,
+                  minValue: listing.budget_min,
+                  ...(listing.budget_max
+                    ? { maxValue: listing.budget_max }
+                    : {}),
+                },
+              }
+            : {}),
+          ...(listing.location_city || listing.location_state
+            ? {
+                jobLocation: {
+                  "@type": "Place",
+                  address: {
+                    addressLocality: listing.location_city || "",
+                    addressRegion: listing.location_state || "",
+                    addressCountry: "NG",
+                  },
+                },
+              }
+            : {}),
+        }
+      : undefined,
   });
 
   const load = useCallback(async () => {
@@ -66,35 +125,37 @@ export default function ListingDetail() {
         setViewIncremented(true);
       }
     } catch {
-      navigate('/marketplace');
+      navigate("/marketplace");
     } finally {
       setLoading(false);
     }
   }, [id, navigate, viewIncremented]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const isOwner = listing && user && listing.user_id === user.id;
   const listingStatus = listing?.status;
-  const isOpen = listingStatus === 'open';
+  const isOpen = listingStatus === "open";
 
   async function handleBidSubmit() {
     if (!user || !profile) {
-      navigate('/pro-connect/register');
+      navigate("/pro-connect/register");
       return;
     }
-    setError('');
+    setError("");
     setSubmitting(true);
     try {
       // Get pro profile
-      const { supabase } = await import('@/lib/supabase');
+      const { supabase } = await import("@/lib/supabase");
       const { data: proProfile } = await supabase
-        .from('pro_profiles')
-        .select('id')
-        .eq('user_id', user.id)
+        .from("pro_profiles")
+        .select("id")
+        .eq("user_id", user.id)
         .single();
       if (!proProfile) {
-        navigate('/pro-connect/register');
+        navigate("/pro-connect/register");
         return;
       }
       await createBid({
@@ -105,10 +166,12 @@ export default function ListingDetail() {
         cover_message: bidMessage,
       });
       setShowBidForm(false);
-      setBidPrice(''); setBidTimeline(''); setBidMessage('');
+      setBidPrice("");
+      setBidTimeline("");
+      setBidMessage("");
       load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to submit bid');
+      setError(e instanceof Error ? e.message : "Failed to submit bid");
     } finally {
       setSubmitting(false);
     }
@@ -117,10 +180,10 @@ export default function ListingDetail() {
   async function handleAcceptBid(bidId: string) {
     setSubmitting(true);
     try {
-      await updateBidStatus(bidId, 'accepted');
+      await updateBidStatus(bidId, "accepted");
       load();
     } catch {
-      setError('Failed to accept bid');
+      setError("Failed to accept bid");
     } finally {
       setSubmitting(false);
     }
@@ -128,9 +191,11 @@ export default function ListingDetail() {
 
   async function handleRejectBid(bidId: string) {
     try {
-      await updateBidStatus(bidId, 'rejected', 'Declined by client');
+      await updateBidStatus(bidId, "rejected", "Declined by client");
       load();
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   if (loading) {
@@ -147,7 +212,10 @@ export default function ListingDetail() {
     <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Back */}
-        <button onClick={() => navigate('/marketplace')} className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
+        <button
+          onClick={() => navigate("/marketplace")}
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400"
+        >
           <ArrowLeft className="h-4 w-4" /> Back to Marketplace
         </button>
 
@@ -159,14 +227,17 @@ export default function ListingDetail() {
                 <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
                   {PROJECT_TYPE_LABELS[listing.project_type]}
                 </span>
-                <span className={classNames(
-                  'rounded-md px-2 py-1 text-xs font-semibold',
-                  isOpen ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                         : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
-                )}>
+                <span
+                  className={classNames(
+                    "rounded-md px-2 py-1 text-xs font-semibold",
+                    isOpen
+                      ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+                  )}
+                >
                   {LISTING_STATUS_LABELS[listing.status]}
                 </span>
-                {listing.urgency === 'urgent' && (
+                {listing.urgency === "urgent" && (
                   <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
                     <Clock className="h-3 w-3" /> Urgent
                   </span>
@@ -176,7 +247,9 @@ export default function ListingDetail() {
                 {listing.title}
               </h1>
               {listing.description && (
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{listing.description}</p>
+                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                  {listing.description}
+                </p>
               )}
             </div>
           </div>
@@ -186,20 +259,28 @@ export default function ListingDetail() {
             <div className="mt-4 flex items-center gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
               <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
                 {listing.client.avatar_url ? (
-                  <img src={listing.client.avatar_url} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={listing.client.avatar_url}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
-                    {(listing.client.full_name || '?').charAt(0).toUpperCase()}
+                    {(listing.client.full_name || "?").charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <div>
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">Posted by</p>
+                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                  Posted by
+                </p>
                 <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
-                  {listing.client.full_name || 'Anonymous'}
+                  {listing.client.full_name || "Anonymous"}
                 </p>
                 {listing.client.marketplace_id && (
-                  <p className="text-[10px] tracking-wider text-neutral-400">{listing.client.marketplace_id}</p>
+                  <p className="text-[10px] tracking-wider text-neutral-400">
+                    {listing.client.marketplace_id}
+                  </p>
                 )}
               </div>
             </div>
@@ -208,28 +289,42 @@ export default function ListingDetail() {
           {/* Meta grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">Budget</p>
+              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                Budget
+              </p>
               <p className="text-sm font-bold text-brand-navy dark:text-white">
-                {formatBudget(listing.budget_min, listing.budget_max, listing.currency)}
+                {formatBudget(
+                  listing.budget_min,
+                  listing.budget_max,
+                  listing.currency,
+                )}
               </p>
             </div>
             {listing.location_state && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-neutral-400">Location</p>
+                <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                  Location
+                </p>
                 <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
                   <MapPin className="h-3 w-3" />
-                  {[listing.location_city, listing.location_state].filter(Boolean).join(', ')}
+                  {[listing.location_city, listing.location_state]
+                    .filter(Boolean)
+                    .join(", ")}
                 </p>
               </div>
             )}
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">Bids</p>
+              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                Bids
+              </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
                 <Users className="h-3 w-3" /> {listing.bid_count}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">Views</p>
+              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                Views
+              </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
                 <Eye className="h-3 w-3" /> {listing.view_count}
               </p>
@@ -237,18 +332,24 @@ export default function ListingDetail() {
           </div>
 
           {/* Scope summary if available */}
-          {listing.scope_summary && Object.keys(listing.scope_summary).length > 0 && (
-            <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-white/5">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">Project Scope</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {Object.entries(listing.scope_summary).map(([key, val]) => (
-                  <span key={key} className="rounded-md bg-white px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-brand-navy dark:text-neutral-300">
-                    {key}: {String(val)}
-                  </span>
-                ))}
+          {listing.scope_summary &&
+            Object.keys(listing.scope_summary).length > 0 && (
+              <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                  Project Scope
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {Object.entries(listing.scope_summary).map(([key, val]) => (
+                    <span
+                      key={key}
+                      className="rounded-md bg-white px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-brand-navy dark:text-neutral-300"
+                    >
+                      {key}: {String(val)}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {/* Owner actions */}
           {isOwner && isOpen && (
@@ -290,10 +391,14 @@ export default function ListingDetail() {
           {/* Bid form */}
           {showBidForm && (
             <div className="mb-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">Submit Your Bid</h3>
+              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                Submit Your Bid
+              </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Your Price (₦)</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Your Price (₦)
+                  </label>
                   <input
                     type="number"
                     value={bidPrice}
@@ -303,7 +408,9 @@ export default function ListingDetail() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Timeline (days)</label>
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    Timeline (days)
+                  </label>
                   <input
                     type="number"
                     value={bidTimeline}
@@ -314,7 +421,9 @@ export default function ListingDetail() {
                 </div>
               </div>
               <div className="mt-3">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Cover Message</label>
+                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                  Cover Message
+                </label>
                 <textarea
                   value={bidMessage}
                   onChange={(e) => setBidMessage(e.target.value)}
@@ -330,7 +439,11 @@ export default function ListingDetail() {
                   disabled={submitting || !bidPrice || !bidMessage}
                   className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
                 >
-                  {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {submitting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                   Submit Bid
                 </button>
                 <button
@@ -347,7 +460,9 @@ export default function ListingDetail() {
           {bids.length === 0 ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
               <Users className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">No bids yet. Be the first to bid!</p>
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+                No bids yet. Be the first to bid!
+              </p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -355,10 +470,10 @@ export default function ListingDetail() {
                 <div
                   key={bid.id}
                   className={classNames(
-                    'rounded-xl border bg-white p-4 dark:bg-brand-navy-mid',
-                    bid.status === 'accepted'
-                      ? 'border-emerald-300 dark:border-emerald-500/30'
-                      : 'border-neutral-200 dark:border-white/5'
+                    "rounded-xl border bg-white p-4 dark:bg-brand-navy-mid",
+                    bid.status === "accepted"
+                      ? "border-emerald-300 dark:border-emerald-500/30"
+                      : "border-neutral-200 dark:border-white/5",
                   )}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -366,10 +481,14 @@ export default function ListingDetail() {
                     <div className="flex items-start gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-purple/10">
                         {bid.pro_profile?.profile_image_url ? (
-                          <img src={bid.pro_profile.profile_image_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+                          <img
+                            src={bid.pro_profile.profile_image_url}
+                            alt=""
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
                         ) : (
                           <span className="text-sm font-bold text-brand-purple">
-                            {bid.pro_profile?.display_name?.charAt(0) ?? '?'}
+                            {bid.pro_profile?.display_name?.charAt(0) ?? "?"}
                           </span>
                         )}
                       </div>
@@ -379,9 +498,11 @@ export default function ListingDetail() {
                             to={`/pro-connect/${bid.pro_profile?.slug}`}
                             className="text-sm font-bold text-neutral-900 hover:text-brand-purple dark:text-white"
                           >
-                            {bid.pro_profile?.business_name || bid.pro_profile?.display_name}
+                            {bid.pro_profile?.business_name ||
+                              bid.pro_profile?.display_name}
                           </Link>
-                          {bid.pro_profile?.verification_status === 'verified' && (
+                          {bid.pro_profile?.verification_status ===
+                            "verified" && (
                             <ShieldCheck className="h-4 w-4 text-emerald-500" />
                           )}
                         </div>
@@ -390,11 +511,13 @@ export default function ListingDetail() {
                             {bid.pro_profile.rating_avg > 0 && (
                               <span className="inline-flex items-center gap-0.5">
                                 <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                                {bid.pro_profile.rating_avg.toFixed(1)} ({bid.pro_profile.rating_count})
+                                {bid.pro_profile.rating_avg.toFixed(1)} (
+                                {bid.pro_profile.rating_count})
                               </span>
                             )}
                             <span className="inline-flex items-center gap-0.5">
-                              <Briefcase className="h-3 w-3" /> {bid.pro_profile.project_count} projects
+                              <Briefcase className="h-3 w-3" />{" "}
+                              {bid.pro_profile.project_count} projects
                             </span>
                           </div>
                         )}
@@ -408,7 +531,8 @@ export default function ListingDetail() {
                       </p>
                       {bid.proposed_timeline_days && (
                         <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                          <Calendar className="mr-0.5 inline h-3 w-3" /> {bid.proposed_timeline_days} days
+                          <Calendar className="mr-0.5 inline h-3 w-3" />{" "}
+                          {bid.proposed_timeline_days} days
                         </p>
                       )}
                     </div>
@@ -416,28 +540,33 @@ export default function ListingDetail() {
 
                   {/* Cover message */}
                   {bid.cover_message && (
-                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">{bid.cover_message}</p>
+                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+                      {bid.cover_message}
+                    </p>
                   )}
 
                   {/* Status / actions */}
                   <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-white/5">
-                    {bid.status === 'accepted' ? (
+                    {bid.status === "accepted" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                         <Check className="h-4 w-4" /> Accepted
                       </span>
-                    ) : bid.status === 'rejected' ? (
+                    ) : bid.status === "rejected" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-400">
                         <X className="h-4 w-4" /> Rejected
                       </span>
-                    ) : bid.status === 'withdrawn' ? (
-                      <span className="text-xs font-semibold text-neutral-400">Withdrawn</span>
+                    ) : bid.status === "withdrawn" ? (
+                      <span className="text-xs font-semibold text-neutral-400">
+                        Withdrawn
+                      </span>
                     ) : (
                       <span className="text-xs text-neutral-400 dark:text-neutral-500">
-                        Pending · {new Date(bid.created_at).toLocaleDateString()}
+                        Pending ·{" "}
+                        {new Date(bid.created_at).toLocaleDateString()}
                       </span>
                     )}
 
-                    {isOwner && isOpen && bid.status === 'pending' && (
+                    {isOwner && isOpen && bid.status === "pending" && (
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleRejectBid(bid.id)}

@@ -1,15 +1,16 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = "gemini-2.0-flash";
 
 interface ProjectAssistantRequest {
-  action: 'review' | 'optimize' | 'explain' | 'qa' | 'preview_suggestion';
+  action: "review" | "optimize" | "explain" | "qa" | "preview_suggestion";
   projectData: {
     name: string;
     project_type: string;
@@ -39,42 +40,65 @@ interface ProjectAssistantRequest {
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
-async function getAuthenticatedUserId(req: Request, supabaseUrl: string, anonKey: string): Promise<string | null> {
-  const authHeader = req.headers.get('Authorization');
+async function getAuthenticatedUserId(
+  req: Request,
+  supabaseUrl: string,
+  anonKey: string,
+): Promise<string | null> {
+  const authHeader = req.headers.get("Authorization");
   if (!authHeader) return null;
-  const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
+  const supabase = createClient(supabaseUrl, anonKey, {
+    global: { headers: { Authorization: authHeader } },
+  });
   const { data } = await supabase.auth.getUser();
   return data.user?.id ?? null;
 }
 
-async function isUserAdmin(supabase: ReturnType<typeof createClient>, userId: string): Promise<boolean> {
-  const { data } = await supabase.from('profiles').select('role').eq('id', userId).single();
-  return data?.role === 'admin';
+async function isUserAdmin(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .single();
+  return data?.role === "admin";
 }
 
-async function getAiConfig(supabase: ReturnType<typeof createClient>): Promise<{ ai_enabled: boolean; gemini_api_key: string } | null> {
+async function getAiConfig(
+  supabase: ReturnType<typeof createClient>,
+): Promise<{ ai_enabled: boolean; gemini_api_key: string } | null> {
   const { data } = await supabase
-    .from('site_settings')
-    .select('key, value')
-    .in('key', ['ai_enabled', 'gemini_api_key']);
+    .from("site_settings")
+    .select("key, value")
+    .in("key", ["ai_enabled", "gemini_api_key"]);
   if (!data || data.length === 0) return null;
   const map: Record<string, string> = {};
   for (const row of data) map[row.key] = row.value;
   return {
-    ai_enabled: map['ai_enabled'] !== 'false',
-    gemini_api_key: map['gemini_api_key'] ?? '',
+    ai_enabled: map["ai_enabled"] !== "false",
+    gemini_api_key: map["gemini_api_key"] ?? "",
   };
 }
 
-function buildReviewPrompt(projectData: ProjectAssistantRequest['projectData']): string {
+function buildReviewPrompt(
+  projectData: ProjectAssistantRequest["projectData"],
+): string {
   const rooms = projectData.rooms ?? [];
-  const roomSummary = rooms.length > 0
-    ? rooms.map(r => `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`).join('\n')
-    : 'No rooms configured yet.';
+  const roomSummary =
+    rooms.length > 0
+      ? rooms
+          .map(
+            (r) =>
+              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`,
+          )
+          .join("\n")
+      : "No rooms configured yet.";
 
   return `You are an expert construction estimator and project consultant for FRELUX, a Nigerian construction estimation platform. 
 Analyze this construction project and provide a professional review.
@@ -93,7 +117,7 @@ PROJECT DETAILS:
 ROOMS:
 ${roomSummary}
 
-${projectData.notes ? `PROJECT NOTES: ${projectData.notes}` : ''}
+${projectData.notes ? `PROJECT NOTES: ${projectData.notes}` : ""}
 
 Provide a JSON response with these fields:
 {
@@ -109,11 +133,20 @@ Provide a JSON response with these fields:
 }`;
 }
 
-function buildOptimizePrompt(projectData: ProjectAssistantRequest['projectData'], target: string): string {
+function buildOptimizePrompt(
+  projectData: ProjectAssistantRequest["projectData"],
+  target: string,
+): string {
   const rooms = projectData.rooms ?? [];
-  const roomSummary = rooms.length > 0
-    ? rooms.map(r => `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`).join('\n')
-    : 'No rooms configured.';
+  const roomSummary =
+    rooms.length > 0
+      ? rooms
+          .map(
+            (r) =>
+              `- ${r.name} (${r.calculation_type}): ${r.surface_area}m², materials: ₦${r.material_cost?.toLocaleString()}, labour: ₦${r.labour_cost?.toLocaleString()}`,
+          )
+          .join("\n")
+      : "No rooms configured.";
 
   return `You are an expert construction cost optimizer for FRELUX, a Nigerian construction estimation platform.
 The user wants to: "${target}"
@@ -149,11 +182,19 @@ Provide optimization suggestions as JSON:
 }`;
 }
 
-function buildExplainPrompt(projectData: ProjectAssistantRequest['projectData']): string {
+function buildExplainPrompt(
+  projectData: ProjectAssistantRequest["projectData"],
+): string {
   const rooms = projectData.rooms ?? [];
-  const roomSummary = rooms.length > 0
-    ? rooms.map(r => `- ${r.name} (${r.calculation_type}): ${JSON.stringify(r.input_data)}`).join('\n')
-    : 'No rooms configured.';
+  const roomSummary =
+    rooms.length > 0
+      ? rooms
+          .map(
+            (r) =>
+              `- ${r.name} (${r.calculation_type}): ${JSON.stringify(r.input_data)}`,
+          )
+          .join("\n")
+      : "No rooms configured.";
 
   return `You are an expert construction educator for FRELUX. Explain every calculation in this project clearly.
 
@@ -181,7 +222,10 @@ Explain the calculations as JSON:
 }`;
 }
 
-function buildQaPrompt(projectData: ProjectAssistantRequest['projectData'], question: string): string {
+function buildQaPrompt(
+  projectData: ProjectAssistantRequest["projectData"],
+  question: string,
+): string {
   return `You are an expert construction consultant for FRELUX. Answer the user's question about their project.
 
 PROJECT CONTEXT:
@@ -210,13 +254,13 @@ async function callGemini(apiKey: string, prompt: string): Promise<string> {
       temperature: 0.7,
       topP: 0.9,
       maxOutputTokens: 2000,
-      responseMimeType: 'application/json',
+      responseMimeType: "application/json",
     },
   };
 
   const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
@@ -227,25 +271,25 @@ async function callGemini(apiKey: string, prompt: string): Promise<string> {
 
   const json = await res.json();
   const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('EMPTY_RESPONSE');
+  if (!text) throw new Error("EMPTY_RESPONSE");
   return text;
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
-  if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
     if (!supabaseUrl || !anonKey) {
-      return jsonResponse({ error: 'Server not configured' }, 500);
+      return jsonResponse({ error: "Server not configured" }, 500);
     }
 
     const body: ProjectAssistantRequest = await req.json();
@@ -253,38 +297,51 @@ Deno.serve(async (req: Request) => {
     // Auth check
     const userId = await getAuthenticatedUserId(req, supabaseUrl, anonKey);
     const adminSupabase = createClient(supabaseUrl, serviceKey);
-    const isAdmin = userId ? await isUserAdmin(adminSupabase, userId) : false;
+    const _isAdmin = userId ? await isUserAdmin(adminSupabase, userId) : false;
 
     // Get AI config
     const config = await getAiConfig(adminSupabase);
     if (!config?.ai_enabled) {
-      return jsonResponse({ error: 'AI features are currently disabled', code: 'AI_DISABLED' }, 403);
+      return jsonResponse(
+        { error: "AI features are currently disabled", code: "AI_DISABLED" },
+        403,
+      );
     }
     if (!config.gemini_api_key) {
-      return jsonResponse({ error: 'AI service not configured', code: 'NO_API_KEY' }, 503);
+      return jsonResponse(
+        { error: "AI service not configured", code: "NO_API_KEY" },
+        503,
+      );
     }
 
     // Build prompt based on action
-    let prompt = '';
+    let prompt = "";
     switch (body.action) {
-      case 'review':
+      case "review":
         prompt = buildReviewPrompt(body.projectData);
         break;
-      case 'optimize':
-        prompt = buildOptimizePrompt(body.projectData, body.optimizationTarget ?? 'Reduce cost by 10%');
+      case "optimize":
+        prompt = buildOptimizePrompt(
+          body.projectData,
+          body.optimizationTarget ?? "Reduce cost by 10%",
+        );
         break;
-      case 'explain':
+      case "explain":
         prompt = buildExplainPrompt(body.projectData);
         break;
-      case 'qa':
-        if (!body.question) return jsonResponse({ error: 'Question is required for QA action' }, 400);
+      case "qa":
+        if (!body.question)
+          return jsonResponse(
+            { error: "Question is required for QA action" },
+            400,
+          );
         prompt = buildQaPrompt(body.projectData, body.question);
         break;
-      case 'preview_suggestion':
+      case "preview_suggestion":
         prompt = buildReviewPrompt(body.projectData);
         break;
       default:
-        return jsonResponse({ error: 'Invalid action' }, 400);
+        return jsonResponse({ error: "Invalid action" }, 400);
     }
 
     const aiResponse = await callGemini(config.gemini_api_key, prompt);
@@ -297,8 +354,8 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse({ result: parsed });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    console.error('AI Project Assistant error:', message);
-    return jsonResponse({ error: message, code: 'INTERNAL_ERROR' }, 500);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("AI Project Assistant error:", message);
+    return jsonResponse({ error: message, code: "INTERNAL_ERROR" }, 500);
   }
 });

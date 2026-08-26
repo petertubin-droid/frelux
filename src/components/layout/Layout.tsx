@@ -1,22 +1,25 @@
-import { useEffect, useRef, useState } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Wrench } from 'lucide-react';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import SupportChatWidget from '@/components/layout/SupportChatWidget';
-import WhatsAppFab from '@/components/layout/WhatsAppFab';
-import FloatingActions from '@/components/ui/FloatingActions';
-import MobileBottomNav from '@/components/ui/MobileBottomNav';
-import { OfflineIndicator } from '@/components/ui/OfflineIndicator';
-import { CommandPalette, useCommandPalette } from '@/components/ui/CommandPalette';
-import { OnboardingTour } from '@/components/ui/OnboardingTour';
-import { AchievementToast } from '@/components/ui/AchievementBadges';
-import { isOnboardingComplete } from '@/lib/onboarding';
-import { trackVisit } from '@/lib/achievements';
-import { trackReturnVisitRewards } from '@/lib/rewards-integration';
-import type { Achievement } from '@/lib/achievements';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/lib/auth';
+import { useEffect, useRef, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Wrench } from "lucide-react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import SupportChatWidget from "@/components/layout/SupportChatWidget";
+import WhatsAppFab from "@/components/layout/WhatsAppFab";
+import FloatingActions from "@/components/ui/FloatingActions";
+import MobileBottomNav from "@/components/ui/MobileBottomNav";
+import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
+import {
+  CommandPalette,
+  useCommandPalette,
+} from "@/components/ui/CommandPalette";
+import { OnboardingTour } from "@/components/ui/OnboardingTour";
+import { AchievementToast } from "@/components/ui/AchievementBadges";
+import { isOnboardingComplete } from "@/lib/onboarding";
+import { trackVisit } from "@/lib/achievements";
+import { trackReturnVisitRewards } from "@/lib/rewards-integration";
+import type { Achievement } from "@/lib/achievements";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -29,8 +32,8 @@ export default function Layout() {
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
   // Track visit and check onboarding on first load
-const mountedRef = useRef(true);
-    useEffect(() => {
+  const mountedRef = useRef(true);
+  useEffect(() => {
     const newlyUnlocked = trackVisit();
     if (newlyUnlocked.length > 0) {
       setNewAchievements(newlyUnlocked);
@@ -38,12 +41,14 @@ const mountedRef = useRef(true);
     }
     // Fire-and-forget: track return visit for credits/streak (authenticated users only)
     trackReturnVisitRewards();
-    if (!isOnboardingComplete() && location.pathname === '/') {
+    if (!isOnboardingComplete() && location.pathname === "/") {
       setTimeout(() => setShowOnboarding(true), 800);
     }
-  
-    return () => { mountedRef.current = false; };
-  }, []);
+
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [location.pathname]);
 
   // ── Maintenance mode check: runs on mount, on route change, and via real-time subscription ──
   useEffect(() => {
@@ -56,23 +61,26 @@ const mountedRef = useRef(true);
       let admin = false;
       if (session.session) {
         const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.session.user.id)
+          .from("profiles")
+          .select("role")
+          .eq("id", session.session.user.id)
           .maybeSingle();
-        admin = profile?.role === 'admin';
+        admin = profile?.role === "admin";
       }
       setIsAdmin(admin);
 
       // Then check maintenance mode
       const { data, error } = await supabase
-        .from('site_settings')
-        .select('maintenance_mode')
+        .from("site_settings")
+        .select("maintenance_mode")
         .limit(1)
         .maybeSingle();
 
       if (error) {
-        console.warn('[maintenance] Failed to check site_settings:', error.message);
+        console.warn(
+          "[maintenance] Failed to check site_settings:",
+          error.message,
+        );
         return;
       }
 
@@ -83,13 +91,15 @@ const mountedRef = useRef(true);
 
     // Real-time subscription: detect maintenance_mode changes immediately
     channel = supabase
-      .channel('site_settings_maintenance')
-      .on('postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'site_settings' },
+      .channel("site_settings_maintenance")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "site_settings" },
         (payload) => {
-          const newMode = (payload.new as Record<string, unknown>)?.maintenance_mode;
+          const newMode = (payload.new as Record<string, unknown>)
+            ?.maintenance_mode;
           setMaintenance(!!newMode);
-        }
+        },
       )
       .subscribe();
 
@@ -106,19 +116,24 @@ const mountedRef = useRef(true);
   useEffect(() => {
     if (!user) return;
     // Don't redirect if already on onboarding, login, or admin pages
-    if (location.pathname === '/onboarding' || location.pathname.startsWith('/login') || location.pathname.startsWith('/admin')) return;
+    if (
+      location.pathname === "/onboarding" ||
+      location.pathname.startsWith("/login") ||
+      location.pathname.startsWith("/admin")
+    )
+      return;
     // Only check once per session
-    if (sessionStorage.getItem('frelux_onboarding_checked')) return;
+    if (sessionStorage.getItem("frelux_onboarding_checked")) return;
     (async () => {
       const { data: profile } = await supabase
-        .from('profiles')
-        .select('account_type, onboarding_completed')
-        .eq('id', user.id)
+        .from("profiles")
+        .select("account_type, onboarding_completed")
+        .eq("id", user.id)
         .maybeSingle();
-      if (profile?.account_type === 'client' && !profile.onboarding_completed) {
-        navigate('/onboarding', { replace: true });
+      if (profile?.account_type === "client" && !profile.onboarding_completed) {
+        navigate("/onboarding", { replace: true });
       }
-      sessionStorage.setItem('frelux_onboarding_checked', '1');
+      sessionStorage.setItem("frelux_onboarding_checked", "1");
     })();
   }, [user, location.pathname, navigate]);
 
@@ -128,7 +143,9 @@ const mountedRef = useRef(true);
         <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
           <Wrench className="h-8 w-8" />
         </div>
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">Under Maintenance</h1>
+        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+          Under Maintenance
+        </h1>
         <p className="mt-2 max-w-md text-neutral-500 dark:text-neutral-400">
           We're making some improvements. Please check back soon.
         </p>
@@ -138,9 +155,18 @@ const mountedRef = useRef(true);
 
   return (
     <div className="flex min-h-screen w-full flex-col">
-      <a href="#main-content" className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">Skip to main content</a>
+      <a
+        href="#main-content"
+        className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+      >
+        Skip to main content
+      </a>
       <Navbar />
-      <main id="main-content" className="w-full flex-1 pt-16 pb-16 md:pb-0" role="main">
+      <main
+        id="main-content"
+        className="w-full flex-1 pt-16 pb-16 md:pb-0"
+        role="main"
+      >
         <Outlet />
       </main>
       <Footer />
@@ -150,8 +176,13 @@ const mountedRef = useRef(true);
       <FloatingActions />
       <MobileBottomNav />
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
-      {showOnboarding && <OnboardingTour onComplete={() => setShowOnboarding(false)} />}
-      <AchievementToast achievements={newAchievements} onDismiss={() => setNewAchievements([])} />
+      {showOnboarding && (
+        <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+      )}
+      <AchievementToast
+        achievements={newAchievements}
+        onDismiss={() => setNewAchievements([])}
+      />
     </div>
   );
 }

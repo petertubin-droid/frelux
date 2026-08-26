@@ -1,11 +1,10 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/shadcn/dialog';
+} from "@/components/ui/shadcn/dialog";
 
 /**
  * AdminModal — replaces the 31+ custom modal overlays across admin pages.
@@ -21,7 +20,7 @@ export function AdminModal({
   title,
   description,
   children,
-  maxWidth = 'max-w-2xl',
+  maxWidth = "max-w-2xl",
 }: {
   open: boolean;
   onClose: () => void;
@@ -43,9 +42,7 @@ export function AdminModal({
             </DialogDescription>
           )}
         </div>
-        <div className="mt-5 space-y-4">
-          {children}
-        </div>
+        <div className="mt-5 space-y-4">{children}</div>
       </DialogContent>
     </Dialog>
   );

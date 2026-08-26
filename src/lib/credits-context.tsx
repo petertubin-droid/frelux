@@ -3,8 +3,15 @@
  * to the entire app. Integrates with existing auth context.
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { useAuth } from '@/lib/auth';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
+import { useAuth } from "@/lib/auth";
 import {
   getCreditWallet,
   getActivityStreak,
@@ -13,9 +20,8 @@ import {
   type CreditWallet,
   type ActivityStreak,
   type RewardEventKey,
-  generateReferenceId,
-} from '@/lib/credits';
-import { useToast } from '@/components/ui/Toast';
+} from "@/lib/credits";
+import { useToast } from "@/components/ui/Toast";
 
 interface CreditsContextValue {
   wallet: CreditWallet | null;
@@ -23,12 +29,21 @@ interface CreditsContextValue {
   loading: boolean;
   refresh: () => Promise<void>;
   /** Award credits for a specific reward event (server-side, idempotent) */
-  awardEvent: (eventKey: RewardEventKey, referenceId: string, metadata?: Record<string, unknown>) => Promise<boolean>;
+  awardEvent: (
+    eventKey: RewardEventKey,
+    referenceId: string,
+    metadata?: Record<string, unknown>,
+  ) => Promise<boolean>;
   /** Record qualifying activity (updates streak + mission progress) */
-  trackActivity: (activityType: string, missionTaskType?: string) => Promise<void>;
+  trackActivity: (
+    activityType: string,
+    missionTaskType?: string,
+  ) => Promise<void>;
 }
 
-const CreditsContext = createContext<CreditsContextValue | undefined>(undefined);
+const CreditsContext = createContext<CreditsContextValue | undefined>(
+  undefined,
+);
 
 export function CreditsProvider({ children }: { children: ReactNode }) {
   const { user, session } = useAuth();
@@ -59,14 +74,18 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const awardEvent = useCallback(
-    async (eventKey: RewardEventKey, referenceId: string, metadata?: Record<string, unknown>): Promise<boolean> => {
+    async (
+      eventKey: RewardEventKey,
+      referenceId: string,
+      metadata?: Record<string, unknown>,
+    ): Promise<boolean> => {
       if (!user || !session) return false;
 
       const eventDef = REWARD_EVENTS[eventKey];
       if (!eventDef) return false;
 
       const token = session.access_token;
-      const { awardCredits } = await import('@/lib/credits');
+      const { awardCredits } = await import("@/lib/credits");
       const result = await awardCredits(token, eventDef, referenceId, metadata);
 
       if (result.success && !result.alreadyAwarded) {
@@ -74,7 +93,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         await refresh();
         // Toast notification
         toast({
-          type: 'success',
+          type: "success",
           title: `+${eventDef.amount} FRELUX Credits`,
           message: eventDef.reason,
           duration: 3500,
@@ -89,7 +108,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
 
       return false;
     },
-    [user, session, refresh, toast]
+    [user, session, refresh, toast],
   );
 
   const trackActivity = useCallback(
@@ -101,19 +120,21 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
 
       if (result.success && result.streakAwarded && result.streakAwarded > 0) {
         toast({
-          type: 'success',
+          type: "success",
           title: `🔥 7-Day Streak! +${result.streakAwarded} Credits`,
-          message: 'You completed a 7-day activity streak.',
+          message: "You completed a 7-day activity streak.",
           duration: 4000,
         });
         await refresh();
       }
     },
-    [user, session, refresh, toast]
+    [user, session, refresh, toast],
   );
 
   return (
-    <CreditsContext.Provider value={{ wallet, streak, loading, refresh, awardEvent, trackActivity }}>
+    <CreditsContext.Provider
+      value={{ wallet, streak, loading, refresh, awardEvent, trackActivity }}
+    >
       {children}
     </CreditsContext.Provider>
   );
@@ -122,6 +143,6 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useCredits() {
   const ctx = useContext(CreditsContext);
-  if (!ctx) throw new Error('useCredits must be used within CreditsProvider');
+  if (!ctx) throw new Error("useCredits must be used within CreditsProvider");
   return ctx;
 }

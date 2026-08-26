@@ -15,7 +15,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -24,7 +25,7 @@ const PLAN_DURATIONS_DAYS: Record<string, number> = {
   yearly: 365,
 };
 
-const PLAN_NAMES: Record<string, string> = {
+const _PLAN_NAMES: Record<string, string> = {
   basic: "Basic",
   pro: "Pro",
   premium: "Premium",
@@ -48,35 +49,51 @@ Deno.serve(async (req: Request) => {
 
     const secretKey = Deno.env.get("PAYSTACK_SECRET_KEY");
     if (!secretKey) {
-      return new Response(JSON.stringify({ error: "Payment provider not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Payment provider not configured" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Verify transaction with Paystack
-    const verifyRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${secretKey}`,
+    const verifyRes = await fetch(
+      `https://api.paystack.co/transaction/verify/${reference}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+        },
       },
-    });
+    );
 
     const verifyData = await verifyRes.json();
 
     if (!verifyRes.ok || !verifyData.status) {
-      return new Response(JSON.stringify({ error: verifyData.message || "Verification failed" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: verifyData.message || "Verification failed" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     const transaction = verifyData.data;
     if (transaction.status !== "success") {
-      return new Response(JSON.stringify({ status: false, message: `Payment ${transaction.status}`, data: transaction }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          status: false,
+          message: `Payment ${transaction.status}`,
+          data: transaction,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Extract metadata
@@ -86,10 +103,15 @@ Deno.serve(async (req: Request) => {
     const userId = metadata.user_id as string;
 
     if (!plan || !userId) {
-      return new Response(JSON.stringify({ error: "Missing plan or user_id in transaction metadata" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: "Missing plan or user_id in transaction metadata",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Activate subscription using service role (bypasses RLS)
@@ -98,39 +120,52 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    const paidUntil = new Date(
+      Date.now() + days * 24 * 60 * 60 * 1000,
+    ).toISOString();
 
     const { error: upsertError } = await supabase
       .from("user_paid_status")
-      .upsert({
-        user_id: userId,
-        is_paid: true,
-        plan,
-        paid_until: paidUntil,
-        payment_provider: "paystack",
-        provider_customer_id: transaction.customer?.customer_code || null,
-        updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      .upsert(
+        {
+          user_id: userId,
+          is_paid: true,
+          plan,
+          paid_until: paidUntil,
+          payment_provider: "paystack",
+          provider_customer_id: transaction.customer?.customer_code || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
 
     if (upsertError) {
-      return new Response(JSON.stringify({ error: `Failed to activate subscription: ${upsertError.message}` }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({
+          error: `Failed to activate subscription: ${upsertError.message}`,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
-    return new Response(JSON.stringify({
-      status: true,
-      message: "Subscription activated successfully",
-      data: {
-        ...transaction,
-        activated_plan: plan,
-        paid_until: paidUntil,
+    return new Response(
+      JSON.stringify({
+        status: true,
+        message: "Subscription activated successfully",
+        data: {
+          ...transaction,
+          activated_plan: plan,
+          paid_until: paidUntil,
+        },
+      }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       },
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    );
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

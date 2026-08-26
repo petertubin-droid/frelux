@@ -7,7 +7,6 @@ import {
   createMaterialLineItem,
   groupByCategory,
   buildMaterialSummary,
-  requirementsFromProject,
   summaryFromProject,
   materialSummaryToText,
 } from "../material-summary";
@@ -308,10 +307,9 @@ describe("Summary from Project", () => {
       ["tiling", tiles],
     ]);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const summary = summaryFromProject(
       result,
-      materialMap as Map<any, MaterialSpec>,
+      materialMap as Map<FinishType, MaterialSpec>,
       10,
     );
     expect(summary.projectName).toBe("Test House");

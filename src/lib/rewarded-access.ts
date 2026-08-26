@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  fetchRewardedToolConfig,
-  checkRewardedUnlock,
-} from '@/lib/queries';
-import { supabase } from '@/lib/supabase';
-import { logAdEvent } from '@/lib/ad-config';
-import type { DbRewardedToolConfig, DbAdProvider, DbRewardedFeatureConfig } from '@/types/database';
-import { generateOfferwallUrl, supportsOfferwall } from '@/lib/offerwall';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { fetchRewardedToolConfig, checkRewardedUnlock } from "@/lib/queries";
+import { supabase } from "@/lib/supabase";
+import { logAdEvent } from "@/lib/ad-config";
+import type {
+  DbRewardedToolConfig,
+  DbAdProvider,
+  DbRewardedFeatureConfig,
+} from "@/types/database";
+import { generateOfferwallUrl, supportsOfferwall } from "@/lib/offerwall";
 
 export interface RewardedAccessState {
   toolKey: string;
@@ -38,15 +39,16 @@ export interface RewardedAccessActions {
 
 export type RewardedAccess = RewardedAccessState & RewardedAccessActions;
 
-const STORAGE_PREFIX = 'frelux_rewarded_';
-const COOLDOWN_PREFIX = 'frelux_cooldown_';
-const DAILY_COUNT_PREFIX = 'frelux_daily_';
+const STORAGE_PREFIX = "frelux_rewarded_";
+const COOLDOWN_PREFIX = "frelux_cooldown_";
+const DAILY_COUNT_PREFIX = "frelux_daily_";
 
 function getClientHash(): string {
-  const key = 'frelux_client_hash';
+  const key = "frelux_client_hash";
   let hash = localStorage.getItem(key);
   if (!hash) {
-    hash = 'ch_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+    hash =
+      "ch_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
     localStorage.setItem(key, hash);
   }
   return hash;
@@ -73,7 +75,15 @@ function clearLocalExpiry(toolKey: string): void {
 
 function _endOfDayISO(): string {
   const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+  const end = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    23,
+    59,
+    59,
+    999,
+  );
   return end.toISOString();
 }
 
@@ -118,15 +128,23 @@ function incrementDailyUnlockCount(toolKey: string): number {
   const today = new Date().toISOString().slice(0, 10);
   const current = getDailyUnlockCount(toolKey);
   const next = current + 1;
-  localStorage.setItem(DAILY_COUNT_PREFIX + toolKey, JSON.stringify({ date: today, count: next }));
+  localStorage.setItem(
+    DAILY_COUNT_PREFIX + toolKey,
+    JSON.stringify({ date: today, count: next }),
+  );
   return next;
 }
 
 export function useRewardedAccess(toolKey: string): RewardedAccess {
   const [config, setConfig] = useState<DbRewardedToolConfig | null>(null);
-  const [featureConfig, setFeatureConfig] = useState<DbRewardedFeatureConfig | null>(null);
-  const [primaryProvider, setPrimaryProvider] = useState<DbAdProvider | null>(null);
-  const [fallbackProvider, setFallbackProvider] = useState<DbAdProvider | null>(null);
+  const [featureConfig, setFeatureConfig] =
+    useState<DbRewardedFeatureConfig | null>(null);
+  const [primaryProvider, setPrimaryProvider] = useState<DbAdProvider | null>(
+    null,
+  );
+  const [fallbackProvider, setFallbackProvider] = useState<DbAdProvider | null>(
+    null,
+  );
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -135,10 +153,12 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const [adLoading, setAdLoading] = useState(false);
   const [adProviderUsed, setAdProviderUsed] = useState<string | null>(null);
   const [offerwallUrl, setOfferwallUrl] = useState<string | null>(null);
-  const [offerwallProviderName, setOfferwallProviderName] = useState<string | null>(null);
+  const [offerwallProviderName, setOfferwallProviderName] = useState<
+    string | null
+  >(null);
   const [dailyUnlockCount, setDailyUnlockCount] = useState(0);
   const [isCooldownActive, setIsCooldownActive] = useState(false);
-  const clientHashRef = useRef<string>('');
+  const clientHashRef = useRef<string>("");
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -154,7 +174,11 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     const [cfgRes, unlockRes, featRes] = await Promise.all([
       fetchRewardedToolConfig(toolKey),
       checkRewardedUnlock(toolKey, clientHashRef.current),
-      supabase.from('rewarded_feature_config').select('*').eq('feature_key', toolKey).maybeSingle(),
+      supabase
+        .from("rewarded_feature_config")
+        .select("*")
+        .eq("feature_key", toolKey)
+        .maybeSingle(),
     ]);
 
     setConfig(cfgRes.data);
@@ -190,10 +214,19 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     if (primaryId || fallbackId) {
       const ids = [primaryId, fallbackId].filter(Boolean) as string[];
       // Fix for issue #3: use ad_providers_public instead of ad_providers
-      const { data: provData } = await supabase.from('ad_providers_public').select('*').in('id', ids);
+      const { data: provData } = await supabase
+        .from("ad_providers_public")
+        .select("*")
+        .in("id", ids);
       const providers = (provData as DbAdProvider[]) ?? [];
-      setPrimaryProvider(primaryId ? providers.find((p) => p.id === primaryId) ?? null : null);
-      setFallbackProvider(fallbackId ? providers.find((p) => p.id === fallbackId) ?? null : null);
+      setPrimaryProvider(
+        primaryId ? (providers.find((p) => p.id === primaryId) ?? null) : null,
+      );
+      setFallbackProvider(
+        fallbackId
+          ? (providers.find((p) => p.id === fallbackId) ?? null)
+          : null,
+      );
     }
 
     // Update client-side hints (server is the real enforcer)
@@ -251,13 +284,17 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     const cfg = config;
     const dailyLimit = feat?.daily_usage_limit ?? cfg?.daily_usage_limit ?? 0;
     if (dailyLimit > 0 && getDailyUnlockCount(toolKey) >= dailyLimit) {
-      setError(`Daily limit reached (${dailyLimit} unlocks per day). Please try again tomorrow.`);
+      setError(
+        `Daily limit reached (${dailyLimit} unlocks per day). Please try again tomorrow.`,
+      );
       return;
     }
     const cooldown = getCooldownExpiry(toolKey);
     if (cooldown) {
       const remaining = Math.ceil((cooldown - Date.now()) / 60_000);
-      setError(`Please wait ${remaining} minute${remaining > 1 ? 's' : ''} before trying again.`);
+      setError(
+        `Please wait ${remaining} minute${remaining > 1 ? "s" : ""} before trying again.`,
+      );
       return;
     }
     setShowAdModal(true);
@@ -278,7 +315,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
   const watchAd = useCallback(async () => {
     if (!config || !config.is_enabled) {
-      setError('This feature is currently disabled.');
+      setError("This feature is currently disabled.");
       return;
     }
     // Guard against double-clicks / rapid repeated calls
@@ -287,13 +324,15 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     setError(null);
 
     const clientHash = clientHashRef.current;
-    const providerName = primaryProvider?.name ?? config.ad_provider ?? 'adsense';
+    const providerName =
+      primaryProvider?.name ?? config.ad_provider ?? "adsense";
     const providerId = primaryProvider?.id ?? null;
-    const adUnitId = primaryProvider?.credentials?.ad_unit_id ?? config.ad_unit_id ?? null;
+    const adUnitId =
+      primaryProvider?.credentials?.ad_unit_id ?? config.ad_unit_id ?? null;
 
     // Log impression to the unified analytics table only (issue #7 fix: no duplicate logging)
     await logAdEvent({
-      event_type: 'impression',
+      event_type: "impression",
       provider_id: providerId,
       tool_key: toolKey,
       client_hash: clientHash,
@@ -309,7 +348,11 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // ──────────────────────────────────────────────────────
     const activeProvider = primaryProvider ?? fallbackProvider;
     if (activeProvider && supportsOfferwall(activeProvider)) {
-      const offerwall = generateOfferwallUrl(activeProvider, clientHash, toolKey);
+      const offerwall = generateOfferwallUrl(
+        activeProvider,
+        clientHash,
+        toolKey,
+      );
       if (offerwall) {
         setOfferwallUrl(offerwall.url);
         setOfferwallProviderName(offerwall.providerName);
@@ -326,12 +369,16 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
             const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
 
             await logAdEvent({
-              event_type: 'reward',
+              event_type: "reward",
               provider_id: providerId,
               tool_key: toolKey,
               client_hash: clientHash,
               revenue_estimated: revenueEstimate,
-              metadata: { ad_unit_id: adUnitId, expires_at: expiry, offerwall: true },
+              metadata: {
+                ad_unit_id: adUnitId,
+                expires_at: expiry,
+                offerwall: true,
+              },
             });
 
             setLocalExpiry(toolKey, expiry);
@@ -344,7 +391,8 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
             const newCount = incrementDailyUnlockCount(toolKey);
             setDailyUnlockCount(newCount);
-            const cooldownMinutes = featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+            const cooldownMinutes =
+              featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
             if (cooldownMinutes > 0) {
               setCooldownExpiry(toolKey, cooldownMinutes);
               setIsCooldownActive(true);
@@ -353,7 +401,13 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
         }, 5000); // Poll every 5 seconds
 
         // Stop polling after 10 minutes max
-        pollTimeoutRef.current = setTimeout(() => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current); pollIntervalRef.current = null; }, 10 * 60 * 1000);
+        pollTimeoutRef.current = setTimeout(
+          () => {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            pollIntervalRef.current = null;
+          },
+          10 * 60 * 1000,
+        );
         return;
       }
     }
@@ -372,26 +426,32 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // For now, the edge function checks for REWARDED_DEV_MODE env var.
     // ──────────────────────────────────────────────────────
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('grant-rewarded-unlock', {
-        body: {
-          toolKey,
-          clientHash,
-          adProvider: providerName,
-          // adToken will be provided by the ad SDK when integrated
-          adToken: null,
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "grant-rewarded-unlock",
+        {
+          body: {
+            toolKey,
+            clientHash,
+            adProvider: providerName,
+            // adToken will be provided by the ad SDK when integrated
+            adToken: null,
+          },
         },
-      });
+      );
 
       if (fnError || !data?.success) {
-        const errorMsg = data?.error ?? fnError?.message ?? 'Failed to unlock. Please try again.';
+        const errorMsg =
+          data?.error ??
+          fnError?.message ??
+          "Failed to unlock. Please try again.";
 
         // Log error event
         await logAdEvent({
-          event_type: 'error',
+          event_type: "error",
           provider_id: providerId,
           tool_key: toolKey,
           client_hash: clientHash,
-          metadata: { error: data?.code ?? 'edge_function_error' },
+          metadata: { error: data?.code ?? "edge_function_error" },
         });
 
         setError(errorMsg);
@@ -405,7 +465,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
       // Log reward event to unified analytics only (issue #7 fix)
       await logAdEvent({
-        event_type: 'reward',
+        event_type: "reward",
         provider_id: providerId,
         tool_key: toolKey,
         client_hash: clientHash,
@@ -423,16 +483,24 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       // Update client-side hints
       const newCount = incrementDailyUnlockCount(toolKey);
       setDailyUnlockCount(newCount);
-      const cooldownMinutes = featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+      const cooldownMinutes =
+        featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
       if (cooldownMinutes > 0) {
         setCooldownExpiry(toolKey, cooldownMinutes);
         setIsCooldownActive(true);
       }
     } catch {
-      setError('Unable to reach the unlock service. Please try again.');
+      setError("Unable to reach the unlock service. Please try again.");
       setAdLoading(false);
     }
-  }, [config, featureConfig, primaryProvider, toolKey]);
+  }, [
+    config,
+    featureConfig,
+    primaryProvider,
+    toolKey,
+    adLoading,
+    fallbackProvider,
+  ]);
 
   return {
     toolKey,
@@ -461,12 +529,12 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 }
 
 export function formatExpiry(expiresAt: string | null): string {
-  if (!expiresAt) return '';
+  if (!expiresAt) return "";
   const d = new Date(expiresAt);
   const now = new Date();
   const sameDay = d.toDateString() === now.toDateString();
   if (sameDay) {
     return `Unlocked until 11:59 PM today`;
   }
-  return `Unlocked until ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+  return `Unlocked until ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
 }

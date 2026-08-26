@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * FRELUX INTERNATIONAL ARCHITECTURE — Market Context Provider
  *
@@ -12,43 +13,50 @@
  *   3. Provide resolved market context + unit preferences to components
  */
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/lib/auth';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth";
 import type {
   MarketProfile,
   ResolvedMarketContext,
   PreferredLengthUnit,
   PreferredAreaUnit,
-} from '@/types/international';
+} from "@/types/international";
 
 // ============================================================
 // DEFAULTS (Nigeria — preserving existing behavior)
 // ============================================================
 
-export const DEFAULT_MARKET_CODE = 'NG';
+export const DEFAULT_MARKET_CODE = "NG";
 
 export const NIGERIA_DEFAULTS: ResolvedMarketContext = {
-  marketCode: 'NG',
-  countryName: 'Nigeria',
-  currencyCode: 'NGN',
-  currencySymbol: '₦',
-  measurementSystem: 'mixed',
-  defaultLengthUnit: 'meters',
-  defaultAreaUnit: 'sqm',
-  supportedLengthUnits: ['meters', 'feet', 'inches'],
-  supportedAreaUnits: ['sqm', 'sqft'],
-  defaultLanguage: 'en',
+  marketCode: "NG",
+  countryName: "Nigeria",
+  currencyCode: "NGN",
+  currencySymbol: "₦",
+  measurementSystem: "mixed",
+  defaultLengthUnit: "meters",
+  defaultAreaUnit: "sqm",
+  supportedLengthUnits: ["meters", "feet", "inches"],
+  supportedAreaUnits: ["sqm", "sqft"],
+  defaultLanguage: "en",
   localTerminology: {
-    paint_bucket: 'gallon (4 litres)',
-    cement_bag: '50kg bag',
-    white_cement_bag: '40kg bag',
-    screeding_mix: 'Plastering Sand + Cement',
-    tile_carton: 'carton',
-    pop_bag: '25kg bag',
+    paint_bucket: "gallon (4 litres)",
+    cement_bag: "50kg bag",
+    white_cement_bag: "40kg bag",
+    screeding_mix: "Plastering Sand + Cement",
+    tile_carton: "carton",
+    pop_bag: "25kg bag",
   },
-  status: 'active',
-  profileVersion: '1.0.0',
+  status: "active",
+  profileVersion: "1.0.0",
 };
 
 // ============================================================
@@ -83,21 +91,25 @@ const MarketContext = createContext<MarketContextValue | undefined>(undefined);
 
 export function MarketProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [market, setMarketState] = useState<ResolvedMarketContext>(NIGERIA_DEFAULTS);
+  const [market, setMarketState] =
+    useState<ResolvedMarketContext>(NIGERIA_DEFAULTS);
   const [isLoading, setIsLoading] = useState(true);
-  const [preferredLengthUnit, setPreferredLengthUnitState] = useState<PreferredLengthUnit>('meters');
-  const [preferredAreaUnit, setPreferredAreaUnitState] = useState<PreferredAreaUnit>('sqm');
+  const [preferredLengthUnit, setPreferredLengthUnitState] =
+    useState<PreferredLengthUnit>("meters");
+  const [preferredAreaUnit, setPreferredAreaUnitState] =
+    useState<PreferredAreaUnit>("sqm");
   const [availableMarkets, setAvailableMarkets] = useState<MarketProfile[]>([]);
-  const [userMarketCode, setUserMarketCode] = useState<string>(DEFAULT_MARKET_CODE);
+  const [userMarketCode, setUserMarketCode] =
+    useState<string>(DEFAULT_MARKET_CODE);
 
   // Load available markets (visible ones for the selector)
   useEffect(() => {
     supabase
-      .from('market_profiles')
-      .select('*')
-      .in('status', ['active', 'coming_soon'])
-      .eq('is_visible', true)
-      .order('sort_order', { ascending: true })
+      .from("market_profiles")
+      .select("*")
+      .in("status", ["active", "coming_soon"])
+      .eq("is_visible", true)
+      .order("sort_order", { ascending: true })
       .then(({ data }) => {
         if (data) setAvailableMarkets(data as unknown as MarketProfile[]);
       });
@@ -108,15 +120,15 @@ export function MarketProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       let marketCode = DEFAULT_MARKET_CODE;
-      let prefLength: PreferredLengthUnit = 'meters';
-      let prefArea: PreferredAreaUnit = 'sqm';
+      let prefLength: PreferredLengthUnit = "meters";
+      let prefArea: PreferredAreaUnit = "sqm";
 
       // Check user preferences if logged in
       if (user) {
         const { data: pref } = await supabase
-          .from('user_market_preferences')
-          .select('*')
-          .eq('user_id', user.id)
+          .from("user_market_preferences")
+          .select("*")
+          .eq("user_id", user.id)
           .maybeSingle();
 
         if (pref) {
@@ -128,9 +140,9 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
       // Load market profile
       const { data: profile } = await supabase
-        .from('market_profiles')
-        .select('*')
-        .eq('country_code', marketCode)
+        .from("market_profiles")
+        .select("*")
+        .eq("country_code", marketCode)
         .maybeSingle();
 
       if (profile) {
@@ -143,7 +155,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           measurementSystem: p.default_measurement_system,
           defaultLengthUnit: p.default_length_unit as PreferredLengthUnit,
           defaultAreaUnit: p.default_area_unit as PreferredAreaUnit,
-          supportedLengthUnits: p.supported_length_units as PreferredLengthUnit[],
+          supportedLengthUnits:
+            p.supported_length_units as PreferredLengthUnit[],
           supportedAreaUnits: p.supported_area_units as PreferredAreaUnit[],
           defaultLanguage: p.default_language,
           localTerminology: p.local_terminology || {},
@@ -171,41 +184,65 @@ export function MarketProvider({ children }: { children: ReactNode }) {
   }, [loadMarketContext]);
 
   // Set market (saves user preference if logged in)
-  const setMarket = useCallback(async (marketCode: string) => {
-    if (!user) return;
-    try {
-      await supabase
-        .from('user_market_preferences')
-        .upsert({ user_id: user.id, market_code: marketCode }, { onConflict: 'user_id' });
-      await loadMarketContext();
-    } catch { /* ignore — non-critical */ }
-  }, [user, loadMarketContext]);
+  const setMarket = useCallback(
+    async (marketCode: string) => {
+      if (!user) return;
+      try {
+        await supabase
+          .from("user_market_preferences")
+          .upsert(
+            { user_id: user.id, market_code: marketCode },
+            { onConflict: "user_id" },
+          );
+        await loadMarketContext();
+      } catch {
+        /* ignore — non-critical */
+      }
+    },
+    [user, loadMarketContext],
+  );
 
-  const setLengthUnit = useCallback(async (unit: PreferredLengthUnit) => {
-    setPreferredLengthUnitState(unit);
-    if (!user) return;
-    try {
-      await supabase
-        .from('user_market_preferences')
-        .upsert({ user_id: user.id, preferred_length_unit: unit }, { onConflict: 'user_id' });
-    } catch { /* ignore */ }
-  }, [user]);
+  const setLengthUnit = useCallback(
+    async (unit: PreferredLengthUnit) => {
+      setPreferredLengthUnitState(unit);
+      if (!user) return;
+      try {
+        await supabase
+          .from("user_market_preferences")
+          .upsert(
+            { user_id: user.id, preferred_length_unit: unit },
+            { onConflict: "user_id" },
+          );
+      } catch {
+        /* ignore */
+      }
+    },
+    [user],
+  );
 
-  const setAreaUnit = useCallback(async (unit: PreferredAreaUnit) => {
-    setPreferredAreaUnitState(unit);
-    if (!user) return;
-    try {
-      await supabase
-        .from('user_market_preferences')
-        .upsert({ user_id: user.id, preferred_area_unit: unit }, { onConflict: 'user_id' });
-    } catch { /* ignore */ }
-  }, [user]);
+  const setAreaUnit = useCallback(
+    async (unit: PreferredAreaUnit) => {
+      setPreferredAreaUnitState(unit);
+      if (!user) return;
+      try {
+        await supabase
+          .from("user_market_preferences")
+          .upsert(
+            { user_id: user.id, preferred_area_unit: unit },
+            { onConflict: "user_id" },
+          );
+      } catch {
+        /* ignore */
+      }
+    },
+    [user],
+  );
 
   const value: MarketContextValue = {
     market,
     marketCode: userMarketCode,
     isLoading,
-    isNigeria: userMarketCode === 'NG',
+    isNigeria: userMarketCode === "NG",
     preferredLengthUnit,
     preferredAreaUnit,
     availableMarkets,
@@ -215,7 +252,9 @@ export function MarketProvider({ children }: { children: ReactNode }) {
     refresh: loadMarketContext,
   };
 
-  return <MarketContext.Provider value={value}>{children}</MarketContext.Provider>;
+  return (
+    <MarketContext.Provider value={value}>{children}</MarketContext.Provider>
+  );
 }
 
 // ============================================================
@@ -231,8 +270,8 @@ export function useMarket(): MarketContextValue {
       marketCode: DEFAULT_MARKET_CODE,
       isLoading: false,
       isNigeria: true,
-      preferredLengthUnit: 'meters',
-      preferredAreaUnit: 'sqm',
+      preferredLengthUnit: "meters",
+      preferredAreaUnit: "sqm",
       availableMarkets: [],
       setMarket: async () => {},
       setLengthUnit: async () => {},

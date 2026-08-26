@@ -16,21 +16,17 @@ import type {
   MultiRoofSpec,
   RoofSectionCalculation,
   MultiRoofCalculation,
-} from './section-model-types';
-import type { RoofType } from '@/types/build-to-roof';
+} from "./section-model-types";
+import type { RoofType } from "@/types/build-to-roof";
 import {
-  calculateRoofArea,
   roofingSheetsCount,
   getSheetCoverage,
   calculateRidgeLength,
   calculateHipLength,
   calculateFasciaLength,
   estimateTimberMeters,
-  SHEET_COVERAGE,
-  SCREWS_PER_SHEET,
-  RAFTER_SPACING,
-} from '@/lib/estimation/build-to-roof-engine';
-import { calculateRoofGeometry } from './geometry-engine';
+} from "@/lib/estimation/build-to-roof-engine";
+import { calculateRoofGeometry } from "./geometry-engine";
 
 // =========================================================
 // Helpers
@@ -52,7 +48,7 @@ export function pitchAdjustedArea(
 ): number {
   if (planAreaM2 <= 0) return 0;
 
-  if (roofType === 'flat') return planAreaM2;
+  if (roofType === "flat") return planAreaM2;
 
   if (pitchDegrees === null || pitchDegrees <= 0) {
     // Cannot calculate pitched area without pitch — return plan area
@@ -90,11 +86,11 @@ export function getSectionMissing(section: RoofSectionSpec): string[] {
 
   const planArea = getSectionPlanArea(section);
   if (planArea <= 0) {
-    missing.push('area (trace geometry or enter plan area)');
+    missing.push("area (trace geometry or enter plan area)");
   }
 
-  if (section.roofType !== 'flat' && section.pitchDegrees === null) {
-    missing.push('pitch');
+  if (section.roofType !== "flat" && section.pitchDegrees === null) {
+    missing.push("pitch");
   }
 
   return missing;
@@ -107,7 +103,9 @@ export function getSectionMissing(section: RoofSectionSpec): string[] {
 /**
  * Calculate quantities for a single roof section.
  */
-export function calculateRoofSection(section: RoofSectionSpec): RoofSectionCalculation {
+export function calculateRoofSection(
+  section: RoofSectionSpec,
+): RoofSectionCalculation {
   const missing = getSectionMissing(section);
   const complete = missing.length === 0;
 
@@ -147,11 +145,24 @@ export function calculateRoofSection(section: RoofSectionSpec): RoofSectionCalcu
   const effectiveLength = equivalentSide;
   const effectiveWidth = equivalentSide;
 
-  const ridgeLengthM = calculateRidgeLength(effectiveLength, effectiveWidth, section.roofType);
-  const hipLengthM = section.roofType === 'hip'
-    ? calculateHipLength(effectiveLength, effectiveWidth, section.pitchDegrees ?? 0)
-    : 0;
-  const fasciaLengthM = calculateFasciaLength(effectiveLength, effectiveWidth, section.overhangM);
+  const ridgeLengthM = calculateRidgeLength(
+    effectiveLength,
+    effectiveWidth,
+    section.roofType,
+  );
+  const hipLengthM =
+    section.roofType === "hip"
+      ? calculateHipLength(
+          effectiveLength,
+          effectiveWidth,
+          section.pitchDegrees ?? 0,
+        )
+      : 0;
+  const fasciaLengthM = calculateFasciaLength(
+    effectiveLength,
+    effectiveWidth,
+    section.overhangM,
+  );
   const timberM = estimateTimberMeters(
     surfaceAreaM2,
     effectiveLength,
@@ -234,7 +245,7 @@ export function calculateMultiRoof(spec: MultiRoofSpec): MultiRoofCalculation {
 let sectionIdCounter = 0;
 
 export function createRoofSectionSpec(
-  name: string = 'New Section',
+  name: string = "New Section",
 ): RoofSectionSpec {
   sectionIdCounter += 1;
   return {
@@ -243,8 +254,8 @@ export function createRoofSectionSpec(
     geometry: null,
     planAreaM2: null,
     pitchDegrees: null,
-    roofType: 'gable',
-    roofingMaterial: 'long_span_aluminium',
+    roofType: "gable",
+    roofingMaterial: "long_span_aluminium",
     overhangM: 0.6,
     wastePercent: 5,
     confirmed: false,
@@ -255,7 +266,7 @@ export function createRoofSectionSpec(
  * Create a default multi-roof spec with one section.
  */
 export function createDefaultMultiRoofSpec(): MultiRoofSpec {
-  const section = createRoofSectionSpec('Main Roof');
+  const section = createRoofSectionSpec("Main Roof");
   return {
     sections: [section],
     useMultiSection: false,
@@ -285,7 +296,7 @@ export function removeRoofSection(
 ): MultiRoofSpec {
   return {
     ...spec,
-    sections: spec.sections.filter(s => s.id !== sectionId),
+    sections: spec.sections.filter((s) => s.id !== sectionId),
     confirmed: false,
   };
 }
@@ -297,8 +308,8 @@ export function updateRoofSection(
 ): MultiRoofSpec {
   return {
     ...spec,
-    sections: spec.sections.map(s =>
-      s.id === sectionId ? { ...s, ...updates, confirmed: false } : s
+    sections: spec.sections.map((s) =>
+      s.id === sectionId ? { ...s, ...updates, confirmed: false } : s,
     ),
     confirmed: false,
   };
@@ -311,8 +322,8 @@ export function renameRoofSection(
 ): MultiRoofSpec {
   return {
     ...spec,
-    sections: spec.sections.map(s =>
-      s.id === sectionId ? { ...s, name } : s
+    sections: spec.sections.map((s) =>
+      s.id === sectionId ? { ...s, name } : s,
     ),
   };
 }
@@ -320,7 +331,7 @@ export function renameRoofSection(
 export function confirmMultiRoofSpec(spec: MultiRoofSpec): MultiRoofSpec {
   return {
     ...spec,
-    sections: spec.sections.map(s => ({ ...s, confirmed: true })),
+    sections: spec.sections.map((s) => ({ ...s, confirmed: true })),
     confirmed: true,
   };
 }

@@ -7,12 +7,11 @@
  * Existing calculators that don't use this service are unaffected.
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 import type {
   MarketCalculatorConfig,
   MarketCalculatorType,
-  ResolvedMarketContext,
-} from '@/types/international';
+} from "@/types/international";
 
 // ============================================================
 // CACHE
@@ -35,9 +34,9 @@ export async function fetchCalculatorConfigs(
   if (cached) return cached;
 
   const { data, error } = await supabase
-    .from('market_calculator_config')
-    .select('*')
-    .eq('market_code', marketCode);
+    .from("market_calculator_config")
+    .select("*")
+    .eq("market_code", marketCode);
 
   if (error || !data) return new Map();
 
@@ -65,7 +64,7 @@ export async function isCalculatorAvailable(
   calculatorType: MarketCalculatorType,
 ): Promise<boolean> {
   // Nigeria: all calculators are available (preserves existing behavior)
-  if (marketCode === 'NG') return true;
+  if (marketCode === "NG") return true;
 
   const configs = await fetchCalculatorConfigs(marketCode);
   const config = configs.get(calculatorType);
@@ -113,8 +112,16 @@ export async function getAvailableCalculators(
   marketCode: string,
 ): Promise<MarketCalculatorType[]> {
   // Nigeria: all calculators (backward compatible)
-  if (marketCode === 'NG') {
-    return ['painting', 'screeding', 'pop_ceiling', 'tile', 'tyrolene', 'grafitex', 'cost_estimator'];
+  if (marketCode === "NG") {
+    return [
+      "painting",
+      "screeding",
+      "pop_ceiling",
+      "tile",
+      "tyrolene",
+      "grafitex",
+      "cost_estimator",
+    ];
   }
 
   const configs = await fetchCalculatorConfigs(marketCode);

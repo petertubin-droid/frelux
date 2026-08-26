@@ -22,34 +22,33 @@
 
 import type {
   MiSource,
-  MiPriceObservation,
   ValidationStatus,
-  MatchConfidence,
   Freshness,
-} from '@/types/market-intelligence';
-import type {
-  CrawlJob,
-  CrawlError,
-  CrawlFetchResult,
-  CrawlErrorType,
-  ExtractedProduct,
-  CrawlerConfig,
-} from '@/types/crawler';
-import { DEFAULT_CRAWLER_CONFIG } from '@/types/crawler';
+} from "@/types/market-intelligence";
+import type { CrawlJob, CrawlerConfig } from "@/types/crawler";
+import { DEFAULT_CRAWLER_CONFIG } from "@/types/crawler";
 import {
   calculateObservationConfidence,
   calculateFreshness,
   detectAnomalies,
   decideValidationStatus,
-} from '../price-validator';
+} from "../price-validator";
 import {
   normalizeProduct,
   calculateMatchConfidence,
   calculateUnitPrice,
-} from '../product-normalizer';
-import { fetchAndExtract } from './frelux-crawler-adapter';
-import { validateUrl, isUrlInDomain } from './url-validator';
-import { fetchApprovedPrices, insertObservation, upsertApprovedPrice, insertCrawlLog, insertAnomalyFlag, updateObservationStatus, upsertSource } from '../queries';
+} from "../product-normalizer";
+import { fetchAndExtract } from "./frelux-crawler-adapter";
+import { validateUrl, isUrlInDomain } from "./url-validator";
+import {
+  fetchApprovedPrices,
+  insertObservation,
+  upsertApprovedPrice,
+  insertCrawlLog,
+  insertAnomalyFlag,
+  updateObservationStatus,
+  upsertSource,
+} from "../queries";
 
 // ============================================================
 // CRAWL JOB MANAGER
@@ -62,11 +61,11 @@ import { fetchApprovedPrices, insertObservation, upsertApprovedPrice, insertCraw
 export async function executeCrawl(
   source: MiSource,
   options: {
-    mode: 'test' | 'production';
+    mode: "test" | "production";
     config?: CrawlerConfig;
     adminUserId?: string;
-    targetUrl?: string;  // optional: crawl a specific URL instead of source_url
-    canonicalProductId?: string;  // optional: pre-matched product ID
+    targetUrl?: string; // optional: crawl a specific URL instead of source_url
+    canonicalProductId?: string; // optional: pre-matched product ID
   },
 ): Promise<CrawlJob> {
   const config = options.config ?? DEFAULT_CRAWLER_CONFIG;
@@ -77,8 +76,8 @@ export async function executeCrawl(
     id: jobId,
     sourceId: source.id,
     sourceName: source.source_name,
-    providerName: 'FRELUX Crawler',
-    status: 'pending',
+    providerName: "FRELUX Crawler",
+    status: "pending",
     mode: options.mode,
     startedAt: new Date(startedAt).toISOString(),
     endedAt: null,
@@ -95,18 +94,18 @@ export async function executeCrawl(
     errors: [],
     warnings: [],
     fetchResults: [],
-    message: '',
+    message: "",
   };
 
   // 1. Validate source
   if (!source.is_active) {
-    job.status = 'skipped';
+    job.status = "skipped";
     job.errors.push({
-      type: 'SOURCE_DISABLED',
+      type: "SOURCE_DISABLED",
       message: `Source "${source.source_name}" is not active`,
       timestamp: new Date().toISOString(),
     });
-    job.message = 'Source is not active — crawl skipped';
+    job.message = "Source is not active — crawl skipped";
     finishJob(job, startedAt);
     await logCrawlResult(job);
     return job;
@@ -115,13 +114,13 @@ export async function executeCrawl(
   // 2. Determine URL to crawl
   const crawlUrl = options.targetUrl ?? source.source_url;
   if (!crawlUrl) {
-    job.status = 'failed';
+    job.status = "failed";
     job.errors.push({
-      type: 'INVALID_URL',
-      message: 'Source has no URL configured',
+      type: "INVALID_URL",
+      message: "Source has no URL configured",
       timestamp: new Date().toISOString(),
     });
-    job.message = 'No URL to crawl';
+    job.message = "No URL to crawl";
     finishJob(job, startedAt);
     await logCrawlResult(job);
     return job;
@@ -130,10 +129,14 @@ export async function executeCrawl(
   // 3. Validate URL (SSRF protection)
   const urlValidation = validateUrl(crawlUrl);
   if (!urlValidation.valid || !urlValidation.sanitized) {
-    job.status = 'failed';
+    job.status = "failed";
     job.errors.push({
-      type: urlValidation.reason?.includes('Private') || urlValidation.reason?.includes('Blocked') ? 'SSRF_BLOCKED' : 'INVALID_URL',
-      message: urlValidation.reason ?? 'Invalid URL',
+      type:
+        urlValidation.reason?.includes("Private") ||
+        urlValidation.reason?.includes("Blocked")
+          ? "SSRF_BLOCKED"
+          : "INVALID_URL",
+      message: urlValidation.reason ?? "Invalid URL",
       url: crawlUrl,
       timestamp: new Date().toISOString(),
     });
@@ -145,39 +148,42 @@ export async function executeCrawl(
 
   // 4. Domain check
   if (source.domain && !isUrlInDomain(urlValidation.sanitized, source.domain)) {
-    job.status = 'failed';
+    job.status = "failed";
     job.errors.push({
-      type: 'SSRF_BLOCKED',
+      type: "SSRF_BLOCKED",
       message: `URL does not match source domain: ${source.domain}`,
       url: crawlUrl,
       timestamp: new Date().toISOString(),
     });
-    job.message = 'URL outside source domain';
+    job.message = "URL outside source domain";
     finishJob(job, startedAt);
     await logCrawlResult(job);
     return job;
   }
 
   // 5. Fetch + Extract
-  job.status = 'fetching';
+  job.status = "fetching";
   job.pagesRequested = 1;
 
-  const { fetchResult, products, renderingRequired, rawContent } = await fetchAndExtract(
-    urlValidation.sanitized,
-    source,
-    config,
-  );
+  const {
+    fetchResult,
+    products,
+    renderingRequired,
+    rawContent: _rawContent,
+  } = await fetchAndExtract(urlValidation.sanitized, source, config);
 
   job.fetchResults.push(fetchResult);
 
   if (!fetchResult.success) {
-    job.status = 'failed';
-    job.errors.push(fetchResult.error ?? {
-      type: 'CONNECTION_ERROR',
-      message: 'Unknown fetch error',
-      timestamp: new Date().toISOString(),
-    });
-    job.message = `Fetch failed: ${fetchResult.error?.message ?? 'unknown error'}`;
+    job.status = "failed";
+    job.errors.push(
+      fetchResult.error ?? {
+        type: "CONNECTION_ERROR",
+        message: "Unknown fetch error",
+        timestamp: new Date().toISOString(),
+      },
+    );
+    job.message = `Fetch failed: ${fetchResult.error?.message ?? "unknown error"}`;
 
     // Update source health
     await updateSourceHealth(source, false, fetchResult.error?.message ?? null);
@@ -191,18 +197,21 @@ export async function executeCrawl(
 
   // 6. Check for JavaScript rendering requirement
   if (renderingRequired && products.length === 0) {
-    job.status = 'skipped';
-    job.warnings.push('Page appears to require JavaScript rendering. No products extracted.');
+    job.status = "skipped";
+    job.warnings.push(
+      "Page appears to require JavaScript rendering. No products extracted.",
+    );
     job.errors.push({
-      type: 'RENDERING_REQUIRED',
+      type: "RENDERING_REQUIRED",
       message: `Page at ${urlValidation.sanitized} requires JavaScript rendering`,
       url: urlValidation.sanitized,
       timestamp: new Date().toISOString(),
     });
-    job.message = 'Rendering required — direct crawler cannot extract data from this page';
+    job.message =
+      "Rendering required — direct crawler cannot extract data from this page";
 
     // Update source health
-    await updateSourceHealth(source, false, 'RENDERING_REQUIRED');
+    await updateSourceHealth(source, false, "RENDERING_REQUIRED");
 
     finishJob(job, startedAt);
     await logCrawlResult(job);
@@ -210,13 +219,13 @@ export async function executeCrawl(
   }
 
   // 7. Process extracted products
-  job.status = 'extracting';
+  job.status = "extracting";
   job.productsDiscovered = products.length;
 
   if (products.length === 0) {
-    job.status = 'completed';
-    job.warnings.push('No products found on this page');
-    job.message = 'Crawl completed — no products found';
+    job.status = "completed";
+    job.warnings.push("No products found on this page");
+    job.message = "Crawl completed — no products found";
 
     // Update source health — fetch succeeded but no products
     await updateSourceHealth(source, true, null);
@@ -227,13 +236,13 @@ export async function executeCrawl(
   }
 
   // 8. Normalize, validate, and create observations
-  job.status = 'validating';
+  job.status = "validating";
 
   // Fetch existing approved prices for anomaly comparison
-  let existingPrices: { price: number; id: string }[] = [];
+  let _existingPrices: { price: number; id: string }[] = [];
   try {
     const approved = await fetchApprovedPrices(source.country_code);
-    existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
+    _existingPrices = approved.map((p) => ({ price: p.price, id: p.id }));
   } catch {
     // If we can't fetch existing prices, skip anomaly comparison
   }
@@ -272,7 +281,7 @@ export async function executeCrawl(
         match_confidence: matchResult.confidence,
         collected_at: new Date().toISOString(),
         package_size: product.packageSize ?? null,
-        currency_code: product.currency ?? '',
+        currency_code: product.currency ?? "",
         market_code: source.country_code,
       },
       {
@@ -280,13 +289,14 @@ export async function executeCrawl(
         is_verified: source.is_verified,
         country_code: source.country_code,
       },
-      product.currency ?? 'NGN',
+      product.currency ?? "NGN",
       source.country_code,
     );
 
     // Determine validation status
     // In test mode, never auto-approve
-    const autoApprove = options.mode === 'production' && config.autoApproveEnabled;
+    const autoApprove =
+      options.mode === "production" && config.autoApproveEnabled;
     const validationStatus: ValidationStatus = decideValidationStatus(
       confidenceResult.confidence,
       false, // anomaly check below
@@ -312,9 +322,9 @@ export async function executeCrawl(
         normalized_category: normalized.normalized_category,
         package_size: product.packageSize ?? null,
         package_unit: product.packageUnit ?? null,
-        package_size_confidence: product.packageSize ? 'medium' : 'unknown',
+        package_size_confidence: product.packageSize ? "medium" : "unknown",
         price: product.price,
-        currency_code: product.currency ?? 'NGN',
+        currency_code: product.currency ?? "NGN",
         unit_price_per_kg: unitPrice.per_kg,
         unit_price_per_litre: unitPrice.per_litre,
         unit_price_calculable: unitPrice.calculable,
@@ -331,21 +341,21 @@ export async function executeCrawl(
 
       job.observationIds.push(observation.id);
 
-      if (validationStatus === 'approved') {
+      if (validationStatus === "approved") {
         job.pricesAccepted++;
 
         // Create/update approved price
-        if (options.mode === 'production') {
+        if (options.mode === "production") {
           await upsertApprovedPrice({
             market_code: source.country_code,
             canonical_product_id: options.canonicalProductId ?? null,
             product_name: normalized.normalized_name,
             brand: normalized.normalized_brand,
-            category: normalized.normalized_category ?? 'uncategorized',
+            category: normalized.normalized_category ?? "uncategorized",
             package_size: product.packageSize ?? 1,
-            package_unit: product.packageUnit ?? 'unit',
+            package_unit: product.packageUnit ?? "unit",
             price: product.price,
-            currency_code: product.currency ?? 'NGN',
+            currency_code: product.currency ?? "NGN",
             unit_price_per_kg: unitPrice.per_kg,
             unit_price_per_litre: unitPrice.per_litre,
             unit_price_calculable: unitPrice.calculable,
@@ -359,15 +369,15 @@ export async function executeCrawl(
             is_active: true,
           });
         }
-      } else if (validationStatus === 'review_required') {
+      } else if (validationStatus === "review_required") {
         job.pricesReviewRequired++;
       } else {
         job.pricesRejected++;
       }
     } catch (e) {
       job.errors.push({
-        type: 'PARSE_ERROR',
-        message: `Failed to create observation for "${product.productName}": ${e instanceof Error ? e.message : 'unknown'}`,
+        type: "PARSE_ERROR",
+        message: `Failed to create observation for "${product.productName}": ${e instanceof Error ? e.message : "unknown"}`,
         timestamp: new Date().toISOString(),
       });
     }
@@ -376,25 +386,25 @@ export async function executeCrawl(
   // 9. Anomaly detection
   if (job.observationIds.length >= 2) {
     try {
-      const _observations = job.observationIds.map(id => ({ id, price: 0 })); // would need actual prices
+      const _observations = job.observationIds.map((id) => ({ id, price: 0 })); // would need actual prices
       // Anomaly detection on collected prices
       const productPrices = products
-        .filter(p => p.price !== null)
-        .map((p, i) => ({ id: job.observationIds[i] ?? '', price: p.price! }));
+        .filter((p) => p.price !== null)
+        .map((p, i) => ({ id: job.observationIds[i] ?? "", price: p.price! }));
 
       if (productPrices.length >= 2) {
         const anomalies = detectAnomalies(productPrices);
         for (const anomaly of anomalies) {
           job.anomaliesDetected++;
           try {
-            await insertAnomalyFlag(anomaly.observationId, 'price_deviation', {
+            await insertAnomalyFlag(anomaly.observationId, "price_deviation", {
               expectedRange: { median: anomaly.expectedMedian },
               actualValue: anomaly.deviationPercent,
               deviationPercent: anomaly.deviationPercent,
               description: `Price deviates ${anomaly.deviationPercent}% from median`,
             });
             // Update observation status to anomaly
-            await updateObservationStatus(anomaly.observationId, 'anomaly');
+            await updateObservationStatus(anomaly.observationId, "anomaly");
           } catch {
             // Non-fatal if anomaly logging fails
           }
@@ -407,19 +417,23 @@ export async function executeCrawl(
 
   // 10. Final status
   if (job.errors.length > 0 && job.observationIds.length > 0) {
-    job.status = 'partial';
+    job.status = "partial";
     job.message = `Crawl partial — ${job.observationIds.length} observations created, ${job.errors.length} errors`;
   } else if (job.errors.length > 0 && job.observationIds.length === 0) {
-    job.status = 'failed';
+    job.status = "failed";
     job.message = `Crawl failed — ${job.errors.length} errors, 0 observations`;
   } else {
-    job.status = 'completed';
+    job.status = "completed";
     job.message = `Crawl completed — ${job.productsDiscovered} products found, ${job.observationIds.length} observations created (${job.pricesAccepted} approved, ${job.pricesReviewRequired} review required)`;
   }
 
   // Update source health
-  const success = job.status === 'completed' || job.status === 'partial';
-  await updateSourceHealth(source, success, success ? null : job.errors[0]?.message ?? null);
+  const success = job.status === "completed" || job.status === "partial";
+  await updateSourceHealth(
+    source,
+    success,
+    success ? null : (job.errors[0]?.message ?? null),
+  );
 
   finishJob(job, startedAt);
   await logCrawlResult(job);
@@ -436,12 +450,18 @@ function finishJob(job: CrawlJob, startedAt: number): void {
   job.durationMs = Date.now() - startedAt;
 }
 
-async function updateSourceHealth(source: MiSource, success: boolean, error: string | null): Promise<void> {
+async function updateSourceHealth(
+  source: MiSource,
+  success: boolean,
+  error: string | null,
+): Promise<void> {
   try {
     await upsertSource({
       id: source.id,
       last_checked_at: new Date().toISOString(),
-      last_success_at: success ? new Date().toISOString() : source.last_success_at,
+      last_success_at: success
+        ? new Date().toISOString()
+        : source.last_success_at,
       last_error: error,
     });
   } catch {
@@ -453,20 +473,24 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
   try {
     // Log crawl start
     await insertCrawlLog(
-      'crawl_started',
+      "crawl_started",
       `Crawl started for ${job.sourceName} (${job.mode} mode)`,
       { jobId: job.id, mode: job.mode, sourceId: job.sourceId },
       { sourceId: job.sourceId },
     );
 
     // Log crawl result
-    const eventType = job.status === 'completed' ? 'crawl_completed'
-      : job.status === 'failed' ? 'crawl_failed'
-      : job.status === 'partial' ? 'crawl_completed'
-      : 'crawl_failed';
+    const eventType =
+      job.status === "completed"
+        ? "crawl_completed"
+        : job.status === "failed"
+          ? "crawl_failed"
+          : job.status === "partial"
+            ? "crawl_completed"
+            : "crawl_failed";
 
     await insertCrawlLog(
-      eventType as 'crawl_completed' | 'crawl_failed',
+      eventType as "crawl_completed" | "crawl_failed",
       job.message,
       {
         jobId: job.id,
@@ -490,7 +514,7 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
     // Log individual errors
     for (const error of job.errors) {
       await insertCrawlLog(
-        'provider_error',
+        "provider_error",
         `${error.type}: ${error.message}`,
         { errorType: error.type, url: error.url, statusCode: error.statusCode },
         { sourceId: job.sourceId },
@@ -505,8 +529,8 @@ async function logCrawlResult(job: CrawlJob): Promise<void> {
 // ADAPTER REGISTRATION
 // ============================================================
 
-import { registerProviderAdapter } from '../provider-registry';
-import { freluxCrawlerAdapter } from './frelux-crawler-adapter';
+import { registerProviderAdapter } from "../provider-registry";
+import { freluxCrawlerAdapter } from "./frelux-crawler-adapter";
 
 // Register the FRELUX Crawler adapter at module load
 registerProviderAdapter(freluxCrawlerAdapter);

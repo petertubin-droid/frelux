@@ -1,21 +1,22 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import {
   getStoredConsent,
-  shouldShowBanner,
   acceptAll,
   rejectAll,
   saveConsent,
   withdrawConsent,
   type CookieConsent,
   type CookieCategory,
-} from '@/lib/cookie-consent';
+} from "@/lib/cookie-consent";
 
 /**
  * React hook for cookie consent state.
  * Returns: { consent, showBanner, accept, reject, save, withdraw, dismiss }
  */
 export function useCookieConsent() {
-  const [consent, setConsent] = useState<CookieConsent | null>(getStoredConsent());
+  const [consent, setConsent] = useState<CookieConsent | null>(
+    getStoredConsent(),
+  );
   const [showBanner, setShowBanner] = useState(false);
 
   // On mount — check if banner should show
@@ -33,31 +34,31 @@ export function useCookieConsent() {
       setShowBanner(stored === null);
     }
 
-    window.addEventListener('frelux:cookie-consent', onChange);
-    window.addEventListener('frelux:cookie-consent-withdrawn', onChange);
-    window.addEventListener('storage', onChange);
+    window.addEventListener("frelux:cookie-consent", onChange);
+    window.addEventListener("frelux:cookie-consent-withdrawn", onChange);
+    window.addEventListener("storage", onChange);
 
     return () => {
-      window.removeEventListener('frelux:cookie-consent', onChange);
-      window.removeEventListener('frelux:cookie-consent-withdrawn', onChange);
-      window.removeEventListener('storage', onChange);
+      window.removeEventListener("frelux:cookie-consent", onChange);
+      window.removeEventListener("frelux:cookie-consent-withdrawn", onChange);
+      window.removeEventListener("storage", onChange);
     };
   }, []);
 
   const accept = useCallback(() => {
-    const c = acceptAll('banner');
+    const c = acceptAll("banner");
     setConsent(c);
     setShowBanner(false);
   }, []);
 
   const reject = useCallback(() => {
-    const c = rejectAll('banner');
+    const c = rejectAll("banner");
     setConsent(c);
     setShowBanner(false);
   }, []);
 
   const save = useCallback((categories: Record<CookieCategory, boolean>) => {
-    const c = saveConsent(categories, 'banner');
+    const c = saveConsent(categories, "banner");
     setConsent(c);
     setShowBanner(false);
   }, []);

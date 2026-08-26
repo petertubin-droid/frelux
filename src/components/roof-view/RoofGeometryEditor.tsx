@@ -15,19 +15,17 @@
  * Feature 3: Editable Roof Tracing
  */
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo } from "react";
 import {
   Plus,
   Trash2,
   CheckCircle2,
-  Undo2,
   MousePointer2,
   Move,
   Eraser,
-  Eye,
   Layers,
-} from 'lucide-react';
-import type { RoofGeometry } from '@/lib/roof/geometry-types';
+} from "lucide-react";
+import type { RoofGeometry } from "@/lib/roof/geometry-types";
 import {
   addVertex,
   moveVertex,
@@ -38,14 +36,14 @@ import {
   confirmGeometry,
   polygonArea,
   isValidSection,
-} from '@/lib/roof/geometry-engine';
+} from "@/lib/roof/geometry-engine";
 
 const SVG_WIDTH = 600;
 const SVG_HEIGHT = 400;
 const POINT_RADIUS = 6;
 const HIT_RADIUS = 12;
 
-type Tool = 'add' | 'move' | 'delete';
+type Tool = "add" | "move" | "delete";
 
 interface RoofGeometryEditorProps {
   geometry: RoofGeometry;
@@ -61,61 +59,89 @@ export function RoofGeometryEditor({
   backgroundImageUrl,
   disabled,
 }: RoofGeometryEditorProps) {
-  const [tool, setTool] = useState<Tool>('add');
+  const [tool, setTool] = useState<Tool>("add");
   const [draggingPointId, setDraggingPointId] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const activeSection = useMemo(
-    () => geometry.sections.find(s => s.id === geometry.activeSectionId) ?? null,
+    () =>
+      geometry.sections.find((s) => s.id === geometry.activeSectionId) ?? null,
     [geometry],
   );
 
   // ── Convert screen coordinates to SVG coordinates ──
-  const getSvgCoords = useCallback((e: React.MouseEvent): { x: number; y: number } => {
-    const svg = svgRef.current;
-    if (!svg) return { x: 0, y: 0 };
-    const rect = svg.getBoundingClientRect();
-    const scaleX = SVG_WIDTH / rect.width;
-    const scaleY = SVG_HEIGHT / rect.height;
-    return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
-    };
-  }, []);
+  const getSvgCoords = useCallback(
+    (e: React.MouseEvent): { x: number; y: number } => {
+      const svg = svgRef.current;
+      if (!svg) return { x: 0, y: 0 };
+      const rect = svg.getBoundingClientRect();
+      const scaleX = SVG_WIDTH / rect.width;
+      const scaleY = SVG_HEIGHT / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
+    },
+    [],
+  );
 
   // ── SVG click handler ──
-  const handleSvgClick = useCallback((e: React.MouseEvent) => {
-    if (disabled) return;
-    if (!activeSection) return;
-    if (tool !== 'add') return;
-    if (draggingPointId) return; // don't add when finishing a drag
+  const handleSvgClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (disabled) return;
+      if (!activeSection) return;
+      if (tool !== "add") return;
+      if (draggingPointId) return; // don't add when finishing a drag
 
-    const { x, y } = getSvgCoords(e);
-    onChange(addVertex(geometry, activeSection.id, { x, y }));
-  }, [disabled, activeSection, tool, draggingPointId, getSvgCoords, geometry, onChange]);
+      const { x, y } = getSvgCoords(e);
+      onChange(addVertex(geometry, activeSection.id, { x, y }));
+    },
+    [
+      disabled,
+      activeSection,
+      tool,
+      draggingPointId,
+      getSvgCoords,
+      geometry,
+      onChange,
+    ],
+  );
 
   // ── Point mouse down (start drag or delete) ──
-  const handlePointMouseDown = useCallback((e: React.MouseEvent, pointId: string) => {
-    e.stopPropagation();
-    if (disabled) return;
+  const handlePointMouseDown = useCallback(
+    (e: React.MouseEvent, pointId: string) => {
+      e.stopPropagation();
+      if (disabled) return;
 
-    if (tool === 'delete') {
-      if (!activeSection) return;
-      onChange(deleteVertex(geometry, activeSection.id, pointId));
-      return;
-    }
+      if (tool === "delete") {
+        if (!activeSection) return;
+        onChange(deleteVertex(geometry, activeSection.id, pointId));
+        return;
+      }
 
-    if (tool === 'move') {
-      setDraggingPointId(pointId);
-    }
-  }, [disabled, tool, activeSection, geometry, onChange]);
+      if (tool === "move") {
+        setDraggingPointId(pointId);
+      }
+    },
+    [disabled, tool, activeSection, geometry, onChange],
+  );
 
   // ── SVG mouse move (dragging a point) ──
-  const handleSvgMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!draggingPointId || !activeSection || disabled) return;
-    const { x, y } = getSvgCoords(e);
-    onChange(moveVertex(geometry, activeSection.id, draggingPointId, x, y));
-  }, [draggingPointId, activeSection, disabled, getSvgCoords, geometry, onChange]);
+  const handleSvgMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!draggingPointId || !activeSection || disabled) return;
+      const { x, y } = getSvgCoords(e);
+      onChange(moveVertex(geometry, activeSection.id, draggingPointId, x, y));
+    },
+    [
+      draggingPointId,
+      activeSection,
+      disabled,
+      getSvgCoords,
+      geometry,
+      onChange,
+    ],
+  );
 
   // ── SVG mouse up (end drag) ──
   const handleSvgMouseUp = useCallback(() => {
@@ -135,10 +161,10 @@ export function RoofGeometryEditor({
 
   // ── Get polygon points string for SVG ──
   const getPointsString = (vertices: { x: number; y: number }[]): string => {
-    return vertices.map(v => `${v.x},${v.y}`).join(' ');
+    return vertices.map((v) => `${v.x},${v.y}`).join(" ");
   };
 
-  const hasValidSections = geometry.sections.some(s => isValidSection(s));
+  const hasValidSections = geometry.sections.some((s) => isValidSection(s));
   const allConfirmed = geometry.confirmed;
 
   return (
@@ -148,12 +174,14 @@ export function RoofGeometryEditor({
         {geometry.sections.map((section, _i) => (
           <button
             key={section.id}
-            onClick={() => onChange({ ...geometry, activeSectionId: section.id })}
+            onClick={() =>
+              onChange({ ...geometry, activeSectionId: section.id })
+            }
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               geometry.activeSectionId === section.id
-                ? 'bg-brand-purple text-white'
-                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                ? "bg-brand-purple text-white"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
             }`}
           >
             <Layers className="w-3 h-3" />
@@ -179,14 +207,20 @@ export function RoofGeometryEditor({
           <input
             type="text"
             value={activeSection.name}
-            onChange={e => onChange(renameSection(geometry, activeSection.id, e.target.value))}
+            onChange={(e) =>
+              onChange(
+                renameSection(geometry, activeSection.id, e.target.value),
+              )
+            }
             disabled={disabled}
             className="flex-1 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm"
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
             <button
-              onClick={() => onChange(removeSection(geometry, activeSection.id))}
+              onClick={() =>
+                onChange(removeSection(geometry, activeSection.id))
+              }
               disabled={disabled}
               className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50"
             >
@@ -199,19 +233,21 @@ export function RoofGeometryEditor({
       {/* Tool selector */}
       <div className="flex items-center gap-2">
         <span className="text-xs font-medium text-neutral-500">Tool:</span>
-        {([
-          { id: 'add', label: 'Add Points', icon: MousePointer2 },
-          { id: 'move', label: 'Move Points', icon: Move },
-          { id: 'delete', label: 'Delete Points', icon: Eraser },
-        ] as const).map(t => (
+        {(
+          [
+            { id: "add", label: "Add Points", icon: MousePointer2 },
+            { id: "move", label: "Move Points", icon: Move },
+            { id: "delete", label: "Delete Points", icon: Eraser },
+          ] as const
+        ).map((t) => (
           <button
             key={t.id}
             onClick={() => setTool(t.id)}
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
               tool === t.id
-                ? 'bg-neutral-900 text-white'
-                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                ? "bg-neutral-900 text-white"
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -227,7 +263,15 @@ export function RoofGeometryEditor({
           width="100%"
           viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="block touch-none"
-          style={{ cursor: disabled ? 'not-allowed' : tool === 'add' ? 'crosshair' : tool === 'delete' ? 'pointer' : 'default' }}
+          style={{
+            cursor: disabled
+              ? "not-allowed"
+              : tool === "add"
+                ? "crosshair"
+                : tool === "delete"
+                  ? "pointer"
+                  : "default",
+          }}
           onClick={handleSvgClick}
           onMouseMove={handleSvgMouseMove}
           onMouseUp={handleSvgMouseUp}
@@ -248,18 +292,32 @@ export function RoofGeometryEditor({
 
           {/* Grid (subtle) */}
           <defs>
-            <pattern id="roof-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(128,128,128,0.12)" strokeWidth="1" />
+            <pattern
+              id="roof-grid"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="rgba(128,128,128,0.12)"
+                strokeWidth="1"
+              />
             </pattern>
           </defs>
           <rect width={SVG_WIDTH} height={SVG_HEIGHT} fill="url(#roof-grid)" />
 
           {/* Render all sections as polygons (inactive ones faded) */}
-          {geometry.sections.map(section => {
+          {geometry.sections.map((section) => {
             if (section.vertices.length < 2) return null;
             const isActive = section.id === geometry.activeSectionId;
-            const fill = isActive ? 'rgba(124, 58, 237, 0.1)' : 'rgba(128, 128, 128, 0.05)';
-            const stroke = isActive ? 'rgb(124, 58, 237)' : 'rgba(128, 128, 128, 0.4)';
+            const fill = isActive
+              ? "rgba(124, 58, 237, 0.1)"
+              : "rgba(128, 128, 128, 0.05)";
+            const stroke = isActive
+              ? "rgb(124, 58, 237)"
+              : "rgba(128, 128, 128, 0.4)";
 
             return (
               <polygon
@@ -268,38 +326,52 @@ export function RoofGeometryEditor({
                 fill={fill}
                 stroke={stroke}
                 strokeWidth={2}
-                strokeDasharray={section.confirmed ? 'none' : '6,3'}
+                strokeDasharray={section.confirmed ? "none" : "6,3"}
               />
             );
           })}
 
           {/* Render vertices for active section */}
-          {activeSection && activeSection.vertices.map(point => {
-            const isDragging = point.id === draggingPointId;
-            return (
-              <g key={point.id}>
-                {/* Hit area (larger for easier interaction) */}
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={HIT_RADIUS}
-                  fill="transparent"
-                  style={{ cursor: tool === 'move' ? 'grab' : tool === 'delete' ? 'pointer' : 'default' }}
-                  onMouseDown={(e) => handlePointMouseDown(e, point.id)}
-                />
-                {/* Visible point */}
-                <circle
-                  cx={point.x}
-                  cy={point.y}
-                  r={POINT_RADIUS}
-                  fill={isDragging ? '#ec4899' : tool === 'delete' ? '#ef4444' : '#7c3aed'}
-                  stroke="white"
-                  strokeWidth={2}
-                  style={{ pointerEvents: 'none' }}
-                />
-              </g>
-            );
-          })}
+          {activeSection &&
+            activeSection.vertices.map((point) => {
+              const isDragging = point.id === draggingPointId;
+              return (
+                <g key={point.id}>
+                  {/* Hit area (larger for easier interaction) */}
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r={HIT_RADIUS}
+                    fill="transparent"
+                    style={{
+                      cursor:
+                        tool === "move"
+                          ? "grab"
+                          : tool === "delete"
+                            ? "pointer"
+                            : "default",
+                    }}
+                    onMouseDown={(e) => handlePointMouseDown(e, point.id)}
+                  />
+                  {/* Visible point */}
+                  <circle
+                    cx={point.x}
+                    cy={point.y}
+                    r={POINT_RADIUS}
+                    fill={
+                      isDragging
+                        ? "#ec4899"
+                        : tool === "delete"
+                          ? "#ef4444"
+                          : "#7c3aed"
+                    }
+                    stroke="white"
+                    strokeWidth={2}
+                    style={{ pointerEvents: "none" }}
+                  />
+                </g>
+              );
+            })}
 
           {/* Connecting lines for < 2 vertices in active section */}
           {activeSection && activeSection.vertices.length === 1 && (
@@ -331,11 +403,15 @@ export function RoofGeometryEditor({
           {activeSection.vertices.length >= 3 && (
             <>
               <span>·</span>
-              <span>Area: {polygonArea(activeSection.vertices).toFixed(0)} px²</span>
+              <span>
+                Area: {polygonArea(activeSection.vertices).toFixed(0)} px²
+              </span>
               {isValidSection(activeSection) ? (
                 <span className="text-green-600">· Valid polygon</span>
               ) : (
-                <span className="text-amber-600">· Needs ≥3 non-collinear points</span>
+                <span className="text-amber-600">
+                  · Needs ≥3 non-collinear points
+                </span>
               )}
             </>
           )}
