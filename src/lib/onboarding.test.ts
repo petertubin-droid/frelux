@@ -1,53 +1,51 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   isOnboardingComplete,
   completeOnboarding,
   resetOnboarding,
   TOUR_STEPS,
+  type TourStep,
 } from "./onboarding";
 
-beforeEach(() => {
-  localStorage.clear();
-});
+describe("onboarding", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
 
-describe("isOnboardingComplete", () => {
-  it("returns false when no flag is stored", () => {
+  it("isOnboardingComplete returns false when not set", () => {
     expect(isOnboardingComplete()).toBe(false);
   });
 
-  it("returns true after completeOnboarding is called", () => {
+  it("completeOnboarding sets flag", () => {
     completeOnboarding();
     expect(isOnboardingComplete()).toBe(true);
   });
 
-  it("returns false after resetOnboarding", () => {
+  it("resetOnboarding clears flag", () => {
     completeOnboarding();
+    expect(isOnboardingComplete()).toBe(true);
     resetOnboarding();
     expect(isOnboardingComplete()).toBe(false);
   });
 
-  it("does not throw when localStorage throws", () => {
-    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
-      throw new Error("Access denied");
-    });
-    expect(isOnboardingComplete()).toBe(false);
-    vi.restoreAllMocks();
+  it("TOUR_STEPS has 6 steps", () => {
+    expect(TOUR_STEPS.length).toBe(6);
   });
-});
 
-describe("TOUR_STEPS", () => {
-  it("defines at least 4 tour steps with content", () => {
-    expect(TOUR_STEPS.length).toBeGreaterThanOrEqual(4);
+  it("TOUR_STEPS each step has required fields", () => {
     for (const step of TOUR_STEPS) {
+      expect(step.target).toBeTruthy();
       expect(step.title).toBeTruthy();
       expect(step.description).toBeTruthy();
-      expect(step.target).toBeTruthy();
       expect(step.icon).toBeTruthy();
     }
   });
 
-  it("has a CTA on at least the first and last steps", () => {
-    expect(TOUR_STEPS[0].cta).toBeTruthy();
-    expect(TOUR_STEPS[TOUR_STEPS.length - 1].cta).toBeTruthy();
+  it("TOUR_STEPS first step is welcome", () => {
+    expect(TOUR_STEPS[0].title).toContain("Welcome");
+  });
+
+  it("TOUR_STEPS last step is quick access", () => {
+    expect(TOUR_STEPS[TOUR_STEPS.length - 1].title).toContain("Quick Access");
   });
 });

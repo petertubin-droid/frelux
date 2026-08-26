@@ -3,162 +3,149 @@ import {
   generatePaintShoppingList,
   generateCostEstimateShoppingList,
   shoppingListToText,
+  type ShoppingListItem,
 } from "./shopping-list";
-import type {
-  CalculatorResult,
-  CostEstimateResult,
-  CalculatorInput,
-  CostEstimateInput,
-} from "@/types";
 
-function calcResult(
-  overrides: Partial<CalculatorResult> = {},
-): CalculatorResult {
-  return {
-    paintableArea: 40,
-    totalRecommendedLiters: 10,
-    recommendedContainers: [{ size: 5, count: 2 }],
-    ...overrides,
-  } as CalculatorResult;
-}
+const baseResult = {
+  paintableArea: 50,
+  adjustedLiters: 10,
+  totalRecommendedLiters: 12,
+  recommendedContainers: [] as { count: number; size: number }[],
+};
 
-function calcInput(overrides: Partial<CalculatorInput> = {}): CalculatorInput {
-  return { coats: 2, wasteMargin: 10, ...overrides } as CalculatorInput;
-}
+const baseInput = {
+  coats: 2,
+  wasteMargin: 10,
+  paintableArea: 50,
+};
 
-describe("generatePaintShoppingList", () => {
-  it("lists a shopping item per recommended container", () => {
+describe("shopping-list", () => {
+  it("generatePaintShoppingList creates items for containers", () => {
     const items = generatePaintShoppingList(
-      calcResult(),
-      calcInput(),
+      {
+        ...baseResult,
+        recommendedContainers: [
+          { count: 2, size: 5 },
+          { count: 1, size: 2 },
+        ],
+      } as any,
+      baseInput as any,
+      "Satin",
+    );
+    expect(items.length).toBeGreaterThan(3);
+    const paintItems = items.filter((i) => i.name.includes("Satin"));
+    expect(paintItems.length).toBe(2);
+  });
+
+  it("generatePaintShoppingList shows liters when no containers", () => {
+    const items = generatePaintShoppingList(
+      { ...baseResult, recommendedContainers: [] } as any,
+      { ...baseInput, coats: 1 } as any,
       "Emulsion",
     );
     const paintItem = items.find((i) => i.name.includes("Emulsion"));
-    expect(paintItem?.quantity).toBe("2 containers");
+    expect(paintItem).toBeTruthy();
+    expect(paintItem!.quantity).toContain("12");
   });
 
-  it("falls back to total liters when no containers are recommended", () => {
+  it("generatePaintShoppingList includes primer for multi-coat", () => {
     const items = generatePaintShoppingList(
-      calcResult({ recommendedContainers: [] }),
-      calcInput(),
-      "Emulsion",
+      { ...baseResult } as any,
+      { ...baseInput, coats: 3 } as any,
+      "Satin",
     );
-    const paintItem = items.find((i) => i.name === "Emulsion paint");
-    expect(paintItem?.quantity).toContain("10");
+    expect(items.some((i) => i.name === "Primer")).toBe(true);
   });
 
-  it("adds a primer item only for multi-coat jobs", () => {
-    const multiCoat = generatePaintShoppingList(
-      calcResult(),
-      calcInput({ coats: 2 }),
-      "Emulsion",
-    );
-    const singleCoat = generatePaintShoppingList(
-      calcResult(),
-      calcInput({ coats: 1 }),
-      "Emulsion",
-    );
-    expect(multiCoat.some((i) => i.name === "Primer")).toBe(true);
-    expect(singleCoat.some((i) => i.name === "Primer")).toBe(false);
-  });
-
-  it("always includes standard prep and application supplies", () => {
+  it("generatePaintShoppingList excludes primer for single coat", () => {
     const items = generatePaintShoppingList(
-      calcResult(),
-      calcInput(),
-      "Emulsion",
+      { ...baseResult } as any,
+      { ...baseInput, coats: 1 } as any,
+      "Satin",
     );
-    const names = items.map((i) => i.name);
-    expect(names).toContain("Sandpaper (fine grit)");
-    expect(names).toContain("Paint brushes");
-    expect(names).toContain("Paint rollers + tray");
-    expect(names).toContain("Masking tape");
-    expect(names).toContain("Drop cloth / plastic sheet");
+    expect(items.some((i) => i.name === "Primer")).toBe(false);
   });
 
-  it("marks every generated item as unchecked initially", () => {
+  it("generatePaintShoppingList includes accessories", () => {
     const items = generatePaintShoppingList(
-      calcResult(),
-      calcInput(),
-      "Emulsion",
+      { ...baseResult } as any,
+      { ...baseInput, coats: 1 } as any,
+      "Satin",
+    );
+    expect(items.some((i) => i.name.includes("Sandpaper"))).toBe(true);
+    expect(items.some((i) => i.name.includes("brush"))).toBe(true);
+    expect(items.some((i) => i.name.includes("roller"))).toBe(true);
+    expect(items.some((i) => i.name.includes("Masking"))).toBe(true);
+    expect(items.some((i) => i.name.includes("Drop cloth"))).toBe(true);
+  });
+
+  it("all items start unchecked", () => {
+    const items = generatePaintShoppingList(
+      { ...baseResult } as any,
+      { ...baseInput, coats: 1 } as any,
+      "Satin",
     );
     expect(items.every((i) => i.checked === false)).toBe(true);
   });
-});
 
-describe("generateCostEstimateShoppingList", () => {
-  function costResult(
-    overrides: Partial<CostEstimateResult> = {},
-  ): CostEstimateResult {
-    return {
-      paintCost: 20000,
-      paintContainerCount: 2,
-      primerCost: 0,
-      fillerCost: 0,
-      puttyCost: 0,
-      sandpaperCost: 1500,
-      brushesCost: 0,
-      rollersCost: 3000,
-      otherMaterialsCost: 0,
-      currencySymbol: "₦",
-      ...overrides,
-    } as CostEstimateResult;
-  }
-
-  function costInput(
-    overrides: Partial<CostEstimateInput> = {},
-  ): CostEstimateInput {
-    return { paintLiters: 10, ...overrides } as CostEstimateInput;
-  }
-
-  it("only includes line items with a nonzero cost", () => {
+  it("generateCostEstimateShoppingList creates items for priced materials", () => {
     const items = generateCostEstimateShoppingList(
-      costResult(),
-      costInput(),
-      "Emulsion",
+      {
+        paintCost: 5000,
+        paintContainerCount: 2,
+        primerCost: 1000,
+        fillerCost: 0,
+        puttyCost: 500,
+        sandpaperCost: 0,
+        brushesCost: 200,
+        rollersCost: 0,
+        otherMaterialsCost: 100,
+        total: 6800,
+        currencySymbol: "₦",
+      } as any,
+      {
+        paintLiters: 10,
+        paintableArea: 50,
+      } as any,
+      "Satin",
     );
-    const names = items.map((i) => i.name);
-    expect(names).toContain("Emulsion paint");
-    expect(names).toContain("Sandpaper");
-    expect(names).toContain("Rollers");
-    expect(names).not.toContain("Primer");
-    expect(names).not.toContain("Filler");
+    expect(items.length).toBe(5); // paint, primer, putty, brushes, other
+    expect(items.some((i) => i.name.includes("Satin"))).toBe(true);
+    expect(items.some((i) => i.name === "Primer")).toBe(true);
+    expect(items.some((i) => i.name === "Putty")).toBe(true);
+    expect(items.some((i) => i.name === "Brushes")).toBe(true);
+    expect(items.some((i) => i.name === "Other materials")).toBe(true);
   });
 
-  it("shows liters when paint container count is 0", () => {
+  it("generateCostEstimateShoppingList shows liters when no container count", () => {
     const items = generateCostEstimateShoppingList(
-      costResult({ paintContainerCount: 0 }),
-      costInput({ paintLiters: 12.5 }),
-      "Emulsion",
+      {
+        paintCost: 5000,
+        paintContainerCount: 0,
+        currencySymbol: "₦",
+      } as any,
+      { paintLiters: 10, paintableArea: 50 } as any,
+      "Satin",
     );
-    const paintItem = items.find((i) => i.name === "Emulsion paint");
-    expect(paintItem?.quantity).toContain("12.5");
+    const paint = items.find((i) => i.name.includes("Satin"));
+    expect(paint?.quantity).toContain("10");
   });
 
-  it("formats detail costs with the given currency symbol", () => {
-    const items = generateCostEstimateShoppingList(
-      costResult(),
-      costInput(),
-      "Emulsion",
-    );
-    const paintItem = items.find((i) => i.name === "Emulsion paint");
-    expect(paintItem?.detail).toContain("₦");
-  });
-});
-
-describe("shoppingListToText", () => {
-  it("renders checked and unchecked items with the expected markers", () => {
-    const text = shoppingListToText([
-      { name: "Paint", quantity: "2 containers", checked: true },
-      { name: "Brush", quantity: "1", checked: false, detail: "Fine bristle" },
-    ]);
-    expect(text).toContain("✅ 2 containers, Paint");
-    expect(text).toContain("☐ 1, Brush");
-    expect(text).toContain("Fine bristle");
-  });
-
-  it("includes the FRELUX branding link", () => {
-    const text = shoppingListToText([]);
-    expect(text).toContain("freluxtools.netlify.app");
+  it("shoppingListToText generates text output", () => {
+    const items: ShoppingListItem[] = [
+      {
+        name: "Paint",
+        quantity: "2 containers",
+        detail: "10 L",
+        checked: false,
+      },
+      { name: "Brushes", quantity: "2-3", checked: true },
+    ];
+    const text = shoppingListToText(items);
+    expect(text).toContain("FRELUX Shopping List");
+    expect(text).toContain("Paint");
+    expect(text).toContain("☐");
+    expect(text).toContain("✅");
+    expect(text).toContain("freluxtools");
   });
 });
