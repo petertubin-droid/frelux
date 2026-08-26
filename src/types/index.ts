@@ -34,6 +34,7 @@ export interface CalculatorInput {
   surfaceCondition?: SurfaceCondition;
   colorCondition?: ColorCondition;
   includePrimer?: boolean;
+  qualityId?: string; // selected estimation_product_quality id
 }
 
 export interface ContainerRecommendation {

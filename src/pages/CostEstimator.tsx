@@ -25,6 +25,8 @@ interface PassedState {
   coats?: number;
   paintType?: string;
   paintTypeName?: string;
+  qualityId?: string | null;
+  qualityName?: string | null;
   recommendedContainers?: ContainerRecommendation[];
   totalRecommendedLiters?: number;
 }
@@ -305,7 +307,7 @@ const mountedRef = useRef(true);
                 </Field>
               </div>
               {passed.paintTypeName && (
-                <p className="mt-3 text-xs text-neutral-500">From calculator: {passed.paintTypeName} · {passed.coats ?? 2} coats</p>
+                <p className="mt-3 text-xs text-neutral-500">From calculator: {passed.paintTypeName}{passed.qualityName ? ` · ${passed.qualityName}` : ''} · {passed.coats ?? 2} coats</p>
               )}
             </Section>
 

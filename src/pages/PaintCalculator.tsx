@@ -125,6 +125,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
   const [estQualities, setEstQualities] = useState<Map<string, EstimationProductQuality[]>>(new Map());
   const [estPrices, setEstPrices] = useState<Map<string, EstimationPrice>>(new Map());
   const [estCalcRules, setEstCalcRules] = useState<Map<string, EstimationCalcRule>>(new Map());
+  const [selectedQualityId, setSelectedQualityId] = useState<string>('');
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -232,6 +233,42 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
 
   const selectedPaintType = paintTypes.find((t) => t.id === input.paintType || t.name === input.paintType);
 
+  // Match the selected paint type to an estimation product for quality selection
+  const matchedEstProduct = useMemo(() => {
+    if (estProducts.length === 0) return null;
+    const selectedPaint = paintTypes.find(t => t.id === input.paintType || t.name === input.paintType);
+    if (!selectedPaint) return null;
+    const byName = estProducts.find(p =>
+      p.name.toLowerCase() === selectedPaint.name.toLowerCase() ||
+      p.category === selectedPaint.name.toLowerCase()
+    );
+    return byName ?? null;
+  }, [estProducts, paintTypes, input.paintType]);
+
+  // Active qualities for the matched product (type-specific)
+  const availableQualities = useMemo(() => {
+    if (!matchedEstProduct) return [];
+    const all = estQualities.get(matchedEstProduct.id) ?? [];
+    return all.filter(q => q.is_active);
+  }, [matchedEstProduct, estQualities]);
+
+  // The selected quality object
+  const selectedQuality = useMemo(() => {
+    if (!selectedQualityId || !matchedEstProduct) return null;
+    return availableQualities.find(q => q.id === selectedQualityId) ?? null;
+  }, [selectedQualityId, matchedEstProduct, availableQualities]);
+
+  // The price for the selected quality
+  const selectedQualityPrice = useMemo(() => {
+    if (!selectedQuality) return null;
+    return estPrices.get(selectedQuality.id) ?? null;
+  }, [selectedQuality, estPrices]);
+
+  // Reset quality when paint type changes
+  useEffect(() => {
+    setSelectedQualityId('');
+  }, [input.paintType]);
+
   // Merge DB-driven surface conditions with hardcoded fallbacks.
   // If DB has coverage_adjustment_factor, use it; otherwise fall back to hardcoded.
   const surfaceConditionOptions = useMemo(() => {
@@ -330,18 +367,23 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
   function compute() {
     if (!validateStep(3)) return;
 
+    // Validate quality selection if estimation products are available
+    if (matchedEstProduct && availableQualities.length > 0 && !selectedQualityId) {
+      toast({ type: 'warning', title: 'Quality required', message: 'Please select a paint quality level before calculating.' });
+      return;
+    }
+
     // Try the central Paint Calculation Engine first (uses DB-configured coverage/prices)
     const estProduct = estProducts.find(p => p.slug === 'emulsion' || p.slug === 'matt' || p.slug === 'satin');
     if (estProduct && estQualities.size > 0) {
-      // Find matching product by paint type name
-      const selectedPaint = paintTypes.find(t => t.id === input.paintType || t.name === input.paintType);
-      const matchedProduct = estProducts.find(p =>
-        p.name.toLowerCase() === (selectedPaint?.name ?? '').toLowerCase() ||
-        p.category === (selectedPaint?.name ?? '').toLowerCase()
-      ) ?? estProducts[0];
+      // Use the matched product from the paint type selection
+      const matchedProduct = matchedEstProduct ?? estProduct;
 
-      const quals = estQualities.get(matchedProduct.id) ?? [];
-      const matchedQuality = quals[0] ?? null;
+      // Use the user-selected quality, not the first one
+      const allQuals = estQualities.get(matchedProduct.id) ?? [];
+      const matchedQuality = selectedQuality
+        ? allQuals.find(q => q.id === selectedQuality.id) ?? null
+        : allQuals.find(q => q.is_active) ?? null;
       const price = matchedQuality ? (estPrices.get(matchedQuality.id) ?? null) : null;
 
       const ceilingRule = estCalcRules.get('ceiling_quantity_per_room') ?? null;
@@ -456,6 +498,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
   function startOver() {
     setStep(1);
     setResult(null);
+    setSelectedQualityId('');
     setInput({
       projectType: 'room',
       length: 0,
@@ -567,6 +610,11 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
                 wasteOptions={WASTE_OPTIONS}
                 surfaceConditionOptions={surfaceConditionOptions}
                 colourConditionOptions={colourConditionOptions}
+                matchedEstProduct={matchedEstProduct}
+                availableQualities={availableQualities}
+                selectedQualityId={selectedQualityId}
+                onSelectQuality={setSelectedQualityId}
+                selectedQualityPrice={selectedQualityPrice}
               />
             )}
 
@@ -593,6 +641,7 @@ export default function PaintCalculator({ embedded = false }: { embedded?: boole
             result={result}
             input={input}
             paintTypeName={selectedPaintType?.name ?? input.paintType}
+            qualityName={selectedQuality?.name ?? null}
             onAgain={() => setResult(null)}
             onStartOver={startOver}
             calcDefaults={calcDefaults}
@@ -756,6 +805,11 @@ function Step3({
   wasteOptions,
   surfaceConditionOptions,
   colourConditionOptions,
+  matchedEstProduct,
+  availableQualities,
+  selectedQualityId,
+  onSelectQuality,
+  selectedQualityPrice,
 }: {
   input: CalculatorInput;
   update: <K extends keyof CalculatorInput>(key: K, value: CalculatorInput[K]) => void;
@@ -765,6 +819,11 @@ function Step3({
   wasteOptions: number[];
   surfaceConditionOptions: { key: SurfaceCondition; label: string; factor: number; description: string; primerRecommended: boolean }[];
   colourConditionOptions: { key: ColorCondition; label: string; warning: string | null; minCoats: number }[];
+  matchedEstProduct: EstimationProduct | null;
+  availableQualities: EstimationProductQuality[];
+  selectedQualityId: string;
+  onSelectQuality: (id: string) => void;
+  selectedQualityPrice: EstimationPrice | null;
 }) {
   const [showDoorDims, setShowDoorDims] = useState(false);
   const [showWindowDims, setShowWindowDims] = useState(false);
@@ -847,6 +906,61 @@ function Step3({
           </select>
         </Field>
       </div>
+
+      {/* Quality selection — type-specific, dynamic from admin config */}
+      {matchedEstProduct && (
+        <div className="mt-4">
+          <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Quality</span>
+          <p className="mt-0.5 text-xs text-neutral-500">
+            Select the quality level for {matchedEstProduct.name}.
+          </p>
+          {availableQualities.length === 0 ? (
+            <div className="mt-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-800/50 dark:bg-amber-950/30 dark:text-amber-400">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>No active quality levels are configured for {matchedEstProduct.name}. An administrator needs to add quality levels before this paint type can be calculated.</span>
+            </div>
+          ) : (
+            <>
+              <select
+                value={selectedQualityId}
+                onChange={(e) => onSelectQuality(e.target.value)}
+                className="input-field mt-2"
+              >
+                <option value="">— Select quality —</option>
+                {availableQualities.map((q) => {
+                  const price = selectedQualityPrice && q.id === selectedQualityId
+                    ? ` · ${selectedQualityPrice.currency === 'NGN' ? '₦' : ''}${selectedQualityPrice.price.toLocaleString()} / bucket`
+                    : '';
+                  const coverage = q.coverage ? ` · ${q.coverage} m²/L` : '';
+                  return (
+                    <option key={q.id} value={q.id}>
+                      {q.name}{coverage}{price}
+                    </option>
+                  );
+                })}
+              </select>
+              {selectedQualityId && selectedQuality && (
+                <div className="mt-2 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-3 text-xs dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                  <p className="font-semibold text-brand-purple dark:text-brand-purple-lighter">{selectedQuality.name}</p>
+                  {selectedQuality.coverage && (
+                    <p className="mt-0.5 text-neutral-600 dark:text-neutral-400">
+                      Coverage: {selectedQuality.coverage} m²/L per coat
+                    </p>
+                  )}
+                  {selectedQualityPrice && (
+                    <p className="mt-0.5 text-neutral-600 dark:text-neutral-400">
+                      Price: {selectedQualityPrice.currency === 'NGN' ? '₦' : ''}{selectedQualityPrice.price.toLocaleString()} per bucket
+                    </p>
+                  )}
+                  {selectedQuality.description && (
+                    <p className="mt-0.5 text-neutral-500 dark:text-neutral-400">{selectedQuality.description}</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      )}
 
       <div className="mt-4">
         <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
@@ -932,6 +1046,7 @@ function ResultCard({
   result,
   input,
   paintTypeName,
+  qualityName,
   onAgain,
   onStartOver,
   onSave: _onSave,
@@ -943,6 +1058,7 @@ function ResultCard({
   result: CalculatorResult;
   input: CalculatorInput;
   paintTypeName: string;
+  qualityName: string | null;
   onAgain: () => void;
   onStartOver: () => void;
   onSave?: () => void;
@@ -963,6 +1079,7 @@ function ResultCard({
         </div>
         <p className="relative mt-3 text-sm text-white/60">
           {input.projectType} project · {result.coats} coat{result.coats > 1 ? 's' : ''} · {paintTypeName}
+          {qualityName && ` · ${qualityName}`}
           {input.wasteMargin > 0 && ` · ${input.wasteMargin}% waste margin`}
           {result.surfaceCondition !== 'smooth' && ` · ${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? ''}`}
         </p>
@@ -973,6 +1090,7 @@ function ResultCard({
       <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
         <Stat label="Paintable area" value={`${formatNumber(result.paintableArea)} m²`} countValue={result.paintableArea} suffix=" m²" />
         <Stat label="Paint type" value={paintTypeName} />
+        {qualityName && <Stat label="Quality" value={qualityName} />}
         <Stat label="Coverage rate" value={`${formatNumber(result.coverageRate, 1)} m²/L per coat`} countValue={result.coverageRate} decimals={1} suffix=" m²/L" />
         <Stat label="Base paint required" value={`${formatNumber(result.paintRequiredLiters, 1)} L`} countValue={result.paintRequiredLiters} decimals={1} suffix=" L" />
         {input.wasteMargin > 0 && (
@@ -1096,6 +1214,8 @@ function ResultCard({
               coats: input.coats,
               paintType: input.paintType,
               paintTypeName,
+              qualityId: selectedQuality?.id ?? null,
+              qualityName: selectedQuality?.name ?? null,
               recommendedContainers: result.recommendedContainers,
               totalRecommendedLiters: result.totalRecommendedLiters,
             }}
