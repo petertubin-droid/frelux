@@ -109,6 +109,88 @@
     background-color: rgba(167, 139, 250, 0.25);
     color: #E5E5EA;
   }
+
+  /* =========================================================
+     DARK MODE GLOBAL OVERRIDES
+     =========================================================
+     Many components throughout FRELUX use hardcoded Tailwind
+     neutral/gray color utilities (text-neutral-900, bg-white,
+     border-neutral-200, etc.) without accompanying dark: variants.
+     In Dark Mode this produces black/dark text on dark backgrounds
+     and invisible borders.
+
+     Rather than editing 1 800+ individual lines across 50+ files,
+     these base-layer rules remap the most common offenders to the
+     semantic theme tokens (defined in :root / .dark above) when
+     .dark is active on the <html> element.
+
+     Because this lives in @layer base, any explicit dark: utility
+     on the same element (e.g. dark:text-white) still wins —
+     @layer utilities has higher cascade priority than @layer base.
+     So existing dark: variants are NOT overridden; only elements
+     that forgot the dark: variant are fixed.
+     ========================================================= */
+
+  /* --- Text colors --- */
+  .dark .text-neutral-900 { color: hsl(var(--foreground)); }
+  .dark .text-neutral-800 { color: hsl(var(--foreground)); }
+  .dark .text-neutral-700 { color: hsl(var(--card-foreground)); }
+  .dark .text-neutral-600 { color: hsl(var(--muted-foreground)); }
+  .dark .text-neutral-500 { color: hsl(var(--muted-foreground)); }
+  .dark .text-neutral-400 { color: hsl(var(--muted-foreground)); }
+  .dark .text-neutral-300 { color: hsl(var(--muted-foreground)); }
+
+  .dark .text-gray-900    { color: hsl(var(--foreground)); }
+  .dark .text-gray-800    { color: hsl(var(--foreground)); }
+  .dark .text-gray-700    { color: hsl(var(--card-foreground)); }
+  .dark .text-gray-600    { color: hsl(var(--muted-foreground)); }
+  .dark .text-gray-500    { color: hsl(var(--muted-foreground)); }
+  .dark .text-gray-400    { color: hsl(var(--muted-foreground)); }
+
+  /* --- Background colors --- */
+  .dark .bg-white      { background-color: hsl(var(--card)); }
+  .dark .bg-neutral-50  { background-color: hsl(var(--muted)); }
+  .dark .bg-neutral-100 { background-color: hsl(var(--muted)); }
+  .dark .bg-neutral-200 { background-color: hsl(var(--secondary)); }
+  .dark .bg-gray-50     { background-color: hsl(var(--muted)); }
+  .dark .bg-gray-100    { background-color: hsl(var(--muted)); }
+  .dark .bg-gray-200    { background-color: hsl(var(--secondary)); }
+
+  /* --- Border colors --- */
+  .dark .border-neutral-100 { border-color: hsl(var(--border)); }
+  .dark .border-neutral-200 { border-color: hsl(var(--border)); }
+  .dark .border-neutral-300 { border-color: hsl(var(--border)); }
+  .dark .border-neutral-400 { border-color: hsl(var(--border)); }
+  .dark .border-gray-200    { border-color: hsl(var(--border)); }
+  .dark .border-gray-300    { border-color: hsl(var(--border)); }
+  .dark .border-gray-400    { border-color: hsl(var(--border)); }
+
+  /* --- Placeholder text --- */
+  .dark .placeholder-neutral-400::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder-neutral-500::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder\:text-neutral-400::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder\:text-neutral-500::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder\:text-neutral-300::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder\:text-gray-400::placeholder { color: hsl(var(--muted-foreground)); }
+  .dark .placeholder\:text-gray-500::placeholder { color: hsl(var(--muted-foreground)); }
+
+  /* --- Ring / divide --- */
+  .dark .divide-neutral-200 > * + * { border-color: hsl(var(--border)); }
+  .dark .divide-gray-200 > * + *   { border-color: hsl(var(--border)); }
+  .dark .ring-neutral-200          { --tw-ring-color: hsl(var(--border)); }
+  .dark .ring-gray-200             { --tw-ring-color: hsl(var(--border)); }
+
+  /* --- Table header / cell text that uses neutral classes --- */
+  .dark .text-neutral-900,
+  .dark .text-neutral-800,
+  .dark .text-gray-900,
+  .dark .text-gray-800 {
+    color: hsl(var(--foreground));
+  }
+
+  /* --- Brand navy text (text-brand-navy) that's dark on light,
+         needs to be light on dark --- */
+  .dark .text-brand-navy { color: hsl(var(--foreground)); }
 }
 
 @layer utilities {
