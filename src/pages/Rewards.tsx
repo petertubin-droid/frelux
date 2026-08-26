@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Gem, Flame, Gift, Trophy, TrendingUp, Loader2, CheckCircle2, Lock, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Gem, Flame, Gift, Trophy, TrendingUp, Loader2, CheckCircle2, Lock, Clock } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useCredits } from '@/lib/credits-context';
 import { useToast } from '@/components/ui/Toast';
@@ -230,7 +230,7 @@ export default function Rewards() {
                   {isRedeeming ? (
                     <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Processing...</>
                   ) : canAfford ? (
-                    <><Sparkles aria-hidden="true" className="h-4 w-4" /> Redeem</>
+                    <><Gift aria-hidden="true" className="h-4 w-4" /> Redeem</>
                   ) : (
                     <><Lock aria-hidden="true" className="h-4 w-4" /> Need {reward.credit_cost - balance} more</>
                   )}

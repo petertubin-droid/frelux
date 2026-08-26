@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
-  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem, Sparkles,
+  Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem, Bot,
   Users, BarChart3, Search, ChevronRight, Crown,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
@@ -343,7 +343,7 @@ export default function Navbar() {
                                 {wallet?.balance ?? 0} Credits
                               </Link>
                               <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
-                                <Sparkles className="h-2.5 w-2.5" />
+                                <Bot className="h-2.5 w-2.5" />
                                 AI: {MAX_AI_ACCESSES_PER_DAY}/day · {CREDITS_PER_AD}cr/ad
                               </span>
                             </div>
@@ -555,7 +555,7 @@ export default function Navbar() {
             {user && (
               <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-3 dark:bg-brand-purple/10">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
+                  <Bot className="h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                   <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">AI Credits</p>
                 </div>
                 <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-500">

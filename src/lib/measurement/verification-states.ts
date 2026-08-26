@@ -299,7 +299,7 @@ export interface VerificationBadge {
 
 export const VERIFICATION_STATE_ICONS: Record<VerificationState, string> = {
   manual_input: 'Pencil',
-  ai_detected: 'Sparkles',
+  ai_detected: 'Bot',
   ai_detected_review_required: 'AlertCircle',
   user_verified: 'CheckCircle',
   imported: 'Download',
