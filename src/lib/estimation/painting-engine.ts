@@ -756,7 +756,7 @@ export function calculateRoom(
   }
 
   const unitPrice = config.price?.price ?? 0;
-  const lineTotal = unitPrice > 0 ? calculateLineTotal(unitPrice, practicalTotalLitres) : 0;
+  const lineTotal = unitPrice > 0 ? calculateLineTotal(unitPrice, practicalTotalBuckets) : 0;
 
   // ── Build customer-facing summary ──
   const customerSummary: RoomCustomerSummary = {
@@ -940,15 +940,15 @@ export function calculatePaintingProject(
         { priceType: price.price_type, refId: price.ref_id, currency: input.currency, priceId: price.id, effectiveDate: price.effective_date }
       );
 
-      const itemTotal = calculateLineTotal(price.price, roomResult.practical_total_buckets * roomResult.pack_size_litres);
+      const itemTotal = calculateLineTotal(price.price, roomResult.practical_total_buckets);
       lineItems.push({
         item_name: `${room.room_name}, ${product?.name ?? 'Paint'} (${quality?.name ?? 'N/A'})`,
         item_type: 'product',
         product_id: room.product_id,
         quality_level_id: room.quality_id,
         quantity_required: roomResult.theoretical_total_litres,
-        practical_purchase_qty: roomResult.practical_total_buckets * roomResult.pack_size_litres,
-        unit: 'L',
+        practical_purchase_qty: roomResult.practical_total_buckets,
+        unit: 'bucket(s)',
         pack_size: roomResult.pack_size_litres,
         unit_price: price.price,
         total_price: itemTotal,

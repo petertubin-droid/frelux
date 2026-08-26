@@ -12,6 +12,7 @@ import {
   isPriceConfigured,
 } from "@/lib/estimation/paint-engine";
 import type { EstimationCalcRule, EstimationProduct } from "@/types/estimation";
+import { calculateLineTotal } from "@/lib/estimation/pricing";
 
 function makeRule(
   rule_value: Record<string, unknown> = {},
@@ -211,5 +212,26 @@ describe("paint-engine — isPriceConfigured", () => {
 
   it("false for negative", () => {
     expect(isPriceConfigured(-5)).toBe(false);
+  });
+});
+
+// ── Per-bucket pricing regression test (Issue: price was multiplied by litres, not buckets) ──
+describe("paint-engine — per-bucket pricing regression", () => {
+  it("materialCost = unitPrice × practicalBuckets (not litres)", () => {
+    // Scenario: 2 practical buckets of 20L paint at ₦12,000 per bucket
+    // BUG was: 12000 × 40 (litres) = ₦480,000
+    // CORRECT:  12000 × 2 (buckets) = ₦24,000
+    const unitPrice = 12000;
+    const practicalBuckets = 2;
+    const packSizeLitres = 20;
+    const practicalLitres = practicalBuckets * packSizeLitres; // 40
+
+    // The engine should use calculateLineTotal(unitPrice, practicalBuckets)
+    const correctTotal = calculateLineTotal(unitPrice, practicalBuckets);
+    const buggyTotal = calculateLineTotal(unitPrice, practicalLitres);
+
+    expect(correctTotal).toBe(24000);
+    expect(buggyTotal).toBe(480000); // demonstrates what the bug produced
+    expect(correctTotal).not.toBe(buggyTotal);
   });
 });
