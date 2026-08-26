@@ -200,39 +200,56 @@ function UnitsTab() {
           message="Add your first estimation unit to get started."
         />
       ) : (
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <div key={item.id} className="card p-3">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                  <span className="rounded-md bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                    {item.symbol}
-                  </span>
-                  {!item.is_active && (
-                    <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
-                      Inactive
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
-                  Category: <span className="capitalize">{item.category}</span> · Sort order: {item.sort_order}
-                </p>
-              </div>
-              <div className="flex shrink-0 items-center gap-3">
-                <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-                <AdminButton
-                  variant="secondary"
-                  onClick={() => {
-                    setEditing(item);
-                    setShowForm(true);
-                  }}
-                >
-                  <Pencil className="h-3.5 w-3.5" /> Edit
-                </AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(item)}>
-                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-                </AdminButton>
+        <div className="space-y-5">
+          {/* Group units by category */}
+          {Object.entries(
+            items.reduce((acc, item) => {
+              const cat = item.category || 'general';
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(item);
+              return acc;
+            }, {} as Record<string, EstimationUnit[]>)
+          ).map(([cat, catItems]) => (
+            <div key={cat}>
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-400 capitalize">
+                {cat}
+              </h3>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {catItems.map((item) => (
+                  <div key={item.id} className="card p-3">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
+                        <span className="rounded-md bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                          {item.symbol}
+                        </span>
+                        {!item.is_active && (
+                          <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                            Inactive
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                        Sort order: {item.sort_order}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-3">
+                      <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
+                      <AdminButton
+                        variant="secondary"
+                        onClick={() => {
+                          setEditing(item);
+                          setShowForm(true);
+                        }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" /> Edit
+                      </AdminButton>
+                      <AdminButton variant="danger" onClick={() => remove(item)}>
+                        <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                      </AdminButton>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           ))}
@@ -281,6 +298,31 @@ function UnitForm({
     }
     setSaving(true);
     setFormError(null);
+
+    // Check for duplicate name or symbol (excluding current record when editing)
+    const query = supabase
+      .from('estimation_units')
+      .select('id, name, symbol')
+      .or(`name.eq.${name.trim()},symbol.eq.${symbol.trim()}`);
+    if (initial) {
+      query.neq('id', initial.id);
+    }
+    const { data: dupes, error: dupErr } = await query;
+    if (dupErr) {
+      setFormError(dupErr.message);
+      setSaving(false);
+      return;
+    }
+    if (dupes && dupes.length > 0) {
+      const dupe = dupes[0];
+      if (dupe.name.toLowerCase() === name.trim().toLowerCase()) {
+        setFormError(`A unit named "${dupe.name}" already exists. Names must be unique.`);
+      } else {
+        setFormError(`A unit with symbol "${dupe.symbol}" already exists. Symbols must be unique.`);
+      }
+      setSaving(false);
+      return;
+    }
 
     const payload = {
       name: name.trim(),
