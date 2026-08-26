@@ -276,11 +276,15 @@ export async function awardCredits(
   }
 }
 
-/** Redeem a reward via edge function (secure, atomic) */
+/** Redeem a reward via edge function (secure, atomic).
+ * clientHash is required for reward types (e.g. calc_unlock) that grant
+ * access through the ad-based rewarded_unlock_log table, which is keyed
+ * by client hash rather than credits balance. */
 export async function redeemReward(
   sessionToken: string,
   rewardKey: string,
-  idempotencyKey: string
+  idempotencyKey: string,
+  clientHash?: string
 ): Promise<{ success: boolean; newBalance?: number; error?: string; reward?: { key: string; name: string; description: string; type: string } }> {
   if (!isSupabaseConfigured || !EDGE_FUNCTION_URL) {
     return { success: false, error: 'Supabase not configured' };
@@ -296,6 +300,7 @@ export async function redeemReward(
       body: JSON.stringify({
         rewardKey,
         idempotencyKey,
+        clientHash,
       }),
     });
 
@@ -305,6 +310,24 @@ export async function redeemReward(
   } catch (err) {
     return { success: false, error: (err as Error).message };
   }
+}
+
+/** Count still-unused redeemed grants of a given reward_type for this user
+ * (e.g. 'ai_token'). Shows the user their redemption actually did something —
+ * these are consumed server-side by the relevant feature's edge function. */
+export async function getUnusedRewardGrantCount(
+  userId: string,
+  rewardType: string
+): Promise<number> {
+  if (!isSupabaseConfigured) return 0;
+  const { count, error } = await supabase
+    .from('reward_redemptions')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .eq('reward_type', rewardType)
+    .is('consumed_at', null);
+  if (error) return 0;
+  return count ?? 0;
 }
 
 /** Record activity (updates streak + mission progress) */

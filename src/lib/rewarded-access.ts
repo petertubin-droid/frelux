@@ -43,7 +43,7 @@ const STORAGE_PREFIX = "frelux_rewarded_";
 const COOLDOWN_PREFIX = "frelux_cooldown_";
 const DAILY_COUNT_PREFIX = "frelux_daily_";
 
-function getClientHash(): string {
+export function getClientHash(): string {
   const key = "frelux_client_hash";
   let hash = localStorage.getItem(key);
   if (!hash) {

@@ -77,7 +77,7 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Unauthorized", code: "AUTH_REQUIRED" }, 401);
   }
 
-  let payload: { rewardKey: string; idempotencyKey: string };
+  let payload: { rewardKey: string; idempotencyKey: string; clientHash?: string };
   try {
     payload = await req.json();
   } catch {
@@ -87,7 +87,7 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  const { rewardKey, idempotencyKey } = payload;
+  const { rewardKey, idempotencyKey, clientHash } = payload;
 
   if (!rewardKey || !idempotencyKey) {
     return jsonResponse(
@@ -114,11 +114,13 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  // Call the secure RPC function
+  // Call the secure RPC function. clientHash lets calc_unlock rewards
+  // grant real, immediate access via the existing ad-unlock table.
   const { data, error } = await admin.rpc("redeem_reward", {
     p_user_id: user.id,
     p_reward_key: rewardKey,
     p_idempotency_key: idempotencyKey,
+    p_client_hash: clientHash ?? null,
   });
 
   if (error) {

@@ -13,11 +13,13 @@ import {
   getCurrentWeeklyMission,
   getMissionProgress,
   redeemReward,
+  getUnusedRewardGrantCount,
   type RewardItem,
   type CreditTransaction,
   type WeeklyMission,
   type MissionProgress,
 } from '@/lib/credits';
+import { getClientHash } from '@/lib/rewarded-access';
 
 export default function Rewards() {
   useSeo({
@@ -36,17 +38,20 @@ export default function Rewards() {
   const [missionProgress, setMissionProgress] = useState<MissionProgress[]>([]);
   const [activeTab, setActiveTab] = useState<'rewards' | 'achievements' | 'history'>('rewards');
   const [redeeming, setRedeeming] = useState<string | null>(null);
+  const [unusedAiTokens, setUnusedAiTokens] = useState(0);
 
   const loadData = useCallback(async () => {
     if (!user) return;
-    const [rwd, txs, mis] = await Promise.all([
+    const [rwd, txs, mis, tokens] = await Promise.all([
       getRewardCatalogue(),
       getCreditTransactions(user.id, { limit: 20 }),
       getCurrentWeeklyMission(),
+      getUnusedRewardGrantCount(user.id, 'ai_token'),
     ]);
     setRewards(rwd);
     setTransactions(txs.transactions);
     setMission(mis);
+    setUnusedAiTokens(tokens);
     if (mis) {
       const prog = await getMissionProgress(user.id, mis.id);
       setMissionProgress(prog);
@@ -68,10 +73,16 @@ export default function Rewards() {
 
     setRedeeming(reward.reward_key);
     const idempotencyKey = `redeem_${reward.reward_key}_${Date.now()}`;
-    const result = await redeemReward(session.access_token, reward.reward_key, idempotencyKey);
+    const result = await redeemReward(session.access_token, reward.reward_key, idempotencyKey, getClientHash());
 
     if (result.success) {
-      toast({ type: 'success', title: 'Reward Unlocked!', message: `${reward.name} has been redeemed.` });
+      const effectMessage =
+        reward.reward_type === 'ai_token'
+          ? `${reward.name} redeemed — you now have an extra AI estimate ready to use next time.`
+          : reward.reward_type === 'calc_unlock'
+            ? `${reward.name} redeemed — the Advanced Calculator is unlocked for 24 hours.`
+            : `${reward.name} has been redeemed.`;
+      toast({ type: 'success', title: 'Reward Unlocked!', message: effectMessage });
       await refresh();
       await loadData();
     } else {
@@ -191,6 +202,12 @@ export default function Rewards() {
       {/* Tab content */}
       {activeTab === 'rewards' && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {unusedAiTokens > 0 && (
+            <div className="col-span-full flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300">
+              <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-accent-green" />
+              You have <strong>{unusedAiTokens}</strong> unused AI Estimate Token{unusedAiTokens > 1 ? 's' : ''} — it&apos;ll be used automatically next time you hit your daily AI limit.
+            </div>
+          )}
           {rewards.length === 0 && (
             <p className="col-span-full text-center text-sm text-neutral-500 py-8">No rewards available.</p>
           )}

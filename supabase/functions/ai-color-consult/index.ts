@@ -169,6 +169,42 @@ async function getDailyUsage(
   return data?.uses_consumed ?? 0;
 }
 
+// Check for a still-unused "AI Estimate Token" reward redemption. Users can
+// pre-pay FRELUX Credits for one of these on the Rewards page; when present,
+// it should be spent instead of rejecting the request for hitting the daily
+// free-use limit. Only applies to authenticated users (grants are tied to
+// user_id, not anonymous client_hash).
+async function getUnusedAiTokenGrant(
+  supabase: ReturnType<typeof createClient>,
+  userId: string | null,
+): Promise<{ id: string; rewardKey: string } | null> {
+  if (!userId) return null;
+  const { data } = await supabase
+    .from("reward_redemptions")
+    .select("id, reward_key")
+    .eq("user_id", userId)
+    .eq("reward_type", "ai_token")
+    .eq("status", "completed")
+    .is("consumed_at", null)
+    .order("granted_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return data ? { id: data.id, rewardKey: data.reward_key } : null;
+}
+
+// Atomically mark one unused ai_token grant as consumed. Race-safe via the
+// consume_reward_grant RPC (FOR UPDATE SKIP LOCKED under the hood).
+async function consumeAiTokenGrant(
+  supabase: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<boolean> {
+  const { data } = await supabase.rpc("consume_reward_grant", {
+    p_user_id: userId,
+    p_reward_type: "ai_token",
+  });
+  return Boolean(data?.[0]?.success);
+}
+
 // Consume a daily use. Only called on SUCCESS. Uses the service role client
 // which bypasses RLS — the browser cannot write to this table.
 async function consumeDailyUse(
@@ -541,29 +577,38 @@ Deno.serve(async (req: Request) => {
 
   // 4. Check daily shared usage limit (skip for paid users and admins)
   const bypassesLimit = isPaid || isAdmin;
+  let useAiTokenGrant = false;
   if (!bypassesLimit) {
     const usedToday = await getDailyUsage(supabase, clientId, userId);
     if (usedToday >= config.ai_daily_free_uses) {
-      await logRequest(
-        supabase,
-        payload.mode,
-        clientHash,
-        "usage_limited",
-        "DAILY_LIMIT",
-      );
-      const limitMsg =
-        config.ai_daily_free_uses === 0
-          ? "Free AI recommendations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
-          : `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`;
-      return jsonResponse(
-        {
-          error: limitMsg,
-          code: "USAGE_LIMIT_REACHED",
-          dailyLimit: config.ai_daily_free_uses,
-          usedToday,
-        },
-        429,
-      );
+      // Before rejecting, check for a redeemed-but-unused "AI Estimate Token"
+      // (FRELUX Rewards). If one exists, this request spends it instead of
+      // the daily counter, and does NOT touch ai_usage_daily.
+      const grant = await getUnusedAiTokenGrant(supabase, userId);
+      if (grant) {
+        useAiTokenGrant = true;
+      } else {
+        await logRequest(
+          supabase,
+          payload.mode,
+          clientHash,
+          "usage_limited",
+          "DAILY_LIMIT",
+        );
+        const limitMsg =
+          config.ai_daily_free_uses === 0
+            ? "Free AI recommendations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
+            : `You have used all ${config.ai_daily_free_uses} free AI recommendations for today. Please come back tomorrow.`;
+        return jsonResponse(
+          {
+            error: limitMsg,
+            code: "USAGE_LIMIT_REACHED",
+            dailyLimit: config.ai_daily_free_uses,
+            usedToday,
+          },
+          429,
+        );
+      }
     }
   }
 
@@ -595,9 +640,15 @@ Deno.serve(async (req: Request) => {
       payload.description,
       payload.imageDataUrl,
     );
-    // Only consume daily usage on SUCCESS, and only for non-paid, non-admin users
+    // Only consume usage on SUCCESS, and only for non-paid, non-admin users.
+    // Spend a pre-paid AI Estimate Token if one was used for this request,
+    // otherwise fall back to the normal daily free-use counter.
     if (!bypassesLimit) {
-      await consumeDailyUse(supabase, clientId, userId);
+      if (useAiTokenGrant && userId) {
+        await consumeAiTokenGrant(supabase, userId);
+      } else {
+        await consumeDailyUse(supabase, clientId, userId);
+      }
     }
     await logRequest(supabase, payload.mode, clientHash, "success");
     return jsonResponse({ recommendation });
