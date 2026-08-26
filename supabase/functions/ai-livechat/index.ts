@@ -1,4 +1,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  rateLimitHeaders,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -138,6 +144,24 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
+
+  // Rate limit: 20 AI requests per minute per user/IP
+  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      },
+    );
+  }
+  const _rlHeaders = rateLimitHeaders(rl.remaining, rl.resetAt);
 
   let parsedBody: LiveChatRequest | null = null;
 

@@ -10,15 +10,22 @@
 // Usage is consumed server-side only on success.
 // =========================================================
 
-import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  rateLimitHeaders,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const GEMINI_MODEL = 'gemini-3.6-flash';
+const GEMINI_MODEL = "gemini-3.6-flash";
 
 interface EstimationRequest {
   imageDataUrl?: string;
@@ -40,7 +47,7 @@ interface SiteEstimationConfig {
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
@@ -49,8 +56,8 @@ async function getAuthenticatedUserId(
   supabaseUrl: string,
   anonKey: string,
 ): Promise<string | null> {
-  const authHeader = req.headers.get('Authorization') ?? '';
-  if (!authHeader.startsWith('Bearer ')) return null;
+  const authHeader = req.headers.get("Authorization") ?? "";
+  if (!authHeader.startsWith("Bearer ")) return null;
   const token = authHeader.slice(7);
 
   const anonClient = createClient(supabaseUrl, anonKey);
@@ -64,11 +71,11 @@ async function isUserAdmin(
   userId: string,
 ): Promise<boolean> {
   const { data } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', userId)
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
     .maybeSingle();
-  return data?.role === 'admin';
+  return data?.role === "admin";
 }
 
 async function getUserPaidStatus(
@@ -76,9 +83,9 @@ async function getUserPaidStatus(
   userId: string,
 ): Promise<boolean> {
   const { data } = await supabase
-    .from('user_paid_status')
-    .select('is_paid, paid_until')
-    .eq('user_id', userId)
+    .from("user_paid_status")
+    .select("is_paid, paid_until")
+    .eq("user_id", userId)
     .maybeSingle();
   if (!data || !data.is_paid) return false;
   if (data.paid_until) {
@@ -92,14 +99,16 @@ async function getEstimationConfig(
   supabase: ReturnType<typeof createClient>,
 ): Promise<SiteEstimationConfig | null> {
   const { data, error } = await supabase
-    .from('site_settings')
-    .select('estimation_enabled, estimation_access_mode, estimation_daily_free_uses, estimation_admin_override, estimation_paid_enabled, estimation_paid_price')
+    .from("site_settings")
+    .select(
+      "estimation_enabled, estimation_access_mode, estimation_daily_free_uses, estimation_admin_override, estimation_paid_enabled, estimation_paid_price",
+    )
     .limit(1)
     .maybeSingle();
   if (error || !data) return null;
   return {
     estimation_enabled: data.estimation_enabled ?? false,
-    estimation_access_mode: data.estimation_access_mode ?? 'disabled',
+    estimation_access_mode: data.estimation_access_mode ?? "disabled",
     estimation_daily_free_uses: data.estimation_daily_free_uses ?? 0,
     estimation_admin_override: data.estimation_admin_override ?? true,
     estimation_paid_enabled: data.estimation_paid_enabled ?? false,
@@ -116,17 +125,17 @@ async function getDailyUsage(
   let query;
   if (userId) {
     query = supabase
-      .from('estimation_usage_daily')
-      .select('uses_consumed')
-      .eq('user_id', userId)
-      .eq('usage_date', today)
+      .from("estimation_usage_daily")
+      .select("uses_consumed")
+      .eq("user_id", userId)
+      .eq("usage_date", today)
       .maybeSingle();
   } else {
     query = supabase
-      .from('estimation_usage_daily')
-      .select('uses_consumed')
-      .eq('client_hash', clientId)
-      .eq('usage_date', today)
+      .from("estimation_usage_daily")
+      .select("uses_consumed")
+      .eq("client_hash", clientId)
+      .eq("usage_date", today)
       .maybeSingle();
   }
   const { data } = await query;
@@ -142,48 +151,44 @@ async function consumeDailyUse(
 
   if (userId) {
     const { data: existing } = await supabase
-      .from('estimation_usage_daily')
-      .select('id, uses_consumed')
-      .eq('user_id', userId)
-      .eq('usage_date', today)
+      .from("estimation_usage_daily")
+      .select("id, uses_consumed")
+      .eq("user_id", userId)
+      .eq("usage_date", today)
       .maybeSingle();
 
     if (existing) {
       await supabase
-        .from('estimation_usage_daily')
+        .from("estimation_usage_daily")
         .update({ uses_consumed: (existing.uses_consumed ?? 0) + 1 })
-        .eq('id', existing.id);
+        .eq("id", existing.id);
     } else {
-      await supabase
-        .from('estimation_usage_daily')
-        .insert({
-          user_id: userId,
-          client_hash: clientId,
-          usage_date: today,
-          uses_consumed: 1,
-        });
+      await supabase.from("estimation_usage_daily").insert({
+        user_id: userId,
+        client_hash: clientId,
+        usage_date: today,
+        uses_consumed: 1,
+      });
     }
   } else {
     const { data: existing } = await supabase
-      .from('estimation_usage_daily')
-      .select('id, uses_consumed')
-      .eq('client_hash', clientId)
-      .eq('usage_date', today)
+      .from("estimation_usage_daily")
+      .select("id, uses_consumed")
+      .eq("client_hash", clientId)
+      .eq("usage_date", today)
       .maybeSingle();
 
     if (existing) {
       await supabase
-        .from('estimation_usage_daily')
+        .from("estimation_usage_daily")
         .update({ uses_consumed: (existing.uses_consumed ?? 0) + 1 })
-        .eq('id', existing.id);
+        .eq("id", existing.id);
     } else {
-      await supabase
-        .from('estimation_usage_daily')
-        .insert({
-          client_hash: clientId,
-          usage_date: today,
-          uses_consumed: 1,
-        });
+      await supabase.from("estimation_usage_daily").insert({
+        client_hash: clientId,
+        usage_date: today,
+        uses_consumed: 1,
+      });
     }
   }
 }
@@ -262,8 +267,8 @@ Always include in verification_checklist:
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
     {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [
           {
@@ -271,8 +276,8 @@ Always include in verification_checklist:
               { text: prompt },
               {
                 inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: imageDataUrl.split(',')[1] ?? imageDataUrl,
+                  mime_type: "image/jpeg",
+                  data: imageDataUrl.split(",")[1] ?? imageDataUrl,
                 },
               },
             ],
@@ -280,7 +285,7 @@ Always include in verification_checklist:
         ],
         generationConfig: {
           temperature: 0.4,
-          responseMimeType: 'application/json',
+          responseMimeType: "application/json",
         },
       }),
     },
@@ -288,13 +293,17 @@ Always include in verification_checklist:
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error('[ai-building-estimation] Gemini API error:', response.status, errText);
+    console.error(
+      "[ai-building-estimation] Gemini API error:",
+      response.status,
+      errText,
+    );
     throw new Error(`Gemini API error: ${response.status}`);
   }
 
   const geminiData = await response.json();
   const textContent = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!textContent) throw new Error('No response text from Gemini');
+  if (!textContent) throw new Error("No response text from Gemini");
 
   return JSON.parse(textContent);
 }
@@ -327,8 +336,8 @@ const DEFAULT_PRICES = {
   dpc_per_meter: 1000,
   dpm_per_m2: 1500,
   formwork_per_m2: 5500,
-  price_date: new Date().toISOString().split('T')[0],
-  price_source: 'FRELUX default — Nigerian market (auto-updated)',
+  price_date: new Date().toISOString().split("T")[0],
+  price_source: "FRELUX default — Nigerian market (auto-updated)",
 };
 
 const DEFAULT_LABOUR = {
@@ -348,7 +357,7 @@ const DEFAULT_LABOUR = {
   bricklayer_per_day: 10000,
   bricklayer_days: 20,
   contractor_fee: 600000,
-  contractor_fee_type: 'contract',
+  contractor_fee_type: "contract",
   contractor_days: 30,
   supervisor_per_day: 12000,
   supervisor_days: 30,
@@ -373,10 +382,14 @@ const DEFAULT_WASTAGE = {
 
 // ── Build the estimate input from AI analysis ──
 
-function buildEstimateInput(analysis: Record<string, unknown>, projectName: string, location: string) {
+function buildEstimateInput(
+  analysis: Record<string, unknown>,
+  projectName: string,
+  location: string,
+) {
   const openings = Array.isArray(analysis.detected_openings)
     ? analysis.detected_openings.map((o: Record<string, unknown>) => ({
-        type: (o.type as 'door' | 'window') ?? 'window',
+        type: (o.type as "door" | "window") ?? "window",
         width: Number(o.estimated_width) || 1.2,
         height: Number(o.estimated_height) || 1.2,
         count: Math.floor(Number(o.estimated_count) || 1),
@@ -386,31 +399,41 @@ function buildEstimateInput(analysis: Record<string, unknown>, projectName: stri
   // Ensure at least some openings if none detected
   if (openings.length === 0) {
     openings.push(
-      { type: 'door', width: 0.9, height: 2.1, count: 4 },
-      { type: 'window', width: 1.2, height: 1.2, count: 6 },
+      { type: "door", width: 0.9, height: 2.1, count: 4 },
+      { type: "window", width: 1.2, height: 1.2, count: 6 },
     );
   }
 
   return {
-    project_name: projectName || 'AI-Estimated Building',
-    location: location || 'Nigeria',
-    building_type: (analysis.detected_building_type as string) || 'bungalow',
-    number_of_floors: Math.max(1, Math.floor(Number(analysis.estimated_floors) || 1)),
+    project_name: projectName || "AI-Estimated Building",
+    location: location || "Nigeria",
+    building_type: (analysis.detected_building_type as string) || "bungalow",
+    number_of_floors: Math.max(
+      1,
+      Math.floor(Number(analysis.estimated_floors) || 1),
+    ),
     building_length: Math.max(1, Number(analysis.estimated_length) || 15),
     building_width: Math.max(1, Number(analysis.estimated_width) || 10),
-    floor_to_floor_height: Math.max(2.5, Number(analysis.estimated_height_per_floor) || 3),
+    floor_to_floor_height: Math.max(
+      2.5,
+      Number(analysis.estimated_height_per_floor) || 3,
+    ),
     wall_thickness: 0.225,
-    internal_wall_length: Math.max(0, Number(analysis.estimated_internal_wall_length) || 25),
+    internal_wall_length: Math.max(
+      0,
+      Number(analysis.estimated_internal_wall_length) || 25,
+    ),
     internal_wall_thickness: 0.15,
     openings,
-    foundation_type: (analysis.detected_foundation_type as string) || 'strip_footing',
+    foundation_type:
+      (analysis.detected_foundation_type as string) || "strip_footing",
     foundation_depth: 0.9,
     foundation_width: 0.675,
     footing_thickness: 0.225,
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: (analysis.detected_block_type as string) || '9inch',
+    block_size: (analysis.detected_block_type as string) || "9inch",
     block_length: 18,
     block_height: 9,
     block_width: 9,
@@ -419,10 +442,11 @@ function buildEstimateInput(analysis: Record<string, unknown>, projectName: stri
     concrete_mix_granite: 4,
     mortar_mix_cement: 1,
     mortar_mix_sand: 6,
-    roof_type: (analysis.detected_roof_type as string) || 'gable',
+    roof_type: (analysis.detected_roof_type as string) || "gable",
     roof_pitch_degrees: Number(analysis.estimated_roof_pitch) || 25,
     roof_overhang: 0.6,
-    roofing_material: (analysis.detected_roofing_material as string) || 'long_span_aluminium',
+    roofing_material:
+      (analysis.detected_roofing_material as string) || "long_span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
     wastage: DEFAULT_WASTAGE,
@@ -437,17 +461,28 @@ function buildEstimateInput(analysis: Record<string, unknown>, projectName: stri
 interface ValidationWarning {
   field: string;
   message: string;
-  severity: 'error' | 'warning' | 'info';
+  severity: "error" | "warning" | "info";
 }
 
-function validateAiAnalysis(analysis: Record<string, unknown>): ValidationWarning[] {
+function validateAiAnalysis(
+  analysis: Record<string, unknown>,
+): ValidationWarning[] {
   const warnings: ValidationWarning[] = [];
 
   // Check required fields
-  const requiredFields = ['detected_building_type', 'estimated_length', 'estimated_width', 'estimated_floors'];
+  const requiredFields = [
+    "detected_building_type",
+    "estimated_length",
+    "estimated_width",
+    "estimated_floors",
+  ];
   for (const field of requiredFields) {
     if (analysis[field] === undefined || analysis[field] === null) {
-      warnings.push({ field, message: `Missing required field: ${field}`, severity: 'error' });
+      warnings.push({
+        field,
+        message: `Missing required field: ${field}`,
+        severity: "error",
+      });
     }
   }
 
@@ -457,31 +492,83 @@ function validateAiAnalysis(analysis: Record<string, unknown>): ValidationWarnin
   const floors = Number(analysis.estimated_floors) || 1;
   const height = Number(analysis.estimated_height_per_floor) || 3;
 
-  if (length < 3) warnings.push({ field: 'estimated_length', message: `Length ${length}m is unusually small. Verify.`, severity: 'warning' });
-  if (length > 50) warnings.push({ field: 'estimated_length', message: `Length ${length}m is unusually large. Verify.`, severity: 'warning' });
-  if (width < 3) warnings.push({ field: 'estimated_width', message: `Width ${width}m is unusually small. Verify.`, severity: 'warning' });
-  if (width > 50) warnings.push({ field: 'estimated_width', message: `Width ${width}m is unusually large. Verify.`, severity: 'warning' });
-  if (height < 2.5) warnings.push({ field: 'height', message: `Floor height ${height}m is below 2.5m minimum.`, severity: 'warning' });
-  if (height > 5) warnings.push({ field: 'height', message: `Floor height ${height}m is above typical. Verify.`, severity: 'info' });
-  if (floors > 5) warnings.push({ field: 'floors', message: `${floors} floors — high-rise requires specialist design.`, severity: 'warning' });
+  if (length < 3)
+    warnings.push({
+      field: "estimated_length",
+      message: `Length ${length}m is unusually small. Verify.`,
+      severity: "warning",
+    });
+  if (length > 50)
+    warnings.push({
+      field: "estimated_length",
+      message: `Length ${length}m is unusually large. Verify.`,
+      severity: "warning",
+    });
+  if (width < 3)
+    warnings.push({
+      field: "estimated_width",
+      message: `Width ${width}m is unusually small. Verify.`,
+      severity: "warning",
+    });
+  if (width > 50)
+    warnings.push({
+      field: "estimated_width",
+      message: `Width ${width}m is unusually large. Verify.`,
+      severity: "warning",
+    });
+  if (height < 2.5)
+    warnings.push({
+      field: "height",
+      message: `Floor height ${height}m is below 2.5m minimum.`,
+      severity: "warning",
+    });
+  if (height > 5)
+    warnings.push({
+      field: "height",
+      message: `Floor height ${height}m is above typical. Verify.`,
+      severity: "info",
+    });
+  if (floors > 5)
+    warnings.push({
+      field: "floors",
+      message: `${floors} floors — high-rise requires specialist design.`,
+      severity: "warning",
+    });
 
   // Roof pitch sanity
   const pitch = Number(analysis.estimated_roof_pitch) || 0;
   const roofType = analysis.detected_roof_type as string;
-  if (roofType === 'flat' && pitch > 5) {
-    warnings.push({ field: 'roof_pitch', message: `Flat roof with ${pitch}° pitch — should be near 0°.`, severity: 'warning' });
+  if (roofType === "flat" && pitch > 5) {
+    warnings.push({
+      field: "roof_pitch",
+      message: `Flat roof with ${pitch}° pitch — should be near 0°.`,
+      severity: "warning",
+    });
   }
-  if (roofType === 'gable' && (pitch < 10 || pitch > 40)) {
-    warnings.push({ field: 'roof_pitch', message: `Gable roof pitch ${pitch}° is outside typical 15-30° range.`, severity: 'warning' });
+  if (roofType === "gable" && (pitch < 10 || pitch > 40)) {
+    warnings.push({
+      field: "roof_pitch",
+      message: `Gable roof pitch ${pitch}° is outside typical 15-30° range.`,
+      severity: "warning",
+    });
   }
 
   // Opening count sanity
   const openings = analysis.detected_openings as unknown[];
   if (openings && Array.isArray(openings)) {
-    const totalOpenings = openings.reduce((sum: number, o: unknown) => sum + Math.floor(Number((o as Record<string, unknown>).estimated_count) || 0), 0);
+    const totalOpenings = openings.reduce(
+      (sum: number, o: unknown) =>
+        sum +
+        Math.floor(Number((o as Record<string, unknown>).estimated_count) || 0),
+      0,
+    );
     const buildingArea = length * width * floors;
     if (buildingArea > 0 && totalOpenings > buildingArea / 2) {
-      warnings.push({ field: 'openings', message: `Opening count (${totalOpenings}) seems high for building size. Verify.`, severity: 'info' });
+      warnings.push({
+        field: "openings",
+        message: `Opening count (${totalOpenings}) seems high for building size. Verify.`,
+        severity: "info",
+      });
     }
   }
 
@@ -491,89 +578,146 @@ function validateAiAnalysis(analysis: Record<string, unknown>): ValidationWarnin
 // ── Main handler ──
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-  const geminiApiKey = Deno.env.get('GEMINI_API_KEY') ?? Deno.env.get('GOOGLE_AI_API_KEY') ?? '';
+  // Rate limit: 20 AI requests per minute per user/IP
+  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      },
+    );
+  }
+  const _rlHeaders = rateLimitHeaders(rl.remaining, rl.resetAt);
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const geminiApiKey =
+    Deno.env.get("GEMINI_API_KEY") ?? Deno.env.get("GOOGLE_AI_API_KEY") ?? "";
 
   if (!supabaseUrl || !supabaseServiceKey) {
-    return jsonResponse({ error: 'Server not configured.', code: 'NOT_CONFIGURED' }, 500);
+    return jsonResponse(
+      { error: "Server not configured.", code: "NOT_CONFIGURED" },
+      500,
+    );
   }
 
   if (!geminiApiKey) {
-    return jsonResponse({ error: 'AI service not configured.', code: 'NO_API_KEY' }, 503);
+    return jsonResponse(
+      { error: "AI service not configured.", code: "NO_API_KEY" },
+      503,
+    );
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
   try {
     // ── Auth & access control ──
-    const userId = await getAuthenticatedUserId(req, supabaseUrl, supabaseAnonKey);
+    const userId = await getAuthenticatedUserId(
+      req,
+      supabaseUrl,
+      supabaseAnonKey,
+    );
     const admin = userId ? await isUserAdmin(supabase, userId) : false;
     const paid = userId ? await getUserPaidStatus(supabase, userId) : false;
 
     const config = await getEstimationConfig(supabase);
     if (!config || !config.estimation_enabled) {
-      return jsonResponse({ error: 'Image estimation is currently disabled.', code: 'AI_DISABLED' }, 403);
+      return jsonResponse(
+        {
+          error: "Image estimation is currently disabled.",
+          code: "AI_DISABLED",
+        },
+        403,
+      );
     }
 
-    if (config.estimation_access_mode === 'disabled') {
-      return jsonResponse({ error: 'Image estimation is currently disabled.', code: 'AI_DISABLED' }, 403);
+    if (config.estimation_access_mode === "disabled") {
+      return jsonResponse(
+        {
+          error: "Image estimation is currently disabled.",
+          code: "AI_DISABLED",
+        },
+        403,
+      );
     }
 
     // Read body once (req.json() can only be called once)
-    const body = await req.json() as EstimationRequest;
+    const body = (await req.json()) as EstimationRequest;
 
     // Admin override
     if (admin && config.estimation_admin_override) {
       // Admins can always use it
     } else {
       // Paid mode
-      if (config.estimation_access_mode === 'paid') {
+      if (config.estimation_access_mode === "paid") {
         if (!paid) {
-          return jsonResponse({
-            error: 'This feature requires a premium subscription.',
-            code: 'NOT_SUBSCRIBED',
-            price: config.estimation_paid_price,
-          }, 403);
+          return jsonResponse(
+            {
+              error: "This feature requires a premium subscription.",
+              code: "NOT_SUBSCRIBED",
+              price: config.estimation_paid_price,
+            },
+            403,
+          );
         }
       } else {
         // Free/rewarded modes — check daily limit
-        const clientId = body.clientId ?? 'unknown';
+        const clientId = body.clientId ?? "unknown";
         const usedToday = await getDailyUsage(supabase, clientId, userId);
 
         if (usedToday >= config.estimation_daily_free_uses) {
-          const limitMsg = config.estimation_daily_free_uses === 0
-            ? 'Free AI estimations are no longer included in the Free plan. Use FRELUX Credits to access AI features.'
-            : 'You have used all your free image estimations for today.';
-          return jsonResponse({
-            error: limitMsg,
-            code: 'USAGE_LIMIT_REACHED',
-            usedToday,
-            limit: config.estimation_daily_free_uses,
-          }, 429);
+          const limitMsg =
+            config.estimation_daily_free_uses === 0
+              ? "Free AI estimations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
+              : "You have used all your free image estimations for today.";
+          return jsonResponse(
+            {
+              error: limitMsg,
+              code: "USAGE_LIMIT_REACHED",
+              usedToday,
+              limit: config.estimation_daily_free_uses,
+            },
+            429,
+          );
         }
       }
     }
 
     // ── Process request ──
-    const clientId = body.clientId ?? 'unknown';
-    const projectName = body.projectName ?? 'AI-Estimated Building';
-    const location = body.location ?? 'Nigeria';
+    const clientId = body.clientId ?? "unknown";
+    const projectName = body.projectName ?? "AI-Estimated Building";
+    const location = body.location ?? "Nigeria";
 
     if (!body.imageDataUrl && !body.imageUrl) {
-      return jsonResponse({ error: 'No image provided.', code: 'NO_IMAGE' }, 400);
+      return jsonResponse(
+        { error: "No image provided.", code: "NO_IMAGE" },
+        400,
+      );
     }
 
     // For image URLs, we'd need to fetch and convert to base64.
     // For now, we support imageDataUrl (base64 from frontend)
     const imageDataUrl = body.imageDataUrl;
     if (!imageDataUrl) {
-      return jsonResponse({ error: 'Image URL processing not yet supported.', code: 'UNSUPPORTED' }, 400);
+      return jsonResponse(
+        {
+          error: "Image URL processing not yet supported.",
+          code: "UNSUPPORTED",
+        },
+        400,
+      );
     }
 
     // ── AI analysis ──
@@ -586,10 +730,13 @@ Deno.serve(async (req: Request) => {
       const existingWarnings = (analysis.warnings as string[]) ?? [];
       analysis.warnings = [
         ...existingWarnings,
-        ...validationWarnings.map(w => `[${w.severity.toUpperCase()}] ${w.field}: ${w.message}`),
+        ...validationWarnings.map(
+          (w) => `[${w.severity.toUpperCase()}] ${w.field}: ${w.message}`,
+        ),
       ];
     }
-    analysis.validation_passed = validationWarnings.filter(w => w.severity === 'error').length === 0;
+    analysis.validation_passed =
+      validationWarnings.filter((w) => w.severity === "error").length === 0;
 
     // ── Consume usage (only on success) ──
     if (!admin || !config.estimation_admin_override) {
@@ -603,7 +750,7 @@ Deno.serve(async (req: Request) => {
     let savedId: string | null = null;
     if (userId) {
       const { data: saved } = await supabase
-        .from('estimation_results')
+        .from("estimation_results")
         .insert({
           user_id: userId,
           project_name: projectName,
@@ -615,7 +762,7 @@ Deno.serve(async (req: Request) => {
           },
           full_estimate: estimateInput,
         })
-        .select('id')
+        .select("id")
         .maybeSingle();
 
       savedId = saved?.id ?? null;
@@ -626,10 +773,9 @@ Deno.serve(async (req: Request) => {
       estimateInput,
       savedId,
     });
-
   } catch (err) {
-    console.error('[ai-building-estimation] Error:', err);
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return jsonResponse({ error: message, code: 'INTERNAL_ERROR' }, 500);
+    console.error("[ai-building-estimation] Error:", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return jsonResponse({ error: message, code: "INTERNAL_ERROR" }, 500);
   }
 });

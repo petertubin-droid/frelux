@@ -1,42 +1,70 @@
-import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  rateLimitHeaders,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+  // Rate limit: 10 credit operations per minute per user/IP
+  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rl = checkRateLimit(rlKey, RATE_LIMITS.PAYMENT);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Too many requests. Please try again later." }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      },
+    );
+  }
+  const _rlHeaders = rateLimitHeaders(rl.remaining, rl.resetAt);
+
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+  const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
 
   if (!supabaseUrl || !serviceRoleKey) {
-    return jsonResponse({ error: 'Server not configured', code: 'CONFIG_ERROR' }, 500);
+    return jsonResponse(
+      { error: "Server not configured", code: "CONFIG_ERROR" },
+      500,
+    );
   }
 
   // Create service role client — bypasses RLS
   const admin = createClient(supabaseUrl, serviceRoleKey);
 
   // Create user-scoped client using the caller's JWT
-  const authHeader = req.headers.get('Authorization') ?? '';
+  const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader) {
-    return jsonResponse({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, 401);
+    return jsonResponse({ error: "Unauthorized", code: "AUTH_REQUIRED" }, 401);
   }
 
   const userClient = createClient(supabaseUrl, anonKey, {
@@ -44,9 +72,12 @@ Deno.serve(async (req: Request) => {
   });
 
   // Get the authenticated user
-  const { data: { user }, error: userError } = await userClient.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await userClient.auth.getUser();
   if (userError || !user) {
-    return jsonResponse({ error: 'Unauthorized', code: 'AUTH_REQUIRED' }, 401);
+    return jsonResponse({ error: "Unauthorized", code: "AUTH_REQUIRED" }, 401);
   }
 
   let payload: {
@@ -60,21 +91,33 @@ Deno.serve(async (req: Request) => {
   try {
     payload = await req.json();
   } catch {
-    return jsonResponse({ error: 'Invalid JSON body', code: 'BAD_REQUEST' }, 400);
+    return jsonResponse(
+      { error: "Invalid JSON body", code: "BAD_REQUEST" },
+      400,
+    );
   }
 
   const { eventType, referenceId, amount, reason, metadata } = payload;
 
   if (!eventType || !referenceId || !amount || !reason) {
-    return jsonResponse({ error: 'eventType, referenceId, amount, and reason are required', code: 'BAD_REQUEST' }, 400);
+    return jsonResponse(
+      {
+        error: "eventType, referenceId, amount, and reason are required",
+        code: "BAD_REQUEST",
+      },
+      400,
+    );
   }
 
   if (amount <= 0) {
-    return jsonResponse({ error: 'Amount must be positive', code: 'INVALID_AMOUNT' }, 400);
+    return jsonResponse(
+      { error: "Amount must be positive", code: "INVALID_AMOUNT" },
+      400,
+    );
   }
 
   // Call the secure RPC function (SECURITY DEFINER, bypasses RLS)
-  const { data, error } = await admin.rpc('award_credits', {
+  const { data, error } = await admin.rpc("award_credits", {
     p_user_id: user.id,
     p_event_type: eventType,
     p_reference_id: referenceId,
@@ -84,12 +127,12 @@ Deno.serve(async (req: Request) => {
   });
 
   if (error) {
-    return jsonResponse({ error: error.message, code: 'AWARD_FAILED' }, 500);
+    return jsonResponse({ error: error.message, code: "AWARD_FAILED" }, 500);
   }
 
   const result = data?.[0];
   if (!result) {
-    return jsonResponse({ error: 'No result returned', code: 'UNKNOWN' }, 500);
+    return jsonResponse({ error: "No result returned", code: "UNKNOWN" }, 500);
   }
 
   return jsonResponse({
