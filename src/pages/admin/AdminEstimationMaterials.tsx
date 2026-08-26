@@ -152,7 +152,7 @@ export default function AdminEstimationMaterials() {
       {!loading && items.length > 0 && (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
-            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
             <AdminInput
  type="search"
  value={search}
@@ -208,8 +208,8 @@ export default function AdminEstimationMaterials() {
                           <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
                           {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                         </div>
-                        {item.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-400">{item.description}</p>}
-                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                        {item.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-500">{item.description}</p>}
+                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
                           {baseUnit && <span>{baseUnit.symbol}</span>}
                           {item.pack_size != null && <span>· {item.pack_size}{packUnit ? packUnit.symbol : ''}</span>}
                           {item.supplier && <span>· {item.supplier}</span>}

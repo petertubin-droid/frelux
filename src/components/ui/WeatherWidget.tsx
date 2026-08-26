@@ -13,7 +13,7 @@ export function WeatherWidget() {
           <CloudRain aria-hidden="true" className="h-5 w-5 text-brand-purple animate-pulse" />
           <h3 className="text-sm font-bold text-brand-navy dark:text-white">Best Days to Paint</h3>
         </div>
-        <div className="mt-4 flex items-center justify-center py-8 text-sm text-neutral-400">
+        <div className="mt-4 flex items-center justify-center py-8 text-sm text-neutral-500">
           Loading weather data...
         </div>
       </div>
@@ -76,10 +76,10 @@ function WeatherDayCard({ day }: { day: WeatherDay }) {
       </div>
       <p className={classNames('mt-0.5 text-[10px] font-medium', config.color)}>{config.label}</p>
       <div className="mt-1.5 space-y-0.5">
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-400">
+        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-500">
           <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}%
         </p>
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-400">
+        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-500">
           <Thermometer aria-hidden="true" className="h-2.5 w-2.5" /> {Math.round(day.tempMax)}°
         </p>
       </div>
@@ -102,13 +102,13 @@ export function WeatherWidgetCompact() {
         <p className="text-sm font-semibold text-brand-navy dark:text-white">
           {today.dayName} in {city}
         </p>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="text-xs text-neutral-500 dark:text-neutral-500">
           {today.paintNote}
         </p>
       </div>
       <div className="text-right">
         <p className="text-lg font-bold text-brand-purple">{goodDays}/5</p>
-        <p className="text-[10px] text-neutral-400">good days</p>
+        <p className="text-[10px] text-neutral-500">good days</p>
       </div>
     </div>
   );

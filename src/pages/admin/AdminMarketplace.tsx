@@ -181,7 +181,7 @@ function ListingsTab() {
     <div>
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1 max-w-xs">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <AdminInput
             type="text"
             value={search}
@@ -211,7 +211,7 @@ function ListingsTab() {
               <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                 {PROJECT_TYPE_LABELS[l.project_type]}
               </span>
-              <span className="text-[10px] font-semibold text-neutral-400">
+              <span className="text-[10px] font-semibold text-neutral-500">
                 {LISTING_STATUS_LABELS[l.status]}
               </span>
             </div>
@@ -222,11 +222,11 @@ function ListingsTab() {
               {l.title}
             </Link>
             {l.location_state && (
-              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-neutral-400">
+              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-neutral-500">
                 <MapPin aria-hidden="true" className="h-2.5 w-2.5" /> {l.location_state}
               </p>
             )}
-            <div className="mt-1 flex items-center gap-3 text-[10px] text-neutral-400">
+            <div className="mt-1 flex items-center gap-3 text-[10px] text-neutral-500">
               <span className="inline-flex items-center gap-0.5">
                 <Users aria-hidden="true" className="h-2.5 w-2.5" /> {l.bid_count}
               </span>
@@ -242,7 +242,7 @@ function ListingsTab() {
                   "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors",
                   l.is_featured
                     ? "text-amber-600"
-                    : "text-neutral-400 hover:text-amber-500",
+                    : "text-neutral-500 hover:text-amber-500",
                 )}
               >
                 <Star
@@ -256,7 +256,7 @@ function ListingsTab() {
               <AdminIconButton
                 variant="ghost"
                 onClick={() => handleRemove(l.id)}
-                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-neutral-400 hover:text-red-500"
+                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-neutral-500 hover:text-red-500"
               >
                 <Trash2 aria-hidden="true" className="h-3 w-3" /> Remove
               </AdminIconButton>
@@ -264,7 +264,7 @@ function ListingsTab() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-neutral-400">{total} total listings</p>
+      <p className="mt-3 text-xs text-neutral-500">{total} total listings</p>
     </div>
   );
 }
@@ -387,13 +387,13 @@ function ProductsTab() {
                 <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
                   {p.title}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   ₦{p.price.toLocaleString()} ·{" "}
                   {p.category?.name || "No category"} ·{" "}
                   {PRODUCT_CONDITION_LABELS[p.condition]}
                   {p.brand && ` · ${p.brand}`}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {p.seller?.full_name || "Unknown"} · {p.view_count} views ·{" "}
                   {p.inquiry_count} inquiries
                 </p>
@@ -488,13 +488,13 @@ function OrdersTab() {
       </div>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-neutral-400">No orders found.</p>
+        <p className="text-sm text-neutral-500">No orders found.</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orders.map((o) => (
             <div key={o.id} className="card p-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-neutral-400">
+                <span className="font-mono text-[10px] text-neutral-500">
                   {o.order_number}
                 </span>
                 <span className="text-[10px] font-semibold text-neutral-500">
@@ -507,13 +507,13 @@ function OrdersTab() {
               >
                 {o.listing?.title || "Untitled"}
               </Link>
-              <p className="mt-0.5 text-[10px] text-neutral-400">
+              <p className="mt-0.5 text-[10px] text-neutral-500">
                 Pro: {o.pro_profile?.display_name || "Unknown"}
               </p>
               <p className="mt-1 text-sm font-bold text-brand-navy dark:text-white">
                 ₦{o.agreed_price.toLocaleString()}
               </p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-neutral-400">
+              <div className="mt-1 flex items-center gap-2 text-[10px] text-neutral-500">
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>
                 {o.client_rating && (
                   <span className="inline-flex items-center gap-0.5">
@@ -577,7 +577,7 @@ function DisputesTab() {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <ShieldAlert className="h-10 w-10 text-neutral-300 dark:text-neutral-600" />
-        <p className="mt-2 text-sm text-neutral-400">No disputes reported.</p>
+        <p className="mt-2 text-sm text-neutral-500">No disputes reported.</p>
       </div>
     );
   }
@@ -594,12 +594,12 @@ function DisputesTab() {
                   ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                   : d.status === "resolved"
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                    : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+                    : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
               )}
             >
               {String(d.status)}
             </span>
-            <span className="text-[10px] text-neutral-400">
+            <span className="text-[10px] text-neutral-500">
               By {d.raised_by_role as string} ·{" "}
               {new Date(d.created_at as string).toLocaleDateString()}
             </span>
@@ -608,7 +608,7 @@ function DisputesTab() {
             {String(d.reason)}
           </p>
           {d.description != null && (
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
               {String(d.description)}
             </p>
           )}
@@ -734,10 +734,10 @@ function ReportsTab() {
                     <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
                       {REPORT_REASON_LABELS[r.reason] || r.reason}
                     </span>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       {REPORT_STATUS_LABELS[r.status] || r.status}
                     </span>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       · {r.report_type}
                     </span>
                   </div>
@@ -746,7 +746,7 @@ function ReportsTab() {
                       {r.description}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-neutral-400">
+                  <p className="mt-2 text-xs text-neutral-500">
                     Reported {new Date(r.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -876,10 +876,10 @@ function ReviewsTab() {
                         />
                       ))}
                     </div>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       · {r.review_type}
                     </span>
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       · {REVIEW_STATUS_LABELS[r.status] || r.status}
                     </span>
                   </div>
@@ -894,7 +894,7 @@ function ReviewsTab() {
                     </p>
                   )}
                   {r.reviewer && (
-                    <p className="mt-2 text-xs text-neutral-400">
+                    <p className="mt-2 text-xs text-neutral-500">
                       By {r.reviewer.full_name} ·{" "}
                       {new Date(r.created_at).toLocaleDateString()}
                     </p>
@@ -1071,7 +1071,7 @@ function SellersTab() {
                       {SELLER_TYPE_LABELS[s.seller_type] || s.seller_type}
                     </span>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-400">
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
                     <span>
                       {SELLER_VERIFICATION_LABELS[s.verification_status] ||
                         s.verification_status}
@@ -1090,7 +1090,7 @@ function SellersTab() {
                     )}
                   </div>
                   {s.business_phone && (
-                    <p className="mt-1 text-xs text-neutral-400">
+                    <p className="mt-1 text-xs text-neutral-500">
                       {s.business_phone}
                     </p>
                   )}

@@ -247,7 +247,7 @@ export default function AdminImageEstimation() {
  onChange={e => setConfig(prev => ({ ...prev, estimation_daily_free_uses: Math.max(0, parseInt(e.target.value) || 0) }))}
                 className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
               />
-              <p className="text-xs text-neutral-400 mt-1">Number of free estimations per user per day.</p>
+              <p className="text-xs text-neutral-500 mt-1">Number of free estimations per user per day.</p>
             </div>
           )}
 
@@ -360,7 +360,7 @@ export default function AdminImageEstimation() {
               The AI building estimation edge function must be deployed to Supabase for this feature to work.
               Deploy with: <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">supabase functions deploy ai-building-estimation</code>
             </p>
-            <p className="text-xs text-neutral-400 mt-2">
+            <p className="text-xs text-neutral-500 mt-2">
               Requires <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">GEMINI_API_KEY</code> environment variable.
             </p>
           </div>
@@ -378,7 +378,7 @@ function StatCard({ icon: Icon, label, value }: {
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-5">
       <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 text-neutral-400" />
+        <Icon className="w-4 h-4 text-neutral-500" />
         <span className="text-xs font-medium text-neutral-500">{label}</span>
       </div>
       <p className="text-2xl font-bold text-neutral-900">{value}</p>

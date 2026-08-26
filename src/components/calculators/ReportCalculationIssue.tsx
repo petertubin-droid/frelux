@@ -82,7 +82,7 @@ export default function ReportCalculationIssue({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
         aria-expanded={open}
       >
         <Flag className="h-3.5 w-3.5" />
@@ -93,7 +93,7 @@ export default function ReportCalculationIssue({
       {open && (
         <form onSubmit={handleSubmit} className="mt-2 space-y-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
               What seems wrong? <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -108,7 +108,7 @@ export default function ReportCalculationIssue({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
               What should the correct result be? (optional)
             </label>
             <input
@@ -122,7 +122,7 @@ export default function ReportCalculationIssue({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
               Your email (optional, for follow-up)
             </label>
             <input

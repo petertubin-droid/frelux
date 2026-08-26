@@ -244,7 +244,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Calculator' }]} />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -416,7 +416,7 @@ const mountedRef = useRef(true);
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
-              <p className="mt-0.5 text-xs text-neutral-400">Extra tiles added for cuts, breakage, and future repairs.</p>
+              <p className="mt-0.5 text-xs text-neutral-500">Extra tiles added for cuts, breakage, and future repairs.</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
                   <button key={w} type="button" onClick={() => update('wasteMargin', w)}
@@ -621,7 +621,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-bold text-brand-navy dark:text-white">Need a pro for this tiling job?</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified tilers near you.</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">Post this estimate as a job and get bids from verified tilers near you.</p>
             </div>
             <a
               href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling — ${result.surfaceArea.toFixed(1)} m²`}
@@ -655,7 +655,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="stat-card dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{label}</p>
       <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white dark:text-white">{value}</p>
     </div>
   );
@@ -665,10 +665,10 @@ function Field({ label, hint, suffix, error, children }: { label: string; hint?:
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="relative mt-1.5">
         {children}
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">{suffix}</span>}
+        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">{suffix}</span>}
       </div>
       {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
     </label>
@@ -678,7 +678,7 @@ function Field({ label, hint, suffix, error, children }: { label: string; hint?:
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
       <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );

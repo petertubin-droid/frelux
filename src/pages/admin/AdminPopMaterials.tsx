@@ -97,7 +97,7 @@ export default function AdminPopMaterials() {
             if (catItems.length === 0) return null;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat.replace(/_/g, ' ')}</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{cat.replace(/_/g, ' ')}</h3>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {catItems.map((mat) => (
                     <div key={mat.id} className="card p-3">
@@ -107,7 +107,7 @@ export default function AdminPopMaterials() {
                             <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{mat.name}</p>
                             {mat.is_optional && <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-500">Opt</span>}
                           </div>
-                          <p className="mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                          <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
                             {mat.coverage_rate} {mat.coverage_unit} · {mat.package_size}{mat.package_unit} · ₦{mat.unit_price}
                           </p>
                         </div>
@@ -161,7 +161,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{material ? 'Edit Material' : 'New Material'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
       </div>
 

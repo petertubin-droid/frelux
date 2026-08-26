@@ -45,12 +45,12 @@ const mountedRef = useRef(true);
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loading && (
-            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400 dark:text-neutral-500">
+            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-500 dark:text-neutral-500">
               <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading color palettes…
             </div>
           )}
           {!loading && combinations.length === 0 && (
-            <div className="col-span-full py-16 text-center text-sm text-neutral-400 dark:text-neutral-500">
+            <div className="col-span-full py-16 text-center text-sm text-neutral-500 dark:text-neutral-500">
               No color combinations published yet.
             </div>
           )}
@@ -85,7 +85,7 @@ const mountedRef = useRef(true);
                   </p>
                 )}
                 <h3 className="mt-1.5 font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{c.description}</p>
+                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{c.description}</p>
               </div>
             </Link>
           ))}

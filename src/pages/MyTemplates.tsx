@@ -103,7 +103,7 @@ export default function MyTemplates() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <Bookmark className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600" />
         <h1 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">Sign in to view your templates</h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
           Your saved calculator templates are private and tied to your account.
         </p>
         <Link to="/dashboard" className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
@@ -121,7 +121,7 @@ export default function MyTemplates() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+      <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
         <Link to="/" className="hover:text-brand-purple dark:hover:text-brand-purple-lighter">Home</Link>
         <ChevronRight className="h-3 w-3" />
         <span>My Templates</span>
@@ -132,7 +132,7 @@ export default function MyTemplates() {
           <h1 className="font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
             My Templates
           </h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
             Your saved calculator configurations. Private and secure.
           </p>
         </div>
@@ -185,7 +185,7 @@ export default function MyTemplates() {
       <div className="mt-6 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
             <input
               type="text"
               value={search}
@@ -243,7 +243,7 @@ export default function MyTemplates() {
         <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center dark:border-white/10 dark:bg-white/5">
           <Bookmark className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
           <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates yet</p>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
             Use "Save as Template" in any calculator to create your first one. You can also import a template from a JSON file.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">

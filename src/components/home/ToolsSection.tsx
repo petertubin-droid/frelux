@@ -160,11 +160,11 @@ export default function ToolsSection() {
                 </div>
 
                 <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h4>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{tool.description}</p>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{tool.description}</p>
 
                 {/* Benefit tag */}
                 <div className="mt-4 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
                     {tool.benefit}
                   </span>
                 </div>
@@ -198,7 +198,7 @@ export default function ToolsSection() {
               </span>
             </div>
             <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h4>
-            <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
               Browse hundreds of paint colours with names and codes. Get AI-powered recommendations.
             </p>
             <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">

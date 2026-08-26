@@ -68,8 +68,8 @@ export default function NotificationSettings() {
   if (loading) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-neutral-400" />
-        <span className="text-sm text-neutral-400">Checking notification settings…</span>
+        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-neutral-500" />
+        <span className="text-sm text-neutral-500">Checking notification settings…</span>
       </div>
     );
   }
@@ -88,7 +88,7 @@ export default function NotificationSettings() {
           </div>
           <div>
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Push Notifications</h3>
-            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
               {pushSupported
                 ? subscribed
                   ? 'You\'ll receive notifications when professionals message you.'

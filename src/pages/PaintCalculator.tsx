@@ -712,7 +712,7 @@ function Step2({
           </button>
         ))}
       </div>
-      <p className="mt-2 text-xs text-neutral-400">
+      <p className="mt-2 text-xs text-neutral-500">
         Currently using <span className="font-semibold text-neutral-600">{input.unit}</span>.
       </p>
 
@@ -735,12 +735,12 @@ function Step2({
           <Toggle checked={input.includeCeiling} onChange={(v) => update('includeCeiling', v)} />
           <div>
             <p className="text-sm font-semibold text-neutral-700">Include ceiling</p>
-            <p className="text-xs text-neutral-400">Adds the ceiling area (length × width) to the paintable surface. Requires width to be entered.</p>
+            <p className="text-xs text-neutral-500">Adds the ceiling area (length × width) to the paintable surface. Requires width to be entered.</p>
           </div>
         </div>
       )}
 
-      <p className="mt-4 text-xs text-neutral-400">
+      <p className="mt-4 text-xs text-neutral-500">
         Calculations are performed in metric internally; feet values are converted automatically.
       </p>
     </div>
@@ -850,7 +850,7 @@ function Step3({
 
       <div className="mt-4">
         <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
-        <p className="mt-0.5 text-xs text-neutral-400">Extra paint added to account for spills, roller waste, and touch ups.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Extra paint added to account for spills, roller waste, and touch ups.</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {wasteOptions.map((w: number) => (
             <button
@@ -874,7 +874,7 @@ function Step3({
       {/* Surface condition */}
       <div className="mt-4">
         <span className="block text-sm font-semibold text-neutral-700">Surface condition</span>
-        <p className="mt-0.5 text-xs text-neutral-400">Affects coverage — rough surfaces absorb more paint.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Affects coverage — rough surfaces absorb more paint.</p>
         <select
           value={input.surfaceCondition ?? 'smooth'}
           onChange={(e) => update('surfaceCondition', e.target.value as SurfaceCondition)}
@@ -891,7 +891,7 @@ function Step3({
       {/* Colour condition */}
       <div className="mt-4">
         <span className="block text-sm font-semibold text-neutral-700">Colour change</span>
-        <p className="mt-0.5 text-xs text-neutral-400">Dark colours over light may need extra coats or primer.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Dark colours over light may need extra coats or primer.</p>
         <select
           value={input.colorCondition ?? 'same_or_light'}
           onChange={(e) => update('colorCondition', e.target.value as ColorCondition)}
@@ -917,7 +917,7 @@ function Step3({
         />
         <div>
           <p className="text-sm font-semibold text-neutral-700">Include primer / sealer</p>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-neutral-500">
             {surfaceConditionOptions.find(o => o.key === (input.surfaceCondition ?? 'smooth'))?.primerRecommended
               ? 'Recommended for this surface condition.'
               : 'Recommended for new surfaces and strong colour transitions.'}
@@ -1008,7 +1008,7 @@ function ResultCard({
       {/* Primer */}
       {result.primerLiters > 0 && (
         <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Primer / sealer</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Primer / sealer</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {result.primerContainers.map((c, i) => (
               <span key={i} className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white">
@@ -1019,14 +1019,14 @@ function ResultCard({
               {formatNumber(result.primerLiters, 1)} L needed
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Primer covers ~30% more area per liter than paint. Applied as 1 coat before painting.
           </p>
         </div>
       )}
 
       <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Recommended containers</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Recommended containers</p>
         <div className="mt-2 flex flex-wrap gap-2">
           {result.recommendedContainers.map((c, i) => (
             <span key={i} className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white">
@@ -1036,7 +1036,7 @@ function ResultCard({
         </div>
       </div>
 
-      <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
+      <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
         Wall area: {formatNumber(result.wallArea)} m²
         {result.ceilingArea > 0 && ` · Ceiling: ${formatNumber(result.ceilingArea)} m²`}
         {result.doorArea > 0 && ` · Doors: ${formatNumber(result.doorArea)} m²`}
@@ -1113,7 +1113,7 @@ function ResultCard({
 function Stat({ label, value, countValue, decimals = 0, suffix, highlight }: { label: string; value: string; countValue?: number; decimals?: number; suffix?: string; highlight?: boolean }) {
   return (
     <div className={`rounded-xl border p-4 transition-all ${highlight ? 'stat-card-highlight' : 'stat-card'}`}>
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">{label}</p>
       <p className={`mt-1.5 text-xl font-bold tabular-nums ${highlight ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-brand-navy dark:text-white'}`}>
         {countValue !== undefined ? <CountUp value={countValue} decimals={decimals} suffix={suffix} /> : value}
       </p>
@@ -1150,10 +1150,10 @@ function Field({
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="relative mt-1.5">
         {children}
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">{suffix}</span>}
+        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">{suffix}</span>}
       </div>
       {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
     </label>

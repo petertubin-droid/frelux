@@ -173,7 +173,7 @@ export default function Navbar() {
                           <div className="flex items-center justify-between rounded-t-2xl border-b border-neutral-100 bg-gradient-to-r from-brand-purple/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-brand-purple/10">
                             <NavLink
                               to={workspace.path}
-                              className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-neutral-400 transition-colors hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter"
+                              className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
                             >
                               {workspace.label}
                               <ChevronRight className="h-3 w-3" />
@@ -221,7 +221,7 @@ export default function Navbar() {
                                             {child.label}
                                           </p>
                                           {child.description && (
-                                            <p className="mt-0.5 text-[11px] leading-snug text-neutral-400 dark:text-neutral-500">
+                                            <p className="mt-0.5 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500">
                                               {child.description}
                                             </p>
                                           )}
@@ -269,7 +269,7 @@ export default function Navbar() {
             {/* Search (desktop only) */}
             <button
               onClick={() => { const e = new KeyboardEvent('keydown', { key: 'k', metaKey: true }); document.dispatchEvent(e); }}
-              className="hidden items-center gap-2 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-400 transition-colors hover:border-neutral-300 hover:text-neutral-600 xl:flex dark:border-white/10 dark:hover:border-white/20"
+              className="hidden items-center gap-2 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-500 transition-colors hover:border-neutral-300 hover:text-neutral-600 xl:flex dark:border-white/10 dark:hover:border-white/20 dark:text-neutral-500"
               aria-label="Open command palette"
             >
               <Search className="h-3.5 w-3.5" />
@@ -330,7 +330,7 @@ export default function Navbar() {
                           )}
                           <div className="min-w-0 flex-1">
                             <p className="text-sm font-semibold text-neutral-800 truncate dark:text-neutral-100">{profile?.full_name || user.email?.split('@')[0]}</p>
-                            <p className="text-xs text-neutral-400 truncate dark:text-neutral-500">{user.email}</p>
+                            <p className="text-xs text-neutral-500 truncate dark:text-neutral-500">{user.email}</p>
                             <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                               {isPaid && (
                                 <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
@@ -368,7 +368,7 @@ export default function Navbar() {
                                   onClick={() => setOpenDropdown(null)}
                                   className="group flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-neutral-600 transition-all duration-150 hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
-                                  <Icon className="h-4 w-4 shrink-0 text-neutral-400 transition-colors group-hover:text-brand-purple dark:text-neutral-500 dark:group-hover:text-brand-purple-lighter" />
+                                  <Icon className="h-4 w-4 shrink-0 text-neutral-500 transition-colors group-hover:text-brand-purple dark:text-neutral-500 dark:group-hover:text-brand-purple-lighter" />
                                   {item.label}
                                 </Link>
                               );
@@ -393,7 +393,7 @@ export default function Navbar() {
                     <div className="py-2">
                       <div className="px-5 py-2 pb-3">
                         <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Welcome to FRELUX</p>
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500">Sign in to access your projects, estimates, and rewards.</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500">Sign in to access your projects, estimates, and rewards.</p>
                       </div>
                       <div className="px-2">
                         <Link
@@ -545,7 +545,7 @@ export default function Navbar() {
               <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
                 {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 <span>Dark mode</span>
-                <span className={classNames('ml-auto text-xs', theme === 'dark' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400')}>
+                <span className={classNames('ml-auto text-xs', theme === 'dark' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500')}>
                   {theme === 'dark' ? 'On' : 'Off'}
                 </span>
               </button>
@@ -558,7 +558,7 @@ export default function Navbar() {
                   <Sparkles className="h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                   <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">AI Credits</p>
                 </div>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-400">
+                <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-500">
                   {MAX_AI_ACCESSES_PER_DAY} AI accesses/day: {AI_CREDIT_TIERS.join(' → ')} credits. Earn {CREDITS_PER_AD} credits per ad watch (max {MAX_ADS_PER_DAY}/day).
                 </p>
                 <Link to="/rewards" onClick={() => setMobileOpen(false)} className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">

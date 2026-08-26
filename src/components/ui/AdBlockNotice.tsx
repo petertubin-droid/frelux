@@ -32,7 +32,7 @@ export function AdBlockNotice() {
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        className="absolute right-2 top-2 rounded-md p-1 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        className="absolute right-2 top-2 rounded-md p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
@@ -43,7 +43,7 @@ export function AdBlockNotice() {
         </div>
         <div>
           <h3 className="text-sm font-bold text-brand-navy dark:text-white">Ad blocker detected</h3>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
             Frelux is free because of ads. Please consider disabling your ad blocker so we can keep building tools for you.
           </p>
         </div>

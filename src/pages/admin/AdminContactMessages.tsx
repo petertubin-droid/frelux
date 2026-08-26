@@ -62,13 +62,13 @@ export default function AdminContactMessages() {
             {items.map((item) => (
               <div key={item.id} className="card p-3">
                 <div className="flex min-w-0 items-start gap-3">
-                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-neutral-500" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-bold text-brand-navy truncate">{item.subject}</h3>
                       <span className={classNames('rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize', STATUS_STYLES[item.status] ?? STATUS_STYLES.new)}>{item.status}</span>
                     </div>
-                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{item.name} · {item.email} · {new Date(item.created_at).toLocaleString()}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{item.name} · {item.email} · {new Date(item.created_at).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -81,7 +81,7 @@ export default function AdminContactMessages() {
         )}
       {viewing && (
         <AdminModal open onClose={() => setViewing(null)} title={viewing.subject} maxWidth="max-w-2xl">
-            <div className="space-y-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <div className="space-y-1 text-sm text-neutral-500 dark:text-neutral-500">
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">From:</span> {viewing.name} ({viewing.email})</p>
               <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
             </div>

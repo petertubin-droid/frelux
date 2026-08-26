@@ -66,9 +66,9 @@ export default function AdminTimelineTemplates() {
               <div className="mt-3 flex flex-wrap gap-2">
                 {tpl.phases.map((phase, i) => (
                   <div key={i} className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs">
-                    <Calendar aria-hidden="true" className="h-3 w-3 text-neutral-400" />
+                    <Calendar aria-hidden="true" className="h-3 w-3 text-neutral-500" />
                     <span className="font-medium">{phase.name}</span>
-                    <span className="text-neutral-400 dark:text-neutral-500">{phase.days}d</span>
+                    <span className="text-neutral-500 dark:text-neutral-500">{phase.days}d</span>
                   </div>
                 ))}
               </div>

@@ -123,12 +123,12 @@ export default function Login() {
             <CheckCircle2 className="h-10 w-10 text-emerald-500 dark:text-emerald-400" />
           </div>
           <h1 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">Account Created Successfully!</h1>
-          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">
             Welcome to FRELUX. Your <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">{accountType === 'pro_worker' ? 'Worker' : 'Client'}</span> account is ready.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple dark:text-brand-purple-lighter" />
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Redirecting to your dashboard...</p>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-500">Redirecting to your dashboard...</p>
           </div>
           <div className="mt-8">
             <Link to={redirectTo} className="text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
@@ -155,7 +155,7 @@ export default function Login() {
           <h1 className="font-display text-xl font-bold text-neutral-900 dark:text-white">
             {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Reset password'}
           </h1>
-          <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
             {mode === 'signin' ? 'Sign in to access your projects, saved estimates, and AI features.' : mode === 'signup' ? 'Create an account to save estimates and access premium features.' : 'Enter your email and we will send you reset instructions.'}
           </p>
           {!configured && (
@@ -175,17 +175,17 @@ export default function Login() {
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Account type</span>
               <div className="mt-2 grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setAccountType('client')} className={classNames('flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all', accountType === 'client' ? 'border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15' : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20')}>
-                  <User className={classNames('h-6 w-6', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400 dark:text-neutral-500')} />
+                  <User className={classNames('h-6 w-6', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500 dark:text-neutral-500')} />
                   <div className="text-center">
                     <p className={classNames('text-sm font-bold', accountType === 'client' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-700 dark:text-neutral-200')}>Client</p>
-                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Estimate and save projects</p>
+                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">Estimate and save projects</p>
                   </div>
                 </button>
                 <button type="button" onClick={() => setAccountType('pro_worker')} className={classNames('flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all', accountType === 'pro_worker' ? 'border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15' : 'border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20')}>
-                  <HardHat className={classNames('h-6 w-6', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400 dark:text-neutral-500')} />
+                  <HardHat className={classNames('h-6 w-6', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500 dark:text-neutral-500')} />
                   <div className="text-center">
                     <p className={classNames('text-sm font-bold', accountType === 'pro_worker' ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-700 dark:text-neutral-200')}>Worker</p>
-                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Offer your services</p>
+                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">Offer your services</p>
                   </div>
                 </button>
               </div>
@@ -199,7 +199,7 @@ export default function Login() {
               </button>
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500">or</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">or</span>
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function Login() {
             <label className="block">
               <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
               <div className="relative mt-1.5">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="input-field pl-9" placeholder="you@example.com" autoComplete="email" required />
               </div>
             </label>
@@ -216,7 +216,7 @@ export default function Login() {
               <label className="block">
                 <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                 <div className="relative mt-1.5">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                   <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="input-field pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                 </div>
               </label>
@@ -247,7 +247,7 @@ export default function Login() {
             </div>
           </form>
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-400 dark:text-neutral-500">
+        <p className="mt-6 text-center text-xs text-neutral-500 dark:text-neutral-500">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter">
             <ArrowLeft className="h-3 w-3" /> Back to website
           </Link>

@@ -121,7 +121,7 @@ export default function AdminEngineConfig() {
               "flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400",
+                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -259,7 +259,7 @@ function MaterialsTab() {
                   {item.is_approved ? (
                     <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                   ) : (
-                    <Ban className="h-4 w-4 text-neutral-400" />
+                    <Ban className="h-4 w-4 text-neutral-500" />
                   )}
                 </td>
                 <td className="px-3 py-2">
@@ -305,7 +305,7 @@ function MaterialsTab() {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-3 py-8 text-center text-neutral-400"
+                  className="px-3 py-8 text-center text-neutral-500"
                 >
                   No material profiles yet
                 </td>
@@ -571,7 +571,7 @@ function RoofTab() {
                     {m.is_approved ? (
                       <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                     ) : (
-                      <Ban className="h-4 w-4 text-neutral-400" />
+                      <Ban className="h-4 w-4 text-neutral-500" />
                     )}
                   </td>
                 </tr>
@@ -580,7 +580,7 @@ function RoofTab() {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-3 py-8 text-center text-neutral-400"
+                    className="px-3 py-8 text-center text-neutral-500"
                   >
                     No roof materials configured
                   </td>
@@ -630,7 +630,7 @@ function RoofTab() {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-3 py-8 text-center text-neutral-400"
+                    className="px-3 py-8 text-center text-neutral-500"
                   >
                     No roof sections configured
                   </td>
@@ -716,7 +716,7 @@ function WasteTab() {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-3 py-8 text-center text-neutral-400"
+                  className="px-3 py-8 text-center text-neutral-500"
                 >
                   No waste configurations
                 </td>
@@ -814,7 +814,7 @@ function AiTab() {
                           ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
                           : item.state === "rejected"
                             ? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                            : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400",
+                            : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-500",
                     )}
                   >
                     {AI_VERIFICATION_STATE_LABELS[item.state]}
@@ -865,7 +865,7 @@ function AiTab() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-3 py-8 text-center text-neutral-400"
+                  className="px-3 py-8 text-center text-neutral-500"
                 >
                   No AI verifications
                 </td>
@@ -958,7 +958,7 @@ function RulesTab() {
                 {item.is_verified ? (
                   <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
-                  <Ban className="h-4 w-4 text-neutral-400" />
+                  <Ban className="h-4 w-4 text-neutral-500" />
                 )}
               </td>
               <td className="px-3 py-2">
@@ -987,7 +987,7 @@ function RulesTab() {
             <tr>
               <td
                 colSpan={7}
-                className="px-3 py-8 text-center text-neutral-400"
+                className="px-3 py-8 text-center text-neutral-500"
               >
                 No rule metadata
               </td>
@@ -1089,7 +1089,7 @@ function SettingsTab() {
                 {item.is_editable ? (
                   <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
-                  <Ban className="h-4 w-4 text-neutral-400" />
+                  <Ban className="h-4 w-4 text-neutral-500" />
                 )}
               </td>
               <td className="px-3 py-2">
@@ -1205,7 +1205,7 @@ function MarketsTab() {
                         ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
                         : m.status === "coming_soon"
                           ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-                          : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400",
+                          : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-500",
                     )}
                   >
                     {m.status}
@@ -1213,7 +1213,7 @@ function MarketsTab() {
                 </td>
                 <td className="px-3 py-2">
                   {m.country_code === "NG" ? (
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       Default market
                     </span>
                   ) : (
@@ -1232,7 +1232,7 @@ function MarketsTab() {
               <tr>
                 <td
                   colSpan={4}
-                  className="px-3 py-8 text-center text-neutral-400"
+                  className="px-3 py-8 text-center text-neutral-500"
                 >
                   No market profiles
                 </td>
@@ -1262,7 +1262,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
         {label}
       </label>
       <input
@@ -1288,7 +1288,7 @@ function Select({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-400">
+      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
         {label}
       </label>
       <select

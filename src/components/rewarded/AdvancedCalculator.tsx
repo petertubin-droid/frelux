@@ -209,7 +209,7 @@ Also flag any unrealistic values or potential issues.`;
           </div>
           <div>
             <h3 className="text-base font-bold text-brand-navy dark:text-white dark:text-white">Advanced Calculator</h3>
-            <p className="text-xs text-neutral-400">Detailed breakdown, AI recommendations, PDF export & more</p>
+            <p className="text-xs text-neutral-500">Detailed breakdown, AI recommendations, PDF export & more</p>
           </div>
         </div>
 
@@ -341,7 +341,7 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
           <Download aria-hidden="true" className="h-4 w-4" /> PDF
         </button>
       </div>
-      {saveStatus === 'saving' && <p className="text-xs text-neutral-400">Saving…</p>}
+      {saveStatus === 'saving' && <p className="text-xs text-neutral-500">Saving…</p>}
       {saveStatus === 'saved' && <p className="text-xs text-accent-green">Saved successfully.</p>}
       {saveStatus?.startsWith('Error') && <p className="text-xs text-red-600">{saveStatus}</p>}
     </div>
@@ -359,7 +359,7 @@ function MixTab({ input, update, config }: {
     <div className="space-y-5">
       <div>
         <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Custom Mix Ratio Editor</h4>
-        <p className="mt-0.5 text-xs text-neutral-400">Adjust the paint to cement mix ratio for your wall condition.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Adjust the paint to cement mix ratio for your wall condition.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {ratios.map((r) => (
             <button
@@ -417,7 +417,7 @@ function CostsTab({ input, update, estimate }: {
 
       <div>
         <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Waste Percentage Scenarios</h4>
-        <p className="mt-0.5 text-xs text-neutral-400">Compare different waste allowances.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Compare different waste allowances.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
             <button
@@ -472,7 +472,7 @@ function CompareTab({ current, saved, onSelect, selected }: {
     <div className="space-y-5">
       <div>
         <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Cost Comparison</h4>
-        <p className="mt-0.5 text-xs text-neutral-400">Compare your current estimate with saved estimates or different material brands.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Compare your current estimate with saved estimates or different material brands.</p>
       </div>
 
       {saved.length > 0 && (
@@ -521,7 +521,7 @@ function CompareTab({ current, saved, onSelect, selected }: {
                     <td className="px-3 py-2 font-medium text-brand-navy dark:text-white dark:text-white">{row.label}</td>
                     <td className="px-3 py-2 text-right text-neutral-600">{formatNumber(row.cur)}</td>
                     <td className="px-3 py-2 text-right text-neutral-600">{formatNumber(row.sav)}</td>
-                    <td className={'px-3 py-2 text-right font-semibold ' + (diff > 0 ? 'text-red-600' : diff < 0 ? 'text-accent-green' : 'text-neutral-400')}>
+                    <td className={'px-3 py-2 text-right font-semibold ' + (diff > 0 ? 'text-red-600' : diff < 0 ? 'text-accent-green' : 'text-neutral-500')}>
                       {diff > 0 ? '+' : ''}{formatNumber(diff)}
                     </td>
                   </tr>
@@ -571,7 +571,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
 
       <div>
         <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Ask the AI Assistant</h4>
-        <p className="mt-0.5 text-xs text-neutral-400">Ask about calculations, materials, or cost saving tips.</p>
+        <p className="mt-0.5 text-xs text-neutral-500">Ask about calculations, materials, or cost saving tips.</p>
         <div className="mt-3 flex gap-2">
           <input
             type="text"
@@ -589,7 +589,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
       </div>
 
       {loading && !response && (
-        <div className="flex items-center gap-2 py-4 text-sm text-neutral-400">
+        <div className="flex items-center gap-2 py-4 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Analyzing your estimate…
         </div>
       )}
@@ -625,15 +625,15 @@ function SavedTab({ estimates, onDelete, onExport }: {
         <div key={e.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4">
           <div>
             <p className="text-sm font-semibold text-brand-navy dark:text-white dark:text-white">{e.title}</p>
-            <p className="text-xs text-neutral-400">
+            <p className="text-xs text-neutral-500">
               {new Date(e.createdAt).toLocaleDateString()} · {formatCurrency(e.totalCost, e.estimateData.currencySymbol)}
             </p>
           </div>
           <div className="flex gap-2">
-            <button type="button" onClick={onExport} className="rounded-md p-2 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple">
+            <button type="button" onClick={onExport} className="rounded-md p-2 text-neutral-500 hover:bg-neutral-100 hover:text-brand-purple">
               <Download aria-hidden="true" className="h-4 w-4" />
             </button>
-            <button type="button" onClick={() => onDelete(e.id)} className="rounded-md p-2 text-neutral-400 hover:bg-red-50 hover:text-red-500">
+            <button type="button" onClick={() => onDelete(e.id)} className="rounded-md p-2 text-neutral-500 hover:bg-red-50 hover:text-red-500">
               <Trash2 aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>

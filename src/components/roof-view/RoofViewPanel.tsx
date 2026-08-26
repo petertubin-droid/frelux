@@ -70,7 +70,7 @@ export function RoofViewPanel() {
       <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-200 shrink-0">
-            <Satellite aria-hidden="true" className="w-5 h-5 text-neutral-400" />
+            <Satellite aria-hidden="true" className="w-5 h-5 text-neutral-500" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-neutral-700">
@@ -84,7 +84,7 @@ export function RoofViewPanel() {
               <Info aria-hidden="true" className="w-3 h-3" />
               Ready for provider connection
             </div>
-            <p className="text-xs text-neutral-400 mt-2">
+            <p className="text-xs text-neutral-500 mt-2">
               You can still enter your roof dimensions manually below.
             </p>
           </div>
@@ -124,7 +124,7 @@ export function RoofViewPanel() {
               Property address
             </label>
             <div className="relative">
-              <MapPin aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <MapPin aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
               <input
                 type="text"
                 value={address}
@@ -216,7 +216,7 @@ export function RoofViewPanel() {
               ? new Date(imagery.retrieved_at).toLocaleDateString()
               : 'unknown date'}
           </div>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-neutral-500">
             Use this image as a reference to trace your roof outline in the geometry editor below.
           </p>
         </div>

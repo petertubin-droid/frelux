@@ -169,13 +169,13 @@ function UsageBanner({ config, usage }: { config: AiAccessConfig; usage: AiUsage
         <Clock className="h-4 w-4 text-brand-purple" />
         <span className="font-semibold text-brand-navy dark:text-white">{usage.remaining} uses remaining today</span>
       </div>
-      <span className="text-neutral-400">·</span>
+      <span className="text-neutral-500">·</span>
       <span className="text-neutral-500">Daily limit: {usage.limit}</span>
-      <span className="text-neutral-400">·</span>
+      <span className="text-neutral-500">·</span>
       <span className="text-neutral-500">Resets: {usage.resetPeriod}</span>
-      <span className="text-neutral-400">·</span>
+      <span className="text-neutral-500">·</span>
       <span className="text-neutral-500">Mode: {config.accessMode.replace('_', ' + ')}</span>
-      <span className="text-neutral-400">·</span>
+      <span className="text-neutral-500">·</span>
       <span className="text-neutral-500">{usage.isAuthenticated ? 'Signed in' : 'Anonymous'}</span>
     </div>
   );
@@ -276,10 +276,10 @@ function AccessGate({ decision, config, onRewarded, isAuthenticated }: { decisio
               </button>
             )}
             {decision.nextAction === 'rewarded' && !config?.rewardedEnabled && (
-              <p className="mt-2 text-xs text-neutral-400">Rewarded access is not available right now. Please check back later.</p>
+              <p className="mt-2 text-xs text-neutral-500">Rewarded access is not available right now. Please check back later.</p>
             )}
             {decision.nextAction === 'paid' && (
-              <p className="mt-2 text-xs text-neutral-400">Paid AI access will be available in the future.</p>
+              <p className="mt-2 text-xs text-neutral-500">Paid AI access will be available in the future.</p>
             )}
             {!isAuthenticated && (
               <p className="mt-3 text-xs text-neutral-500">
@@ -418,7 +418,7 @@ function TextConsultation({ config, usage, onUsageConsumed }: { config: AiAccess
               disabled={status === 'generating' || !decision.allowed}
             />
           </label>
-          <p className="mt-1 text-xs text-neutral-400">{description.trim().length} characters · minimum 10</p>
+          <p className="mt-1 text-xs text-neutral-500">{description.trim().length} characters · minimum 10</p>
 
           <div className="mt-4 flex items-center gap-3">
             <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50">
@@ -616,7 +616,7 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
           )}
 
           {file && !fileError && (
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-xs text-neutral-500">
               {file.name} · {(file.size / 1024).toFixed(0)} KB
             </p>
           )}
@@ -706,7 +706,7 @@ function ImageDropzone({ onFile, disabled }: { onFile: (f: File | undefined) => 
         <Upload className="h-5 w-5" />
       </span>
       <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">Tap to upload or take a photo</p>
-      <p className="mt-1 text-xs text-neutral-400">JPG, PNG, or WebP · up to 5 MB</p>
+      <p className="mt-1 text-xs text-neutral-500">JPG, PNG, or WebP · up to 5 MB</p>
     </div>
   );
 }
@@ -732,7 +732,7 @@ function ResultPanel({
 }) {
   if (status === 'idle' || (status !== 'error' && status !== 'success' && status !== 'generating' && status !== 'analyzing' && status !== 'uploading' && status !== 'preparing')) {
     return (
-      <div className="card sticky top-20 p-6 text-center text-sm text-neutral-400">
+      <div className="card sticky top-20 p-6 text-center text-sm text-neutral-500">
         <Palette className="mx-auto h-8 w-8 text-neutral-300" />
         <p className="mt-3">Your color recommendations will appear here.</p>
       </div>
@@ -752,7 +752,7 @@ function ResultPanel({
       <div className="card sticky top-20 p-8 text-center">
         <Loader2 aria-hidden="true" className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
         <p className="mt-4 text-sm font-semibold text-brand-navy dark:text-white">{label}</p>
-        <p className="mt-1 text-xs text-neutral-400">This usually takes a few seconds.</p>
+        <p className="mt-1 text-xs text-neutral-500">This usually takes a few seconds.</p>
       </div>
     );
   }
@@ -765,7 +765,7 @@ function ResultPanel({
           <div>
             <p className="text-sm font-semibold text-red-700">Couldn't generate recommendations</p>
             <p className="mt-1 text-sm text-neutral-600">{error ?? 'An unexpected error occurred.'}</p>
-            <p className="mt-3 text-xs text-neutral-400">
+            <p className="mt-3 text-xs text-neutral-500">
               You can try again. If the problem persists, the AI service may be temporarily unavailable.
             </p>
           </div>
@@ -793,21 +793,21 @@ function ResultPanel({
 
       {recommendation?.finishSuggestion && (
         <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Suggested finish</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Suggested finish</p>
           <p className="mt-1 text-sm text-neutral-700">{recommendation.finishSuggestion}</p>
         </div>
       )}
 
       {recommendation?.whyItWorks && (
         <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Why these colors work</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Why these colors work</p>
           <p className="mt-1 text-sm leading-relaxed text-neutral-700">{recommendation.whyItWorks}</p>
         </div>
       )}
 
       {recommendation?.additionalSuggestions && (
         <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Additional suggestions</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Additional suggestions</p>
           <p className="mt-1 text-sm leading-relaxed text-neutral-700">{recommendation.additionalSuggestions}</p>
         </div>
       )}
@@ -855,7 +855,7 @@ function ResultPanel({
                 <div className="h-8 w-8 shrink-0 rounded ring-1 ring-black/10" style={{ background: pc.hex_code }} />
                 <div className="min-w-0">
                   <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{pc.name}</p>
-                  <p className="text-[10px] text-neutral-400">{pc.hex_code}</p>
+                  <p className="text-[10px] text-neutral-500">{pc.hex_code}</p>
                 </div>
               </Link>
             ))}
@@ -863,7 +863,7 @@ function ResultPanel({
         </div>
       )}
 
-      <div className="border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-xs text-neutral-500 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
+      <div className="border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-xs text-neutral-500 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
         AI suggestions are for inspiration only. Test a physical paint sample before deciding.
       </div>
     </div>
@@ -885,7 +885,7 @@ function ColorSwatch({ color }: { color: { name: string; hex: string; role: stri
         <span className="text-[10px] font-bold">{valid ? 'Aa' : '!'}</span>
       </div>
       <div className="flex-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{roleLabel}</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">{roleLabel}</p>
         <p className="text-sm font-bold text-brand-navy dark:text-white">{color.name}</p>
         <p className="font-mono text-xs text-neutral-500">{valid ? hex : 'Invalid color'}</p>
       </div>

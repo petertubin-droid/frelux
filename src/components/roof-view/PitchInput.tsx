@@ -162,7 +162,7 @@ export function PitchInput({
           />
           <span className="text-sm text-neutral-500">degrees</span>
           {nearestRatio && (
-            <span className="text-xs text-neutral-400">≈ {nearestRatio}</span>
+            <span className="text-xs text-neutral-500">≈ {nearestRatio}</span>
           )}
         </div>
       )}
@@ -244,7 +244,7 @@ export function PitchInput({
 
       {/* Info: what this pitch means for surface area */}
       {hasPitch && (
-        <div className="flex items-center gap-1.5 text-[11px] text-neutral-400">
+        <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
           <HelpCircle aria-hidden="true" className="w-3 h-3" />
           Surface area = plan area ÷ cos({pitchDegrees!.toFixed(1)}°)
           {aiEstimated && (

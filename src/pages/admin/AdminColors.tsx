@@ -133,7 +133,7 @@ function PaintColorsTab() {
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or hex…" className="pl-9" />
         </div>
         <div className="flex gap-2">
@@ -143,7 +143,7 @@ function PaintColorsTab() {
         </div>
       </div>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">{filtered.length} of {items.length} colors</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">{filtered.length} of {items.length} colors</p>
         {!search && groups.length > 1 && <GroupControls onExpandAll={expandAll} onCollapseAll={collapseAll} groupLabel={`${groups.length} color families`} />}
       </div>
       {filtered.length === 0 ? <StateMessage type="empty" title="No colors found" message="Add your first paint color or adjust your search." /> : (
@@ -160,7 +160,7 @@ function PaintColorsTab() {
                   {group.items.slice(0, 6).map((c) => (
                     <div key={c.id} className="h-5 w-5 rounded-full ring-2 ring-white dark:ring-brand-navy-mid" style={{ background: c.hex_code }} title={c.name} />
                   ))}
-                  {group.items.length > 6 && <span className="ml-2 text-[11px] font-semibold text-neutral-400">+{group.items.length - 6}</span>}
+                  {group.items.length > 6 && <span className="ml-2 text-[11px] font-semibold text-neutral-500">+{group.items.length - 6}</span>}
                 </div>
               }
             >
@@ -178,7 +178,7 @@ function PaintColorsTab() {
                         {item.is_featured && <BadgeCheck className="h-3 w-3 text-brand-purple" />}
                         {item.is_trending && <TrendingUp aria-hidden="true" className="h-3 w-3 text-accent-orange" />}
                       </div>
-                      <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{item.is_interior ? 'Int' : ''}{item.is_interior && item.is_exterior ? '/' : ''}{item.is_exterior ? 'Ext' : ''}</p>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-500">{item.is_interior ? 'Int' : ''}{item.is_interior && item.is_exterior ? '/' : ''}{item.is_exterior ? 'Ext' : ''}</p>
                     </div>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
@@ -384,12 +384,12 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
           <AdminButton type="button" onClick={() => setFormat('json')} className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold transition-all', format === 'json' ? 'bg-brand-purple text-white' : 'text-neutral-600')}>JSON</AdminButton>
         </div>
 
-        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">
           {format === 'csv'
             ? <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">Name, #HEX, family slug, category slug</code></>
             : <>Format: <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs">JSON array of objects: name, hex, family_slug, category_slug</code></>}
         </p>
-        <p className="text-xs text-neutral-400 dark:text-neutral-500">Family and category slugs are optional. RGB/HSL are auto computed from the hex code.</p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-500">Family and category slugs are optional. RGB/HSL are auto computed from the hex code.</p>
 
         <AdminTextarea className="mt-3 font-mono text-xs" rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder={format === 'csv' ? 'Warm White, #F5F1E8, white, interior-wall-colors' : '[{"name": "Warm White", "hex": "#F5F1E8"}]'} />
 
@@ -405,7 +405,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
             </div>
             <div className="mt-2 max-h-32 overflow-y-auto">
               <table className="w-full text-xs">
-                <thead><tr className="text-left text-neutral-400 dark:text-neutral-500"><th className="pb-1">Name</th><th className="pb-1">HEX</th><th className="pb-1">Status</th></tr></thead>
+                <thead><tr className="text-left text-neutral-500 dark:text-neutral-500"><th className="pb-1">Name</th><th className="pb-1">HEX</th><th className="pb-1">Status</th></tr></thead>
                 <tbody>
                   {preview.slice(0, 20).map((r, i) => (
                     <tr key={i} className={r.valid ? '' : 'text-red-500'}>
@@ -416,7 +416,7 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
                   ))}
                 </tbody>
               </table>
-              {preview.length > 20 && <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">…and {preview.length - 20} more</p>}
+              {preview.length > 20 && <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">…and {preview.length - 20} more</p>}
             </div>
           </div>
         )}
@@ -485,7 +485,7 @@ function FamiliesTab() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <AdminCard key={item.id} className="flex items-center justify-between">
-              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-400 dark:text-neutral-500">/{item.slug}</p></div>
+              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-500 dark:text-neutral-500">/{item.slug}</p></div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -589,8 +589,8 @@ function CombinationsTab() {
                 </div>
                 <div className="p-3">
                   <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">{item.title}</h3>
-                  <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">{item.description}</p>
-                  {cats.length > 0 && <p className="mt-1 text-[11px] text-neutral-400 dark:text-neutral-500">{cats.map((c) => c.name).join(' · ')}</p>}
+                  <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">{item.description}</p>
+                  {cats.length > 0 && <p className="mt-1 text-[11px] text-neutral-500 dark:text-neutral-500">{cats.map((c) => c.name).join(' · ')}</p>}
                   <div className="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-2.5 dark:border-white/5">
                     <Toggle checked={item.is_published} onChange={() => togglePublished(item)} />
                     <div className="flex items-center gap-1">
@@ -727,7 +727,7 @@ function CategoriesTab() {
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <AdminCard key={item.id} className="flex items-center justify-between">
-              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-400 dark:text-neutral-500">/{item.slug}</p></div>
+              <div><h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3><p className="text-xs text-neutral-500 dark:text-neutral-500">/{item.slug}</p></div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>

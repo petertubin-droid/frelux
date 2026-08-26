@@ -237,13 +237,13 @@ function SidebarContent({ user, onSignOut, onNavigate, theme, onToggleTheme }: {
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-neutral-200 px-5 py-4 dark:border-neutral-800 lg:block">
         <span className="text-base font-bold text-brand-navy dark:text-white">FRELUX Admin</span>
-        <p className="text-xs text-neutral-400">Platform management</p>
+        <p className="text-xs text-neutral-500">Platform management</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
         {navModules.map((module) => (
           <div key={module.heading} className="mb-4">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-400">{module.heading}</p>
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">{module.heading}</p>
             <div className="space-y-0.5">
               {module.items.map((item) => {
                 const Icon = item.icon;
@@ -277,7 +277,7 @@ function SidebarContent({ user, onSignOut, onNavigate, theme, onToggleTheme }: {
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </button>
         </div>
-        <div className="mt-1 px-3 py-1 text-xs text-neutral-400 truncate">{user}</div>
+        <div className="mt-1 px-3 py-1 text-xs text-neutral-500 truncate">{user}</div>
         <button type="button" onClick={onSignOut} className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
           <LogOut className="h-4 w-4" /> Sign out
         </button>

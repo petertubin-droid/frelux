@@ -49,8 +49,6 @@ export default defineConfig({
         manualChunks: {
           "react-vendor": ["react", "react-dom", "react-router-dom"],
           "supabase-vendor": ["@supabase/supabase-js"],
-          "pdf-vendor": ["jspdf"],
-          "canvas-vendor": ["html2canvas"],
           "icon-vendor": ["lucide-react"],
         },
         // Use content-based hashing for long-term caching

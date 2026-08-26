@@ -28,7 +28,7 @@ import type { DbProCredentialPublic, DbProSettings } from '@/types/pro-connect';
 const availabilityConfig = {
   available: { label: 'Available for work', color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
   busy: { label: 'Currently busy', color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500' },
-  unavailable: { label: 'Temporarily unavailable', color: 'text-neutral-400 dark:text-neutral-500', dot: 'bg-neutral-400' },
+  unavailable: { label: 'Temporarily unavailable', color: 'text-neutral-500 dark:text-neutral-500', dot: 'bg-neutral-400' },
 };
 
 export default function ProConnectProfile() {
@@ -119,7 +119,7 @@ export default function ProConnectProfile() {
     return (
       <div className="mx-auto max-w-4xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Professional not found</h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">This profile may have been removed or is no longer available.</p>
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">This profile may have been removed or is no longer available.</p>
         <Link to="/pro-connect" className="mt-6 inline-block text-brand-purple dark:text-brand-purple-lighter">
           ← Back to directory
         </Link>
@@ -133,7 +133,7 @@ export default function ProConnectProfile() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Back link */}
-      <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
+      <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500">
         <ChevronLeft className="h-4 w-4" />
         Back to directory
       </Link>
@@ -169,7 +169,7 @@ export default function ProConnectProfile() {
               <div>
                 <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">{profile.display_name}</h1>
                 {profile.business_name && (
-                  <p className="mt-1 text-neutral-500 dark:text-neutral-400">{profile.business_name}</p>
+                  <p className="mt-1 text-neutral-500 dark:text-neutral-500">{profile.business_name}</p>
                 )}
                 <div className="mt-2">
                   <VerificationBadge profile={profile} size="md" />
@@ -178,7 +178,7 @@ export default function ProConnectProfile() {
               {!isOwner && (
                 <button
                   onClick={() => setShowReportModal(true)}
-                  className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+                  className="rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
                   title="Report this profile"
                 >
                   <Flag className="h-5 w-5" />
@@ -194,7 +194,7 @@ export default function ProConnectProfile() {
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
                     {profile.rating_avg.toFixed(1)}
                   </span>
-                  <span className="text-neutral-400">({profile.rating_count} reviews)</span>
+                  <span className="text-neutral-500">({profile.rating_count} reviews)</span>
                 </div>
               )}
               <div className={classNames('flex items-center gap-1.5', avail.color)}>
@@ -202,7 +202,7 @@ export default function ProConnectProfile() {
                 <span className="font-medium">{avail.label}</span>
               </div>
               {profile.years_experience && (
-                <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-400">
+                <div className="flex items-center gap-1.5 text-neutral-500 dark:text-neutral-500">
                   <Briefcase className="h-4 w-4" />
                   <span>{profile.years_experience} years experience</span>
                 </div>
@@ -217,7 +217,7 @@ export default function ProConnectProfile() {
 
             {/* Location */}
             {locations.length > 0 && (
-              <div className="mt-3 flex flex-wrap items-start gap-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <div className="mt-3 flex flex-wrap items-start gap-2 text-sm text-neutral-500 dark:text-neutral-500">
                 <MapPin aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <div className="flex flex-wrap gap-1.5">
                   {locations.slice(0, 5).map((l, i) => (
@@ -226,7 +226,7 @@ export default function ProConnectProfile() {
                     </span>
                   ))}
                   {locations.length > 5 && (
-                    <span className="text-xs text-neutral-400">+{locations.length - 5} more</span>
+                    <span className="text-xs text-neutral-500">+{locations.length - 5} more</span>
                   )}
                 </div>
               </div>
@@ -256,7 +256,7 @@ export default function ProConnectProfile() {
                 <ShieldCheck aria-hidden="true" className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <div>
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Contact Verified</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Email & phone confirmed</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Email & phone confirmed</p>
                 </div>
               </div>
             )}
@@ -265,7 +265,7 @@ export default function ProConnectProfile() {
                 <ShieldCheck aria-hidden="true" className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
                   <p className="text-sm font-medium text-blue-700 dark:text-blue-400">FRELUX Verified</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Identity & profile reviewed</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Identity & profile reviewed</p>
                 </div>
               </div>
             )}
@@ -274,13 +274,13 @@ export default function ProConnectProfile() {
                 <ThumbsUp className="h-4 w-4 fill-amber-400 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="text-sm font-medium text-amber-700 dark:text-amber-400">FRELUX Pro</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Top-rated professional</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Top-rated professional</p>
                 </div>
               </div>
             )}
           </div>
           {proSettings?.verification_disclaimer && (
-            <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-500 italic">{proSettings.verification_disclaimer}</p>
+            <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-500 italic">{proSettings.verification_disclaimer}</p>
           )}
         </section>
       )}
@@ -294,7 +294,7 @@ export default function ProConnectProfile() {
               <div key={cred.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white px-4 py-3 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div>
                   <p className="text-sm font-medium text-neutral-900 dark:text-white">{cred.professional_body}</p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">{cred.credential_type}</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">{cred.credential_type}</p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                   <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
@@ -392,7 +392,7 @@ export default function ProConnectProfile() {
                       />
                     ))}
                   </div>
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     {new Date(review.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </span>
                   {review.is_verified_review && (
@@ -407,7 +407,7 @@ export default function ProConnectProfile() {
                 )}
                 {review.professional_response && (
                   <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-white/5">
-                    <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">Professional's response:</p>
+                    <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-500">Professional's response:</p>
                     <p className="text-sm text-neutral-600 dark:text-neutral-300">{review.professional_response}</p>
                   </div>
                 )}

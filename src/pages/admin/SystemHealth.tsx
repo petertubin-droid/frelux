@@ -494,7 +494,7 @@ export default function SystemHealth() {
           <span className="text-sm font-semibold text-neutral-800 dark:text-white">
             🟢 {STATUS_TEXT[systemStatus]}
           </span>
-          <span className="ml-2 text-xs text-neutral-500 dark:text-neutral-400">
+          <span className="ml-2 text-xs text-neutral-500 dark:text-neutral-500">
             {systemStatus === 'operational' && 'All systems operating normally.'}
             {systemStatus === 'degraded' && 'Some errors detected. Monitor for issues.'}
             {systemStatus === 'critical' && 'Critical errors detected. Immediate attention required.'}
@@ -535,11 +535,11 @@ export default function SystemHealth() {
             <h3 className="mb-3 text-sm font-semibold text-neutral-800 dark:text-white">Most Affected</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Route</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-500">Route</span>
                 <p className="mt-1 text-sm font-medium text-neutral-800 dark:text-white">{stats.mostAffectedRoute}</p>
               </div>
               <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-400">Feature</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-500">Feature</span>
                 <p className="mt-1 text-sm font-medium text-neutral-800 dark:text-white">{stats.mostAffectedFeature}</p>
               </div>
             </div>
@@ -562,7 +562,7 @@ export default function SystemHealth() {
               </div>
             </div>
             {trend.length === 0 ? (
-              <p className="py-8 text-center text-sm text-neutral-400">No errors in this period.</p>
+              <p className="py-8 text-center text-sm text-neutral-500">No errors in this period.</p>
             ) : (
               <div className="flex h-40 items-end gap-1 overflow-x-auto">
                 {trend.map((point, i) => {
@@ -578,7 +578,7 @@ export default function SystemHealth() {
                         style={{ height: `${heightPct}%`, minHeight: '2px' }}
                       />
                       {trend.length <= 24 && (
-                        <span className="mt-1 text-[10px] text-neutral-400">{point.hour.split(' ')[1] || point.hour}</span>
+                        <span className="mt-1 text-[10px] text-neutral-500">{point.hour.split(' ')[1] || point.hour}</span>
                       )}
                     </div>
                   );
@@ -599,7 +599,7 @@ export default function SystemHealth() {
                       {e.severity.toUpperCase()}
                     </span>
                     <span className="flex-1 truncate text-sm text-neutral-700 dark:text-neutral-300">{e.message}</span>
-                    <span className="text-xs text-neutral-400">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : formatDate(e.last_seen)}</span>
+                    <span className="text-xs text-neutral-500">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : formatDate(e.last_seen)}</span>
                   </div>
                 ))}
               </div>
@@ -648,14 +648,14 @@ export default function SystemHealth() {
 
           {/* Error table */}
           {loading ? (
-            <p className="py-8 text-center text-sm text-neutral-400">Loading errors...</p>
+            <p className="py-8 text-center text-sm text-neutral-500">Loading errors...</p>
           ) : errors.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-400">No errors found.</p>
+            <p className="py-8 text-center text-sm text-neutral-500">No errors found.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-500">
                     <th className="pb-2 pr-3 font-medium">Severity</th>
                     <th className="pb-2 pr-3 font-medium">Error</th>
                     <th className="pb-2 pr-3 font-medium">Feature</th>
@@ -676,11 +676,11 @@ export default function SystemHealth() {
                         </span>
                       </td>
                       <td className="py-2 pr-3 max-w-[300px] truncate text-neutral-700 dark:text-neutral-300">{e.message}</td>
-                      <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-400">{e.feature ?? '—'}</td>
-                      <td className="py-2 pr-3 max-w-[150px] truncate text-neutral-500 dark:text-neutral-400">{e.route ?? '—'}</td>
+                      <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-500">{e.feature ?? '—'}</td>
+                      <td className="py-2 pr-3 max-w-[150px] truncate text-neutral-500 dark:text-neutral-500">{e.route ?? '—'}</td>
                       <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{e.occurrence_count}</td>
-                      <td className="py-2 pr-3 text-xs text-neutral-400">{formatDate(e.first_seen)}</td>
-                      <td className="py-2 pr-3 text-xs text-neutral-400">{formatDate(e.last_seen)}</td>
+                      <td className="py-2 pr-3 text-xs text-neutral-500">{formatDate(e.first_seen)}</td>
+                      <td className="py-2 pr-3 text-xs text-neutral-500">{formatDate(e.last_seen)}</td>
                       <td className="py-2">
                         {e.resolved ? (
                           <span className="text-xs text-emerald-600">Resolved</span>
@@ -717,7 +717,7 @@ export default function SystemHealth() {
                   )} />
                   <div>
                     <p className="text-sm font-medium text-neutral-800 dark:text-white">{service}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 capitalize">{status}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 capitalize">{status}</p>
                   </div>
                 </div>
               ))}
@@ -738,7 +738,7 @@ export default function SystemHealth() {
                     <p className="text-sm font-medium capitalize text-neutral-800 dark:text-white">
                       {cfg.alert_type.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {cfg.threshold_count} errors in {cfg.threshold_window_minutes} min · cooldown {cfg.cooldown_minutes} min
                     </p>
                   </div>
@@ -749,7 +749,7 @@ export default function SystemHealth() {
                       onChange={(e) => updateAlertConfig(cfg.id, { enabled: e.target.checked })}
                       className="h-4 w-4 rounded border-neutral-300"
                     />
-                    <span className="text-xs text-neutral-600 dark:text-neutral-400">{cfg.enabled ? 'Enabled' : 'Disabled'}</span>
+                    <span className="text-xs text-neutral-600 dark:text-neutral-500">{cfg.enabled ? 'Enabled' : 'Disabled'}</span>
                   </label>
                 </div>
               ))}
@@ -768,7 +768,7 @@ export default function SystemHealth() {
               <span className={classNames('rounded px-2 py-1 text-xs font-medium border', SEVERITY_STYLES[selectedError.severity])}>
                 {selectedError.severity.toUpperCase()}
               </span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+              <span className="text-xs text-neutral-500 dark:text-neutral-500">
                 {selectedError.error_type}
               </span>
               {selectedError.resolved ? (
@@ -780,7 +780,7 @@ export default function SystemHealth() {
 
             {/* Message */}
             <div>
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Message</span>
+              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Message</span>
               <p className="mt-1 rounded-lg bg-neutral-50 p-3 text-sm text-neutral-800 dark:bg-white/5 dark:text-neutral-200">
                 {selectedError.message}
               </p>
@@ -789,7 +789,7 @@ export default function SystemHealth() {
             {/* Stack trace */}
             {selectedError.stack_trace && (
               <div>
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Stack Trace</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Stack Trace</span>
                 <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-300">
                   {selectedError.stack_trace}
                 </pre>
@@ -820,8 +820,8 @@ export default function SystemHealth() {
             {/* Metadata */}
             {selectedError.metadata && Object.keys(selectedError.metadata).length > 0 && (
               <div>
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Metadata</span>
-                <pre className="mt-1 max-h-32 overflow-auto rounded-lg bg-neutral-50 p-2 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-400">
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Metadata</span>
+                <pre className="mt-1 max-h-32 overflow-auto rounded-lg bg-neutral-50 p-2 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-500">
                   {JSON.stringify(selectedError.metadata, null, 2)}
                 </pre>
               </div>
@@ -861,23 +861,23 @@ export default function SystemHealth() {
               {aiDiagnosis && !aiAnalyzing && (
                 <div className="space-y-2 text-xs">
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">What failed: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">What failed: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.what_failed}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Root cause: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Root cause: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.root_cause}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Affected file: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Affected file: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.affected_file}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Category: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Category: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.category}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Risk level: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Risk level: </span>
                     <span className={classNames(
                       'rounded px-1.5 py-0.5 text-[10px] font-medium',
                       aiDiagnosis.risk_level === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
@@ -892,7 +892,7 @@ export default function SystemHealth() {
                     </div>
                   )}
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">Proposed solution: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Proposed solution: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.proposed_solution}</span>
                   </div>
 
@@ -914,18 +914,18 @@ export default function SystemHealth() {
                 <div className="space-y-2 border-t border-brand-purple/10 pt-3">
                   <h5 className="text-xs font-semibold text-brand-purple">Proposed Fix</h5>
                   <div className="text-xs">
-                    <span className="font-medium text-neutral-500 dark:text-neutral-400">File: </span>
+                    <span className="font-medium text-neutral-500 dark:text-neutral-500">File: </span>
                     <span className="text-neutral-800 dark:text-neutral-200">{aiFix.file}</span>
                   </div>
                   {aiFix.explanation && (
                     <div className="text-xs">
-                      <span className="font-medium text-neutral-500 dark:text-neutral-400">Explanation: </span>
+                      <span className="font-medium text-neutral-500 dark:text-neutral-500">Explanation: </span>
                       <span className="text-neutral-800 dark:text-neutral-200">{aiFix.explanation}</span>
                     </div>
                   )}
                   {aiFix.expected_effect && (
                     <div className="text-xs">
-                      <span className="font-medium text-neutral-500 dark:text-neutral-400">Expected effect: </span>
+                      <span className="font-medium text-neutral-500 dark:text-neutral-500">Expected effect: </span>
                       <span className="text-neutral-800 dark:text-neutral-200">{aiFix.expected_effect}</span>
                     </div>
                   )}
@@ -955,7 +955,7 @@ export default function SystemHealth() {
               {/* Fix History */}
               {showFixHistory && fixHistory.length > 0 && (
                 <div className="space-y-1 border-t border-brand-purple/10 pt-3">
-                  <h5 className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Fix History</h5>
+                  <h5 className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Fix History</h5>
                   {fixHistory.map((h) => (
                     <div key={h.id} className="flex items-center gap-2 text-xs">
                       <span className={classNames(
@@ -964,9 +964,9 @@ export default function SystemHealth() {
                         h.status === 'deployed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
                         h.status === 'approved' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400' :
                         h.status === 'failed' || h.status === 'rolled_back' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                        'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400'
+                        'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500'
                       )}>{h.status.replace(/_/g, ' ')}</span>
-                      <span className="text-neutral-500 dark:text-neutral-400">{new Date(h.created_at).toLocaleString()}</span>
+                      <span className="text-neutral-500 dark:text-neutral-500">{new Date(h.created_at).toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -1011,7 +1011,7 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
   const colorClass = accent === 'red' ? 'text-red-600' : accent === 'amber' ? 'text-amber-600' : 'text-neutral-800 dark:text-white';
   return (
     <div className="rounded-lg border border-neutral-100 p-4 dark:border-white/5">
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
       <p className={classNames('mt-1 text-2xl font-bold', colorClass)}>{value}</p>
     </div>
   );
@@ -1020,7 +1020,7 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function DetailField({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{label}</span>
+      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">{label}</span>
       <p className="mt-0.5 text-sm text-neutral-800 dark:text-neutral-200">{value ?? '—'}</p>
     </div>
   );

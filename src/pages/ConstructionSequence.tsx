@@ -206,9 +206,9 @@ function StepCard({
           </div>
         </div>
         {isOpen ? (
-          <ChevronDown aria-hidden="true" className="w-5 h-5 text-neutral-400" />
+          <ChevronDown aria-hidden="true" className="w-5 h-5 text-neutral-500" />
         ) : (
-          <ChevronRight className="w-5 h-5 text-neutral-400" />
+          <ChevronRight className="w-5 h-5 text-neutral-500" />
         )}
       </button>
 

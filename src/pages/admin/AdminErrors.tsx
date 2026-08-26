@@ -106,7 +106,7 @@ export default function AdminErrors() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Error Monitor</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Runtime errors and exceptions logged from the frontend</p>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">Runtime errors and exceptions logged from the frontend</p>
         </div>
         <AdminButton
           variant="secondary"
@@ -141,9 +141,9 @@ export default function AdminErrors() {
 
       {/* Error list */}
       {loading ? (
-        <div className="py-12 text-center text-sm text-neutral-400 dark:text-neutral-500">Loading…</div>
+        <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-500">Loading…</div>
       ) : errors.length === 0 ? (
-        <div className="py-12 text-center text-sm text-neutral-400 dark:text-neutral-500">No errors found 🎉</div>
+        <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-500">No errors found 🎉</div>
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {errors.map(err => (
@@ -162,10 +162,10 @@ export default function AdminErrors() {
                     {err.is_resolved && (
                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">resolved</span>
                     )}
-                    <span className="text-xs text-neutral-400 dark:text-neutral-500">{err.boundary_name}</span>
+                    <span className="text-xs text-neutral-500 dark:text-neutral-500">{err.boundary_name}</span>
                   </div>
                   <p className="mt-1 truncate text-sm font-medium text-neutral-800">{err.error_message}</p>
-                  <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                     {new Date(err.created_at).toLocaleString()}
                     {err.url && <span className="ml-2 truncate">· {err.url}</span>}
                   </p>
@@ -202,13 +202,13 @@ export default function AdminErrors() {
               <DetailRow label="User Agent" value={selectedError.user_agent ?? 'N/A'} />
               {selectedError.error_stack && (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">Stack trace</p>
+                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-500">Stack trace</p>
                   <pre className="overflow-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-300">{selectedError.error_stack}</pre>
                 </div>
               )}
               {selectedError.component_stack && (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-400">Component stack</p>
+                  <p className="mb-1 text-xs font-medium text-neutral-500 dark:text-neutral-500">Component stack</p>
                   <pre className="overflow-auto rounded-lg bg-neutral-100 p-3 text-xs text-neutral-600">{selectedError.component_stack}</pre>
                 </div>
               )}
@@ -222,7 +222,7 @@ export default function AdminErrors() {
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
-      <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${accent ?? 'text-neutral-900'}`}>{formatNumber(value, 0)}</p>
     </div>
   );
@@ -231,7 +231,7 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <span className="w-24 shrink-0 text-xs font-medium text-neutral-500 dark:text-neutral-400">{label}</span>
+      <span className="w-24 shrink-0 text-xs font-medium text-neutral-500 dark:text-neutral-500">{label}</span>
       <span className="min-w-0 flex-1 text-sm text-neutral-800 break-words">{value}</span>
     </div>
   );

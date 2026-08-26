@@ -209,7 +209,7 @@ export default function SupportChatWidget() {
                 {/* Suggested questions (before first interaction) */}
                 {!hasInteracted && !loading && (
                   <div className="pt-2">
-                    <p className="mb-2 px-1 text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
+                    <p className="mb-2 px-1 text-[11px] font-medium text-neutral-500 dark:text-neutral-500">
                       Try asking:
                     </p>
                     <div className="space-y-1.5">

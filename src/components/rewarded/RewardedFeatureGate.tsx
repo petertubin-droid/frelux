@@ -72,7 +72,7 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
             Watch Ad to Unlock Advanced Calculator
           </button>
           {!access.config?.is_enabled && (
-            <p className="mt-2 text-xs text-neutral-400">This feature is temporarily disabled.</p>
+            <p className="mt-2 text-xs text-neutral-500">This feature is temporarily disabled.</p>
           )}
         </div>
       </div>

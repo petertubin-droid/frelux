@@ -56,7 +56,7 @@ export default function Learn() {
     return (
       <>
         <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
-        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
 
@@ -76,7 +76,7 @@ export default function Learn() {
         {/* Featured articles */}
         {featured.length > 0 && (
           <section className="mb-12">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Featured</h2>
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">Featured</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featured.map((article) => (
                 <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -91,8 +91,8 @@ export default function Learn() {
                       <span className="text-xs font-semibold uppercase tracking-widest text-accent-orange">Featured</span>
                     </div>
                     <h3 className="mt-2 text-lg font-bold text-brand-navy dark:text-white">{article.title}</h3>
-                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{article.excerpt}</p>}
-                    <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
+                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{article.excerpt}</p>}
+                    <div className="mt-3 flex items-center gap-3 text-xs text-neutral-500">
                       {article.author && <span>{article.author}</span>}
                       {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}
                     </div>
@@ -105,7 +105,7 @@ export default function Learn() {
 
         {/* Browse by category */}
         <section className="mb-12">
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Browse by topic</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">Browse by topic</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((cat) => {
               const IconComponent = getIcon(cat.icon);
@@ -116,7 +116,7 @@ export default function Learn() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</h3>
-                    {cat.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{cat.description}</p>}
+                    {cat.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{cat.description}</p>}
                     <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple">
                       Explore <ArrowRight aria-hidden="true" className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
@@ -130,7 +130,7 @@ export default function Learn() {
         {/* Recent articles */}
         {recent.length > 0 && (
           <section>
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-400">Latest articles</h2>
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">Latest articles</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((article) => (
                 <Link key={article.id} to={`/learn/${article.slug}`} className="group overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:-translate-y-1 hover:shadow-lg">
@@ -142,8 +142,8 @@ export default function Learn() {
                   <div className="p-5">
                     <span className="text-xs font-semibold uppercase tracking-widest text-brand-purple">{article.category_slug.replace(/-/g, ' ')}</span>
                     <h3 className="mt-2 text-base font-bold text-brand-navy dark:text-white">{article.title}</h3>
-                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{article.excerpt}</p>}
-                    <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
+                    {article.excerpt && <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{article.excerpt}</p>}
+                    <div className="mt-3 flex items-center gap-3 text-xs text-neutral-500">
                       {article.author && <span>{article.author}</span>}
                       {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}
                     </div>
@@ -158,7 +158,7 @@ export default function Learn() {
           <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-16 text-center">
             <BookOpen aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-4 text-sm font-semibold text-neutral-600">Articles coming soon</p>
-            <p className="mt-1 text-xs text-neutral-400">We're preparing guides, tutorials, and tips. Check back shortly.</p>
+            <p className="mt-1 text-xs text-neutral-500">We're preparing guides, tutorials, and tips. Check back shortly.</p>
           </div>
         )}
       <AdSlot slotKey="learn_bottom" className="mt-8" />

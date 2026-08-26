@@ -14,7 +14,7 @@ interface ProfessionalCardProps {
 const availabilityConfig: Record<ProAvailability, { label: string; color: string; dot: string }> = {
   available: { label: 'Available', color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
   busy: { label: 'Busy', color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500' },
-  unavailable: { label: 'Unavailable', color: 'text-neutral-400 dark:text-neutral-500', dot: 'bg-neutral-400' },
+  unavailable: { label: 'Unavailable', color: 'text-neutral-500 dark:text-neutral-500', dot: 'bg-neutral-400' },
 };
 
 export default function ProfessionalCard({ profile, category, services }: ProfessionalCardProps) {
@@ -47,7 +47,7 @@ export default function ProfessionalCard({ profile, category, services }: Profes
             {profile.display_name}
           </h3>
           {profile.business_name && (
-            <p className="truncate text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="truncate text-sm text-neutral-500 dark:text-neutral-500">
               {profile.business_name}
             </p>
           )}
@@ -71,12 +71,12 @@ export default function ProfessionalCard({ profile, category, services }: Profes
             <span className="font-medium text-neutral-700 dark:text-neutral-200">
               {profile.rating_avg.toFixed(1)}
             </span>
-            <span className="text-neutral-400 dark:text-neutral-500">
+            <span className="text-neutral-500 dark:text-neutral-500">
               ({profile.rating_count})
             </span>
           </div>
         ) : (
-          <span className="text-xs text-neutral-400 dark:text-neutral-500">No reviews yet</span>
+          <span className="text-xs text-neutral-500 dark:text-neutral-500">No reviews yet</span>
         )}
 
         <div className={classNames('flex items-center gap-1.5', avail.color)}>
@@ -97,7 +97,7 @@ export default function ProfessionalCard({ profile, category, services }: Profes
             </span>
           ))}
           {services.length > 3 && (
-            <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+            <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
               +{services.length - 3} more
             </span>
           )}
@@ -106,14 +106,14 @@ export default function ProfessionalCard({ profile, category, services }: Profes
 
       {/* Bio preview */}
       {profile.bio && (
-        <p className="mt-3 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-3 line-clamp-2 text-sm text-neutral-500 dark:text-neutral-500">
           {profile.bio}
         </p>
       )}
 
       {/* Experience */}
       {profile.years_experience && (
-        <div className="mt-3 flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
+        <div className="mt-3 flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
           <Briefcase aria-hidden="true" className="h-3.5 w-3.5" />
           <span>{profile.years_experience} years experience</span>
         </div>

@@ -92,7 +92,7 @@ export default function PaintColorDetail() {
   }
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
+    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
   }
   if (status === 'error') {
     return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm font-semibold text-red-700">Couldn't load this color.</p><Link to="/colors" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to color library</Link></div>;
@@ -148,7 +148,7 @@ export default function PaintColorDetail() {
             {copyFields.map((f) => (
               <div key={f.label} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{f.label}</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">{f.label}</p>
                   <p className="mt-0.5 text-sm font-semibold text-brand-navy dark:text-white">{f.value}</p>
                 </div>
                 <button type="button" onClick={() => copy(f.value)} className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter">
@@ -162,7 +162,7 @@ export default function PaintColorDetail() {
           {/* Recommended usage */}
           {color.recommended_usage.length > 0 && (
             <div className="mt-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Recommended usage</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Recommended usage</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {color.recommended_usage.map((u) => (
                   <span key={u} className="rounded-lg bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700">{u}</span>
@@ -174,7 +174,7 @@ export default function PaintColorDetail() {
           {/* Finish compatibility */}
           {color.finish_compatibility.length > 0 && (
             <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Compatible finishes</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Compatible finishes</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {color.finish_compatibility.map((f) => (
                   <span key={f} className="rounded-lg bg-neutral-100 px-3 py-1.5 text-sm text-neutral-700">{f}</span>
@@ -250,7 +250,7 @@ function ColorRelationships({ color, allColors, overrides }: { color: DbPaintCol
               {s.colors.map((c) => (
                 <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:border-brand-purple hover:shadow-sm">
                   <div className="h-8 w-8 shrink-0 rounded ring-1 ring-black/5" style={{ background: c.hex_code }} />
-                  <div className="min-w-0"><p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p><p className="text-[10px] text-neutral-400">{c.hex_code}</p></div>
+                  <div className="min-w-0"><p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p><p className="text-[10px] text-neutral-500">{c.hex_code}</p></div>
                 </Link>
               ))}
               {overrideMap.has(s.type) && <span className="text-[10px] font-semibold text-brand-purple">Admin curated</span>}

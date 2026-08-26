@@ -96,7 +96,7 @@ export default function ProCategoryLocationPage() {
       {/* Breadcrumb */}
       <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
             <Link to="/" className="hover:text-brand-purple">Home</Link>
             <span>/</span>
             <Link to="/pro-connect" className="hover:text-brand-purple">Pro Connect</Link>
@@ -112,7 +112,7 @@ export default function ProCategoryLocationPage() {
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
             {professionLabel} in {locationLabel || '...'}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
             Browse verified {professionLabel.toLowerCase()} in {locationLabel}. Check ratings, portfolios, and connect directly.
           </p>
           <div className="mt-4">
@@ -137,7 +137,7 @@ export default function ProCategoryLocationPage() {
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-500">
               {pros.length} {pros.length === 1 ? 'professional' : 'professionals'} found
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -166,8 +166,8 @@ export default function ProCategoryLocationPage() {
                           <Shield aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
                         )}
                       </div>
-                      {pro.bio && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">{pro.bio}</p>}
-                      <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                      {pro.bio && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">{pro.bio}</p>}
+                      <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                         {pro.rating_avg > 0 && (
                           <span className="inline-flex items-center gap-0.5">
                             <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />

@@ -177,13 +177,13 @@ export default function Profile() {
 
             <div className="flex-1 text-center sm:text-left">
               <h2 className="text-xl font-bold text-brand-navy dark:text-white">{displayName}</h2>
-              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{user.email}</p>
+              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">{user.email}</p>
               <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
                 <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.role === 'admin' ? 'bg-accent-orange/15 text-accent-orange' : 'bg-brand-purple/10 text-brand-purple'}`}>
                   <Shield aria-hidden="true" className="h-3 w-3" />
                   {profile?.role === 'admin' ? 'Admin' : 'Member'}
                 </span>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === 'pro_worker' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'}`}>
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === 'pro_worker' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'}`}>
                   {profile?.account_type === 'pro_worker' ? 'Pro Worker' : 'Client'}
                 </span>
               </div>
@@ -198,7 +198,7 @@ export default function Profile() {
                   <ShoppingBag className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Marketplace ID</p>
+                  <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Marketplace ID</p>
                   <p className="text-sm font-bold tracking-wider text-brand-navy dark:text-white">{profile.marketplace_id}</p>
                 </div>
               </div>
@@ -217,12 +217,12 @@ export default function Profile() {
         {/* Edit Form */}
         <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
           <h3 className="text-base font-bold text-brand-navy dark:text-white">Personal Information</h3>
-          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">Update your name and contact details.</p>
+          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">Update your name and contact details.</p>
 
           <div className="mt-5 space-y-4">
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <User aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
+                <User aria-hidden="true" className="h-3.5 w-3.5 text-neutral-500" />
                 Full Name
               </label>
               <input
@@ -236,7 +236,7 @@ export default function Profile() {
 
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <Phone className="h-3.5 w-3.5 text-neutral-400" />
+                <Phone className="h-3.5 w-3.5 text-neutral-500" />
                 Phone Number
               </label>
               <input
@@ -250,7 +250,7 @@ export default function Profile() {
 
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <Mail className="h-3.5 w-3.5 text-neutral-400" />
+                <Mail className="h-3.5 w-3.5 text-neutral-500" />
                 Email
               </label>
               <input
@@ -259,7 +259,7 @@ export default function Profile() {
                 disabled
                 className="w-full cursor-not-allowed rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-400 dark:border-white/10 dark:bg-white/5 dark:text-neutral-500"
               />
-              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Email cannot be changed here. Contact support to update your email.</p>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Email cannot be changed here. Contact support to update your email.</p>
             </div>
           </div>
 
@@ -280,11 +280,11 @@ export default function Profile() {
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
                 <Calendar className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Member Since</p>
+                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Member Since</p>
                 <p className="text-sm font-semibold text-brand-navy dark:text-white">
                   {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}
                 </p>
@@ -294,11 +294,11 @@ export default function Profile() {
 
           <div className="rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
                 <Shield aria-hidden="true" className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Account Type</p>
+                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Account Type</p>
                 <p className="text-sm font-semibold capitalize text-brand-navy dark:text-white">
                   {profile?.account_type?.replace('_', ' ') ?? 'Client'}
                 </p>
@@ -313,7 +313,7 @@ export default function Profile() {
             <ShoppingBag className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
             <div>
               <p className="text-sm font-semibold text-brand-navy dark:text-white">Your Marketplace ID</p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                 This unique ID will be used to identify you in the upcoming FRELUX marketplace. Share it with clients and partners so they can find you easily.
               </p>
             </div>
@@ -328,7 +328,7 @@ export default function Profile() {
                 <Gem className="h-5 w-5 text-brand-purple" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-400">FRELUX Credits</p>
+                <p className="text-xs font-medium text-neutral-500">FRELUX Credits</p>
                 <p className="text-lg font-bold text-brand-navy dark:text-white">{wallet?.balance ?? 0}</p>
               </div>
             </div>
@@ -347,18 +347,18 @@ export default function Profile() {
         {/* Subscription Status */}
         <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-3">
-            <div className={"flex h-10 w-10 items-center justify-center rounded-lg " + (isPaid ? "bg-brand-purple/15 text-brand-purple" : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400")}>
+            <div className={"flex h-10 w-10 items-center justify-center rounded-lg " + (isPaid ? "bg-brand-purple/15 text-brand-purple" : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500")}>
               {isPaid ? <Crown className="h-5 w-5" /> : <Shield aria-hidden="true" className="h-5 w-5" />}
             </div>
             <div className="flex-1">
-              <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Subscription Status</p>
+              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Subscription Status</p>
               {isPaid ? (
                 <div>
                   <p className="text-sm font-semibold capitalize text-brand-navy dark:text-white">
                     {paidStatus?.plan || 'Premium'} · Active
                   </p>
                   {paidStatus?.paid_until && (
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
                       <Clock className="h-3 w-3" />
                       Expires {new Date(paidStatus.paid_until).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                     </p>
@@ -369,13 +369,13 @@ export default function Profile() {
                   <p className="text-sm font-semibold capitalize text-amber-600 dark:text-amber-400">
                     {paidStatus.plan || 'Premium'} · Expired
                   </p>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                     Expired on {new Date(paidStatus.paid_until).toLocaleDateString()}
                   </p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-400">Free Plan</p>
+                  <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-500">Free Plan</p>
                   <Link to="/pricing" className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline">
                     <Crown className="h-3 w-3" />
                     Upgrade to Premium

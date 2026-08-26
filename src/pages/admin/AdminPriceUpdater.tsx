@@ -176,7 +176,7 @@ export default function AdminPriceUpdater() {
         {!report && !scanning && !error && (
           <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center">
             <p className="text-neutral-500">Click "Scan Material Prices" to fetch current Nigerian market prices.</p>
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-xs text-neutral-500">
               Scans Jiji, Jumia, and manufacturer price lists for cement, blocks, sand, granite, timber, roofing, and more.
             </p>
           </div>

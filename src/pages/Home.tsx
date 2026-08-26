@@ -122,7 +122,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
               Post a Job & Get Bids from Verified Pros
             </h2>
-            <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
+            <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500 sm:text-base">
               Run a calculation, post it as a job, and receive competitive bids from verified construction professionals in your area.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">

@@ -51,13 +51,13 @@ export default function LearnArticle() {
   }, [articleSlug]);
 
   if (status === 'loading')
-    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
+    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
 
   if (status === 'notfound')
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300" />
-        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">This article doesn't exist or hasn't been published yet.</p>
+        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">This article doesn't exist or hasn't been published yet.</p>
         <Link to="/learn" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to Learn</Link>
       </div>
     );
@@ -73,7 +73,7 @@ export default function LearnArticle() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-400">
+      <nav className="mb-6 flex items-center gap-2 text-xs text-neutral-500">
         <Link to="/learn" className="hover:text-brand-purple">Learn</Link>
         <span>/</span>
         <Link to={`/learn/category/${article.category_slug}`} className="capitalize hover:text-brand-purple">{article.category_slug.replace(/-/g, ' ')}</Link>
@@ -82,8 +82,8 @@ export default function LearnArticle() {
       {/* Header */}
       <header className="mb-8">
         <h1 className="text-3xl font-bold leading-tight text-brand-navy dark:text-white sm:text-4xl">{article.title}</h1>
-        {article.excerpt && <p className="mt-3 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">{article.excerpt}</p>}
-        <div className="mt-4 flex items-center gap-4 text-xs text-neutral-400">
+        {article.excerpt && <p className="mt-3 text-lg leading-relaxed text-neutral-500 dark:text-neutral-500">{article.excerpt}</p>}
+        <div className="mt-4 flex items-center gap-4 text-xs text-neutral-500">
           {article.author && <span className="flex items-center gap-1"><User aria-hidden="true" className="h-3.5 w-3.5" /> {article.author}</span>}
           {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {article.read_time_minutes} min read</span>}
           {article.published_at && <span>{new Date(article.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>}

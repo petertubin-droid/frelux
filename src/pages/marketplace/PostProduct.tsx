@@ -396,7 +396,7 @@ export default function PostProduct() {
                 ))}
               </div>
             )}
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-200 p-4 text-sm text-neutral-500 hover:border-brand-purple dark:border-white/10 dark:text-neutral-400">
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-200 p-4 text-sm text-neutral-500 hover:border-brand-purple dark:border-white/10 dark:text-neutral-500">
               {uploading ? (
                 <>
                   <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Uploading…

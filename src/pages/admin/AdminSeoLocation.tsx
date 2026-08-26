@@ -135,7 +135,7 @@ function LocationsTab() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="relative">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <AdminInput
  type="text"
  value={search}
@@ -187,7 +187,7 @@ function LocationsTab() {
                     {editingId === loc.id ? (
                       <AdminInput value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
                     ) : (
-                      <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-neutral-400')}>
+                      <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-neutral-500')}>
                         {loc.latitude ? loc.latitude.toFixed(4) : '—'}
                       </span>
                     )}
@@ -196,7 +196,7 @@ function LocationsTab() {
                     {editingId === loc.id ? (
                       <AdminInput value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
                     ) : (
-                      <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-neutral-400')}>
+                      <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-neutral-500')}>
                         {loc.longitude ? loc.longitude.toFixed(4) : '—'}
                       </span>
                     )}
@@ -595,7 +595,7 @@ function IndexabilityTab() {
           onClick={() => setTab2('listings')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
-            tab2 === 'listings' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-400'
+            tab2 === 'listings' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
           )}
         >
           Marketplace Listings
@@ -604,7 +604,7 @@ function IndexabilityTab() {
           onClick={() => setTab2('profiles')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
-            tab2 === 'profiles' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-400'
+            tab2 === 'profiles' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
           )}
         >
           Professional Profiles

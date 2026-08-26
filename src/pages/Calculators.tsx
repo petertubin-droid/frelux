@@ -216,10 +216,10 @@ export default function Calculators() {
                   </div>
 
                   <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{tool.description}</p>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{tool.description}</p>
 
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
                       {tool.benefit}
                     </span>
                   </div>
@@ -252,7 +252,7 @@ export default function Calculators() {
                 </span>
               </div>
               <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
                 Browse paint colors, compare combinations, and get AI-powered color suggestions.
               </p>
               <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">

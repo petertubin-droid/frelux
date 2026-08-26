@@ -59,7 +59,7 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
           }}
           className={classNames(
             'absolute right-3 bottom-16 rounded-full p-2 backdrop-blur-md transition-all duration-200',
-            isFavorited ? 'bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500' : 'bg-white/60 text-neutral-400 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400'
+            isFavorited ? 'bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500' : 'bg-white/60 text-neutral-500 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400'
           )}
           aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
           aria-pressed={isFavorited}
@@ -74,7 +74,7 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
           <h3 className="truncate text-sm font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{color.name}</h3>
         </Link>
         <div className="mt-1 flex items-center gap-2">
-          <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
+          <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
             {color.is_interior && color.is_exterior ? 'Interior / Exterior' : color.is_interior ? 'Interior' : 'Exterior'}
           </p>
         </div>

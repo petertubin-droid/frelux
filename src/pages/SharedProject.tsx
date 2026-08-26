@@ -57,7 +57,7 @@ export default function SharedProject() {
     })();
   }, [id]);
 
-  if (loading) return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading shared project…</div>;
+  if (loading) return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading shared project…</div>;
 
   if (error || !link) {
     return (
@@ -86,7 +86,7 @@ export default function SharedProject() {
             {/* Project type badge */}
             <div className="flex items-center gap-2">
               <span className="rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-semibold capitalize text-brand-purple">{project.project_type.replace('_', ' ')}</span>
-              <span className="flex items-center gap-1 text-xs text-neutral-400"><Clock aria-hidden="true" className="h-3 w-3" /> Created {new Date(project.created_at).toLocaleDateString()}</span>
+              <span className="flex items-center gap-1 text-xs text-neutral-500"><Clock aria-hidden="true" className="h-3 w-3" /> Created {new Date(project.created_at).toLocaleDateString()}</span>
             </div>
 
             {/* Saved colors */}
@@ -115,7 +115,7 @@ export default function SharedProject() {
                     .filter(([key]) => !['id', 'user_id', 'created_at', 'updated_at', 'name', 'description', 'saved_colors'].includes(key))
                     .map(([key, value]) => (
                       <div key={key}>
-                        <dt className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{key.replace(/_/g, ' ')}</dt>
+                        <dt className="text-xs font-semibold uppercase tracking-widest text-neutral-500">{key.replace(/_/g, ' ')}</dt>
                         <dd className="mt-0.5 text-sm text-neutral-700 dark:text-neutral-200">{value === null || value === undefined ? 'N/A' : typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
                       </div>
                     ))}

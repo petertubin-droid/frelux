@@ -66,7 +66,7 @@ export default function AdminLogin() {
         <div className="mb-6 flex justify-center"><Logo /></div>
         <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
           <h1 className="text-xl font-bold text-brand-navy dark:text-white">{mode === 'signin' ? 'Admin sign in' : 'Create admin account'}</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
             {mode === 'signin' ? 'Sign in with an authorized admin account to manage the platform.' : 'Create an account, then ask an existing admin to grant you admin access.'}
           </p>
           {!configured && (
@@ -99,7 +99,7 @@ export default function AdminLogin() {
               {/* Divider */}
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                <span className="text-xs font-medium text-neutral-400 dark:text-neutral-500">or</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">or</span>
                 <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
               </div>
 
@@ -107,14 +107,14 @@ export default function AdminLogin() {
                 <label className="block">
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
                   <div className="relative mt-1.5">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                     <AdminInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="admin@example.com" autoComplete="email" required />
                   </div>
                 </label>
                 <label className="block">
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
                   <div className="relative mt-1.5">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                     <AdminInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                   </div>
                 </label>
@@ -136,7 +136,7 @@ export default function AdminLogin() {
             </>
           )}
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-400 dark:text-neutral-500"><Link to="/" className="hover:text-brand-purple">Back to website</Link></p>
+        <p className="mt-6 text-center text-xs text-neutral-500 dark:text-neutral-500"><Link to="/" className="hover:text-brand-purple">Back to website</Link></p>
       </div>
     </div>
   );

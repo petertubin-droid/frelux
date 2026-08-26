@@ -204,7 +204,7 @@ export default function MyProjects() {
       case 'paint_calc': return <Calculator className="h-5 w-5 text-accent-orange" />;
       case 'cost_estimate': return <DollarSign className="h-5 w-5 text-accent-green" />;
       case 'ai_recommendation': return <PaletteIcon className="h-5 w-5 text-brand-purple" />;
-      default: return <Folder className="h-5 w-5 text-neutral-400" />;
+      default: return <Folder className="h-5 w-5 text-neutral-500" />;
     }
   };
 
@@ -236,7 +236,7 @@ export default function MyProjects() {
         {/* Search bar for projects/collections */}
         {(tab === 'projects' || tab === 'collections') && (
           <div className="relative mb-4 w-full sm:max-w-xs">
-            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
             <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${tab}…`} className="input-field pl-9 dark:bg-brand-navy-mid dark:border-white/10" />
           </div>
         )}
@@ -252,7 +252,7 @@ export default function MyProjects() {
                     <div>
                       <h3 className="text-sm font-bold text-brand-navy dark:text-white">{p.name}</h3>
                       {p.description && <p className="mt-0.5 text-xs text-neutral-500">{p.description}</p>}
-                      <p className="mt-1 text-xs text-neutral-400">Updated {new Date(p.updated_at).toLocaleDateString()}</p>
+                      <p className="mt-1 text-xs text-neutral-500">Updated {new Date(p.updated_at).toLocaleDateString()}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -347,13 +347,13 @@ export default function MyProjects() {
                           <div className="flex items-center gap-2">
                             <input className="input-field flex-1 text-sm font-bold" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} autoFocus onKeyDown={(e) => e.key === 'Enter' && handleRename(c.id)} />
                             <button type="button" onClick={() => handleRename(c.id)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check aria-hidden="true" className="h-4 w-4" /></button>
-                            <button type="button" onClick={() => setRenamingId(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:border-white/5 dark:text-neutral-400"><X aria-hidden="true" className="h-4 w-4" /></button>
+                            <button type="button" onClick={() => setRenamingId(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:border-white/5 dark:text-neutral-500"><X aria-hidden="true" className="h-4 w-4" /></button>
                           </div>
                         ) : (
                           <>
                             <h3 className="text-sm font-bold text-brand-navy dark:text-white">{c.name}</h3>
                             {c.description && <p className="text-xs text-neutral-500">{c.description}</p>}
-                            <p className="mt-0.5 text-xs text-neutral-400">{(collectionColors[c.id] ?? []).length} colors</p>
+                            <p className="mt-0.5 text-xs text-neutral-500">{(collectionColors[c.id] ?? []).length} colors</p>
                           </>
                         )}
                       </div>
@@ -374,12 +374,12 @@ export default function MyProjects() {
                             </Link>
                             {collections.length > 1 && (
                               <div className="relative">
-                                <button type="button" onClick={() => setMoveState({ colorId: col.id, fromColl: c.id })} className="rounded p-0.5 text-neutral-400 hover:text-brand-purple" title="Move to another collection">
+                                <button type="button" onClick={() => setMoveState({ colorId: col.id, fromColl: c.id })} className="rounded p-0.5 text-neutral-500 hover:text-brand-purple" title="Move to another collection">
                                   <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
                                 </button>
                                 {moveState?.colorId === col.id && (
                                   <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/5 dark:bg-brand-navy-mid">
-                                    <p className="mb-1 text-[10px] font-semibold uppercase text-neutral-400">Move to</p>
+                                    <p className="mb-1 text-[10px] font-semibold uppercase text-neutral-500">Move to</p>
                                     {collections.filter((oc) => oc.id !== c.id).map((oc) => (
                                       <button key={oc.id} type="button" onClick={() => handleMoveColor(oc.id)} className="block w-full rounded px-2 py-1.5 text-left text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100">{oc.name}</button>
                                     ))}
@@ -417,7 +417,7 @@ export default function MyProjects() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                   {recentlyViewed.map((c) => (
                     <div key={c.id} className="group relative overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md">
-                      <button type="button" onClick={() => handlePinRecent(c.id)} className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-neutral-500 dark:bg-brand-navy/80 dark:text-neutral-400 hover:text-brand-purple" title="Pin/Unpin">
+                      <button type="button" onClick={() => handlePinRecent(c.id)} className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-neutral-500 dark:bg-brand-navy/80 dark:text-neutral-500 hover:text-brand-purple" title="Pin/Unpin">
                         <Pin className="h-3.5 w-3.5" />
                       </button>
                       <Link to={`/colors/paint/${c.slug}`}>

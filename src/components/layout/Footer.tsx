@@ -56,7 +56,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
               Practical tools to plan paint, estimate cost, and discover the right colors for your space.
             </p>
             <a
@@ -81,17 +81,17 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
           <div className="flex items-center gap-4">
-            <p className="text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
             © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
           </p>
-          <p className="text-xs text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">
             Estimates are for guidance only and not a guarantee of final cost or quantity.
           </p>
           </div>
           <button
             onClick={() => withdrawConsent()}
             aria-label="Withdraw cookie consent"
-            className="text-xs text-neutral-400 hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter transition-colors"
+            className="text-xs text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter transition-colors"
           >
             Cookie Preferences
           </button>
@@ -104,7 +104,7 @@ export default function Footer() {
 function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
   return (
     <nav aria-label={title}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">{title}</h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>

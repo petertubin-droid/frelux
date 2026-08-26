@@ -174,7 +174,7 @@ export default function ProConnectDirectory() {
         <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">
           Find Construction Professionals
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
           Connect with verified painters, tilers, screeders, POP installers, and more across Nigeria
         </p>
       </div>
@@ -182,7 +182,7 @@ export default function ProConnectDirectory() {
       {/* Search bar */}
       <div className="mb-6 flex gap-3">
         <div className="relative flex-1">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
           <input
             type="text"
             value={searchQuery}
@@ -216,7 +216,7 @@ export default function ProConnectDirectory() {
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Category */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Category</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Category</label>
               <select
                 value={selectedCategory || ''}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
@@ -231,7 +231,7 @@ export default function ProConnectDirectory() {
 
             {/* Service */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Service</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Service</label>
               <select
                 value={selectedService || ''}
                 onChange={(e) => setSelectedService(e.target.value || null)}
@@ -246,7 +246,7 @@ export default function ProConnectDirectory() {
 
             {/* State */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">State</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">State</label>
               <select
                 value={selectedState || ''}
                 onChange={(e) => { setSelectedState(e.target.value || null); setSelectedCity(null); }}
@@ -261,7 +261,7 @@ export default function ProConnectDirectory() {
 
             {/* City */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">City</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">City</label>
               <select
                 value={selectedCity || ''}
                 onChange={(e) => setSelectedCity(e.target.value || null)}
@@ -279,7 +279,7 @@ export default function ProConnectDirectory() {
           {/* Availability + Rating filters */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Availability</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Availability</label>
               <select
                 value={availabilityFilter || ''}
                 onChange={(e) => setAvailabilityFilter(e.target.value || null)}
@@ -291,7 +291,7 @@ export default function ProConnectDirectory() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum Rating</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Minimum Rating</label>
               <select
                 value={minRating?.toString() || ''}
                 onChange={(e) => setMinRating(e.target.value ? parseFloat(e.target.value) : null)}
@@ -350,7 +350,7 @@ export default function ProConnectDirectory() {
 
       {/* Results count */}
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">
           {loading ? 'Searching...' : `${total} professional${total !== 1 ? 's' : ''} found`}
         </p>
         {hasActiveFilters && (
@@ -369,8 +369,8 @@ export default function ProConnectDirectory() {
         </div>
       ) : profiles.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white py-16 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-          <p className="text-neutral-400 dark:text-neutral-500">No professionals found matching your criteria.</p>
-          <p className="mt-2 text-sm text-neutral-400 dark:text-neutral-500">
+          <p className="text-neutral-500 dark:text-neutral-500">No professionals found matching your criteria.</p>
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
             Try expanding your search area or removing some filters.
           </p>
           {hasActiveFilters && (

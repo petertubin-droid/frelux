@@ -148,7 +148,7 @@ export default function SellerDashboard() {
             </div>
           </div>
           {!editing && (
-            <button onClick={() => setEditing(true)} className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-400">
+            <button onClick={() => setEditing(true)} className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-500">
               <Edit aria-hidden="true" className="h-4 w-4" /> Edit
             </button>
           )}
@@ -232,7 +232,7 @@ export default function SellerDashboard() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{prod.title as string}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {PRODUCT_STATUS_LABELS[prod.status as keyof typeof PRODUCT_STATUS_LABELS] || (prod.status as string)}
                       · {new Date(prod.created_at as string).toLocaleDateString()}
                     </p>
@@ -253,7 +253,7 @@ export default function SellerDashboard() {
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number | string }) {
   return (
     <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
-      <div className="flex items-center gap-2 text-neutral-400">{icon}<span className="text-xs font-medium">{label}</span></div>
+      <div className="flex items-center gap-2 text-neutral-500">{icon}<span className="text-xs font-medium">{label}</span></div>
       <p className="mt-2 text-xl font-bold text-neutral-900 dark:text-white">{value}</p>
     </div>
   );

@@ -45,7 +45,7 @@ export default function Achievements() {
       {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">Achievements</h1>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
           Unlock badges as you use FRELUX. Track your progress and milestones.
         </p>
         <Link to="/rewards" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90">
@@ -57,7 +57,7 @@ export default function Achievements() {
       <div className="mb-8 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Total Progress</p>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-500">Total Progress</p>
             <p className="text-2xl font-bold text-brand-navy dark:text-white">{totalUnlocked} / {totalAchievements} unlocked</p>
           </div>
           <div className="text-3xl font-bold text-brand-purple dark:text-brand-purple-lighter">{progress}%</div>
@@ -99,7 +99,7 @@ export default function Achievements() {
                   >
                     <span className="text-2xl">{isUnlocked ? ach.icon : '🔒'}</span>
                     <div className="min-w-0 flex-1">
-                      <p className={classNames('text-sm font-bold', isUnlocked ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>
+                      <p className={classNames('text-sm font-bold', isUnlocked ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>
                         {ach.title}
                       </p>
                       <p className="text-xs text-neutral-500 dark:text-neutral-500">{ach.description}</p>
@@ -123,7 +123,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-4 text-center dark:border-white/5 dark:bg-brand-navy-mid">
       <p className="text-2xl font-bold text-brand-navy dark:text-white">{value}</p>
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
     </div>
   );
 }

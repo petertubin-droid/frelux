@@ -63,7 +63,7 @@ export default function TemplateCard({
           {template.name}
         </h3>
         {template.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
             {template.description}
           </p>
         )}
@@ -97,7 +97,7 @@ export default function TemplateCard({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
                 aria-label="Edit template"
               >
                 <Edit2 className="h-3.5 w-3.5" />
@@ -106,7 +106,7 @@ export default function TemplateCard({
             {onExport && (
               <button
                 onClick={onExport}
-                className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
                 aria-label="Export template"
               >
                 <Download className="h-3.5 w-3.5" />
@@ -115,7 +115,7 @@ export default function TemplateCard({
             {onDuplicate && (
               <button
                 onClick={onDuplicate}
-                className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
                 aria-label="Duplicate template"
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -132,7 +132,7 @@ export default function TemplateCard({
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="rounded-md p-1.5 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                  className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                   aria-label="Delete template"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ function TemplateInputSummary({ template }: { template: DbCalculatorTemplate }) 
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
       {parts.map((p, i) => (
-        <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600 dark:bg-white/5 dark:text-neutral-400">
+        <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600 dark:bg-white/5 dark:text-neutral-500">
           {p}
         </span>
       ))}

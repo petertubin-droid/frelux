@@ -37,7 +37,7 @@ export default function StudioTool() {
   const isGeneration = toolSlug ? GENERATION_TOOLS.has(toolSlug) : false;
 
   if (!tool) {
-    return <div className="py-20 text-center text-sm text-neutral-400">Tool not found.</div>;
+    return <div className="py-20 text-center text-sm text-neutral-500">Tool not found.</div>;
   }
 
   if (isChat) {
@@ -48,7 +48,7 @@ export default function StudioTool() {
     return <GenerationTool toolSlug={getToolType(toolSlug!)} tool={tool} />;
   }
 
-  return <div className="py-20 text-center text-sm text-neutral-400">This tool is available in the sidebar.</div>;
+  return <div className="py-20 text-center text-sm text-neutral-500">This tool is available in the sidebar.</div>;
 }
 
 // =========================================================
@@ -265,7 +265,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
               <div className="flex h-full items-center justify-center text-center">
                 <div>
                   <Icon className="mx-auto h-8 w-8 text-neutral-300" />
-                  <p className="mt-2 text-sm text-neutral-400">Ask the AI assistant anything about your project.</p>
+                  <p className="mt-2 text-sm text-neutral-500">Ask the AI assistant anything about your project.</p>
                 </div>
               </div>
             )}
@@ -273,7 +273,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
               <ChatMessage key={m.id ?? i} role={m.role} content={m.content} />
             ))}
             {loading && (
-              <div className="flex items-center gap-2 text-sm text-neutral-400">
+              <div className="flex items-center gap-2 text-sm text-neutral-500">
                 <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple" />
                 AI is thinking…
               </div>

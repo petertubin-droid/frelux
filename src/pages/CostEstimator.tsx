@@ -249,7 +249,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Cost Estimator' }] } />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading pricing data…
         </div>
       </>
@@ -305,7 +305,7 @@ const mountedRef = useRef(true);
                 </Field>
               </div>
               {passed.paintTypeName && (
-                <p className="mt-3 text-xs text-neutral-400">From calculator: {passed.paintTypeName} · {passed.coats ?? 2} coats</p>
+                <p className="mt-3 text-xs text-neutral-500">From calculator: {passed.paintTypeName} · {passed.coats ?? 2} coats</p>
               )}
             </Section>
 
@@ -327,7 +327,7 @@ const mountedRef = useRef(true);
                   </select>
                 </Field>
               ) : (
-                <p className="text-xs text-neutral-400">No paint products configured. Enter a manual price per liter below.</p>
+                <p className="text-xs text-neutral-500">No paint products configured. Enter a manual price per liter below.</p>
               )}
 
               {input.paintUseContainerPricing && input.paintContainerSize > 0 ? (
@@ -338,7 +338,7 @@ const mountedRef = useRef(true);
                     {Math.ceil(input.paintLiters / input.paintContainerSize)} container(s) needed ·{' '}
                     {formatCurrency(input.paintContainerPrice, currencySymbol)} each
                   </p>
-                  <p className="mt-2 text-xs text-neutral-400">
+                  <p className="mt-2 text-xs text-neutral-500">
                     Paint cost = {Math.ceil(input.paintLiters / input.paintContainerSize)} × {formatCurrency(input.paintContainerPrice, currencySymbol)} ={' '}
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(Math.ceil(input.paintLiters / input.paintContainerSize) * input.paintContainerPrice, currencySymbol)}</span>
                   </p>
@@ -375,7 +375,7 @@ const mountedRef = useRef(true);
 
             {/* Materials */}
             <Section title="Additional materials">
-              <p className="mb-3 text-xs text-neutral-400">Toggle materials to include them. Prices auto fill from configured data when available.</p>
+              <p className="mb-3 text-xs text-neutral-500">Toggle materials to include them. Prices auto fill from configured data when available.</p>
               <div className="space-y-2">
                 <MaterialToggle label="Filler" checked={input.includeFiller} onToggle={() => toggleMaterial('filler', 'fillerCost', 'includeFiller')} cost={input.fillerCost} symbol={currencySymbol} onCostChange={(v) => update('fillerCost', v)} />
                 <MaterialToggle label="Putty" checked={input.includePutty} onToggle={() => toggleMaterial('putty', 'puttyCost', 'includePutty')} cost={input.puttyCost} symbol={currencySymbol} onCostChange={(v) => update('puttyCost', v)} />
@@ -512,7 +512,7 @@ function Section({ title, children, last }: { title: string; children: ReactNode
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
       <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
@@ -522,7 +522,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="mt-1.5">{children}</div>
     </label>
   );
@@ -574,7 +574,7 @@ function MaterialToggle({
                 className="input-field pr-7 text-sm"
                 placeholder="0"
               />
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-400">{symbol}</span>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">{symbol}</span>
             </div>
           </div>
         )}

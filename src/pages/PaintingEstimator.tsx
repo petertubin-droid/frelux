@@ -846,7 +846,7 @@ export default function PaintingEstimator({
         {/* Add room button */}
         <button
           onClick={addRoom}
-          className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-300 py-3 text-sm font-semibold text-neutral-500 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+          className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-300 py-3 text-sm font-semibold text-neutral-500 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
           Add Another Room
@@ -1016,7 +1016,7 @@ function RoomCard({
               className="rounded border-transparent bg-transparent text-base font-semibold text-neutral-900 focus:outline-none focus:ring-1 focus:ring-brand-purple dark:text-white"
               placeholder="Room name"
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
               {room.length} × {room.breadth} × {room.height} {room.unit}
               {room.include_ceiling ? " • Ceiling" : " • Walls only"}
             </p>
@@ -1029,15 +1029,15 @@ function RoomCard({
                 e.stopPropagation();
                 onRemove();
               }}
-              className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+              className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
             </button>
           )}
           {isExpanded ? (
-            <ChevronUp aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+            <ChevronUp aria-hidden="true" className="h-5 w-5 text-neutral-500" />
           ) : (
-            <ChevronDown aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+            <ChevronDown aria-hidden="true" className="h-5 w-5 text-neutral-500" />
           )}
         </div>
       </div>
@@ -1070,7 +1070,7 @@ function RoomCard({
                 unit={room.unit}
               />
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
                   Unit
                 </span>
                 <select
@@ -1096,7 +1096,7 @@ function RoomCard({
                 onChange={(e) => onUpdate({ doors_unknown: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-500 dark:text-neutral-500">
                 I don't know the door dimensions
               </span>
             </label>
@@ -1120,7 +1120,7 @@ function RoomCard({
                   />
                   <button
                     onClick={() => onRemoveDoor(di)}
-                    className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
+                    className="mb-2 rounded p-2 text-neutral-500 hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
@@ -1147,7 +1147,7 @@ function RoomCard({
                 }
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-500 dark:text-neutral-500">
                 I don't know the window dimensions
               </span>
             </label>
@@ -1171,7 +1171,7 @@ function RoomCard({
                   />
                   <button
                     onClick={() => onRemoveWindow(wi)}
-                    className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
+                    className="mb-2 rounded p-2 text-neutral-500 hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
@@ -1194,7 +1194,7 @@ function RoomCard({
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
                   Paint Type
                 </span>
                 <select
@@ -1220,7 +1220,7 @@ function RoomCard({
                 </select>
               </label>
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
                   Quality Level
                 </span>
                 <select
@@ -1335,7 +1335,7 @@ function RoomCard({
               </label>
               {room.include_ceiling && (
                 <label className="flex items-center gap-2 text-sm">
-                  <span className="text-neutral-500 dark:text-neutral-400">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Ceiling colour:
                   </span>
                   <select
@@ -1354,7 +1354,7 @@ function RoomCard({
               )}
             </div>
             {!room.include_ceiling && (
-              <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
                 Ceiling excluded, ceiling quantity = 0.
               </p>
             )}
@@ -1363,7 +1363,7 @@ function RoomCard({
           {/* Coats */}
           <Section icon={<Layers className="h-4 w-4" />} title="Coats">
             <div className="flex items-center gap-3">
-              <label className="text-sm text-neutral-500 dark:text-neutral-400">
+              <label className="text-sm text-neutral-500 dark:text-neutral-500">
                 Number of coats:
               </label>
               <select
@@ -1460,7 +1460,7 @@ function EstimateResult({
             <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Room Size:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1468,7 +1468,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Wall Height:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1476,7 +1476,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Paint:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1484,7 +1484,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Coats:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1492,7 +1492,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Ceiling:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1500,7 +1500,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Doors:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1508,7 +1508,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Windows:
                   </span>{" "}
                   <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1516,7 +1516,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Requirement:
                   </span>{" "}
                   <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
@@ -1524,7 +1524,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Purchase:
                   </span>{" "}
                   <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
@@ -1534,7 +1534,7 @@ function EstimateResult({
               </div>
               {room.customer_summary.material_cost !== "Not configured" && (
                 <div className="mt-2 border-t border-neutral-200 pt-2 dark:border-white/10">
-                  <span className="text-neutral-400 dark:text-neutral-500">
+                  <span className="text-neutral-500 dark:text-neutral-500">
                     Material Cost:
                   </span>{" "}
                   <span className="font-bold text-neutral-900 dark:text-white">
@@ -1592,7 +1592,7 @@ function EstimateResult({
 
             {/* Leftover */}
             {room.leftover_litres > 0 && (
-              <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+              <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
                 Estimated remaining: {room.leftover_litres.toFixed(2)} L after
                 theoretical requirement
               </div>
@@ -1602,7 +1602,7 @@ function EstimateResult({
             {(room.colour_condition || room.surface_condition) && (
               <div className="mt-3 space-y-1">
                 {room.colour_condition && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
                     <span className="font-semibold">Colour condition:</span>{" "}
                     {room.colour_condition.name}
                     {room.colour_condition.requires_warning &&
@@ -1610,7 +1610,7 @@ function EstimateResult({
                   </p>
                 )}
                 {room.surface_condition && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
                     <span className="font-semibold">Surface condition:</span>{" "}
                     {room.surface_condition.name}
                     {room.surface_condition.primer_recommended &&
@@ -1632,13 +1632,13 @@ function EstimateResult({
                       key={si}
                       className="flex justify-between gap-4 text-xs"
                     >
-                      <span className="text-neutral-500 dark:text-neutral-400">
+                      <span className="text-neutral-500 dark:text-neutral-500">
                         {step.label}
                       </span>
                       <span className="text-right font-medium text-neutral-700 dark:text-neutral-200">
                         {step.value}
                         {step.detail && (
-                          <span className="block text-neutral-400 dark:text-neutral-500">
+                          <span className="block text-neutral-500 dark:text-neutral-500">
                             {step.detail}
                           </span>
                         )}
@@ -1676,7 +1676,7 @@ function EstimateResult({
           </div>
 
           {result.combined_leftover_litres > 0 && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
               Estimated remaining after theoretical requirement:{" "}
               {result.combined_leftover_litres.toFixed(2)} L
             </p>
@@ -1724,12 +1724,12 @@ function EstimateResult({
                       <span className="font-semibold text-neutral-700 dark:text-neutral-200">
                         {entry.label}
                       </span>
-                      <span className="ml-2 text-neutral-400 dark:text-neutral-500">
+                      <span className="ml-2 text-neutral-500 dark:text-neutral-500">
                         {entry.room_count} room(s)
                       </span>
                     </div>
                     <div className="flex gap-4">
-                      <span className="text-neutral-500 dark:text-neutral-400">
+                      <span className="text-neutral-500 dark:text-neutral-500">
                         {entry.theoretical_litres.toFixed(2)} L theoretical
                       </span>
                       <span className="font-medium text-neutral-700 dark:text-neutral-200">
@@ -1746,7 +1746,7 @@ function EstimateResult({
           )}
 
           {/* Total rooms */}
-          <div className="text-xs text-neutral-500 dark:text-neutral-400">
+          <div className="text-xs text-neutral-500 dark:text-neutral-500">
             Total rooms: {result.rooms.length}
           </div>
 
@@ -1763,7 +1763,7 @@ function EstimateResult({
                       <span className="font-medium text-neutral-700 dark:text-neutral-200">
                         {item.item_name}
                       </span>
-                      <span className="block text-neutral-400 dark:text-neutral-500">
+                      <span className="block text-neutral-500 dark:text-neutral-500">
                         {item.practical_purchase_qty} L ×{" "}
                         {formatCurrency(
                           item.unit_price,
@@ -1792,10 +1792,10 @@ function EstimateResult({
               </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-500 dark:text-neutral-500">
                 Labour
               </span>
-              <span className="text-neutral-500 dark:text-neutral-400">
+              <span className="text-neutral-500 dark:text-neutral-500">
                 Not included, negotiated separately.
               </span>
             </div>
@@ -1941,7 +1941,7 @@ function EstimateResult({
                 <p className="text-sm font-bold text-brand-navy dark:text-white">
                   Need someone to do the work?
                 </p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
                   Post this estimate as a job and get bids from verified pros
                   near you.
                 </p>
@@ -2019,7 +2019,7 @@ function NumberField({
   return (
     <label className="block">
       {label && (
-        <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+        <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
           {label}
         </span>
       )}
@@ -2032,7 +2032,7 @@ function NumberField({
           step={0.1}
           className="mt-0.5 w-full rounded-lg border border-neutral-200 bg-white px-2 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
         />
-        {unit && <span className="text-xs text-neutral-400">{unit}</span>}
+        {unit && <span className="text-xs text-neutral-500">{unit}</span>}
       </div>
     </label>
   );
@@ -2056,7 +2056,7 @@ function StatBox({
           : "bg-neutral-50 dark:bg-white/5",
       )}
     >
-      <p className="text-xs text-neutral-500 dark:text-neutral-400">{label}</p>
+      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
       <p
         className={classNames(
           "mt-1 text-sm font-bold",
@@ -2073,7 +2073,7 @@ function StatBox({
 
 function TrustBadge({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
       <span className="font-bold">{label}:</span>
       {value}
     </span>

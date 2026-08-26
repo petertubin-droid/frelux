@@ -78,7 +78,7 @@ export default function ChooseProject() {
           <h2 className="font-display text-2xl font-bold text-neutral-900 sm:text-3xl dark:text-white">
             Choose Your Project
           </h2>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
             Select a calculator to start estimating materials and costs immediately.
           </p>
         </div>
@@ -106,7 +106,7 @@ export default function ChooseProject() {
                 </div>
 
                 <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{card.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{card.description}</p>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{card.description}</p>
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                   Open calculator

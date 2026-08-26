@@ -66,7 +66,7 @@ export default function ResultDisplay({
             )}
             style={{ animationDelay: `${i * 0.08}s` }}
           >
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">{s.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">{s.label}</p>
             <p className={classNames('mt-1.5 text-xl font-bold tabular-nums', s.highlight ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-brand-navy dark:text-white')}>{s.value}</p>
           </div>
         ))}
@@ -74,7 +74,7 @@ export default function ResultDisplay({
 
       {/* Footer note */}
       {footerNote && (
-        <div className="flex items-start gap-2 border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-400">
+        <div className="flex items-start gap-2 border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
           <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 opacity-50" />
           <p>{footerNote}</p>
         </div>

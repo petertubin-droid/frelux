@@ -67,7 +67,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
             </div>
           )}
           <h2 className="text-lg font-bold text-brand-navy dark:text-white">{step.title}</h2>
-          {step.subtitle && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{step.subtitle}</p>}
+          {step.subtitle && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{step.subtitle}</p>}
         </div>
 
         {/* Content */}
@@ -83,7 +83,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
             <ChevronLeft className="h-4 w-4" />
             {currentStep === 0 ? 'Exit' : 'Back'}
           </button>
-          <span className="text-xs text-neutral-400 dark:text-neutral-500">
+          <span className="text-xs text-neutral-500 dark:text-neutral-500">
             Step {currentStep + 1} of {steps.length}
           </span>
           <button

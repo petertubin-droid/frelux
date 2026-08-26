@@ -385,7 +385,7 @@ export default function AdminPaintEngineTest() {
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div>
-                  <span className="text-xs text-neutral-400">Coverage</span>
+                  <span className="text-xs text-neutral-500">Coverage</span>
                   <p className="text-sm font-medium">
                     {selectedQuality.coverage ?? "NOT CONFIGURED"}{" "}
                     {selectedQuality.coverage
@@ -396,7 +396,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Ceiling Coverage
                   </span>
                   <p className="text-sm font-medium">
@@ -410,13 +410,13 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-400">Pack Size</span>
+                  <span className="text-xs text-neutral-500">Pack Size</span>
                   <p className="text-sm font-medium">
                     {selectedProduct?.standard_pack_size ?? 20} L
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-400">Price</span>
+                  <span className="text-xs text-neutral-500">Price</span>
                   <p className="text-sm font-medium">
                     {prices.get(qualityId)?.price
                       ? formatCurrency(
@@ -474,7 +474,7 @@ export default function AdminPaintEngineTest() {
               {/* Summary Grid */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Gross Wall Area
                   </span>
                   <p className="text-sm font-semibold">
@@ -482,7 +482,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Opening Deduction
                   </span>
                   <p className="text-sm font-semibold">
@@ -490,7 +490,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Net Wall Area
                   </span>
                   <p className="text-sm font-semibold">
@@ -498,13 +498,13 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">Ceiling Area</span>
+                  <span className="text-xs text-neutral-500">Ceiling Area</span>
                   <p className="text-sm font-semibold">
                     {result.ceiling_area_m2.toFixed(2)} m²
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Coverage (normalized)
                   </span>
                   <p className="text-sm font-semibold">
@@ -512,7 +512,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Effective Coats
                   </span>
                   <p className="text-sm font-semibold">
@@ -520,7 +520,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Theoretical Litres
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
@@ -528,7 +528,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Theoretical Buckets
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
@@ -536,7 +536,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Practical Buckets
                   </span>
                   <p className="text-sm font-semibold text-green-700">
@@ -544,7 +544,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Practical Litres
                   </span>
                   <p className="text-sm font-semibold text-green-700">
@@ -552,13 +552,13 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">Leftover</span>
+                  <span className="text-xs text-neutral-500">Leftover</span>
                   <p className="text-sm font-semibold">
                     {result.leftover_litres.toFixed(2)} L
                   </p>
                 </div>
                 <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-neutral-500">
                     Material Cost
                   </span>
                   <p className="text-sm font-semibold">
@@ -584,7 +584,7 @@ export default function AdminPaintEngineTest() {
                         key={i}
                         className="flex items-start gap-3 rounded-md border bg-neutral-50 p-2"
                       >
-                        <span className="mt-0.5 w-6 shrink-0 text-right text-xs font-medium text-neutral-400">
+                        <span className="mt-0.5 w-6 shrink-0 text-right text-xs font-medium text-neutral-500">
                           {i + 1}.
                         </span>
                         <div className="flex-1">
@@ -597,7 +597,7 @@ export default function AdminPaintEngineTest() {
                             </span>
                           </div>
                           {step.detail && (
-                            <p className="mt-0.5 text-xs text-neutral-400">
+                            <p className="mt-0.5 text-xs text-neutral-500">
                               {step.detail}
                             </p>
                           )}
@@ -636,7 +636,7 @@ export default function AdminPaintEngineTest() {
                     </strong>
                   </p>
                   <p>Material Cost: {result.customer_summary.material_cost}</p>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     {result.customer_summary.labour_note}
                   </p>
                 </div>

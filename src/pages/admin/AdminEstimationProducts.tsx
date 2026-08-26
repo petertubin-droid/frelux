@@ -145,7 +145,7 @@ export default function AdminEstimationProducts() {
         <>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
               <AdminInput
  type="search"
  value={search}
@@ -201,8 +201,8 @@ export default function AdminEstimationProducts() {
                                 {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">Tiers</span>}
                                 {!p.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                               </div>
-                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-400">{p.description}</p>}
-                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-500">{p.description}</p>}
+                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-neutral-500 dark:text-neutral-500">
                                 <span>{p.product_type}</span>
                                 <span>·</span>
                                 <span>{p.calculation_method}</span>
@@ -231,7 +231,7 @@ export default function AdminEstimationProducts() {
                                   <div className="flex items-center gap-2">
                                     <Tag aria-hidden="true" className="h-4 w-4 text-purple-500" />
                                     <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
-                                    {q.coverage && <span className="text-xs text-neutral-400 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
+                                    {q.coverage && <span className="text-xs text-neutral-500 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
                                     {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
                                   </div>
                                   <div className="flex items-center gap-2">

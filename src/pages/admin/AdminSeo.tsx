@@ -8,7 +8,7 @@ export default function AdminSeo() {
         <div className="space-y-6">
           <div>
             <h3 className="text-sm font-bold text-brand-navy dark:text-white">Global SEO</h3>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Site wide SEO configuration is managed through site settings and individual page meta tags.</p>
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Site wide SEO configuration is managed through site settings and individual page meta tags.</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -38,7 +38,7 @@ function SeoInfoCard({ title, description }: { title: string; description: strin
   return (
     <div className="rounded-lg border border-neutral-200 p-4">
       <h4 className="text-sm font-semibold text-brand-navy dark:text-white">{title}</h4>
-      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{description}</p>
+      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{description}</p>
     </div>
   );
 }

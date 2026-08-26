@@ -93,7 +93,7 @@ export default function LocationPicker({
                   'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                   radius === f.value
                     ? 'bg-brand-purple text-white'
-                    : 'border border-neutral-200 text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400'
+                    : 'border border-neutral-200 text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500'
                 )}
               >
                 {f.label}
@@ -103,7 +103,7 @@ export default function LocationPicker({
         )}
         <button
           onClick={clear}
-          className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+          className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
         >
           <X className="h-3 w-3" />
           Clear
@@ -115,13 +115,13 @@ export default function LocationPicker({
   if (compact && location) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
+        <span className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
           <MapPin className="h-3 w-3 text-brand-purple" />
           {location.label || 'Location set'}
         </span>
         <button
           onClick={clear}
-          className="text-xs text-neutral-400 hover:text-neutral-600 dark:text-neutral-500"
+          className="text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-500"
         >
           ×
         </button>
@@ -146,7 +146,7 @@ export default function LocationPicker({
         </button>
         <button
           onClick={() => setShowManual(!showManual)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
         >
           <MapPin className="h-4 w-4" />
           Select Manually
@@ -190,7 +190,7 @@ export default function LocationPicker({
             </button>
           </div>
           {permissionDenied && (
-            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
               Tip: You can allow location access in your browser settings, or select your city manually above.
             </p>
           )}

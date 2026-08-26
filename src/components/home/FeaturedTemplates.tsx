@@ -91,7 +91,7 @@ const mountedRef = useRef(true);
                   </h3>
 
                   {/* Description */}
-                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
                     {template.description}
                   </p>
 

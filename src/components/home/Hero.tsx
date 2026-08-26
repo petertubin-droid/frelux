@@ -206,7 +206,7 @@ export default function Hero() {
 
             {/* Floating swatch card — derived from branding config */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white dark:bg-brand-navy-mid p-4 shadow-premium-lg animate-float">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
                 {branding?.hero_image_label || 'FRELUX Tools'}
               </p>
               <div className="mt-2.5 flex gap-1.5">
@@ -221,13 +221,13 @@ export default function Hero() {
 
             {/* Floating estimate chip — uses hero content */}
             <div className="absolute -right-5 top-8 rounded-xl bg-white dark:bg-brand-navy-mid px-4 py-3.5 shadow-premium-lg animate-float-delayed">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
                 {branding?.hero_chip_label || 'Plan & Estimate'}
               </p>
               <p className="mt-1 font-display text-2xl font-bold text-neutral-900 dark:text-white">
                 {branding?.hero_chip_value || 'Free'}
               </p>
-              <p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+              <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
                 {branding?.hero_chip_subtext || hero.ctaPrimaryLabel}
               </p>
             </div>

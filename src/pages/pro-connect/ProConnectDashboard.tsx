@@ -110,7 +110,7 @@ export default function ProConnectDashboard() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">No professional profile found</h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">Create your professional profile to get started.</p>
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">Create your professional profile to get started.</p>
         <Link to="/pro-connect/register" className="mt-6 inline-block rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white">
           Create Professional Profile
         </Link>
@@ -140,7 +140,7 @@ export default function ProConnectDashboard() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Professional Dashboard</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Manage your profile, portfolio, and conversations</p>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">Manage your profile, portfolio, and conversations</p>
         </div>
         <Link
           to={`/pro-connect/${profile.slug}`}
@@ -154,44 +154,44 @@ export default function ProConnectDashboard() {
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
             <ThumbsUp className="h-4 w-4" />
             <span className="text-xs">Rating</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {profile.rating_avg.toFixed(1)}
           </p>
-          <p className="text-xs text-neutral-400">{profile.rating_count} reviews</p>
+          <p className="text-xs text-neutral-500">{profile.rating_count} reviews</p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
             <MessageSquare aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Messages</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {unreadCount > 0 ? unreadCount : conversations.length}
           </p>
-          <p className="text-xs text-neutral-400">{unreadCount > 0 ? 'unread' : 'conversations'}</p>
+          <p className="text-xs text-neutral-500">{unreadCount > 0 ? 'unread' : 'conversations'}</p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
             <Eye aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Listed</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {profile.is_listed ? 'Yes' : 'No'}
           </p>
-          <p className="text-xs text-neutral-400 capitalize">{profile.verification_status}</p>
+          <p className="text-xs text-neutral-500 capitalize">{profile.verification_status}</p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
+          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
             <Briefcase aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Experience</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {profile.years_experience || 0} yrs
           </p>
-          <p className="text-xs text-neutral-400">{portfolio.length} portfolio items</p>
+          <p className="text-xs text-neutral-500">{portfolio.length} portfolio items</p>
         </div>
       </div>
 
@@ -200,7 +200,7 @@ export default function ProConnectDashboard() {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{profile.display_name}</h2>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">{profile.business_name || 'No business name set'}</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">{profile.business_name || 'No business name set'}</p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className={classNames(
                 'rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
@@ -208,7 +208,7 @@ export default function ProConnectDashboard() {
                   ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
                   : profile.availability === 'busy'
                     ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
-                    : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                    : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
               )}>
                 {profile.availability}
               </span>
@@ -231,7 +231,7 @@ export default function ProConnectDashboard() {
         {/* Services */}
         {services.length > 0 && (
           <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">Services</p>
+            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">Services</p>
             <div className="flex flex-wrap gap-1.5">
               {services.map((s) => (
                 <span key={s.id} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
@@ -245,7 +245,7 @@ export default function ProConnectDashboard() {
         {/* Locations */}
         {locations.length > 0 && (
           <div className="mt-3">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">Service Areas</p>
+            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">Service Areas</p>
             <div className="flex flex-wrap gap-1.5">
               {locations.map((l, i) => (
                 <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
@@ -277,10 +277,10 @@ export default function ProConnectDashboard() {
               <span className="text-xs font-bold">{profile.contact_verified_at ? '✓' : '1'}</span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.contact_verified_at ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400')}>
+              <p className={classNames('text-sm font-medium', profile.contact_verified_at ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-500')}>
                 Contact Verified
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 {profile.contact_verified_at ? 'Verified ' + new Date(profile.contact_verified_at).toLocaleDateString('en-GB') : 'Email & phone confirmation'}
               </p>
             </div>
@@ -300,10 +300,10 @@ export default function ProConnectDashboard() {
               <span className="text-xs font-bold">{profile.identity_verified_at ? '✓' : '2'}</span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.identity_verified_at ? 'text-blue-700 dark:text-blue-400' : 'text-neutral-500 dark:text-neutral-400')}>
+              <p className={classNames('text-sm font-medium', profile.identity_verified_at ? 'text-blue-700 dark:text-blue-400' : 'text-neutral-500 dark:text-neutral-500')}>
                 FRELUX Verified
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 {profile.identity_verified_at ? 'Identity verified' : 'Identity & profile review'}
               </p>
             </div>
@@ -323,10 +323,10 @@ export default function ProConnectDashboard() {
               <span className="text-xs font-bold">{profile.pro_level ? '✓' : '3'}</span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.pro_level ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500 dark:text-neutral-400')}>
+              <p className={classNames('text-sm font-medium', profile.pro_level ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500 dark:text-neutral-500')}>
                 FRELUX Pro
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 {profile.pro_level ? 'Top professional' : proLevelEligible ? 'Eligible — contact admin' : 'Build your reputation'}
               </p>
             </div>
@@ -335,7 +335,7 @@ export default function ProConnectDashboard() {
 
         {/* Verification status message */}
         <div className="mt-4">
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500">
             Status: <span className={classNames(
               'font-medium capitalize',
               profile.verification_status === 'verified' ? 'text-emerald-600 dark:text-emerald-400' :
@@ -387,7 +387,7 @@ export default function ProConnectDashboard() {
                     'rounded-lg border p-3 text-left text-sm transition-colors',
                     verifType === 'contact'
                       ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-400'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500'
                   )}
                 >
                   <span className="block font-semibold">Level 1: Contact</span>
@@ -399,7 +399,7 @@ export default function ProConnectDashboard() {
                     'rounded-lg border p-3 text-left text-sm transition-colors',
                     verifType === 'identity'
                       ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-400'
+                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500'
                   )}
                 >
                   <span className="block font-semibold">Level 2: Identity</span>
@@ -464,7 +464,7 @@ export default function ProConnectDashboard() {
                     placeholder="Enter your ID number"
                     className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
                   />
-                  <p className="mt-1 text-xs text-neutral-400">
+                  <p className="mt-1 text-xs text-neutral-500">
                     Your ID number is stored securely and only visible to FRELUX administrators.
                   </p>
                 </div>
@@ -558,7 +558,7 @@ export default function ProConnectDashboard() {
                 )}
                 <div className="p-3">
                   <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{item.title}</p>
-                  <p className="truncate text-xs text-neutral-400">{item.category}</p>
+                  <p className="truncate text-xs text-neutral-500">{item.category}</p>
                 </div>
                 <button
                   onClick={async () => {
@@ -595,11 +595,11 @@ export default function ProConnectDashboard() {
                   <p className="text-sm font-medium text-neutral-900 dark:text-white">
                     {convo.professional?.display_name || 'Customer'}
                   </p>
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
                     {convo.last_message_at ? new Date(convo.last_message_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'No messages yet'}
                   </p>
                 </div>
-                <MessageSquare aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+                <MessageSquare aria-hidden="true" className="h-5 w-5 text-neutral-500" />
               </Link>
             ))}
           </div>
@@ -621,7 +621,7 @@ export default function ProConnectDashboard() {
                   {[1, 2, 3, 4, 5].map((s: number) => (
                     <span key={s} className={s <= review.rating ? 'text-amber-400' : 'text-neutral-200 dark:text-neutral-700'}>●</span>
                   ))}
-                  <span className="text-xs text-neutral-400">{new Date(review.created_at).toLocaleDateString('en-GB')}</span>
+                  <span className="text-xs text-neutral-500">{new Date(review.created_at).toLocaleDateString('en-GB')}</span>
                 </div>
                 {review.review_text && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{review.review_text}</p>}
                 {!review.professional_response && (
@@ -644,7 +644,7 @@ export default function ProConnectDashboard() {
                 )}
                 {review.professional_response && (
                   <div className="mt-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
-                    <p className="text-xs text-neutral-400">Your response:</p>
+                    <p className="text-xs text-neutral-500">Your response:</p>
                     <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{review.professional_response}</p>
                   </div>
                 )}
@@ -667,7 +667,7 @@ export default function ProConnectDashboard() {
         </div>
         {myBids.length === 0 ? (
           <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">You haven't placed any bids yet.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">You haven't placed any bids yet.</p>
             <Link to="/marketplace" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
               <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open jobs
             </Link>
@@ -682,7 +682,7 @@ export default function ProConnectDashboard() {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{bid.listing?.title || 'Untitled job'}</p>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     Bid: ₦{bid.proposed_price.toLocaleString()} · {new Date(bid.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -690,7 +690,7 @@ export default function ProConnectDashboard() {
                   'ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold',
                   bid.status === 'accepted' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' :
                   bid.status === 'rejected' ? 'bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400' :
-                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
                 )}>
                   {bid.status}
                 </span>
@@ -718,7 +718,7 @@ export default function ProConnectDashboard() {
                   <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
                     {order.listing?.title || 'Untitled job'}
                   </p>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     {order.order_number} · ₦{order.agreed_price.toLocaleString()}
                   </p>
                 </div>
@@ -726,7 +726,7 @@ export default function ProConnectDashboard() {
                   'ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold',
                   order.status === 'in_progress' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' :
                   order.status === 'pending_start' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' :
-                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
                 )}>
                   {order.status === 'in_progress' && <Clock className="h-3 w-3" />}
                   {order.status.replace('_', ' ')}
@@ -823,7 +823,7 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
               }}
               className="hidden"
             />
-            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-500">
               <Plus aria-hidden="true" className="h-4 w-4" />
               {uploading ? 'Uploading...' : 'Upload images'}
             </span>

@@ -38,7 +38,7 @@ export default function MultiStepProgress({
                 <span
                   className={classNames(
                     'hidden text-[11px] font-medium sm:block sm:text-xs transition-colors',
-                    isCurrent ? 'text-brand-purple' : isComplete ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-400',
+                    isCurrent ? 'text-brand-purple' : isComplete ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-500',
                   )}
                 >
                   {step.label}
@@ -46,7 +46,7 @@ export default function MultiStepProgress({
                 <span
                   className={classNames(
                     'block text-[10px] font-medium sm:hidden transition-colors',
-                    isCurrent ? 'text-brand-purple' : 'text-neutral-400',
+                    isCurrent ? 'text-brand-purple' : 'text-neutral-500',
                   )}
                 >
                   {step.shortLabel ?? step.label}

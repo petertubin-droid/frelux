@@ -38,7 +38,7 @@ export default function ProConnectCTA({ calculatorType, className = '' }: ProCon
   return (
     <div className={`mt-8 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple-light/5 p-6 dark:border-brand-purple-lighter/20 ${className}`}>
       <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{text.title}</h3>
-      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{text.subtitle}</p>
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{text.subtitle}</p>
       <Link
         to={`/pro-connect?category=${categorySlug}`}
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"

@@ -162,7 +162,7 @@ export default function Contact() {
                     </span>
                     <span>
                       <span className="block font-semibold text-neutral-900 dark:text-white">WhatsApp</span>
-                      <span className="block text-neutral-500 dark:text-neutral-400">{siteConfig.whatsappDisplay}</span>
+                      <span className="block text-neutral-500 dark:text-neutral-500">{siteConfig.whatsappDisplay}</span>
                     </span>
                   </a>
                 </li>
@@ -172,11 +172,11 @@ export default function Contact() {
                   </span>
                   <span>
                     <span className="block font-semibold text-neutral-900 dark:text-white">Email</span>
-                    <span className="block text-neutral-500 dark:text-neutral-400">{siteConfig.email}</span>
+                    <span className="block text-neutral-500 dark:text-neutral-500">{siteConfig.email}</span>
                   </span>
                 </li>
               </ul>
-              <div className="mt-6 rounded-lg bg-neutral-50 p-4 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+              <div className="mt-6 rounded-lg bg-neutral-50 p-4 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
                 Typical response time: within one business day on weekdays.
               </div>
             </div>

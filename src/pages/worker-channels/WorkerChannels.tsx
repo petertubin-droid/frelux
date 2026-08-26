@@ -330,7 +330,7 @@ export default function WorkerChannels() {
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Worker Channels
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
           You need to sign in with a worker account to access the nationwide
           worker channels.
         </p>
@@ -352,7 +352,7 @@ export default function WorkerChannels() {
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Worker Access Only
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
           These channels are exclusive to FRELUX worker accounts. Register as a
           professional to join the conversation.
         </p>
@@ -378,17 +378,17 @@ export default function WorkerChannels() {
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Verification Required
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
           Worker Channels are available to <strong>FRELUX Verified</strong>{" "}
           (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
         </p>
-        <p className="mt-1 text-sm text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-500">
           Your current tier:{" "}
           <span className="font-semibold text-amber-500">
             {tierLabels[verificationTier] ?? "Tier " + verificationTier}
           </span>
         </p>
-        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-500">
           Complete mobile number verification and NIN (National ID) verification
           to reach Tier 2 and unlock channel access.
         </p>
@@ -432,7 +432,7 @@ export default function WorkerChannels() {
         <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-neutral-200/40 bg-white/60 p-3 dark:border-white/10 dark:bg-brand-navy-mid/40 lg:max-h-[calc(100vh-220px)]">
           <div className="mb-2 flex items-center gap-2 px-2">
             <Hash className="h-4 w-4 text-brand-purple" />
-            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">
+            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
               Channels
             </span>
           </div>
@@ -452,7 +452,7 @@ export default function WorkerChannels() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{ch.name.trim()}</div>
-                <div className="flex items-center gap-2 text-xs text-neutral-400">
+                <div className="flex items-center gap-2 text-xs text-neutral-500">
                   <span className="flex items-center gap-0.5">
                     <Users className="h-3 w-3" /> {ch.member_count ?? 0}
                   </span>
@@ -478,12 +478,12 @@ export default function WorkerChannels() {
                     {activeChannel.name.trim()}
                   </h2>
                   {activeChannel.description && (
-                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-500">
                       {activeChannel.description}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-400">
+                <div className="flex items-center gap-2 text-xs text-neutral-500">
                   <Users className="h-3.5 w-3.5" />
                   <span>{activeChannel.member_count ?? 0} members</span>
                 </div>
@@ -495,7 +495,7 @@ export default function WorkerChannels() {
                 className="flex-1 space-y-3 overflow-y-auto p-4"
               >
                 {messages.length === 0 && (
-                  <div className="flex h-full items-center justify-center text-center text-sm text-neutral-400">
+                  <div className="flex h-full items-center justify-center text-center text-sm text-neutral-500">
                     <div>
                       <MessageSquare className="mx-auto mb-2 h-8 w-8 opacity-50" />
                       <p>
@@ -690,7 +690,7 @@ export default function WorkerChannels() {
               </div>
               <button
                 onClick={() => setViewingProfile(null)}
-                className="text-neutral-400 hover:text-neutral-600"
+                className="text-neutral-500 hover:text-neutral-600"
               >
                 ✕
               </button>
@@ -725,30 +725,30 @@ export default function WorkerChannels() {
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               {viewingProfile.years_experience != null && (
                 <div>
-                  <p className="text-xs text-neutral-400">Experience</p>
+                  <p className="text-xs text-neutral-500">Experience</p>
                   <p className="font-semibold text-brand-navy dark:text-white">
                     {viewingProfile.years_experience} years
                   </p>
                 </div>
               )}
               <div>
-                <p className="text-xs text-neutral-400">Phone Verified</p>
-                <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-neutral-400'}">
+                <p className="text-xs text-neutral-500">Phone Verified</p>
+                <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-neutral-500'}">
                   {viewingProfile.phone_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-neutral-400">NIN Verified</p>
+                <p className="text-xs text-neutral-500">NIN Verified</p>
                 <p
-                  className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-neutral-400"}`}
+                  className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-neutral-500"}`}
                 >
                   {viewingProfile.nin_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-neutral-400">Mobile OTP</p>
+                <p className="text-xs text-neutral-500">Mobile OTP</p>
                 <p
-                  className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-neutral-400"}`}
+                  className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-neutral-500"}`}
                 >
                   {viewingProfile.mobile_otp_verified ? "✓ Yes" : "✗ No"}
                 </p>
@@ -789,7 +789,7 @@ export default function WorkerChannels() {
             <h3 className="text-lg font-bold text-brand-navy dark:text-white">
               Report User
             </h3>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               Report inappropriate behavior. The user's NIN and verification
               data will be referenced during admin review.
             </p>
@@ -961,7 +961,7 @@ function MessageBubble({
         <div
           className={classNames(
             "mt-1 text-[10px]",
-            isOwn ? "text-white/60" : "text-neutral-400",
+            isOwn ? "text-white/60" : "text-neutral-500",
           )}
         >
           {new Date(message.created_at).toLocaleTimeString("en-NG", {
@@ -975,14 +975,14 @@ function MessageBubble({
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
         <button
           onClick={() => setShowReactions(!showReactions)}
-          className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
           title="React"
         >
           <span className="text-xs">😊</span>
         </button>
         <button
           onClick={() => onReply(message.id)}
-          className="rounded p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
           title="Reply"
         >
           <MessageSquare className="h-3.5 w-3.5" />
@@ -990,7 +990,7 @@ function MessageBubble({
         {isOwn && (
           <button
             onClick={() => onDelete(message.id)}
-            className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500"
+            className="rounded p-1 text-neutral-500 hover:bg-red-50 hover:text-red-500"
             title="Delete"
           >
             <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />

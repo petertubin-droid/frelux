@@ -31,26 +31,26 @@ export default function HowCalculatedSection({
           How this estimate is calculated
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-neutral-400 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-neutral-500 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
         />
       </button>
 
       {expanded && (
         <div className="animate-content-reveal border-t border-neutral-200 px-4 py-3 dark:border-white/5">
           {methodologyText && (
-            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-600 dark:text-neutral-400">
+            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-600 dark:text-neutral-500">
               {methodologyText}
             </pre>
           )}
 
           {assumptions.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
                 Active assumptions
               </p>
               {assumptions.map((a) => (
                 <div key={a.label} className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-400">{a.label}</span>
+                  <span className="text-neutral-500 dark:text-neutral-500">{a.label}</span>
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">{a.value}</span>
                 </div>
               ))}
@@ -59,18 +59,18 @@ export default function HowCalculatedSection({
 
           {(priceSourceDate || priceSource) && (
             <div className="mt-3 space-y-1 border-t border-neutral-200 pt-2 dark:border-white/5">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
                 Price information
               </p>
               {priceSource && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-400">Source</span>
+                  <span className="text-neutral-500 dark:text-neutral-500">Source</span>
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">{priceSource}</span>
                 </div>
               )}
               {priceSourceDate && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-400">Effective date</span>
+                  <span className="text-neutral-500 dark:text-neutral-500">Effective date</span>
                   <span className="font-medium text-neutral-700 dark:text-neutral-300">{priceSourceDate}</span>
                 </div>
               )}

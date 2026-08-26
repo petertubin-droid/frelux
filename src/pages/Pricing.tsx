@@ -330,7 +330,7 @@ export default function Pricing() {
                 {paidStatus?.plan}
               </span>
               {paidStatus?.paid_until && (
-                <span className="text-neutral-400">
+                <span className="text-neutral-500">
                   {" "}
                   · expires{" "}
                   {new Date(paidStatus.paid_until).toLocaleDateString()}
@@ -374,14 +374,14 @@ export default function Pricing() {
 
                 <div className="flex items-center gap-2">
                   {plan.id === "free" ? (
-                    <Gem aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+                    <Gem aria-hidden="true" className="h-5 w-5 text-neutral-500" />
                   ) : (
                     <Crown
                       className={classNames(
                         "h-5 w-5",
                         plan.highlight
                           ? "text-brand-purple"
-                          : "text-neutral-400",
+                          : "text-neutral-500",
                       )}
                     />
                   )}
@@ -389,7 +389,7 @@ export default function Pricing() {
                     {plan.name}
                   </h3>
                 </div>
-                <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                   {plan.tagline}
                 </p>
 
@@ -397,7 +397,7 @@ export default function Pricing() {
                   <span className="text-3xl font-extrabold text-brand-navy dark:text-white">
                     {formatNaira(price)}
                   </span>
-                  <span className="text-sm text-neutral-400">
+                  <span className="text-sm text-neutral-500">
                     /{billingCycle === "monthly" ? "mo" : "yr"}
                   </span>
                 </div>
@@ -465,7 +465,7 @@ export default function Pricing() {
         </div>
 
         {/* Trust badges */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-500">
           <span className="flex items-center gap-2">
             <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Secure payment via Paystack
           </span>
@@ -536,7 +536,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         </span>
         <span
           className={classNames(
-            "text-neutral-400 transition-transform",
+            "text-neutral-500 transition-transform",
             open && "rotate-180",
           )}
         >
@@ -544,7 +544,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         </span>
       </button>
       {open && (
-        <p className="px-4 pb-4 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="px-4 pb-4 text-sm text-neutral-500 dark:text-neutral-500">
           {a}
         </p>
       )}

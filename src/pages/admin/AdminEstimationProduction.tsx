@@ -152,7 +152,7 @@ export default function AdminEstimationProduction() {
                       {LOCATION_RULES.find((l) => l.value === rule.location_rule)?.label ?? rule.location_rule}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                     Minimum: <span className="font-semibold">{rule.min_quantity} {rule.unit}</span>
                     {rule.description && `, ${rule.description}`}
                   </p>

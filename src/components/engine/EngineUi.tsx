@@ -86,7 +86,7 @@ export function EngineWasteSelector({
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               mode === key
                 ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400",
+                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-500",
             )}
           >
             {label}
@@ -260,9 +260,9 @@ export function EngineConfidenceDetail({
           Result Confidence
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-500" />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500" />
         )}
       </button>
       {expanded && (
@@ -270,7 +270,7 @@ export function EngineConfidenceDetail({
           <div className="space-y-2 text-sm">
             {result.factors.map((factor, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-neutral-600 dark:text-neutral-400">
+                <span className="text-neutral-600 dark:text-neutral-500">
                   {factor.name}
                 </span>
                 <span
@@ -279,7 +279,7 @@ export function EngineConfidenceDetail({
                   }
                 >
                   {factor.passed ? "✓" : "⚠"}{" "}
-                  <span className="ml-1 text-xs text-neutral-400">
+                  <span className="ml-1 text-xs text-neutral-500">
                     {factor.detail}
                   </span>
                 </span>
@@ -288,7 +288,7 @@ export function EngineConfidenceDetail({
           </div>
           {result.recommendations.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-neutral-400">
+              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
                 Recommendations
               </p>
               {result.recommendations.map((rec, i) => (
@@ -326,9 +326,9 @@ export function EngineExplanationPanel({
           How FRELUX Calculated This
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-500" />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500" />
         )}
       </button>
       {expanded && (
@@ -340,7 +340,7 @@ export function EngineExplanationPanel({
                   {i + 1}
                 </span>
                 <div>
-                  <span className="text-neutral-600 dark:text-neutral-400">
+                  <span className="text-neutral-600 dark:text-neutral-500">
                     {step.description}
                   </span>
                   {step.value !== undefined && step.value !== null && (
@@ -360,7 +360,7 @@ export function EngineExplanationPanel({
           {result.notes.length > 0 && (
             <div className="mt-2 space-y-0.5">
               {result.notes.map((note, i) => (
-                <p key={i} className="text-xs text-neutral-400">
+                <p key={i} className="text-xs text-neutral-500">
                   • {note}
                 </p>
               ))}
@@ -423,7 +423,7 @@ export function EngineMaterialSummaryCard({
         </table>
       </div>
       {summary.totalEntries > 0 && (
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500">
           {summary.totalEntries} entries across {summary.entries.length}{" "}
           material types
         </p>
@@ -451,7 +451,7 @@ export function EngineEstimateReportView({
         {report.location && (
           <p className="text-sm text-neutral-500">{report.location}</p>
         )}
-        <div className="mt-1 flex gap-4 text-xs text-neutral-400">
+        <div className="mt-1 flex gap-4 text-xs text-neutral-500">
           <span>{new Date(report.date).toLocaleDateString()}</span>
           <span>{report.measurementSystem}</span>
           <span>{report.currency}</span>
@@ -538,7 +538,7 @@ export function EngineEstimateReportView({
       {/* Notes */}
       {report.notes.length > 0 && (
         <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-white/10">
-          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-400">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
             Notes
           </p>
           {report.notes.map((note, i) => (
@@ -549,7 +549,7 @@ export function EngineEstimateReportView({
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-1 text-xs text-neutral-400">
+      <div className="mt-4 flex items-center gap-1 text-xs text-neutral-500">
         <FileText aria-hidden="true" className="h-3 w-3" />
         Generated by FRELUX Calculation Engine
       </div>

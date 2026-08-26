@@ -192,7 +192,7 @@ export default function AdminCreditsAds() {
         <h1 className="text-xl font-bold text-neutral-900 dark:text-white">
           Credits & Rewarded Ads
         </h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">
           FRELUX Credits wallet, AI feature costs, and rewarded ad management.
         </p>
       </div>
@@ -249,7 +249,7 @@ export default function AdminCreditsAds() {
             </h3>
             <div className="mt-3 space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-500 dark:text-neutral-400">
+                <span className="text-neutral-500 dark:text-neutral-500">
                   Rewarded Ads
                 </span>
                 <span
@@ -262,7 +262,7 @@ export default function AdminCreditsAds() {
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-500 dark:text-neutral-400">
+                <span className="text-neutral-500 dark:text-neutral-500">
                   Credits per ad
                 </span>
                 <span className="font-semibold text-neutral-900 dark:text-white">
@@ -270,7 +270,7 @@ export default function AdminCreditsAds() {
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-500 dark:text-neutral-400">
+                <span className="text-neutral-500 dark:text-neutral-500">
                   Daily earn limit
                 </span>
                 <span className="font-semibold text-neutral-900 dark:text-white">
@@ -278,7 +278,7 @@ export default function AdminCreditsAds() {
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
-                <span className="text-neutral-500 dark:text-neutral-400">
+                <span className="text-neutral-500 dark:text-neutral-500">
                   Active AI features
                 </span>
                 <span className="font-semibold text-neutral-900 dark:text-white">
@@ -304,7 +304,7 @@ export default function AdminCreditsAds() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-200">
                       {tx.reason}
                     </span>
-                    <span className="ml-2 text-neutral-400">
+                    <span className="ml-2 text-neutral-500">
                       {new Date(tx.created_at).toLocaleDateString()}
                     </span>
                   </div>
@@ -320,7 +320,7 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {transactions.length === 0 && (
-                <p className="text-xs text-neutral-400">No transactions yet</p>
+                <p className="text-xs text-neutral-500">No transactions yet</p>
               )}
             </div>
           </div>
@@ -339,7 +339,7 @@ export default function AdminCreditsAds() {
               >
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="text-[10px] font-semibold text-neutral-400">
+                    <label className="text-[10px] font-semibold text-neutral-500">
                       Feature Name
                     </label>
                     <input
@@ -354,7 +354,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-neutral-400">
+                    <label className="text-[10px] font-semibold text-neutral-500">
                       Credit Cost
                     </label>
                     <input
@@ -373,7 +373,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-neutral-400">
+                    <label className="text-[10px] font-semibold text-neutral-500">
                       Daily Usage Limit (0=unlimited)
                     </label>
                     <input
@@ -392,7 +392,7 @@ export default function AdminCreditsAds() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-semibold text-neutral-400">
+                    <label className="text-[10px] font-semibold text-neutral-500">
                       Description
                     </label>
                     <input
@@ -484,7 +484,7 @@ export default function AdminCreditsAds() {
           </h3>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400">
+              <label className="text-[10px] font-semibold text-neutral-500">
                 Credits per Ad
               </label>
               <input
@@ -500,7 +500,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400">
+              <label className="text-[10px] font-semibold text-neutral-500">
                 Daily Earn Limit
               </label>
               <input
@@ -516,7 +516,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400">
+              <label className="text-[10px] font-semibold text-neutral-500">
                 Cooldown (seconds)
               </label>
               <input
@@ -532,7 +532,7 @@ export default function AdminCreditsAds() {
               />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-neutral-400">
+              <label className="text-[10px] font-semibold text-neutral-500">
                 Min Interval Between Ads (seconds)
               </label>
               <input
@@ -592,12 +592,12 @@ export default function AdminCreditsAds() {
                 <p className="text-xs font-semibold text-neutral-900 dark:text-white">
                   {tx.reason}
                 </p>
-                <p className="text-[10px] text-neutral-400">
+                <p className="text-[10px] text-neutral-500">
                   {tx.type} • {new Date(tx.created_at).toLocaleString()} •
                   Balance: {tx.balance_after}
                 </p>
                 {tx.reference_id && (
-                  <p className="text-[10px] text-neutral-400">
+                  <p className="text-[10px] text-neutral-500">
                     Ref: {tx.reference_id}
                   </p>
                 )}
@@ -614,7 +614,7 @@ export default function AdminCreditsAds() {
             </div>
           ))}
           {transactions.length === 0 && (
-            <p className="py-8 text-center text-sm text-neutral-400">
+            <p className="py-8 text-center text-sm text-neutral-500">
               No transactions
             </p>
           )}
@@ -629,7 +629,7 @@ export default function AdminCreditsAds() {
             <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
               Manual Credit Adjustment
             </h3>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
               Adjust a user's FRELUX Credits. A reason is mandatory.
             </p>
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -679,7 +679,7 @@ export default function AdminCreditsAds() {
                   <p className="text-xs font-semibold text-neutral-900 dark:text-white">
                     {w.user_id.slice(0, 8)}…
                   </p>
-                  <p className="text-[10px] text-neutral-400">
+                  <p className="text-[10px] text-neutral-500">
                     Earned: {w.total_earned} • Spent: {w.total_spent}
                   </p>
                 </div>
@@ -690,7 +690,7 @@ export default function AdminCreditsAds() {
               </div>
             ))}
             {wallets.length === 0 && (
-              <p className="py-8 text-center text-sm text-neutral-400">
+              <p className="py-8 text-center text-sm text-neutral-500">
                 No wallets
               </p>
             )}
@@ -716,7 +716,7 @@ export default function AdminCreditsAds() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-200">
                       {evt.ad_provider}
                     </span>
-                    <span className="ml-2 text-neutral-400">
+                    <span className="ml-2 text-neutral-500">
                       {new Date(evt.created_at).toLocaleString()}
                     </span>
                   </div>
@@ -740,7 +740,7 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {adEvents.length === 0 && (
-                <p className="text-xs text-neutral-400">No ad events</p>
+                <p className="text-xs text-neutral-500">No ad events</p>
               )}
             </div>
           </div>
@@ -760,7 +760,7 @@ export default function AdminCreditsAds() {
                     <span className="font-medium text-neutral-700 dark:text-neutral-200">
                       {u.feature_key}
                     </span>
-                    <span className="ml-2 text-neutral-400">
+                    <span className="ml-2 text-neutral-500">
                       {new Date(u.created_at).toLocaleString()}
                     </span>
                   </div>
@@ -778,7 +778,7 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {aiUsage.length === 0 && (
-                <p className="text-xs text-neutral-400">No usage records</p>
+                <p className="text-xs text-neutral-500">No usage records</p>
               )}
             </div>
           </div>
@@ -834,7 +834,7 @@ function StatCard({
     <div className="rounded-xl border border-neutral-200 p-3 dark:border-white/10">
       <div className="flex items-center gap-2">
         {icon}
-        <span className="text-[10px] font-medium text-neutral-400">
+        <span className="text-[10px] font-medium text-neutral-500">
           {label}
         </span>
       </div>

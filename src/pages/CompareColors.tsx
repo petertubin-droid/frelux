@@ -137,11 +137,11 @@ export default function CompareColors() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Search */}
         <div className="relative w-full sm:max-w-md">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search colors to add…" className="input-field pl-9" />
         </div>
 
-        {loading && <div className="mt-3 flex items-center gap-2 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Searching…</div>}
+        {loading && <div className="mt-3 flex items-center gap-2 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Searching…</div>}
 
         {/* Search results */}
         {results.length > 0 && (
@@ -151,7 +151,7 @@ export default function CompareColors() {
                 <div className="aspect-square" style={{ background: c.hex_code }} />
                 <div className="p-2">
                   <p className="truncate text-xs font-semibold text-brand-navy dark:text-white">{c.name}</p>
-                  <p className="text-[10px] text-neutral-400">{c.hex_code}</p>
+                  <p className="text-[10px] text-neutral-500">{c.hex_code}</p>
                 </div>
               </button>
             ))}
@@ -159,7 +159,7 @@ export default function CompareColors() {
         )}
 
         {search && !loading && results.length === 0 && (
-          <p className="mt-3 text-sm text-neutral-400">No colors found. Try a different search term.</p>
+          <p className="mt-3 text-sm text-neutral-500">No colors found. Try a different search term.</p>
         )}
 
         {/* Comparison area */}
@@ -256,7 +256,7 @@ export default function CompareColors() {
                     <tbody>
                       {keyDifferences.map((diff) => (
                         <tr key={diff.label}>
-                          <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 100 }}>{diff.label}</td>
+                          <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-500" style={{ minWidth: 100 }}>{diff.label}</td>
                           {diff.values.map((v, i) => (
                             <td key={i} className="border-b border-neutral-100 p-2 text-sm text-neutral-700" style={{ minWidth: 150 }}>{v}</td>
                           ))}
@@ -294,7 +294,7 @@ export default function CompareColors() {
         )}
 
         {selected.length > 0 && selected.length < MAX_COMPARE && (
-          <p className="mt-4 text-sm text-neutral-400">You can add {MAX_COMPARE - selected.length} more color{MAX_COMPARE - selected.length > 1 ? 's' : ''}.</p>
+          <p className="mt-4 text-sm text-neutral-500">You can add {MAX_COMPARE - selected.length} more color{MAX_COMPARE - selected.length > 1 ? 's' : ''}.</p>
         )}
       </div>
     </>
@@ -304,7 +304,7 @@ export default function CompareColors() {
 function CompareRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <tr>
-      <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-400" style={{ minWidth: 80 }}>{label}</td>
+      <td className="border-b border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-neutral-500" style={{ minWidth: 80 }}>{label}</td>
       {children}
     </tr>
   );

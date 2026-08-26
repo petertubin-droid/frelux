@@ -18,7 +18,7 @@ export default function CreditsPage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">
           Sign in to view your FRELUX Credits and start earning.
         </p>
       </div>

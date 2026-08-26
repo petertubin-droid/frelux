@@ -188,7 +188,7 @@ function Select<T extends string>({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
         {label}
       </label>
       <select
@@ -276,7 +276,7 @@ function RoomForm({
       {/* Basic info */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             Room Name
           </label>
           <input
@@ -304,7 +304,7 @@ function RoomForm({
       {/* Dimensions */}
       <div className="grid gap-3 sm:grid-cols-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             Length ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -317,7 +317,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             Width ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -330,7 +330,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             Height ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -399,7 +399,7 @@ function RoomForm({
             {wasteFactor <= 10 ? 'Low' : wasteFactor <= 20 ? 'Moderate' : 'High'}
           </Badge>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
           Auto-calculated from surface condition, surface type, wall smoothness,
           and porosity. Higher waste factors mean more material will be needed
           to complete the job.
@@ -418,7 +418,7 @@ function RoomForm({
                 <span className="text-xs text-neutral-600 dark:text-neutral-300">
                   {step.action}
                   {step.product && (
-                    <span className="text-neutral-400 dark:text-neutral-500"> — {step.product}</span>
+                    <span className="text-neutral-500 dark:text-neutral-500"> — {step.product}</span>
                   )}
                 </span>
               </div>
@@ -484,7 +484,7 @@ function RoomCard({
         {/* Drag handle (visual only) */}
         <div className="flex flex-col items-center gap-0.5 pt-1">
           <GripVertical className="h-5 w-5 cursor-grab text-neutral-300" />
-          <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-500">
+          <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-500">
             {index + 1}
           </span>
         </div>
@@ -508,7 +508,7 @@ function RoomCard({
               </Badge>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             {dimensions && <span>{dimensions}</span>}
             <span>Waste: {wasteFactor}%</span>
             {room.material_cost > 0 && (
@@ -529,7 +529,7 @@ function RoomCard({
           <button
             type="button"
             onClick={() => setExpanded((p) => !p)}
-            className="rounded-lg p-2 text-neutral-400 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
             aria-label={expanded ? 'Collapse room details' : 'Expand room details'}
             aria-expanded={expanded}
           >
@@ -542,7 +542,7 @@ function RoomCard({
           <button
             type="button"
             onClick={onEdit}
-            className="rounded-lg p-2 text-neutral-400 dark:text-neutral-500 transition-all duration-300 hover:bg-brand-purple/10 hover:text-brand-purple"
+            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-brand-purple/10 hover:text-brand-purple"
             aria-label="Edit room"
           >
             <Edit3 className="h-4 w-4" />
@@ -550,7 +550,7 @@ function RoomCard({
           <button
             type="button"
             onClick={() => setConfirmDelete(true)}
-            className="rounded-lg p-2 text-neutral-400 dark:text-neutral-500 transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
+            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
             aria-label="Delete room"
           >
             <Trash2 className="h-4 w-4" />
@@ -571,7 +571,7 @@ function RoomCard({
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                   Condition
                 </p>
                 <p className="text-sm font-medium text-brand-navy dark:text-white">
@@ -579,7 +579,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                   Surface Type
                 </p>
                 <p className="text-sm font-medium text-brand-navy dark:text-white">
@@ -587,7 +587,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                   Smoothness
                 </p>
                 <p className="text-sm font-medium text-brand-navy dark:text-white">
@@ -595,7 +595,7 @@ function RoomCard({
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                   Porosity
                 </p>
                 <p className="text-sm font-medium text-brand-navy dark:text-white">
@@ -626,7 +626,7 @@ function RoomCard({
                       : 'High Waste'}
                 </Badge>
               </div>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
                 Calculated from the surface assessment above. Surface condition,
                 type, smoothness, and porosity each contribute, rougher or more
                 porous surfaces with damage require extra material to account for
@@ -656,9 +656,9 @@ function RoomCard({
                         <p className="text-sm font-medium text-brand-navy dark:text-white">
                           {step.action}
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{step.reason}</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">{step.reason}</p>
                         {step.product && (
-                          <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+                          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                             <span className="font-semibold">Product:</span>{' '}
                             {step.product}
                           </p>
@@ -678,7 +678,7 @@ function RoomCard({
                 </h5>
                 <div className="mt-2 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                       Material Cost
                     </p>
                     <p className="text-lg font-bold text-brand-navy dark:text-white">
@@ -686,7 +686,7 @@ function RoomCard({
                     </p>
                   </div>
                   <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                       Labour Cost
                     </p>
                     <p className="text-lg font-bold text-brand-navy dark:text-white">
@@ -694,7 +694,7 @@ function RoomCard({
                     </p>
                   </div>
                   <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-400 dark:text-neutral-500">
+                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
                       Room Total
                     </p>
                     <p className="text-lg font-bold text-brand-purple">
@@ -802,7 +802,7 @@ function CalculatorModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-neutral-400 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+              className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
               aria-label="Close calculator"
             >
               <ChevronDown className="h-4 w-4" />
@@ -968,7 +968,7 @@ export function RoomBuilder({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-brand-navy dark:text-white">Rooms</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
             {rooms.length} room{rooms.length !== 1 ? 's' : ''} in this project
           </p>
         </div>
@@ -1047,7 +1047,7 @@ export function RoomBuilder({
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="rounded-lg p-1.5 text-neutral-400 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+                      className="rounded-lg p-1.5 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
                       aria-label="Close edit form"
                     >
                       <ChevronUp className="h-4 w-4" />

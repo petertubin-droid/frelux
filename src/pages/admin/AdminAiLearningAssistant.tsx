@@ -71,7 +71,7 @@ export default function AdminAiLearningAssistant() {
         {/* Action selection + input */}
         <div className="lg:col-span-1">
           <AdminCard className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">AI Action</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">AI Action</h2>
             <div className="space-y-2">
               {actions.map((a) => {
                 const Icon = a.icon;
@@ -79,10 +79,10 @@ export default function AdminAiLearningAssistant() {
                 return (
                   <AdminButton key={a.value} type="button" onClick={() => setAction(a.value)}
                     className={classNames('flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all', selected ? 'border-brand-purple bg-brand-purple/5 ring-1 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
-                    <Icon className={classNames('mt-0.5 h-4 w-4 shrink-0', selected ? 'text-brand-purple' : 'text-neutral-400')} />
+                    <Icon className={classNames('mt-0.5 h-4 w-4 shrink-0', selected ? 'text-brand-purple' : 'text-neutral-500')} />
                     <div>
                       <p className={classNames('text-sm font-semibold', selected ? 'text-brand-purple' : 'text-brand-navy dark:text-white')}>{a.label}</p>
-                      <p className="text-xs text-neutral-400 dark:text-neutral-500">{a.desc}</p>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500">{a.desc}</p>
                     </div>
                   </AdminButton>
                 );
@@ -94,7 +94,7 @@ export default function AdminAiLearningAssistant() {
         {/* Input + result */}
         <div className="space-y-6 lg:col-span-2">
           <AdminCard className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Input</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Input</h2>
 
             <AdminField label="Topic" hint="Enter a topic or title for the AI to work with">
               <AdminInput  value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
@@ -119,7 +119,7 @@ export default function AdminAiLearningAssistant() {
           {result && (
             <AdminCard className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Result</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Result</h2>
                 <AdminButton variant="secondary" type="button" onClick={handleCopyResult} className="text-xs">
                   <Send aria-hidden="true" className="h-3 w-3" /> Copy
                 </AdminButton>

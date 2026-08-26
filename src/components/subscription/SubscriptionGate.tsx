@@ -99,7 +99,7 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
           </div>
 
           {user && (
-            <p className="mt-3 text-xs text-neutral-400">
+            <p className="mt-3 text-xs text-neutral-500">
               You'll be notified as soon as Premium goes live.
             </p>
           )}

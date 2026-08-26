@@ -33,7 +33,7 @@ export default function HelpTip({
           e.preventDefault();
           setOpen((v) => !v);
         }}
-        className="ml-1 inline-flex shrink-0 items-center text-neutral-400 transition-colors hover:text-brand-purple"
+        className="ml-1 inline-flex shrink-0 items-center text-neutral-500 transition-colors hover:text-brand-purple"
         aria-label="More information"
       >
         <HelpCircle className="h-4 w-4" />

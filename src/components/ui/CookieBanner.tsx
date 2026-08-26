@@ -74,7 +74,7 @@ export function CookieBanner() {
                   <h2 id="cookie-banner-title" className="text-base font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">
                     Cookie Preferences
                   </h2>
-                  <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
+                  <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-500 leading-relaxed">
                     We use cookies to power essential features, improve the site with analytics, and keep tools free with relevant ads.
                     You choose what to allow.{' '}
                     <Link
@@ -88,7 +88,7 @@ export function CookieBanner() {
                 {/* Close button (dismiss without saving — banner returns next visit) */}
                 <button
                   onClick={dismiss}
-                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors"
+                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors"
                   aria-label="Close"
                 >
                   <X className="h-4.5 w-4.5" style={{ width: '1.125rem', height: '1.125rem' }} />
@@ -107,7 +107,7 @@ export function CookieBanner() {
                         className="flex items-start gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/[0.03] border border-neutral-200/60 dark:border-white/5"
                       >
                         <div className="flex-shrink-0 mt-0.5 grid h-8 w-8 place-items-center rounded-lg bg-neutral-100 dark:bg-white/5">
-                          <Icon className="h-4 w-4 text-neutral-500 dark:text-neutral-400" />
+                          <Icon className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">

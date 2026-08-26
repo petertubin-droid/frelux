@@ -93,7 +93,7 @@ export default function AdminTemplates() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Calculator Templates</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Manage public FRELUX templates and user-submitted templates.</p>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">Manage public FRELUX templates and user-submitted templates.</p>
         </div>
         <AdminButton onClick={() => setCreating(true)}>
           <Plus aria-hidden="true" className="h-4 w-4" /> New Template
@@ -102,7 +102,7 @@ export default function AdminTemplates() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
         <AdminInput
  type="text"
  value={search}
@@ -121,7 +121,7 @@ export default function AdminTemplates() {
         <div className="overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
           <table className="w-full text-sm">
             <thead className="bg-neutral-50 dark:bg-white/5">
-              <tr className="text-left text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              <tr className="text-left text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Visibility</th>
@@ -136,14 +136,14 @@ export default function AdminTemplates() {
                 <tr key={t.id} className="bg-white dark:bg-transparent">
                   <td className="px-4 py-3">
                     <div className="font-medium text-neutral-900 dark:text-white">{t.name}</div>
-                    {t.description && <div className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400 line-clamp-1">{t.description}</div>}
+                    {t.description && <div className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500 line-clamp-1">{t.description}</div>}
                   </td>
                   <td className="px-4 py-3">
                     <span className="rounded-md bg-brand-purple/8 px-2 py-0.5 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
                       {calculatorLabel(t.calculator_type)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.visibility}</td>
+                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-500">{t.visibility}</td>
                   <td className="px-4 py-3">
                     <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-neutral-300 dark:text-neutral-600')}>
                       {t.is_published ? <Eye aria-hidden="true" className="h-4 w-4" /> : <EyeOff aria-hidden="true" className="h-4 w-4" />}
@@ -154,7 +154,7 @@ export default function AdminTemplates() {
                       <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-neutral-300 dark:text-neutral-600')} fill={t.is_featured ? 'currentColor' : 'none'} />
                     </AdminIconButton>
                   </td>
-                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.slug ?? '-'}</td>
+                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-500">{t.slug ?? '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <AdminIconButton variant="ghost" onClick={() => setEditing(t)} title="Edit">
@@ -173,7 +173,7 @@ export default function AdminTemplates() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-400">No templates found.</div>
+            <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-500">No templates found.</div>
           )}
         </div>
       )}

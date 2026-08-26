@@ -236,7 +236,7 @@ export default function MarketplaceHome() {
             </div>
 
             {/* Stats bar */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400 sm:gap-10">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-500 sm:gap-10">
               <div className="flex items-center gap-2">
                 <span className="text-lg font-bold text-white">{jobsTotal + productsTotal}</span>
                 <span>Active Listings</span>
@@ -314,7 +314,7 @@ export default function MarketplaceHome() {
                 'inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                 tab === 'jobs'
                   ? 'bg-brand-navy text-white dark:bg-white dark:text-brand-navy'
-                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-500'
               )}
             >
               <Briefcase className="h-4 w-4" /> Jobs
@@ -330,7 +330,7 @@ export default function MarketplaceHome() {
                 'inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors',
                 tab === 'products'
                   ? 'bg-brand-navy text-white dark:bg-white dark:text-brand-navy'
-                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-500'
               )}
             >
               <Store className="h-4 w-4" /> Products
@@ -422,7 +422,7 @@ function JobsTab(props: {
       {/* Search bar */}
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
@@ -434,7 +434,7 @@ function JobsTab(props: {
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             'inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium',
-            props.showFilters ? 'border-brand-purple bg-brand-purple/5 text-brand-purple' : 'border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-400'
+            props.showFilters ? 'border-brand-purple bg-brand-purple/5 text-brand-purple' : 'border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -452,7 +452,7 @@ function JobsTab(props: {
             <option value="">All states</option>
             {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={() => { props.setProjectType(''); props.setState(''); props.setSearch(''); }} className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
+          <button onClick={() => { props.setProjectType(''); props.setState(''); props.setSearch(''); }} className="text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300">
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
         </div>
@@ -467,14 +467,14 @@ function JobsTab(props: {
       {props.userLocation && props.nearbyListings.length > 0 && (
         <div className="mb-6">
           <h2 className="mb-3 text-sm font-bold text-neutral-900 dark:text-white">
-            Jobs Near You <span className="ml-2 text-xs font-normal text-neutral-400">({props.nearbyListings.length} within {props.radius} km)</span>
+            Jobs Near You <span className="ml-2 text-xs font-normal text-neutral-500">({props.nearbyListings.length} within {props.radius} km)</span>
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {props.nearbyListings.slice(0, 6).map((listing) => (
               <Link key={listing.id} to={`/marketplace/${listing.id}`} className="group rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 transition-all hover:border-brand-purple/40 hover:shadow-md">
                 <div className="flex items-center justify-between">
                   <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">{PROJECT_TYPE_LABELS[listing.project_type] || listing.project_type}</span>
-                  <span className="text-xs text-neutral-400">📍 {formatDistance(listing.distance_km)}</span>
+                  <span className="text-xs text-neutral-500">📍 {formatDistance(listing.distance_km)}</span>
                 </div>
                 <h3 className="mt-2 text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">{listing.title}</h3>
                 {listing.location_city && <p className="mt-1 text-xs text-neutral-500">{listing.location_city}</p>}
@@ -491,7 +491,7 @@ function JobsTab(props: {
         <div className="py-12 text-center">
           <Briefcase className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No jobs found</p>
-          <p className="mt-1 text-xs text-neutral-400">Try adjusting your search or post a job.</p>
+          <p className="mt-1 text-xs text-neutral-500">Try adjusting your search or post a job.</p>
           <Link to="/marketplace/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
             <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
           </Link>
@@ -510,10 +510,10 @@ function JobsTab(props: {
                 {listing.description && <p className="mt-1 line-clamp-2 text-xs text-neutral-500">{listing.description}</p>}
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <span className="font-semibold text-brand-purple">{formatBudget(listing.budget_min, listing.budget_max, listing.currency)}</span>
-                  <span className="text-neutral-400">{timeAgo(listing.created_at)}</span>
+                  <span className="text-neutral-500">{timeAgo(listing.created_at)}</span>
                 </div>
                 {(listing.location_city || listing.location_state) && (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-neutral-400">
+                  <div className="mt-2 flex items-center gap-1 text-xs text-neutral-500">
                     <MapPin aria-hidden="true" className="h-3 w-3" />{listing.location_city && `${listing.location_city}, `}{listing.location_state}
                   </div>
                 )}
@@ -561,7 +561,7 @@ function ProductsTab(props: {
       {/* Search bar */}
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
@@ -576,7 +576,7 @@ function ProductsTab(props: {
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             'inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium',
-            props.showFilters ? 'border-brand-purple bg-brand-purple/5 text-brand-purple' : 'border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-400'
+            props.showFilters ? 'border-brand-purple bg-brand-purple/5 text-brand-purple' : 'border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -589,7 +589,7 @@ function ProductsTab(props: {
           onClick={() => props.setCategory('')}
           className={classNames(
             'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-            !props.category ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400'
+            !props.category ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500'
           )}
         >
           All
@@ -600,7 +600,7 @@ function ProductsTab(props: {
             onClick={() => props.setCategory(c.slug)}
             className={classNames(
               'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
-              props.category === c.slug ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400'
+              props.category === c.slug ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500'
             )}
           >
             {c.name}
@@ -619,7 +619,7 @@ function ProductsTab(props: {
             <option value="">All states</option>
             {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
-          <button onClick={() => { props.setCondition(''); props.setState(''); props.setCategory(''); props.setSearch(''); }} className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
+          <button onClick={() => { props.setCondition(''); props.setState(''); props.setCategory(''); props.setSearch(''); }} className="text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300">
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
         </div>
@@ -632,7 +632,7 @@ function ProductsTab(props: {
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No products found</p>
-          <p className="mt-1 text-xs text-neutral-400">Try adjusting your search or list a product for sale.</p>
+          <p className="mt-1 text-xs text-neutral-500">Try adjusting your search or list a product for sale.</p>
           <Link to="/marketplace/products/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
             <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
           </Link>
@@ -671,14 +671,14 @@ function ProductsTab(props: {
                   {/* Info */}
                   <div className="p-3">
                     <p className="truncate text-sm font-medium text-neutral-900 dark:text-white group-hover:text-brand-purple">{product.title}</p>
-                    <p className="mt-0.5 text-xs text-neutral-400">{product.category?.name || 'Other'}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500">{product.category?.name || 'Other'}</p>
                     <div className="mt-2 flex items-baseline gap-1">
                       <span className="text-sm font-bold text-brand-purple">{formatPrice(product.price, product.currency)}</span>
                       {product.compare_at_price && product.compare_at_price > product.price && (
-                        <span className="text-xs text-neutral-400 line-through">{formatPrice(product.compare_at_price, product.currency)}</span>
+                        <span className="text-xs text-neutral-500 line-through">{formatPrice(product.compare_at_price, product.currency)}</span>
                       )}
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-xs text-neutral-400">
+                    <div className="mt-1 flex items-center justify-between text-xs text-neutral-500">
                       <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
                       {product.location_city && <span className="inline-flex items-center gap-0.5"><MapPin aria-hidden="true" className="h-2.5 w-2.5" />{product.location_city}</span>}
                     </div>

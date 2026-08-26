@@ -39,7 +39,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             <button
               type="button"
               onClick={() => { closeOfferwall(); cancelUnlock(); }}
-              className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/10 dark:hover:text-white"
+              className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/10 dark:hover:text-white"
             >
               <X className="h-5 w-5" />
             </button>
@@ -58,7 +58,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
           {/* Footer */}
           <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-3 dark:border-white/5">
-            <p className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+            <p className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
               Checking for completion… This will close automatically when you earn your reward.
             </p>
@@ -116,7 +116,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                   {offerwallProviderName ? 'Opening offerwall…' : 'Playing ad…'}
                 </p>
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
                   {offerwallProviderName
                     ? 'Complete offers in the offerwall to earn your unlock.'
                     : 'Please keep this tab open while the ad plays.'}
@@ -159,7 +159,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               </a>
             )}
 
-            <p className="mt-4 text-center text-xs text-neutral-400 dark:text-neutral-500">
+            <p className="mt-4 text-center text-xs text-neutral-500 dark:text-neutral-500">
               Access resets automatically at midnight. One ad per day.
             </p>
           </div>

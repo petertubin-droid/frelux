@@ -260,7 +260,7 @@ export default function ProConnectRegister() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
+      <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500">
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Back to directory
       </Link>
@@ -268,7 +268,7 @@ export default function ProConnectRegister() {
       <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
         {existingProfile ? 'Edit Professional Profile' : 'Become a FRELUX Professional'}
       </h1>
-      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
         Join the FRELUX Pro Connect network and connect with customers who need your services.
       </p>
 
@@ -387,7 +387,7 @@ export default function ProConnectRegister() {
       {step === 2 && (
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Select Your Services</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">Choose all services you offer. You can update these anytime.</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-500">Choose all services you offer. You can update these anytime.</p>
           <div className="space-y-2">
             {filteredServices.map((s) => (
               <label key={s.id} className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 cursor-pointer hover:border-brand-purple/30 dark:border-white/10 dark:hover:border-brand-purple-lighter/30">
@@ -420,7 +420,7 @@ export default function ProConnectRegister() {
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Service Areas</h2>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">Select the locations where you provide services.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">Select the locations where you provide services.</p>
           </div>
 
           {states.map((state) => {
@@ -496,7 +496,7 @@ export default function ProConnectRegister() {
               <Phone aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Mobile Number Verification</h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               Verify your mobile number to unlock worker channels and increase trust.
             </p>
           </div>
@@ -561,7 +561,7 @@ export default function ProConnectRegister() {
                   <button
                     onClick={handleSendOTP}
                     disabled={otpSending || resendCooldown > 0}
-                    className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-neutral-400' : 'text-brand-purple hover:underline'}`}
+                    className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-neutral-500' : 'text-brand-purple hover:underline'}`}
                   >
                     {resendCooldown > 0
                       ? `Resend OTP in ${resendCooldown}s`
@@ -576,7 +576,7 @@ export default function ProConnectRegister() {
           <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
             <button
               onClick={() => setStep(5)}
-              className="text-sm text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+              className="text-sm text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
             >
               Skip for now →
             </button>
@@ -592,7 +592,7 @@ export default function ProConnectRegister() {
               <Shield aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-neutral-900 dark:text-white">NIN Verification (KYC)</h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               Enter your National Identification Number (NIN) to verify your identity. This is required to access Worker Channels.
             </p>
           </div>
@@ -616,7 +616,7 @@ export default function ProConnectRegister() {
                   maxLength={11}
                   className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-brand-navy"
                 />
-                <p className="mt-1.5 text-xs text-neutral-400">
+                <p className="mt-1.5 text-xs text-neutral-500">
                   Your NIN is stored securely and only visible to FRELUX administrators for verification.
                 </p>
               </div>
@@ -644,7 +644,7 @@ export default function ProConnectRegister() {
           <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
             <button
               onClick={() => setStep(6)}
-              className="text-sm text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+              className="text-sm text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
             >
               Skip for now →
             </button>
@@ -659,7 +659,7 @@ export default function ProConnectRegister() {
             <Check aria-hidden="true" className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Profile Created!</h2>
-          <p className="mt-2 text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 text-neutral-500 dark:text-neutral-500">
             Your professional profile is now live on FRELUX Pro Connect. Customers can find you in the directory.
           </p>
           {(otpVerified || ninSubmitted) && (
@@ -667,7 +667,7 @@ export default function ProConnectRegister() {
               {otpVerified && <p className="text-emerald-500">✓ Mobile number verified</p>}
               {ninSubmitted && <p className="text-amber-500">⏳ NIN submitted — pending admin verification</p>}
               {!ninSubmitted && (
-                <p className="text-neutral-500 dark:text-neutral-400">
+                <p className="text-neutral-500 dark:text-neutral-500">
                   Complete NIN verification to unlock Worker Channels (Tier 2 access).
                 </p>
               )}

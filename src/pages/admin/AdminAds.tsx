@@ -119,7 +119,7 @@ function ProvidersTab() {
   return (
     <>
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">{providers.length} providers configured · {providers.filter(p => p.is_active).length} active</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">{providers.length} providers configured · {providers.filter(p => p.is_active).length} active</p>
         <div className="flex flex-wrap gap-2">
           <AdminButton variant="secondary" onClick={exportConfig}><Download className="h-4 w-4" /> Export</AdminButton>
           <AdminButton variant="secondary" onClick={() => setShowImport(true)}><Upload className="h-4 w-4" /> Import</AdminButton>
@@ -139,7 +139,7 @@ function ProvidersTab() {
                   <div className="flex items-center gap-1.5">
                     <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{prov.name}</h3>
                   </div>
-                  <p className="text-[10px] text-neutral-400 capitalize">{prov.provider_type} · /{prov.slug}</p>
+                  <p className="text-[10px] text-neutral-500 capitalize">{prov.provider_type} · /{prov.slug}</p>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-1">
@@ -258,7 +258,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
 
           {/* Credential fields */}
           <div>
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Credentials</h3>
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Credentials</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               {schema.credential_fields.map((field) => (
                 <AdminField key={field.key} label={field.label}>
@@ -277,7 +277,7 @@ function ProviderForm({ initial, onClose, onSaved }: { initial: DbAdProvider | n
           {/* Setting fields */}
           {schema.setting_fields.length > 0 && (
             <div>
-              <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Settings</h3>
+              <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Settings</h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 {schema.setting_fields.map((field) => (
                   <AdminField key={field.key} label={field.label}>
@@ -344,7 +344,7 @@ function ImportModal({ onClose, onDone }: { onClose: () => void; onDone: () => v
 
   return (
     <AdminModal open onClose={onClose} title="Import Providers" maxWidth="max-w-xl">
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">Paste exported JSON. Existing providers with matching slugs will be updated.</p>
         <AdminTextarea className="mt-3 font-mono text-sm" rows={10} value={text} onChange={(e) => setText(e.target.value)} placeholder='[{"name":"...","slug":"..."}]' />
         {result && (
           <div className="mt-3 rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-neutral-800 p-3 text-sm dark:border-neutral-700">
@@ -406,7 +406,7 @@ function PlacementsTab() {
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">{placements.length} placements · {placements.filter(p => p.is_active).length} active</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-500">{placements.length} placements · {placements.filter(p => p.is_active).length} active</p>
         <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Placement</AdminButton>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -421,7 +421,7 @@ function PlacementsTab() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{pl.placement_name}</h3>
-                    <p className="text-[10px] text-neutral-400 dark:text-neutral-500">
+                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">
                       {PLACEMENT_TYPE_LABELS[pl.placement_type] ?? pl.placement_type} · /{pl.placement_key}
                     </p>
                   </div>
@@ -526,7 +526,7 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
 
           {/* Display rules */}
           <div>
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Display Rules</h3>
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Display Rules</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <AdminField label="Show on Mobile"><div className="pt-2"><Toggle checked={displayRules.mobile} onChange={(v) => setDisplayRules({ ...displayRules, mobile: v })} /></div></AdminField>
               <AdminField label="Show on Desktop"><div className="pt-2"><Toggle checked={displayRules.desktop} onChange={(v) => setDisplayRules({ ...displayRules, desktop: v })} /></div></AdminField>
@@ -537,9 +537,9 @@ function PlacementForm({ initial, providers, onClose, onSaved }: { initial: DbAd
 
           {/* Provider assignment + ad unit IDs */}
           <div>
-            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Provider Fallback Chain</h3>
-            <p className="mb-2 text-xs text-neutral-400 dark:text-neutral-500">Select providers in order of priority. The first provider with a configured ad unit ID will be used; if it fails, the next provider is tried.</p>
-            {activeProviders.length === 0 && <p className="text-sm text-neutral-400 dark:text-neutral-500">No active providers. Enable providers in the Providers tab first.</p>}
+            <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Provider Fallback Chain</h3>
+            <p className="mb-2 text-xs text-neutral-500 dark:text-neutral-500">Select providers in order of priority. The first provider with a configured ad unit ID will be used; if it fails, the next provider is tried.</p>
+            {activeProviders.length === 0 && <p className="text-sm text-neutral-500 dark:text-neutral-500">No active providers. Enable providers in the Providers tab first.</p>}
             <div className="space-y-2">
               {activeProviders.map((prov) => {
                 const isSelected = providerIds.includes(prov.id);
@@ -638,7 +638,7 @@ function AnalyticsTab() {
   return (
     <>
       <div className="mb-4 flex items-center gap-3">
-        <span className="text-sm text-neutral-500 dark:text-neutral-400">Time range:</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-500">Time range:</span>
         {[7, 30, 90].map((d) => (
           <AdminButton key={d} type="button" onClick={() => setDays(d)} className={classNames('rounded-md px-3 py-1 text-sm font-semibold', days === d ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800')}>{d} days</AdminButton>
         ))}
@@ -655,7 +655,7 @@ function AnalyticsTab() {
           { label: 'Est. Revenue', value: `$${totalRevenue.toFixed(2)}` },
         ].map((stat) => (
           <AdminCard key={stat.label} className="p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{stat.label}</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">{stat.label}</p>
             <p className="mt-1 text-xl font-bold text-brand-navy dark:text-white">{stat.value}</p>
           </AdminCard>
         ))}
@@ -667,12 +667,12 @@ function AnalyticsTab() {
         <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {events.map((ev) => (
             <div key={ev.event_type} className="rounded-lg border border-neutral-200 p-3 dark:border-neutral-700">
-              <p className="text-xs font-semibold capitalize text-neutral-500 dark:text-neutral-400">{ev.event_type}</p>
+              <p className="text-xs font-semibold capitalize text-neutral-500 dark:text-neutral-500">{ev.event_type}</p>
               <p className="mt-1 text-lg font-bold text-brand-navy dark:text-white">{ev.count.toLocaleString()}</p>
               {ev.revenue > 0 && <p className="text-xs text-accent-green">${ev.revenue.toFixed(2)}</p>}
             </div>
           ))}
-          {events.length === 0 && <p className="text-sm text-neutral-400 dark:text-neutral-500">No events recorded yet.</p>}
+          {events.length === 0 && <p className="text-sm text-neutral-500 dark:text-neutral-500">No events recorded yet.</p>}
         </div>
       </AdminCard>
 
@@ -680,7 +680,7 @@ function AnalyticsTab() {
       <AdminCard className="p-5">
         <h2 className="text-sm font-bold text-brand-navy dark:text-white">Provider Performance</h2>
         {providerStats.length === 0 ? (
-          <p className="mt-3 text-sm text-neutral-400 dark:text-neutral-500">No provider analytics yet. Events will appear here once ads start serving.</p>
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">No provider analytics yet. Events will appear here once ads start serving.</p>
         ) : (
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-sm">
@@ -696,7 +696,7 @@ function AnalyticsTab() {
                 {providerStats.map((stat, i) => (
                   <tr key={i} className="border-b border-neutral-100 dark:border-neutral-800">
                     <td className="py-2 pr-4 font-medium text-brand-navy dark:text-white">{stat.provider_name}</td>
-                    <td className="py-2 pr-4 capitalize text-neutral-500 dark:text-neutral-400">{stat.event_type}</td>
+                    <td className="py-2 pr-4 capitalize text-neutral-500 dark:text-neutral-500">{stat.event_type}</td>
                     <td className="py-2 pr-4 text-right font-semibold">{stat.count.toLocaleString()}</td>
                     <td className="py-2 text-right text-accent-green">${stat.revenue.toFixed(2)}</td>
                   </tr>

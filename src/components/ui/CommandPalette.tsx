@@ -293,7 +293,7 @@ export function CommandPalette({
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/10 dark:bg-brand-navy-mid animate-fade-in-up">
         {/* Search input */}
         <div className="flex items-center gap-3 border-b border-neutral-100 px-4 py-3 dark:border-white/5">
-          <Search aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+          <Search aria-hidden="true" className="h-5 w-5 text-neutral-500" />
           <input
             ref={inputRef}
             type="text"
@@ -303,9 +303,9 @@ export function CommandPalette({
               setSelectedIndex(0);
             }}
             placeholder="Search calculators, colors, tools..."
-            className="flex-1 bg-transparent text-sm text-neutral-700 placeholder:text-neutral-400 focus:outline-none dark:text-neutral-200"
+            className="flex-1 bg-transparent text-sm text-neutral-700 placeholder:text-neutral-500 focus:outline-none dark:text-neutral-200"
           />
-          <kbd className="hidden rounded-md border border-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 sm:inline-block dark:border-white/10">
+          <kbd className="hidden rounded-md border border-neutral-200 px-1.5 py-0.5 text-[10px] font-medium text-neutral-500 sm:inline-block dark:border-white/10">
             ESC
           </kbd>
         </div>
@@ -314,7 +314,7 @@ export function CommandPalette({
         <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2">
           {filtered.recent.length > 0 && (
             <div className="mb-2">
-              <p className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+              <p className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                 <Clock aria-hidden="true" className="h-3 w-3" /> Recent
               </p>
               {filtered.recent.map((item, i) => (
@@ -335,7 +335,7 @@ export function CommandPalette({
           {filtered.all.length > 0 ? (
             <div>
               {filtered.recent.length > 0 && (
-                <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
+                <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                   All
                 </p>
               )}
@@ -354,7 +354,7 @@ export function CommandPalette({
             </div>
           ) : (
             <div className="py-8 text-center">
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-neutral-500">
                 No results for "{query}"
               </p>
             </div>
@@ -363,7 +363,7 @@ export function CommandPalette({
 
         {/* Footer */}
         <div className="flex items-center justify-between border-t border-neutral-100 px-4 py-2 dark:border-white/5">
-          <div className="flex items-center gap-3 text-[11px] text-neutral-400">
+          <div className="flex items-center gap-3 text-[11px] text-neutral-500">
             <span className="flex items-center gap-1">
               <kbd className="rounded border border-neutral-200 px-1 text-[10px] dark:border-white/10">
                 ↑↓
@@ -419,7 +419,7 @@ function CommandRow({
           "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
           index === selectedIndex
             ? "bg-brand-purple text-white"
-            : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+            : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
         )}
       >
         <item.icon className="h-4 w-4" />
@@ -428,7 +428,7 @@ function CommandRow({
         <p className="truncate text-sm font-semibold text-neutral-700 dark:text-neutral-200">
           {item.label}
         </p>
-        <p className="truncate text-xs text-neutral-400">{item.description}</p>
+        <p className="truncate text-xs text-neutral-500">{item.description}</p>
       </div>
       {index === selectedIndex && (
         <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-brand-purple" />

@@ -88,7 +88,7 @@ export default function LegalLayout({
       </section>
 
       {loading ? (
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400 dark:text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500 dark:text-neutral-500">
           <Loader2 className="h-5 w-5 animate-spin" /> Loading…
         </div>
       ) : published ? (
@@ -112,7 +112,7 @@ export default function LegalLayout({
             {/* Sticky Table of Contents */}
             <aside className="hidden lg:block">
               <nav className="sticky top-24 space-y-1">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
                   Contents
                 </p>
                 {sections.map((s) => (
@@ -130,8 +130,8 @@ export default function LegalLayout({
                   </a>
                 ))}
                 <div className="mt-4 flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2.5 dark:border-white/5 dark:bg-white/5">
-                  <ScrollText className="h-3.5 w-3.5 text-neutral-400" />
-                  <span className="text-xs text-neutral-400 dark:text-neutral-500">{siteConfig.name}</span>
+                  <ScrollText className="h-3.5 w-3.5 text-neutral-500" />
+                  <span className="text-xs text-neutral-500 dark:text-neutral-500">{siteConfig.name}</span>
                 </div>
               </nav>
             </aside>
@@ -169,7 +169,7 @@ export default function LegalLayout({
 
               {/* Footer note */}
               <div className="mt-8 rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-white/5 dark:bg-white/5">
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
                   {siteConfig.name} · This document is provided for informational purposes. For questions about this policy,{' '}
                   <Link to="/contact" className="font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter">contact us</Link>.
                 </p>

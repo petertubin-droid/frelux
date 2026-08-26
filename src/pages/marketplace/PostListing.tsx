@@ -130,7 +130,7 @@ export default function PostListing() {
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
         </button>
@@ -138,7 +138,7 @@ export default function PostListing() {
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
           Post a Job
         </h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
           Describe your project and get bids from verified professionals.
         </p>
 
@@ -329,7 +329,7 @@ export default function PostListing() {
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link
               to="/calculators"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
             >
               <Calculator aria-hidden="true" className="h-4 w-4" /> Run a calculator first for
               accurate scope

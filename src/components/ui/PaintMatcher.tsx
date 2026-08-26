@@ -98,7 +98,7 @@ const mountedRef = useRef(true);
               <Camera className="h-7 w-7" />
             </div>
             <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">Take or upload a photo</p>
-            <p className="mt-1 text-xs text-neutral-400">JPG, PNG, or WebP, drag & drop or tap</p>
+            <p className="mt-1 text-xs text-neutral-500">JPG, PNG, or WebP, drag & drop or tap</p>
             <input
               ref={fileRef}
               type="file"
@@ -149,17 +149,17 @@ const mountedRef = useRef(true);
                   style={{ backgroundColor: extractedHex }}
                 />
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400">Detected color</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">Detected color</p>
                   <p className="text-sm font-bold text-brand-navy dark:text-white">{extractedHex}</p>
                 </div>
               </div>
-              <button type="button" onClick={reset} className="ml-auto rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+              <button type="button" onClick={reset} className="ml-auto rounded-lg p-2 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800">
                 <X aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
 
             {/* Match results */}
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-400">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-neutral-500">
               Closest paint colors ({matches.length})
             </p>
             <div className="space-y-2">
@@ -178,7 +178,7 @@ const mountedRef = useRef(true);
                   />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-brand-navy dark:text-white">{match.color.name}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {match.color.hex_code.toUpperCase()} · {match.similarity}% match
                     </p>
                   </div>

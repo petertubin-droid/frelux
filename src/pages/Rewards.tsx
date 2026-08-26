@@ -106,14 +106,14 @@ export default function Rewards() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
+      <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500">
         <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
       </Link>
 
       {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">FRELUX Rewards</h1>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
           Earn credits, complete missions, and unlock premium features.
         </p>
       </div>
@@ -149,7 +149,7 @@ export default function Rewards() {
               <p className="text-xs font-medium text-neutral-500">Activity Streak</p>
               <p className="text-3xl font-bold text-brand-navy dark:text-white">
                 {loading ? <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" /> : streak?.current_streak ?? 0}
-                <span className="ml-1 text-base font-normal text-neutral-400">day{(streak?.current_streak ?? 0) === 1 ? '' : 's'}</span>
+                <span className="ml-1 text-base font-normal text-neutral-500">day{(streak?.current_streak ?? 0) === 1 ? '' : 's'}</span>
               </p>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default function Rewards() {
               'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors',
               activeTab === tab.key
                 ? 'border-brand-purple text-brand-purple'
-                : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
+                : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-500'
             )}
           >
             <tab.icon className="h-4 w-4" />
@@ -210,7 +210,7 @@ export default function Rewards() {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <h3 className="text-base font-bold text-brand-navy dark:text-white">{reward.name}</h3>
-                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{reward.description}</p>
+                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{reward.description}</p>
                   </div>
                   <div className="flex items-center gap-1 rounded-lg bg-brand-purple/10 px-2.5 py-1.5">
                     <Gem className="h-3.5 w-3.5 text-brand-purple" />
@@ -302,10 +302,10 @@ function WeeklyMissionCard({ mission, progress }: { mission: WeeklyMission; prog
               )}>
                 {done ? <CheckCircle2 className="h-4 w-4" /> : <span className="text-xs font-bold">{current}</span>}
               </div>
-              <span className={classNames('flex-1 text-sm', done ? 'text-neutral-400 line-through' : 'text-neutral-700 dark:text-neutral-300')}>
+              <span className={classNames('flex-1 text-sm', done ? 'text-neutral-500 line-through' : 'text-neutral-700 dark:text-neutral-300')}>
                 {task.label}
               </span>
-              <span className="text-xs text-neutral-400">{current}/{task.target}</span>
+              <span className="text-xs text-neutral-500">{current}/{task.target}</span>
             </div>
           );
         })}
@@ -342,7 +342,7 @@ function TransactionHistory({ transactions }: { transactions: CreditTransaction[
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">{tx.reason}</p>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-500">
                 {new Date(tx.created_at).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
             </div>
@@ -350,7 +350,7 @@ function TransactionHistory({ transactions }: { transactions: CreditTransaction[
               <p className={classNames('text-sm font-bold', tx.amount > 0 ? 'text-emerald-600' : 'text-rose-500')}>
                 {tx.amount > 0 ? '+' : ''}{tx.amount}
               </p>
-              <p className="text-[10px] text-neutral-400">Bal: {tx.balance_after}</p>
+              <p className="text-[10px] text-neutral-500">Bal: {tx.balance_after}</p>
             </div>
           </div>
         ))}

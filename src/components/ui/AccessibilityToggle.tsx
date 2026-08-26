@@ -112,7 +112,7 @@ export function AccessibilityToggle({ compact = false, inline = false }: { compa
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[220px] rounded-xl border border-neutral-200/40 bg-white/95 py-1.5 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-brand-navy-mid/95">
-          <p className="px-4 py-1 text-xs font-semibold uppercase tracking-widest text-neutral-400">Accessibility</p>
+          <p className="px-4 py-1 text-xs font-semibold uppercase tracking-widest text-neutral-500">Accessibility</p>
 
           <button
             type="button"
@@ -154,7 +154,7 @@ export function AccessibilityToggle({ compact = false, inline = false }: { compa
           </button>
 
           <div className="mt-1 border-t border-neutral-100 px-4 py-2 dark:border-white/5">
-            <p className="text-xs text-neutral-400">Settings saved to your device.</p>
+            <p className="text-xs text-neutral-500">Settings saved to your device.</p>
           </div>
         </div>
       )}

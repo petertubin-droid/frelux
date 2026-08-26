@@ -500,7 +500,7 @@ export default function AdminTyroleneConfig() {
               </AdminField>
             </div>
             {partitionWidth && partitionHeight && !isNaN(parseFloat(partitionWidth)) && !isNaN(parseFloat(partitionHeight)) && (
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-neutral-500">
                 Standard partition area: {(parseFloat(partitionWidth) * parseFloat(partitionHeight)).toFixed(2)}m²
               </p>
             )}
@@ -522,7 +522,7 @@ export default function AdminTyroleneConfig() {
                 <p className="text-sm text-neutral-500">
                   FRELUX verified material ratio. For every {partitionsPerRatio} standard partitions:
                 </p>
-                <p className="text-xs text-neutral-400 mt-1">
+                <p className="text-xs text-neutral-500 mt-1">
                   Changes apply only to new estimates. Historical estimates retain the ratio used at the time of calculation.
                 </p>
               </div>
@@ -552,7 +552,7 @@ export default function AdminTyroleneConfig() {
                     }}
                     className="w-24 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                   />
-                  <span className="text-sm text-neutral-400">{entry.unit}</span>
+                  <span className="text-sm text-neutral-500">{entry.unit}</span>
                 </div>
               ))}
             </div>
@@ -583,10 +583,10 @@ export default function AdminTyroleneConfig() {
                   <div key={mat.id} className="flex items-center gap-2 rounded-lg border border-neutral-200 p-2.5">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-neutral-900">{mat.name}</p>
-                      <p className="text-xs text-neutral-400">{mat.slug} · {mat.category}</p>
+                      <p className="text-xs text-neutral-500">{mat.slug} · {mat.category}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-neutral-400">₦</span>
+                      <span className="text-sm text-neutral-500">₦</span>
                       <AdminInput
  type="number"
  min="0"
@@ -643,7 +643,7 @@ export default function AdminTyroleneConfig() {
                   placeholder="Not configured"
                   className="w-40 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
                 />
-                <span className="text-sm text-neutral-400">partitions</span>
+                <span className="text-sm text-neutral-500">partitions</span>
                 <AdminButton
                   onClick={saveProductionMin}
                   disabled={saving}

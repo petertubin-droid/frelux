@@ -232,7 +232,7 @@ export default function ProjectTimeline() {
                       <p className="text-sm font-medium text-neutral-900">
                         Day {m.after_days}
                       </p>
-                      <p className="text-xs text-neutral-400">
+                      <p className="text-xs text-neutral-500">
                         ≈ {Math.ceil(m.after_days / 6)} weeks
                       </p>
                     </div>
@@ -263,7 +263,7 @@ export default function ProjectTimeline() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-neutral-400">
+                        <span className="text-xs text-neutral-500">
                           {s.min_days}-{s.max_days} days
                         </span>
                         <span className="rounded bg-brand-purple/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
@@ -278,7 +278,7 @@ export default function ProjectTimeline() {
                       {s.activities.map((a, j) => (
                         <span
                           key={j}
-                          className="text-xs text-neutral-400 bg-neutral-50 rounded px-2 py-0.5"
+                          className="text-xs text-neutral-500 bg-neutral-50 rounded px-2 py-0.5"
                         >
                           {a}
                         </span>
@@ -330,7 +330,7 @@ export default function ProjectTimeline() {
               </p>
               <div className="space-y-1">
                 {result.assumptions.map((a, i) => (
-                  <p key={i} className="text-xs text-neutral-400">
+                  <p key={i} className="text-xs text-neutral-500">
                     • {a}
                   </p>
                 ))}

@@ -13,9 +13,9 @@ const STATUS_COLORS: Record<string, string> = {
   open: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
   awarded: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
   in_progress: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
-  completed: 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400',
+  completed: 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500',
   cancelled: 'bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400',
-  expired: 'bg-neutral-100 text-neutral-400',
+  expired: 'bg-neutral-100 text-neutral-500',
 };
 
 export default function MyListings() {
@@ -63,7 +63,7 @@ export default function MyListings() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">My Listings</h1>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               {listings.length} {listings.length === 1 ? 'listing' : 'listings'} total
             </p>
           </div>
@@ -77,7 +77,7 @@ export default function MyListings() {
 
         {listings.length === 0 ? (
           <div className="mt-8 flex flex-col items-center justify-center rounded-xl border border-neutral-200 bg-white p-12 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">You haven't posted any jobs yet.</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">You haven't posted any jobs yet.</p>
             <Link
               to="/marketplace/post"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
@@ -117,14 +117,14 @@ export default function MyListings() {
                       {listing.title}
                     </Link>
                     {listing.location_state && (
-                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
+                      <p className="mt-1 inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
                         <MapPin aria-hidden="true" className="h-3 w-3" />
                         {[listing.location_city, listing.location_state].filter(Boolean).join(', ')}
                       </p>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
+                  <div className="flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-500">
                     <span className="inline-flex items-center gap-1"><Users aria-hidden="true" className="h-3 w-3" /> {listing.bid_count}</span>
                     <span className="inline-flex items-center gap-1"><Eye aria-hidden="true" className="h-3 w-3" /> {listing.view_count}</span>
                   </div>
@@ -132,7 +132,7 @@ export default function MyListings() {
 
                 {/* Actions */}
                 <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-white/5">
-                  <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                  <span className="text-xs text-neutral-500 dark:text-neutral-500">
                     {new Date(listing.created_at).toLocaleDateString()}
                   </span>
                   <div className="flex gap-2">

@@ -137,7 +137,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Tool" title="Screeding Cost Estimator" subtitle="Estimate material and labour costs for your wall screeding project." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Screeding Cost Estimator' }] } />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading configuration…
         </div>
       </>
@@ -191,7 +191,7 @@ const mountedRef = useRef(true);
                   />
                 </Field>
                 {passed.method && (
-                  <p className="mt-3 text-xs text-neutral-400">
+                  <p className="mt-3 text-xs text-neutral-500">
                     From calculator: {passed.method === 'full_room' ? 'Full room' : 'Individual wall'} method
                   </p>
                 )}
@@ -201,19 +201,19 @@ const mountedRef = useRef(true);
                 <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="block text-neutral-400">Paint coverage</span>
+                      <span className="block text-neutral-500">Paint coverage</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{config.paintCoverageRateM2PerL} m²/L</span>
                     </div>
                     <div>
-                      <span className="block text-neutral-400">Cement ratio</span>
+                      <span className="block text-neutral-500">Cement ratio</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{config.cementConsumptionRatioKgPerL} kg/L</span>
                     </div>
                     <div>
-                      <span className="block text-neutral-400">Default mix</span>
+                      <span className="block text-neutral-500">Default mix</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{config.defaultMixRatio}</span>
                     </div>
                     <div>
-                      <span className="block text-neutral-400">Suggested labour rate</span>
+                      <span className="block text-neutral-500">Suggested labour rate</span>
                       <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.labourRatePerSqm, currencySymbol)}/m²</span>
                     </div>
                   </div>
@@ -223,11 +223,11 @@ const mountedRef = useRef(true);
               <Section title="Pricing">
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                    <span className="block text-neutral-400">Screeding Paint (20L bucket)</span>
+                    <span className="block text-neutral-500">Screeding Paint (20L bucket)</span>
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.paintPricePerBucket, currencySymbol)}</span>
                   </div>
                   <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                    <span className="block text-neutral-400">White Cement (40kg bag)</span>
+                    <span className="block text-neutral-500">White Cement (40kg bag)</span>
                     <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(config.cementPricePerBag, currencySymbol)}</span>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ const mountedRef = useRef(true);
                     <>
                       {/* Screeding Paint */}
                       <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">Screeding Paint (20L Buckets)</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">Screeding Paint (20L Buckets)</p>
                         <div className="mt-2 space-y-1 text-sm">
                           <Row label="Quantity required" value={`${formatNumber(result.paintRequiredLiters, 1)} L`} />
                           <Row label="Buckets needed" value={`${result.paintBucketsNeeded} × ${config.paintBucketSizeL}L`} />
@@ -271,7 +271,7 @@ const mountedRef = useRef(true);
 
                       {/* White Cement */}
                       <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-400">White Cement (40kg Bags)</p>
+                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">White Cement (40kg Bags)</p>
                         <div className="mt-2 space-y-1 text-sm">
                           <Row label="Quantity required" value={`${formatNumber(result.cementRequiredKg, 1)} kg`} />
                           <Row label="Bags needed" value={`${result.cementBagsNeeded} × ${config.cementBagSizeKg}kg`} />
@@ -336,7 +336,7 @@ const mountedRef = useRef(true);
                       </div>
                     </>
                   ) : (
-                    <p className="text-xs text-neutral-400">Enter the screeding area to see your estimate.</p>
+                    <p className="text-xs text-neutral-500">Enter the screeding area to see your estimate.</p>
                   )}
                 </div>
                 {result && (
@@ -420,7 +420,7 @@ function Section({ title, children, last }: { title: string; children: ReactNode
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
       <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
@@ -430,7 +430,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="mt-1.5">{children}</div>
     </label>
   );

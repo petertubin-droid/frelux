@@ -82,7 +82,7 @@ export default function AdminMarkets() {
               "flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400",
+                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -193,7 +193,7 @@ function ProfilesTab() {
                 <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                   {p.country_name}
                 </h3>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {p.country_code} · {p.region}
                 </p>
               </div>
@@ -204,14 +204,14 @@ function ProfilesTab() {
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                     : p.status === "coming_soon"
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
                 )}
               >
                 {MARKET_STATUS_LABELS[p.status]}
               </span>
             </div>
 
-            <div className="mt-2 space-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="mt-2 space-y-1 text-xs text-neutral-500 dark:text-neutral-500">
               <p>
                 Currency: {p.currency_code} ({p.currency_symbol})
               </p>
@@ -242,7 +242,7 @@ function ProfilesTab() {
                       load();
                     }
                   }}
-                  className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-red-500"
+                  className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-red-500"
                 >
                   <Trash2 aria-hidden="true" className="h-3 w-3" /> Delete
                 </button>
@@ -452,7 +452,7 @@ function ProfileEditModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
           >
             Cancel
           </button>
@@ -520,7 +520,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
       </div>
 
       {rules.length === 0 ? (
-        <p className="text-sm text-neutral-400 py-10 text-center">
+        <p className="text-sm text-neutral-500 py-10 text-center">
           No material rules configured for this market yet.
           {marketCode === "NG" &&
             " (Nigeria uses existing calculator defaults — rules can override them)"}
@@ -543,7 +543,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                     {r.rule_key}
                   </span>
                   {r.rule_label && (
-                    <span className="text-xs text-neutral-400">
+                    <span className="text-xs text-neutral-500">
                       ({r.rule_label})
                     </span>
                   )}
@@ -552,7 +552,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   Version {r.rule_version} ·{" "}
                   {r.is_active ? "Active" : "Inactive"}
                 </p>
-                <pre className="mt-1 text-xs text-neutral-600 dark:text-neutral-400 overflow-x-auto">
+                <pre className="mt-1 text-xs text-neutral-600 dark:text-neutral-500 overflow-x-auto">
                   {JSON.stringify(r.rule_value, null, 2)}
                 </pre>
               </div>
@@ -561,7 +561,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   await deleteMaterialRule(r.id);
                   load();
                 }}
-                className="rounded-md p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
               >
                 <Trash2 aria-hidden="true" className="h-4 w-4" />
               </button>
@@ -703,7 +703,7 @@ function RuleEditModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
           >
             Cancel
           </button>
@@ -782,7 +782,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                 <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                   {CALCULATOR_TYPE_LABELS[calc]}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {config ? `v${config.config_version}` : "No config"}
                 </p>
               </div>

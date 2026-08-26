@@ -8,7 +8,7 @@ interface Crumb {
 
 export default function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-medium text-neutral-500 dark:text-neutral-500">
       <Link
         to="/"
         className="inline-flex items-center hover:text-brand-purple dark:hover:text-brand-purple-lighter transition-colors"

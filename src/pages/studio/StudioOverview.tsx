@@ -47,7 +47,7 @@ export default function StudioOverview() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-brand-navy dark:text-white">AI Developer Studio</h1>
-          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">AI assisted development environment for the FRELUX platform.</p>
+          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">AI assisted development environment for the FRELUX platform.</p>
         </div>
       </div>
 
@@ -56,7 +56,7 @@ export default function StudioOverview() {
         {stats.map((s) => (
           <div key={s.label} className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
             <p className="text-2xl font-bold text-brand-navy dark:text-white">{s.value}</p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">{s.label}</p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">{s.label}</p>
           </div>
         ))}
       </div>
@@ -87,7 +87,7 @@ export default function StudioOverview() {
                   'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
                 }`}>{e.severity.toUpperCase()}</span>
                 <span className="flex-1 truncate text-sm text-neutral-700 dark:text-neutral-300">{e.message}</span>
-                <span className="text-xs text-neutral-400">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : ''}</span>
+                <span className="text-xs text-neutral-500">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : ''}</span>
               </Link>
             ))}
           </div>
@@ -97,7 +97,7 @@ export default function StudioOverview() {
       {/* Tool grid by category */}
       {TOOL_CATEGORIES.map((cat) => (
         <div key={cat} className="mb-8">
-          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-400">{cat}</h2>
+          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500">{cat}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {TOOLS.filter((t) => t.category === cat).map((tool) => {
               const Icon = tool.icon;
@@ -114,7 +114,7 @@ export default function StudioOverview() {
                     <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
                   </div>
                   <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white">{tool.label}</h3>
-                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{tool.description}</p>
+                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{tool.description}</p>
                 </Link>
               );
             })}

@@ -92,7 +92,7 @@ export default function NearbyResults({
           {title || (mode === 'professionals' ? 'Professionals Near You' : mode === 'listings' ? 'Jobs Near You' : 'Near You')}
         </h3>
         {!userLocation && (
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
             Set your location to discover nearby {mode === 'professionals' ? 'professionals' : mode === 'listings' ? 'job listings' : 'professionals and listings'}.
           </p>
         )}
@@ -118,10 +118,10 @@ export default function NearbyResults({
           ) : !hasResults ? (
             <div className="py-8 text-center">
               <MapPin aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
                 No {mode === 'professionals' ? 'professionals' : mode === 'listings' ? 'listings' : 'results'} found within {radius} km of your location.
               </p>
-              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                 Try increasing the distance filter or check back later.
               </p>
             </div>
@@ -130,7 +130,7 @@ export default function NearbyResults({
               {/* Professionals */}
               {showPros && pros.length > 0 && (
                 <div className="space-y-2">
-                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Professionals ({pros.length})</p>}
+                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Professionals ({pros.length})</p>}
                   {pros.slice(0, compact ? 3 : 10).map((pro) => (
                     <Link
                       key={pro.id}
@@ -155,7 +155,7 @@ export default function NearbyResults({
                             <Shield aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                           {pro.rating_avg > 0 && (
                             <span className="inline-flex items-center gap-0.5">
                               <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
@@ -178,7 +178,7 @@ export default function NearbyResults({
               {/* Listings */}
               {showListings && listings.length > 0 && (
                 <div className="space-y-2">
-                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Job Listings ({listings.length})</p>}
+                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Job Listings ({listings.length})</p>}
                   {listings.slice(0, compact ? 3 : 10).map((listing) => (
                     <Link
                       key={listing.id}
@@ -190,7 +190,7 @@ export default function NearbyResults({
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{listing.title}</p>
-                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                           <span className="capitalize">{listing.project_type.replace('_', ' ')}</span>
                           {listing.location_city && <span>· {listing.location_city}</span>}
                           <span className="inline-flex items-center gap-0.5">

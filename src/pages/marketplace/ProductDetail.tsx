@@ -181,7 +181,7 @@ export default function ProductDetail() {
           <div className="mt-3 flex items-baseline gap-2">
             <span className="text-2xl font-bold text-brand-purple">{formatPrice(product.price, product.currency)}</span>
             {product.compare_at_price && product.compare_at_price > product.price && (
-              <span className="text-sm text-neutral-400 line-through">{formatPrice(product.compare_at_price, product.currency)}</span>
+              <span className="text-sm text-neutral-500 line-through">{formatPrice(product.compare_at_price, product.currency)}</span>
             )}
             {product.negotiable && (
               <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5">Negotiable</span>
@@ -191,21 +191,21 @@ export default function ProductDetail() {
           {/* Quick specs */}
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-400">Condition</p>
+              <p className="text-xs text-neutral-500">Condition</p>
               <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">{PRODUCT_CONDITION_LABELS[product.condition]}</p>
             </div>
             <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-400">Quantity</p>
+              <p className="text-xs text-neutral-500">Quantity</p>
               <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">{product.quantity} {product.unit || 'available'}</p>
             </div>
             {product.brand && (
               <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-                <p className="text-xs text-neutral-400">Brand</p>
+                <p className="text-xs text-neutral-500">Brand</p>
                 <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">{product.brand}</p>
               </div>
             )}
             <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-400">Category</p>
+              <p className="text-xs text-neutral-500">Category</p>
               <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">{category?.name || 'Other'}</p>
             </div>
           </div>
@@ -266,7 +266,7 @@ export default function ProductDetail() {
               <div>
                 <p className="text-sm font-medium text-neutral-900 dark:text-white">{product.seller.full_name}</p>
                 {product.seller.marketplace_id && (
-                  <p className="text-xs text-neutral-400">@{product.seller.marketplace_id}</p>
+                  <p className="text-xs text-neutral-500">@{product.seller.marketplace_id}</p>
                 )}
               </div>
             </div>
@@ -341,7 +341,7 @@ export default function ProductDetail() {
           )}
 
           {/* Stats */}
-          <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
+          <div className="mt-3 flex items-center gap-3 text-xs text-neutral-500">
             <span className="inline-flex items-center gap-1"><Eye aria-hidden="true" className="h-3 w-3" /> {product.view_count} views</span>
             <span>·</span>
             <span>Posted {new Date(product.created_at).toLocaleDateString()}</span>

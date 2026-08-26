@@ -81,7 +81,7 @@ export default function AdminMaterialCatalog() {
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <AdminInput
  type="text"
  placeholder="Search materials..."
@@ -108,7 +108,7 @@ export default function AdminMaterialCatalog() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500 dark:text-neutral-400">
+              <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-500 dark:text-neutral-500">
                 <th className="py-2 pr-4">Name</th>
                 <th className="py-2 pr-4">Category</th>
                 <th className="py-2 pr-4">Brand</th>

@@ -447,8 +447,8 @@ const mountedRef = useRef(true);
                         <tr key={i} className="border-b border-neutral-100 last:border-0">
                           <td className="py-3">
                             <span className="font-medium text-neutral-900">{mat.name}</span>
-                            {mat.isBase && <span className="ml-2 text-xs text-neutral-400">Base</span>}
-                            {mat.isFinishing && <span className="ml-2 text-xs text-neutral-400">Finishing</span>}
+                            {mat.isBase && <span className="ml-2 text-xs text-neutral-500">Base</span>}
+                            {mat.isFinishing && <span className="ml-2 text-xs text-neutral-500">Finishing</span>}
                           </td>
                           <td className="py-3 text-right text-neutral-600">
                             {formatNumber(mat.quantityWithWaste)} {mat.coverageUnit}

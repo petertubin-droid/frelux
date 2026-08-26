@@ -142,7 +142,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Estimate" title="POP Ceiling Cost Estimator" subtitle="Estimate material costs for your POP ceiling project. Labour not included." breadcrumbs={[{ label: 'Cost Estimators', path: '/paint-calculator?mode=cost' }, { label: 'POP Ceiling Cost Estimator' }]} />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -285,7 +285,7 @@ const mountedRef = useRef(true);
                     </div>
                   </>
                 ) : (
-                  <p className="text-xs text-neutral-400">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>
+                  <p className="text-xs text-neutral-500">Enter dimensions and click Generate Estimate to see your cost breakdown.</p>
                 )}
               </div>
               {result && (
@@ -339,10 +339,10 @@ function Field({ label, hint, suffix, children }: { label: string; hint?: string
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="relative mt-1.5">
         {children}
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">{suffix}</span>}
+        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">{suffix}</span>}
       </div>
     </label>
   );
@@ -351,7 +351,7 @@ function Field({ label, hint, suffix, children }: { label: string; hint?: string
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
       <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );
@@ -367,7 +367,7 @@ function ToggleRow({ checked, onChange, label, hint }: { checked: boolean; onCha
       </button>
       <div>
         <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</p>
-        {hint && <p className="text-xs text-neutral-400">{hint}</p>}
+        {hint && <p className="text-xs text-neutral-500">{hint}</p>}
       </div>
     </div>
   );

@@ -214,7 +214,7 @@ export default function ListingDetail() {
         {/* Back */}
         <button
           onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
         </button>
@@ -232,7 +232,7 @@ export default function ListingDetail() {
                     "rounded-md px-2 py-1 text-xs font-semibold",
                     isOpen
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
                   )}
                 >
                   {LISTING_STATUS_LABELS[listing.status]}
@@ -271,14 +271,14 @@ export default function ListingDetail() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
                   Posted by
                 </p>
                 <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                   {listing.client.full_name || "Anonymous"}
                 </p>
                 {listing.client.marketplace_id && (
-                  <p className="text-[10px] tracking-wider text-neutral-400">
+                  <p className="text-[10px] tracking-wider text-neutral-500">
                     {listing.client.marketplace_id}
                   </p>
                 )}
@@ -289,7 +289,7 @@ export default function ListingDetail() {
           {/* Meta grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
                 Budget
               </p>
               <p className="text-sm font-bold text-brand-navy dark:text-white">
@@ -302,7 +302,7 @@ export default function ListingDetail() {
             </div>
             {listing.location_state && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                <p className="text-[10px] uppercase tracking-wider text-neutral-500">
                   Location
                 </p>
                 <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
@@ -314,7 +314,7 @@ export default function ListingDetail() {
               </div>
             )}
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
                 Bids
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
@@ -322,7 +322,7 @@ export default function ListingDetail() {
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
                 Views
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
@@ -335,7 +335,7 @@ export default function ListingDetail() {
           {listing.scope_summary &&
             Object.keys(listing.scope_summary).length > 0 && (
               <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-neutral-400">
+                <p className="text-[10px] uppercase tracking-wider text-neutral-500">
                   Project Scope
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -396,7 +396,7 @@ export default function ListingDetail() {
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                     Your Price (₦)
                   </label>
                   <input
@@ -408,7 +408,7 @@ export default function ListingDetail() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                     Timeline (days)
                   </label>
                   <input
@@ -421,7 +421,7 @@ export default function ListingDetail() {
                 </div>
               </div>
               <div className="mt-3">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                   Cover Message
                 </label>
                 <textarea
@@ -460,7 +460,7 @@ export default function ListingDetail() {
           {bids.length === 0 ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
               <Users aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
                 No bids yet. Be the first to bid!
               </p>
             </div>
@@ -507,7 +507,7 @@ export default function ListingDetail() {
                           )}
                         </div>
                         {bid.pro_profile && (
-                          <div className="flex items-center gap-3 text-xs text-neutral-400 dark:text-neutral-500">
+                          <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-500">
                             {bid.pro_profile.rating_avg > 0 && (
                               <span className="inline-flex items-center gap-0.5">
                                 <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
@@ -530,7 +530,7 @@ export default function ListingDetail() {
                         ₦{bid.proposed_price.toLocaleString()}
                       </p>
                       {bid.proposed_timeline_days && (
-                        <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500">
                           <Calendar aria-hidden="true" className="mr-0.5 inline h-3 w-3" />{" "}
                           {bid.proposed_timeline_days} days
                         </p>
@@ -552,15 +552,15 @@ export default function ListingDetail() {
                         <Check aria-hidden="true" className="h-4 w-4" /> Accepted
                       </span>
                     ) : bid.status === "rejected" ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-400">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-500">
                         <X aria-hidden="true" className="h-4 w-4" /> Rejected
                       </span>
                     ) : bid.status === "withdrawn" ? (
-                      <span className="text-xs font-semibold text-neutral-400">
+                      <span className="text-xs font-semibold text-neutral-500">
                         Withdrawn
                       </span>
                     ) : (
-                      <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
                         Pending ·{" "}
                         {new Date(bid.created_at).toLocaleDateString()}
                       </span>

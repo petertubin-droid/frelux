@@ -72,7 +72,7 @@ export default function Templates() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+        <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
           <Link to="/" className="hover:text-brand-purple dark:hover:text-brand-purple-lighter">Home</Link>
           <ChevronRight className="h-3 w-3" />
           <span>Templates</span>
@@ -80,7 +80,7 @@ export default function Templates() {
         <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
           FRELUX Calculator Templates
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
           Professionally curated templates for common painting, tiling, screeding, and POP ceiling projects.
           Each template uses the FRELUX calculation engine with current prices and material rules.
         </p>
@@ -89,7 +89,7 @@ export default function Templates() {
       {/* Search + filters */}
       <div className="mb-6 space-y-3">
         <div className="relative">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
           <input
             type="text"
             value={search}
@@ -130,13 +130,13 @@ export default function Templates() {
         <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center dark:border-white/10 dark:bg-white/5">
           <BadgeCheck className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
           <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates found</p>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Try a different search or category filter.</p>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Try a different search or category filter.</p>
         </div>
       ) : (
         <div className="space-y-8">
           {featured.length > 0 && (
             <div>
-              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
                 <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                 Featured Templates
               </h2>
@@ -149,7 +149,7 @@ export default function Templates() {
           )}
           {rest.length > 0 && (
             <div>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
                 All Templates
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -204,7 +204,7 @@ function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
       </div>
       <h3 className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white">{template.name}</h3>
       {template.description && (
-        <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">{template.description}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">{template.description}</p>
       )}
       <div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
         View Template

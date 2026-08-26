@@ -187,7 +187,7 @@ export default function StartBuilding() {
           <h2 className="font-display text-xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-2xl">
             Finishing & Specialised Calculators
           </h2>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
             After your structure is built, estimate materials and costs for each finishing stage.
           </p>
         </div>
@@ -301,7 +301,7 @@ export default function StartBuilding() {
           <h3 className="mt-4 font-display text-lg font-bold text-neutral-900 dark:text-white">
             Not sure where to start?
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500 dark:text-neutral-500">
             Tell FRELUX what you're working on and we'll guide you to the right calculator.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
@@ -362,7 +362,7 @@ function CategoryCard({
       </Link>
 
       {/* Description */}
-      <p className="mt-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+      <p className="mt-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
         {description}
       </p>
 

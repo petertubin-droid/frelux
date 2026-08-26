@@ -207,9 +207,9 @@ export default function Colors() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h3 className="font-display text-sm font-bold text-neutral-900 dark:text-white">Color Family Distribution</h3>
-                    <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">Click a family to filter</p>
+                    <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">Click a family to filter</p>
                   </div>
-                  <span className="text-xs font-semibold text-neutral-400">{totalColors} colors</span>
+                  <span className="text-xs font-semibold text-neutral-500">{totalColors} colors</span>
                 </div>
                 {/* Bar chart */}
                 <div className="flex h-10 overflow-hidden rounded-xl border border-neutral-200/60">
@@ -255,7 +255,7 @@ export default function Colors() {
             {/* Search + filters */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-xs">
-                <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                 <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search colors…" className="input-field pl-9" />
               </div>
               <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="input-field sm:w-auto">
@@ -299,7 +299,7 @@ export default function Colors() {
               </FilterRow>
             </div>
 
-            <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">{totalColors} colors found</p>
+            <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-500">{totalColors} colors found</p>
 
             {/* Color grid — premium cards */}
             {colors.length > 0 ? (
@@ -332,7 +332,7 @@ export default function Colors() {
         {status === 'ready' && tab === 'palettes' && (
           <>
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
               <input type="search" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} placeholder="Search palettes…" className="input-field pl-9" />
             </div>
 
@@ -351,7 +351,7 @@ export default function Colors() {
                     </div>
                     <div className="p-6">
                       <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{c.description}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{c.description}</p>
                       <div className="mt-3 flex items-center gap-2">
                         <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">{c.style}</span>
                         {c.is_trending && <span className="rounded-full bg-accent-orange/15 px-2.5 py-1 text-[11px] font-semibold text-accent-orange">Trending</span>}
@@ -376,7 +376,7 @@ export default function Colors() {
           <PaintMatcher />
           <div className="flex flex-col justify-center rounded-lg border border-neutral-200 p-6 dark:border-neutral-700">
             <h3 className="text-lg font-bold text-brand-navy dark:text-white">Can't find your color?</h3>
-            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
               Take a photo of the painted wall and our AI Paint Matcher will scan it and find the closest paint color from our library of hundreds of professional colors.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
@@ -416,7 +416,7 @@ export default function Colors() {
 function FilterRow({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 sm:w-20">{label}</span>
+      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 sm:w-20">{label}</span>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );

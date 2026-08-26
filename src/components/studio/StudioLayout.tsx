@@ -61,13 +61,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-base font-bold text-brand-navy dark:text-white">AI Developer Studio</span>
         </Link>
-        <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">AI assisted development</p>
+        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">AI assisted development</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
         {TOOL_CATEGORIES.map((cat) => (
           <div key={cat} className="mb-4">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{cat}</p>
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{cat}</p>
             <div className="space-y-0.5">
               {TOOLS.filter((t) => t.category === cat).map((tool) => {
                 const Icon = tool.icon;

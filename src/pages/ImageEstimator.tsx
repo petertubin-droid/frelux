@@ -350,7 +350,7 @@ export default function ImageEstimator() {
                   <p className="text-sm text-neutral-600 mb-2">
                     Upload a photo of a building
                   </p>
-                  <p className="text-xs text-neutral-400 mb-6">
+                  <p className="text-xs text-neutral-500 mb-6">
                     JPG or PNG, max 10MB. The clearer the photo, the better the
                     estimate.
                   </p>
@@ -445,7 +445,7 @@ export default function ImageEstimator() {
               AI is detecting building type, dimensions, roof structure, and
               more.
             </p>
-            <div className="mt-4 space-y-2 text-xs text-neutral-400">
+            <div className="mt-4 space-y-2 text-xs text-neutral-500">
               <p>✓ Uploading image</p>
               <p>✓ AI vision analysis</p>
               <p>→ Generating estimate parameters</p>
@@ -639,7 +639,7 @@ export default function ImageEstimator() {
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Image quality</span>
+                      <span className="text-neutral-500">Image quality</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
@@ -650,7 +650,7 @@ export default function ImageEstimator() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Angle quality</span>
+                      <span className="text-neutral-500">Angle quality</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
@@ -661,7 +661,7 @@ export default function ImageEstimator() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Scale reference</span>
+                      <span className="text-neutral-500">Scale reference</span>
                       <span className="text-neutral-600">
                         {analysis.confidence_factors.scale_reference_visible
                           ? "✓"
@@ -669,7 +669,7 @@ export default function ImageEstimator() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Multiple facades</span>
+                      <span className="text-neutral-500">Multiple facades</span>
                       <span className="text-neutral-600">
                         {analysis.confidence_factors.multiple_facades_visible
                           ? "✓"
@@ -825,7 +825,7 @@ function LockedView({
           </a>
         )}
 
-        <p className="mt-6 text-xs text-neutral-400">
+        <p className="mt-6 text-xs text-neutral-500">
           <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
           Access controlled by FRELUX administration
         </p>

@@ -18,7 +18,7 @@ const iconMap = {
 };
 
 const colorMap = {
-  0: { text: 'text-neutral-400 dark:text-neutral-500', bg: 'bg-neutral-100 dark:bg-white/5', border: 'border-neutral-200 dark:border-white/5' },
+  0: { text: 'text-neutral-500 dark:text-neutral-500', bg: 'bg-neutral-100 dark:bg-white/5', border: 'border-neutral-200 dark:border-white/5' },
   1: { text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20' },
   2: { text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-500/10', border: 'border-blue-200 dark:border-blue-500/20' },
   3: { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20' },
@@ -75,13 +75,13 @@ export function VerificationBadge({ profile, size = 'sm', showLabel = true, clas
             <Icon className={classNames(sizeClasses[size].icon, colors.text)} />
             <span className="text-sm font-semibold text-neutral-900 dark:text-white">{info.label}</span>
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
+          <p className="text-xs text-neutral-500 dark:text-neutral-500 leading-relaxed">
             {tier === 1 && 'This professional has verified their email address and phone number with FRELUX.'}
             {tier === 2 && 'FRELUX has reviewed the professional\u2019s identity and professional profile information according to FRELUX\u2019s verification requirements.'}
             {tier === 3 && 'This professional has demonstrated sustained excellence on FRELUX through verified credentials, legitimate reviews, and portfolio history.'}
           </p>
           <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/5">
-            <p className="text-xs text-neutral-400 dark:text-neutral-500 italic">
+            <p className="text-xs text-neutral-500 dark:text-neutral-500 italic">
               Verification does not constitute a guarantee of workmanship, pricing, or project outcome.
             </p>
           </div>

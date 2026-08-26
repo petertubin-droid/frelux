@@ -127,7 +127,7 @@ export default function Dashboard() {
                   <div>
                     <h3 className="text-lg font-bold text-brand-navy dark:text-white">{lastProject.name}</h3>
                     {lastProject.description && <p className="mt-1 text-sm text-neutral-500">{lastProject.description}</p>}
-                    <p className="mt-1 text-xs text-neutral-400">Updated {new Date(lastProject.updated_at).toLocaleDateString()}</p>
+                    <p className="mt-1 text-xs text-neutral-500">Updated {new Date(lastProject.updated_at).toLocaleDateString()}</p>
                   </div>
                   <Link
                     to={PROJECT_ROUTES[lastProject.project_type] ?? '/paint-calculator'}
@@ -165,7 +165,7 @@ export default function Dashboard() {
                         <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/8 text-brand-purple">
                           <FolderOpen className="h-4 w-4" />
                         </span>
-                        <span className="text-xs text-neutral-400">{new Date(p.updated_at).toLocaleDateString()}</span>
+                        <span className="text-xs text-neutral-500">{new Date(p.updated_at).toLocaleDateString()}</span>
                       </div>
                       <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter transition-colors">{p.name}</h3>
                       {p.description && <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">{p.description}</p>}
@@ -202,7 +202,7 @@ export default function Dashboard() {
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{c.name}</p>
-                          <p className="text-xs text-neutral-400">{c.hex_code}</p>
+                          <p className="text-xs text-neutral-500">{c.hex_code}</p>
                         </div>
                       </Link>
                     ))}
@@ -222,7 +222,7 @@ export default function Dashboard() {
               <section className="animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
-                    <Clock className="h-5 w-5 text-neutral-400" /> Recently Viewed
+                    <Clock className="h-5 w-5 text-neutral-500" /> Recently Viewed
                   </h2>
                   <Link to="/my-projects" className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                     View all
@@ -236,7 +236,7 @@ export default function Dashboard() {
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{c.name}</p>
-                          <p className="text-xs text-neutral-400">{c.hex_code}</p>
+                          <p className="text-xs text-neutral-500">{c.hex_code}</p>
                         </div>
                       </Link>
                     ))}

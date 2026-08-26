@@ -119,7 +119,7 @@ export default function AdminScreedingMaterials() {
           <Paintbrush aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Screeding Paint (20L Buckets)</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Coverage rate (m²/L)" hint="Square metres covered per litre of paint">
             <AdminInput type="number" min={0} step="0.1"  value={paintCoverage} onChange={(e) => setPaintCoverage(Number(e.target.value))} />
@@ -139,7 +139,7 @@ export default function AdminScreedingMaterials() {
           <Package aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">White Cement (40kg Bags)</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Consumption ratio (kg/L)" hint="Kg of cement per litre of paint">
             <AdminInput type="number" min={0} step="0.1"  value={cementRatio} onChange={(e) => setCementRatio(Number(e.target.value))} />
@@ -205,7 +205,7 @@ export default function AdminScreedingMaterials() {
           {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Configuration'}
         </AdminButton>
-        <span className="text-xs text-neutral-400 dark:text-neutral-500">
+        <span className="text-xs text-neutral-500 dark:text-neutral-500">
           Paint: {formatCurrency(paintPrice, currencySymbol)} / {paintBucketSize}L bucket · Cement: {formatCurrency(cementPrice, currencySymbol)} / {cementBagSize}kg bag
         </span>
       </div>

@@ -16,12 +16,12 @@ import { useSeo } from '@/lib/seo';
 
 const STATUS_FLOW = ['pending_start', 'in_progress', 'client_review', 'completed'];
 const STATUS_COLORS: Record<string, string> = {
-  pending_start: 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400',
+  pending_start: 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500',
   in_progress: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
   client_review: 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400',
   completed: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
   disputed: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
-  cancelled: 'bg-neutral-100 text-neutral-400',
+  cancelled: 'bg-neutral-100 text-neutral-500',
 };
 
 export default function OrderDetail() {
@@ -124,7 +124,7 @@ export default function OrderDetail() {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <button onClick={() => navigate('/marketplace')} className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
+        <button onClick={() => navigate('/marketplace')} className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500">
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back
         </button>
 
@@ -133,7 +133,7 @@ export default function OrderDetail() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-neutral-400">{order.order_number}</span>
+                <span className="text-xs font-mono text-neutral-500">{order.order_number}</span>
                 <span className={classNames('rounded-md px-2 py-0.5 text-xs font-semibold', STATUS_COLORS[order.status])}>
                   {ORDER_STATUS_LABELS[order.status]}
                 </span>
@@ -141,7 +141,7 @@ export default function OrderDetail() {
               <h1 className="mt-2 text-lg font-bold text-neutral-900 dark:text-white">
                 {order.listing?.title || 'Untitled Job'}
               </h1>
-              <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                 {PROJECT_TYPE_LABELS[order.listing?.project_type || 'painting']}
               </p>
             </div>
@@ -150,7 +150,7 @@ export default function OrderDetail() {
                 ₦{order.agreed_price.toLocaleString()}
               </p>
               {order.agreed_timeline_days && (
-                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="text-xs text-neutral-500 dark:text-neutral-500">
                   <Calendar aria-hidden="true" className="mr-0.5 inline h-3 w-3" /> {order.agreed_timeline_days} days
                 </p>
               )}
@@ -190,11 +190,11 @@ export default function OrderDetail() {
 
           {/* Payment status */}
           <div className="mt-3 flex items-center gap-2 text-xs">
-            <Wallet className="h-3.5 w-3.5 text-neutral-400" />
-            <span className="text-neutral-500 dark:text-neutral-400">Payment: </span>
+            <Wallet className="h-3.5 w-3.5 text-neutral-500" />
+            <span className="text-neutral-500 dark:text-neutral-500">Payment: </span>
             <span className={classNames(
               'font-semibold capitalize',
-              order.payment_status === 'unpaid' ? 'text-neutral-400' : 'text-emerald-600 dark:text-emerald-400'
+              order.payment_status === 'unpaid' ? 'text-neutral-500' : 'text-emerald-600 dark:text-emerald-400'
             )}>
               {order.payment_status.replace('_', ' ')}
             </span>
@@ -204,7 +204,7 @@ export default function OrderDetail() {
         {/* Status advancement */}
         {canAdvance && (isClient || isPro) && (
           <div className="mt-4 flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">
               Current status: <span className="font-semibold text-neutral-700 dark:text-white">{ORDER_STATUS_LABELS[order.status]}</span>
             </p>
             <button
@@ -221,7 +221,7 @@ export default function OrderDetail() {
         {/* Milestones */}
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
               Milestones ({milestones.length})
             </h2>
             {isPro && canAdvance && (
@@ -273,7 +273,7 @@ export default function OrderDetail() {
                         'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
                         m.status === 'approved' ? 'bg-emerald-500 text-white' :
                         m.status === 'in_progress' ? 'bg-amber-500 text-white' :
-                        'bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-400'
+                        'bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500'
                       )}>
                         {m.status === 'approved' ? <Check aria-hidden="true" className="h-3.5 w-3.5" /> : idx + 1}
                       </span>
@@ -306,7 +306,7 @@ export default function OrderDetail() {
                     )}
                   </div>
                   {m.expected_date && (
-                    <p className="mt-1 ml-8 text-[10px] text-neutral-400 dark:text-neutral-500">
+                    <p className="mt-1 ml-8 text-[10px] text-neutral-500 dark:text-neutral-500">
                       <Calendar aria-hidden="true" className="mr-0.5 inline h-2.5 w-2.5" />
                       Expected: {new Date(m.expected_date).toLocaleDateString()}
                     </p>
@@ -320,7 +320,7 @@ export default function OrderDetail() {
         {/* Reviews */}
         {order.status === 'completed' && (
           <div className="mt-6">
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
               Reviews
             </h2>
             <div className="space-y-3">
@@ -338,7 +338,7 @@ export default function OrderDetail() {
               ) : isClient && !showReviewForm ? (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="w-full rounded-lg border border-dashed border-neutral-200 p-4 text-sm font-medium text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+                  className="w-full rounded-lg border border-dashed border-neutral-200 p-4 text-sm font-medium text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
                 >
                   Leave a review for the pro worker
                 </button>

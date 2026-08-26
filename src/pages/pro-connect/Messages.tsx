@@ -136,7 +136,7 @@ export default function Messages() {
             </div>
           ) : conversations.length === 0 ? (
             <div className="p-8 text-center">
-              <p className="text-sm text-neutral-400 dark:text-neutral-500">No conversations yet.</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-500">No conversations yet.</p>
               <Link to="/pro-connect" className="mt-3 inline-block text-sm text-brand-purple dark:text-brand-purple-lighter">
                 Browse professionals
               </Link>
@@ -159,7 +159,7 @@ export default function Messages() {
                     <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
                       {getDisplayName(convo)}
                     </p>
-                    <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">
+                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-500">
                       {convo.last_message_at ? new Date(convo.last_message_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'No messages yet'}
                     </p>
                   </div>
@@ -179,7 +179,7 @@ export default function Messages() {
               {/* Header */}
               <div className="flex items-center gap-3 border-b border-neutral-100 p-4 dark:border-white/5">
                 <button onClick={() => navigate('/messages')} className="lg:hidden">
-                  <ArrowLeft aria-hidden="true" className="h-5 w-5 text-neutral-400" />
+                  <ArrowLeft aria-hidden="true" className="h-5 w-5 text-neutral-500" />
                 </button>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
                   {getDisplayName(activeConvo).charAt(0).toUpperCase()}
@@ -189,7 +189,7 @@ export default function Messages() {
                     {getDisplayName(activeConvo)}
                   </Link>
                   {activeConvo.project_context && (
-                    <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {(activeConvo.project_context as { service?: string }).service || 'Project inquiry'}
                     </p>
                   )}
@@ -236,7 +236,7 @@ export default function Messages() {
                                 Attachment
                               </a>
                             )}
-                            <p className={classNames('mt-1 text-xs', isMe ? 'text-white/60' : 'text-neutral-400')}>
+                            <p className={classNames('mt-1 text-xs', isMe ? 'text-white/60' : 'text-neutral-500')}>
                               {new Date(msg.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                             </p>
                           </div>
@@ -272,7 +272,7 @@ export default function Messages() {
           ) : (
             <div className="flex flex-1 items-center justify-center p-8">
               <div className="text-center">
-                <p className="text-neutral-400 dark:text-neutral-500">Select a conversation to view messages</p>
+                <p className="text-neutral-500 dark:text-neutral-500">Select a conversation to view messages</p>
                 <Link to="/pro-connect" className="mt-3 inline-block text-sm text-brand-purple dark:text-brand-purple-lighter">
                   Browse professionals
                 </Link>

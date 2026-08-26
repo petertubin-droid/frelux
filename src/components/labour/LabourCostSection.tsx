@@ -118,7 +118,7 @@ export default function LabourCostSection({
       </div>
 
       {!config.includeLabour && (
-        <p className="text-sm text-neutral-400">
+        <p className="text-sm text-neutral-500">
           Labour cost is optional. Toggle on to include labour in your estimate.
         </p>
       )}
@@ -144,7 +144,7 @@ export default function LabourCostSection({
                   <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                     {PRICING_METHOD_LABELS[method]}
                   </span>
-                  <span className="mt-0.5 block text-xs text-neutral-400">
+                  <span className="mt-0.5 block text-xs text-neutral-500">
                     {PRICING_METHOD_DESCRIPTIONS[method]}
                   </span>
                 </button>
@@ -157,7 +157,7 @@ export default function LabourCostSection({
             <div>
               <label className="mb-2 block text-sm font-semibold text-neutral-700">
                 Suggested Labour Categories
-                <span className="ml-1 font-normal text-neutral-400">(optional, you can override)</span>
+                <span className="ml-1 font-normal text-neutral-500">(optional, you can override)</span>
               </label>
               <select
                 value={config.categoryId ?? ''}
@@ -279,7 +279,7 @@ export default function LabourCostSection({
           </div>
 
           {/* Info note */}
-          <div className="flex items-start gap-2 rounded-lg bg-brand-purple/5 p-3 text-xs text-neutral-500 dark:text-neutral-400">
+          <div className="flex items-start gap-2 rounded-lg bg-brand-purple/5 p-3 text-xs text-neutral-500 dark:text-neutral-500">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
             <span>
               Labour rates vary by contractor, location, and project. These are suggestions only.
@@ -323,7 +323,7 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="mt-1.5">{children}</div>
     </label>
   );

@@ -93,7 +93,7 @@ export default function CommercialReadiness() {
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{cap.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{cap.description}</p>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{cap.description}</p>
                 <Link
                   to={cap.to}
                   className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all hover:gap-2.5 dark:text-brand-purple-lighter"
@@ -114,7 +114,7 @@ export default function CommercialReadiness() {
             <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white">
               Ready to plan your next project?
             </h3>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               All calculators are free. No sign-up required to start calculating.
             </p>
           </div>

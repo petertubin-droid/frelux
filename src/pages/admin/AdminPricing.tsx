@@ -81,7 +81,7 @@ function ProductsTab() {
                     <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
                     {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                   </div>
-                  <p className="mt-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">{item.brand && `${item.brand} · `}{type?.name ?? 'No type'} · {item.container_size} L</p>
+                  <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{item.brand && `${item.brand} · `}{type?.name ?? 'No type'} · {item.container_size} L</p>
                   <p className="mt-1 text-xs font-semibold text-brand-purple">{formatCurrency(Number(item.price), '₦')}</p>
                 </div>
                 <div className="mt-2 flex shrink-0 items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">

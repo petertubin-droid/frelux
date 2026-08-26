@@ -219,7 +219,7 @@ export default function AdminEstimationPricing() {
       {/* Filters & Search Bar */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
           <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <AdminButton
@@ -239,7 +239,7 @@ export default function AdminEstimationPricing() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
           <AdminInput
  type="text"
  placeholder="Search price items..."
@@ -277,17 +277,17 @@ export default function AdminEstimationPricing() {
                       </h3>
                       {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                     </div>
-                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
+                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
                       {packSizeVal && <span>Pack: {packSizeVal}</span>}
                       <span className="inline-flex items-center gap-0.5"><Calendar aria-hidden="true" className="h-2.5 w-2.5" />{item.effective_date}</span>
                     </div>
-                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-neutral-400">{item.notes}</p>}
+                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-neutral-500">{item.notes}</p>}
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-extrabold text-brand-navy dark:text-white">{formatCurrency(item.price, item.currency)}</span>
-                    <span className="text-[9px] uppercase text-neutral-400">{item.currency}</span>
+                    <span className="text-[9px] uppercase text-neutral-500">{item.currency}</span>
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
@@ -607,7 +607,7 @@ function PriceHistoryModal({
 
   return (
     <AdminModal open onClose={onClose} title="Price History" maxWidth="max-w-xl">
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="text-xs text-neutral-500 dark:text-neutral-500">
           {refName} ({item.price_type})
         </p>
 
@@ -635,7 +635,7 @@ function PriceHistoryModal({
                       <DollarSign aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                       {h.old_price !== null ? (
                         <span>
-                          <span className="line-through text-neutral-400 dark:text-neutral-500">
+                          <span className="line-through text-neutral-500 dark:text-neutral-500">
                             {formatCurrency(h.old_price, h.currency)}
                           </span>{' '}
                           →{' '}
@@ -649,7 +649,7 @@ function PriceHistoryModal({
                         </span>
                       )}
                     </span>
-                    <span className="text-neutral-400 dark:text-neutral-500">
+                    <span className="text-neutral-500 dark:text-neutral-500">
                       {new Date(h.created_at).toLocaleString()}
                     </span>
                   </div>
@@ -659,7 +659,7 @@ function PriceHistoryModal({
                   )}
 
                   {h.changed_by && (
-                    <p className="mt-0.5 text-[10px] text-neutral-400 font-mono">
+                    <p className="mt-0.5 text-[10px] text-neutral-500 font-mono">
                       Changed by: {h.changed_by}
                     </p>
                   )}

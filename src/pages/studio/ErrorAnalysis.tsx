@@ -65,7 +65,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 
 const STATUS_STYLES: Record<string, string> = {
   analyzing:
-    "bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-400",
+    "bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500",
   fix_proposed:
     "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
   awaiting_approval:
@@ -270,13 +270,13 @@ export default function ErrorAnalysis() {
         <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
           {/* Error list */}
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
               Unresolved Errors
             </h3>
             {loading ? (
-              <p className="text-sm text-neutral-400">Loading...</p>
+              <p className="text-sm text-neutral-500">Loading...</p>
             ) : recentErrors.length === 0 ? (
-              <p className="text-sm text-neutral-400">No unresolved errors.</p>
+              <p className="text-sm text-neutral-500">No unresolved errors.</p>
             ) : (
               <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
                 {recentErrors.map((e) => (
@@ -299,7 +299,7 @@ export default function ErrorAnalysis() {
                       >
                         {e.severity.toUpperCase()}
                       </span>
-                      <span className="text-xs text-neutral-400">
+                      <span className="text-xs text-neutral-500">
                         {e.occurrence_count > 1
                           ? `${e.occurrence_count}×`
                           : formatDate(e.last_seen)}
@@ -308,7 +308,7 @@ export default function ErrorAnalysis() {
                     <p className="mt-1 truncate text-sm text-neutral-700 dark:text-neutral-300">
                       {e.message}
                     </p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {e.feature ?? "—"}
                     </p>
                   </button>
@@ -322,7 +322,7 @@ export default function ErrorAnalysis() {
             {!selectedError ? (
               <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 p-12 dark:border-white/5">
                 <Bug className="h-8 w-8 text-neutral-300" />
-                <p className="mt-2 text-sm text-neutral-400">
+                <p className="mt-2 text-sm text-neutral-500">
                   Select an error to analyze with AI
                 </p>
               </div>
@@ -343,7 +343,7 @@ export default function ErrorAnalysis() {
                       <p className="text-sm font-medium text-neutral-800 dark:text-white">
                         {selectedError.message}
                       </p>
-                      <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-400">
+                      <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-500">
                         <span>{selectedError.error_type}</span>
                         {selectedError.feature && (
                           <span>· {selectedError.feature}</span>
@@ -450,7 +450,7 @@ export default function ErrorAnalysis() {
                         />
 
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                             Risk level:
                           </span>
                           <span
@@ -577,7 +577,7 @@ export default function ErrorAnalysis() {
                             )}
 
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                                 Risk level:
                               </span>
                               <span
@@ -607,7 +607,7 @@ export default function ErrorAnalysis() {
                                 ? "Approving..."
                                 : "Approve & Apply Fix"}
                             </button>
-                            <p className="text-xs text-neutral-400">
+                            <p className="text-xs text-neutral-500">
                               Fix will be applied via Git commit and deployed
                               through the existing CI/CD pipeline
                             </p>
@@ -639,11 +639,11 @@ export default function ErrorAnalysis() {
                           >
                             {h.status.replace(/_/g, " ")}
                           </span>
-                          <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
                             {formatDate(h.created_at)}
                           </span>
                           {h.approved_by && (
-                            <span className="text-xs text-neutral-400">
+                            <span className="text-xs text-neutral-500">
                               · Approved
                             </span>
                           )}
@@ -664,7 +664,7 @@ export default function ErrorAnalysis() {
           {allFixHistory.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 p-12 dark:border-white/5">
               <Clock className="h-8 w-8 text-neutral-300" />
-              <p className="mt-2 text-sm text-neutral-400">
+              <p className="mt-2 text-sm text-neutral-500">
                 No fix history yet
               </p>
             </div>
@@ -672,7 +672,7 @@ export default function ErrorAnalysis() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-500">
                     <th className="pb-2 pr-3 font-medium">Status</th>
                     <th className="pb-2 pr-3 font-medium">Error</th>
                     <th className="pb-2 pr-3 font-medium">Severity</th>
@@ -713,13 +713,13 @@ export default function ErrorAnalysis() {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 pr-3 text-xs text-neutral-400">
+                      <td className="py-2 pr-3 text-xs text-neutral-500">
                         {h.approved_at ? formatDate(h.approved_at) : "—"}
                       </td>
-                      <td className="py-2 pr-3 text-xs text-neutral-400">
+                      <td className="py-2 pr-3 text-xs text-neutral-500">
                         {formatDate(h.created_at)}
                       </td>
-                      <td className="py-2 text-xs text-neutral-400">
+                      <td className="py-2 text-xs text-neutral-500">
                         {h.deployed_at ? formatDate(h.deployed_at) : "—"}
                       </td>
                     </tr>
@@ -748,7 +748,7 @@ function DiagnosisField({
   if (!value || value === "unknown" || value === "none") return null;
   return (
     <div>
-      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
         {label}:{" "}
       </span>
       <span className="text-sm text-neutral-800 dark:text-neutral-200">

@@ -54,12 +54,12 @@ export default function SaveTemplateModal({
           <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
             Save as Template
           </h2>
-          <button onClick={onClose} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white">
+          <button onClick={onClose} className="rounded-md p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white">
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
-        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
           Save your current calculator inputs to reuse later. Results are recalculated fresh each time.
         </p>
 

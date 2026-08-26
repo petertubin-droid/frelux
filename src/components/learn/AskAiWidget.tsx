@@ -91,7 +91,7 @@ export default function AskAiWidget() {
           <div className="flex h-full flex-col items-center justify-center text-center">
             <MessageSquare className="h-10 w-10 text-neutral-300" />
             <p className="mt-3 text-sm font-semibold text-neutral-600 dark:text-neutral-300">Ask me anything about painting</p>
-            <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">POP ceiling, tiles, colors, and more</p>
+            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">POP ceiling, tiles, colors, and more</p>
             <div className="mt-4 w-full space-y-2">
               {SUGGESTED_QUESTIONS.map((q) => (
                 <button key={q} type="button" onClick={() => handleAsk(q)}
@@ -116,7 +116,7 @@ export default function AskAiWidget() {
             {loading && (
               <div className="flex justify-start">
                 <div className="rounded-lg bg-neutral-100 px-3 py-2">
-                  <Loader2 className="h-4 w-4 animate-spin text-neutral-400 dark:text-neutral-500" />
+                  <Loader2 className="h-4 w-4 animate-spin text-neutral-500 dark:text-neutral-500" />
                 </div>
               </div>
             )}

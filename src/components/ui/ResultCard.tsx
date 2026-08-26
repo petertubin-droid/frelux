@@ -63,7 +63,7 @@ export default function ResultCard({
               )}
               style={{ animationDelay: `${i * 0.08}s` }}
             >
-              <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+              <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
                 {stat.icon}
                 {stat.label}
               </div>
@@ -79,7 +79,7 @@ export default function ResultCard({
           <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
             <div className="calc-orb absolute -top-1/2 left-1/2 h-32 w-64 -translate-x-1/2 rounded-full bg-brand-purple/5 blur-3xl" />
           </div>
-          <p className="relative text-sm font-medium text-neutral-500 dark:text-neutral-400">Grand Total</p>
+          <p className="relative text-sm font-medium text-neutral-500 dark:text-neutral-500">Grand Total</p>
           <p className="relative mt-1 text-3xl font-extrabold text-brand-navy sm:text-4xl dark:text-white grand-total-glow">
             {currencySymbol}
             <span className="tabular-nums">{grandTotal.toLocaleString('en-US', { maximumFractionDigits: 0 })}</span>

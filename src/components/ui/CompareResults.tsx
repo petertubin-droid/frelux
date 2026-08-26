@@ -118,14 +118,14 @@ export function CompareResults({
                   setEntries([]);
                   setSelected([]);
                 }}
-                className="text-xs font-medium text-neutral-400 hover:text-red-500"
+                className="text-xs font-medium text-neutral-500 hover:text-red-500"
               >
                 Clear all
               </button>
             )}
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+              className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -139,7 +139,7 @@ export function CompareResults({
             <p className="text-sm font-semibold text-neutral-500">
               No saved results to compare
             </p>
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1 text-xs text-neutral-500">
               Complete a calculation and save it for comparison to see
               side-by-side results here.
             </p>
@@ -148,7 +148,7 @@ export function CompareResults({
           <>
             {/* Selection chips */}
             <div className="border-b border-neutral-100 px-5 py-3 dark:border-white/5">
-              <p className="mb-2 text-xs font-medium text-neutral-400">
+              <p className="mb-2 text-xs font-medium text-neutral-500">
                 Select 2 to compare ({selected.length}/2 selected):
               </p>
               <div className="flex flex-wrap gap-2">
@@ -174,7 +174,7 @@ export function CompareResults({
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-100 dark:border-white/5">
-                      <th className="pb-2 pr-4 text-left text-xs font-bold uppercase tracking-wider text-neutral-400">
+                      <th className="pb-2 pr-4 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
                         Metric
                       </th>
                       {selectedEntries.map((e) => (
@@ -193,7 +193,7 @@ export function CompareResults({
                         key={key}
                         className="border-b border-neutral-50 dark:border-white/5"
                       >
-                        <td className="py-2.5 pr-4 text-xs font-medium text-neutral-400">
+                        <td className="py-2.5 pr-4 text-xs font-medium text-neutral-500">
                           {key}
                         </td>
                         {selectedEntries.map((e) => {
@@ -221,7 +221,7 @@ export function CompareResults({
               </div>
             ) : (
               <div className="py-12 text-center">
-                <p className="text-sm text-neutral-400">
+                <p className="text-sm text-neutral-500">
                   Select at least 2 results to compare
                 </p>
               </div>

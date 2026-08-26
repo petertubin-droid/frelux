@@ -134,7 +134,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
       {/* Daily limit progress */}
       {config?.is_enabled && (
-        <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+        <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-500">
           <span>Today's ad earnings</span>
           <span className="font-medium">
             {todayEarned} / {dailyLimit}
@@ -174,7 +174,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
             <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
               How Credits Work
             </h3>
-            <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">
               FRELUX Credits are your access currency for AI-powered features.
               Earn credits by watching short rewarded ads, then spend them to
               unlock AI tools like the Color Consultant, Building Estimator, and
@@ -190,7 +190,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                 Spend credits on AI features (cost varies per feature)
               </div>
               <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
-                <Clock aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
+                <Clock aria-hidden="true" className="h-3.5 w-3.5 text-neutral-500" />
                 Up to {dailyLimit} ad rewards per day
               </div>
             </div>
@@ -201,7 +201,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {tab === "history" && (
         <div className="space-y-2">
           {transactions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-400">
+            <p className="py-8 text-center text-sm text-neutral-500">
               No transactions yet
             </p>
           ) : (
@@ -229,7 +229,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     <p className="text-xs font-semibold text-neutral-900 dark:text-white">
                       {tx.reason}
                     </p>
-                    <p className="text-[10px] text-neutral-400">
+                    <p className="text-[10px] text-neutral-500">
                       {new Date(tx.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -239,7 +239,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     "text-sm font-bold",
                     tx.amount > 0
                       ? "text-accent-green"
-                      : "text-neutral-500 dark:text-neutral-400",
+                      : "text-neutral-500 dark:text-neutral-500",
                   )}
                 >
                   {tx.amount > 0 ? "+" : ""}
@@ -254,7 +254,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {tab === "ads" && (
         <div className="space-y-2">
           {adHistory.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-400">
+            <p className="py-8 text-center text-sm text-neutral-500">
               No ad history yet
             </p>
           ) : (
@@ -271,7 +271,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     <p className="text-xs font-semibold text-neutral-900 dark:text-white">
                       {evt.ad_provider}
                     </p>
-                    <p className="text-[10px] text-neutral-400">
+                    <p className="text-[10px] text-neutral-500">
                       {new Date(evt.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -463,7 +463,7 @@ function EarnCreditsModal({
         <div className="p-6">
           {/* Daily limit indicator */}
           <div className="mb-4 flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
-            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">
               Today's progress
             </span>
             <span className="text-xs font-bold text-neutral-900 dark:text-white">
@@ -481,7 +481,7 @@ function EarnCreditsModal({
                 <PlayCircle className="h-5 w-5" />
                 Watch Ad — +{creditsPerAd} Credits
               </button>
-              <p className="mt-3 text-center text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-500">
                 Credits are only awarded after the ad is fully watched and
                 verified.
               </p>
@@ -505,7 +505,7 @@ function EarnCreditsModal({
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Ad playing…
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 Please keep this tab open.
               </p>
             </div>
@@ -517,7 +517,7 @@ function EarnCreditsModal({
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Verifying ad completion…
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 Credits will be added if the ad was completed.
               </p>
             </div>
@@ -531,7 +531,7 @@ function EarnCreditsModal({
               <p className="text-lg font-bold text-neutral-900 dark:text-white">
                 +{earnedAmount} Credits!
               </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="text-sm text-neutral-500 dark:text-neutral-500">
                 Added to your FRELUX Credits balance.
               </p>
               <button
@@ -552,10 +552,10 @@ function EarnCreditsModal({
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Ad unavailable
               </p>
-              <p className="text-center text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
                 {errorMsg}
               </p>
-              <p className="text-center text-xs text-neutral-400">
+              <p className="text-center text-xs text-neutral-500">
                 No credits were added.
               </p>
               <button
@@ -571,12 +571,12 @@ function EarnCreditsModal({
           {phase === "limit" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-white/5">
-                <Clock aria-hidden="true" className="h-8 w-8 text-neutral-400" />
+                <Clock aria-hidden="true" className="h-8 w-8 text-neutral-500" />
               </div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Daily limit reached
               </p>
-              <p className="text-center text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
                 You've earned the maximum {dailyLimit} credits from ads today.
                 Come back tomorrow!
               </p>
@@ -741,7 +741,7 @@ export function AiFeatureGate({
             <p className="text-lg font-bold text-neutral-900 dark:text-white">
               ✓ Unlocked
             </p>
-            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">
               {featureName} is ready to use.
             </p>
           </div>
@@ -784,7 +784,7 @@ export function AiFeatureGate({
         <div className="p-6">
           {/* Balance */}
           <div className="mb-4 flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
-            <span className="text-xs text-neutral-500 dark:text-neutral-400">
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">
               Your balance
             </span>
             <span className="flex items-center gap-1 text-sm font-bold text-neutral-900 dark:text-white">
@@ -805,7 +805,7 @@ export function AiFeatureGate({
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Playing ad…
               </p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 Feature will unlock after the ad completes.
               </p>
             </div>
@@ -838,7 +838,7 @@ export function AiFeatureGate({
                 <>
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                    <span className="text-[10px] font-medium text-neutral-400">
+                    <span className="text-[10px] font-medium text-neutral-500">
                       OR
                     </span>
                     <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
@@ -860,7 +860,7 @@ export function AiFeatureGate({
               )}
 
               {!canAfford && !adAvailable && (
-                <p className="text-center text-xs text-neutral-400 dark:text-neutral-500">
+                <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
                   Not enough credits. Watch ads from the Credits page to earn
                   more.
                 </p>

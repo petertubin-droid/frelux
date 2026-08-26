@@ -34,7 +34,7 @@ export default function RelatedToolsLinks({ compact = false }: { compact?: boole
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold text-neutral-900 dark:text-white">Build-to-Roof Estimator</p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">Estimate a full building project from foundation to roof.</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">Estimate a full building project from foundation to roof.</p>
         </div>
         <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-1 group-hover:text-brand-purple" />
       </Link>
@@ -48,7 +48,7 @@ export default function RelatedToolsLinks({ compact = false }: { compact?: boole
         </div>
         <div className="flex-1">
           <p className="text-sm font-bold text-neutral-900 dark:text-white">AI Photo Estimator</p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">Upload a photo and get an AI-powered estimate.</p>
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">Upload a photo and get an AI-powered estimate.</p>
         </div>
         <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-1 group-hover:text-accent-green" />
       </Link>

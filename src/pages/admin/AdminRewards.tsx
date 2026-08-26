@@ -130,7 +130,7 @@ export default function AdminRewards() {
           <button key={t.key} onClick={() => setTab(t.key)}
             className={classNames(
               'flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors',
-              tab === t.key ? 'border-brand-purple text-brand-purple' : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
+              tab === t.key ? 'border-brand-purple text-brand-purple' : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-500'
             )}>
             <t.icon className="h-4 w-4" /> {t.label}
           </button>
@@ -205,8 +205,8 @@ export default function AdminRewards() {
               {wallets.map((w) => (
                 <div key={w.user_id} className="flex items-center justify-between px-5 py-3">
                   <div>
-                    <p className="text-xs font-mono text-neutral-400">{w.user_id.slice(0, 8)}...</p>
-                    <p className="text-xs text-neutral-400">Earned: {w.total_earned} · Spent: {w.total_spent}</p>
+                    <p className="text-xs font-mono text-neutral-500">{w.user_id.slice(0, 8)}...</p>
+                    <p className="text-xs text-neutral-500">Earned: {w.total_earned} · Spent: {w.total_spent}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Gem aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
@@ -227,7 +227,7 @@ export default function AdminRewards() {
                 <div key={tx.id} className="flex items-center justify-between px-5 py-3">
                   <div>
                     <p className="text-sm text-neutral-700 dark:text-neutral-300">{tx.reason}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {tx.user_id.slice(0, 8)}... · {new Date(tx.created_at).toLocaleString('en-NG', { dateStyle: 'short', timeStyle: 'short' })}
                     </p>
                   </div>
@@ -376,7 +376,7 @@ export default function AdminRewards() {
                 <div key={tx.id} className="flex items-center justify-between px-5 py-3">
                   <div>
                     <p className="text-sm text-neutral-700 dark:text-neutral-300">{tx.reason}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-neutral-500">
                       {tx.user_id.slice(0, 8)}... · {tx.type} · Ref: {tx.reference_id?.slice(0, 20) ?? 'N/A'}
                     </p>
                   </div>

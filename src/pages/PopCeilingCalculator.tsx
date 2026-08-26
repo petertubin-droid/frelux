@@ -167,7 +167,7 @@ const mountedRef = useRef(true);
       <>
         <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate POP ceiling materials and quantities." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'POP Ceiling Calculator' }]}
         />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -236,7 +236,7 @@ const mountedRef = useRef(true);
             {/* Waste margin */}
             <div className="mt-6">
               <span className="block text-sm font-semibold text-neutral-700">Waste / safety margin</span>
-              <p className="mt-0.5 text-xs text-neutral-400">Extra material added to account for spillage and uneven application.</p>
+              <p className="mt-0.5 text-xs text-neutral-500">Extra material added to account for spillage and uneven application.</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
                   <button key={w} type="button" onClick={() => update('wasteMargin', w)}
@@ -344,7 +344,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
                 <div key={i} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3">
                   <div>
                     <p className="text-sm font-semibold text-brand-navy dark:text-white">{m.name}</p>
-                    <p className="text-xs text-neutral-400">{formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded} package(s)</p>
+                    <p className="text-xs text-neutral-500">{formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded} package(s)</p>
                   </div>
                   <p className="text-sm font-bold text-brand-navy dark:text-white">{formatCurrency(m.cost, currencySymbol)}</p>
                 </div>
@@ -446,7 +446,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-bold text-brand-navy dark:text-white">Need a pro for this POP ceiling?</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">Post this estimate as a job and get bids from verified pros near you.</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">Post this estimate as a job and get bids from verified pros near you.</p>
             </div>
             <a
               href={`/marketplace/post?project_type=pop_ceiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=POP Ceiling Installation — ${result.ceilingArea.toFixed(1)} m²`}
@@ -499,7 +499,7 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
       </button>
       <div>
         <p className="text-sm font-semibold text-neutral-700">{label}</p>
-        {hint && <p className="text-xs text-neutral-400">{hint}</p>}
+        {hint && <p className="text-xs text-neutral-500">{hint}</p>}
       </div>
     </div>
   );
@@ -509,10 +509,10 @@ function Field({ label, suffix, hint, error, children }: { label: string; suffix
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-400">{hint}</span>}
+      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
       <div className="relative mt-1.5">
         {children}
-        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-400">{suffix}</span>}
+        {suffix && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">{suffix}</span>}
       </div>
       {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
     </label>
@@ -522,7 +522,7 @@ function Field({ label, suffix, hint, error, children }: { label: string; suffix
 function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-400')}>{label}</span>
+      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
       <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
     </div>
   );

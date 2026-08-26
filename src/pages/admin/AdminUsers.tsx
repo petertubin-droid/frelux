@@ -137,17 +137,17 @@ export default function AdminUsers() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Email</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Role</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Subscription</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Plan</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Expires</th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-400">Actions</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Email</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Role</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Subscription</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Plan</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Expires</th>
+                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 ? (
-                <tr><td colSpan={6} className="py-8 text-center text-neutral-400 dark:text-neutral-500">No users yet.</td></tr>
+                <tr><td colSpan={6} className="py-8 text-center text-neutral-500 dark:text-neutral-500">No users yet.</td></tr>
               ) : users.map((u) => {
                 const isActive = u.paid_status?.is_paid && (!u.paid_status?.paid_until || new Date(u.paid_status.paid_until) > new Date());
                 const isEditing = editingId === u.id;
@@ -157,7 +157,7 @@ export default function AdminUsers() {
                     <td className="py-3 pr-4">
                       <span className={classNames(
                         'rounded-full px-2 py-0.5 text-xs font-semibold capitalize',
-                        u.role === 'admin' ? 'bg-brand-purple/15 text-brand-purple' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400'
+                        u.role === 'admin' ? 'bg-brand-purple/15 text-brand-purple' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-500'
                       )}>
                         {u.role}
                       </span>
@@ -186,7 +186,7 @@ export default function AdminUsers() {
                         u.paid_status?.plan ? <span className="capitalize">{u.paid_status.plan}</span> : '—'
                       )}
                     </td>
-                    <td className="py-3 pr-4 text-neutral-400 dark:text-neutral-500">
+                    <td className="py-3 pr-4 text-neutral-500 dark:text-neutral-500">
                       {isEditing ? (
                         <AdminSelect value={editDays} onChange={(e) => setEditDays(e.target.value)} className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800">
                           {DURATION_OPTIONS.map((d) => <option key={d.value} value={d.value}>{d.label}</option>)}

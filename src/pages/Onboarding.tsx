@@ -82,7 +82,7 @@ export default function Onboarding() {
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
             Welcome to FRELUX
           </h1>
-          <p className="mt-3 text-neutral-500 dark:text-neutral-400">
+          <p className="mt-3 text-neutral-500 dark:text-neutral-500">
             Plan your construction project with precision. Calculate materials, estimate costs, and connect with verified professionals — all in one place.
           </p>
           <button
@@ -100,7 +100,7 @@ export default function Onboarding() {
           <h2 className="mb-1 text-xl font-bold text-neutral-900 dark:text-white">
             What are you planning?
           </h2>
-          <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mb-6 text-sm text-neutral-500 dark:text-neutral-500">
             Select all that apply. We'll tailor your experience.
           </p>
 
@@ -132,7 +132,7 @@ export default function Onboarding() {
                     )}>
                       {goal.label}
                     </p>
-                    <p className="text-xs text-neutral-400">{goal.desc}</p>
+                    <p className="text-xs text-neutral-500">{goal.desc}</p>
                   </div>
                   {selected && (
                     <Check aria-hidden="true" className="h-5 w-5 text-brand-purple" />
@@ -145,7 +145,7 @@ export default function Onboarding() {
           <div className="mt-6 flex gap-3">
             <button
               onClick={() => setStep(1)}
-              className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/10 dark:text-neutral-400"
+              className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/10 dark:text-neutral-500"
             >
               Back
             </button>
@@ -170,7 +170,7 @@ export default function Onboarding() {
             <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
               Your Location
             </h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               Help us show relevant professionals and material prices in your area.
             </p>
           </div>
@@ -194,7 +194,7 @@ export default function Onboarding() {
           <div className="mt-8 flex gap-3">
             <button
               onClick={() => setStep(2)}
-              className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/10 dark:text-neutral-400"
+              className="rounded-xl border border-neutral-200 px-4 py-3 text-sm font-medium text-neutral-500 dark:border-white/10 dark:text-neutral-500"
             >
               Back
             </button>
@@ -209,7 +209,7 @@ export default function Onboarding() {
 
           <button
             onClick={finish}
-            className="mt-3 w-full text-center text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+            className="mt-3 w-full text-center text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
           >
             Skip for now
           </button>

@@ -86,7 +86,7 @@ export default function PopCeilingCalculatorHub() {
       <CalculatorTabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} ariaLabel="POP ceiling calculator mode" />
 
       <div id={`panel-${activeTab}`} role="tabpanel" aria-labelledby={`tab-${activeTab}`} className="pt-2">
-        <Suspense fallback={<div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-400">Loading…</div>}>
+        <Suspense fallback={<div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-500">Loading…</div>}>
           {activeTab === 'quantity' && <PopCeilingCalculator embedded />}
           {activeTab === 'cost' && <PopCeilingCostEstimator embedded />}
         </Suspense>

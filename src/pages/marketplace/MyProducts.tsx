@@ -77,7 +77,7 @@ export default function MyProducts() {
             onClick={() => setFilter(f)}
             className={classNames(
               'rounded-lg px-3 py-2 text-sm font-medium capitalize',
-              filter === f ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400'
+              filter === f ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-500'
             )}
           >
             {f} ({products.filter((p) => f === 'all' || p.status === f).length})
@@ -89,7 +89,7 @@ export default function MyProducts() {
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No products yet</p>
-          <p className="mt-1 text-xs text-neutral-400">Start selling building materials and interior products.</p>
+          <p className="mt-1 text-xs text-neutral-500">Start selling building materials and interior products.</p>
           <Link to="/marketplace/products/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
             <Plus aria-hidden="true" className="h-4 w-4" /> Post Your First Product
           </Link>
@@ -113,7 +113,7 @@ export default function MyProducts() {
                   {product.title}
                 </Link>
                 <p className="mt-0.5 text-sm font-bold text-brand-purple">{formatPrice(product.price, product.currency)}</p>
-                <div className="mt-1 flex items-center gap-2 text-xs text-neutral-400">
+                <div className="mt-1 flex items-center gap-2 text-xs text-neutral-500">
                   <span className={classNames(
                     'rounded-md px-1.5 py-0.5 font-medium',
                     product.status === 'active' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' :
@@ -130,10 +130,10 @@ export default function MyProducts() {
 
               {/* Actions */}
               <div className="flex items-center gap-1">
-                <button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
+                <button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
                   {product.status === 'active' ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                 </button>
-                <Link to={`/marketplace/products/${product.id}`} className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title="View">
+                <Link to={`/marketplace/products/${product.id}`} className="rounded p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title="View">
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 <button onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">

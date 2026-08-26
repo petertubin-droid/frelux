@@ -40,7 +40,7 @@ export default function PageHeader({
           </Link>
         )}
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+          <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-500">
             {breadcrumbs.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1.5">
                 {i > 0 && <span className="text-neutral-300 dark:text-neutral-600">/</span>}
@@ -64,7 +64,7 @@ export default function PageHeader({
             <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl text-balance dark:text-white">
               {title}
             </h1>
-            {subtitle && <p className="mt-3 max-w-2xl text-base text-neutral-500 text-balance dark:text-neutral-400">{subtitle}</p>}
+            {subtitle && <p className="mt-3 max-w-2xl text-base text-neutral-500 text-balance dark:text-neutral-500">{subtitle}</p>}
           </div>
           {actions && <div className="shrink-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{actions}</div>}
         </div>

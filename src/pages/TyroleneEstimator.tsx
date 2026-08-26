@@ -427,7 +427,7 @@ const mountedRef = useRef(true);
       <Container className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading Tyrolene configuration…</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-500">Loading Tyrolene configuration…</p>
         </div>
       </Container>
     );
@@ -473,7 +473,7 @@ const mountedRef = useRef(true);
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 FRELUX Tyrolene Material Ratio
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 mb-2">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1 mb-2">
                 Based on {materialRatio.partitions_per_ratio} standard partitions:
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -524,7 +524,7 @@ const mountedRef = useRef(true);
             Project Information
           </h3>
           <div>
-            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">
+            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-1">
               Project Description
             </label>
             <input
@@ -536,7 +536,7 @@ const mountedRef = useRef(true);
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-1">
+            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-1">
               Customer Location
             </label>
             <div className="flex gap-2">
@@ -552,7 +552,7 @@ const mountedRef = useRef(true);
                     'flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors border',
                     customerLocation === opt.value
                       ? 'border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter'
-                      : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400 hover:border-neutral-300'
+                      : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500 hover:border-neutral-300'
                   )}
                 >
                   <MapPin className="h-3.5 w-3.5" />
@@ -577,7 +577,7 @@ const mountedRef = useRef(true);
                   'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border',
                   inputMode === 'standard'
                     ? 'border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter'
-                    : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400'
+                    : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500'
                 )}
               >
                 Standard Count
@@ -588,7 +588,7 @@ const mountedRef = useRef(true);
                   'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border',
                   inputMode === 'actual'
                     ? 'border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter'
-                    : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-400'
+                    : 'border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500'
                 )}
               >
                 Actual Dimensions
@@ -599,7 +599,7 @@ const mountedRef = useRef(true);
           {/* Standard Partition Count Input */}
           {inputMode === 'standard' && (
             <div>
-              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-400 mb-2">
+              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-2">
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
@@ -624,7 +624,7 @@ const mountedRef = useRef(true);
                 </button>
               </div>
               {standardPartition.width && standardPartition.height && (
-                <p className="text-xs text-neutral-400 mt-2">
+                <p className="text-xs text-neutral-500 mt-2">
                   Standard partition: {standardPartition.width}m × {standardPartition.height}m = {(standardPartition.width * standardPartition.height).toFixed(2)}m²
                 </p>
               )}
@@ -641,7 +641,7 @@ const mountedRef = useRef(true);
                   </p>
                 </div>
               ) : (
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   Standard partition: {standardPartition.width}m × {standardPartition.height}m = {(standardPartition.width * standardPartition.height).toFixed(2)}m².
                   Enter actual partition dimensions, the system will calculate equivalent standard partitions.
                 </p>
@@ -650,13 +650,13 @@ const mountedRef = useRef(true);
               {partitionTypes.map((pt, _idx) => (
                 <div key={pt.id} className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
                       {pt.label}
                     </span>
                     {partitionTypes.length > 1 && (
                       <button
                         onClick={() => removePartitionType(pt.id)}
-                        className="text-neutral-400 hover:text-red-500"
+                        className="text-neutral-500 hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -664,7 +664,7 @@ const mountedRef = useRef(true);
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-xs text-neutral-400 mb-1">Qty</label>
+                      <label className="block text-xs text-neutral-500 mb-1">Qty</label>
                       <input
                         type="number"
                         min="0"
@@ -674,7 +674,7 @@ const mountedRef = useRef(true);
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-400 mb-1">Width (m)</label>
+                      <label className="block text-xs text-neutral-500 mb-1">Width (m)</label>
                       <input
                         type="number"
                         min="0"
@@ -685,7 +685,7 @@ const mountedRef = useRef(true);
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-400 mb-1">Height (m)</label>
+                      <label className="block text-xs text-neutral-500 mb-1">Height (m)</label>
                       <input
                         type="number"
                         min="0"
@@ -696,7 +696,7 @@ const mountedRef = useRef(true);
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     Area: {(pt.quantity * pt.width * pt.height).toFixed(2)}m²
                   </p>
                 </div>
@@ -791,19 +791,19 @@ const mountedRef = useRef(true);
                     {/* Partition Summary */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-400">Partitions</p>
+                        <p className="text-xs text-neutral-500">Partitions</p>
                         <p className="text-lg font-bold text-neutral-900 dark:text-white">
                           {result.equivalent_standard_partitions}
                         </p>
                       </div>
                       <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-400">Standard Partition</p>
+                        <p className="text-xs text-neutral-500">Standard Partition</p>
                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                           {result.standard_partition_width}m × {result.standard_partition_height}m
                         </p>
                       </div>
                       <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-400">Adjusted</p>
+                        <p className="text-xs text-neutral-500">Adjusted</p>
                         <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                           {result.has_dimensional_adjustment ? 'Yes · measured' : 'No · standard count'}
                         </p>
@@ -842,34 +842,34 @@ const mountedRef = useRef(true);
                               <span className="text-sm font-medium text-neutral-900 dark:text-white">
                                 {m.material_name}
                               </span>
-                              <span className="text-xs text-neutral-400">
+                              <span className="text-xs text-neutral-500">
                                 {m.rounding_rule} · pack {m.pack_size}
                               </span>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                               <div>
-                                <span className="text-neutral-400">Theoretical: </span>
+                                <span className="text-neutral-500">Theoretical: </span>
                                 <span className="font-medium text-neutral-900 dark:text-white">
                                   {m.theoretical_quantity} {m.theoretical_unit}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-neutral-400">Practical: </span>
+                                <span className="text-neutral-500">Practical: </span>
                                 <span className="font-medium text-neutral-900 dark:text-white">
                                   {m.practical_purchase_quantity} {m.theoretical_unit}
                                 </span>
                                 {m.leftover_quantity > 0 && (
-                                  <span className="text-neutral-400 ml-1">(+{m.leftover_quantity} leftover)</span>
+                                  <span className="text-neutral-500 ml-1">(+{m.leftover_quantity} leftover)</span>
                                 )}
                               </div>
                               <div>
-                                <span className="text-neutral-400">Price: </span>
+                                <span className="text-neutral-500">Price: </span>
                                 <span className="font-medium text-neutral-900 dark:text-white">
                                   {formatCurrency(m.unit_price, result.currency)} / {m.theoretical_unit}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-neutral-400">Total: </span>
+                                <span className="text-neutral-500">Total: </span>
                                 <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">
                                   {formatCurrency(m.total_price, result.currency)}
                                 </span>
@@ -883,13 +883,13 @@ const mountedRef = useRef(true);
                     {/* Cost Summary */}
                     <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-neutral-500 dark:text-neutral-400">Theoretical Material Cost</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Theoretical Material Cost</span>
                         <span className="font-medium text-neutral-900 dark:text-white">
                           {formatCurrency(result.theoretical_material_cost, result.currency)}
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-neutral-500 dark:text-neutral-400">Practical Purchase Cost</span>
+                        <span className="text-neutral-500 dark:text-neutral-500">Practical Purchase Cost</span>
                         <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
                           {formatCurrency(result.practical_purchase_cost, result.currency)}
                         </span>
@@ -898,7 +898,7 @@ const mountedRef = useRef(true);
 
                     {/* Labour */}
                     <div className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3">
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
                         {result.labour_note}
                       </p>
                     </div>
@@ -913,7 +913,7 @@ const mountedRef = useRef(true);
                       <p className="text-xs font-medium text-neutral-900 dark:text-white mb-1">
                         Production: {result.production_eligible ? 'Available' : 'Check Required'}
                       </p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
                         {result.production_message}
                       </p>
                       {!result.production_min_configured && (
@@ -926,11 +926,11 @@ const mountedRef = useRef(true);
                     {/* Customer Trust Indicators */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="rounded-md bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2">
-                        <span className="text-neutral-400">CALCULATED:</span>{' '}
+                        <span className="text-neutral-500">CALCULATED:</span>{' '}
                         <span className="text-neutral-900 dark:text-white">FRELUX Engine</span>
                       </div>
                       <div className="rounded-md bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2">
-                        <span className="text-neutral-400">NEGOTIATED:</span>{' '}
+                        <span className="text-neutral-500">NEGOTIATED:</span>{' '}
                         <span className="text-neutral-900 dark:text-white">Labour (separately)</span>
                       </div>
                     </div>
@@ -957,7 +957,7 @@ const mountedRef = useRef(true);
                               </span>
                             </div>
                             {step.detail && (
-                              <span className="text-xs text-neutral-400 mt-0.5">{step.detail}</span>
+                              <span className="text-xs text-neutral-500 mt-0.5">{step.detail}</span>
                             )}
                           </div>
                         ))}

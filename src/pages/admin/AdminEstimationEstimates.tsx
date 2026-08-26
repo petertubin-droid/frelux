@@ -196,7 +196,7 @@ export default function AdminEstimationEstimates() {
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+            <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
             <span className="text-xs font-semibold text-neutral-600">Calculator:</span>
             <AdminSelect
               className="text-xs py-1.5"
@@ -233,7 +233,7 @@ export default function AdminEstimationEstimates() {
         </div>
 
         <div className="relative w-full lg:w-72">
-          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
           <AdminInput
  type="text"
  placeholder="Search estimate ref or description..."
@@ -290,7 +290,7 @@ export default function AdminEstimationEstimates() {
                       </p>
                     )}
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
                       <span className="inline-flex items-center gap-1">
                         <Calendar aria-hidden="true" className="h-3 w-3" /> {new Date(est.created_at).toLocaleString()}
                       </span>
@@ -306,7 +306,7 @@ export default function AdminEstimationEstimates() {
                       <span className="text-base font-extrabold text-brand-navy dark:text-white">
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
-                      <p className="text-[10px] text-neutral-400 dark:text-neutral-500">Total Material Cost</p>
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-500">Total Material Cost</p>
                     </div>
 
                     <div className="rounded-full bg-neutral-100 p-2 text-neutral-500 hover:bg-neutral-200">
@@ -326,7 +326,7 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     {isItemLoading ? (
-                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-400">Loading line items...</div>
+                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-500">Loading line items...</div>
                     ) : lineItems.length === 0 ? (
                       <p className="text-xs text-neutral-500 italic p-2">No line items recorded for this estimate.</p>
                     ) : (
@@ -348,7 +348,7 @@ export default function AdminEstimationEstimates() {
                               <tr key={item.id} className="hover:bg-neutral-50 dark:bg-white/5/80">
                                 <td className="p-2.5 font-medium text-neutral-800">
                                   {item.item_name}
-                                  {item.notes && <p className="text-[10px] text-neutral-400 italic">{item.notes}</p>}
+                                  {item.notes && <p className="text-[10px] text-neutral-500 italic">{item.notes}</p>}
                                 </td>
                                 <td className="p-2.5">
                                   <span className={`inline-flex rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}>
@@ -360,7 +360,7 @@ export default function AdminEstimationEstimates() {
                                 </td>
                                 <td className="p-2.5 text-right font-mono font-semibold text-neutral-700 dark:text-neutral-200">
                                   {item.practical_purchase_qty} {item.unit}
-                                  {item.pack_size && <span className="block text-[9px] text-neutral-400 dark:text-neutral-500">Pack: {item.pack_size}</span>}
+                                  {item.pack_size && <span className="block text-[9px] text-neutral-500 dark:text-neutral-500">Pack: {item.pack_size}</span>}
                                 </td>
                                 <td className="p-2.5 text-right font-mono">
                                   {formatCurrency(item.unit_price, est.currency)}

@@ -47,7 +47,7 @@ const mountedRef = useRef(true);
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
             Find the Right Professional for Your Project
           </h2>
-          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400 sm:text-base">
+          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500 sm:text-base">
             Connect with painters, tilers, contractors, engineers, screeders, POP installers and other construction professionals based on your project needs and location.
           </p>
         </div>
@@ -86,7 +86,7 @@ const mountedRef = useRef(true);
                   <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">
                     {cat.name}
                   </p>
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
                     Browse {cat.name.toLowerCase()}
                   </p>
                 </div>

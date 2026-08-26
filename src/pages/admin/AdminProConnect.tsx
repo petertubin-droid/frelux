@@ -111,7 +111,7 @@ function AdminProfessionalsTab() {
     <div>
       <div className="mb-4">
         <div className="relative max-w-md">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
           <AdminInput
  type="text"
  value={search}
@@ -130,7 +130,7 @@ function AdminProfessionalsTab() {
               </div>
               <div>
                 <p className="text-sm font-medium text-neutral-900 dark:text-white">{p.display_name}</p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {p.business_name || 'No business'} · {p.rating_avg.toFixed(1)} / 5 ({p.rating_count})
                   {p.pro_level && <span className="ml-2 text-amber-500">• FRELUX Pro</span>}
                 </p>
@@ -144,7 +144,7 @@ function AdminProfessionalsTab() {
                 p.verification_status === 'rejected' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' :
                 p.verification_status === 'more_info' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' :
                 p.verification_status === 'suspended' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' :
-                'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'
+                'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
               )}>
                 {p.verification_status.replace('_', ' ')}
               </span>
@@ -167,7 +167,7 @@ function AdminProfessionalsTab() {
                   <Ban aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
               )}
-              <a href={`/pro-connect/${p.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+              <a href={`/pro-connect/${p.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple">
                 <Eye aria-hidden="true" className="h-4 w-4" />
               </a>
             </div>
@@ -246,7 +246,7 @@ function AdminVerificationTab() {
             onClick={() => setFilter(f)}
             className={classNames(
               'rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors',
-              filter === f ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-400'
+              filter === f ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-500'
             )}
           >
             {f.replace('_', ' ')}
@@ -293,25 +293,25 @@ function AdminVerificationTab() {
                       </p>
                     )}
                     {req.professional_name && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Name: {req.professional_name}</p>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Name: {req.professional_name}</p>
                     )}
                     {req.identity_document_type && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                         ID Type: <span className="capitalize">{req.identity_document_type.replace(/_/g, ' ')}</span>
                       </p>
                     )}
                     {req.years_experience != null && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Experience: {req.years_experience} years</p>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Experience: {req.years_experience} years</p>
                     )}
-                    <p className="mt-1 text-xs text-neutral-400">
+                    <p className="mt-1 text-xs text-neutral-500">
                       Submitted: {new Date(req.submitted_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </p>
                     {req.admin_notes && (
-                      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-400">Admin notes: {req.admin_notes}</p>
+                      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">Admin notes: {req.admin_notes}</p>
                     )}
                   </div>
                   {profile && (
-                    <a href={`/pro-connect/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
+                    <a href={`/pro-connect/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple">
                       <Eye aria-hidden="true" className="h-4 w-4" />
                     </a>
                   )}
@@ -468,7 +468,7 @@ function AdminKycTab() {
             onClick={() => setFilter(f)}
             className={classNames(
               'rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors',
-              filter === f ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-400'
+              filter === f ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-500'
             )}
           >
             {f}
@@ -498,20 +498,20 @@ function AdminKycTab() {
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-400">NIN:</span>
+                      <span className="text-xs text-neutral-500">NIN:</span>
                       <span className="font-mono text-sm font-bold text-neutral-900 dark:text-white">{sub.nin_number}</span>
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-400">Category:</span>
+                      <span className="text-xs text-neutral-500">Category:</span>
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.category_name ?? 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <Phone aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
+                      <Phone aria-hidden="true" className="h-3.5 w-3.5 text-neutral-500" />
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.mobile_number ?? sub.phone_number ?? 'N/A'}</span>
                       {sub.mobile_otp_verified && <Check aria-hidden="true" className="h-3.5 w-3.5 text-emerald-500" />}
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-400">Registered:</span>
+                      <span className="text-xs text-neutral-500">Registered:</span>
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">
                         {new Date(sub.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
@@ -541,7 +541,7 @@ function AdminKycTab() {
                   href={`/pro-connect/${sub.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple"
+                  className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
                 >
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </a>
@@ -678,13 +678,13 @@ function AdminReportsTab() {
       <div className="mb-4 flex gap-2">
         <AdminButton
           onClick={() => setReportSubTab('pro')}
-          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'pro' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
+          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'pro' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500')}
         >
           Pro Connect Reports ({reports.length})
         </AdminButton>
         <AdminButton
           onClick={() => setReportSubTab('worker')}
-          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'worker' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}
+          className={classNames('rounded-full px-3 py-1 text-xs font-medium', reportSubTab === 'worker' ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500')}
         >
           Worker Channel Reports ({workerReports.length})
         </AdminButton>
@@ -702,11 +702,11 @@ function AdminReportsTab() {
                 <div>
                   <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium capitalize text-neutral-600 dark:bg-white/5 dark:text-neutral-300">{r.report_type}</span>
                   <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">{r.reason}</p>
-                  {r.description && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{r.description}</p>}
-                  <p className="mt-2 text-xs text-neutral-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
+                  {r.description && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{r.description}</p>}
+                  <p className="mt-2 text-xs text-neutral-500">{new Date(r.created_at).toLocaleDateString('en-GB')}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={classNames('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', r.status === 'open' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : r.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}>{r.status}</span>
+                  <span className={classNames('rounded-full px-2.5 py-0.5 text-xs font-medium capitalize', r.status === 'open' ? 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' : r.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500')}>{r.status}</span>
                   {r.status === 'open' && (
                     <>
                       <AdminButton variant="success" onClick={() => resolveProReport(r.id, 'resolved')} className="text-xs py-1">Resolve</AdminButton>
@@ -732,10 +732,10 @@ function AdminReportsTab() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium capitalize text-red-600 dark:bg-red-500/10 dark:text-red-400">{wr.reason}</span>
-                    <span className={classNames('rounded-full px-2 py-0.5 text-xs font-medium capitalize', wr.status === 'pending' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' : wr.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400')}>{wr.status}</span>
+                    <span className={classNames('rounded-full px-2 py-0.5 text-xs font-medium capitalize', wr.status === 'pending' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' : wr.status === 'resolved' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500')}>{wr.status}</span>
                   </div>
                   {wr.description && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{wr.description}</p>}
-                  <p className="mt-2 text-xs text-neutral-400">{new Date(wr.created_at).toLocaleDateString('en-GB')}</p>
+                  <p className="mt-2 text-xs text-neutral-500">{new Date(wr.created_at).toLocaleDateString('en-GB')}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <AdminButton variant="secondary" onClick={() => viewNinDetails(wr.id)} className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-brand-purple/5">
@@ -754,25 +754,25 @@ function AdminReportsTab() {
               {ninDetail && (ninDetail as Record<string, unknown>).report_id === wr.id && (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
                   {ninDetailLoading ? (
-                    <p className="text-sm text-neutral-400">Loading...</p>
+                    <p className="text-sm text-neutral-500">Loading...</p>
                   ) : (
                     <>
                       <p className="mb-2 text-sm font-semibold text-brand-purple">NIN Verification Reference</p>
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                          <p className="text-xs text-neutral-400">Reported User</p>
+                          <p className="text-xs text-neutral-500">Reported User</p>
                           <p className="font-medium text-neutral-900 dark:text-white">{String((ninDetail as Record<string, unknown>).reported_name ?? 'N/A')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-neutral-400">NIN</p>
+                          <p className="text-xs text-neutral-500">NIN</p>
                           <p className="font-mono font-bold text-neutral-900 dark:text-white">{String((ninDetail as Record<string, unknown>).nin_number ?? 'Not on file')}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-neutral-400">NIN Verified</p>
+                          <p className="text-xs text-neutral-500">NIN Verified</p>
                           <p className="font-medium">{(ninDetail as Record<string, unknown>).nin_verified ? '✓ Yes' : '✗ No'}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-neutral-400">Verified At</p>
+                          <p className="text-xs text-neutral-500">Verified At</p>
                           <p className="font-medium text-neutral-700 dark:text-neutral-300">
                             {(ninDetail as Record<string, unknown>).nin_verified_at
                               ? new Date(String((ninDetail as Record<string, unknown>).nin_verified_at)).toLocaleDateString('en-GB')
@@ -783,7 +783,7 @@ function AdminReportsTab() {
                       {(ninDetail as Record<string, unknown>).nin_history && (
                         <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-white/10">
                           <p className="mb-1 text-xs font-semibold text-neutral-500">Verification History:</p>
-                          <pre className="overflow-x-auto text-xs text-neutral-500 dark:text-neutral-400">
+                          <pre className="overflow-x-auto text-xs text-neutral-500 dark:text-neutral-500">
                             {JSON.stringify((ninDetail as Record<string, unknown>).nin_history, null, 2)}
                           </pre>
                         </div>
@@ -833,7 +833,7 @@ function AdminReviewsTab() {
                 {[1, 2, 3, 4, 5].map((s) => (
                   <ThumbsUp key={s} className={s <= r.rating ? 'h-4 w-4 fill-amber-400 text-amber-400' : 'h-4 w-4 text-neutral-200 dark:text-neutral-700'} />
                 ))}
-                <span className="text-xs text-neutral-400">{new Date(r.created_at).toLocaleDateString('en-GB')}</span>
+                <span className="text-xs text-neutral-500">{new Date(r.created_at).toLocaleDateString('en-GB')}</span>
                 {r.is_hidden && <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-600 dark:bg-red-500/10 dark:text-red-400">Hidden</span>}
                 {r.is_verified_review && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">Verified Review</span>}
               </div>
@@ -888,7 +888,7 @@ function AdminSettingsTab() {
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Verification Badge Descriptions</h3>
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Contact Verified description</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Contact Verified description</span>
             <AdminTextarea
               value={settings.contact_verified_description}
               onChange={(e) => setSettings({ ...settings, contact_verified_description: e.target.value })}
@@ -897,7 +897,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">FRELUX Verified description</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">FRELUX Verified description</span>
             <AdminTextarea
               value={settings.frelux_verified_description}
               onChange={(e) => setSettings({ ...settings, frelux_verified_description: e.target.value })}
@@ -906,7 +906,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">FRELUX Pro description</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">FRELUX Pro description</span>
             <AdminTextarea
               value={settings.pro_level_description}
               onChange={(e) => setSettings({ ...settings, pro_level_description: e.target.value })}
@@ -915,7 +915,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Verification disclaimer</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Verification disclaimer</span>
             <AdminTextarea
               value={settings.verification_disclaimer}
               onChange={(e) => setSettings({ ...settings, verification_disclaimer: e.target.value })}
@@ -931,7 +931,7 @@ function AdminSettingsTab() {
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">FRELUX Pro Eligibility Requirements</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum reviews</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Minimum reviews</span>
             <AdminInput
  type="number"
  value={settings.pro_level_min_reviews}
@@ -940,7 +940,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Minimum rating</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Minimum rating</span>
             <AdminInput
  type="number"
  step="0.1"
@@ -950,7 +950,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Min portfolio items</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Min portfolio items</span>
             <AdminInput
  type="number"
  value={settings.pro_level_min_portfolio_items}
@@ -959,7 +959,7 @@ function AdminSettingsTab() {
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Min profile age (days)</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Min profile age (days)</span>
             <AdminInput
  type="number"
  value={settings.pro_level_min_profile_age_days}
@@ -1132,7 +1132,7 @@ function AdminChannelsTab() {
             <div key={cat.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid">
               <div>
                 <p className="text-sm font-medium text-neutral-900 dark:text-white">{cat.name}</p>
-                <p className="text-xs text-neutral-400">/{cat.slug} · {cat.is_active ? 'Active' : 'Inactive'}</p>
+                <p className="text-xs text-neutral-500">/{cat.slug} · {cat.is_active ? 'Active' : 'Inactive'}</p>
               </div>
               <div className="flex gap-1">
                 <AdminIconButton variant="ghost" onClick={() => startEditCategory(cat)}>
@@ -1144,7 +1144,7 @@ function AdminChannelsTab() {
               </div>
             </div>
           ))}
-          {categories.length === 0 && <p className="text-sm text-neutral-400">No categories yet.</p>}
+          {categories.length === 0 && <p className="text-sm text-neutral-500">No categories yet.</p>}
         </div>
       </div>
 
@@ -1166,7 +1166,7 @@ function AdminChannelsTab() {
                   {ch.is_official && <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">Official</span>}
                   {!ch.is_active && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-500">Inactive</span>}
                 </div>
-                <p className="mt-0.5 truncate text-xs text-neutral-400">
+                <p className="mt-0.5 truncate text-xs text-neutral-500">
                   /{ch.slug} · {ch.region || 'National'} · {ch.member_count ?? 0} members
                   {ch.category && ` · ${ch.category.name}`}
                 </p>
@@ -1181,7 +1181,7 @@ function AdminChannelsTab() {
               </div>
             </div>
           ))}
-          {channels.length === 0 && <p className="text-sm text-neutral-400">No channels yet.</p>}
+          {channels.length === 0 && <p className="text-sm text-neutral-500">No channels yet.</p>}
         </div>
       </div>
 
@@ -1190,35 +1190,35 @@ function AdminChannelsTab() {
         <AdminModal open onClose={() => setShowChannelForm(false)} title={editingChannel ? 'Edit Channel' : 'New Channel'} maxWidth="max-w-lg">
             <div className="space-y-3">
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Name</span>
                 <AdminInput type="text" value={channelForm.name} onChange={(e) => setChannelForm({ ...channelForm, name: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Slug (auto-generated if empty)</span>
                 <AdminInput type="text" value={channelForm.slug} onChange={(e) => setChannelForm({ ...channelForm, slug: e.target.value })}
                   placeholder="e.g. lagos-price-watch"
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Description</span>
                 <AdminTextarea value={channelForm.description} onChange={(e) => setChannelForm({ ...channelForm, description: e.target.value })} rows={2}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
-                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Region</span>
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Region</span>
                   <AdminInput type="text" value={channelForm.region} onChange={(e) => setChannelForm({ ...channelForm, region: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Icon (lucide name)</span>
                   <AdminInput type="text" value={channelForm.icon} onChange={(e) => setChannelForm({ ...channelForm, icon: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
               </div>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Category</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Category</span>
                 <AdminSelect value={channelForm.category_id} onChange={(e) => setChannelForm({ ...channelForm, category_id: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy">
                   <option value="">Uncategorized</option>
@@ -1226,7 +1226,7 @@ function AdminChannelsTab() {
                 </AdminSelect>
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Sort order</span>
                 <AdminInput type="number" value={channelForm.sort_order} onChange={(e) => setChannelForm({ ...channelForm, sort_order: parseInt(e.target.value) || 0 })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
@@ -1257,28 +1257,28 @@ function AdminChannelsTab() {
         <AdminModal open onClose={() => setShowCategoryForm(false)} title={editingCategory ? 'Edit Category' : 'New Category'} maxWidth="max-w-md">
             <div className="space-y-3">
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Name</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Name</span>
                 <AdminInput type="text" value={categoryForm.name} onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Slug (auto-generated if empty)</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Slug (auto-generated if empty)</span>
                 <AdminInput type="text" value={categoryForm.slug} onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Description</span>
+                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Description</span>
                 <AdminInput type="text" value={categoryForm.description} onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
                   className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
-                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Icon (lucide name)</span>
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Icon (lucide name)</span>
                   <AdminInput type="text" value={categoryForm.icon} onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Sort order</span>
+                  <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Sort order</span>
                   <AdminInput type="number" value={categoryForm.sort_order} onChange={(e) => setCategoryForm({ ...categoryForm, sort_order: parseInt(e.target.value) || 0 })}
                     className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy" />
                 </label>
@@ -1382,12 +1382,12 @@ function AdminModerationTab() {
           ? 'border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10'
           : 'border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5'
       )}>
-        <Bot className={classNames('h-5 w-5', config.is_enabled ? 'text-emerald-500' : 'text-neutral-400')} />
+        <Bot className={classNames('h-5 w-5', config.is_enabled ? 'text-emerald-500' : 'text-neutral-500')} />
         <div className="flex-1">
           <p className="text-sm font-medium text-neutral-900 dark:text-white">
             AI Moderation Bot: {config.is_enabled ? 'Active' : 'Disabled'}
           </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="text-xs text-neutral-500 dark:text-neutral-500">
             {config.is_enabled
               ? `Using ${config.ai_provider} / ${config.ai_model} — messages are auto-checked on send.`
               : 'All messages will pass through without moderation.'}
@@ -1407,29 +1407,29 @@ function AdminModerationTab() {
       {/* Thresholds */}
       <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Auto-Action Thresholds</h3>
-        <p className="mb-4 text-xs text-neutral-400">
+        <p className="mb-4 text-xs text-neutral-500">
           AI scores messages 0.0 (safe) to 1.0 (harmful). Set thresholds for automatic flagging and removal.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-flag threshold (0.0–1.0)</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Auto-flag threshold (0.0–1.0)</span>
             <AdminInput
  type="number" step="0.05" min="0" max="1"
  value={config.auto_flag_threshold}
  onChange={(e) => setConfig({ ...config, auto_flag_threshold: parseFloat(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
-            <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are flagged for review.</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">Messages scoring ≥ this are flagged for review.</span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Auto-remove threshold (0.0–1.0)</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Auto-remove threshold (0.0–1.0)</span>
             <AdminInput
  type="number" step="0.05" min="0" max="1"
  value={config.auto_remove_threshold}
  onChange={(e) => setConfig({ ...config, auto_remove_threshold: parseFloat(e.target.value) || 0 })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
-            <span className="mt-1 block text-[11px] text-neutral-400">Messages scoring ≥ this are removed automatically.</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">Messages scoring ≥ this are removed automatically.</span>
           </label>
         </div>
       </div>
@@ -1439,7 +1439,7 @@ function AdminModerationTab() {
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">Banned Words & Patterns</h3>
         <div className="space-y-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned words (comma-separated)</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Banned words (comma-separated)</span>
             <AdminTextarea
               value={bannedWordsText}
               onChange={(e) => setBannedWordsText(e.target.value)}
@@ -1447,10 +1447,10 @@ function AdminModerationTab() {
               placeholder="e.g. scam, fraud, idiot, ..."
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
-            <span className="mt-1 block text-[11px] text-neutral-400">Messages containing these are instantly removed (score = 1.0).</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">Messages containing these are instantly removed (score = 1.0).</span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Banned regex patterns (one per line)</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Banned regex patterns (one per line)</span>
             <AdminTextarea
               value={bannedPatternsText}
               onChange={(e) => setBannedPatternsText(e.target.value)}
@@ -1458,7 +1458,7 @@ function AdminModerationTab() {
               placeholder="e.g. \b\d{10}\b (phone number spam)"
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-brand-navy"
             />
-            <span className="mt-1 block text-[11px] text-neutral-400">Each line is a regex pattern. Matching messages are instantly removed.</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">Each line is a regex pattern. Matching messages are instantly removed.</span>
           </label>
         </div>
       </div>
@@ -1468,7 +1468,7 @@ function AdminModerationTab() {
         <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">AI Provider Settings</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Provider</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Provider</span>
             <AdminSelect
               value={config.ai_provider}
               onChange={(e) => setConfig({ ...config, ai_provider: e.target.value })}
@@ -1478,17 +1478,17 @@ function AdminModerationTab() {
               <option value="anthropic">Anthropic</option>
               <option value="local">Local / Heuristic only</option>
             </AdminSelect>
-            <span className="mt-1 block text-[11px] text-neutral-400">If set to "Local", only heuristic rules apply (no API calls).</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">If set to "Local", only heuristic rules apply (no API calls).</span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-400">Model</span>
+            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Model</span>
             <AdminInput
  type="text"
  value={config.ai_model}
  onChange={(e) => setConfig({ ...config, ai_model: e.target.value })}
               className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
             />
-            <span className="mt-1 block text-[11px] text-neutral-400">e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.</span>
+            <span className="mt-1 block text-[11px] text-neutral-500">e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.</span>
           </label>
         </div>
       </div>
@@ -1502,7 +1502,7 @@ function AdminModerationTab() {
           rows={2}
           className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
         />
-        <span className="mt-1 block text-[11px] text-neutral-400">Posted as a system message in the channel when content is removed.</span>
+        <span className="mt-1 block text-[11px] text-neutral-500">Posted as a system message in the channel when content is removed.</span>
       </div>
 
       {/* Save button */}

@@ -112,7 +112,7 @@ export default function TemplateDetail() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <AlertCircle aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600" />
         <h1 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">Template Not Found</h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{error ?? 'This template may have been removed.'}</p>
+        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{error ?? 'This template may have been removed.'}</p>
         <Link to="/templates" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
           Browse all templates <ChevronRight className="h-4 w-4" />
         </Link>
@@ -142,7 +142,7 @@ export default function TemplateDetail() {
           {template.name}
         </h1>
         {template.description && (
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">{template.description}</p>
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">{template.description}</p>
         )}
       </div>
 
@@ -165,7 +165,7 @@ export default function TemplateDetail() {
         <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
           {inputSummary.map((item) => (
             <div key={item.label} className="flex flex-col">
-              <dt className="text-[11px] font-medium uppercase tracking-wider text-neutral-400 dark:text-neutral-500">{item.label}</dt>
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-500">{item.label}</dt>
               <dd className="text-sm text-neutral-900 dark:text-white">{item.value}</dd>
             </div>
           ))}
@@ -206,21 +206,21 @@ export default function TemplateDetail() {
         <div className="space-y-4">
           <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">What is the {template.name} template?</h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
               The {template.name} template is a pre-configured starting point for the FRELUX {calcLabel} calculator.
               It comes with common dimensions and settings pre-filled, which you can adjust to match your actual measurements.
             </p>
           </div>
           <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">How do I use this {calcLabel.toLowerCase()} template?</h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
               Click "Use This Template" to open the {calcLabel} with the template's inputs pre-filled. Adjust the dimensions
               to match your project, then run the calculation to get material quantities and cost estimates.
             </p>
           </div>
           <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Are the prices in this template current?</h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
               Template dimensions and settings are pre-configured, but material prices are always loaded from the current
               market database when you run the calculator. This ensures your estimate reflects today's prices.
             </p>
@@ -241,9 +241,9 @@ export default function TemplateDetail() {
               >
                 <div>
                   <p className="text-sm font-medium text-neutral-900 dark:text-white">{t.name}</p>
-                  {t.description && <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-400">{t.description}</p>}
+                  {t.description && <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-500">{t.description}</p>}
                 </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-neutral-400 transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
               </Link>
             ))}
           </div>

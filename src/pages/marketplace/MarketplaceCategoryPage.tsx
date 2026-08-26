@@ -88,7 +88,7 @@ export default function MarketplaceCategoryPage() {
       {/* Breadcrumb */}
       <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
             <Link to="/" className="hover:text-brand-purple">Home</Link>
             <span>/</span>
             <Link to="/marketplace" className="hover:text-brand-purple">Marketplace</Link>
@@ -104,7 +104,7 @@ export default function MarketplaceCategoryPage() {
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
             {category?.name || 'Loading...'}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
             {category?.description || `Find ${category?.name || 'construction'} professionals and job listings on FRELUX.`}
           </p>
 
@@ -125,10 +125,10 @@ export default function MarketplaceCategoryPage() {
           <div className="py-20 text-center">
             <Package aria-hidden="true" className="mx-auto h-12 w-12 text-neutral-300" />
             <h2 className="mt-4 text-lg font-semibold text-neutral-700 dark:text-neutral-200">No Active Listings</h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               There are currently no active job listings in this category.
             </p>
-            <p className="mt-2 text-sm text-neutral-400">
+            <p className="mt-2 text-sm text-neutral-500">
               Be the first to post a job in {category?.name}.
             </p>
             <Link
@@ -140,7 +140,7 @@ export default function MarketplaceCategoryPage() {
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-500">
               {listings.length} active {listings.length === 1 ? 'listing' : 'listings'} in {category?.name}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,7 +164,7 @@ export default function MarketplaceCategoryPage() {
                     {listing.title}
                   </h3>
                   {listing.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
                       {listing.description}
                     </p>
                   )}
@@ -173,7 +173,7 @@ export default function MarketplaceCategoryPage() {
                       {formatBudget(listing.budget_min, listing.budget_max, listing.currency)}
                     </span>
                     {listing.location_city && (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-neutral-400">
+                      <span className="inline-flex items-center gap-0.5 text-xs text-neutral-500">
                         <MapPin aria-hidden="true" className="h-3 w-3" />
                         {listing.location_city}
                       </span>

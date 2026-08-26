@@ -79,14 +79,14 @@ export function CodeOutput({ content, language = 'typescript', title }: { conten
     <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5 bg-white">
       <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-4 py-2">
         <div className="flex items-center gap-2">
-          <FileCode2 aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+          <FileCode2 aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />
           <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">{title ?? language}</span>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={download} className="rounded-md p-1.5 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Download">
+          <button type="button" onClick={download} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Download">
             <Download aria-hidden="true" className="h-3.5 w-3.5" />
           </button>
-          <button type="button" onClick={copy} className="rounded-md p-1.5 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Copy">
+          <button type="button" onClick={copy} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Copy">
             {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
           </button>
         </div>
@@ -104,7 +104,7 @@ export function AiResponseDisplay({ content, loading, error }: { content: string
     return (
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 p-6">
         <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
-        <span className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">AI is generating your response…</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">AI is generating your response…</span>
       </div>
     );
   }
@@ -193,13 +193,13 @@ export function ArtifactCard({ title, type, status, updated, onClick, onDelete }
   return (
     <div className="group flex items-center justify-between rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-4 transition-all hover:border-brand-purple hover:shadow-sm">
       <button type="button" onClick={onClick} className="flex min-w-0 items-center gap-3 text-left">
-        <FileCode2 aria-hidden="true" className="h-5 w-5 shrink-0 text-neutral-400 dark:text-neutral-500" />
+        <FileCode2 aria-hidden="true" className="h-5 w-5 shrink-0 text-neutral-500 dark:text-neutral-500" />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{title}</p>
           <div className="mt-0.5 flex items-center gap-2">
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">{type}</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">{type}</span>
             <span className={classNames('rounded-full px-1.5 py-0.5 text-[10px] font-semibold capitalize', statusColors[status] ?? statusColors.draft)}>{status}</span>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500">{new Date(updated).toLocaleDateString()}</span>
+            <span className="text-xs text-neutral-500 dark:text-neutral-500">{new Date(updated).toLocaleDateString()}</span>
           </div>
         </div>
       </button>
@@ -221,7 +221,7 @@ export function CollapsibleSection({ title, children, defaultOpen = false }: { t
     <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white">
       <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between p-4">
         <span className="text-sm font-semibold text-brand-navy dark:text-white">{title}</span>
-        {open ? <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" /> : <ChevronRight aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />}
+        {open ? <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" /> : <ChevronRight aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />}
       </button>
       {open && <div className="border-t border-neutral-200 dark:border-white/5 p-4">{children}</div>}
     </div>
@@ -259,7 +259,7 @@ export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cp
       </div>
       <div>
         <h1 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h1>
-        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">{description}</p>
+        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">{description}</p>
       </div>
     </div>
   );

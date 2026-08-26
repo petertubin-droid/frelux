@@ -7,7 +7,7 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
   if (loading) {
     return (
       <div role="alert" className="flex min-h-screen items-center justify-center bg-neutral-100">
-        <div className="text-sm text-neutral-400">Checking your session…</div>
+        <div className="text-sm text-neutral-500">Checking your session…</div>
       </div>
     );
   }

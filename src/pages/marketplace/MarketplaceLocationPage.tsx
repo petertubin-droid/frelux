@@ -110,7 +110,7 @@ export default function MarketplaceLocationPage() {
       {/* Breadcrumb */}
       <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
             <Link to="/" className="hover:text-brand-purple">Home</Link>
             <span>/</span>
             <Link to="/marketplace" className="hover:text-brand-purple">Marketplace</Link>
@@ -126,7 +126,7 @@ export default function MarketplaceLocationPage() {
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
             {location ? `${locationLabel}` : 'Loading...'}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
             Find construction professionals and job listings in {locationLabel}.
           </p>
           <div className="mt-4">
@@ -147,7 +147,7 @@ export default function MarketplaceLocationPage() {
             <section>
               <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
                 Job Listings in {locationLabel}
-                {listings.length > 0 && <span className="ml-2 text-sm font-normal text-neutral-400">({listings.length})</span>}
+                {listings.length > 0 && <span className="ml-2 text-sm font-normal text-neutral-500">({listings.length})</span>}
               </h2>
               {listings.length === 0 ? (
                 <div className="rounded-xl border border-neutral-200/60 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
@@ -182,7 +182,7 @@ export default function MarketplaceLocationPage() {
             <section>
               <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
                 Professionals in {locationLabel}
-                {pros.length > 0 && <span className="ml-2 text-sm font-normal text-neutral-400">({pros.length})</span>}
+                {pros.length > 0 && <span className="ml-2 text-sm font-normal text-neutral-500">({pros.length})</span>}
               </h2>
               {pros.length === 0 ? (
                 <div className="rounded-xl border border-neutral-200/60 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">

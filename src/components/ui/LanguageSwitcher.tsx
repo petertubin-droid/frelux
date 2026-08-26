@@ -86,7 +86,7 @@ export function LanguageSwitcher({ compact = false, inline = false }: { compact?
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-neutral-200/40 bg-white/95 py-1.5 shadow-lg backdrop-blur-xl dark:border-white/10 dark:bg-brand-navy-mid/95">
-          <p className="px-4 py-1 text-xs font-semibold uppercase tracking-widest text-neutral-400">Language</p>
+          <p className="px-4 py-1 text-xs font-semibold uppercase tracking-widest text-neutral-500">Language</p>
           {LANGUAGES.map((lang) => (
             <button
               key={lang.value}

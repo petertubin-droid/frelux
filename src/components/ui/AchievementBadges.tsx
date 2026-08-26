@@ -79,10 +79,10 @@ export function AchievementBadges({ compact = false }: Props) {
               )}
             >
               <span className={classNames('text-2xl', !isUnlocked && 'grayscale')}>{ach.icon}</span>
-              <span className={classNames('text-xs font-bold', isUnlocked ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-400')}>
+              <span className={classNames('text-xs font-bold', isUnlocked ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500')}>
                 {isUnlocked ? ach.title : '???'}
               </span>
-              <span className="text-[10px] text-neutral-400 leading-tight">
+              <span className="text-[10px] text-neutral-500 leading-tight">
                 {isUnlocked ? ach.description : `Unlock: ${ach.description}`}
               </span>
               {!isUnlocked && <Lock className="h-3 w-3 text-neutral-300" />}
@@ -98,7 +98,7 @@ function StatTile({ label, value, icon }: { label: string; value: number; icon?:
   return (
     <div className="rounded-lg border border-neutral-100 bg-neutral-50 px-2 py-2 text-center dark:border-white/5 dark:bg-white/5">
       <p className="flex items-center justify-center gap-1 text-lg font-bold text-brand-navy dark:text-white">{value}{icon}</p>
-      <p className="text-[10px] font-medium text-neutral-400">{label}</p>
+      <p className="text-[10px] font-medium text-neutral-500">{label}</p>
     </div>
   );
 }
@@ -119,7 +119,7 @@ export function AchievementToast({ achievements, onDismiss }: { achievements: { 
           <div>
             <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Achievement Unlocked!</p>
             <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ach.title}</p>
-            <p className="text-[11px] text-neutral-400">{ach.description}</p>
+            <p className="text-[11px] text-neutral-500">{ach.description}</p>
           </div>
           <button onClick={onDismiss} className="ml-2 text-neutral-300 hover:text-neutral-500" aria-label="Dismiss">
             <span className="text-lg leading-none">×</span>

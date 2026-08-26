@@ -146,7 +146,7 @@ export default function Layout() {
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Under Maintenance
         </h1>
-        <p className="mt-2 max-w-md text-neutral-500 dark:text-neutral-400">
+        <p className="mt-2 max-w-md text-neutral-500 dark:text-neutral-500">
           We're making some improvements. Please check back soon.
         </p>
       </div>

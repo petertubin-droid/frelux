@@ -80,7 +80,7 @@ export default function CalculatorNearMe({
               ? `Find "${materialName}" Near You`
               : "Find Professionals Near You"}
           </h4>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
             Connect with verified FRELUX professionals and marketplace sellers
             in your area.
           </p>
@@ -131,7 +131,7 @@ export default function CalculatorNearMe({
                   "rounded-md px-1.5 py-0.5 text-[10px] font-medium transition-colors",
                   radius === f.value
                     ? "bg-brand-purple text-white"
-                    : "text-neutral-400 hover:text-brand-purple",
+                    : "text-neutral-500 hover:text-brand-purple",
                 )}
               >
                 {f.label}
@@ -212,7 +212,7 @@ export default function CalculatorNearMe({
                       <p className="truncate text-xs font-semibold text-neutral-900 dark:text-white">
                         {pro.business_name || pro.display_name}
                       </p>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                      <p className="text-[10px] text-neutral-500 dark:text-neutral-500">
                         {pro.verification_status === "verified"
                           ? "✓ Verified"
                           : ""}{" "}
@@ -253,7 +253,7 @@ export default function CalculatorNearMe({
                     <p className="truncate text-xs font-semibold text-neutral-900 dark:text-white">
                       {listing.title}
                     </p>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">
                       {listing.location_city || ""} ·{" "}
                       {formatDistance(listing.distance_km)}
                     </p>

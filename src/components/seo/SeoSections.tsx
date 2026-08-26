@@ -29,13 +29,13 @@ export function FaqSection({ title = 'Frequently Asked Questions', faqs }: { tit
             >
               <span className="text-sm font-semibold text-neutral-900 dark:text-white">{faq.question}</span>
               <ChevronDown
-                className={`h-4 w-4 shrink-0 text-neutral-400 transition-transform duration-200 ${
+                className={`h-4 w-4 shrink-0 text-neutral-500 transition-transform duration-200 ${
                   openIndex === i ? 'rotate-180' : ''
                 }`}
               />
             </button>
             {openIndex === i && (
-              <div className="px-5 pb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              <div className="px-5 pb-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
                 {faq.answer}
               </div>
             )}
@@ -68,7 +68,7 @@ export function RelatedTools({ title = 'Related calculators & tools', links }: {
             <div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">{link.label}</p>
               {link.description && (
-                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{link.description}</p>
+                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{link.description}</p>
               )}
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 text-brand-purple opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5" />
@@ -84,7 +84,7 @@ export function RelatedTools({ title = 'Related calculators & tools', links }: {
 export function SeoContent({ children }: { children: ReactNode }) {
   return (
     <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <div className="space-y-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+      <div className="space-y-4 text-sm leading-relaxed text-neutral-600 dark:text-neutral-500">
         {children}
       </div>
     </section>

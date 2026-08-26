@@ -123,16 +123,16 @@ export default function AdminLearn() {
             <div key={article.id} className="card p-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <FileText aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-400" />
+                  <FileText aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-500" />
                   <p className="truncate text-sm font-bold text-brand-navy dark:text-white">{article.title}</p>
                   <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', article.status === 'published' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>{article.status}</span>
                   {article.is_featured && <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-[10px] font-semibold text-accent-orange">Featured</span>}
                 </div>
-                <p className="mt-0.5 truncate text-xs text-neutral-400 dark:text-neutral-500">{article.category_slug.replace(/-/g, ' ')} · {new Date(article.updated_at).toLocaleDateString()}</p>
+                <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-500">{article.category_slug.replace(/-/g, ' ')} · {new Date(article.updated_at).toLocaleDateString()}</p>
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={article.status === 'published'} onChange={() => handleTogglePublished(article)} />
-                <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
+                <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-500 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
                 <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
               </div>
             </div>
@@ -159,11 +159,11 @@ export default function AdminLearn() {
                 <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><BookOpen aria-hidden="true" className="h-5 w-5" /></div>
                 <div>
                   <p className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</p>
-                  <p className="text-xs text-neutral-400 dark:text-neutral-500">/{cat.slug} · Order {cat.sort_order}</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">/{cat.slug} · Order {cat.sort_order}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-neutral-400 dark:text-neutral-500">{cat.is_active ? 'Active' : 'Inactive'}</span>
+                <span className="text-xs text-neutral-500 dark:text-neutral-500">{cat.is_active ? 'Active' : 'Inactive'}</span>
                 <Toggle checked={cat.is_active} onChange={() => handleToggleCategoryActive(cat)} />
               </div>
             </div>
@@ -235,7 +235,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{article ? 'Edit Article' : 'New Article'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{article ? 'Edit Article' : 'New Article'}</h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
       </div>
 
@@ -277,7 +277,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       </div>
 
       <AdminCard className="bg-neutral-50 dark:bg-white/5">
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">SEO Settings</h3>
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">SEO Settings</h3>
         <div className="space-y-4">
           <AdminField label="Meta Title" hint="Overrides the default page title for search engines."><AdminInput  value={form.meta_title} onChange={(e) => setForm({ ...form, meta_title: e.target.value })} /></AdminField>
           <AdminField label="Meta Description" hint="Overrides the default description for search engines."><AdminTextarea  rows={2} value={form.meta_description} onChange={(e) => setForm({ ...form, meta_description: e.target.value })} /></AdminField>

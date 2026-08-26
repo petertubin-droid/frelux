@@ -192,7 +192,7 @@ export default function AdminBranding() {
           <ImageIcon className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Logos & Icons</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
           <MediaUploader label="Light Mode Logo" value={lightLogo} onChange={setLightLogo} folder="branding" />
           <MediaUploader label="Dark Mode Logo" value={darkLogo} onChange={setDarkLogo} folder="branding" />
@@ -207,7 +207,7 @@ export default function AdminBranding() {
           <ImageIcon className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Hero Image</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">The main image shown on the homepage hero section. Recommended aspect ratio: 4:5 (portrait). Leave empty to use the default.</p>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">The main image shown on the homepage hero section. Recommended aspect ratio: 4:5 (portrait). Leave empty to use the default.</p>
         <div className="mt-4">
           <MediaUploader label="Hero Image" value={heroImage} onChange={setHeroImage} folder="branding" />
         </div>
@@ -219,7 +219,7 @@ export default function AdminBranding() {
           <Palette aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Brand Colors</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
@@ -248,13 +248,13 @@ export default function AdminBranding() {
           <Highlighter className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Hero Text Highlighting</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
           Click any word in the hero headline below to highlight it with a custom color. Click again to remove. The headline text is managed in <span className="font-semibold">Admin → Settings → Homepage Hero</span>.
         </p>
 
         {/* Pending color picker */}
         <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-white/10 dark:bg-brand-navy-mid">
-          <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Color for next selection:</span>
+          <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Color for next selection:</span>
           <AdminInput
  type="color"
  value={pendingColor}
@@ -295,12 +295,12 @@ export default function AdminBranding() {
         {/* Active highlights list */}
         {highlightConfig && highlightConfig.highlights.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">Active highlights ({highlightConfig.highlights.length}):</p>
+            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Active highlights ({highlightConfig.highlights.length}):</p>
             {highlightConfig.highlights
               .sort((a, b) => a.wordIndex - b.wordIndex)
               .map((hl) => (
                 <div key={hl.wordIndex} className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-2.5 dark:border-white/10 dark:bg-brand-navy-mid">
-                  <span className="text-xs font-mono text-neutral-400">#{hl.wordIndex}</span>
+                  <span className="text-xs font-mono text-neutral-500">#{hl.wordIndex}</span>
                   <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{hl.word}</span>
                   <div className="ml-auto flex items-center gap-2">
                     <AdminInput
@@ -329,7 +329,7 @@ export default function AdminBranding() {
         )}
 
         {(!highlightConfig || highlightConfig.highlights.length === 0) && (
-          <p className="mt-4 text-xs text-neutral-400 dark:text-neutral-500">
+          <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-500">
             No highlights yet. Click on any word in the preview above to start highlighting.
           </p>
         )}
@@ -346,7 +346,7 @@ export default function AdminBranding() {
           {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Branding'}
         </AdminButton>
-        <span className="text-xs text-neutral-400 dark:text-neutral-500">Changes apply instantly across the website.</span>
+        <span className="text-xs text-neutral-500 dark:text-neutral-500">Changes apply instantly across the website.</span>
       </div>
     </>
   );

@@ -91,7 +91,7 @@ export function FloatingTip({ tip, children }: { tip: TipConfig; children: React
               <X className="h-3 w-3" />
             </button>
           </div>
-          <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">{tip.content}</p>
+          <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">{tip.content}</p>
           <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-amber-200/60 bg-white dark:border-amber-500/15 dark:bg-brand-navy-mid" />
         </div>
       )}

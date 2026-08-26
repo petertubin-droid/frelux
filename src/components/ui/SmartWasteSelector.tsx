@@ -46,7 +46,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             </span>
           )}
         </div>
-        <ChevronDown className={classNames('h-4 w-4 text-neutral-400 transition-transform', expanded && 'rotate-180')} />
+        <ChevronDown className={classNames('h-4 w-4 text-neutral-500 transition-transform', expanded && 'rotate-180')} />
       </button>
 
       {expanded && (
@@ -118,9 +118,9 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   <Lightbulb aria-hidden="true" className="h-4 w-4" />
                   Recommended: {result.wasteMargin}% waste
                 </span>
-                <span className="text-xs text-neutral-400">Current: {currentWaste}%</span>
+                <span className="text-xs text-neutral-500">Current: {currentWaste}%</span>
               </div>
-              <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-400">{result.reason}</p>
+              <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{result.reason}</p>
               <button
                 type="button"
                 onClick={() => onWasteChange(result.wasteMargin)}

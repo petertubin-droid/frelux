@@ -37,7 +37,7 @@ export default function MobileBottomNav() {
               aria-current={active ? 'page' : undefined}
               className={classNames(
                 'flex flex-1 flex-col items-center gap-0.5 rounded-lg py-1.5 text-[10px] font-medium transition-all',
-                active ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-400 dark:text-neutral-500',
+                active ? 'text-brand-purple dark:text-brand-purple-lighter' : 'text-neutral-500 dark:text-neutral-500',
               )}
             >
               <span className={classNames(

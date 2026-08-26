@@ -77,7 +77,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
         {/* Progress bar */}
         {items.length > 0 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400">
+            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-500">
               <span>{checkedCount} of {items.length} items</span>
               <span>{progress}% complete</span>
             </div>
@@ -108,10 +108,10 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
                 {item.checked && <Check aria-hidden="true" className="h-3.5 w-3.5" />}
               </span>
               <div className="min-w-0 flex-1">
-                <p className={classNames('text-sm font-semibold', item.checked ? 'text-neutral-400 line-through dark:text-neutral-500' : 'text-brand-navy dark:text-white')}>
+                <p className={classNames('text-sm font-semibold', item.checked ? 'text-neutral-500 line-through dark:text-neutral-500' : 'text-brand-navy dark:text-white')}>
                   {item.quantity}, {item.name}
                 </p>
-                {item.detail && <p className="mt-0.5 text-xs text-neutral-400 dark:text-neutral-500">{item.detail}</p>}
+                {item.detail && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{item.detail}</p>}
               </div>
             </button>
           ))}

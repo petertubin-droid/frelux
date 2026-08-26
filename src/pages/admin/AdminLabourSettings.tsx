@@ -101,14 +101,14 @@ function SettingsTab() {
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xs font-bold text-brand-navy dark:text-white">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                     {setting.is_enabled ? 'Labour estimation enabled' : 'Labour estimation disabled'}
                     {' · '}Default method: {PRICING_METHOD_LABELS[setting.default_pricing_method]}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle checked={setting.is_enabled} onChange={(v) => updateSetting(setting.id, { is_enabled: v })} />
-                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
                 </div>
               </div>
 
@@ -163,7 +163,7 @@ function SettingsTab() {
               </div>
 
               {saving === setting.id && (
-                <div className="mt-3 flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
+                <div className="mt-3 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
                   <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
                 </div>
               )}
@@ -236,7 +236,7 @@ function CategoriesTab() {
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.length === 0 && <p className="text-sm text-neutral-400 dark:text-neutral-500">No categories for this estimator yet.</p>}
+        {filtered.length === 0 && <p className="text-sm text-neutral-500 dark:text-neutral-500">No categories for this estimator yet.</p>}
         {filtered.map((cat) => (
           <div key={cat.id} className="card p-3">
             <div className="flex items-start justify-between gap-2">
@@ -246,7 +246,7 @@ function CategoriesTab() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{cat.category_name}</h3>
-                  <p className="text-[10px] text-neutral-400">{PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦{Number(cat.suggested_rate).toLocaleString()}</p>
+                  <p className="text-[10px] text-neutral-500">{PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦{Number(cat.suggested_rate).toLocaleString()}</p>
                 </div>
               </div>
               <span className={'rounded-full px-1.5 py-0.5 text-[9px] font-semibold ' + (cat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>

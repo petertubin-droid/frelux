@@ -101,7 +101,7 @@ function Field({ label, value, onChange, type = 'number', unit, placeholder, ste
           className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 sm:py-3 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-neutral-300"
         />
         {unit && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 pointer-events-none font-medium">{unit}</span>
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500 pointer-events-none font-medium">{unit}</span>
         )}
       </div>
     </div>
@@ -368,7 +368,7 @@ export default function BuildToRoofEstimator() {
                       ? 'bg-gradient-to-r from-brand-purple to-brand-purple-light text-white shadow-md shadow-brand-purple/20 scale-105'
                       : isDone
                       ? 'bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/15'
-                      : 'text-neutral-400 hover:bg-neutral-50'
+                      : 'text-neutral-500 hover:bg-neutral-50'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -573,14 +573,14 @@ export default function BuildToRoofEstimator() {
                     <Field label="Sand (parts)" value={input.concrete_mix_sand} onChange={v => update('concrete_mix_sand', parseFloat(v) || 1)} />
                     <Field label="Granite (parts)" value={input.concrete_mix_granite} onChange={v => update('concrete_mix_granite', parseFloat(v) || 1)} />
                   </div>
-                  <p className="mt-2 text-xs text-neutral-400">Current ratio: {input.concrete_mix_cement}:{input.concrete_mix_sand}:{input.concrete_mix_granite}</p>
+                  <p className="mt-2 text-xs text-neutral-500">Current ratio: {input.concrete_mix_cement}:{input.concrete_mix_sand}:{input.concrete_mix_granite}</p>
                 </SectionCard>
                 <SectionCard title="Mortar Mix Ratio" icon={Settings}>
                   <div className="grid grid-cols-2 gap-4">
                     <Field label="Cement (parts)" value={input.mortar_mix_cement} onChange={v => update('mortar_mix_cement', parseFloat(v) || 1)} />
                     <Field label="Sand (parts)" value={input.mortar_mix_sand} onChange={v => update('mortar_mix_sand', parseFloat(v) || 1)} />
                   </div>
-                  <p className="mt-2 text-xs text-neutral-400">Current ratio: {input.mortar_mix_cement}:{input.mortar_mix_sand}</p>
+                  <p className="mt-2 text-xs text-neutral-500">Current ratio: {input.mortar_mix_cement}:{input.mortar_mix_sand}</p>
                 </SectionCard>
                 <SectionCard title="Wastage Allowances" icon={TrendingUp}>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -736,7 +736,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="Granite per trip (3.5m³)" unit="₦" value={input.prices.granite_per_trip} onChange={v => update('prices', { ...input.prices, granite_per_trip: parseFloat(v) || 0 })} />
                     <Field label="Reinforcement per tonne (bulk)" unit="₦" value={input.prices.reinforcement_per_tonne} onChange={v => update('prices', { ...input.prices, reinforcement_per_tonne: parseFloat(v) || 0 })} />
                     <div className="col-span-2">
-                      <p className="text-xs text-neutral-400 mb-1">Rebar prices (per 12m standard length):</p>
+                      <p className="text-xs text-neutral-500 mb-1">Rebar prices (per 12m standard length):</p>
                     </div>
                     <Field label="12mm rebar/length" unit="₦" value={input.prices.rebar_12mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_12mm_per_length: parseFloat(v) || 0 })} />
                     <Field label="16mm rebar/length" unit="₦" value={input.prices.rebar_16mm_per_length} onChange={v => update('prices', { ...input.prices, rebar_16mm_per_length: parseFloat(v) || 0 })} />
@@ -754,7 +754,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="DPM per m²" unit="₦" value={input.prices.dpm_per_m2} onChange={v => update('prices', { ...input.prices, dpm_per_m2: parseFloat(v) || 0 })} />
                     <Field label="Contingency" unit="%" value={input.contingency_percent} onChange={v => update('contingency_percent', parseFloat(v) || 0)} />
                   </div>
-                  <div className="mt-4 flex items-center gap-2 text-xs text-neutral-400">
+                  <div className="mt-4 flex items-center gap-2 text-xs text-neutral-500">
                     <Info aria-hidden="true" className="w-3.5 h-3.5" />
                     <span>Prices are user-configurable and not permanently stored. Update with current local market rates.</span>
                   </div>
@@ -851,7 +851,7 @@ export default function BuildToRoofEstimator() {
                 <div className="border-2 border-dashed border-neutral-300 rounded-xl p-6 sm:p-8 text-center">
                   <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
                   <p className="text-sm text-neutral-600 mb-2">Upload floor plans, elevations, sections, or roof plans</p>
-                  <p className="text-xs text-neutral-400 mb-4">PDF, JPG, PNG supported</p>
+                  <p className="text-xs text-neutral-500 mb-4">PDF, JPG, PNG supported</p>
                   <input
                     type="file"
                     accept=".pdf,.jpg,.jpeg,.png"
@@ -911,7 +911,7 @@ export default function BuildToRoofEstimator() {
                 <ChevronLeft className="w-4 h-4" />
                 <span className="hidden sm:inline">Back</span>
               </button>
-              <span className="text-xs text-neutral-400 font-medium">
+              <span className="text-xs text-neutral-500 font-medium">
                 <span className="hidden sm:inline">Step </span>{step + 1} <span className="hidden sm:inline">of {STEPS.length - 1}</span>
                 <span className="sm:hidden">/{STEPS.length - 1}</span>
               </span>
@@ -979,7 +979,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
           <ArrowRight className="w-3.5 h-3.5 text-accent-green" />
           {result.construction_stage}
         </div>
-        <p className="mt-2 text-xs text-neutral-400">{result.confidence_reason}</p>
+        <p className="mt-2 text-xs text-neutral-500">{result.confidence_reason}</p>
       </div>
 
       {/* Grand Total */}
@@ -1002,7 +1002,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         <div className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in col-span-2 md:col-span-1" style={{ animationDelay: '0.3s' }}>
           <p className="text-xs text-neutral-500 mb-1">Contingency</p>
           <p className="text-lg sm:text-xl font-bold text-neutral-900">{formatCurrency(result.contingency)}</p>
-          <p className="text-xs text-neutral-400 mt-1">Wastage: {formatCurrency(result.wastage_allowance)}</p>
+          <p className="text-xs text-neutral-500 mt-1">Wastage: {formatCurrency(result.wastage_allowance)}</p>
         </div>
       </div>
 
@@ -1015,7 +1015,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             </div>
             Cost Breakdown by Stage
           </h3>
-          <span className="text-xs font-medium text-neutral-400">{result.stages.length} stages</span>
+          <span className="text-xs font-medium text-neutral-500">{result.stages.length} stages</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -1056,7 +1056,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             </div>
             Consolidated Material Shopping List
           </h3>
-          <span className="text-xs font-medium text-neutral-400">{result.shopping_list.length} items</span>
+          <span className="text-xs font-medium text-neutral-500">{result.shopping_list.length} items</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -1073,7 +1073,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
                 <tr key={i} className="border-b border-neutral-50">
                   <td className="px-4 sm:px-6 py-3 font-medium text-neutral-900">{item.label}</td>
                   <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">{formatNumber(item.total_quantity)}</td>
-                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-400">{item.unit}</td>
+                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-500">{item.unit}</td>
                   <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">{formatCurrency(item.total_cost)}</td>
                 </tr>
               ))}
@@ -1126,7 +1126,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-neutral-400">
+          <p className="mt-3 text-xs text-neutral-500">
             Binding wire: {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (₦{result.reinforcement_breakdown.binding_wire_cost.toLocaleString()})
           </p>
         </div>
@@ -1145,7 +1145,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
           <div className="px-6 pb-6 space-y-4">
             {/* Quantities */}
             <div>
-              <h4 className="text-xs font-medium text-neutral-400 uppercase mb-2">Quantity Takeoff</h4>
+              <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">Quantity Takeoff</h4>
               <div className="space-y-2">
                 {stage.quantities.map((q, j) => (
                   <div key={j} className="rounded-lg bg-neutral-50 p-3">
@@ -1155,7 +1155,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
                         {formatNumber(q.base_quantity)} {q.unit}
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-400">{q.formula}</p>
+                    <p className="text-xs text-neutral-500">{q.formula}</p>
                     {q.wastage_percent > 0 && (
                       <p className="text-xs text-amber-600 mt-1">
                         +{q.wastage_percent}% wastage → {formatNumber(q.final_quantity)} {q.unit}
@@ -1168,14 +1168,14 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             {/* Materials */}
             {stage.materials.length > 0 && (
               <div>
-                <h4 className="text-xs font-medium text-neutral-400 uppercase mb-2">Materials</h4>
+                <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">Materials</h4>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-100 text-left">
-                      <th className="py-2 font-medium text-neutral-400">Item</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Qty</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Unit</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Cost</th>
+                      <th className="py-2 font-medium text-neutral-500">Item</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Qty</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Unit</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Cost</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1183,7 +1183,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
                       <tr key={j} className="border-b border-neutral-50">
                         <td className="py-2 text-neutral-700">{m.label}</td>
                         <td className="py-2 text-right text-neutral-600">{formatNumber(m.final_quantity)}</td>
-                        <td className="py-2 text-right text-neutral-400">{m.unit}</td>
+                        <td className="py-2 text-right text-neutral-500">{m.unit}</td>
                         <td className="py-2 text-right font-medium text-neutral-900">{formatCurrency(m.total_cost)}</td>
                       </tr>
                     ))}
@@ -1194,14 +1194,14 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             {/* Labour */}
             {stage.labour.length > 0 && (
               <div>
-                <h4 className="text-xs font-medium text-neutral-400 uppercase mb-2">Labour</h4>
+                <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">Labour</h4>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-neutral-100 text-left">
-                      <th className="py-2 font-medium text-neutral-400">Task</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Qty</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Rate</th>
-                      <th className="py-2 font-medium text-neutral-400 text-right">Cost</th>
+                      <th className="py-2 font-medium text-neutral-500">Task</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Qty</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Rate</th>
+                      <th className="py-2 font-medium text-neutral-500 text-right">Cost</th>
                     </tr>
                   </thead>
                   <tbody>

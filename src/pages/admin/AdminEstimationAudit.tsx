@@ -126,7 +126,7 @@ export default function AdminEstimationAudit() {
       {/* Filter Header */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
+          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
           <span className="text-xs font-semibold text-neutral-600">Filter Entity:</span>
           <AdminSelect
             className="text-xs py-1.5 w-48"
@@ -195,13 +195,13 @@ export default function AdminEstimationAudit() {
                       </span>
 
                       {entry.entity_id && (
-                        <span className="font-mono text-xs text-neutral-500 dark:text-neutral-400">
+                        <span className="font-mono text-xs text-neutral-500 dark:text-neutral-500">
                           ID: {entry.entity_id}
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
                       <span className="inline-flex items-center gap-1">
                         <Calendar aria-hidden="true" className="h-3 w-3" />
                         {new Date(entry.created_at).toLocaleString()}
@@ -236,7 +236,7 @@ export default function AdminEstimationAudit() {
                             {JSON.stringify(entry.old_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-400 italic">
+                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-500 italic">
                             None (Initial creation)
                           </div>
                         )}
@@ -251,7 +251,7 @@ export default function AdminEstimationAudit() {
                             {JSON.stringify(entry.new_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-400 italic">
+                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-500 italic">
                             None (Record deleted)
                           </div>
                         )}

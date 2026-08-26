@@ -93,7 +93,7 @@ export default function InteractiveEstimatePreview() {
           <h2 className="mt-3 font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
             What a FRELUX estimate looks like
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
+          <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-500">
             Real calculation output. No demo data, these numbers come from the actual FRELUX calculation engine.
           </p>
         </div>
@@ -152,24 +152,24 @@ export default function InteractiveEstimatePreview() {
                   <p className="mt-2 font-display text-2xl font-bold text-neutral-900 dark:text-white">
                     {preset.length} × {preset.width} ft
                   </p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">Wall height: {preset.height} ft</p>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-500">Wall height: {preset.height} ft</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
                     <Layers className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">{preset.coats}</p>
-                    <p className="text-[10px] text-neutral-400">Coats</p>
+                    <p className="text-[10px] text-neutral-500">Coats</p>
                   </div>
                   <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
                     <Ruler className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">{preset.doors}</p>
-                    <p className="text-[10px] text-neutral-400">Doors</p>
+                    <p className="text-[10px] text-neutral-500">Doors</p>
                   </div>
                   <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
                     <Eye className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
                     <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">{preset.windows}</p>
-                    <p className="text-[10px] text-neutral-400">Windows</p>
+                    <p className="text-[10px] text-neutral-500">Windows</p>
                   </div>
                 </div>
 
@@ -181,7 +181,7 @@ export default function InteractiveEstimatePreview() {
                   <p className="mt-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
                     {DEFAULT_COVERAGE_M2_PER_LITER} m² per litre per coat
                   </p>
-                  <p className="text-[11px] text-neutral-400">Configurable from admin settings</p>
+                  <p className="text-[11px] text-neutral-500">Configurable from admin settings</p>
                 </div>
               </div>
 
@@ -193,9 +193,9 @@ export default function InteractiveEstimatePreview() {
                     Paintable area
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-neutral-900 dark:text-white">
-                    {animatedValues.area.toFixed(1)}<span className="text-base font-normal text-neutral-400"> m²</span>
+                    {animatedValues.area.toFixed(1)}<span className="text-base font-normal text-neutral-500"> m²</span>
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">
+                  <p className="mt-1 text-xs text-neutral-500">
                     Wall area: {result.wallArea} m² · Door: {result.doorArea} m² · Window: {result.windowArea} m²
                   </p>
                 </div>
@@ -207,9 +207,9 @@ export default function InteractiveEstimatePreview() {
                     Paint required
                   </p>
                   <p className="mt-2 font-display text-3xl font-bold text-neutral-900 dark:text-white">
-                    {animatedValues.liters.toFixed(1)}<span className="text-base font-normal text-neutral-400"> L</span>
+                    {animatedValues.liters.toFixed(1)}<span className="text-base font-normal text-neutral-500"> L</span>
                   </p>
-                  <p className="mt-1 text-xs text-neutral-400">
+                  <p className="mt-1 text-xs text-neutral-500">
                     Theoretical: {result.paintRequiredLiters} L + {result.wasteMargin}% waste = {result.adjustedLiters} L
                   </p>
                 </div>
@@ -233,7 +233,7 @@ export default function InteractiveEstimatePreview() {
 
             {/* Card footer */}
             <div className="flex items-center justify-between border-t border-neutral-100 px-6 py-4 dark:border-white/5">
-              <p className="text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="text-xs text-neutral-500 dark:text-neutral-500">
                 Materials, primer, and labour are calculated in the full cost estimator.
               </p>
               <Link

@@ -101,7 +101,7 @@ export default function AdminMarketIntelligence() {
               "flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400",
+                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -189,7 +189,7 @@ function ObservationsTab() {
       </div>
 
       {observations.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-400">
+        <p className="py-10 text-center text-sm text-neutral-500">
           No price observations found.
         </p>
       ) : (
@@ -219,7 +219,7 @@ function ObservationsTab() {
                     </div>
                     {obs.normalized_name &&
                       obs.normalized_name !== obs.original_product_name && (
-                        <div className="text-xs text-neutral-400">
+                        <div className="text-xs text-neutral-500">
                           → {obs.normalized_name}
                         </div>
                       )}
@@ -242,7 +242,7 @@ function ObservationsTab() {
                   <td className="py-2 pr-3">
                     <StatusBadge status={obs.validation_status} />
                   </td>
-                  <td className="py-2 pr-3 text-xs text-neutral-400">
+                  <td className="py-2 pr-3 text-xs text-neutral-500">
                     {new Date(obs.collected_at).toLocaleDateString()}
                   </td>
                   <td className="py-2">
@@ -281,7 +281,7 @@ function ObservationsTab() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-neutral-400">
+                      <span className="text-xs text-neutral-500">
                         {obs.review_action ?? "—"}
                       </span>
                     )}
@@ -333,7 +333,7 @@ function ApprovedTab() {
         {prices.length} approved prices — these are what calculators consume.
       </p>
       {prices.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-400">
+        <p className="py-10 text-center text-sm text-neutral-500">
           No approved prices yet. Approve observations or enter prices manually.
         </p>
       ) : (
@@ -345,7 +345,7 @@ function ApprovedTab() {
                   <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
                     {p.product_name}
                   </h3>
-                  <p className="text-xs text-neutral-400">
+                  <p className="text-xs text-neutral-500">
                     {p.brand} · {p.category}
                   </p>
                 </div>
@@ -366,11 +366,11 @@ function ApprovedTab() {
                 <span className="text-lg font-bold text-neutral-900 dark:text-white">
                   {p.currency_code} {p.price.toLocaleString()}
                 </span>
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-500">
                   {p.package_size} {p.package_unit}
                 </span>
               </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-neutral-400">
+              <div className="mt-1 flex items-center gap-3 text-xs text-neutral-500">
                 <span>{p.market_code}</span>
                 <span>
                   {p.source_count} source{p.source_count !== 1 ? "s" : ""}
@@ -378,14 +378,14 @@ function ApprovedTab() {
                 <ConfidenceBadge confidence={p.confidence as MatchConfidence} />
               </div>
               {p.median_price && p.source_count > 1 && (
-                <div className="mt-1 text-xs text-neutral-400">
+                <div className="mt-1 text-xs text-neutral-500">
                   Median: {p.currency_code} {p.median_price.toLocaleString()} ·
                   Range: {p.min_price?.toLocaleString()} –{" "}
                   {p.max_price?.toLocaleString()}
                 </div>
               )}
               <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
-                <span className="text-xs text-neutral-400">
+                <span className="text-xs text-neutral-500">
                   Updated {new Date(p.last_updated).toLocaleDateString()}
                 </span>
                 <button
@@ -393,7 +393,7 @@ function ApprovedTab() {
                     await deactivateApprovedPrice(p.id);
                     setPrices(prices.filter((x) => x.id !== p.id));
                   }}
-                  className="text-xs text-neutral-400 hover:text-red-500"
+                  className="text-xs text-neutral-500 hover:text-red-500"
                 >
                   Deactivate
                 </button>
@@ -483,7 +483,7 @@ function SourcesTab() {
           <p className="text-sm font-medium text-neutral-500">
             No sources registered yet
           </p>
-          <p className="mt-1 text-xs text-neutral-400">
+          <p className="mt-1 text-xs text-neutral-500">
             Add an approved source to start crawling construction material
             prices.
           </p>
@@ -502,7 +502,7 @@ function SourcesTab() {
                       <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                         {SOURCE_TYPE_LABELS[s.source_type]}
                       </span>
-                      <span className="text-[10px] text-neutral-400">
+                      <span className="text-[10px] text-neutral-500">
                         Tier {s.reliability_tier}
                       </span>
                       {s.is_verified && (
@@ -511,7 +511,7 @@ function SourcesTab() {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-neutral-400">
+                    <div className="text-xs text-neutral-500">
                       {s.country_code}
                       {s.region ? ` · ${s.region}` : ""}
                       {s.city ? ` · ${s.city}` : ""}
@@ -519,7 +519,7 @@ function SourcesTab() {
                       {s.crawl_frequency ? ` · ${s.crawl_frequency}` : ""}
                     </div>
                     {s.last_checked_at && (
-                      <div className="text-xs text-neutral-400">
+                      <div className="text-xs text-neutral-500">
                         Last checked:{" "}
                         {new Date(s.last_checked_at).toLocaleString()}
                         {s.last_error ? ` · ⚠ ${s.last_error}` : ""}
@@ -531,7 +531,7 @@ function SourcesTab() {
                   <span
                     className={classNames(
                       "text-xs",
-                      s.is_active ? "text-emerald-600" : "text-neutral-400",
+                      s.is_active ? "text-emerald-600" : "text-neutral-500",
                     )}
                   >
                     {s.is_active ? "Active" : "Inactive"}
@@ -568,7 +568,7 @@ function SourcesTab() {
                       await deleteSource(s.id);
                       load();
                     }}
-                    className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                    className="rounded p-1 text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
                     title="Delete source"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -626,7 +626,7 @@ function CrawlReportModal({
           </h2>
           <button
             onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600"
+            className="text-neutral-500 hover:text-neutral-600"
           >
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
@@ -656,7 +656,7 @@ function CrawlReportModal({
               Status: {job.status} · {job.message}
             </div>
             {job.durationMs !== null && (
-              <div className="flex items-center gap-1 text-xs text-neutral-400">
+              <div className="flex items-center gap-1 text-xs text-neutral-500">
                 <Clock aria-hidden="true" className="h-3.5 w-3.5" /> Duration:{" "}
                 {(job.durationMs / 1000).toFixed(1)}s
               </div>
@@ -676,7 +676,7 @@ function CrawlReportModal({
             </div>
             {job.errors.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-400">
+                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-500">
                   Errors
                 </h3>
                 <div className="space-y-1">
@@ -694,7 +694,7 @@ function CrawlReportModal({
             )}
             {job.warnings.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-400">
+                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-500">
                   Warnings
                 </h3>
                 <div className="space-y-1">
@@ -708,14 +708,14 @@ function CrawlReportModal({
             )}
           </div>
         ) : (
-          <div className="text-sm text-neutral-400">
+          <div className="text-sm text-neutral-500">
             No crawl data returned.
           </div>
         )}
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
           >
             Close
           </button>
@@ -728,7 +728,7 @@ function CrawlReportModal({
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border border-neutral-100 p-2 dark:border-white/5">
-      <div className="text-xs text-neutral-400">{label}</div>
+      <div className="text-xs text-neutral-500">{label}</div>
       <div className="text-lg font-bold text-neutral-900 dark:text-white">
         {value}
       </div>
@@ -884,7 +884,7 @@ function SourceEditModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
           >
             Cancel
           </button>
@@ -954,13 +954,13 @@ function ProvidersTab() {
                     </span>
                   )}
                   {p.is_fallback && (
-                    <span className="text-[10px] text-neutral-400">
+                    <span className="text-[10px] text-neutral-500">
                       fallback
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-neutral-400">{p.description}</p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-neutral-400">
+                <p className="text-xs text-neutral-500">{p.description}</p>
+                <div className="mt-1 flex items-center gap-3 text-xs text-neutral-500">
                   <span>Priority: {p.priority}</span>
                   {p.has_api_key && (
                     <span className="text-amber-500">⚠ API key configured</span>
@@ -1037,7 +1037,7 @@ function AnomaliesTab() {
         {anomalies.length} anomaly flags
       </p>
       {anomalies.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-400">
+        <p className="py-10 text-center text-sm text-neutral-500">
           No anomalies detected.
         </p>
       ) : (
@@ -1135,7 +1135,7 @@ function LogsTab() {
             className="flex items-start gap-2 border-b border-neutral-100 py-2 dark:border-white/5"
           >
             <div
-              className="text-xs text-neutral-400"
+              className="text-xs text-neutral-500"
               style={{ minWidth: "120px" }}
             >
               {new Date(log.created_at).toLocaleString()}
@@ -1143,7 +1143,7 @@ function LogsTab() {
             <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
               {log.event_type}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-400">
+            <span className="text-xs text-neutral-600 dark:text-neutral-500">
               {log.message}
             </span>
           </div>
@@ -1320,7 +1320,7 @@ function ManualEntryModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-400"
+            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
           >
             Cancel
           </button>
@@ -1368,7 +1368,7 @@ function ConfidenceBadge({ confidence }: { confidence: MatchConfidence }) {
 function StatusBadge({ status }: { status: ValidationStatus }) {
   const colors: Record<ValidationStatus, string> = {
     collected:
-      "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+      "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
     validating:
       "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
     review_required:

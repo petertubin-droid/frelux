@@ -48,7 +48,7 @@ export default function HowItWorks() {
           <h2 className="mt-3 font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
             From measurement to estimate in 4 steps
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
+          <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-500">
             No spreadsheets. No guesswork. Just accurate numbers you can trust.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function HowItWorks() {
                     </span>
                   </div>
                   <h3 className="mt-5 font-display text-lg font-bold text-neutral-900 dark:text-white">{step.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">{step.description}</p>
+                  <p className="mt-2.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{step.description}</p>
                 </div>
               </div>
             );

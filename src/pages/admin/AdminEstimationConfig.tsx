@@ -215,7 +215,7 @@ function UnitsTab() {
                     </span>
                   )}
                 </div>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                   Category: <span className="capitalize">{item.category}</span> · Sort order: {item.sort_order}
                 </p>
               </div>
@@ -501,7 +501,7 @@ function PackSizesTab() {
                       </span>
                     )}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
                     <span>
                       Pack size:{' '}
                       <strong className="text-brand-navy dark:text-white">
@@ -668,7 +668,7 @@ function PackSizeForm({
 
             <AdminField label="Referenced Item">
               {loadingRefs ? (
-                <div className="py-2 text-xs text-neutral-400 dark:text-neutral-500">Loading items…</div>
+                <div className="py-2 text-xs text-neutral-500 dark:text-neutral-500">Loading items…</div>
               ) : refOptions.length > 0 ? (
                 <AdminSelect
                   
@@ -939,11 +939,11 @@ function CalcRulesTab() {
                 </div>
 
                 {rule.description && (
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{rule.description}</p>
+                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{rule.description}</p>
                 )}
 
                 <div className="mt-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-2.5 border border-neutral-200">
-                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
                     Rule Value (JSON)
                   </span>
                   <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-neutral-800">
@@ -1240,7 +1240,7 @@ function CalcVersionsTab() {
                   )}
                 </div>
                 {ver.description && (
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{ver.description}</p>
+                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{ver.description}</p>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
