@@ -205,6 +205,12 @@ function RedirectToHub({ to, mode }: { to: string; mode?: string }) {
 export default function App() {
   useTypography();
   useWebVitals();
+
+  // Lazy-load non-critical CSS (animations & visual effects) after first paint
+  // to reduce the initial CSS payload and improve LCP on slower networks.
+  useEffect(() => {
+    import('@/styles/animations.css');
+  }, []);
   return (
     <ErrorBoundary boundaryName="app-root">
       <AuthProvider>
