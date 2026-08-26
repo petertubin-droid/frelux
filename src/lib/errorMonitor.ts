@@ -1,4 +1,5 @@
 /**
+import { supabase } from '@/lib/supabase';
  * FRELUX Error Monitor — centralized client-side error capture.
  *
  * Captures: JS runtime errors, unhandled promise rejections, React errors,
@@ -262,7 +263,7 @@ function saveOfflineQueue(queue: ErrorReport[]): void {
 let isFlushing = false;
 
 async function sendToServer(report: ErrorReport): Promise<boolean> {
-  const { supabase } = await import('@/lib/supabase');
+  // supabase is statically imported at top of file
 
   const payload = {
     ...report,

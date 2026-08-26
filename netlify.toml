@@ -96,6 +96,14 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+
+# Fonts — long cache (immutable, content-hashed filenames)
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+    Access-Control-Allow-Origin = "*"
+
 # OG image — moderate cache
 [[headers]]
   for = "/og-image.png"
