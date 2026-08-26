@@ -111,7 +111,7 @@ describe("credits — REWARD_EVENTS", () => {
   });
 
   it("referral reward has the highest amount", () => {
-    const amounts = Object.values(REWARD_EVENTS).map((e: any) => e.amount);
+    const amounts = Object.values(REWARD_EVENTS).map((e) => e.amount);
     expect(Math.max(...amounts)).toBe(500);
   });
 
