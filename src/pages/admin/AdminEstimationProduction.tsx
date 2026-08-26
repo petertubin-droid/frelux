@@ -134,41 +134,71 @@ export default function AdminEstimationProduction() {
       ) : rules.length === 0 && !showForm ? (
         <StateMessage type="empty" title="No rules found" message="Add production rules to manage minimums." />
       ) : (
-        <div className="space-y-3">
-          {rules.map((rule) => (
-            <AdminCard key={rule.id}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-neutral-900 dark:text-white">
-                      {PRODUCT_CATEGORIES.find((c) => c.value === rule.product_category)?.label ?? rule.product_category}
-                    </span>
-                    {rule.quality_slug && (
-                      <span className="rounded bg-brand-purple/10 px-2 py-0.5 text-xs font-semibold text-brand-purple">
-                        {QUALITY_SLUGS.find((q) => q.value === rule.quality_slug)?.label ?? rule.quality_slug}
-                      </span>
-                    )}
-                    <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
-                      {LOCATION_RULES.find((l) => l.value === rule.location_rule)?.label ?? rule.location_rule}
-                    </span>
-                  </div>
-                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
-                    Minimum: <span className="font-semibold">{rule.min_quantity} {rule.unit}</span>
-                    {rule.description && `, ${rule.description}`}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Toggle checked={rule.is_active} onChange={() => handleToggleActive(rule.id, rule.is_active)} />
-                  <AdminIconButton variant="ghost" onClick={() => { setEditing(rule); setShowForm(true); }} >
-                    <Pencil className="h-4 w-4" />
-                  </AdminIconButton>
-                  <AdminIconButton variant="danger" onClick={() => handleDelete(rule.id)} >
-                    <Trash2 aria-hidden="true" className="h-4 w-4" />
-                  </AdminIconButton>
+        <div className="space-y-6">
+          {/* Group rules by Product → Quality → Location */}
+          {Object.entries(
+            rules.reduce((acc, rule) => {
+              const cat = rule.product_category;
+              if (!acc[cat]) acc[cat] = [];
+              acc[cat].push(rule);
+              return acc;
+            }, {} as Record<string, ProductionRule[]>)
+          ).map(([cat, catRules]) => {
+            const catLabel = PRODUCT_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
+            return (
+              <div key={cat}>
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                  {catLabel}
+                </h3>
+                <div className="space-y-2">
+                  {/* Sub-group by quality */}
+                  {Object.entries(
+                    catRules.reduce((qAcc, rule) => {
+                      const q = rule.quality_slug ?? '_all';
+                      if (!qAcc[q]) qAcc[q] = [];
+                      qAcc[q].push(rule);
+                      return qAcc;
+                    }, {} as Record<string, ProductionRule[]>)
+                  ).map(([qKey, qRules]) => {
+                    const qLabel = qKey === '_all' ? 'All Qualities' : QUALITY_SLUGS.find((q) => q.value === qKey)?.label ?? qKey;
+                    return (
+                      <div key={qKey} className="rounded-lg border border-neutral-200 dark:border-white/10">
+                        <div className="border-b border-neutral-200 bg-neutral-50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
+                          <span className="text-xs font-semibold text-brand-purple">{qLabel}</span>
+                        </div>
+                        <div className="divide-y divide-neutral-100 dark:divide-white/5">
+                          {qRules.map((rule) => (
+                            <div key={rule.id} className="flex items-start justify-between px-4 py-3">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+                                    {LOCATION_RULES.find((l) => l.value === rule.location_rule)?.label ?? rule.location_rule}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                                  Minimum: <span className="font-semibold">{rule.min_quantity} {rule.unit}</span>
+                                  {rule.description && `, ${rule.description}`}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Toggle checked={rule.is_active} onChange={() => handleToggleActive(rule.id, rule.is_active)} />
+                                <AdminIconButton variant="ghost" onClick={() => { setEditing(rule); setShowForm(true); }} >
+                                  <Pencil className="h-4 w-4" />
+                                </AdminIconButton>
+                                <AdminIconButton variant="danger" onClick={() => handleDelete(rule.id)} >
+                                  <Trash2 aria-hidden="true" className="h-4 w-4" />
+                                </AdminIconButton>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
-            </AdminCard>
-          ))}
+            );
+          })}
         </div>
       )}
 
