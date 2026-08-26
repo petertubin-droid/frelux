@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import AdSlot from '@/components/ui/AdSlot';
 import { useSearchParams } from 'react-router-dom';
 import CalculatorTabs from '@/components/ui/CalculatorTabs';
@@ -29,6 +29,12 @@ export default function FinishingCalculatorHub() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = searchParams.get('mode') || 'compare';
   const [activeTab, setActiveTab] = useState(initialMode);
+
+  // Sync URL ?mode= changes to active tab (fixes calculator-to-calculator navigation)
+  useEffect(() => {
+    const mode = searchParams.get('mode') || 'compare';
+    if (mode !== activeTab) setActiveTab(mode);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
     title: 'Finishing Calculator — Tyrolene, Grafitex & Painting Finishes',
