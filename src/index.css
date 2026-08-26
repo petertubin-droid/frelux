@@ -283,6 +283,7 @@
   .dark .bg-neutral-50 { background-color: hsl(var(--muted)); }
   .dark .bg-neutral-100 { background-color: hsl(var(--muted)); }
   .dark .bg-neutral-200 { background-color: hsl(var(--secondary)); }
+  .dark .bg-neutral-300 { background-color: hsl(var(--secondary)); }
 
   /* --- Border colors: light borders → dark borders in dark mode --- */
   .dark .border-neutral-200 { border-color: hsl(var(--border)); }
