@@ -179,7 +179,7 @@ export default function Messages() {
               {/* Header */}
               <div className="flex items-center gap-3 border-b border-neutral-100 p-4 dark:border-white/5">
                 <button onClick={() => navigate('/messages')} className="lg:hidden">
-                  <ArrowLeft className="h-5 w-5 text-neutral-400" />
+                  <ArrowLeft aria-hidden="true" className="h-5 w-5 text-neutral-400" />
                 </button>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
                   {getDisplayName(activeConvo).charAt(0).toUpperCase()}
@@ -264,7 +264,7 @@ export default function Messages() {
                     disabled={!messageText.trim()}
                     className="rounded-lg bg-brand-purple p-2.5 text-white disabled:opacity-50"
                   >
-                    <Send className="h-5 w-5" />
+                    <Send aria-hidden="true" className="h-5 w-5" />
                   </button>
                 </div>
               </div>

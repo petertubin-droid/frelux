@@ -39,7 +39,7 @@ export default function Achievements() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Back link */}
       <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
-        <ArrowLeft className="h-4 w-4" /> Back to home
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
       </Link>
 
       {/* Header */}

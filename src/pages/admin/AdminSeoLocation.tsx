@@ -135,7 +135,7 @@ function LocationsTab() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <AdminInput
  type="text"
  value={search}
@@ -149,14 +149,14 @@ function LocationsTab() {
 
       {error && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-500/10">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+          <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         </div>
       ) : (
         <div className="overflow-x-auto">
@@ -206,7 +206,7 @@ function LocationsTab() {
                       {editingId === loc.id ? (
                         <>
                           <AdminIconButton variant="ghost" onClick={() => handleSave(loc.id)} disabled={saving} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 disabled:opacity-50 dark:hover:bg-emerald-500/10">
-                            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                            {saving ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Save aria-hidden="true" className="h-3.5 w-3.5" />}
                           </AdminIconButton>
                           <AdminIconButton variant="ghost" onClick={() => setEditingId(null)} >
                             <X className="h-3.5 w-3.5" />
@@ -215,11 +215,11 @@ function LocationsTab() {
                       ) : (
                         <>
                           <AdminIconButton variant="ghost" onClick={() => startEdit(loc)} title="Edit" className="rounded p-1 text-brand-purple hover:bg-brand-purple/10">
-                            <Navigation className="h-3.5 w-3.5" />
+                            <Navigation aria-hidden="true" className="h-3.5 w-3.5" />
                           </AdminIconButton>
                           {!loc.latitude && (
                             <AdminIconButton variant="ghost" onClick={() => handleAutoGeocode(loc)} className="rounded-lg p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10" title="Auto-geocode">
-                              <Globe className="h-3.5 w-3.5" />
+                              <Globe aria-hidden="true" className="h-3.5 w-3.5" />
                             </AdminIconButton>
                           )}
                         </>
@@ -283,7 +283,7 @@ function CategoriesTab() {
     <div>
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         </div>
       ) : (
         <div className="space-y-3">
@@ -301,7 +301,7 @@ function CategoriesTab() {
                       ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
                       : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
                   )}>
-                    {cat.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                    {cat.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                     {cat.seo_indexable ? 'Indexable' : 'No-index'}
                   </span>
                   <AdminButton
@@ -348,7 +348,7 @@ function CategoriesTab() {
                     onClick={() => handleSave(cat.id)}
                     disabled={saving}
                   >
-                    {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                    {saving ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Save aria-hidden="true" className="h-3.5 w-3.5" />}
                     Save
                   </AdminButton>
                 </div>
@@ -428,7 +428,7 @@ function SeoPagesTab() {
           onClick={() => setShowForm(!showForm)}
           className="py-2"
         >
-          <Plus className="h-4 w-4" />
+          <Plus aria-hidden="true" className="h-4 w-4" />
           Add SEO Page
         </AdminButton>
       </div>
@@ -517,7 +517,7 @@ function SeoPagesTab() {
             disabled={saving || !form.seo_title || !form.seo_description}
             className="mt-3"
           >
-            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {saving ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Save aria-hidden="true" className="h-3.5 w-3.5" />}
             Save SEO Setting
           </AdminButton>
         </div>
@@ -525,7 +525,7 @@ function SeoPagesTab() {
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         </div>
       ) : settings.length === 0 ? (
         <p className="py-8 text-center text-sm text-neutral-500">No custom SEO page settings yet.</p>
@@ -542,10 +542,10 @@ function SeoPagesTab() {
                   'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs',
                   s.is_indexable ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
                 )}>
-                  {s.is_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                  {s.is_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                 </span>
                 <AdminIconButton variant="danger" onClick={() => handleDelete(s.id)} >
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminIconButton>
               </div>
             </div>
@@ -613,7 +613,7 @@ function IndexabilityTab() {
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         </div>
       ) : tab2 === 'listings' ? (
         <div className="space-y-2">
@@ -632,7 +632,7 @@ function IndexabilityTab() {
                     : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
                 )}
               >
-                {l.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                {l.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                 {l.seo_indexable ? 'Indexable' : 'Hidden'}
               </AdminIconButton>
             </div>
@@ -656,7 +656,7 @@ function IndexabilityTab() {
                     : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
                 )}
               >
-                {p.seo_indexable ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                {p.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                 {p.seo_indexable ? 'Indexable' : 'Hidden'}
               </AdminIconButton>
             </div>

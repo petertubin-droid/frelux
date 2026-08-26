@@ -134,7 +134,7 @@ export default function Dashboard() {
                     state={{ projectData: lastProject.project_data, projectId: lastProject.id, projectName: lastProject.name }}
                     className="btn-primary press-scale shrink-0"
                   >
-                    Open Project <ArrowRight className="h-4 w-4" />
+                    Open Project <ArrowRight aria-hidden="true" className="h-4 w-4" />
                   </Link>
                 </div>
               </section>
@@ -148,7 +148,7 @@ export default function Dashboard() {
                 </h2>
                 <Link to="/my-projects" className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                   View all
-                  <ArrowRight className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight aria-hidden="true" className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
               {projects.length > 0 ? (
@@ -192,7 +192,7 @@ export default function Dashboard() {
                   </h2>
                   <Link to="/my-projects" className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                     View all
-                    <ArrowRight className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight aria-hidden="true" className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
                 {favColors.length > 0 ? (
@@ -226,7 +226,7 @@ export default function Dashboard() {
                   </h2>
                   <Link to="/my-projects" className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                     View all
-                    <ArrowRight className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight aria-hidden="true" className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </div>
                 {recentColors.length > 0 ? (
@@ -264,7 +264,7 @@ export default function Dashboard() {
               </p>
               <Link to="/ai-color-assistant" className="group relative mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter">
                 Get recommendations
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </section>
           </div>

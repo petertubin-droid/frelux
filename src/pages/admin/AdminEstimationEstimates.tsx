@@ -196,7 +196,7 @@ export default function AdminEstimationEstimates() {
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-neutral-400" />
+            <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
             <span className="text-xs font-semibold text-neutral-600">Calculator:</span>
             <AdminSelect
               className="text-xs py-1.5"
@@ -233,7 +233,7 @@ export default function AdminEstimationEstimates() {
         </div>
 
         <div className="relative w-full lg:w-72">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
           <AdminInput
  type="text"
  placeholder="Search estimate ref or description..."
@@ -292,10 +292,10 @@ export default function AdminEstimationEstimates() {
 
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
                       <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-3 w-3" /> {new Date(est.created_at).toLocaleString()}
+                        <Calendar aria-hidden="true" className="h-3 w-3" /> {new Date(est.created_at).toLocaleString()}
                       </span>
                       <span className="inline-flex items-center gap-1">
-                        <User className="h-3 w-3" /> {est.user_id ? `User: ${est.user_id.slice(0, 8)}...` : est.client_hash ? `Anon: ${est.client_hash.slice(0, 8)}...` : 'System'}
+                        <User aria-hidden="true" className="h-3 w-3" /> {est.user_id ? `User: ${est.user_id.slice(0, 8)}...` : est.client_hash ? `Anon: ${est.client_hash.slice(0, 8)}...` : 'System'}
                       </span>
                       <span>Method: {est.calculation_method}</span>
                     </div>
@@ -310,7 +310,7 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     <div className="rounded-full bg-neutral-100 p-2 text-neutral-500 hover:bg-neutral-200">
-                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {isExpanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
                     </div>
                   </div>
                 </div>
@@ -320,7 +320,7 @@ export default function AdminEstimationEstimates() {
                   <div className="mt-5 border-t border-neutral-200 pt-4">
                     <div className="mb-3 flex items-center justify-between">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
-                        <Layers className="h-3.5 w-3.5 text-brand-purple" />
+                        <Layers aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                         Estimate Line Items ({lineItems.length})
                       </h4>
                     </div>

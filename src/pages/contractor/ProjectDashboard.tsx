@@ -629,7 +629,7 @@ export default function ProjectDashboard() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-gray-500">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+          <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-violet-600" />
           <p className="text-sm font-medium">Loading project dashboard…</p>
         </div>
       </div>
@@ -640,13 +640,13 @@ export default function ProjectDashboard() {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="flex max-w-md flex-col items-center gap-4 rounded-xl border border-red-200 bg-red-50 p-8 text-center">
-          <AlertCircle className="h-10 w-10 text-red-500" />
+          <AlertCircle aria-hidden="true" className="h-10 w-10 text-red-500" />
           <p className="text-sm font-medium text-red-700">{error}</p>
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
           >
-            <ArrowLeft className="h-4 w-4" /> Go Back
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Go Back
           </button>
         </div>
       </div>
@@ -666,7 +666,7 @@ export default function ProjectDashboard() {
                 onClick={() => navigate(-1)}
                 className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ArrowLeft aria-hidden="true" className="h-5 w-5" />
               </button>
               <div>
                 <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{project.name}</h1>
@@ -681,14 +681,14 @@ export default function ProjectDashboard() {
                 disabled={actionLoading}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
-                <TrendingUp className="h-4 w-4" /> Recalculate
+                <TrendingUp aria-hidden="true" className="h-4 w-4" /> Recalculate
               </button>
               <button
                 onClick={() => createProjectVersion(id!, 'Manual version snapshot')}
                 disabled={actionLoading}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
               >
-                <Save className="h-4 w-4" /> Snapshot
+                <Save aria-hidden="true" className="h-4 w-4" /> Snapshot
               </button>
             </div>
           </div>
@@ -708,7 +708,7 @@ export default function ProjectDashboard() {
                       : 'text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon aria-hidden="true" className="h-4 w-4" />
                   {tab.label}
                 </button>
               );
@@ -721,7 +721,7 @@ export default function ProjectDashboard() {
       {error && (
         <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            <AlertCircle className="h-4 w-4 shrink-0" />
+            <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span className="flex-1">{error}</span>
             <button onClick={() => setError(null)} className="text-amber-600 hover:text-amber-800">
               <X className="h-4 w-4" />
@@ -913,7 +913,7 @@ function OverviewTab(props: OverviewTabProps) {
             >
               <div className="flex items-center justify-between">
                 <div className={`rounded-lg ${stat.color} p-2.5`}>
-                  <Icon className="h-5 w-5 text-white" />
+                  <Icon aria-hidden="true" className="h-5 w-5 text-white" />
                 </div>
               </div>
               <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">{stat.label}</p>
@@ -950,7 +950,7 @@ function OverviewTab(props: OverviewTabProps) {
           const Icon = item.icon;
           return (
             <div key={item.label} className="rounded-lg border border-gray-200 bg-white p-4 text-center">
-              <Icon className="mx-auto h-5 w-5 text-gray-400" />
+              <Icon aria-hidden="true" className="mx-auto h-5 w-5 text-gray-400" />
               <p className="mt-2 text-2xl font-bold text-gray-900">{item.value}</p>
               <p className="text-xs text-gray-500">{item.label}</p>
             </div>
@@ -1014,7 +1014,7 @@ function RoomsTab(props: RoomsTabProps) {
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
         >
-          <Plus className="h-4 w-4" /> Add Room
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Room
         </button>
       </div>
 
@@ -1164,7 +1164,7 @@ function RoomsTab(props: RoomsTabProps) {
               disabled={actionLoading || !roomForm.name.trim()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
             >
-              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               {editingRoomId ? 'Update Room' : 'Create Room'}
             </button>
             <button
@@ -1180,7 +1180,7 @@ function RoomsTab(props: RoomsTabProps) {
       {/* Rooms list */}
       {rooms.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Package className="h-10 w-10 text-gray-300" />
+          <Package aria-hidden="true" className="h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">No rooms yet. Add your first room to get started.</p>
         </div>
       ) : (
@@ -1201,10 +1201,10 @@ function RoomsTab(props: RoomsTabProps) {
                   </div>
                   <div className="flex gap-1">
                     <button onClick={() => onEdit(room)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600">
-                      <Edit className="h-4 w-4" />
+                      <Edit aria-hidden="true" className="h-4 w-4" />
                     </button>
                     <button onClick={() => onDelete(room.id)} className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500">
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -1277,7 +1277,7 @@ function LabourTab(props: LabourTabProps) {
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
         >
-          <Plus className="h-4 w-4" /> Add Role
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Role
         </button>
       </div>
 
@@ -1363,7 +1363,7 @@ function LabourTab(props: LabourTabProps) {
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
             >
-              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               {editingLabourId ? 'Update Role' : 'Add Role'}
             </button>
             <button
@@ -1379,7 +1379,7 @@ function LabourTab(props: LabourTabProps) {
       {/* Labour table */}
       {labourPlan.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Users className="h-10 w-10 text-gray-300" />
+          <Users aria-hidden="true" className="h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">No labour roles yet. Add workers to plan your project.</p>
         </div>
       ) : (
@@ -1411,10 +1411,10 @@ function LabourTab(props: LabourTabProps) {
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
                         <button onClick={() => onEdit(item)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600">
-                          <Edit className="h-4 w-4" />
+                          <Edit aria-hidden="true" className="h-4 w-4" />
                         </button>
                         <button onClick={() => onDelete(item.id)} className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500">
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 aria-hidden="true" className="h-4 w-4" />
                         </button>
                       </div>
                     </td>
@@ -1439,10 +1439,10 @@ function LabourTab(props: LabourTabProps) {
                   <h3 className="text-sm font-semibold text-gray-900">{prettify(item.role)}</h3>
                   <div className="flex gap-1">
                     <button onClick={() => onEdit(item)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600">
-                      <Edit className="h-4 w-4" />
+                      <Edit aria-hidden="true" className="h-4 w-4" />
                     </button>
                     <button onClick={() => onDelete(item.id)} className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500">
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
@@ -1517,7 +1517,7 @@ function ShoppingTab(props: ShoppingTabProps) {
             disabled={actionLoading}
             className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
           >
-            {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ClipboardList className="h-4 w-4" />}
+            {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <ClipboardList aria-hidden="true" className="h-4 w-4" />}
             Generate Shopping List
           </button>
           <button
@@ -1525,21 +1525,21 @@ function ShoppingTab(props: ShoppingTabProps) {
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            <Printer className="h-4 w-4" /> Print
+            <Printer aria-hidden="true" className="h-4 w-4" /> Print
           </button>
           <button
             onClick={onDownloadPDF}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
           >
-            <Download className="h-4 w-4" /> PDF
+            <Download aria-hidden="true" className="h-4 w-4" /> PDF
           </button>
           <button
             onClick={onShareWhatsApp}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
           >
-            <Share2 className="h-4 w-4" /> WhatsApp
+            <Share2 aria-hidden="true" className="h-4 w-4" /> WhatsApp
           </button>
         </div>
       </div>
@@ -1565,7 +1565,7 @@ function ShoppingTab(props: ShoppingTabProps) {
       {/* Shopping list grouped by category */}
       {shoppingList.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <ClipboardList className="h-10 w-10 text-gray-300" />
+          <ClipboardList aria-hidden="true" className="h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">No shopping list yet. Click "Generate" to create one from your rooms.</p>
         </div>
       ) : (
@@ -1585,7 +1585,7 @@ function ShoppingTab(props: ShoppingTabProps) {
                         onClick={() => onTogglePurchased(item)}
                         className={`shrink-0 rounded ${item.is_purchased ? 'text-green-500' : 'text-gray-300 hover:text-gray-400'}`}
                       >
-                        {item.is_purchased ? <CheckCircle2 className="h-5 w-5" /> : <Circle className="h-5 w-5" />}
+                        {item.is_purchased ? <CheckCircle2 aria-hidden="true" className="h-5 w-5" /> : <Circle aria-hidden="true" className="h-5 w-5" />}
                       </button>
                       <div className={`flex-1 ${item.is_purchased ? 'line-through opacity-60' : ''}`}>
                         <p className="text-sm font-medium text-gray-900">{item.name}</p>
@@ -1710,7 +1710,7 @@ function QuotationTab(props: QuotationTabProps) {
           disabled={actionLoading}
           className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
         >
-          {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
+          {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <FileText aria-hidden="true" className="h-4 w-4" />}
           Generate Quotation
         </button>
       </div>
@@ -1718,7 +1718,7 @@ function QuotationTab(props: QuotationTabProps) {
       {/* Generated quotations */}
       {quotations.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <FileText className="h-10 w-10 text-gray-300" />
+          <FileText aria-hidden="true" className="h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">No quotations yet. Set your parameters above and generate one.</p>
         </div>
       ) : (
@@ -1743,7 +1743,7 @@ function QuotationTab(props: QuotationTabProps) {
                     onClick={() => onDownloadPDF(quot)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
                   >
-                    <Download className="h-4 w-4" /> PDF
+                    <Download aria-hidden="true" className="h-4 w-4" /> PDF
                   </button>
                   {quot.status === 'draft' && (
                     <button
@@ -1751,7 +1751,7 @@ function QuotationTab(props: QuotationTabProps) {
                       disabled={actionLoading}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
                     >
-                      <Share2 className="h-4 w-4" /> Mark Sent
+                      <Share2 aria-hidden="true" className="h-4 w-4" /> Mark Sent
                     </button>
                   )}
                 </div>
@@ -1832,14 +1832,14 @@ function TimelineTab(props: TimelineTabProps) {
           disabled={actionLoading}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
         >
-          {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calendar className="h-4 w-4" />}
+          {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Calendar aria-hidden="true" className="h-4 w-4" />}
           Generate Timeline
         </button>
       </div>
 
       {timeline.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Calendar className="h-10 w-10 text-gray-300" />
+          <Calendar aria-hidden="true" className="h-10 w-10 text-gray-300" />
           <p className="text-sm text-gray-500">No timeline generated yet. Click "Generate" to create a project timeline.</p>
         </div>
       ) : (
@@ -1847,7 +1847,7 @@ function TimelineTab(props: TimelineTabProps) {
           {/* Progress summary */}
           <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 aria-hidden="true" className="h-5 w-5 text-green-500" />
               <span className="text-sm font-medium text-gray-700">{completedPhases} of {timeline.length} phases completed</span>
             </div>
             <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200">
@@ -1881,7 +1881,7 @@ function TimelineTab(props: TimelineTabProps) {
                     <div className="mb-1 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {phase.is_completed ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-green-500" />
                         ) : (
                           <Circle className={`h-4 w-4 ${PHASE_TEXT_COLORS[phase.phase] ?? 'text-gray-400'}`} />
                         )}
@@ -1972,7 +1972,7 @@ function NotesTab(props: NotesTabProps) {
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-            <Hammer className="h-5 w-5 text-violet-600" /> Project Notes
+            <Hammer aria-hidden="true" className="h-5 w-5 text-violet-600" /> Project Notes
           </h3>
           {notesDirty && (
             <button
@@ -1980,7 +1980,7 @@ function NotesTab(props: NotesTabProps) {
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
             >
-              {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {actionLoading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               Save Notes
             </button>
           )}
@@ -2000,12 +2000,12 @@ function NotesTab(props: NotesTabProps) {
       {/* Attachments section */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
-          <Upload className="h-5 w-5 text-violet-600" /> Attachments
+          <Upload aria-hidden="true" className="h-5 w-5 text-violet-600" /> Attachments
         </h3>
 
         {/* Upload area */}
         <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center transition-colors hover:border-violet-400 hover:bg-violet-50">
-          <Upload className="h-8 w-8 text-gray-400" />
+          <Upload aria-hidden="true" className="h-8 w-8 text-gray-400" />
           <p className="text-sm font-medium text-gray-600">Click to upload files</p>
           <p className="text-xs text-gray-400">Photos, documents, blueprints, or any project file</p>
           <input
@@ -2022,7 +2022,7 @@ function NotesTab(props: NotesTabProps) {
             {attachments.map(att => (
               <div key={att.id} className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50">
-                  <FileText className="h-5 w-5 text-violet-600" />
+                  <FileText aria-hidden="true" className="h-5 w-5 text-violet-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="truncate text-sm font-medium text-gray-900">{att.file_name}</p>
@@ -2037,14 +2037,14 @@ function NotesTab(props: NotesTabProps) {
                     rel="noopener noreferrer"
                     className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600"
                   >
-                    <Download className="h-4 w-4" />
+                    <Download aria-hidden="true" className="h-4 w-4" />
                   </a>
                 )}
                 <button
                   onClick={() => onDeleteAttachment(att.id)}
                   className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </button>
               </div>
             ))}

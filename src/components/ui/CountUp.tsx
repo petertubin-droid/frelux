@@ -45,7 +45,7 @@ export default function CountUp({
   });
 
   return (
-    <span className={className}>
+    <span role="timer" aria-live="polite" className={className}>
       {prefix}
       {formatted}
       {suffix}

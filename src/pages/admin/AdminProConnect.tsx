@@ -111,7 +111,7 @@ function AdminProfessionalsTab() {
     <div>
       <div className="mb-4">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
           <AdminInput
  type="text"
  value={search}
@@ -160,15 +160,15 @@ function AdminProfessionalsTab() {
               </AdminSelect>
               {!p.pro_level ? (
                 <AdminIconButton variant="ghost" onClick={() => handleAwardProLevel(p.id)} title="Award FRELUX Pro" className="rounded-lg p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10">
-                  <Award className="h-4 w-4" />
+                  <Award aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
               ) : (
                 <AdminIconButton variant="danger" onClick={() => handleRevokeProLevel(p.id)} title="Revoke FRELUX Pro" className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
-                  <Ban className="h-4 w-4" />
+                  <Ban aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
               )}
               <a href={`/pro-connect/${p.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
-                <Eye className="h-4 w-4" />
+                <Eye aria-hidden="true" className="h-4 w-4" />
               </a>
             </div>
           </div>
@@ -312,7 +312,7 @@ function AdminVerificationTab() {
                   </div>
                   {profile && (
                     <a href={`/pro-connect/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple">
-                      <Eye className="h-4 w-4" />
+                      <Eye aria-hidden="true" className="h-4 w-4" />
                     </a>
                   )}
                 </div>
@@ -345,13 +345,13 @@ function AdminVerificationTab() {
                         />
                         <div className="flex flex-wrap gap-2">
                           <AdminButton variant="success" onClick={() => handleApprove(req.profile_id, req.id)} className="text-xs">
-                            <Check className="mr-1 inline h-3.5 w-3.5" />Approve
+                            <Check aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" />Approve
                           </AdminButton>
                           <AdminButton variant="danger" onClick={() => handleReject(req.profile_id, req.id)} className="text-xs bg-red-500 border-red-500 text-white hover:bg-red-600">
                             <X className="mr-1 inline h-3.5 w-3.5" />Reject
                           </AdminButton>
                           <AdminButton variant="secondary" onClick={() => handleMoreInfo(req.profile_id, req.id)} className="text-xs text-blue-600 dark:text-blue-400">
-                            <FileWarning className="mr-1 inline h-3.5 w-3.5" />Request Info
+                            <FileWarning aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" />Request Info
                           </AdminButton>
                           <AdminButton variant="secondary" onClick={() => setSelectedRequest(null)} className="text-xs">
                             Cancel
@@ -445,7 +445,7 @@ function AdminKycTab() {
     <div>
       {/* Info banner */}
       <div className="mb-4 flex items-start gap-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 text-sm">
-        <Shield className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
+        <Shield aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
         <div>
           <p className="font-medium text-brand-navy dark:text-white">NIN Verification Review</p>
           <p className="mt-1 text-neutral-600 dark:text-neutral-300">
@@ -489,7 +489,7 @@ function AdminKycTab() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <KeyRound className="h-4 w-4 text-brand-purple" />
+                    <KeyRound aria-hidden="true" className="h-4 w-4 text-brand-purple" />
                     <span className="font-medium text-neutral-900 dark:text-white">{sub.display_name}</span>
                     {sub.business_name && (
                       <span className="text-sm text-neutral-500">· {sub.business_name}</span>
@@ -506,9 +506,9 @@ function AdminKycTab() {
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.category_name ?? 'N/A'}</span>
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <Phone className="h-3.5 w-3.5 text-neutral-400" />
+                      <Phone aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
                       <span className="text-sm text-neutral-700 dark:text-neutral-300">{sub.mobile_number ?? sub.phone_number ?? 'N/A'}</span>
-                      {sub.mobile_otp_verified && <Check className="h-3.5 w-3.5 text-emerald-500" />}
+                      {sub.mobile_otp_verified && <Check aria-hidden="true" className="h-3.5 w-3.5 text-emerald-500" />}
                     </div>
                     <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
                       <span className="text-xs text-neutral-400">Registered:</span>
@@ -543,7 +543,7 @@ function AdminKycTab() {
                   rel="noopener noreferrer"
                   className="rounded-lg p-1.5 text-neutral-400 hover:text-brand-purple"
                 >
-                  <Eye className="h-4 w-4" />
+                  <Eye aria-hidden="true" className="h-4 w-4" />
                 </a>
               </div>
 
@@ -566,7 +566,7 @@ function AdminKycTab() {
                           disabled={processing}
                           className="text-xs"
                         >
-                          <Check className="mr-1 inline h-3.5 w-3.5" />
+                          <Check aria-hidden="true" className="mr-1 inline h-3.5 w-3.5" />
                           {processing ? 'Processing...' : 'Confirm & Auto-Verify'}
                         </AdminButton>
                         <AdminButton
@@ -587,7 +587,7 @@ function AdminKycTab() {
                         </AdminButton>
                       </div>
                       <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <AlertCircle aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                         <p>Approving will auto-verify this worker to Tier 2 and save their NIN + profile snapshot to the audit log for future reference.</p>
                       </div>
                     </div>
@@ -603,7 +603,7 @@ function AdminKycTab() {
               {sub.nin_verified && (
                 <div className="mt-4 border-t border-neutral-100 pt-3 dark:border-white/5">
                   <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-                    <Check className="h-4 w-4" />
+                    <Check aria-hidden="true" className="h-4 w-4" />
                     <span>NIN verified — worker has Tier 2 access. NIN + profile snapshot saved to audit log.</span>
                   </div>
                 </div>
@@ -1124,7 +1124,7 @@ function AdminChannelsTab() {
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Channel Categories</h3>
           <AdminButton onClick={startNewCategory} className="text-xs py-1">
-            <Plus className="h-3.5 w-3.5" /> New Category
+            <Plus aria-hidden="true" className="h-3.5 w-3.5" /> New Category
           </AdminButton>
         </div>
         <div className="space-y-2">
@@ -1136,10 +1136,10 @@ function AdminChannelsTab() {
               </div>
               <div className="flex gap-1">
                 <AdminIconButton variant="ghost" onClick={() => startEditCategory(cat)}>
-                  <Eye className="h-4 w-4" />
+                  <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton variant="ghost" onClick={() => deleteCategory(cat.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
               </div>
             </div>
@@ -1153,7 +1153,7 @@ function AdminChannelsTab() {
         <div className="mb-3 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Worker Channels</h3>
           <AdminButton onClick={startNewChannel} className="text-xs py-1">
-            <Plus className="h-3.5 w-3.5" /> New Channel
+            <Plus aria-hidden="true" className="h-3.5 w-3.5" /> New Channel
           </AdminButton>
         </div>
         <div className="space-y-2">
@@ -1161,7 +1161,7 @@ function AdminChannelsTab() {
             <div key={ch.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <Hash className="h-3.5 w-3.5 text-brand-purple dark:text-brand-purple-lighter" />
+                  <Hash aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple dark:text-brand-purple-lighter" />
                   <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{ch.name}</p>
                   {ch.is_official && <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">Official</span>}
                   {!ch.is_active && <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-medium text-red-500">Inactive</span>}
@@ -1173,10 +1173,10 @@ function AdminChannelsTab() {
               </div>
               <div className="flex gap-1">
                 <AdminIconButton variant="ghost" onClick={() => startEditChannel(ch)}>
-                  <Eye className="h-4 w-4" />
+                  <Eye aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
                 <AdminIconButton variant="ghost" onClick={() => deleteChannel(ch.id)} className="rounded-lg p-1.5 text-red-400 hover:text-red-600">
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </AdminIconButton>
               </div>
             </div>
@@ -1243,7 +1243,7 @@ function AdminChannelsTab() {
             </div>
             <div className="mt-5 flex gap-2">
               <AdminButton onClick={saveChannel}>
-                <Save className="h-4 w-4" /> Save
+                <Save aria-hidden="true" className="h-4 w-4" /> Save
               </AdminButton>
               <AdminButton variant="secondary" onClick={() => setShowChannelForm(false)}>
                 Cancel
@@ -1290,7 +1290,7 @@ function AdminChannelsTab() {
             </div>
             <div className="mt-5 flex gap-2">
               <AdminButton onClick={saveCategory}>
-                <Save className="h-4 w-4" /> Save
+                <Save aria-hidden="true" className="h-4 w-4" /> Save
               </AdminButton>
               <AdminButton variant="secondary" onClick={() => setShowCategoryForm(false)}>
                 Cancel
@@ -1366,7 +1366,7 @@ function AdminModerationTab() {
   if (!config) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-500/20 dark:bg-amber-500/10">
-        <Bot className="mx-auto mb-3 h-8 w-8 text-amber-500" />
+        <Bot aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-amber-500" />
         <p className="text-sm font-medium text-amber-700 dark:text-amber-400">No moderation config found.</p>
         <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">Run the Phase 30 migration to seed the default config.</p>
       </div>
@@ -1511,7 +1511,7 @@ function AdminModerationTab() {
         disabled={saving}
         className="px-6 py-2.5"
       >
-        <Save className="h-4 w-4" />
+        <Save aria-hidden="true" className="h-4 w-4" />
         {saving ? 'Saving...' : saved ? '✓ Saved' : 'Save Moderation Settings'}
       </AdminButton>
     </div>

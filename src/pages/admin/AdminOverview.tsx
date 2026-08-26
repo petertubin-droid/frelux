@@ -48,7 +48,7 @@ export default function AdminOverview() {
             <Link key={c.label} to={c.to} className="card group p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Icon className="h-5 w-5" /></span>
-                <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
               </div>
               <p className="mt-4 text-3xl font-bold text-brand-navy dark:text-white">{c.value}</p>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">{c.label}</p>

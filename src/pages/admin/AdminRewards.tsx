@@ -112,7 +112,7 @@ export default function AdminRewards() {
   const totalCreditsInCirculation = wallets.reduce((sum, w) => sum + w.balance, 0);
 
   if (loading) {
-    return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-brand-purple" /></div>;
+    return <div className="flex justify-center py-20"><Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" /></div>;
   }
 
   return (
@@ -190,7 +190,7 @@ export default function AdminRewards() {
                 disabled={adjusting || !adjustingUser || !adjustAmount || !adjustReason}
                 className="rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {adjusting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Adjust'}
+                {adjusting ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : 'Adjust'}
               </button>
             </div>
           </div>
@@ -209,7 +209,7 @@ export default function AdminRewards() {
                     <p className="text-xs text-neutral-400">Earned: {w.total_earned} · Spent: {w.total_spent}</p>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <Gem className="h-3.5 w-3.5 text-brand-purple" />
+                    <Gem aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                     <span className="text-sm font-bold text-brand-purple">{w.balance}</span>
                   </div>
                 </div>
@@ -288,7 +288,7 @@ export default function AdminRewards() {
                       disabled={savingReward === reward.id}
                       className="flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
                     >
-                      {savingReward === reward.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {savingReward === reward.id ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
                       Save
                     </button>
                   </div>
@@ -347,7 +347,7 @@ export default function AdminRewards() {
               disabled={savingSettings}
               className="mt-4 flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
-              {savingSettings ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {savingSettings ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               Save Settings
             </button>
           </div>
@@ -359,7 +359,7 @@ export default function AdminRewards() {
         <div className="space-y-4">
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
             <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              <AlertTriangle aria-hidden="true" className="h-5 w-5 text-amber-500" />
               <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
                 Reviewing {suspiciousTxs.length} flagged transactions
               </p>

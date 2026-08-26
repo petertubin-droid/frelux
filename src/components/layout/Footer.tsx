@@ -48,7 +48,7 @@ const legalLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy">
+    <footer role="contentinfo" aria-label="Site footer" className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy">
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
 
@@ -63,6 +63,7 @@ export default function Footer() {
               href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Contact us on WhatsApp"
               className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
             >
               <MessageCircle className="h-4 w-4" />
@@ -89,6 +90,7 @@ export default function Footer() {
           </div>
           <button
             onClick={() => withdrawConsent()}
+            aria-label="Withdraw cookie consent"
             className="text-xs text-neutral-400 hover:text-brand-purple dark:text-neutral-500 dark:hover:text-brand-purple-lighter transition-colors"
           >
             Cookie Preferences
@@ -101,7 +103,7 @@ export default function Footer() {
 
 function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
   return (
-    <div>
+    <nav aria-label={title}>
       <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-neutral-500 dark:text-neutral-400">{title}</h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
@@ -112,6 +114,6 @@ function FooterColumn({ title, links }: { title: string; links: { label: string;
           </li>
         ))}
       </ul>
-    </div>
+    </nav>
   );
 }

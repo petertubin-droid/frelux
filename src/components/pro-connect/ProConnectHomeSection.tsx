@@ -41,7 +41,7 @@ const mountedRef = useRef(true);
         {/* Heading */}
         <div className="mx-auto max-w-2xl text-center">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
-            <Users className="h-3.5 w-3.5" />
+            <Users aria-hidden="true" className="h-3.5 w-3.5" />
             FRELUX Pro Connect
           </div>
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
@@ -58,14 +58,14 @@ const mountedRef = useRef(true);
             to="/pro-connect"
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark sm:w-auto"
           >
-            <Search className="h-4 w-4" />
+            <Search aria-hidden="true" className="h-4 w-4" />
             Find a Professional
           </Link>
           <Link
             to="/pro-connect/register"
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-200 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
           >
-            <Briefcase className="h-4 w-4" />
+            <Briefcase aria-hidden="true" className="h-4 w-4" />
             Join as a Pro Worker
           </Link>
         </div>
@@ -102,7 +102,7 @@ const mountedRef = useRef(true);
             className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark dark:text-brand-purple-lighter"
           >
             Explore All Professionals
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
       </div>

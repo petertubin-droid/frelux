@@ -193,7 +193,7 @@ function MaterialsTab() {
     }
   }
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -205,7 +205,7 @@ function MaterialsTab() {
           }}
           className="flex items-center gap-1 rounded-md bg-brand-purple px-3 py-1.5 text-sm text-white"
         >
-          <Plus className="h-4 w-4" /> Add Profile
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Profile
         </button>
       </div>
 
@@ -257,7 +257,7 @@ function MaterialsTab() {
                 <td className="px-3 py-2">{item.default_waste_percent}%</td>
                 <td className="px-3 py-2">
                   {item.is_approved ? (
-                    <Check className="h-4 w-4 text-green-600" />
+                    <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                   ) : (
                     <Ban className="h-4 w-4 text-neutral-400" />
                   )}
@@ -270,7 +270,7 @@ function MaterialsTab() {
                         title="Approve"
                         className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                       >
-                        <Check className="h-4 w-4" />
+                        <Check aria-hidden="true" className="h-4 w-4" />
                       </button>
                     )}
                     <button
@@ -295,7 +295,7 @@ function MaterialsTab() {
                       title="Delete"
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </button>
                   </div>
                 </td>
@@ -372,7 +372,7 @@ function MaterialProfileForm({
           {existing ? "Edit" : "Add"} Material Profile
         </h3>
         <button onClick={onClose}>
-          <X className="h-4 w-4" />
+          <X aria-hidden="true" className="h-4 w-4" />
         </button>
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
@@ -468,9 +468,9 @@ function MaterialProfileForm({
           className="flex items-center gap-1 rounded-md bg-brand-purple px-3 py-1.5 text-sm text-white"
         >
           {saving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
           ) : (
-            <Save className="h-4 w-4" />
+            <Save aria-hidden="true" className="h-4 w-4" />
           )}{" "}
           Save
         </button>
@@ -508,7 +508,7 @@ function RoofTab() {
     load();
   }, [load]);
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -569,7 +569,7 @@ function RoofTab() {
                   <td className="px-3 py-2">{m.default_waste_percent}%</td>
                   <td className="px-3 py-2">
                     {m.is_approved ? (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                     ) : (
                       <Ban className="h-4 w-4 text-neutral-400" />
                     )}
@@ -666,7 +666,7 @@ function WasteTab() {
     load();
   }, [load]);
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -703,7 +703,7 @@ function WasteTab() {
                 <td className="px-3 py-2 font-semibold">{c.waste_percent}%</td>
                 <td className="px-3 py-2">
                   {c.is_override ? (
-                    <Check className="h-4 w-4 text-amber-600" />
+                    <Check aria-hidden="true" className="h-4 w-4 text-amber-600" />
                   ) : (
                     "—"
                   )}
@@ -762,7 +762,7 @@ function AiTab() {
     }
   }
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -841,7 +841,7 @@ function AiTab() {
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
-                      <Check className="h-4 w-4" />
+                      <Check aria-hidden="true" className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleStateChange(item.id, "flagged")}
@@ -920,7 +920,7 @@ function RulesTab() {
     }
   }
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div className="overflow-x-auto">
@@ -956,7 +956,7 @@ function RulesTab() {
               </td>
               <td className="px-3 py-2">
                 {item.is_verified ? (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
                   <Ban className="h-4 w-4 text-neutral-400" />
                 )}
@@ -969,7 +969,7 @@ function RulesTab() {
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
-                      <Check className="h-4 w-4" />
+                      <Check aria-hidden="true" className="h-4 w-4" />
                     </button>
                   )}
                   <button
@@ -977,7 +977,7 @@ function RulesTab() {
                     title="Delete"
                     className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 aria-hidden="true" className="h-4 w-4" />
                   </button>
                 </div>
               </td>
@@ -1040,7 +1040,7 @@ function SettingsTab() {
     }
   }
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div className="overflow-x-auto">
@@ -1087,7 +1087,7 @@ function SettingsTab() {
               <td className="px-3 py-2">{item.setting_type}</td>
               <td className="px-3 py-2">
                 {item.is_editable ? (
-                  <Check className="h-4 w-4 text-green-600" />
+                  <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
                   <Ban className="h-4 w-4 text-neutral-400" />
                 )}
@@ -1099,7 +1099,7 @@ function SettingsTab() {
                       onClick={() => handleSave(item.setting_key)}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
-                      <Save className="h-4 w-4" />
+                      <Save aria-hidden="true" className="h-4 w-4" />
                     </button>
                   ) : (
                     <button
@@ -1170,7 +1170,7 @@ function MarketsTab() {
     }
   }
 
-  if (loading) return <Loader2 className="h-5 w-5 animate-spin" />;
+  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>

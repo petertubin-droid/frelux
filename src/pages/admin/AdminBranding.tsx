@@ -156,7 +156,7 @@ export default function AdminBranding() {
 
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
@@ -216,7 +216,7 @@ export default function AdminBranding() {
       {/* Brand Colors section */}
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
-          <Palette className="h-5 w-5 text-brand-purple" />
+          <Palette aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Brand Colors</h2>
         </div>
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
@@ -320,7 +320,7 @@ export default function AdminBranding() {
                       
                       title="Remove highlight"
                     >
-                      <X className="h-4 w-4" />
+                      <X aria-hidden="true" className="h-4 w-4" />
                     </AdminIconButton>
                   </div>
                 </div>
@@ -343,7 +343,7 @@ export default function AdminBranding() {
           disabled={saving}
           className="px-5 py-2.5 text-sm"
         >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Branding'}
         </AdminButton>
         <span className="text-xs text-neutral-400 dark:text-neutral-500">Changes apply instantly across the website.</span>

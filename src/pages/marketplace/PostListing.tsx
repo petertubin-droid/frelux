@@ -132,7 +132,7 @@ export default function PostListing() {
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to Marketplace
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
         </button>
 
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
@@ -144,7 +144,7 @@ export default function PostListing() {
 
         {estimateRef && (
           <div className="mt-4 flex items-center gap-2 rounded-lg bg-brand-purple/5 border border-brand-purple/20 p-3 text-sm text-brand-purple">
-            <Info className="h-4 w-4 shrink-0" />
+            <Info aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span>
               Pre-filled from your estimate. Adjust details as needed.
             </span>
@@ -309,9 +309,9 @@ export default function PostListing() {
               className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
             >
               {submitting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
               ) : (
-                <Send className="h-4 w-4" />
+                <Send aria-hidden="true" className="h-4 w-4" />
               )}
               Post Job
             </button>
@@ -331,7 +331,7 @@ export default function PostListing() {
               to="/calculators"
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
             >
-              <Calculator className="h-4 w-4" /> Run a calculator first for
+              <Calculator aria-hidden="true" className="h-4 w-4" /> Run a calculator first for
               accurate scope
             </Link>
           </div>

@@ -27,7 +27,8 @@ export default function StickyActionBar({
   if (buttons.length === 0) return null;
 
   return (
-    <div className="action-bar-glow sticky bottom-0 z-30 mt-6 border-t border-neutral-200/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-brand-navy-mid/90 animate-fade-in-up">
+    
+    <div role="toolbar" aria-label="Quick actions" className="action-bar-glow sticky bottom-0 z-30 mt-6 border-t border-neutral-200/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-brand-navy-mid/90 animate-fade-in-up">
       <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-3">
         {buttons.map((btn) => (
           <button type="button"

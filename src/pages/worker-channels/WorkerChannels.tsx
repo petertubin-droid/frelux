@@ -348,7 +348,7 @@ export default function WorkerChannels() {
   if (!loading && !isWorker && profile?.account_type !== "pro_worker") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+        <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Worker Access Only
         </h1>
@@ -374,7 +374,7 @@ export default function WorkerChannels() {
     };
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <Shield className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+        <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
         <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
           Verification Required
         </h1>
@@ -419,7 +419,7 @@ export default function WorkerChannels() {
 
       {modConfig?.is_enabled && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-4 py-2.5 text-sm text-neutral-600 dark:text-neutral-300">
-          <Shield className="h-4 w-4 text-brand-purple" />
+          <Shield aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <span>
             AI moderation is active. Messages are automatically checked for
             spam, offensive content, and misinformation.
@@ -458,7 +458,7 @@ export default function WorkerChannels() {
                   </span>
                   {ch.region && (
                     <span className="flex items-center gap-0.5">
-                      <MapPin className="h-3 w-3" /> {ch.region}
+                      <MapPin aria-hidden="true" className="h-3 w-3" /> {ch.region}
                     </span>
                   )}
                 </div>
@@ -627,7 +627,7 @@ export default function WorkerChannels() {
                       disabled={!newMessage.trim() || sending}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple text-white transition-all hover:bg-brand-purple/90 disabled:opacity-50"
                     >
-                      <Send className="h-5 w-5" />
+                      <Send aria-hidden="true" className="h-5 w-5" />
                     </button>
                   </div>
                 )}
@@ -993,7 +993,7 @@ function MessageBubble({
             className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500"
             title="Delete"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
           </button>
         )}
       </div>

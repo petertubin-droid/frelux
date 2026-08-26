@@ -10,7 +10,7 @@ export default function CreditsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }

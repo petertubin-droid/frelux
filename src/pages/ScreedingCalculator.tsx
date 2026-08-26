@@ -148,7 +148,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
         breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Screeding Calculator' }] }
       />
 
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div role="region" aria-label="Screeding calculator" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!screedingResult && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
             <MeasurementInput
@@ -240,7 +240,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
               onClick={startOver}
               className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Start Over
             </button>
           </div>

@@ -55,7 +55,7 @@ export default function FoundationCalculator() {
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <Layers className="w-8 h-8 text-accent-green" />
+            <Layers aria-hidden="true" className="w-8 h-8 text-accent-green" />
             <h1 className="text-2xl md:text-3xl font-bold">Foundation Design Calculator</h1>
           </div>
           <p className="text-white/70 text-sm md:text-base">
@@ -139,13 +139,13 @@ export default function FoundationCalculator() {
 
           {/* Soil description */}
           <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-3 flex items-start gap-2">
-            <Building2 className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+            <Building2 aria-hidden="true" className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
             <p className="text-xs text-blue-700">{SOIL_DESCRIPTIONS[soilType]}</p>
           </div>
 
           <button onClick={calculate}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark">
-            <Calculator className="w-4 h-4" /> Calculate Foundation
+            <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Foundation
           </button>
         </div>
 
@@ -176,7 +176,7 @@ export default function FoundationCalculator() {
             {/* Bearing check */}
             <div className="flex items-center gap-3 rounded-lg bg-neutral-50 p-3 mb-4">
               {result.bearing_check_pass
-                ? <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
+                ? <CheckCircle2 aria-hidden="true" className="w-5 h-5 text-green-500 shrink-0" />
                 : <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />}
               <div>
                 <p className="text-xs font-medium text-neutral-500">Bearing Capacity Check</p>
@@ -219,7 +219,7 @@ export default function FoundationCalculator() {
             <div className="mt-4">
               <button onClick={() => setShowFormulas(!showFormulas)}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1">
-                {showFormulas ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                {showFormulas ? <ChevronDown aria-hidden="true" className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                 {showFormulas ? 'Hide' : 'Show'} calculation formulas
               </button>
               {showFormulas && (

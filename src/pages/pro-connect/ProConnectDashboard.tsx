@@ -127,11 +127,11 @@ export default function ProConnectDashboard() {
           Worker Channels
         </Link>
         <Link to="/messages" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
-          <MessageSquare className="h-4 w-4" />
+          <MessageSquare aria-hidden="true" className="h-4 w-4" />
           Messages
         </Link>
         <Link to="/profile" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
-          <Settings className="h-4 w-4" />
+          <Settings aria-hidden="true" className="h-4 w-4" />
           My Profile
         </Link>
       </div>
@@ -146,7 +146,7 @@ export default function ProConnectDashboard() {
           to={`/pro-connect/${profile.slug}`}
           className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:border-white/10 dark:text-neutral-200"
         >
-          <Eye className="h-4 w-4" />
+          <Eye aria-hidden="true" className="h-4 w-4" />
           View public profile
         </Link>
       </div>
@@ -165,7 +165,7 @@ export default function ProConnectDashboard() {
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
-            <MessageSquare className="h-4 w-4" />
+            <MessageSquare aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Messages</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
@@ -175,7 +175,7 @@ export default function ProConnectDashboard() {
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
-            <Eye className="h-4 w-4" />
+            <Eye aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Listed</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
@@ -185,7 +185,7 @@ export default function ProConnectDashboard() {
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
-            <Briefcase className="h-4 w-4" />
+            <Briefcase aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Experience</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
@@ -223,7 +223,7 @@ export default function ProConnectDashboard() {
             to="/pro-connect/register"
             className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-300"
           >
-            <Settings className="h-4 w-4" />
+            <Settings aria-hidden="true" className="h-4 w-4" />
             Edit Profile
           </Link>
         </div>
@@ -249,7 +249,7 @@ export default function ProConnectDashboard() {
             <div className="flex flex-wrap gap-1.5">
               {locations.map((l, i) => (
                 <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
-                  <MapPin className="mr-1 inline h-3 w-3" />
+                  <MapPin aria-hidden="true" className="mr-1 inline h-3 w-3" />
                   {[l.area, l.city, l.state].filter(Boolean).join(', ')}
                 </span>
               ))}
@@ -527,7 +527,7 @@ export default function ProConnectDashboard() {
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-sm font-medium text-white"
           >
-            <Plus className="h-4 w-4" />
+            <Plus aria-hidden="true" className="h-4 w-4" />
             Add Item
           </button>
         </div>
@@ -568,7 +568,7 @@ export default function ProConnectDashboard() {
                   }}
                   className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-brand-navy/80"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </button>
               </div>
             ))}
@@ -599,7 +599,7 @@ export default function ProConnectDashboard() {
                     {convo.last_message_at ? new Date(convo.last_message_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'No messages yet'}
                   </p>
                 </div>
-                <MessageSquare className="h-5 w-5 text-neutral-400" />
+                <MessageSquare aria-hidden="true" className="h-5 w-5 text-neutral-400" />
               </Link>
             ))}
           </div>
@@ -658,18 +658,18 @@ export default function ProConnectDashboard() {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
-            <ShoppingBag className="h-5 w-5 text-brand-purple" />
+            <ShoppingBag aria-hidden="true" className="h-5 w-5 text-brand-purple" />
             Marketplace Bids
           </h2>
           <Link to="/marketplace" className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
-            Browse Jobs <ArrowRight className="h-3.5 w-3.5" />
+            Browse Jobs <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
           </Link>
         </div>
         {myBids.length === 0 ? (
           <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center dark:border-white/5 dark:bg-brand-navy-mid">
             <p className="text-sm text-neutral-500 dark:text-neutral-400">You haven't placed any bids yet.</p>
             <Link to="/marketplace" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
-              <ShoppingBag className="h-4 w-4" /> Browse open jobs
+              <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open jobs
             </Link>
           </div>
         ) : (
@@ -704,7 +704,7 @@ export default function ProConnectDashboard() {
       {myOrders.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
-            <Briefcase className="h-5 w-5 text-brand-purple" />
+            <Briefcase aria-hidden="true" className="h-5 w-5 text-brand-purple" />
             Active Orders
           </h2>
           <div className="space-y-2">
@@ -824,7 +824,7 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
               className="hidden"
             />
             <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-              <Plus className="h-4 w-4" />
+              <Plus aria-hidden="true" className="h-4 w-4" />
               {uploading ? 'Uploading...' : 'Upload images'}
             </span>
           </label>

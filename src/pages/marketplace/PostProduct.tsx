@@ -376,7 +376,7 @@ export default function PostProduct() {
                           onClick={() => removeImage(idx)}
                           className="rounded bg-red-500 p-1 text-white"
                         >
-                          <X className="h-3 w-3" />
+                          <X aria-hidden="true" className="h-3 w-3" />
                         </button>
                         <button
                           onClick={() => moveImage(idx, 1)}
@@ -399,7 +399,7 @@ export default function PostProduct() {
             <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-200 p-4 text-sm text-neutral-500 hover:border-brand-purple dark:border-white/10 dark:text-neutral-400">
               {uploading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Uploading…
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Uploading…
                 </>
               ) : (
                 <>
@@ -523,7 +523,7 @@ export default function PostProduct() {
                   onClick={() => setTags(tags.filter((x) => x !== t))}
                   className="text-brand-purple/60 hover:text-brand-purple"
                 >
-                  <X className="h-3 w-3" />
+                  <X aria-hidden="true" className="h-3 w-3" />
                 </button>
               </span>
             ))}
@@ -542,7 +542,7 @@ export default function PostProduct() {
               onClick={addTag}
               className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10"
             >
-              <Plus className="h-4 w-4" />
+              <Plus aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -558,9 +558,9 @@ export default function PostProduct() {
             className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
           >
             {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
-              <Send className="h-4 w-4" />
+              <Send aria-hidden="true" className="h-4 w-4" />
             )}
             Post Product
           </button>

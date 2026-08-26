@@ -72,7 +72,7 @@ const projectCards: ProjectCard[] = [
 
 export default function ChooseProject() {
   return (
-    <section className="relative -mt-12 pb-16 pt-4 sm:pb-20" style={{ zIndex: 1 }}>
+    <section aria-label="Choose your project type" className="relative -mt-12 pb-16 pt-4 sm:pb-20" style={{ zIndex: 1 }}>
       <Container>
         <div className="mb-8 text-center">
           <h2 className="font-display text-2xl font-bold text-neutral-900 sm:text-3xl dark:text-white">
@@ -90,6 +90,7 @@ export default function ChooseProject() {
               <Link
                 key={card.to}
                 to={card.to}
+                aria-label={`Open ${card.title} calculator`}
                 className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-brand-navy-mid dark:hover:border-brand-purple/30"
               >
                 {/* Hover glow */}
@@ -100,7 +101,7 @@ export default function ChooseProject() {
 
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg} ${card.accent} transition-transform duration-300 group-hover:scale-110`}>
-                    <Icon className="h-5 w-5" />
+                    <Icon aria-hidden="true" className="h-5 w-5" />
                   </span>
                 </div>
 
@@ -109,7 +110,7 @@ export default function ChooseProject() {
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                   Open calculator
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight aria-hidden="true" className="h-4 w-4" />
                 </span>
               </Link>
             );

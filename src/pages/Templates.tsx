@@ -89,7 +89,7 @@ export default function Templates() {
       {/* Search + filters */}
       <div className="mb-6 space-y-3">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
             value={search}
@@ -120,7 +120,7 @@ export default function Templates() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
@@ -172,7 +172,7 @@ export default function Templates() {
               to={type === 'paint' ? '/paint-calculator' : type === 'tile' ? '/tile-calculator' : type === 'screeding' ? '/screeding-calculator' : '/pop-ceiling-calculator'}
               className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
             >
-              <Calculator className="h-3.5 w-3.5" />
+              <Calculator aria-hidden="true" className="h-3.5 w-3.5" />
               {calculatorLabel(type)}
             </Link>
           ))}
@@ -197,7 +197,7 @@ function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
     >
       <div className="flex items-start justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
-          <Calculator className="h-3 w-3" />
+          <Calculator aria-hidden="true" className="h-3 w-3" />
           {calculatorLabel(template.calculator_type)}
         </span>
         {template.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />}

@@ -87,9 +87,9 @@ export default function Home() {
       <Hero />
 
       {/* Choose Your Project — 6 calculator cards immediately below hero */}
-      <div id="calculators" className="bg-white dark:bg-brand-navy">
+      <section id="calculators" aria-label="Calculators" className="bg-white dark:bg-brand-navy">
         <ChooseProject />
-      </div>
+      </section>
 
       {/* Recently used tools — personalized quick access */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -112,11 +112,11 @@ export default function Home() {
       <ProConnectHomeSection />
 
       {/* Marketplace CTA — post a job and get bids */}
-      <section className="bg-neutral-50 py-16 dark:bg-brand-navy-mid sm:py-20">
+      <section aria-label="FRELUX Marketplace" className="bg-neutral-50 py-16 dark:bg-brand-navy-mid sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
-              <ShoppingBag className="h-3.5 w-3.5" />
+              <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
               FRELUX Marketplace
             </div>
             <h2 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
@@ -127,10 +127,10 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link to="/marketplace" className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark sm:w-auto">
-                <ShoppingBag className="h-4 w-4" /> Browse Jobs
+                <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse Jobs
               </Link>
               <Link to="/marketplace/post" className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-200 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto">
-                <Plus className="h-4 w-4" /> Post a Job
+                <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
               </Link>
             </div>
           </div>

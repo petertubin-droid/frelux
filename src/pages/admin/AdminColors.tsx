@@ -133,13 +133,13 @@ function PaintColorsTab() {
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or hex…" className="pl-9" />
         </div>
         <div className="flex gap-2">
-          <AdminButton variant="secondary" onClick={exportCsv}><Download className="h-4 w-4" /> Export CSV</AdminButton>
+          <AdminButton variant="secondary" onClick={exportCsv}><Download aria-hidden="true" className="h-4 w-4" /> Export CSV</AdminButton>
           <AdminButton variant="secondary" onClick={() => setShowImport(true)}><Upload className="h-4 w-4" /> Import</AdminButton>
-          <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add color</AdminButton>
+          <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add color</AdminButton>
         </div>
       </div>
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -176,7 +176,7 @@ function PaintColorsTab() {
                         <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
                         {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
                         {item.is_featured && <BadgeCheck className="h-3 w-3 text-brand-purple" />}
-                        {item.is_trending && <TrendingUp className="h-3 w-3 text-accent-orange" />}
+                        {item.is_trending && <TrendingUp aria-hidden="true" className="h-3 w-3 text-accent-orange" />}
                       </div>
                       <p className="text-[10px] text-neutral-400 dark:text-neutral-500">{item.is_interior ? 'Int' : ''}{item.is_interior && item.is_exterior ? '/' : ''}{item.is_exterior ? 'Ext' : ''}</p>
                     </div>
@@ -189,7 +189,7 @@ function PaintColorsTab() {
                     </div>
                     <div className="flex items-center gap-0.5">
                       <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                      <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                      <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
                     </div>
                   </div>
                 </div>
@@ -480,7 +480,7 @@ function FamiliesTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add family</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add family</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No families yet" message="Add your first color family." /> : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
@@ -489,7 +489,7 @@ function FamiliesTab() {
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
               </div>
             </AdminCard>
           ))}
@@ -574,7 +574,7 @@ function CombinationsTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add combination</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add combination</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No combinations yet" message="Add your first color combination." /> : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
@@ -595,7 +595,7 @@ function CombinationsTab() {
                     <Toggle checked={item.is_published} onChange={() => togglePublished(item)} />
                     <div className="flex items-center gap-1">
                       <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3.5 w-3.5" /></AdminIconButton>
-                      <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3.5 w-3.5" /></AdminIconButton>
+                      <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
                     </div>
                   </div>
                 </div>
@@ -722,7 +722,7 @@ function CategoriesTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add category</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add category</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No categories yet" message="Add your first category." /> : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
@@ -731,7 +731,7 @@ function CategoriesTab() {
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
               </div>
             </AdminCard>
           ))}

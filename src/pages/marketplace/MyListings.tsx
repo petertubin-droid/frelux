@@ -52,7 +52,7 @@ export default function MyListings() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -71,7 +71,7 @@ export default function MyListings() {
             to="/marketplace/post"
             className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
           >
-            <Plus className="h-4 w-4" /> New Job
+            <Plus aria-hidden="true" className="h-4 w-4" /> New Job
           </Link>
         </div>
 
@@ -82,7 +82,7 @@ export default function MyListings() {
               to="/marketplace/post"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
             >
-              <Plus className="h-4 w-4" /> Post Your First Job
+              <Plus aria-hidden="true" className="h-4 w-4" /> Post Your First Job
             </Link>
           </div>
         ) : (
@@ -106,7 +106,7 @@ export default function MyListings() {
                       </span>
                       {listing.urgency === 'urgent' && (
                         <span className="inline-flex items-center gap-0.5 rounded-md bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
-                          <Clock className="h-3 w-3" /> Urgent
+                          <Clock aria-hidden="true" className="h-3 w-3" /> Urgent
                         </span>
                       )}
                     </div>
@@ -118,15 +118,15 @@ export default function MyListings() {
                     </Link>
                     {listing.location_state && (
                       <p className="mt-1 inline-flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
-                        <MapPin className="h-3 w-3" />
+                        <MapPin aria-hidden="true" className="h-3 w-3" />
                         {[listing.location_city, listing.location_state].filter(Boolean).join(', ')}
                       </p>
                     )}
                   </div>
 
                   <div className="flex items-center gap-4 text-xs text-neutral-400 dark:text-neutral-500">
-                    <span className="inline-flex items-center gap-1"><Users className="h-3 w-3" /> {listing.bid_count}</span>
-                    <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {listing.view_count}</span>
+                    <span className="inline-flex items-center gap-1"><Users aria-hidden="true" className="h-3 w-3" /> {listing.bid_count}</span>
+                    <span className="inline-flex items-center gap-1"><Eye aria-hidden="true" className="h-3 w-3" /> {listing.view_count}</span>
                   </div>
                 </div>
 
@@ -142,7 +142,7 @@ export default function MyListings() {
                         disabled={cancellingId === listing.id}
                         className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-neutral-300"
                       >
-                        {cancellingId === listing.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <X className="h-3 w-3" />}
+                        {cancellingId === listing.id ? <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> : <X aria-hidden="true" className="h-3 w-3" />}
                         Cancel
                       </button>
                     )}

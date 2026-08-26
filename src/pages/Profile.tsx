@@ -39,7 +39,7 @@ export default function Profile() {
       <>
         <PageHeader eyebrow="Account" title="My Profile" subtitle="Sign in to edit your profile and manage your account." />
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
-          <User className="mx-auto h-12 w-12 text-neutral-300" />
+          <User aria-hidden="true" className="mx-auto h-12 w-12 text-neutral-300" />
           <p className="mt-4 text-neutral-500">Please sign in to view and edit your profile.</p>
           <Link
             to="/login?redirect=/profile"
@@ -161,7 +161,7 @@ export default function Profile() {
                 aria-label="Change profile picture"
               >
                 {uploading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                 ) : (
                   <Camera className="h-4 w-4" />
                 )}
@@ -180,7 +180,7 @@ export default function Profile() {
               <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">{user.email}</p>
               <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
                 <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.role === 'admin' ? 'bg-accent-orange/15 text-accent-orange' : 'bg-brand-purple/10 text-brand-purple'}`}>
-                  <Shield className="h-3 w-3" />
+                  <Shield aria-hidden="true" className="h-3 w-3" />
                   {profile?.role === 'admin' ? 'Admin' : 'Member'}
                 </span>
                 <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === 'pro_worker' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400'}`}>
@@ -207,7 +207,7 @@ export default function Profile() {
                 onClick={copyMarketplaceId}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:bg-white hover:text-brand-purple dark:text-neutral-400 dark:hover:bg-white/5"
               >
-                {copied ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
                 {copied ? 'Copied' : 'Copy'}
               </button>
             </div>
@@ -222,7 +222,7 @@ export default function Profile() {
           <div className="mt-5 space-y-4">
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <User className="h-3.5 w-3.5 text-neutral-400" />
+                <User aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
                 Full Name
               </label>
               <input
@@ -270,7 +270,7 @@ export default function Profile() {
               disabled={saving}
               className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90 active:scale-95 disabled:opacity-50"
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
@@ -295,7 +295,7 @@ export default function Profile() {
           <div className="rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
-                <Shield className="h-5 w-5" />
+                <Shield aria-hidden="true" className="h-5 w-5" />
               </div>
               <div>
                 <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Account Type</p>
@@ -348,7 +348,7 @@ export default function Profile() {
         <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-3">
             <div className={"flex h-10 w-10 items-center justify-center rounded-lg " + (isPaid ? "bg-brand-purple/15 text-brand-purple" : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400")}>
-              {isPaid ? <Crown className="h-5 w-5" /> : <Shield className="h-5 w-5" />}
+              {isPaid ? <Crown className="h-5 w-5" /> : <Shield aria-hidden="true" className="h-5 w-5" />}
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-neutral-400 dark:text-neutral-500">Subscription Status</p>

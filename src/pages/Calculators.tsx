@@ -159,14 +159,14 @@ export default function Calculators() {
   return (
     <>
       {/* Hero strip */}
-      <section className="relative overflow-hidden bg-mesh text-white">
+      <section aria-label="All FRELUX calculators" className="relative overflow-hidden bg-mesh text-white">
         <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/20 blur-[140px]" />
         </div>
         <Container className="relative py-16 sm:py-20">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md">
-            <Calculator className="h-3 w-3 text-brand-purple-light" />
+            <Calculator aria-hidden="true" className="h-3 w-3 text-brand-purple-light" />
             All Calculators
           </span>
           <h1 className="mt-6 font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl text-balance">
@@ -179,7 +179,7 @@ export default function Calculators() {
       </section>
 
       {/* Calculator grid */}
-      <section className="bg-white py-16 dark:bg-brand-navy sm:py-20">
+      <section aria-label="Calculator tools" className="bg-white py-16 dark:bg-brand-navy sm:py-20">
         <Container>
           <div ref={ref} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {calculators.map((tool, i) => {
@@ -226,7 +226,7 @@ export default function Calculators() {
 
                   <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                     Open calculator
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight aria-hidden="true" className="h-4 w-4" />
                   </span>
                 </Link>
               );
@@ -248,7 +248,7 @@ export default function Calculators() {
               <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
               <div className="flex items-center gap-3">
                 <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-brand-purple/10 transition-transform duration-300 group-hover:scale-110">
-                  <Palette className="h-5 w-5" />
+                  <Palette aria-hidden="true" className="h-5 w-5" />
                 </span>
               </div>
               <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h3>
@@ -257,7 +257,7 @@ export default function Calculators() {
               </p>
               <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                 Browse colors
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </span>
             </Link>
           </div>

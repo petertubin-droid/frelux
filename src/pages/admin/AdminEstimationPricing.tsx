@@ -205,7 +205,7 @@ export default function AdminEstimationPricing() {
         subtitle="Manage base prices and active currency rates for products, quality levels, and materials."
         action={
           <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}>
-            <Plus className="h-4 w-4" /> Add Price
+            <Plus aria-hidden="true" className="h-4 w-4" /> Add Price
           </AdminButton>
         }
       />
@@ -219,7 +219,7 @@ export default function AdminEstimationPricing() {
       {/* Filters & Search Bar */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-neutral-400" />
+          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
           <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <AdminButton
@@ -239,7 +239,7 @@ export default function AdminEstimationPricing() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
           <AdminInput
  type="text"
  placeholder="Search price items..."
@@ -279,7 +279,7 @@ export default function AdminEstimationPricing() {
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-400 dark:text-neutral-500">
                       {packSizeVal && <span>Pack: {packSizeVal}</span>}
-                      <span className="inline-flex items-center gap-0.5"><Calendar className="h-2.5 w-2.5" />{item.effective_date}</span>
+                      <span className="inline-flex items-center gap-0.5"><Calendar aria-hidden="true" className="h-2.5 w-2.5" />{item.effective_date}</span>
                     </div>
                     {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-neutral-400">{item.notes}</p>}
                   </div>
@@ -293,7 +293,7 @@ export default function AdminEstimationPricing() {
                     <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                     <AdminIconButton variant="ghost" type="button" onClick={() => setHistoryItem(item)} title="History"><History className="h-3 w-3" /></AdminIconButton>
                     <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                    <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
+                    <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
                   </div>
                 </div>
               </div>
@@ -632,7 +632,7 @@ function PriceHistoryModal({
                 <div key={h.id} className="rounded-lg border border-neutral-200 p-3 text-xs bg-neutral-50 dark:bg-white/5">
                   <div className="flex items-center justify-between font-medium text-neutral-800">
                     <span className="flex items-center gap-2">
-                      <DollarSign className="h-3.5 w-3.5 text-brand-purple" />
+                      <DollarSign aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                       {h.old_price !== null ? (
                         <span>
                           <span className="line-through text-neutral-400 dark:text-neutral-500">

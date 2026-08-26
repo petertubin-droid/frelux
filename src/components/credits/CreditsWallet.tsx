@@ -78,7 +78,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -190,7 +190,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                 Spend credits on AI features (cost varies per feature)
               </div>
               <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
-                <Clock className="h-3.5 w-3.5 text-neutral-400" />
+                <Clock aria-hidden="true" className="h-3.5 w-3.5 text-neutral-400" />
                 Up to {dailyLimit} ad rewards per day
               </div>
             </div>
@@ -278,9 +278,9 @@ export function CreditsWallet({ userId }: { userId: string }) {
                 </div>
                 <div className="flex items-center gap-2">
                   {evt.status === "completed" ? (
-                    <CheckCircle2 className="h-4 w-4 text-accent-green" />
+                    <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-accent-green" />
                   ) : (
-                    <AlertCircle className="h-4 w-4 text-red-400" />
+                    <AlertCircle aria-hidden="true" className="h-4 w-4 text-red-400" />
                   )}
                   <span className="text-xs font-bold text-accent-green">
                     +{evt.credits_awarded}
@@ -442,7 +442,7 @@ function EarnCreditsModal({
         <div className="bg-gradient-to-br from-brand-purple to-brand-navy p-6 text-white">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
-              <Gift className="h-6 w-6 text-accent-green" />
+              <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">Earn FRELUX Credits</h2>
             </div>
             <button
@@ -450,7 +450,7 @@ function EarnCreditsModal({
               onClick={onClose}
               className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
             >
-              <X className="h-5 w-5" />
+              <X aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
           <p className="mt-2 text-sm text-white/70">
@@ -490,7 +490,7 @@ function EarnCreditsModal({
 
           {phase === "loading" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Loading ad…
               </p>
@@ -513,7 +513,7 @@ function EarnCreditsModal({
 
           {phase === "verifying" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Verifying ad completion…
               </p>
@@ -526,7 +526,7 @@ function EarnCreditsModal({
           {phase === "success" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/10">
-                <CheckCircle2 className="h-8 w-8 text-accent-green" />
+                <CheckCircle2 aria-hidden="true" className="h-8 w-8 text-accent-green" />
               </div>
               <p className="text-lg font-bold text-neutral-900 dark:text-white">
                 +{earnedAmount} Credits!
@@ -547,7 +547,7 @@ function EarnCreditsModal({
           {phase === "error" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10">
-                <AlertCircle className="h-8 w-8 text-red-400" />
+                <AlertCircle aria-hidden="true" className="h-8 w-8 text-red-400" />
               </div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Ad unavailable
@@ -571,7 +571,7 @@ function EarnCreditsModal({
           {phase === "limit" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-white/5">
-                <Clock className="h-8 w-8 text-neutral-400" />
+                <Clock aria-hidden="true" className="h-8 w-8 text-neutral-400" />
               </div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Daily limit reached
@@ -720,7 +720,7 @@ export function AiFeatureGate({
           onClick={onClose}
         />
         <div className="relative rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
         </div>
       </div>
     );
@@ -736,7 +736,7 @@ export function AiFeatureGate({
         <div className="relative w-full max-w-md rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
           <div className="flex flex-col items-center gap-3">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/10">
-              <CheckCircle2 className="h-8 w-8 text-accent-green" />
+              <CheckCircle2 aria-hidden="true" className="h-8 w-8 text-accent-green" />
             </div>
             <p className="text-lg font-bold text-neutral-900 dark:text-white">
               ✓ Unlocked
@@ -772,7 +772,7 @@ export function AiFeatureGate({
               onClick={onClose}
               className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
             >
-              <X className="h-5 w-5" />
+              <X aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
           <p className="mt-2 text-sm text-white/70">
@@ -801,7 +801,7 @@ export function AiFeatureGate({
 
           {mode === "ad_watching" ? (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Playing ad…
               </p>
@@ -824,7 +824,7 @@ export function AiFeatureGate({
                 )}
               >
                 {spending ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
                 ) : (
                   <Coins className="h-5 w-5" />
                 )}
@@ -850,7 +850,7 @@ export function AiFeatureGate({
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-brand-purple/10 disabled:opacity-50 dark:text-brand-purple"
                   >
                     {adUnlocking ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
                     ) : (
                       <PlayCircle className="h-5 w-5" />
                     )}

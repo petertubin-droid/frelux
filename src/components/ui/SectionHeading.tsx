@@ -30,7 +30,7 @@ export default function SectionHeading({
           {label}
         </p>
       )}
-      <h2 className="section-title text-balance">{title}</h2>
+      <h2 role="heading" aria-level="2" className="section-title text-balance">{title}</h2>
       {subtitle && <p className="section-subtitle mt-4 text-balance">{subtitle}</p>}
     </Container>
   );

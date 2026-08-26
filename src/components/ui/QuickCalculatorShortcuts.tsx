@@ -18,7 +18,7 @@ export default function QuickCalculatorShortcuts() {
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Jump straight to the most-used calculators</p>
           </div>
           <Link to="/my-projects" className="group hidden items-center gap-1 text-sm font-semibold text-brand-purple transition-colors hover:text-brand-purple-dark sm:inline-flex dark:text-brand-purple-lighter dark:hover:text-brand-purple">
-            My Projects <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            My Projects <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -45,7 +45,7 @@ export default function QuickCalculatorShortcuts() {
                 <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{s.description}</p>
               </div>
               <span className="mt-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-purple dark:text-brand-purple-lighter">
-                Open <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                Open <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </Link>
           ))}

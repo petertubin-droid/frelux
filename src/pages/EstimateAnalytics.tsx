@@ -109,7 +109,7 @@ export default function EstimateAnalytics() {
   }
 
   if (loading) {
-    return <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-brand-purple" /></div>;
+    return <div className="flex justify-center py-12"><Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" /></div>;
   }
 
   return (
@@ -140,7 +140,7 @@ export default function EstimateAnalytics() {
           disabled={filtered.length === 0}
           className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
-          <Download className="h-4 w-4" /> Export CSV
+          <Download aria-hidden="true" className="h-4 w-4" /> Export CSV
         </button>
       </div>
 
@@ -182,7 +182,7 @@ export default function EstimateAnalytics() {
       {/* Monthly Summaries */}
       <div className="mt-6 rounded-lg border p-6">
         <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
-          <Calendar className="h-5 w-5" /> Monthly Summaries
+          <Calendar aria-hidden="true" className="h-5 w-5" /> Monthly Summaries
         </h3>
         {stats.monthlySummary.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">No monthly data yet.</p>

@@ -141,10 +141,10 @@ export default function AdminTypography() {
         action={
           <div className="flex gap-2">
             <AdminButton variant="secondary" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4" /> Reset
+              <RotateCcw aria-hidden="true" className="h-4 w-4" /> Reset
             </AdminButton>
             <AdminButton onClick={handleSave} disabled={status === 'saving'}>
-              <Save className="h-4 w-4" /> {status === 'saving' ? 'Saving…' : 'Save & Apply'}
+              <Save aria-hidden="true" className="h-4 w-4" /> {status === 'saving' ? 'Saving…' : 'Save & Apply'}
             </AdminButton>
           </div>
         }
@@ -152,7 +152,7 @@ export default function AdminTypography() {
 
       {savedAt && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700 dark:border-green-500/20 dark:bg-green-500/10 dark:text-green-400">
-          <CheckCircle2 className="h-4 w-4" /> Typography saved and applied globally.
+          <CheckCircle2 aria-hidden="true" className="h-4 w-4" /> Typography saved and applied globally.
         </div>
       )}
       {error && (
@@ -236,7 +236,7 @@ export default function AdminTypography() {
           {/* Search + Category filter */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
               <AdminInput
                 className="pl-10"
                 placeholder="Search fonts…"
@@ -397,7 +397,7 @@ function FontCard({
         </div>
         {isActive && (
           <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-purple text-white">
-            <Check className="h-3.5 w-3.5" />
+            <Check aria-hidden="true" className="h-3.5 w-3.5" />
           </span>
         )}
       </div>

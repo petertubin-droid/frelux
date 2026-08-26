@@ -117,7 +117,7 @@ export default function AdminEstimationProduction() {
         subtitle="Manage FRELUX paint production minimums by product and location."
         action={
           <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}>
-            <Plus className="h-4 w-4" />
+            <Plus aria-hidden="true" className="h-4 w-4" />
             Add Rule
           </AdminButton>
         }
@@ -163,7 +163,7 @@ export default function AdminEstimationProduction() {
                     <Pencil className="h-4 w-4" />
                   </AdminIconButton>
                   <AdminIconButton variant="danger" onClick={() => handleDelete(rule.id)} >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 aria-hidden="true" className="h-4 w-4" />
                   </AdminIconButton>
                 </div>
               </div>

@@ -225,7 +225,7 @@ export default function MarketplaceHome() {
             {/* Quick action buttons */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link to="/marketplace/post" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark hover:shadow-lg">
-                <Plus className="h-4 w-4" /> Post a Job
+                <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
               </Link>
               <Link to="/marketplace/products/post" className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10">
                 <Store className="h-4 w-4" /> Sell a Product
@@ -296,11 +296,11 @@ export default function MarketplaceHome() {
             <div className="flex gap-2">
               {tab === 'jobs' ? (
                 <Link to="/marketplace/post" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark">
-                  <Plus className="h-4 w-4" /> Post a Job
+                  <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
                 </Link>
               ) : (
                 <Link to="/marketplace/products/post" className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark">
-                  <Plus className="h-4 w-4" /> Sell a Product
+                  <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
                 </Link>
               )}
             </div>
@@ -422,7 +422,7 @@ function JobsTab(props: {
       {/* Search bar */}
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
@@ -453,7 +453,7 @@ function JobsTab(props: {
             {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <button onClick={() => { props.setProjectType(''); props.setState(''); props.setSearch(''); }} className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
-            <X className="inline h-3 w-3" /> Clear
+            <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
         </div>
       )}
@@ -486,14 +486,14 @@ function JobsTab(props: {
 
       {/* Listings grid */}
       {props.loading ? (
-        <div className="flex items-center justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-brand-purple" /></div>
+        <div className="flex items-center justify-center py-12"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" /></div>
       ) : props.listings.length === 0 ? (
         <div className="py-12 text-center">
           <Briefcase className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No jobs found</p>
           <p className="mt-1 text-xs text-neutral-400">Try adjusting your search or post a job.</p>
           <Link to="/marketplace/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
-            <Plus className="h-4 w-4" /> Post a Job
+            <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
           </Link>
         </div>
       ) : (
@@ -514,7 +514,7 @@ function JobsTab(props: {
                 </div>
                 {(listing.location_city || listing.location_state) && (
                   <div className="mt-2 flex items-center gap-1 text-xs text-neutral-400">
-                    <MapPin className="h-3 w-3" />{listing.location_city && `${listing.location_city}, `}{listing.location_state}
+                    <MapPin aria-hidden="true" className="h-3 w-3" />{listing.location_city && `${listing.location_city}, `}{listing.location_state}
                   </div>
                 )}
               </Link>
@@ -561,7 +561,7 @@ function ProductsTab(props: {
       {/* Search bar */}
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
@@ -620,21 +620,21 @@ function ProductsTab(props: {
             {NIGERIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <button onClick={() => { props.setCondition(''); props.setState(''); props.setCategory(''); props.setSearch(''); }} className="text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
-            <X className="inline h-3 w-3" /> Clear
+            <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
         </div>
       )}
 
       {/* Products grid */}
       {props.loading ? (
-        <div className="flex items-center justify-center py-12"><Loader2 className="h-5 w-5 animate-spin text-brand-purple" /></div>
+        <div className="flex items-center justify-center py-12"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" /></div>
       ) : props.products.length === 0 ? (
         <div className="py-12 text-center">
           <Store className="mx-auto h-10 w-10 text-neutral-300" />
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No products found</p>
           <p className="mt-1 text-xs text-neutral-400">Try adjusting your search or list a product for sale.</p>
           <Link to="/marketplace/products/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
-            <Plus className="h-4 w-4" /> Sell a Product
+            <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
           </Link>
         </div>
       ) : (
@@ -680,7 +680,7 @@ function ProductsTab(props: {
                     </div>
                     <div className="mt-1 flex items-center justify-between text-xs text-neutral-400">
                       <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
-                      {product.location_city && <span className="inline-flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{product.location_city}</span>}
+                      {product.location_city && <span className="inline-flex items-center gap-0.5"><MapPin aria-hidden="true" className="h-2.5 w-2.5" />{product.location_city}</span>}
                     </div>
                   </div>
                 </Link>

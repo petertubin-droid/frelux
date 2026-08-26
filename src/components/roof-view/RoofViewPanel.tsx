@@ -57,7 +57,7 @@ export function RoofViewPanel() {
     return (
       <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <div className="flex items-center gap-2 text-sm text-neutral-500">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
           Checking roof view availability...
         </div>
       </div>
@@ -70,7 +70,7 @@ export function RoofViewPanel() {
       <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-200 shrink-0">
-            <Satellite className="w-5 h-5 text-neutral-400" />
+            <Satellite aria-hidden="true" className="w-5 h-5 text-neutral-400" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-neutral-700">
@@ -81,7 +81,7 @@ export function RoofViewPanel() {
               No imagery provider is currently configured.
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-amber-700">
-              <Info className="w-3 h-3" />
+              <Info aria-hidden="true" className="w-3 h-3" />
               Ready for provider connection
             </div>
             <p className="text-xs text-neutral-400 mt-2">
@@ -99,7 +99,7 @@ export function RoofViewPanel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
-            <Satellite className="w-5 h-5 text-brand-purple" />
+            <Satellite aria-hidden="true" className="w-5 h-5 text-brand-purple" />
           </div>
           <div>
             <p className="text-sm font-semibold text-neutral-700">
@@ -111,7 +111,7 @@ export function RoofViewPanel() {
           </div>
         </div>
         <div className="inline-flex items-center gap-1.5 rounded-md bg-green-50 border border-green-200 px-2 py-1 text-xs font-medium text-green-700">
-          <CheckCircle2 className="w-3 h-3" />
+          <CheckCircle2 aria-hidden="true" className="w-3 h-3" />
           Provider active
         </div>
       </div>
@@ -124,7 +124,7 @@ export function RoofViewPanel() {
               Property address
             </label>
             <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+              <MapPin aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
               <input
                 type="text"
                 value={address}
@@ -171,12 +171,12 @@ export function RoofViewPanel() {
           >
             {loadingImagery ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
                 Retrieving imagery...
               </>
             ) : (
               <>
-                <Satellite className="w-4 h-4" />
+                <Satellite aria-hidden="true" className="w-4 h-4" />
                 Get Aerial Image
               </>
             )}
@@ -187,7 +187,7 @@ export function RoofViewPanel() {
       {/* Fetching state */}
       {state === 'fetching' && !imagery && (
         <div className="flex items-center gap-2 text-sm text-neutral-500 py-4">
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
           Contacting {config?.display_name}...
         </div>
       )}
@@ -210,7 +210,7 @@ export function RoofViewPanel() {
             </button>
           </div>
           <div className="flex items-center gap-2 text-xs text-neutral-500">
-            <Eye className="w-3.5 h-3.5" />
+            <Eye aria-hidden="true" className="w-3.5 h-3.5" />
             Retrieved from {imagery.provider_display_name} on{' '}
             {imagery.retrieved_at
               ? new Date(imagery.retrieved_at).toLocaleDateString()
@@ -225,7 +225,7 @@ export function RoofViewPanel() {
       {/* Error states */}
       {(state === 'error' || state === 'provider_error') && imagery?.error && (
         <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <AlertCircle aria-hidden="true" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-xs font-medium text-red-700">Could not retrieve imagery</p>
             <p className="text-xs text-red-600 mt-1">{imagery.error}</p>

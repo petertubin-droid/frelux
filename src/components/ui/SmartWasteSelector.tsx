@@ -38,7 +38,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
         className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
       >
         <div className="flex items-center gap-2">
-          <Lightbulb className="h-4 w-4 text-brand-purple" />
+          <Lightbulb aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <span className="text-sm font-semibold text-brand-navy dark:text-white">Smart waste calculator</span>
           {result && !expanded && (
             <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
@@ -115,7 +115,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <div className="mt-3 rounded-lg bg-brand-purple/5 p-3">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-purple">
-                  <Lightbulb className="h-4 w-4" />
+                  <Lightbulb aria-hidden="true" className="h-4 w-4" />
                   Recommended: {result.wasteMargin}% waste
                 </span>
                 <span className="text-xs text-neutral-400">Current: {currentWaste}%</span>

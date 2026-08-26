@@ -164,7 +164,7 @@ function SettingsTab() {
 
               {saving === setting.id && (
                 <div className="mt-3 flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+                  <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
                 </div>
               )}
             </AdminCard>
@@ -232,7 +232,7 @@ function CategoriesTab() {
             </AdminButton>
           ))}
         </div>
-        <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Category</AdminButton>
+        <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Category</AdminButton>
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -257,7 +257,7 @@ function CategoriesTab() {
               <Toggle checked={cat.is_active} onChange={() => toggleActive(cat)} />
               <div className="flex items-center gap-0.5">
                 <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(cat); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                <AdminIconButton variant="danger" type="button" onClick={() => remove(cat)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
+                <AdminIconButton variant="danger" type="button" onClick={() => remove(cat)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
               </div>
             </div>
           </div>
@@ -324,7 +324,7 @@ function CategoryForm({ initial, defaultEstimator, onClose, onSaved }: { initial
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2">
             <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
-            <AdminButton onClick={onSave} disabled={saving}>{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {saving ? 'Saving…' : 'Save'}</AdminButton>
+            <AdminButton onClick={onSave} disabled={saving}>{saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />} {saving ? 'Saving…' : 'Save'}</AdminButton>
           </div>
     </AdminModal>
   );

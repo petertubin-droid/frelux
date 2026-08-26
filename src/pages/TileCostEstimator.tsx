@@ -176,7 +176,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Estimate" title="Tile Cost Estimator" subtitle="Estimate material and labour costs for your tile installation." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Cost Estimator' }] } />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -267,7 +267,7 @@ const mountedRef = useRef(true);
             />
 
             <button type="button" onClick={compute} disabled={input.length <= 0} className="btn-primary mt-6 w-full disabled:opacity-50 sm:w-auto">
-              Generate Estimate <ArrowRight className="h-4 w-4" />
+              Generate Estimate <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
 

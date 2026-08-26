@@ -39,14 +39,14 @@ const mountedRef = useRef(true);
           />
           <Link to="/colors" className="btn-outline shrink-0">
             View all colors
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loading && (
             <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-400 dark:text-neutral-500">
-              <Loader2 className="h-5 w-5 animate-spin" /> Loading color palettes…
+              <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading color palettes…
             </div>
           )}
           {!loading && combinations.length === 0 && (

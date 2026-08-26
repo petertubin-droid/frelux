@@ -74,14 +74,14 @@ export default function AdminMaterialCatalog() {
       <AdminHeader
         title="Material Catalog"
         subtitle="Manage the Nigerian material database with quality tiers and regional pricing"
-        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Material</AdminButton>}
+        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>}
       />
 
       {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
       <div className="mb-4 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <AdminInput
  type="text"
  placeholder="Search materials..."
@@ -138,7 +138,7 @@ export default function AdminMaterialCatalog() {
                   <td className="py-2">
                     <div className="flex gap-1">
                       <AdminIconButton variant="ghost" onClick={() => { setEditing(item); setShowForm(true); }} ><Edit3 className="h-4 w-4 text-neutral-500" /></AdminIconButton>
-                      <AdminIconButton variant="danger" onClick={() => handleDelete(item.id)} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
+                      <AdminIconButton variant="danger" onClick={() => handleDelete(item.id)} ><Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" /></AdminIconButton>
                     </div>
                   </td>
                 </tr>

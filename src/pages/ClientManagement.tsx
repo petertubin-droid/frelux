@@ -106,7 +106,7 @@ export default function ClientManagement() {
           onClick={() => { setForm({ name: '', company: '', email: '', phone: '', address: '', notes: '' }); setEditingId(null); setShowForm(true); }}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white"
         >
-          <Plus className="h-4 w-4" /> Add Client
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Client
         </button>
       </div>
 
@@ -115,7 +115,7 @@ export default function ClientManagement() {
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-foreground">{editingId ? 'Edit Client' : 'New Client'}</h3>
             <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}>
-              <X className="h-5 w-5 text-muted-foreground" />
+              <X aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
             </button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -161,7 +161,7 @@ export default function ClientManagement() {
       )}
 
       {loading ? (
-        <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-brand-purple" /></div>
+        <div className="flex justify-center py-12"><Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" /></div>
       ) : clients.length === 0 ? (
         <div className="mt-8 rounded-lg border p-12 text-center">
           <Users className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -206,14 +206,14 @@ function ClientCard({ client, onEdit, onDelete, onSelect }: {
           {client.company && <p className="text-sm text-muted-foreground">{client.company}</p>}
         </div>
         <div className="flex gap-1">
-          <button onClick={onEdit} className="rounded p-1.5 hover:bg-accent"><Edit className="h-4 w-4" /></button>
-          <button onClick={onDelete} className="rounded p-1.5 hover:bg-accent"><Trash2 className="h-4 w-4 text-destructive" /></button>
+          <button onClick={onEdit} className="rounded p-1.5 hover:bg-accent"><Edit aria-hidden="true" className="h-4 w-4" /></button>
+          <button onClick={onDelete} className="rounded p-1.5 hover:bg-accent"><Trash2 aria-hidden="true" className="h-4 w-4 text-destructive" /></button>
         </div>
       </div>
       <div className="mt-3 space-y-1">
-        {client.email && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Mail className="h-3 w-3" /> {client.email}</p>}
-        {client.phone && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Phone className="h-3 w-3" /> {client.phone}</p>}
-        {client.address && <p className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {client.address}</p>}
+        {client.email && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Mail aria-hidden="true" className="h-3 w-3" /> {client.email}</p>}
+        {client.phone && <p className="flex items-center gap-2 text-xs text-muted-foreground"><Phone aria-hidden="true" className="h-3 w-3" /> {client.phone}</p>}
+        {client.address && <p className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin aria-hidden="true" className="h-3 w-3" /> {client.address}</p>}
       </div>
       {client.notes && <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{client.notes}</p>}
       <button onClick={onSelect} className="mt-3 text-xs font-medium text-brand-purple hover:underline">View details →</button>
@@ -283,15 +283,15 @@ function ClientDetailDrawer({ client, userId, onClose }: {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-xl font-bold text-foreground">{client.name}</h2>
-            {client.company && <p className="text-sm text-muted-foreground flex items-center gap-1"><Building2 className="h-4 w-4" /> {client.company}</p>}
+            {client.company && <p className="text-sm text-muted-foreground flex items-center gap-1"><Building2 aria-hidden="true" className="h-4 w-4" /> {client.company}</p>}
           </div>
-          <button onClick={onClose}><X className="h-5 w-5 text-muted-foreground" /></button>
+          <button onClick={onClose}><X aria-hidden="true" className="h-5 w-5 text-muted-foreground" /></button>
         </div>
 
         <div className="mt-4 space-y-1">
-          {client.email && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Mail className="h-4 w-4" /> {client.email}</p>}
-          {client.phone && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Phone className="h-4 w-4" /> {client.phone}</p>}
-          {client.address && <p className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin className="h-4 w-4" /> {client.address}</p>}
+          {client.email && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Mail aria-hidden="true" className="h-4 w-4" /> {client.email}</p>}
+          {client.phone && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Phone aria-hidden="true" className="h-4 w-4" /> {client.phone}</p>}
+          {client.address && <p className="flex items-center gap-2 text-sm text-muted-foreground"><MapPin aria-hidden="true" className="h-4 w-4" /> {client.address}</p>}
           {client.notes && <p className="mt-3 rounded-lg border p-3 text-sm">{client.notes}</p>}
         </div>
 
@@ -364,7 +364,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
                       <p className="mt-1 text-xs text-muted-foreground">{new Date(comm.created_at).toLocaleString()}</p>
                     </div>
                     <button onClick={() => handleDeleteComm(comm.id)} className="rounded p-1 hover:bg-accent">
-                      <Trash2 className="h-3 w-3 text-destructive" />
+                      <Trash2 aria-hidden="true" className="h-3 w-3 text-destructive" />
                     </button>
                   </div>
                 );

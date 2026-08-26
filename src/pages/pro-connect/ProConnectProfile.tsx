@@ -156,9 +156,9 @@ export default function ProConnectProfile() {
             )}
             {getVerificationTier(profile) > 0 && (
               <div className="absolute -bottom-2 -right-2 rounded-full bg-white p-1 dark:bg-brand-navy-mid">
-                {verificationTierInfo[getVerificationTier(profile)].icon === 'shield' && <ShieldCheck className="h-6 w-6 text-blue-500" />}
-                {verificationTierInfo[getVerificationTier(profile)].icon === 'award' && <Award className="h-6 w-6 fill-amber-400 text-amber-400" />}
-                {verificationTierInfo[getVerificationTier(profile)].icon === 'check' && <ShieldCheck className="h-6 w-6 text-emerald-500" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'shield' && <ShieldCheck aria-hidden="true" className="h-6 w-6 text-blue-500" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'award' && <Award aria-hidden="true" className="h-6 w-6 fill-amber-400 text-amber-400" />}
+                {verificationTierInfo[getVerificationTier(profile)].icon === 'check' && <ShieldCheck aria-hidden="true" className="h-6 w-6 text-emerald-500" />}
               </div>
             )}
           </div>
@@ -209,7 +209,7 @@ export default function ProConnectProfile() {
               )}
               {profile.website_url && (
                 <a href={profile.website_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-brand-purple dark:text-brand-purple-lighter">
-                  <Globe className="h-4 w-4" />
+                  <Globe aria-hidden="true" className="h-4 w-4" />
                   <span>Website</span>
                 </a>
               )}
@@ -218,7 +218,7 @@ export default function ProConnectProfile() {
             {/* Location */}
             {locations.length > 0 && (
               <div className="mt-3 flex flex-wrap items-start gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                <MapPin aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <div className="flex flex-wrap gap-1.5">
                   {locations.slice(0, 5).map((l, i) => (
                     <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs dark:bg-white/5">
@@ -253,7 +253,7 @@ export default function ProConnectProfile() {
           <div className="flex flex-wrap items-start gap-4">
             {profile.contact_verified_at && (
               <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 dark:bg-emerald-500/10">
-                <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                <ShieldCheck aria-hidden="true" className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                 <div>
                   <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Contact Verified</p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">Email & phone confirmed</p>
@@ -262,7 +262,7 @@ export default function ProConnectProfile() {
             )}
             {profile.identity_verified_at && (
               <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 dark:bg-blue-500/10">
-                <ShieldCheck className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <ShieldCheck aria-hidden="true" className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                 <div>
                   <p className="text-sm font-medium text-blue-700 dark:text-blue-400">FRELUX Verified</p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">Identity & profile reviewed</p>
@@ -297,7 +297,7 @@ export default function ProConnectProfile() {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">{cred.credential_type}</p>
                 </div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
-                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <ShieldCheck aria-hidden="true" className="h-3.5 w-3.5" />
                   Verified
                 </span>
               </div>
@@ -397,7 +397,7 @@ export default function ProConnectProfile() {
                   </span>
                   {review.is_verified_review && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
-                      <ShieldCheck className="h-3 w-3" />
+                      <ShieldCheck aria-hidden="true" className="h-3 w-3" />
                       Verified Project Review
                     </span>
                   )}

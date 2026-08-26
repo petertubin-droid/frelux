@@ -89,7 +89,7 @@ export default function Onboarding() {
             onClick={() => setStep(2)}
             className="mt-8 w-full rounded-xl bg-brand-purple py-3 text-sm font-semibold text-white"
           >
-            Get Started <ArrowRight className="ml-1 inline h-4 w-4" />
+            Get Started <ArrowRight aria-hidden="true" className="ml-1 inline h-4 w-4" />
           </button>
         </div>
       )}
@@ -135,7 +135,7 @@ export default function Onboarding() {
                     <p className="text-xs text-neutral-400">{goal.desc}</p>
                   </div>
                   {selected && (
-                    <Check className="h-5 w-5 text-brand-purple" />
+                    <Check aria-hidden="true" className="h-5 w-5 text-brand-purple" />
                   )}
                 </button>
               );
@@ -154,7 +154,7 @@ export default function Onboarding() {
               disabled={goals.length === 0}
               className="flex-1 rounded-xl bg-brand-purple py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-              Continue <ArrowRight className="ml-1 inline h-4 w-4" />
+              Continue <ArrowRight aria-hidden="true" className="ml-1 inline h-4 w-4" />
             </button>
           </div>
         </div>
@@ -203,7 +203,7 @@ export default function Onboarding() {
               disabled={saving}
               className="flex-1 rounded-xl bg-brand-purple py-3 text-sm font-semibold text-white disabled:opacity-50"
             >
-              {saving ? 'Saving…' : 'Done'} <Check className="ml-1 inline h-4 w-4" />
+              {saving ? 'Saving…' : 'Done'} <Check aria-hidden="true" className="ml-1 inline h-4 w-4" />
             </button>
           </div>
 

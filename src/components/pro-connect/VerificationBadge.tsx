@@ -100,7 +100,7 @@ export function VerificationBadgeInline({ profile, className = '' }: { profile: 
 
   return (
     <span className={classNames('inline-flex items-center gap-1 text-xs font-medium', colors.text, className)}>
-      <Icon className="h-3.5 w-3.5" />
+      <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       {info.shortLabel}
     </span>
   );

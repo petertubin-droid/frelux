@@ -205,7 +205,7 @@ Also flag any unrealistic values or potential issues.`;
         {/* Header */}
         <div className="flex items-center gap-2 border-b border-neutral-100 pb-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
-            <Bot className="h-5 w-5 text-brand-purple" />
+            <Bot aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
             <h3 className="text-base font-bold text-brand-navy dark:text-white dark:text-white">Advanced Calculator</h3>
@@ -227,7 +227,7 @@ Also flag any unrealistic values or potential issues.`;
                   (tab === t.key ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200')
                 }
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon aria-hidden="true" className="h-3.5 w-3.5" />
                 {t.label}
               </button>
             );
@@ -311,7 +311,7 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
       {/* Shopping list */}
       <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4 dark:border-white/5 dark:bg-white/5">
         <div className="flex items-center gap-2">
-          <ShoppingBag className="h-4 w-4 text-brand-purple" />
+          <ShoppingBag aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Material Shopping List</h4>
         </div>
         <ul className="mt-2 space-y-1 text-sm text-neutral-600">
@@ -331,14 +331,14 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
             className="input-field flex-1"
           />
           <button type="button" onClick={onSave} className="btn-primary flex items-center gap-1.5 whitespace-nowrap">
-            <Save className="h-4 w-4" /> Save
+            <Save aria-hidden="true" className="h-4 w-4" /> Save
           </button>
         </div>
         <button type="button" onClick={onDuplicate} className="btn-secondary flex items-center gap-1.5">
-          <Copy className="h-4 w-4" /> Duplicate
+          <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
         </button>
         <button type="button" onClick={onExport} className="btn-secondary flex items-center gap-1.5">
-          <Download className="h-4 w-4" /> PDF
+          <Download aria-hidden="true" className="h-4 w-4" /> PDF
         </button>
       </div>
       {saveStatus === 'saving' && <p className="text-xs text-neutral-400">Saving…</p>}
@@ -554,7 +554,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
     <div className="space-y-4">
       <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
         <div className="flex items-center gap-2">
-          <Bot className="h-4 w-4 text-brand-purple" />
+          <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">AI Powered Recommendations</h4>
         </div>
         <p className="mt-1 text-xs text-neutral-500">Get smart suggestions to reduce waste and lower costs.</p>
@@ -564,7 +564,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
           disabled={loading}
           className="mt-3 flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple/90 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Calculator className="h-3.5 w-3.5" />}
+          {loading ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Calculator aria-hidden="true" className="h-3.5 w-3.5" />}
           Analyze Estimate & Recommend
         </button>
       </div>
@@ -582,7 +582,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
             className="input-field flex-1"
           />
           <button type="button" onClick={onAsk} disabled={loading || !question.trim()} className="btn-primary flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Bot className="h-4 w-4" />}
+            {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Bot aria-hidden="true" className="h-4 w-4" />}
             Ask
           </button>
         </div>
@@ -590,14 +590,14 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
 
       {loading && !response && (
         <div className="flex items-center gap-2 py-4 text-sm text-neutral-400">
-          <Loader2 className="h-4 w-4 animate-spin" /> Analyzing your estimate…
+          <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Analyzing your estimate…
         </div>
       )}
 
       {response && (
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4 dark:border-white/5 dark:bg-white/5">
           <div className="flex items-start gap-2">
-            <Bot className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+            <Bot aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-neutral-700">{response}</div>
           </div>
         </div>
@@ -631,10 +631,10 @@ function SavedTab({ estimates, onDelete, onExport }: {
           </div>
           <div className="flex gap-2">
             <button type="button" onClick={onExport} className="rounded-md p-2 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple">
-              <Download className="h-4 w-4" />
+              <Download aria-hidden="true" className="h-4 w-4" />
             </button>
             <button type="button" onClick={() => onDelete(e.id)} className="rounded-md p-2 text-neutral-400 hover:bg-red-50 hover:text-red-500">
-              <Trash2 className="h-4 w-4" />
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
         </div>

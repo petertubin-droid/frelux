@@ -104,7 +104,7 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -114,7 +114,7 @@ export default function ProductDetail() {
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p className="text-lg font-medium text-neutral-900 dark:text-white">Product not found</p>
         <Link to="/marketplace" className="mt-3 inline-flex items-center gap-2 text-sm text-brand-purple">
-          <ArrowLeft className="h-4 w-4" /> Back to Marketplace
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
         </Link>
       </div>
     );
@@ -227,7 +227,7 @@ export default function ProductDetail() {
           {/* Location */}
           {product.location_city && (
             <div className="mt-3 flex items-center gap-1.5 text-sm text-neutral-500">
-              <MapPin className="h-4 w-4" />
+              <MapPin aria-hidden="true" className="h-4 w-4" />
               {product.location_area && `${product.location_area}, `}{product.location_city}, {product.location_state}
             </div>
           )}
@@ -237,7 +237,7 @@ export default function ProductDetail() {
             <div className="mt-3 flex flex-wrap gap-1">
               {product.tags.map((t) => (
                 <span key={t} className="inline-flex items-center gap-0.5 rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5">
-                  <Tag className="h-2.5 w-2.5" />{t}
+                  <Tag aria-hidden="true" className="h-2.5 w-2.5" />{t}
                 </span>
               ))}
             </div>
@@ -278,7 +278,7 @@ export default function ProductDetail() {
               onClick={() => setShowInquiry(!showInquiry)}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
             >
-              <MessageCircle className="h-4 w-4" />
+              <MessageCircle aria-hidden="true" className="h-4 w-4" />
               Contact Seller
             </button>
             <button
@@ -327,7 +327,7 @@ export default function ProductDetail() {
                 disabled={submitting || !inquiryMessage.trim()}
                 className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {submitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                {submitting ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Send aria-hidden="true" className="h-3.5 w-3.5" />}
                 Send Inquiry
               </button>
             </div>
@@ -335,14 +335,14 @@ export default function ProductDetail() {
 
           {inquirySent && (
             <div className="mt-4 flex items-center gap-2 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-700 dark:bg-emerald-500/10">
-              <Shield className="h-4 w-4" />
+              <Shield aria-hidden="true" className="h-4 w-4" />
               Your inquiry has been sent. The seller will get back to you.
             </div>
           )}
 
           {/* Stats */}
           <div className="mt-3 flex items-center gap-3 text-xs text-neutral-400">
-            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {product.view_count} views</span>
+            <span className="inline-flex items-center gap-1"><Eye aria-hidden="true" className="h-3 w-3" /> {product.view_count} views</span>
             <span>·</span>
             <span>Posted {new Date(product.created_at).toLocaleDateString()}</span>
           </div>

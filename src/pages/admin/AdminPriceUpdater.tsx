@@ -83,13 +83,13 @@ export default function AdminPriceUpdater() {
               onClick={handleApply}
               className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
             >
-              <CheckCircle2 className="w-4 h-4" />
+              <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
               Apply Updated Prices
             </button>
           )}
           {applied && (
             <span className="inline-flex items-center gap-1 text-sm text-green-700">
-              <CheckCircle2 className="w-4 h-4" /> Prices applied to defaults
+              <CheckCircle2 aria-hidden="true" className="w-4 h-4" /> Prices applied to defaults
             </span>
           )}
         </div>
@@ -97,7 +97,7 @@ export default function AdminPriceUpdater() {
         {error && (
           <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-5 h-5 text-red-600" />
+              <AlertCircle aria-hidden="true" className="w-5 h-5 text-red-600" />
               <span className="text-sm font-medium text-red-900">Scan Error</span>
             </div>
             <p className="mt-1 text-sm text-red-700">{error}</p>
@@ -152,7 +152,7 @@ export default function AdminPriceUpdater() {
                         r.change_percent < -2 ? 'text-green-600' :
                         'text-neutral-500'
                       }`}>
-                        {r.change_percent > 2 ? <TrendingUp className="w-3 h-3" /> :
+                        {r.change_percent > 2 ? <TrendingUp aria-hidden="true" className="w-3 h-3" /> :
                          r.change_percent < -2 ? <TrendingDown className="w-3 h-3" /> :
                          <Minus className="w-3 h-3" />}
                         {r.change_percent > 0 ? '+' : ''}{r.change_percent}%

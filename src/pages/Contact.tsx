@@ -74,7 +74,7 @@ export default function Contact() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <form onSubmit={onSubmit} className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid" noValidate>
+            <form onSubmit={onSubmit} aria-label="Contact form" className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid" noValidate>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Your name" error={errors.name}>
                   <input
@@ -121,13 +121,13 @@ export default function Contact() {
                 disabled={status === 'submitting'}
                 className="btn-primary mt-6 w-full sm:w-auto disabled:opacity-50"
               >
-                <Send className="h-4 w-4" />
+                <Send aria-hidden="true" className="h-4 w-4" />
                 {status === 'submitting' ? 'Sending…' : 'Send message'}
               </button>
 
               {status === 'error' && (
-                <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <div role="alert" className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                  <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                   <p>
                     The contact form isn’t connected to a backend yet. For now, please reach us on WhatsApp and we’ll
                     respond shortly.
@@ -135,8 +135,8 @@ export default function Contact() {
                 </div>
               )}
               {status === 'success' && (
-                <div className="mt-4 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                <div role="alert" className="mt-4 flex items-start gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+                  <CheckCircle2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                   <p>Message sent. We’ll get back to you shortly.</p>
                 </div>
               )}
@@ -150,6 +150,7 @@ export default function Contact() {
               <ul className="mt-4 space-y-4 text-sm">
                 <li>
                   <a
+                    aria-label="Contact us on WhatsApp"
                     href={whatsappUrl('Hello FRELUX, I have a question.')}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -157,7 +158,7 @@ export default function Contact() {
                     className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 transition-colors hover:border-accent-green/40 hover:bg-accent-green/5 dark:border-white/5 dark:hover:border-accent-green/30 dark:hover:bg-accent-green/10"
                   >
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent-green/10 text-accent-green">
-                      <MessageCircle className="h-4 w-4" />
+                      <MessageCircle aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span>
                       <span className="block font-semibold text-neutral-900 dark:text-white">WhatsApp</span>
@@ -167,7 +168,7 @@ export default function Contact() {
                 </li>
                 <li className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 dark:border-white/5">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                    <Mail className="h-4 w-4" />
+                    <Mail aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span>
                     <span className="block font-semibold text-neutral-900 dark:text-white">Email</span>
@@ -188,11 +189,12 @@ export default function Contact() {
 }
 
 function Field({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
+  const errorId = label.toLowerCase().replace(/\s+/g, '-');
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
       <div className={classNames('mt-1.5')}>{children}</div>
-      {error && <span className="mt-1 block text-xs text-red-600">{error}</span>}
+      {error && <span role="alert" id={`${errorId}-error`} className="mt-1 block text-xs text-red-600">{error}</span>}
     </label>
   );
 }

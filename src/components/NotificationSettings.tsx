@@ -68,7 +68,7 @@ export default function NotificationSettings() {
   if (loading) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-        <Loader2 className="h-5 w-5 animate-spin text-neutral-400" />
+        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-neutral-400" />
         <span className="text-sm text-neutral-400">Checking notification settings…</span>
       </div>
     );
@@ -84,7 +84,7 @@ export default function NotificationSettings() {
               ? 'bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter'
               : 'bg-neutral-100 text-neutral-400 dark:bg-white/5'
           )}>
-            {subscribed ? <Bell className="h-5 w-5" /> : <BellOff className="h-5 w-5" />}
+            {subscribed ? <Bell aria-hidden="true" className="h-5 w-5" /> : <BellOff aria-hidden="true" className="h-5 w-5" />}
           </div>
           <div>
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Push Notifications</h3>
@@ -110,7 +110,7 @@ export default function NotificationSettings() {
             )}
           >
             {actionLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : subscribed ? (
               'Disable'
             ) : (
@@ -123,7 +123,7 @@ export default function NotificationSettings() {
       {/* Permission warning */}
       {pushSupported && permission === 'denied' && (
         <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             Notifications are blocked in your browser settings. To enable, go to site settings and allow notifications for this website.
           </p>
@@ -138,7 +138,7 @@ export default function NotificationSettings() {
             ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
             : 'bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400'
         )}>
-          {message.type === 'success' ? <Check className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />}
+          {message.type === 'success' ? <Check aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" /> : <AlertTriangle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />}
           <p>{message.text}</p>
         </div>
       )}

@@ -137,11 +137,11 @@ export default function CompareColors() {
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Search */}
         <div className="relative w-full sm:max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search colors to add…" className="input-field pl-9" />
         </div>
 
-        {loading && <div className="mt-3 flex items-center gap-2 text-sm text-neutral-400"><Loader2 className="h-4 w-4 animate-spin" /> Searching…</div>}
+        {loading && <div className="mt-3 flex items-center gap-2 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Searching…</div>}
 
         {/* Search results */}
         {results.length > 0 && (
@@ -180,7 +180,7 @@ export default function CompareColors() {
                           <div className="flex aspect-video items-center justify-center rounded-lg" style={{ background: c.hex_code }}>
                             <span className="text-sm font-bold uppercase tracking-widest" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
                           </div>
-                          <button type="button" onClick={() => removeColor(c.id)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-neutral-500 hover:text-red-500"><X className="h-4 w-4" /></button>
+                          <button type="button" onClick={() => removeColor(c.id)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-neutral-500 hover:text-red-500"><X aria-hidden="true" className="h-4 w-4" /></button>
                         </div>
                       </td>
                     ))}
@@ -313,7 +313,7 @@ function CompareRow({ label, children }: { label: string; children: React.ReactN
 function CopyBtn({ value, copied, onCopy }: { value: string; copied: boolean; onCopy: (v: string) => void }) {
   return (
     <button type="button" onClick={() => onCopy(value)} className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-700 hover:text-brand-purple">
-      {copied ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
+      {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
       {copied ? 'Copied' : value}
     </button>
   );

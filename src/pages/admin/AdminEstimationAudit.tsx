@@ -126,7 +126,7 @@ export default function AdminEstimationAudit() {
       {/* Filter Header */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-neutral-400" />
+          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-400" />
           <span className="text-xs font-semibold text-neutral-600">Filter Entity:</span>
           <AdminSelect
             className="text-xs py-1.5 w-48"
@@ -152,7 +152,7 @@ export default function AdminEstimationAudit() {
           }}
           className="text-xs py-1.5"
         >
-          <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          <RefreshCw aria-hidden="true" className="h-3.5 w-3.5" /> Refresh
         </AdminButton>
       </div>
 
@@ -203,11 +203,11 @@ export default function AdminEstimationAudit() {
 
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-400 dark:text-neutral-500">
                       <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
+                        <Calendar aria-hidden="true" className="h-3 w-3" />
                         {new Date(entry.created_at).toLocaleString()}
                       </span>
                       <span className="inline-flex items-center gap-1 font-mono">
-                        <User className="h-3 w-3" />
+                        <User aria-hidden="true" className="h-3 w-3" />
                         {entry.changed_by ? `User: ${entry.changed_by}` : 'System / Trigger'}
                       </span>
                     </div>
@@ -218,7 +218,7 @@ export default function AdminEstimationAudit() {
                       {isExpanded ? 'Hide changes' : 'View details'}
                     </span>
                     <div className="rounded-full bg-neutral-100 p-1.5 text-neutral-500 hover:bg-neutral-200">
-                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {isExpanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
                     </div>
                   </div>
                 </div>

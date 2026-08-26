@@ -33,7 +33,7 @@ export default function StructuralCalculator() {
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <Building2 className="w-8 h-8 text-accent-green" />
+            <Building2 aria-hidden="true" className="w-8 h-8 text-accent-green" />
             <h1 className="text-2xl md:text-3xl font-bold">Structural Engineering Calculator</h1>
           </div>
           <p className="text-white/70 text-sm md:text-base">
@@ -149,7 +149,7 @@ function BeamCalculator() {
       </InputGrid>
 
       <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
-        <Calculator className="w-4 h-4" /> Calculate Beam
+        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Beam
       </button>
 
       {result && (
@@ -239,7 +239,7 @@ function ColumnCalculator() {
       </InputGrid>
 
       <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
-        <Calculator className="w-4 h-4" /> Calculate Column
+        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Column
       </button>
 
       {result && (
@@ -329,7 +329,7 @@ function SlabCalculator() {
       </InputGrid>
 
       <button onClick={calculate} className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3">
-        <Calculator className="w-4 h-4" /> Calculate Slab
+        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Slab
       </button>
 
       {result && (
@@ -406,7 +406,7 @@ function StatBox({ label, value, unit }: { label: string; value: string; unit: s
 function CheckRow({ label, pass, value }: { label: string; pass: boolean; value: string }) {
   return (
     <div className="flex items-center gap-3 rounded-lg bg-neutral-50 p-3">
-      {pass ? <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" /> : <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />}
+      {pass ? <CheckCircle2 aria-hidden="true" className="w-5 h-5 text-green-500 shrink-0" /> : <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />}
       <div>
         <p className="text-xs font-medium text-neutral-500">{label}</p>
         <p className="text-sm text-neutral-900">{value}</p>
@@ -439,7 +439,7 @@ function FormulaToggle({ show, setShow, formulas }: { show: boolean; setShow: (v
   return (
     <div className="mt-4">
       <button onClick={() => setShow(!show)} className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1">
-        {show ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+        {show ? <ChevronDown aria-hidden="true" className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
         {show ? 'Hide' : 'Show'} calculation formulas
       </button>
       {show && (

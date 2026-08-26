@@ -31,7 +31,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           {/* Header */}
           <div className="flex items-center justify-between border-b border-neutral-200 px-4 py-3 dark:border-white/5">
             <div className="flex items-center gap-2">
-              <Gift className="h-5 w-5 text-brand-purple" />
+              <Gift aria-hidden="true" className="h-5 w-5 text-brand-purple" />
               <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
                 {offerwallProviderName ?? adProviderUsed} — Complete offers to unlock
               </h2>
@@ -59,7 +59,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           {/* Footer */}
           <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-3 dark:border-white/5">
             <p className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
-              <Clock className="h-3.5 w-3.5" />
+              <Clock aria-hidden="true" className="h-3.5 w-3.5" />
               Checking for completion… This will close automatically when you earn your reward.
             </p>
             <button
@@ -78,7 +78,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <Gift className="h-6 w-6 text-accent-green" />
+                <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
                 <h2 className="text-lg font-bold">{featureName}</h2>
               </div>
               <button type="button" onClick={cancelUnlock} className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white">
@@ -95,7 +95,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             <div className="space-y-2">
               {features.map((f) => (
                 <div key={f} className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-accent-green" />
+                  <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-accent-green" />
                   {f}
                 </div>
               ))}
@@ -104,7 +104,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             {/* Unlock status */}
             {isUnlocked && expiresAt && (
               <div className="mt-4 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 p-3 text-sm text-neutral-700 dark:text-neutral-200">
-                <Clock className="h-4 w-4 text-accent-green" />
+                <Clock aria-hidden="true" className="h-4 w-4 text-accent-green" />
                 {formatExpiry(expiresAt)}
               </div>
             )}
@@ -112,7 +112,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             {/* Ad watching state */}
             {adLoading && (
               <div className="mt-6 flex flex-col items-center gap-3 py-4">
-                <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+                <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
                 <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                   {offerwallProviderName ? 'Opening offerwall…' : 'Playing ad…'}
                 </p>
@@ -131,7 +131,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 onClick={watchAd}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
               >
-                <PlayCircle className="h-5 w-5" />
+                <PlayCircle aria-hidden="true" className="h-5 w-5" />
                 Watch Rewarded Ad to Unlock for Today
               </button>
             )}
@@ -142,7 +142,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 onClick={cancelUnlock}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-accent-green/90"
               >
-                <Lock className="h-4 w-4" />
+                <Lock aria-hidden="true" className="h-4 w-4" />
                 Continue to Advanced Calculator
               </button>
             )}
@@ -154,7 +154,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 rel="noopener noreferrer"
                 className="mt-3 flex items-center justify-center gap-1.5 text-xs text-brand-purple hover:underline"
               >
-                <ExternalLink className="h-3.5 w-3.5" />
+                <ExternalLink aria-hidden="true" className="h-3.5 w-3.5" />
                 Open {offerwallProviderName} in a new tab
               </a>
             )}

@@ -62,7 +62,7 @@ export default function MarketplaceLayout() {
                 to="/marketplace/post"
                 className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
               >
-                <Plus className="h-4 w-4" /> Post
+                <Plus aria-hidden="true" className="h-4 w-4" /> Post
               </Link>
             </div>
           </div>

@@ -237,7 +237,7 @@ export default function ErrorAnalysis() {
           to="/admin/studio"
           className="flex items-center gap-1 text-xs text-neutral-500 hover:text-brand-purple"
         >
-          <ArrowLeft className="h-3 w-3" /> Back to Studio
+          <ArrowLeft aria-hidden="true" className="h-3 w-3" /> Back to Studio
         </Link>
         <Link
           to="/admin/system-health"
@@ -365,7 +365,7 @@ export default function ErrorAnalysis() {
                     onClick={() => handleAnalyze(selectedError)}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white hover:bg-brand-purple/90"
                   >
-                    <Zap className="h-4 w-4" /> Analyze with AI
+                    <Zap aria-hidden="true" className="h-4 w-4" /> Analyze with AI
                   </button>
                 )}
 

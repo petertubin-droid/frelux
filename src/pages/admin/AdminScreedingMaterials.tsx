@@ -102,7 +102,7 @@ export default function AdminScreedingMaterials() {
 
       {error && (
         <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+          <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
           {error}
         </div>
       )}
@@ -116,7 +116,7 @@ export default function AdminScreedingMaterials() {
       {/* Screeding Paint section */}
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
-          <Paintbrush className="h-5 w-5 text-brand-purple" />
+          <Paintbrush aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Screeding Paint (20L Buckets)</h2>
         </div>
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Screeding Paint is measured in litres (m² per litre) and sold in 20 L buckets.</p>
@@ -136,7 +136,7 @@ export default function AdminScreedingMaterials() {
       {/* White Cement section */}
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
-          <Package className="h-5 w-5 text-brand-purple" />
+          <Package aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">White Cement (40kg Bags)</h2>
         </div>
         <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">Cement is calculated from paint volume using the consumption ratio, then converted to 40 kg bags.</p>
@@ -156,7 +156,7 @@ export default function AdminScreedingMaterials() {
       {/* Mix & Labour section */}
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
-          <Layers className="h-5 w-5 text-brand-purple" />
+          <Layers aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           <h2 className="text-sm font-bold text-brand-navy dark:text-white">Mix Ratio, Labour & Overheads</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -202,7 +202,7 @@ export default function AdminScreedingMaterials() {
           disabled={saving}
           className="px-5 py-2.5 text-sm"
         >
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Configuration'}
         </AdminButton>
         <span className="text-xs text-neutral-400 dark:text-neutral-500">

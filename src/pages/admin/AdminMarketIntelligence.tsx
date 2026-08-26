@@ -73,7 +73,7 @@ export default function AdminMarketIntelligence() {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <TrendingUp className="h-6 w-6 text-brand-purple" />
+        <TrendingUp aria-hidden="true" className="h-6 w-6 text-brand-purple" />
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
           Market Intelligence
         </h1>
@@ -154,7 +154,7 @@ function ObservationsTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -184,7 +184,7 @@ function ObservationsTab() {
           onClick={() => setShowManual(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
         >
-          <Plus className="h-4 w-4" /> Manual Price Entry
+          <Plus aria-hidden="true" className="h-4 w-4" /> Manual Price Entry
         </button>
       </div>
 
@@ -262,7 +262,7 @@ function ObservationsTab() {
                           className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10"
                           title="Approve"
                         >
-                          <Check className="h-3.5 w-3.5" />
+                          <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </button>
                         <button
                           onClick={async () => {
@@ -323,7 +323,7 @@ function ApprovedTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -459,7 +459,7 @@ function SourcesTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -473,13 +473,13 @@ function SourcesTab() {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
         >
-          <Plus className="h-4 w-4" /> Add Source
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Source
         </button>
       </div>
 
       {sources.length === 0 ? (
         <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center dark:border-white/10">
-          <Globe className="mx-auto mb-3 h-8 w-8 text-neutral-300" />
+          <Globe aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-neutral-300" />
           <p className="text-sm font-medium text-neutral-500">
             No sources registered yet
           </p>
@@ -542,7 +542,7 @@ function SourcesTab() {
                 <div className="mt-2 flex items-center gap-2 border-t border-neutral-100 pt-2 dark:border-white/5">
                   {crawling === s.id ? (
                     <span className="inline-flex items-center gap-1.5 text-xs text-brand-purple">
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />{" "}
+                      <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />{" "}
                       Crawling...
                     </span>
                   ) : (
@@ -552,14 +552,14 @@ function SourcesTab() {
                         className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
                         title="Fetch and extract without publishing prices"
                       >
-                        <Eye className="h-3 w-3" /> Test Crawl
+                        <Eye aria-hidden="true" className="h-3 w-3" /> Test Crawl
                       </button>
                       <button
                         onClick={() => handleCrawl(s, "production")}
                         className="inline-flex items-center gap-1 rounded-md bg-brand-purple px-2 py-1 text-xs font-semibold text-white hover:bg-brand-purple-dark"
                         title="Full crawl with price observation creation"
                       >
-                        <Zap className="h-3 w-3" /> Crawl Now
+                        <Zap aria-hidden="true" className="h-3 w-3" /> Crawl Now
                       </button>
                     </>
                   )}
@@ -571,7 +571,7 @@ function SourcesTab() {
                     className="rounded p-1 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
                     title="Delete source"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
                 </div>
               )}
@@ -628,7 +628,7 @@ function CrawlReportModal({
             onClick={onClose}
             className="text-neutral-400 hover:text-neutral-600"
           >
-            <X className="h-5 w-5" />
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
         <div className="mb-3 text-sm text-neutral-500">
@@ -657,7 +657,7 @@ function CrawlReportModal({
             </div>
             {job.durationMs !== null && (
               <div className="flex items-center gap-1 text-xs text-neutral-400">
-                <Clock className="h-3.5 w-3.5" /> Duration:{" "}
+                <Clock aria-hidden="true" className="h-3.5 w-3.5" /> Duration:{" "}
                 {(job.durationMs / 1000).toFixed(1)}s
               </div>
             )}
@@ -894,9 +894,9 @@ function SourceEditModal({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
           </button>
@@ -923,7 +923,7 @@ function ProvidersTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -1027,7 +1027,7 @@ function AnomaliesTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -1119,7 +1119,7 @@ function LogsTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
 
@@ -1330,9 +1330,9 @@ function ManualEntryModal({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save Price
           </button>

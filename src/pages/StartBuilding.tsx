@@ -138,7 +138,7 @@ export default function StartBuilding() {
             {/* Left: Content */}
             <div className="p-8 sm:p-10 lg:p-12">
               <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/20 px-3 py-1 text-xs font-medium text-brand-purple-light">
-                <Building2 className="h-3.5 w-3.5" />
+                <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
                 Start Here
               </div>
               <h2 className="mt-5 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -150,21 +150,21 @@ export default function StartBuilding() {
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
                   Foundation to roofing
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
                   Blocks, cement, sand & granite
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
                   Nigerian construction standards
                 </span>
               </div>
               <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-brand-purple-dark group-hover:shadow-xl">
                 Start Build-to-Roof Estimate
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </div>
             </div>
             {/* Right: Visual */}
@@ -195,7 +195,7 @@ export default function StartBuilding() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {/* Painting */}
           <CategoryCard
-            icon={<Paintbrush className="h-5 w-5" />}
+            icon={<Paintbrush aria-hidden="true" className="h-5 w-5" />}
             title="Painting"
             description="Estimate paint quantities, finishes and material requirements for rooms, homes and projects."
             tools={[
@@ -208,7 +208,7 @@ export default function StartBuilding() {
 
           {/* Screeding */}
           <CategoryCard
-            icon={<Hammer className="h-5 w-5" />}
+            icon={<Hammer aria-hidden="true" className="h-5 w-5" />}
             title="Screeding"
             description="Calculate screeding materials and estimate the requirements for your project."
             tools={[
@@ -220,7 +220,7 @@ export default function StartBuilding() {
 
           {/* POP Ceiling */}
           <CategoryCard
-            icon={<Layers className="h-5 w-5" />}
+            icon={<Layers aria-hidden="true" className="h-5 w-5" />}
             title="POP Ceiling"
             description="Estimate POP ceiling materials and project requirements."
             tools={[
@@ -232,7 +232,7 @@ export default function StartBuilding() {
 
           {/* Tiles & Flooring */}
           <CategoryCard
-            icon={<Grid3x3 className="h-5 w-5" />}
+            icon={<Grid3x3 aria-hidden="true" className="h-5 w-5" />}
             title="Tiles & Flooring"
             description="Calculate tile quantities, cartons, wastage and project requirements."
             tools={[
@@ -256,7 +256,7 @@ export default function StartBuilding() {
 
           {/* Colour & Design */}
           <CategoryCard
-            icon={<Palette className="h-5 w-5" />}
+            icon={<Palette aria-hidden="true" className="h-5 w-5" />}
             title="Colour & Design"
             description="Browse paint colours, compare options, and get AI-powered colour recommendations."
             tools={[
@@ -277,7 +277,7 @@ export default function StartBuilding() {
           className="group flex flex-col items-center gap-4 rounded-2xl border border-neutral-200 bg-gradient-to-r from-brand-navy-mid to-brand-navy p-6 text-center shadow-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10 sm:flex-row sm:text-left"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-green/20">
-            <Camera className="h-6 w-6 text-accent-green" />
+            <Camera aria-hidden="true" className="h-6 w-6 text-accent-green" />
           </div>
           <div className="flex-1">
             <h3 className="font-display text-lg font-bold text-white">Not sure where to start? Try the AI Photo Estimator</h3>
@@ -287,7 +287,7 @@ export default function StartBuilding() {
           </div>
           <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-all group-hover:bg-white/15">
             Try it now
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </div>
         </Link>
       </Container>
@@ -310,7 +310,7 @@ export default function StartBuilding() {
               className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark"
             >
               View All Calculators
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
               to="/learn"

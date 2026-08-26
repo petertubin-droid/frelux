@@ -22,7 +22,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
             <img src={value} alt="Preview" className="h-full w-full object-cover" />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-neutral-300">
-              <ImageIcon className="h-6 w-6" />
+              <ImageIcon aria-hidden="true" className="h-6 w-6" />
             </div>
           )}
         </div>
@@ -32,7 +32,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
             onClick={() => setPickerOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-purple-dark"
           >
-            <Upload className="h-3.5 w-3.5" />
+            <Upload aria-hidden="true" className="h-3.5 w-3.5" />
             {value ? 'Change Image' : 'Upload / Select'}
           </button>
           {value && (

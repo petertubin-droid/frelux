@@ -69,7 +69,7 @@ function ProductsTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add product</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add product</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No products yet" message="Add your first paint product." /> : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
@@ -88,7 +88,7 @@ function ProductsTab() {
                   <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                   <div className="flex items-center gap-0.5">
                     <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                    <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                    <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
                   </div>
                 </div>
               </AdminCard>
@@ -173,7 +173,7 @@ function MaterialsTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add material</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add material</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No materials yet" message="Add your first material price." /> : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
@@ -187,7 +187,7 @@ function MaterialsTab() {
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <div className="flex items-center gap-0.5">
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
                 </div>
               </div>
             </AdminCard>
@@ -261,7 +261,7 @@ function LaborTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add labor rate</AdminButton></div>
+      <div className="mb-4 flex justify-end"><AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add labor rate</AdminButton></div>
       {items.length === 0 ? <StateMessage type="empty" title="No labor rates yet" message="Add your first labor rate." /> : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
@@ -274,7 +274,7 @@ function LaborTab() {
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <div className="flex items-center gap-0.5">
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
                 </div>
               </div>
             </AdminCard>

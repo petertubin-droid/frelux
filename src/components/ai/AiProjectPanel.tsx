@@ -345,7 +345,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
               disabled={loading || !question.trim()}
               className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Send aria-hidden="true" className="h-4 w-4" />}
             </button>
           </div>
         </div>
@@ -357,7 +357,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           disabled={loading}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
+          {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
           {activeAction === 'review' ? 'Run AI Review' : 'Explain Calculations'}
         </button>
       )}
@@ -368,7 +368,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           disabled={loading}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <TrendingDown className="h-4 w-4" />}
+          {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <TrendingDown className="h-4 w-4" />}
           Optimize Estimate
         </button>
       )}
@@ -384,7 +384,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       {loading && !result && (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
+            <Loader2 aria-hidden="true" className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
             <p className="mt-3 text-sm text-muted-foreground">Analyzing your project...</p>
           </div>
         </div>

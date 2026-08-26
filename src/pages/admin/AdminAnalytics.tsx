@@ -74,7 +74,7 @@ export default function AdminAnalytics() {
             <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <AdminCard>
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-brand-navy" />
+                  <TrendingUp aria-hidden="true" className="h-5 w-5 text-brand-navy" />
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Total events</p>
                 </div>
                 <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{totalEvents}</p>
@@ -82,7 +82,7 @@ export default function AdminAnalytics() {
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-accent-green" />
+                  <BarChart3 aria-hidden="true" className="h-5 w-5 text-accent-green" />
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">AI successes</p>
                 </div>
                 <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{aiSuccess}</p>
@@ -98,7 +98,7 @@ export default function AdminAnalytics() {
               </AdminCard>
               <AdminCard>
                 <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-accent-green" />
+                  <Mail aria-hidden="true" className="h-5 w-5 text-accent-green" />
                   <p className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">WhatsApp clicks</p>
                 </div>
                 <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">{counts['whatsapp_clicked'] ?? 0}</p>

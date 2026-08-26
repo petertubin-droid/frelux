@@ -81,7 +81,7 @@ export default function AdminMedia() {
           {/* Toolbar */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
               <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file name…" className="pl-9" />
             </div>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark">
@@ -102,15 +102,15 @@ export default function AdminMedia() {
                   <div className="relative aspect-square overflow-hidden bg-neutral-100">
                     <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
                     <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </AdminIconButton>
                   </div>
                   <div className="p-3">
                     {editingAlt === item.id ? (
                       <div className="flex items-center gap-2">
                         <AdminInput className="flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
-                        <AdminButton type="button" onClick={() => saveAlt(item)}><Check className="h-3.5 w-3.5" /></AdminButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X className="h-3.5 w-3.5" /></AdminIconButton>
+                        <AdminButton type="button" onClick={() => saveAlt(item)}><Check aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-400"><X aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">

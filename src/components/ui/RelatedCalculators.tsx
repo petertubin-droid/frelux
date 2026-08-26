@@ -24,7 +24,7 @@ export default function RelatedCalculators({ links, title = 'Related Calculators
             <p className="mt-1 flex-1 text-xs text-neutral-500 dark:text-neutral-400">{link.description}</p>
             <span className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
               Open
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </span>
           </Link>
         ))}

@@ -113,11 +113,11 @@ export default function NearbyResults({
         <>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+              <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
             </div>
           ) : !hasResults ? (
             <div className="py-8 text-center">
-              <MapPin className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
+              <MapPin aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
               <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                 No {mode === 'professionals' ? 'professionals' : mode === 'listings' ? 'listings' : 'results'} found within {radius} km of your location.
               </p>
@@ -152,13 +152,13 @@ export default function NearbyResults({
                             {pro.business_name || pro.display_name}
                           </p>
                           {pro.verification_status === 'verified' && (
-                            <Shield className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                            <Shield aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                           {pro.rating_avg > 0 && (
                             <span className="inline-flex items-center gap-0.5">
-                              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                              <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
                               {pro.rating_avg.toFixed(1)}
                             </span>
                           )}
@@ -169,7 +169,7 @@ export default function NearbyResults({
                           </span>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
+                      <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
                     </Link>
                   ))}
                 </div>
@@ -199,7 +199,7 @@ export default function NearbyResults({
                           </span>
                         </div>
                       </div>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
+                      <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
                     </Link>
                   ))}
                 </div>

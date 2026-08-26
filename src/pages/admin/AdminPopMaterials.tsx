@@ -74,8 +74,8 @@ export default function AdminPopMaterials() {
     <>
       <AdminHeader title="POP Materials" subtitle="Manage POP ceiling material library and pricing."
         action={<div className="flex gap-2">
-          <AdminButton onClick={handleExport}><Download className="h-4 w-4" /> Export</AdminButton>
-          <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus className="h-4 w-4" /> Add Material</AdminButton>
+          <AdminButton onClick={handleExport}><Download aria-hidden="true" className="h-4 w-4" /> Export</AdminButton>
+          <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>
         </div>}
       />
 
@@ -119,7 +119,7 @@ export default function AdminPopMaterials() {
                         <Toggle checked={mat.is_active} onChange={() => handleToggleActive(mat)} />
                         <div className="flex items-center gap-0.5">
                           <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                          <AdminIconButton variant="danger" type="button" onClick={() => handleDelete(mat.id)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
+                          <AdminIconButton variant="danger" type="button" onClick={() => handleDelete(mat.id)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
                         </div>
                       </div>
                     </div>
@@ -162,7 +162,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{material ? 'Edit Material' : 'New Material'}</h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -205,7 +205,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
         <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}>
-          <Check className="h-4 w-4" /> Save
+          <Check aria-hidden="true" className="h-4 w-4" /> Save
         </AdminButton>
       </div>
     </AdminCard>

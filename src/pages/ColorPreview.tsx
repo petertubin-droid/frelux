@@ -102,7 +102,7 @@ export default function ColorPreview() {
                 <img src={imagePreview} alt="Room" className="max-h-64 rounded-lg border" />
                 <button type="button" onClick={() => setImagePreview(null)}
                   className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white">
-                  <X className="h-4 w-4" />
+                  <X aria-hidden="true" className="h-4 w-4" />
                 </button>
               </div>
             ) : (
@@ -209,7 +209,7 @@ export default function ColorPreview() {
                   />
                   {colors.length > 1 && (
                     <button type="button" onClick={() => removeColor(i)} className="rounded p-2 hover:bg-accent">
-                      <X className="h-4 w-4 text-destructive" />
+                      <X aria-hidden="true" className="h-4 w-4 text-destructive" />
                     </button>
                   )}
                 </div>
@@ -222,7 +222,7 @@ export default function ColorPreview() {
             disabled={loading}
             className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white disabled:opacity-50"
           >
-            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Eye className="h-5 w-5" />}
+            {loading ? <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> : <Eye aria-hidden="true" className="h-5 w-5" />}
             Generate AI Preview
           </button>
         </form>
@@ -239,7 +239,7 @@ export default function ColorPreview() {
       {loading && (
         <div className="mt-8 flex items-center justify-center py-12">
           <div className="text-center">
-            <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand-purple" />
+            <Loader2 aria-hidden="true" className="mx-auto h-10 w-10 animate-spin text-brand-purple" />
             <p className="mt-3 text-sm text-muted-foreground">Analyzing your room and generating color previews...</p>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function ColorPreview() {
           {imagePreview && (
             <div>
               <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                <Eye className="h-5 w-5 text-brand-purple" /> Before & After
+                <Eye aria-hidden="true" className="h-5 w-5 text-brand-purple" /> Before & After
               </h3>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>

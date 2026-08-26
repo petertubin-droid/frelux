@@ -93,7 +93,7 @@ export default function MyTemplates() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -157,7 +157,7 @@ export default function MyTemplates() {
               className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
               title="Export all templates as JSON files"
             >
-              <Download className="h-3.5 w-3.5" /> Export All
+              <Download aria-hidden="true" className="h-3.5 w-3.5" /> Export All
             </button>
           )}
           <Link
@@ -185,7 +185,7 @@ export default function MyTemplates() {
       <div className="mt-6 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input
               type="text"
               value={search}
@@ -233,7 +233,7 @@ export default function MyTemplates() {
       {/* Content */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
         </div>
       ) : error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">

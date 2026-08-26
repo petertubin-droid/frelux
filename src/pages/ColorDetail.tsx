@@ -66,7 +66,7 @@ export default function ColorDetail() {
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400">
-        <Loader2 className="h-5 w-5 animate-spin" /> Loading…
+        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…
       </div>
     );
   }
@@ -74,7 +74,7 @@ export default function ColorDetail() {
   if (status === 'error') {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
+        <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" />
         <p className="mt-3 text-sm font-semibold text-red-700">Couldn’t load this color combination.</p>
         <Link to="/colors" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">
           Back to color ideas
@@ -98,7 +98,7 @@ export default function ColorDetail() {
         to="/colors"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-brand-purple"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         All color ideas
       </Link>
 
@@ -140,7 +140,7 @@ export default function ColorDetail() {
                   onClick={() => copy(s.hex)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter"
                 >
-                  {copied === s.hex ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied === s.hex ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
                   {copied === s.hex ? 'Copied' : s.hex}
                 </button>
               </div>

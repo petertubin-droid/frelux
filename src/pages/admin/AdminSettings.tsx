@@ -57,9 +57,9 @@ export default function AdminSettings() {
   return (
     <>
       <AdminHeader title="Site Settings" subtitle="Brand wide configuration shown across the public site."
-        action={<AdminButton onClick={onSave} disabled={saving}><Save className="h-4 w-4" />{saving ? 'Saving…' : 'Save changes'}</AdminButton>} />
-      {savedAt && <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700"><CheckCircle2 className="h-4 w-4" /> Settings saved.</div>}
-      {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}
+        action={<AdminButton onClick={onSave} disabled={saving}><Save aria-hidden="true" className="h-4 w-4" />{saving ? 'Saving…' : 'Save changes'}</AdminButton>} />
+      {savedAt && <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700"><CheckCircle2 aria-hidden="true" className="h-4 w-4" /> Settings saved.</div>}
+      {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle aria-hidden="true" className="h-4 w-4" /> {error}</div>}
       <div className="space-y-6">
         <AdminCard>
           <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Brand</h2>

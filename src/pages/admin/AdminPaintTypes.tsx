@@ -36,7 +36,7 @@ export default function AdminPaintTypes() {
   return (
     <>
       <AdminHeader title="Paint Calculator" subtitle="Manage paint types, coverage rates, and container sizes used by the calculator."
-        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add paint type</AdminButton>} />
+        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add paint type</AdminButton>} />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       {loading ? <StateMessage type="loading" title="Loading…" message="Fetching paint types." />
         : items.length === 0 ? <StateMessage type="empty" title="No paint types yet" message="Add your first paint type to get started." />
@@ -55,7 +55,7 @@ export default function AdminPaintTypes() {
                 <div className="flex shrink-0 items-center gap-3">
                   <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /> Edit</AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 className="h-3.5 w-3.5" /></AdminButton>
+                  <AdminButton variant="danger" onClick={() => remove(item)}><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
                 </div>
               </div>
             ))}

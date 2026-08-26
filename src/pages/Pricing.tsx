@@ -220,7 +220,7 @@ export default function Pricing() {
           subtitle="Confirming your subscription with Paystack…"
         />
         <div className="mx-auto max-w-md px-4 py-20 text-center">
-          <Loader2 className="mx-auto h-12 w-12 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="mx-auto h-12 w-12 animate-spin text-brand-purple" />
           <p className="mt-4 text-neutral-500">
             Please wait while we verify your payment…
           </p>
@@ -239,7 +239,7 @@ export default function Pricing() {
         />
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-accent-green/15">
-            <Check className="h-10 w-10 text-accent-green" />
+            <Check aria-hidden="true" className="h-10 w-10 text-accent-green" />
           </div>
           <p className="mt-6 text-lg font-semibold text-brand-navy dark:text-white">
             You're all set, {user?.email}!
@@ -255,7 +255,7 @@ export default function Pricing() {
             to="/dashboard"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90"
           >
-            Go to Dashboard <ArrowRight className="h-4 w-4" />
+            Go to Dashboard <ArrowRight aria-hidden="true" className="h-4 w-4" />
           </Link>
         </div>
       </>
@@ -273,8 +273,10 @@ export default function Pricing() {
       {/* Billing cycle toggle */}
       <div className="mx-auto max-w-6xl px-4 py-8">
         <div className="flex justify-center">
-          <div className="inline-flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
+          <div role="tablist" aria-label="Billing cycle" className="inline-flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900">
             <button
+              role="tab"
+              aria-selected={billingCycle === "monthly"}
               onClick={() => setBillingCycle("monthly")}
               className={classNames(
                 "rounded-lg px-5 py-2 text-sm font-semibold transition-all",
@@ -286,6 +288,8 @@ export default function Pricing() {
               Monthly
             </button>
             <button
+              role="tab"
+              aria-selected={billingCycle === "yearly"}
               onClick={() => setBillingCycle("yearly")}
               className={classNames(
                 "rounded-lg px-5 py-2 text-sm font-semibold transition-all",
@@ -305,7 +309,7 @@ export default function Pricing() {
         {/* Coming Soon banner */}
         {premiumLive === false && (
           <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 text-center">
-            <Gem className="mx-auto h-8 w-8 text-brand-purple" />
+            <Gem aria-hidden="true" className="mx-auto h-8 w-8 text-brand-purple" />
             <h3 className="mt-3 text-lg font-bold text-brand-navy dark:text-white">
               Premium Subscriptions — Coming Soon
             </h3>
@@ -370,7 +374,7 @@ export default function Pricing() {
 
                 <div className="flex items-center gap-2">
                   {plan.id === "free" ? (
-                    <Gem className="h-5 w-5 text-neutral-400" />
+                    <Gem aria-hidden="true" className="h-5 w-5 text-neutral-400" />
                   ) : (
                     <Crown
                       className={classNames(
@@ -422,7 +426,7 @@ export default function Pricing() {
                 >
                   {isLoading ? (
                     <span className="flex items-center justify-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Processing…
+                      <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Processing…
                     </span>
                   ) : isCurrentPlan ? (
                     "Current Plan"
@@ -430,7 +434,7 @@ export default function Pricing() {
                     plan.id !== "free" &&
                     plan.id !== "enterprise" ? (
                     <span className="flex items-center justify-center gap-1.5">
-                      <Gem className="h-3.5 w-3.5" /> Coming Soon
+                      <Gem aria-hidden="true" className="h-3.5 w-3.5" /> Coming Soon
                     </span>
                   ) : (
                     plan.cta
@@ -463,13 +467,13 @@ export default function Pricing() {
         {/* Trust badges */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-400">
           <span className="flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4" /> Secure payment via Paystack
+            <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Secure payment via Paystack
           </span>
           <span className="flex items-center gap-2">
-            <Zap className="h-4 w-4" /> Instant activation
+            <Zap aria-hidden="true" className="h-4 w-4" /> Instant activation
           </span>
           <span className="flex items-center gap-2">
-            <Check className="h-4 w-4" /> Cancel anytime
+            <Check aria-hidden="true" className="h-4 w-4" /> Cancel anytime
           </span>
         </div>
 
@@ -501,7 +505,7 @@ export default function Pricing() {
         {/* CTA for non-logged-in users */}
         {!user && (
           <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-brand-purple/20 bg-brand-purple/5 p-6 text-center">
-            <AlertCircle className="mx-auto h-8 w-8 text-brand-purple" />
+            <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-brand-purple" />
             <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
               You need a FRELUX account to subscribe. Create one in seconds —
               it's free.
@@ -510,7 +514,7 @@ export default function Pricing() {
               to="/login?redirect=/pricing"
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy/90"
             >
-              Sign Up / Log In <ArrowRight className="h-4 w-4" />
+              Sign Up / Log In <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
         )}

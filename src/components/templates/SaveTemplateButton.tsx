@@ -38,7 +38,7 @@ export default function SaveTemplateButton({
         onClick={() => setModalOpen(true)}
         className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:bg-brand-purple/5 hover:text-brand-purple dark:border-white/10 dark:text-neutral-300 dark:hover:border-brand-purple/30 dark:hover:bg-brand-purple/10"
       >
-        <Bookmark className="h-3.5 w-3.5" />
+        <Bookmark aria-hidden="true" className="h-3.5 w-3.5" />
         Save as Template
       </button>
 

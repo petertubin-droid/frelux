@@ -67,7 +67,7 @@ export default function ProjectTimeline() {
       <div className="bg-brand-navy text-white">
         <div className="max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <Calendar className="w-8 h-8 text-accent-green" />
+            <Calendar aria-hidden="true" className="w-8 h-8 text-accent-green" />
             <h1 className="text-2xl md:text-3xl font-bold">
               Construction Timeline Estimator
             </h1>
@@ -178,7 +178,7 @@ export default function ProjectTimeline() {
             onClick={calculate}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark"
           >
-            <Calendar className="w-4 h-4" /> Estimate Timeline
+            <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate Timeline
           </button>
         </div>
 
@@ -244,7 +244,7 @@ export default function ProjectTimeline() {
             {/* Stage breakdown */}
             <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
               <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5 text-brand-purple" /> Stage-by-Stage
+                <Clock aria-hidden="true" className="w-5 h-5 text-brand-purple" /> Stage-by-Stage
                 Breakdown
               </h3>
               <div className="space-y-2">

@@ -36,7 +36,7 @@ export default function AdminLegal() {
             {items.map((item) => (
               <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-start gap-3">
-                  <FileText className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
+                  <FileText aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-400" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.title}</h3>
@@ -85,7 +85,7 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
             <div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
-          <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}{!saving && <CheckCircle2 className="h-4 w-4" />}</AdminButton></div>
+          <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}{!saving && <CheckCircle2 aria-hidden="true" className="h-4 w-4" />}</AdminButton></div>
     </AdminModal>
   );
 }

@@ -25,7 +25,7 @@ export function RecentlyUsed() {
   return (
     <section className="animate-fade-in-up">
       <div className="mb-3 flex items-center gap-2">
-        <Clock className="h-4 w-4 text-brand-purple" />
+        <Clock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
         <h2 className="text-sm font-bold text-brand-navy dark:text-white">Recently Used</h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -46,7 +46,7 @@ export function RecentlyUsed() {
                   {new Date(tool.visitedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
-              <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
             </Link>
           );
         })}

@@ -78,9 +78,9 @@ export default function AdminAiMonetization() {
   return (
     <>
       <AdminHeader title="AI Monetization" subtitle="Configure AI feature access, daily limits, and monetization options."
-        action={<AdminButton onClick={onSave} disabled={saving || !canSave()}><Save className="h-4 w-4" />{saving ? 'Saving…' : 'Save changes'}</AdminButton>} />
-      {savedAt && <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700"><CheckCircle2 className="h-4 w-4" /> AI settings saved.</div>}
-      {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}
+        action={<AdminButton onClick={onSave} disabled={saving || !canSave()}><Save aria-hidden="true" className="h-4 w-4" />{saving ? 'Saving…' : 'Save changes'}</AdminButton>} />
+      {savedAt && <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700"><CheckCircle2 aria-hidden="true" className="h-4 w-4" /> AI settings saved.</div>}
+      {error && <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle aria-hidden="true" className="h-4 w-4" /> {error}</div>}
 
       {/* Issue #4 fix: Warning when paid mode is selected without a provider */}
       {showPaidWarning && (
@@ -97,7 +97,7 @@ export default function AdminAiMonetization() {
         {/* Global AI toggle */}
         <AdminCard>
           <div className="flex items-start gap-3">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><DollarSign className="h-5 w-5" /></div>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><DollarSign aria-hidden="true" className="h-5 w-5" /></div>
             <div className="flex-1">
               <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Global AI</h2>
               <div className="mt-3 flex items-center gap-3">
@@ -153,7 +153,7 @@ export default function AdminAiMonetization() {
 
         {/* Rewarded access */}
         <AdminCard>
-          <div className="flex items-center gap-2"><Gift className="h-4 w-4 text-accent-orange" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Rewarded Access</h2></div>
+          <div className="flex items-center gap-2"><Gift aria-hidden="true" className="h-4 w-4 text-accent-orange" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Rewarded Access</h2></div>
           <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">Provider agnostic architecture. No rewarded provider is connected yet, the UI shows an unavailable state. Never grants access on a button click alone.</p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle checked={settings.ai_rewarded_enabled} onChange={(v) => update('ai_rewarded_enabled', v)} />
@@ -163,7 +163,7 @@ export default function AdminAiMonetization() {
 
         {/* Paid access (future) */}
         <AdminCard>
-          <div className="flex items-center gap-2"><CreditCard className="h-4 w-4 text-accent-green" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Paid Access</h2></div>
+          <div className="flex items-center gap-2"><CreditCard aria-hidden="true" className="h-4 w-4 text-accent-green" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Paid Access</h2></div>
           <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">
             {paymentProviderConfigured
               ? 'A payment provider is configured. Paid access can be enabled.'
@@ -210,7 +210,7 @@ export default function AdminAiMonetization() {
 
         {/* Admin override */}
         <AdminCard>
-          <div className="flex items-center gap-2"><Lock className="h-4 w-4 text-brand-navy" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Admin Override</h2></div>
+          <div className="flex items-center gap-2"><Lock aria-hidden="true" className="h-4 w-4 text-brand-navy" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Admin Override</h2></div>
           <p className="mt-2 text-xs text-neutral-400 dark:text-neutral-500">When enabled, admin users bypass AI usage limits for testing.</p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle checked={settings.ai_admin_override} onChange={(v) => update('ai_admin_override', v)} />

@@ -95,12 +95,12 @@ export default function AdminLearn() {
       <AdminHeader
         title="Learn"
         subtitle="Manage educational articles and categories."
-        action={tab === 'articles' ? <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus className="h-4 w-4" /> New Article</AdminButton> : undefined}
+        action={tab === 'articles' ? <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> New Article</AdminButton> : undefined}
       />
 
       {mutationError && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" /> {mutationError}
+          <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" /> {mutationError}
         </div>
       )}
 
@@ -118,12 +118,12 @@ export default function AdminLearn() {
       {tab === 'articles' && !showEditor && (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {articles.length === 0 ? (
-            <StateMessage type="empty" title="No articles yet" message="Create your first article to publish in the Learn section." action={<AdminButton onClick={() => setShowEditor(true)}><Plus className="h-4 w-4" /> New Article</AdminButton>} />
+            <StateMessage type="empty" title="No articles yet" message="Create your first article to publish in the Learn section." action={<AdminButton onClick={() => setShowEditor(true)}><Plus aria-hidden="true" className="h-4 w-4" /> New Article</AdminButton>} />
           ) : articles.map((article) => (
             <div key={article.id} className="card p-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 shrink-0 text-neutral-400" />
+                  <FileText aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-400" />
                   <p className="truncate text-sm font-bold text-brand-navy dark:text-white">{article.title}</p>
                   <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', article.status === 'published' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>{article.status}</span>
                   {article.is_featured && <span className="rounded-full bg-accent-orange/15 px-2 py-0.5 text-[10px] font-semibold text-accent-orange">Featured</span>}
@@ -133,7 +133,7 @@ export default function AdminLearn() {
               <div className="flex shrink-0 items-center gap-2">
                 <Toggle checked={article.status === 'published'} onChange={() => handleTogglePublished(article)} />
                 <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(article); setShowEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
-                <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></AdminIconButton>
+                <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(article.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
               </div>
             </div>
           ))}
@@ -156,7 +156,7 @@ export default function AdminLearn() {
           {categories.map((cat) => (
             <div key={cat.id} className="card p-3">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><BookOpen className="h-5 w-5" /></div>
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><BookOpen aria-hidden="true" className="h-5 w-5" /></div>
                 <div>
                   <p className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</p>
                   <p className="text-xs text-neutral-400 dark:text-neutral-500">/{cat.slug} · Order {cat.sort_order}</p>
@@ -236,10 +236,10 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{article ? 'Edit Article' : 'New Article'}</h2>
-        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
+        <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
       </div>
 
-      {error && <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle className="h-4 w-4" /> {error}</div>}
+      {error && <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"><AlertCircle aria-hidden="true" className="h-4 w-4" /> {error}</div>}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Title"><AdminInput  value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} /></AdminField>
@@ -294,7 +294,7 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
         <AdminButton onClick={handleSubmit} disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+          {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Check aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Article'}
         </AdminButton>
       </div>

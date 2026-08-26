@@ -107,7 +107,7 @@ export default function Rewards() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
-        <ArrowLeft className="h-4 w-4" /> Back to home
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
       </Link>
 
       {/* Header */}
@@ -129,7 +129,7 @@ export default function Rewards() {
             <div>
               <p className="text-xs font-medium text-neutral-500">FRELUX Credits</p>
               <p className="text-3xl font-bold text-brand-navy dark:text-white">
-                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : balance}
+                {loading ? <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" /> : balance}
               </p>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function Rewards() {
             <div>
               <p className="text-xs font-medium text-neutral-500">Activity Streak</p>
               <p className="text-3xl font-bold text-brand-navy dark:text-white">
-                {loading ? <Loader2 className="h-6 w-6 animate-spin" /> : streak?.current_streak ?? 0}
+                {loading ? <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" /> : streak?.current_streak ?? 0}
                 <span className="ml-1 text-base font-normal text-neutral-400">day{(streak?.current_streak ?? 0) === 1 ? '' : 's'}</span>
               </p>
             </div>
@@ -228,11 +228,11 @@ export default function Rewards() {
                   )}
                 >
                   {isRedeeming ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Processing...</>
+                    <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Processing...</>
                   ) : canAfford ? (
-                    <><Sparkles className="h-4 w-4" /> Redeem</>
+                    <><Sparkles aria-hidden="true" className="h-4 w-4" /> Redeem</>
                   ) : (
-                    <><Lock className="h-4 w-4" /> Need {reward.credit_cost - balance} more</>
+                    <><Lock aria-hidden="true" className="h-4 w-4" /> Need {reward.credit_cost - balance} more</>
                   )}
                 </button>
               </div>

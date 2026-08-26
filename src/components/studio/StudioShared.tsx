@@ -42,7 +42,7 @@ export function PromptInput({
           disabled={loading || !value.trim()}
           className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95 disabled:opacity-50"
         >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}
+          {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Cpu aria-hidden="true" className="h-4 w-4" />}
           {loading ? 'Generating…' : buttonText}
         </button>
       </div>
@@ -79,15 +79,15 @@ export function CodeOutput({ content, language = 'typescript', title }: { conten
     <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5 bg-white">
       <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-4 py-2">
         <div className="flex items-center gap-2">
-          <FileCode2 className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+          <FileCode2 aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
           <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">{title ?? language}</span>
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={download} className="rounded-md p-1.5 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Download">
-            <Download className="h-3.5 w-3.5" />
+            <Download aria-hidden="true" className="h-3.5 w-3.5" />
           </button>
           <button type="button" onClick={copy} className="rounded-md p-1.5 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Copy">
-            {copied ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
+            {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
           </button>
         </div>
       </div>
@@ -103,7 +103,7 @@ export function AiResponseDisplay({ content, loading, error }: { content: string
   if (loading) {
     return (
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 p-6">
-        <Loader2 className="h-5 w-5 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         <span className="text-sm text-neutral-500 dark:text-neutral-400 dark:text-neutral-500">AI is generating your response…</span>
       </div>
     );
@@ -112,7 +112,7 @@ export function AiResponseDisplay({ content, loading, error }: { content: string
   if (error) {
     return (
       <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-        <AlertCircle className="h-5 w-5 shrink-0 text-red-500" />
+        <AlertCircle aria-hidden="true" className="h-5 w-5 shrink-0 text-red-500" />
         <div>
           <p className="text-sm font-semibold text-red-700">Generation failed</p>
           <p className="mt-1 text-xs text-red-600">{error}</p>
@@ -193,7 +193,7 @@ export function ArtifactCard({ title, type, status, updated, onClick, onDelete }
   return (
     <div className="group flex items-center justify-between rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-4 transition-all hover:border-brand-purple hover:shadow-sm">
       <button type="button" onClick={onClick} className="flex min-w-0 items-center gap-3 text-left">
-        <FileCode2 className="h-5 w-5 shrink-0 text-neutral-400 dark:text-neutral-500" />
+        <FileCode2 aria-hidden="true" className="h-5 w-5 shrink-0 text-neutral-400 dark:text-neutral-500" />
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{title}</p>
           <div className="mt-0.5 flex items-center gap-2">
@@ -205,7 +205,7 @@ export function ArtifactCard({ title, type, status, updated, onClick, onDelete }
       </button>
       {onDelete && (
         <button type="button" onClick={onDelete} className="rounded-md p-2 text-neutral-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
-          <Trash2 className="h-4 w-4" />
+          <Trash2 aria-hidden="true" className="h-4 w-4" />
         </button>
       )}
     </div>
@@ -221,7 +221,7 @@ export function CollapsibleSection({ title, children, defaultOpen = false }: { t
     <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white">
       <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between p-4">
         <span className="text-sm font-semibold text-brand-navy dark:text-white">{title}</span>
-        {open ? <ChevronDown className="h-4 w-4 text-neutral-400 dark:text-neutral-500" /> : <ChevronRight className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />}
+        {open ? <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" /> : <ChevronRight aria-hidden="true" className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />}
       </button>
       {open && <div className="border-t border-neutral-200 dark:border-white/5 p-4">{children}</div>}
     </div>
@@ -240,10 +240,10 @@ export function SaveBar({ onSave, saving, saved, label = 'Save as artifact' }: {
         disabled={saving}
         className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid px-4 py-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300 transition-all hover:bg-neutral-50 dark:bg-white/5 disabled:opacity-50"
       >
-        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+        {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
         {saving ? 'Saving…' : label}
       </button>
-      {saved && <span className="flex items-center gap-1 text-sm text-accent-green"><Check className="h-4 w-4" /> Saved</span>}
+      {saved && <span className="flex items-center gap-1 text-sm text-accent-green"><Check aria-hidden="true" className="h-4 w-4" /> Saved</span>}
     </div>
   );
 }
@@ -255,7 +255,7 @@ export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cp
   return (
     <div className="mb-6 flex items-start gap-4">
       <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple">
-        <Icon className="h-6 w-6" />
+        <Icon aria-hidden="true" className="h-6 w-6" />
       </div>
       <div>
         <h1 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h1>

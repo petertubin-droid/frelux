@@ -261,7 +261,7 @@ export default function ProConnectRegister() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
       <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Back to directory
       </Link>
 
@@ -281,7 +281,7 @@ export default function ProConnectRegister() {
                 'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
                 s <= step ? 'bg-brand-purple text-white' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-500'
               )}>
-                {s < step ? <Check className="h-4 w-4" /> : s}
+                {s < step ? <Check aria-hidden="true" className="h-4 w-4" /> : s}
               </div>
               {s < 4 && (
                 <div className={classNames('h-0.5 w-12 sm:w-20', s < step ? 'bg-brand-purple' : 'bg-neutral-200 dark:bg-white/5')} />
@@ -493,7 +493,7 @@ export default function ProConnectRegister() {
         <div className="space-y-5">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/10">
-              <Phone className="h-8 w-8 text-brand-purple" />
+              <Phone aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-neutral-900 dark:text-white">Mobile Number Verification</h2>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
@@ -503,7 +503,7 @@ export default function ProConnectRegister() {
 
           {otpVerified ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <Check className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+              <Check aria-hidden="true" className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
               <p className="font-semibold text-emerald-600 dark:text-emerald-400">{otpSuccess}</p>
             </div>
           ) : (
@@ -541,7 +541,7 @@ export default function ProConnectRegister() {
                       className="w-full rounded-lg border border-neutral-200 px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-brand-navy"
                     />
                   </div>
-                  {otpError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle className="h-4 w-4" />{otpError}</p>}
+                  {otpError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
                   {otpSuccess && <p className="text-sm text-emerald-500">{otpSuccess}</p>}
                   <div className="flex gap-3">
                     <button
@@ -569,7 +569,7 @@ export default function ProConnectRegister() {
                   </button>
                 </>
               )}
-              {otpError && !otpSent && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle className="h-4 w-4" />{otpError}</p>}
+              {otpError && !otpSent && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
             </>
           )}
 
@@ -589,7 +589,7 @@ export default function ProConnectRegister() {
         <div className="space-y-5">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-brand-purple/10">
-              <Shield className="h-8 w-8 text-brand-purple" />
+              <Shield aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
             <h2 className="text-xl font-bold text-neutral-900 dark:text-white">NIN Verification (KYC)</h2>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
@@ -599,7 +599,7 @@ export default function ProConnectRegister() {
 
           {ninSubmitted ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <Check className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
+              <Check aria-hidden="true" className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
               <p className="font-semibold text-emerald-600 dark:text-emerald-400">{ninSuccess}</p>
             </div>
           ) : (
@@ -621,11 +621,11 @@ export default function ProConnectRegister() {
                 </p>
               </div>
 
-              {ninError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle className="h-4 w-4" />{ninError}</p>}
+              {ninError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{ninError}</p>}
               {ninSuccess && <p className="text-sm text-emerald-500">{ninSuccess}</p>}
 
               <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>
                   After submitting, an admin will verify your NIN. Once approved, you'll reach <strong>Tier 2 (FRELUX Verified)</strong> and can join Worker Channels.
                 </p>
@@ -656,7 +656,7 @@ export default function ProConnectRegister() {
       {step === 6 && (
         <div className="text-center py-8">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/10">
-            <Check className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+            <Check aria-hidden="true" className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
           </div>
           <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">Profile Created!</h2>
           <p className="mt-2 text-neutral-500 dark:text-neutral-400">

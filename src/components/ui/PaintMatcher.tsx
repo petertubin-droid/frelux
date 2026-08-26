@@ -119,7 +119,7 @@ const mountedRef = useRef(true);
                 <img src={preview} alt="Upload preview" className="h-32 w-32 rounded-xl object-cover opacity-50" />
               )}
               <div className="absolute inset-0 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+                <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
               </div>
             </div>
             <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">
@@ -130,7 +130,7 @@ const mountedRef = useRef(true);
 
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center py-10">
-            <X className="h-10 w-10 text-red-500" />
+            <X aria-hidden="true" className="h-10 w-10 text-red-500" />
             <p className="mt-3 text-sm text-red-600">{errorMsg}</p>
             <button type="button" onClick={reset} className="mt-3 rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
               Try again
@@ -154,7 +154,7 @@ const mountedRef = useRef(true);
                 </div>
               </div>
               <button type="button" onClick={reset} className="ml-auto rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                <X className="h-4 w-4" />
+                <X aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
 

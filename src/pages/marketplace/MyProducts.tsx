@@ -52,7 +52,7 @@ export default function MyProducts() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -65,7 +65,7 @@ export default function MyProducts() {
           <p className="mt-1 text-sm text-neutral-500">Manage your product listings on the marketplace.</p>
         </div>
         <Link to="/marketplace/products/post" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark">
-          <Plus className="h-4 w-4" /> Sell Product
+          <Plus aria-hidden="true" className="h-4 w-4" /> Sell Product
         </Link>
       </div>
 
@@ -91,7 +91,7 @@ export default function MyProducts() {
           <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No products yet</p>
           <p className="mt-1 text-xs text-neutral-400">Start selling building materials and interior products.</p>
           <Link to="/marketplace/products/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
-            <Plus className="h-4 w-4" /> Post Your First Product
+            <Plus aria-hidden="true" className="h-4 w-4" /> Post Your First Product
           </Link>
         </div>
       ) : (
@@ -131,13 +131,13 @@ export default function MyProducts() {
               {/* Actions */}
               <div className="flex items-center gap-1">
                 <button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
-                  {product.status === 'active' ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {product.status === 'active' ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                 </button>
                 <Link to={`/marketplace/products/${product.id}`} className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-brand-purple dark:hover:bg-white/5" title="View">
-                  <Eye className="h-4 w-4" />
+                  <Eye aria-hidden="true" className="h-4 w-4" />
                 </Link>
                 <button onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </button>
               </div>
             </div>

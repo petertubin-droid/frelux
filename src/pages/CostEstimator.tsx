@@ -250,7 +250,7 @@ const mountedRef = useRef(true);
       <>
         <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Cost Estimator' }] } />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400">
-          <Loader2 className="h-5 w-5 animate-spin" /> Loading pricing data…
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading pricing data…
         </div>
       </>
     );
@@ -268,14 +268,14 @@ const mountedRef = useRef(true);
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {loadError && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
             <p>Some pricing data couldn't be loaded: {loadError}. You can still enter prices manually below.</p>
           </div>
         )}
 
         {!hasArea && (
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
+            <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
             <p>
               Tip: Use the{' '}
               <Link to="/paint-calculator" className="font-semibold text-brand-purple underline">Paint Calculator</Link>{' '}
@@ -397,7 +397,7 @@ const mountedRef = useRef(true);
 
             <button type="button" onClick={compute} className="btn-primary btn-glow mt-6 w-full sm:w-auto">
               Calculate estimate
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
 

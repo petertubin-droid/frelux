@@ -33,7 +33,7 @@ export default function MultiStepProgress({
                     !isComplete && !isCurrent && 'bg-neutral-200 text-neutral-400 dark:bg-white/10 dark:text-neutral-500',
                   )}
                 >
-                  {isComplete ? <Check className="h-4 w-4" /> : i + 1}
+                  {isComplete ? <Check aria-hidden="true" className="h-4 w-4" /> : i + 1}
                 </div>
                 <span
                   className={classNames(

@@ -66,7 +66,7 @@ export default function StudioOverview() {
         <div className="mb-8 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-5">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-brand-purple" />
+              <AlertCircle aria-hidden="true" className="h-4 w-4 text-brand-purple" />
               <h2 className="text-sm font-semibold text-neutral-800 dark:text-white">Recent Errors from System Health</h2>
             </div>
             <Link to="/admin/studio/error_analysis" className="text-xs font-medium text-brand-purple hover:underline">
@@ -111,7 +111,7 @@ export default function StudioOverview() {
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <ArrowRight className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
                   </div>
                   <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white">{tool.label}</h3>
                   <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{tool.description}</p>

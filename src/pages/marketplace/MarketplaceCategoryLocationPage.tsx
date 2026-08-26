@@ -89,11 +89,11 @@ export default function MarketplaceCategoryLocationPage() {
   if (notFound) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <Package className="mx-auto h-12 w-12 text-neutral-300" />
+        <Package aria-hidden="true" className="mx-auto h-12 w-12 text-neutral-300" />
         <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">Page Not Found</h1>
         <p className="mt-2 text-sm text-neutral-500">This category or location doesn't exist.</p>
         <Link to="/marketplace" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple">
-          <ArrowRight className="h-4 w-4 rotate-180" /> Back to Marketplace
+          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back to Marketplace
         </Link>
       </div>
     );
@@ -130,7 +130,7 @@ export default function MarketplaceCategoryLocationPage() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
           </div>
         ) : (
           <div className="space-y-8">

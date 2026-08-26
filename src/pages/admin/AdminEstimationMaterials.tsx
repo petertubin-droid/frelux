@@ -138,7 +138,7 @@ export default function AdminEstimationMaterials() {
               setShowForm(true);
             }}
           >
-            <Plus className="h-4 w-4" /> Add material
+            <Plus aria-hidden="true" className="h-4 w-4" /> Add material
           </AdminButton>
         }
       />
@@ -152,7 +152,7 @@ export default function AdminEstimationMaterials() {
       {!loading && items.length > 0 && (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <AdminInput
  type="search"
  value={search}
@@ -220,7 +220,7 @@ export default function AdminEstimationMaterials() {
                       <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                       <div className="flex items-center gap-0.5">
                         <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                        <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
+                        <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
                       </div>
                     </div>
                   </div>

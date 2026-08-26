@@ -92,9 +92,9 @@ export default function CalculatorNearMe({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-semibold text-white transition-all hover:bg-brand-purple/90 disabled:opacity-50"
           >
             {locLoading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
             ) : (
-              <MapPin className="h-3.5 w-3.5" />
+              <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
             )}
             {locLoading ? "Detecting..." : "Use My Location"}
           </button>
@@ -105,9 +105,9 @@ export default function CalculatorNearMe({
               className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-white px-3 py-1.5 text-xs font-semibold text-brand-purple transition-all hover:bg-brand-purple/10 disabled:opacity-50 dark:bg-transparent"
             >
               {searching ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
               ) : (
-                <Search className="h-3.5 w-3.5" />
+                <Search aria-hidden="true" className="h-3.5 w-3.5" />
               )}
               Search
             </button>
@@ -119,7 +119,7 @@ export default function CalculatorNearMe({
       {hasLocation && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-            <MapPin className="h-3 w-3 text-brand-purple" />
+            <MapPin aria-hidden="true" className="h-3 w-3 text-brand-purple" />
             {location.label || "Location set"}
           </span>
           <div className="flex items-center gap-1">
@@ -180,7 +180,7 @@ export default function CalculatorNearMe({
 
           {searching ? (
             <div className="flex items-center justify-center py-4">
-              <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin text-brand-purple" />
             </div>
           ) : activeTab === "professionals" ? (
             pros.length === 0 ? (

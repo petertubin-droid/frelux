@@ -175,14 +175,14 @@ const mountedRef = useRef(true);
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {loading && (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+            <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
             <span className="ml-3 text-sm text-neutral-500">Loading finish types...</span>
           </div>
         )}
 
         {loadError && !loading && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
             <p>Couldn't load finish type data: {loadError}. Default values will be used for calculations.</p>
           </div>
         )}
@@ -406,7 +406,7 @@ const mountedRef = useRef(true);
                 disabled={loading}
               >
                 Calculate Estimate
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </button>
               {errors.area && <p className="mt-2 text-center text-xs text-red-500">{errors.area}</p>}
             </div>
@@ -485,14 +485,14 @@ const mountedRef = useRef(true);
 
             {saved && (
               <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0" />
                 <p>Estimate saved to your projects. Find it in My Projects.</p>
               </div>
             )}
 
             {errors.save && (
               <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>{errors.save}</p>
               </div>
             )}

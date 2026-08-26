@@ -39,7 +39,7 @@ export default function AdminTimelineTemplates() {
       <AdminHeader
         title="Timeline Templates"
         subtitle="Manage project timeline phase templates for each project type"
-        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add Template</AdminButton>}
+        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Template</AdminButton>}
       />
 
       {error && <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
@@ -59,14 +59,14 @@ export default function AdminTimelineTemplates() {
                   {tpl.description && <p className="mt-1 text-sm text-neutral-600">{tpl.description}</p>}
                 </div>
                 <div className="flex gap-1">
-                  <AdminIconButton variant="ghost" onClick={() => { setEditing(tpl); setShowForm(true); }} ><Edit3 className="h-4 w-4 text-neutral-500" /></AdminIconButton>
-                  <AdminIconButton variant="danger" onClick={() => handleDelete(tpl.id)} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" onClick={() => { setEditing(tpl); setShowForm(true); }} ><Edit3 aria-hidden="true" className="h-4 w-4 text-neutral-500" /></AdminIconButton>
+                  <AdminIconButton variant="danger" onClick={() => handleDelete(tpl.id)} ><Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {tpl.phases.map((phase, i) => (
                   <div key={i} className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs">
-                    <Calendar className="h-3 w-3 text-neutral-400" />
+                    <Calendar aria-hidden="true" className="h-3 w-3 text-neutral-400" />
                     <span className="font-medium">{phase.name}</span>
                     <span className="text-neutral-400 dark:text-neutral-500">{phase.days}d</span>
                   </div>
@@ -153,11 +153,11 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
                   </AdminSelect>
                   <AdminInput type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
                   <AdminInput value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <AdminIconButton variant="danger" onClick={() => setPhases(phases.filter((_, j) => j !== i))} ><Trash2 className="h-4 w-4 text-red-500" /></AdminIconButton>
+                  <AdminIconButton variant="danger" onClick={() => setPhases(phases.filter((_, j) => j !== i))} ><Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               ))}
             </div>
-            <AdminButton variant="link" onClick={() => setPhases([...phases, { phase: 'preparation' as const, name: '', days: 1, depends_on: '' }])} className="mt-2"><Plus className="h-4 w-4" /> Add Phase</AdminButton>
+            <AdminButton variant="link" onClick={() => setPhases([...phases, { phase: 'preparation' as const, name: '', days: 1, depends_on: '' }])} className="mt-2"><Plus aria-hidden="true" className="h-4 w-4" /> Add Phase</AdminButton>
           </div>
 
           <div className="flex justify-end gap-2">

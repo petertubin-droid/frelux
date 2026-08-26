@@ -167,7 +167,7 @@ export default function AdminImageEstimation() {
 
       {error && (
         <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+          <AlertCircle aria-hidden="true" className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-amber-800">Migration Required</p>
             <p className="text-xs text-amber-700 mt-1">{error}</p>
@@ -180,7 +180,7 @@ export default function AdminImageEstimation() {
 
       {saveError && (
         <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <AlertCircle aria-hidden="true" className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-red-800">Couldn't save changes</p>
             <p className="text-xs text-red-700 mt-1">{saveError}</p>
@@ -209,7 +209,7 @@ export default function AdminImageEstimation() {
           <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
             <div>
               <p className="font-medium text-neutral-900 flex items-center gap-2">
-                <Camera className="w-4 h-4" />
+                <Camera aria-hidden="true" className="w-4 h-4" />
                 Feature Enabled
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">Master switch for the AI building photo estimator.</p>
@@ -338,12 +338,12 @@ export default function AdminImageEstimation() {
               disabled={status === 'saving'}
               className="px-5 py-2.5 text-sm"
             >
-              {status === 'saving' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {status === 'saving' ? <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" /> : <Save aria-hidden="true" className="w-4 h-4" />}
               {status === 'saving' ? 'Saving…' : 'Save Configuration'}
             </AdminButton>
             {saved && (
               <span className="text-sm text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> Saved successfully
+                <CheckCircle2 aria-hidden="true" className="w-4 h-4" /> Saved successfully
               </span>
             )}
           </div>
@@ -353,7 +353,7 @@ export default function AdminImageEstimation() {
       {/* Edge function deploy notice */}
       <AdminCard>
         <div className="flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+          <AlertCircle aria-hidden="true" className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-neutral-900">Edge Function Deployment</p>
             <p className="text-xs text-neutral-500 mt-1">

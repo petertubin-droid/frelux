@@ -66,11 +66,11 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
       <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-brand-navy-mid">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ShoppingBag className="h-5 w-5 text-brand-purple" />
+            <ShoppingBag aria-hidden="true" className="h-5 w-5 text-brand-purple" />
             <h2 className="text-lg font-bold text-brand-navy dark:text-white">{title}</h2>
           </div>
           <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800">
-            <X className="h-5 w-5" />
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
@@ -105,7 +105,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
                 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all',
                 item.checked ? 'border-accent-green bg-accent-green text-white' : 'border-neutral-300 dark:border-neutral-600',
               )}>
-                {item.checked && <Check className="h-3.5 w-3.5" />}
+                {item.checked && <Check aria-hidden="true" className="h-3.5 w-3.5" />}
               </span>
               <div className="min-w-0 flex-1">
                 <p className={classNames('text-sm font-semibold', item.checked ? 'text-neutral-400 line-through dark:text-neutral-500' : 'text-brand-navy dark:text-white')}>

@@ -303,7 +303,7 @@ export default function BuildToRoofEstimator() {
         <div className="relative max-w-6xl mx-auto px-4 py-10 sm:py-14">
           <div className="flex items-center gap-3 sm:gap-4 mb-2">
             <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-              <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-accent-green" />
+              <Building2 aria-hidden="true" className="w-6 h-6 sm:w-8 sm:h-8 text-accent-green" />
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-xl sm:text-3xl md:text-4xl font-bold tracking-tight">Build-to-Roof Estimator</h1>
@@ -462,7 +462,7 @@ export default function BuildToRoofEstimator() {
                   <Field label="Internal wall thickness" unit={input.measurement_unit} value={input.internal_wall_thickness} onChange={v => update('internal_wall_thickness', parseFloat(v) || 0)} step="0.025" />
                 </div>
                 <div className="mt-4 rounded-xl bg-blue-50 border border-blue-100 p-3 sm:p-4 flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                  <Info aria-hidden="true" className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                   <p className="text-xs text-blue-700">
                     Enter the total length of all internal partition walls combined. This is used for block and mortar calculations.
                   </p>
@@ -755,7 +755,7 @@ export default function BuildToRoofEstimator() {
                     <Field label="Contingency" unit="%" value={input.contingency_percent} onChange={v => update('contingency_percent', parseFloat(v) || 0)} />
                   </div>
                   <div className="mt-4 flex items-center gap-2 text-xs text-neutral-400">
-                    <Info className="w-3.5 h-3.5" />
+                    <Info aria-hidden="true" className="w-3.5 h-3.5" />
                     <span>Prices are user-configurable and not permanently stored. Update with current local market rates.</span>
                   </div>
                 </SectionCard>
@@ -929,7 +929,7 @@ export default function BuildToRoofEstimator() {
                   onClick={calculate}
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
                 >
-                  <Calculator className="w-4 h-4" />
+                  <Calculator aria-hidden="true" className="w-4 h-4" />
                   <span className="hidden sm:inline">Generate Estimate</span>
                   <span className="sm:hidden">Calculate</span>
                 </button>
@@ -1226,7 +1226,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal" style={{ animationDelay: '0.7s' }}>
           <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
-              <Info className="w-4 h-4 text-blue-500" />
+              <Info aria-hidden="true" className="w-4 h-4 text-blue-500" />
             </div>
             Assumptions
           </h3>
@@ -1255,7 +1255,7 @@ function EstimateResult({ result, onBack }: { result: BuildToRoofResult; onBack:
             ))}
             {result.missing_info.map((m, i) => (
               <li key={`m${i}`} className="text-sm text-amber-700 flex items-start gap-2">
-                <Info className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <Info aria-hidden="true" className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <span>{m}</span>
               </li>
             ))}

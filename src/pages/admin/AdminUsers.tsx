@@ -165,11 +165,11 @@ export default function AdminUsers() {
                     <td className="py-3 pr-4">
                       {isActive ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-accent-green/15 px-2 py-0.5 text-xs font-semibold text-accent-green">
-                          <Check className="h-3 w-3" /> Active
+                          <Check aria-hidden="true" className="h-3 w-3" /> Active
                         </span>
                       ) : u.paid_status?.is_paid ? (
                         <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
-                          <Clock className="h-3 w-3" /> Expired
+                          <Clock aria-hidden="true" className="h-3 w-3" /> Expired
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-400 dark:bg-neutral-800">
@@ -220,7 +220,7 @@ export default function AdminUsers() {
                             onClick={() => startEdit(u)}
                             className="text-xs py-1 text-brand-purple hover:bg-brand-purple/5"
                           >
-                            <Crown className="mr-1 inline h-3 w-3" />
+                            <Crown aria-hidden="true" className="mr-1 inline h-3 w-3" />
                             {isActive ? 'Extend' : 'Grant'}
                           </AdminButton>
                           {isActive && (

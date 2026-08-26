@@ -10,7 +10,7 @@ export function WeatherWidget() {
     return (
       <div className="card p-6">
         <div className="flex items-center gap-2">
-          <CloudRain className="h-5 w-5 text-brand-purple animate-pulse" />
+          <CloudRain aria-hidden="true" className="h-5 w-5 text-brand-purple animate-pulse" />
           <h3 className="text-sm font-bold text-brand-navy dark:text-white">Best Days to Paint</h3>
         </div>
         <div className="mt-4 flex items-center justify-center py-8 text-sm text-neutral-400">
@@ -30,7 +30,7 @@ export function WeatherWidget() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Sun className="h-5 w-5 text-yellow-300" />
+              <Sun aria-hidden="true" className="h-5 w-5 text-yellow-300" />
               <h3 className="text-sm font-bold">Best Days to Paint</h3>
             </div>
             <p className="mt-0.5 text-xs text-white/60">{city} · 5-day forecast</p>
@@ -77,10 +77,10 @@ function WeatherDayCard({ day }: { day: WeatherDay }) {
       <p className={classNames('mt-0.5 text-[10px] font-medium', config.color)}>{config.label}</p>
       <div className="mt-1.5 space-y-0.5">
         <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-400">
-          <Droplets className="h-2.5 w-2.5" /> {day.humidity}%
+          <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}%
         </p>
         <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-400">
-          <Thermometer className="h-2.5 w-2.5" /> {Math.round(day.tempMax)}°
+          <Thermometer aria-hidden="true" className="h-2.5 w-2.5" /> {Math.round(day.tempMax)}°
         </p>
       </div>
     </div>

@@ -708,7 +708,7 @@ export default function PaintingEstimator({
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="flex items-center justify-center gap-3 text-neutral-500">
-            <Loader2 className="h-6 w-6 animate-spin" />
+            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" />
             <span>Loading configuration…</span>
           </div>
         </div>
@@ -729,8 +729,8 @@ export default function PaintingEstimator({
           ]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
-            <AlertCircle className="mx-auto h-8 w-8 text-red-500" />
+          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
+            <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-500" />
             <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400">
               Failed to load
             </p>
@@ -752,12 +752,12 @@ export default function PaintingEstimator({
           { label: "Painting Estimator" },
         ]}
       />
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div role="region" aria-label="Room painting estimator" className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
         {/* Configuration warnings */}
         {configWarnings.length > 0 && (
           <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
             <div className="flex items-start gap-3">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
               <div>
                 <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
                   Configuration Required
@@ -848,7 +848,7 @@ export default function PaintingEstimator({
           onClick={addRoom}
           className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-300 py-3 text-sm font-semibold text-neutral-500 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
         >
-          <Plus className="h-4 w-4" />
+          <Plus aria-hidden="true" className="h-4 w-4" />
           Add Another Room
         </button>
 
@@ -860,7 +860,7 @@ export default function PaintingEstimator({
             className="btn-primary btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
           >
             {calculating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
               <Calculator className="h-4 w-4" />
             )}
@@ -876,7 +876,7 @@ export default function PaintingEstimator({
               }}
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Reset
             </button>
           )}
@@ -1031,13 +1031,13 @@ function RoomCard({
               }}
               className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 aria-hidden="true" className="h-4 w-4" />
             </button>
           )}
           {isExpanded ? (
-            <ChevronUp className="h-5 w-5 text-neutral-400" />
+            <ChevronUp aria-hidden="true" className="h-5 w-5 text-neutral-400" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-neutral-400" />
+            <ChevronDown aria-hidden="true" className="h-5 w-5 text-neutral-400" />
           )}
         </div>
       </div>
@@ -1122,7 +1122,7 @@ function RoomCard({
                     onClick={() => onRemoveDoor(di)}
                     className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
@@ -1173,7 +1173,7 @@ function RoomCard({
                     onClick={() => onRemoveWindow(wi)}
                     className="mb-2 rounded p-2 text-neutral-400 hover:text-red-500"
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ))}
@@ -1421,7 +1421,7 @@ function EstimateResult({
       {result.warnings.length > 0 && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
           <div className="flex items-start gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
             <div>
               <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
                 Warnings & Recommendations
@@ -1927,7 +1927,7 @@ function EstimateResult({
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
             >
-              <Info className="h-4 w-4" />
+              <Info aria-hidden="true" className="h-4 w-4" />
               {showCalculation
                 ? "Hide Calculation"
                 : "How was this calculated?"}

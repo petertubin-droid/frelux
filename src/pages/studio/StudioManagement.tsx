@@ -133,7 +133,7 @@ function PromptLibrary() {
       <ToolHeader icon={BookOpen} title="Prompt Library" description="Reusable prompt templates for all AI Studio tools." />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex justify-end">
-        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {showForm ? 'Cancel' : 'New Prompt'}</AdminButton>
+        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X aria-hidden="true" className="h-4 w-4" /> : <Plus aria-hidden="true" className="h-4 w-4" />} {showForm ? 'Cancel' : 'New Prompt'}</AdminButton>
       </div>
       {showForm && (
         <AdminCard className="mb-4">
@@ -162,7 +162,7 @@ function PromptLibrary() {
                   {p.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{p.description}</p>}
                 </div>
                 {!p.is_builtin && (
-                  <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                  <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
                 )}
               </div>
             ))}
@@ -216,7 +216,7 @@ function IntegrationCenter() {
       <ToolHeader icon={Plug} title="Integration Center" description="Manage connections to external services and APIs." />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex justify-end">
-        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {showForm ? 'Cancel' : 'Add Integration'}</AdminButton>
+        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X aria-hidden="true" className="h-4 w-4" /> : <Plus aria-hidden="true" className="h-4 w-4" />} {showForm ? 'Cancel' : 'Add Integration'}</AdminButton>
       </div>
       {showForm && (
         <AdminCard className="mb-4">
@@ -242,7 +242,7 @@ function IntegrationCenter() {
             <div className="flex items-center gap-3">
               <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:text-neutral-400')}>{i.status}</span>
               <Toggle checked={i.status === 'connected'} onChange={() => handleToggle(i)} />
-              <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
             </div>
           </div>
         ))}
@@ -341,7 +341,7 @@ function RoleManagement() {
       <ToolHeader icon={ShieldCheck} title="Role & Permission Management" description="Define roles and manage access permissions." />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="mb-4 flex justify-end">
-        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {showForm ? 'Cancel' : 'New Role'}</AdminButton>
+        <AdminButton onClick={() => setShowForm(!showForm)}>{showForm ? <X aria-hidden="true" className="h-4 w-4" /> : <Plus aria-hidden="true" className="h-4 w-4" />} {showForm ? 'Cancel' : 'New Role'}</AdminButton>
       </div>
       {showForm && (
         <AdminCard className="mb-4">
@@ -369,7 +369,7 @@ function RoleManagement() {
                   ))}
                 </div>
               </div>
-              {!r.is_system && <button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>}
+              {!r.is_system && <button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>}
             </div>
           </AdminCard>
         ))}
@@ -467,7 +467,7 @@ function VersionHistory() {
                 <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{a.title}</p>
                 <p className="text-xs text-neutral-400">{a.artifact_type} · v{a.version_number}</p>
               </div>
-              <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></button>
+              <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
             </button>
           ))}
         </div>
@@ -493,7 +493,7 @@ function VersionHistory() {
                         }}
                         className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5"
                       >
-                        <RotateCcw className="h-3 w-3" /> Restore
+                        <RotateCcw aria-hidden="true" className="h-3 w-3" /> Restore
                       </button>
                     </div>
                   </div>
@@ -576,7 +576,7 @@ function TreeNode({ node, depth }: { node: { name: string; path: string; type: s
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
         {isDir ? (
-          <FolderOpen className="h-4 w-4 text-brand-purple" />
+          <FolderOpen aria-hidden="true" className="h-4 w-4 text-brand-purple" />
         ) : (
           <FolderTree className="h-4 w-4 text-neutral-400" />
         )}
@@ -619,7 +619,7 @@ function FileManager() {
       <ToolHeader icon={FolderOpen} title="File Manager" description="Manage generated artifacts and project files." />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="relative mb-4 w-full sm:max-w-xs">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search files…" className="input-field pl-9" />
       </div>
       {filtered.length === 0 ? (
@@ -634,7 +634,7 @@ function FileManager() {
                   <p className="text-xs text-neutral-400">{a.artifact_type} · {a.language}</p>
                   <p className="mt-0.5 text-[10px] text-neutral-400">{new Date(a.updated_at).toLocaleDateString()}</p>
                 </div>
-                <button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-neutral-300 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-neutral-300 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}

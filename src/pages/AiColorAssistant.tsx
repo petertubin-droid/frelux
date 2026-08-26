@@ -143,7 +143,7 @@ export default function AiColorAssistant() {
 function DisclaimerBanner() {
   return (
     <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 p-4 text-sm text-neutral-700">
-      <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent-cyan" />
+      <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accent-cyan" />
       <p>
         AI recommendations are AI suggestions for inspiration only, not professional design advice. They may vary
         depending on image quality, lighting, and screen settings. Always test a physical paint sample before purchase. See our{' '}
@@ -157,7 +157,7 @@ function UsageBanner({ config, usage }: { config: AiAccessConfig; usage: AiUsage
   if (!config.aiEnabled || config.accessMode === 'disabled') {
     return (
       <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        <Lock className="h-4 w-4 shrink-0" />
+        <Lock aria-hidden="true" className="h-4 w-4 shrink-0" />
         <p>AI features are currently disabled.</p>
       </div>
     );
@@ -201,7 +201,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
           </p>
         </div>
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-          Start describing <ArrowRight className="h-4 w-4" />
+          Start describing <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
       </button>
 
@@ -221,7 +221,7 @@ function ChooseView({ onSelect, config }: { onSelect: (v: View) => void; config:
           </p>
         </div>
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-accent-orange">
-          Upload a photo <ArrowRight className="h-4 w-4" />
+          Upload a photo <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
       </button>
     </div>
@@ -255,7 +255,7 @@ function AccessGate({ decision, config, onRewarded, isAuthenticated }: { decisio
   if (decision.reason === 'disabled') {
     return (
       <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+        <Lock aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
         <p>AI features are currently disabled.</p>
       </div>
     );
@@ -424,7 +424,7 @@ function TextConsultation({ config, usage, onUsageConsumed }: { config: AiAccess
             <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50">
               {status === 'generating' || status === 'preparing' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   Generating…
                 </>
               ) : (
@@ -603,7 +603,7 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
                 className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-600 shadow hover:bg-white dark:bg-brand-navy/90 dark:text-neutral-300 dark:hover:bg-brand-navy-mid"
                 aria-label="Remove image"
               >
-                <X className="h-4 w-4" />
+                <X aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
           )}
@@ -640,7 +640,7 @@ function ImageConsultation({ config, usage, onUsageConsumed }: { config: AiAcces
             <button type="submit" disabled={!canSubmit} className="btn-primary disabled:opacity-50">
               {status === 'uploading' || status === 'analyzing' ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
                   Analyzing…
                 </>
               ) : (
@@ -750,7 +750,7 @@ function ResultPanel({
         : 'Generating recommendations…';
     return (
       <div className="card sticky top-20 p-8 text-center">
-        <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="mx-auto h-8 w-8 animate-spin text-brand-purple" />
         <p className="mt-4 text-sm font-semibold text-brand-navy dark:text-white">{label}</p>
         <p className="mt-1 text-xs text-neutral-400">This usually takes a few seconds.</p>
       </div>
@@ -761,7 +761,7 @@ function ResultPanel({
     return (
       <div className="card sticky top-20 p-6">
         <div className="flex items-start gap-3">
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
+          <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
           <div>
             <p className="text-sm font-semibold text-red-700">Couldn't generate recommendations</p>
             <p className="mt-1 text-sm text-neutral-600">{error ?? 'An unexpected error occurred.'}</p>
@@ -832,7 +832,7 @@ function ResultPanel({
               <p className="text-sm font-bold text-brand-navy dark:text-white">{matchedColor.title}</p>
               <p className="text-xs text-neutral-500">View this color combination</p>
             </div>
-            <ArrowRight className="h-4 w-4 text-brand-purple" />
+            <ArrowRight aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           </Link>
         </div>
       )}

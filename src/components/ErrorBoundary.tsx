@@ -67,7 +67,7 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     if (import.meta.env.DEV) {
       return (
-        <div className="min-h-screen bg-neutral-50 p-8">
+        <div role="alert" className="min-h-screen bg-neutral-50 p-8">
           <div className="mx-auto max-w-4xl rounded-lg border border-red-200 bg-red-50 p-6">
             <h1 className="mb-2 text-xl font-bold text-red-700">
               Error in {this.props.boundaryName ?? 'component'}
@@ -89,10 +89,10 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
 
     // Production fallback
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-50 px-4 text-center dark:bg-brand-navy">
+      <div role="alert" className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-50 px-4 text-center dark:bg-brand-navy">
         <div className="rounded-lg border border-neutral-200 bg-white p-8 shadow-sm dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
-            <svg className="h-6 w-6 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <svg aria-hidden="true" className="h-6 w-6 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
             </svg>
           </div>

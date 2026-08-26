@@ -116,7 +116,7 @@ export default function OrderDetail() {
   if (loading || !order) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -125,7 +125,7 @@ export default function OrderDetail() {
     <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
         <button onClick={() => navigate('/marketplace')} className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400">
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back
         </button>
 
         {/* Order header */}
@@ -151,7 +151,7 @@ export default function OrderDetail() {
               </p>
               {order.agreed_timeline_days && (
                 <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                  <Calendar className="mr-0.5 inline h-3 w-3" /> {order.agreed_timeline_days} days
+                  <Calendar aria-hidden="true" className="mr-0.5 inline h-3 w-3" /> {order.agreed_timeline_days} days
                 </p>
               )}
             </div>
@@ -174,7 +174,7 @@ export default function OrderDetail() {
               </Link>
               {order.pro_profile?.verification_status === 'verified' && (
                 <span className="ml-1 inline-flex items-center gap-0.5 text-xs text-emerald-600 dark:text-emerald-400">
-                  <ShieldCheck className="h-3 w-3" /> Verified
+                  <ShieldCheck aria-hidden="true" className="h-3 w-3" /> Verified
                 </span>
               )}
             </div>
@@ -212,7 +212,7 @@ export default function OrderDetail() {
               disabled={submitting}
               className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
             >
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {submitting ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Check aria-hidden="true" className="h-4 w-4" />}
               {isPro ? 'Mark Progress' : 'Advance Status'}
             </button>
           </div>
@@ -229,7 +229,7 @@ export default function OrderDetail() {
                 onClick={() => setShowMilestoneForm(!showMilestoneForm)}
                 className="inline-flex items-center gap-1 text-xs font-medium text-brand-purple"
               >
-                <Plus className="h-3.5 w-3.5" /> Add
+                <Plus aria-hidden="true" className="h-3.5 w-3.5" /> Add
               </button>
             )}
           </div>
@@ -275,7 +275,7 @@ export default function OrderDetail() {
                         m.status === 'in_progress' ? 'bg-amber-500 text-white' :
                         'bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-400'
                       )}>
-                        {m.status === 'approved' ? <Check className="h-3.5 w-3.5" /> : idx + 1}
+                        {m.status === 'approved' ? <Check aria-hidden="true" className="h-3.5 w-3.5" /> : idx + 1}
                       </span>
                       <span className="text-sm font-medium text-neutral-900 dark:text-white">{m.title}</span>
                     </div>
@@ -294,7 +294,7 @@ export default function OrderDetail() {
                             onClick={() => handleApproveMilestone(m.id)}
                             className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700"
                           >
-                            <Check className="h-3 w-3" /> Approve
+                            <Check aria-hidden="true" className="h-3 w-3" /> Approve
                           </button>
                         )}
                       </div>
@@ -307,7 +307,7 @@ export default function OrderDetail() {
                   </div>
                   {m.expected_date && (
                     <p className="mt-1 ml-8 text-[10px] text-neutral-400 dark:text-neutral-500">
-                      <Calendar className="mr-0.5 inline h-2.5 w-2.5" />
+                      <Calendar aria-hidden="true" className="mr-0.5 inline h-2.5 w-2.5" />
                       Expected: {new Date(m.expected_date).toLocaleDateString()}
                     </p>
                   )}
@@ -384,7 +384,7 @@ export default function OrderDetail() {
                     disabled={submitting}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
                   >
-                    {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-4 w-4" />}
+                    {submitting ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Star aria-hidden="true" className="h-4 w-4" />}
                     Submit Review
                   </button>
                   <button

@@ -178,7 +178,7 @@ export default function Colors() {
                 tab === t ? 'bg-brand-purple text-white shadow-sm dark:bg-brand-purple' : 'text-neutral-600 hover:text-brand-purple dark:text-neutral-300 dark:hover:text-brand-purple-lighter'
               )}
             >
-              {t === 'colors' ? <Grid3x3 className="h-4 w-4" /> : <Palette className="h-4 w-4" />}
+              {t === 'colors' ? <Grid3x3 aria-hidden="true" className="h-4 w-4" /> : <Palette aria-hidden="true" className="h-4 w-4" />}
               {t === 'colors' ? 'Individual Colors' : 'Color Palettes'}
             </button>
           ))}
@@ -192,7 +192,7 @@ export default function Colors() {
 
         {status === 'error' && (
           <div className="mx-auto max-w-md rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-            <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
+            <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" />
             <p className="mt-3 text-sm font-semibold text-red-700">Couldn't load colors</p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
             <button type="button" onClick={() => window.location.reload()} className="mt-4 text-sm font-semibold text-brand-purple hover:underline">Try again</button>
@@ -255,7 +255,7 @@ export default function Colors() {
             {/* Search + filters */}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-xs">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+                <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
                 <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }} placeholder="Search colors…" className="input-field pl-9" />
               </div>
               <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} className="input-field sm:w-auto">
@@ -332,7 +332,7 @@ export default function Colors() {
         {status === 'ready' && tab === 'palettes' && (
           <>
             <div className="relative w-full sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
               <input type="search" value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)} placeholder="Search palettes…" className="input-field pl-9" />
             </div>
 

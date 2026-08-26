@@ -198,7 +198,7 @@ function FeatureConfigTab() {
 
               {saving === feat.id && (
                 <div className="mt-3 flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+                  <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
                 </div>
               )}
             </AdminCard>
@@ -361,7 +361,7 @@ function ToolConfigTab() {
 
             {saving === cfg.id && (
               <div className="mt-3 flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500">
-                <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+                <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
               </div>
             )}
           </AdminCard>
@@ -484,7 +484,7 @@ function AnalyticsTab() {
             ))}
           </div>
           <div className="mt-4 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-            <DollarSign className="h-3.5 w-3.5" />
+            <DollarSign aria-hidden="true" className="h-3.5 w-3.5" />
             Estimated event revenue: <span className="font-semibold text-neutral-700 dark:text-neutral-300">${stats.eventRevenue.toFixed(2)}</span>
           </div>
         </AdminCard>

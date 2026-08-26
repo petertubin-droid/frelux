@@ -44,19 +44,19 @@ export default function AdminQuotationSettings() {
         subtitle="Configure default quotation branding, terms, and pricing"
         action={
           <AdminButton onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : saved ? <><Check className="h-4 w-4" /> Saved</> : <><Save className="h-4 w-4" /> Save Changes</>}
+            {saving ? 'Saving...' : saved ? <><Check aria-hidden="true" className="h-4 w-4" /> Saved</> : <><Save aria-hidden="true" className="h-4 w-4" /> Save Changes</>}
           </AdminButton>
         }
       />
 
       {error && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" /> {error}
+          <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" /> {error}
         </div>
       )}
       {saved && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 p-3 text-sm text-accent-green">
-          <Check className="h-4 w-4 shrink-0" /> Settings saved successfully.
+          <Check aria-hidden="true" className="h-4 w-4 shrink-0" /> Settings saved successfully.
         </div>
       )}
 

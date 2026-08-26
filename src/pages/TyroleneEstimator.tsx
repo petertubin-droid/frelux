@@ -426,7 +426,7 @@ const mountedRef = useRef(true);
     return (
       <Container className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
           <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading Tyrolene configuration…</p>
         </div>
       </Container>
@@ -468,7 +468,7 @@ const mountedRef = useRef(true);
         {/* Material Ratio Display */}
         <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/50 p-4">
           <div className="flex items-start gap-3">
-            <Info className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+            <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 FRELUX Tyrolene Material Ratio
@@ -492,7 +492,7 @@ const mountedRef = useRef(true);
         {configWarnings.length > 0 && (
           <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <AlertCircle aria-hidden="true" className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-red-900 dark:text-red-200">
                   Configuration Required
@@ -511,7 +511,7 @@ const mountedRef = useRef(true);
         {loadError && (
           <div className="rounded-lg border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-4">
             <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+              <AlertCircle aria-hidden="true" className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0" />
               <p className="text-sm text-red-900 dark:text-red-200">{loadError}</p>
             </div>
           </div>
@@ -520,7 +520,7 @@ const mountedRef = useRef(true);
         {/* Project Info */}
         <div className="calc-card rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 p-5 space-y-4">
           <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-brand-purple" />
+            <Building2 aria-hidden="true" className="h-4 w-4 text-brand-purple" />
             Project Information
           </h3>
           <div>
@@ -721,9 +721,9 @@ const mountedRef = useRef(true);
             className="btn-primary btn-glow flex flex-1 items-center justify-center gap-2 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {calculating ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Calculating…</>
+              <><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Calculating…</>
             ) : (
-              <><Calculator className="h-4 w-4" /> Calculate Tyrolene Estimate</>
+              <><Calculator aria-hidden="true" className="h-4 w-4" /> Calculate Tyrolene Estimate</>
             )}
           </button>
           {result && (
@@ -731,7 +731,7 @@ const mountedRef = useRef(true);
               onClick={handleReset}
               className="flex items-center justify-center gap-2 rounded-lg border border-neutral-200 dark:border-neutral-600 px-4 py-3 text-sm font-medium text-neutral-500 hover:border-neutral-300"
             >
-              <RotateCcw className="h-4 w-4" /> Reset
+              <RotateCcw aria-hidden="true" className="h-4 w-4" /> Reset
             </button>
           )}
         </div>
@@ -743,7 +743,7 @@ const mountedRef = useRef(true);
             {result.errors.length > 0 && (
               <div className="rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/30 p-4">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                  <AlertCircle aria-hidden="true" className="h-5 w-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-semibold text-red-900 dark:text-red-200">
                       Accurate Tyrolene calculation unavailable until the required FRELUX configuration is completed.
@@ -762,7 +762,7 @@ const mountedRef = useRef(true);
             {result.warnings.length > 0 && result.valid && (
               <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30 p-4">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <AlertCircle aria-hidden="true" className="h-5 w-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
                   <ul className="space-y-1">
                     {result.warnings.map((w, i) => (
                       <li key={i} className="text-xs text-amber-700 dark:text-amber-300">{w}</li>

@@ -413,7 +413,7 @@ export default function AdminTyroleneConfig() {
       <>
         <AdminHeader title="Tyrolene Config" subtitle="Configure Tyrolene estimation parameters." />
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
         </div>
       </>
     );
@@ -441,7 +441,7 @@ export default function AdminTyroleneConfig() {
               active={activeTab === tab.id}
               onClick={() => { setActiveTab(tab.id); setSaveMessage(null); }}
             >
-              <Icon className="h-4 w-4" />
+              <Icon aria-hidden="true" className="h-4 w-4" />
               {tab.label}
             </AdminTabButton>
           );
@@ -457,8 +457,8 @@ export default function AdminTyroleneConfig() {
             : 'border-red-200 bg-red-50 text-red-800'
         )}>
           {saveMessage.type === 'success'
-            ? <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-            : <AlertCircle className="h-4 w-4 flex-shrink-0" />}
+            ? <CheckCircle2 aria-hidden="true" className="h-4 w-4 flex-shrink-0" />
+            : <AlertCircle aria-hidden="true" className="h-4 w-4 flex-shrink-0" />}
           {saveMessage.message}
         </div>
       )}
@@ -469,7 +469,7 @@ export default function AdminTyroleneConfig() {
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
               <p className="text-sm text-neutral-500">
                 Standard partition dimensions (width × height in metres) used as the baseline for Tyrolene estimation.
                 When actual partition dimensions differ, the system calculates equivalent standard partitions.
@@ -505,7 +505,7 @@ export default function AdminTyroleneConfig() {
               </p>
             )}
             <AdminButton onClick={savePartitionDimensions} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               Save Dimensions
             </AdminButton>
           </div>
@@ -517,7 +517,7 @@ export default function AdminTyroleneConfig() {
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm text-neutral-500">
                   FRELUX verified material ratio. For every {partitionsPerRatio} standard partitions:
@@ -557,7 +557,7 @@ export default function AdminTyroleneConfig() {
               ))}
             </div>
             <AdminButton onClick={saveMaterialRatio} disabled={saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               Save Ratio
             </AdminButton>
           </div>
@@ -569,7 +569,7 @@ export default function AdminTyroleneConfig() {
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
               <p className="text-sm text-neutral-500">
                 Configure the current price for each Tyrolene material. New estimates will use these prices.
                 Historical estimates retain the price snapshot from when they were created.
@@ -617,7 +617,7 @@ export default function AdminTyroleneConfig() {
         <AdminCard>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <Info className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
+              <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
               <p className="text-sm text-neutral-500">
                 Configure Tyrolene production minimums. Owerri has no minimum (always eligible).
                 For outside Owerri, set the minimum partition count or leave empty to indicate
@@ -649,7 +649,7 @@ export default function AdminTyroleneConfig() {
                   disabled={saving}
                   className="text-xs py-2"
                 >
-                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
+                  {saving ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : 'Save'}
                 </AdminButton>
               </div>
               {!outsideOwerriMin && (

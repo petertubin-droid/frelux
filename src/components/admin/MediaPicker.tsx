@@ -86,11 +86,11 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Folders</p>
             <div className="space-y-1">
               <button type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-brand-purple text-white' : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100')}>
-                <FolderIcon className="h-4 w-4" /> All
+                <FolderIcon aria-hidden="true" className="h-4 w-4" /> All
               </button>
               {folders.map((f) => (
                 <button key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-brand-purple text-white' : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100')}>
-                  <FolderIcon className="h-4 w-4" /> {f.name}
+                  <FolderIcon aria-hidden="true" className="h-4 w-4" /> {f.name}
                 </button>
               ))}
             </div>
@@ -100,11 +100,11 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="flex items-center gap-3 border-b border-neutral-200 dark:border-white/5 p-3">
               <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
+                <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400 dark:text-neutral-500" />
                 <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search media…" className="input-field pl-9" />
               </div>
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark">
-                <Upload className="h-4 w-4" />
+                <Upload aria-hidden="true" className="h-4 w-4" />
                 {uploading ? 'Uploading…' : 'Upload'}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ''; }} disabled={uploading} />
               </label>
@@ -115,7 +115,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                 <div className="flex h-full items-center justify-center text-sm text-neutral-400 dark:text-neutral-500">Loading…</div>
               ) : items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-sm text-neutral-400 dark:text-neutral-500">
-                  <ImageIcon className="h-8 w-8 text-neutral-300" />
+                  <ImageIcon aria-hidden="true" className="h-8 w-8 text-neutral-300" />
                   <p className="mt-2">No images yet. Upload one to get started.</p>
                 </div>
               ) : (
@@ -129,10 +129,10 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                         <div className="truncate p-1.5 text-[10px] font-medium text-neutral-600 dark:text-neutral-300">{item.file_name}</div>
                       </button>
                       {selected?.id === item.id && (
-                        <div className="absolute right-1 top-1 rounded-full bg-brand-purple p-1 text-white"><Check className="h-3 w-3" /></div>
+                        <div className="absolute right-1 top-1 rounded-full bg-brand-purple p-1 text-white"><Check aria-hidden="true" className="h-3 w-3" /></div>
                       )}
                       <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="absolute left-1 top-1 rounded-full bg-white dark:bg-brand-navy-mid/80 p-1 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 aria-hidden="true" className="h-3 w-3" />
                       </button>
                     </div>
                   ))}

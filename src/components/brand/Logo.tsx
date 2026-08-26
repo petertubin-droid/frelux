@@ -21,9 +21,9 @@ export default function Logo({ className, variant = 'full', light = false }: Log
   const tagline = branding?.website_tagline ?? 'Smart Calc';
 
   return (
-    <span className={classNames('inline-flex items-center gap-2.5', className)}>
+    <span role="img" aria-label={displayName} className={classNames('inline-flex items-center gap-2.5', className)}>
       {logoUrl ? (
-        <img src={logoUrl} alt={displayName} width={36} height={36} className="h-9 w-auto shrink-0" />
+        <img src={logoUrl} alt={displayName} aria-hidden="true" width={36} height={36} className="h-9 w-auto shrink-0" />
       ) : (
         <LogoMark className="h-9 w-auto shrink-0" />
       )}
@@ -46,6 +46,7 @@ export function LogoMark({ className }: { className?: string }) {
     <img
       src="/logo-mark.png"
       alt={`${siteConfig.name} logo`}
+      aria-hidden="true"
       width={36}
       height={36}
       className={className}

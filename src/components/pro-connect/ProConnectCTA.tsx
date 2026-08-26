@@ -44,7 +44,7 @@ export default function ProConnectCTA({ calculatorType, className = '' }: ProCon
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
       >
         Find {label}
-        <ArrowRight className="h-4 w-4" />
+        <ArrowRight aria-hidden="true" className="h-4 w-4" />
       </Link>
     </div>
   );

@@ -67,7 +67,7 @@ export default function ProfessionalCard({ profile, category, services }: Profes
       <div className="mt-4 flex items-center gap-4 text-sm">
         {profile.rating_count > 0 ? (
           <div className="flex items-center gap-1">
-            <ThumbsUp className="h-4 w-4 fill-amber-400 text-amber-400" />
+            <ThumbsUp aria-hidden="true" className="h-4 w-4 fill-amber-400 text-amber-400" />
             <span className="font-medium text-neutral-700 dark:text-neutral-200">
               {profile.rating_avg.toFixed(1)}
             </span>
@@ -114,7 +114,7 @@ export default function ProfessionalCard({ profile, category, services }: Profes
       {/* Experience */}
       {profile.years_experience && (
         <div className="mt-3 flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500">
-          <Briefcase className="h-3.5 w-3.5" />
+          <Briefcase aria-hidden="true" className="h-3.5 w-3.5" />
           <span>{profile.years_experience} years experience</span>
         </div>
       )}

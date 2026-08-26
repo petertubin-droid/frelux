@@ -85,7 +85,7 @@ export default function ProCategoryLocationPage() {
         <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">Page Not Found</h1>
         <p className="mt-2 text-sm text-neutral-500">This category or location doesn't exist.</p>
         <Link to="/pro-connect" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple">
-          <ArrowRight className="h-4 w-4 rotate-180" /> Back to Pro Connect
+          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back to Pro Connect
         </Link>
       </div>
     );
@@ -125,7 +125,7 @@ export default function ProCategoryLocationPage() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
           </div>
         ) : pros.length === 0 ? (
           <div className="rounded-xl border border-neutral-200/60 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
@@ -163,14 +163,14 @@ export default function ProCategoryLocationPage() {
                           {pro.business_name || pro.display_name}
                         </p>
                         {pro.verification_status === 'verified' && (
-                          <Shield className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                          <Shield aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
                         )}
                       </div>
                       {pro.bio && <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">{pro.bio}</p>}
                       <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                         {pro.rating_avg > 0 && (
                           <span className="inline-flex items-center gap-0.5">
-                            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                            <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
                             {pro.rating_avg.toFixed(1)}
                           </span>
                         )}

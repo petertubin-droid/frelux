@@ -52,7 +52,7 @@ export default function AdminMarkets() {
   return (
     <div>
       <div className="mb-6 flex items-center gap-3">
-        <Globe className="h-6 w-6 text-brand-purple" />
+        <Globe aria-hidden="true" className="h-6 w-6 text-brand-purple" />
         <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
           International Markets
         </h1>
@@ -122,7 +122,7 @@ function MarketSelector({
   }, []);
 
   if (loading)
-    return <Loader2 className="h-4 w-4 animate-spin text-brand-purple" />;
+    return <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin text-brand-purple" />;
 
   return (
     <select
@@ -166,7 +166,7 @@ function ProfilesTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -181,7 +181,7 @@ function ProfilesTab() {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
         >
-          <Plus className="h-4 w-4" /> Add Market
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Market
         </button>
       </div>
 
@@ -244,7 +244,7 @@ function ProfilesTab() {
                   }}
                   className="inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-red-500"
                 >
-                  <Trash2 className="h-3 w-3" /> Delete
+                  <Trash2 aria-hidden="true" className="h-3 w-3" /> Delete
                 </button>
               )}
             </div>
@@ -462,9 +462,9 @@ function ProfileEditModal({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
           </button>
@@ -500,7 +500,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -515,7 +515,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
         >
-          <Plus className="h-4 w-4" /> Add Rule
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add Rule
         </button>
       </div>
 
@@ -563,7 +563,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                 }}
                 className="rounded-md p-1.5 text-neutral-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 aria-hidden="true" className="h-4 w-4" />
               </button>
             </div>
           ))}
@@ -713,9 +713,9 @@ function RuleEditModal({
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
           >
             {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
           </button>
@@ -750,7 +750,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }

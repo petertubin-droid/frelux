@@ -45,7 +45,7 @@ export default function LearnCategory() {
     return (
       <>
         <PageHeader eyebrow="Learn" title="Loading…" subtitle="" breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: 'Loading…' }]} />
-        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
 
@@ -54,7 +54,7 @@ export default function LearnCategory() {
       <>
         <PageHeader eyebrow="Learn" title="Category not found" subtitle="" breadcrumbs={[{ label: 'Learn Hub', path: '/learn' }, { label: 'Loading…' }]} />
         <div className="mx-auto max-w-md py-20 text-center">
-          <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
+          <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300" />
           <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">This category doesn't exist or has been removed.</p>
           <Link to="/learn" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to Learn</Link>
         </div>
@@ -95,7 +95,7 @@ export default function LearnCategory() {
                     {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3 w-3" /> {article.read_time_minutes} min read</span>}
                   </div>
                   <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-                    Read more <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                    Read more <ArrowRight aria-hidden="true" className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </div>
               </Link>
@@ -103,7 +103,7 @@ export default function LearnCategory() {
           </div>
         ) : (
           <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-16 text-center">
-            <BookOpen className="mx-auto h-10 w-10 text-neutral-300" />
+            <BookOpen aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-4 text-sm font-semibold text-neutral-600">No articles yet</p>
             <p className="mt-1 text-xs text-neutral-400">Articles in this category are coming soon. Check back shortly.</p>
           </div>
@@ -111,7 +111,7 @@ export default function LearnCategory() {
 
         <div className="mt-10">
           <Link to="/learn" className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple hover:underline">
-            <ArrowLeft className="h-4 w-4" /> All topics
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All topics
           </Link>
         </div>
         <AdSlot slotKey="learn_category_bottom" className="mt-8" />

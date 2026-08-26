@@ -105,7 +105,7 @@ export default function SellerDashboard() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-brand-purple" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" /></div>;
   }
 
   return (
@@ -117,16 +117,16 @@ export default function SellerDashboard() {
           <p className="mt-1 text-sm text-neutral-500">Manage your profile, products, and sales</p>
         </div>
         <Link to="/marketplace/products/post" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark">
-          <Plus className="h-4 w-4" /> List a Product
+          <Plus aria-hidden="true" className="h-4 w-4" /> List a Product
         </Link>
       </div>
 
       {/* Stats Cards */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard icon={<Package className="h-5 w-5" />} label="Active Products" value={products.filter(p => (p as unknown as Record<string, unknown>).status === 'active').length} />
-        <StatCard icon={<TrendingUp className="h-5 w-5" />} label="Total Products" value={products.length} />
-        <StatCard icon={<Star className="h-5 w-5" />} label="Rating" value={profile ? `${profile.rating_avg.toFixed(1)} (${profile.rating_count})` : '—'} />
-        <StatCard icon={<DollarSign className="h-5 w-5" />} label="Total Sales" value={profile?.total_sales ?? 0} />
+        <StatCard icon={<Package aria-hidden="true" className="h-5 w-5" />} label="Active Products" value={products.filter(p => (p as unknown as Record<string, unknown>).status === 'active').length} />
+        <StatCard icon={<TrendingUp aria-hidden="true" className="h-5 w-5" />} label="Total Products" value={products.length} />
+        <StatCard icon={<Star aria-hidden="true" className="h-5 w-5" />} label="Rating" value={profile ? `${profile.rating_avg.toFixed(1)} (${profile.rating_count})` : '—'} />
+        <StatCard icon={<DollarSign aria-hidden="true" className="h-5 w-5" />} label="Total Sales" value={profile?.total_sales ?? 0} />
       </div>
 
       {/* Profile Card */}
@@ -139,7 +139,7 @@ export default function SellerDashboard() {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-bold text-neutral-900 dark:text-white">{businessName || 'Individual Seller'}</h2>
-                {profile?.verification_status === 'verified' && <BadgeCheck className="h-4 w-4 text-brand-purple" />}
+                {profile?.verification_status === 'verified' && <BadgeCheck aria-hidden="true" className="h-4 w-4 text-brand-purple" />}
               </div>
               <p className="text-sm text-neutral-500">
                 {SELLER_TYPE_LABELS[sellerType]}
@@ -149,15 +149,15 @@ export default function SellerDashboard() {
           </div>
           {!editing && (
             <button onClick={() => setEditing(true)} className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-400">
-              <Edit className="h-4 w-4" /> Edit
+              <Edit aria-hidden="true" className="h-4 w-4" /> Edit
             </button>
           )}
         </div>
 
         {!editing ? (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {businessPhone && <div className="flex items-center gap-2 text-sm text-neutral-500"><Phone className="h-4 w-4" /> {businessPhone}</div>}
-            {businessAddress && <div className="flex items-center gap-2 text-sm text-neutral-500"><MapPin className="h-4 w-4" /> {businessAddress}</div>}
+            {businessPhone && <div className="flex items-center gap-2 text-sm text-neutral-500"><Phone aria-hidden="true" className="h-4 w-4" /> {businessPhone}</div>}
+            {businessAddress && <div className="flex items-center gap-2 text-sm text-neutral-500"><MapPin aria-hidden="true" className="h-4 w-4" /> {businessAddress}</div>}
             <div className="flex items-center gap-2 text-sm text-neutral-500"><Truck className="h-4 w-4" /> {deliveryAvailable ? 'Delivery available' : 'No delivery'}</div>
             <div className="flex items-center gap-2 text-sm text-neutral-500"><CheckCircle2 className="h-4 w-4" /> {pickupAvailable ? 'Pickup available' : 'No pickup'}</div>
           </div>
@@ -189,7 +189,7 @@ export default function SellerDashboard() {
             </div>
             <div className="flex gap-2">
               <AdminButton variant="primary" onClick={handleSaveProfile} disabled={saving}>
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Save Profile
+                {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Save Profile
               </AdminButton>
               <AdminButton variant="secondary" onClick={() => setEditing(false)}>Cancel</AdminButton>
             </div>
@@ -211,10 +211,10 @@ export default function SellerDashboard() {
         </div>
         {products.length === 0 ? (
           <div className="py-12 text-center">
-            <Package className="mx-auto h-10 w-10 text-neutral-300" />
+            <Package aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">No products yet</p>
             <Link to="/marketplace/products/post" className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
-              <Plus className="h-4 w-4" /> List Your First Product
+              <Plus aria-hidden="true" className="h-4 w-4" /> List Your First Product
             </Link>
           </div>
         ) : (
@@ -227,7 +227,7 @@ export default function SellerDashboard() {
                     {Array.isArray(prod.images) && (prod.images as unknown[]).length > 0 ? (
                       <img src={(prod.images as string[])[(prod.primary_image_idx as number) || 0]} alt={prod.title as string} className="h-full w-full object-cover" />
                     ) : (
-                      <Package className="m-auto h-6 w-6 text-neutral-300" />
+                      <Package aria-hidden="true" className="m-auto h-6 w-6 text-neutral-300" />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">

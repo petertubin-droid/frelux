@@ -51,12 +51,12 @@ export default function LearnArticle() {
   }, [articleSlug]);
 
   if (status === 'loading')
-    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>;
+    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
 
   if (status === 'notfound')
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
+        <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300" />
         <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">This article doesn't exist or hasn't been published yet.</p>
         <Link to="/learn" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to Learn</Link>
       </div>
@@ -65,7 +65,7 @@ export default function LearnArticle() {
   if (status === 'error' || !article)
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle className="mx-auto h-8 w-8 text-red-400" />
+        <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" />
         <p className="mt-3 text-sm text-red-600">Failed to load the article.</p>
       </div>
     );
@@ -84,7 +84,7 @@ export default function LearnArticle() {
         <h1 className="text-3xl font-bold leading-tight text-brand-navy dark:text-white sm:text-4xl">{article.title}</h1>
         {article.excerpt && <p className="mt-3 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">{article.excerpt}</p>}
         <div className="mt-4 flex items-center gap-4 text-xs text-neutral-400">
-          {article.author && <span className="flex items-center gap-1"><User className="h-3.5 w-3.5" /> {article.author}</span>}
+          {article.author && <span className="flex items-center gap-1"><User aria-hidden="true" className="h-3.5 w-3.5" /> {article.author}</span>}
           {article.read_time_minutes && <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {article.read_time_minutes} min read</span>}
           {article.published_at && <span>{new Date(article.published_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>}
         </div>
@@ -105,7 +105,7 @@ export default function LearnArticle() {
       {/* Footer */}
       <div className="mt-12 border-t border-neutral-200 pt-6">
         <Link to={`/learn/category/${article.category_slug}`} className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple hover:underline">
-          <ArrowLeft className="h-4 w-4" /> Back to {article.category_slug.replace(/-/g, ' ')}
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to {article.category_slug.replace(/-/g, ' ')}
         </Link>
       </div>
       <AdSlot slotKey="learn_article_bottom" className="mt-8" />

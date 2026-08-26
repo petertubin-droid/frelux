@@ -115,7 +115,7 @@ export default function TemplatePicker({
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid px-4 py-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200 transition-colors hover:border-brand-purple hover:text-brand-purple press-scale"
       >
-        <Bookmark className="h-4 w-4" />
+        <Bookmark aria-hidden="true" className="h-4 w-4" />
         Templates
       </button>
 
@@ -126,7 +126,7 @@ export default function TemplatePicker({
             <div className="max-h-[70vh] overflow-y-auto p-4">
               {loading ? (
                 <div className="flex items-center justify-center py-8 text-sm text-neutral-400 dark:text-neutral-500">
-                  <Loader2 className="h-5 w-5 animate-spin" /> Loading templates…
+                  <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading templates…
                 </div>
               ) : (
                 <>
@@ -145,7 +145,7 @@ export default function TemplatePicker({
                             }}
                             className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-neutral-50 dark:bg-white/5"
                           >
-                            <Bookmark className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+                            <Bookmark aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{t.name}</p>
                               {t.description && <p className="text-xs text-neutral-400 dark:text-neutral-500">{t.description}</p>}
@@ -175,7 +175,7 @@ export default function TemplatePicker({
                                     autoFocus
                                     onKeyDown={(e) => e.key === 'Enter' && handleRename(t.id)}
                                   />
-                                  <button onClick={() => handleRename(t.id)} className="rounded bg-brand-purple p-1 text-white"><Check className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => handleRename(t.id)} className="rounded bg-brand-purple p-1 text-white"><Check aria-hidden="true" className="h-3.5 w-3.5" /></button>
                                   <button onClick={() => setEditingId(null)} className="rounded border border-neutral-200 dark:border-white/5 p-1 text-neutral-500 dark:text-neutral-400 dark:text-neutral-500"><X className="h-3.5 w-3.5" /></button>
                                 </div>
                               ) : (
@@ -188,16 +188,16 @@ export default function TemplatePicker({
                                     }}
                                     className="flex flex-1 items-start gap-2 text-left"
                                   >
-                                    <Bookmark className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" />
+                                    <Bookmark aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 dark:text-neutral-500" />
                                     <div className="min-w-0">
                                       <p className="truncate text-sm font-semibold text-neutral-800 dark:text-neutral-100">{t.name}</p>
                                       {t.description && <p className="truncate text-xs text-neutral-400 dark:text-neutral-500">{t.description}</p>}
                                     </div>
                                   </button>
                                   <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <button onClick={() => { setEditingId(t.id); setEditName(t.name); }} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-brand-purple" title="Rename"><Pencil className="h-3.5 w-3.5" /></button>
-                                    <button onClick={() => handleDuplicate(t.id)} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-brand-purple" title="Duplicate"><Copy className="h-3.5 w-3.5" /></button>
-                                    <button onClick={() => handleDelete(t.id)} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-red-500" title="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
+                                    <button onClick={() => { setEditingId(t.id); setEditName(t.name); }} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-brand-purple" title="Rename"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></button>
+                                    <button onClick={() => handleDuplicate(t.id)} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-brand-purple" title="Duplicate"><Copy aria-hidden="true" className="h-3.5 w-3.5" /></button>
+                                    <button onClick={() => handleDelete(t.id)} className="rounded p-1 text-neutral-400 dark:text-neutral-500 hover:text-red-500" title="Delete"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
                                   </div>
                                 </>
                               )}
@@ -223,7 +223,7 @@ export default function TemplatePicker({
                             disabled={saving || !saveName.trim()}
                             className="inline-flex items-center gap-1 rounded-lg bg-brand-purple px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 press-scale"
                           >
-                            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                            {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Plus aria-hidden="true" className="h-4 w-4" />}
                           </button>
                         </div>
                       </div>

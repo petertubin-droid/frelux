@@ -55,7 +55,7 @@ export default function SaveTemplateModal({
             Save as Template
           </h2>
           <button onClick={onClose} className="rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white">
-            <X className="h-5 w-5" />
+            <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
 
@@ -108,7 +108,7 @@ export default function SaveTemplateModal({
               disabled={saving}
               className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark disabled:opacity-50"
             >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Template'}
             </button>
           </div>

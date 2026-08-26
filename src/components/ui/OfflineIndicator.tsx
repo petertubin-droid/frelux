@@ -22,7 +22,7 @@ export function OfflineIndicator() {
   return (
     <div className="offline-banner">
       <span className="offline-banner-dot" />
-      <WifiOff className="h-3.5 w-3.5" />
+      <WifiOff aria-hidden="true" className="h-3.5 w-3.5" />
       <span>You're offline, calculators still work. Data will sync when you reconnect.</span>
     </div>
   );

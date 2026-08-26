@@ -293,7 +293,7 @@ export function CommandPalette({
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/10 dark:bg-brand-navy-mid animate-fade-in-up">
         {/* Search input */}
         <div className="flex items-center gap-3 border-b border-neutral-100 px-4 py-3 dark:border-white/5">
-          <Search className="h-5 w-5 text-neutral-400" />
+          <Search aria-hidden="true" className="h-5 w-5 text-neutral-400" />
           <input
             ref={inputRef}
             type="text"
@@ -315,7 +315,7 @@ export function CommandPalette({
           {filtered.recent.length > 0 && (
             <div className="mb-2">
               <p className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                <Clock className="h-3 w-3" /> Recent
+                <Clock aria-hidden="true" className="h-3 w-3" /> Recent
               </p>
               {filtered.recent.map((item, i) => (
                 <CommandRow
@@ -384,7 +384,7 @@ export function CommandPalette({
             </span>
           </div>
           <span className="flex items-center gap-1 text-[11px] font-medium text-brand-purple">
-            <Zap className="h-3 w-3" /> Quick navigation
+            <Zap aria-hidden="true" className="h-3 w-3" /> Quick navigation
           </span>
         </div>
       </div>
@@ -431,7 +431,7 @@ function CommandRow({
         <p className="truncate text-xs text-neutral-400">{item.description}</p>
       </div>
       {index === selectedIndex && (
-        <ArrowRight className="h-4 w-4 shrink-0 text-brand-purple" />
+        <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-brand-purple" />
       )}
     </button>
   );

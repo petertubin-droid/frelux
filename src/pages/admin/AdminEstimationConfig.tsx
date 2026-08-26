@@ -181,7 +181,7 @@ function UnitsTab() {
             setShowForm(true);
           }}
         >
-          <Plus className="h-4 w-4" /> Add unit
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add unit
         </AdminButton>
       </div>
 
@@ -231,7 +231,7 @@ function UnitsTab() {
                   <Pencil className="h-3.5 w-3.5" /> Edit
                 </AdminButton>
                 <AdminButton variant="danger" onClick={() => remove(item)}>
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
             </div>
@@ -463,7 +463,7 @@ function PackSizesTab() {
             setShowForm(true);
           }}
         >
-          <Plus className="h-4 w-4" /> Add pack size
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add pack size
         </AdminButton>
       </div>
 
@@ -528,7 +528,7 @@ function PackSizesTab() {
                     <Pencil className="h-3.5 w-3.5" /> Edit
                   </AdminButton>
                   <AdminButton variant="danger" onClick={() => remove(item)}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                    <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </AdminButton>
                 </div>
               </div>
@@ -900,7 +900,7 @@ function CalcRulesTab() {
             setShowForm(true);
           }}
         >
-          <Plus className="h-4 w-4" /> Add calc rule
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add calc rule
         </AdminButton>
       </div>
 
@@ -964,7 +964,7 @@ function CalcRulesTab() {
                   <Pencil className="h-3.5 w-3.5" /> Edit
                 </AdminButton>
                 <AdminButton variant="danger" onClick={() => remove(rule)}>
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
             </div>
@@ -1202,7 +1202,7 @@ function CalcVersionsTab() {
             setShowForm(true);
           }}
         >
-          <Plus className="h-4 w-4" /> Add version
+          <Plus aria-hidden="true" className="h-4 w-4" /> Add version
         </AdminButton>
       </div>
 
@@ -1255,7 +1255,7 @@ function CalcVersionsTab() {
                   <Pencil className="h-3.5 w-3.5" /> Edit
                 </AdminButton>
                 <AdminButton variant="danger" onClick={() => remove(ver)}>
-                  <Trash2 className="h-3.5 w-3.5" />
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
             </div>

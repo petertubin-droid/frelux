@@ -53,7 +53,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:bg-brand-purple/5 hover:text-brand-purple dark:border-white/10 dark:text-neutral-300 dark:hover:border-brand-purple/30 dark:hover:bg-brand-purple/10"
       >
-        <FolderOpen className="h-3.5 w-3.5" />
+        <FolderOpen aria-hidden="true" className="h-3.5 w-3.5" />
         Templates
         <ChevronDown className={classNames('h-3.5 w-3.5 transition-transform', open && 'rotate-180')} />
       </button>
@@ -62,7 +62,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
         <div className="absolute left-0 top-full z-40 mt-1 w-72 rounded-xl border border-neutral-200 bg-white shadow-lg dark:border-white/10 dark:bg-brand-navy-mid">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 py-6 text-xs text-neutral-400">
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
               Loading templates...
             </div>
           ) : (

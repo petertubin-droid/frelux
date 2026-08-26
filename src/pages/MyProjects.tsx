@@ -181,7 +181,7 @@ export default function MyProjects() {
   if (!user) {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle className="mx-auto h-8 w-8 text-neutral-300" />
+        <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300" />
         <p className="mt-3 text-sm font-semibold text-neutral-600">Sign in to view your saved projects and favorites.</p>
         <Link to="/login?redirect=/my-projects" className="mt-4 inline-block rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark">Sign in</Link>
       </div>
@@ -196,7 +196,7 @@ export default function MyProjects() {
       </div>
     </>
   );
-  if (status === 'error') return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>;
+  if (status === 'error') return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>;
 
   const projectIcon = (type: string) => {
     switch (type) {
@@ -236,7 +236,7 @@ export default function MyProjects() {
         {/* Search bar for projects/collections */}
         {(tab === 'projects' || tab === 'collections') && (
           <div className="relative mb-4 w-full sm:max-w-xs">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
             <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={`Search ${tab}…`} className="input-field pl-9 dark:bg-brand-navy-mid dark:border-white/10" />
           </div>
         )}
@@ -256,10 +256,10 @@ export default function MyProjects() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button type="button" onClick={() => handleOpenProject(p)} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple-dark" title="Open"><ArrowRight className="h-3.5 w-3.5" /> Open</button>
+                    <button type="button" onClick={() => handleOpenProject(p)} className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple-dark" title="Open"><ArrowRight aria-hidden="true" className="h-3.5 w-3.5" /> Open</button>
                     <button type="button" onClick={() => handleShare('project', p.id)} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter" title="Share"><Share2 className="h-4 w-4" /></button>
-                    <button type="button" onClick={() => handleDuplicate(p.id)} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter" title="Duplicate"><Copy className="h-4 w-4" /></button>
-                    <button type="button" onClick={() => handleDeleteProject(p.id)} className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => handleDuplicate(p.id)} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter" title="Duplicate"><Copy aria-hidden="true" className="h-4 w-4" /></button>
+                    <button type="button" onClick={() => handleDeleteProject(p.id)} className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50" title="Delete"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
                   </div>
                 </div>
               ))}
@@ -334,7 +334,7 @@ export default function MyProjects() {
             <div className="mb-6 flex gap-2">
               <input value={newCollName} onChange={(e) => setNewCollName(e.target.value)} placeholder="New collection name (e.g., Luxury Living Room)" className="input-field flex-1" onKeyDown={(e) => e.key === 'Enter' && handleCreateCollection()} />
               <button type="button" onClick={handleCreateCollection} disabled={creating || !newCollName.trim()} className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 hover:bg-brand-purple-dark">
-                <Plus className="h-4 w-4" /> Create
+                <Plus aria-hidden="true" className="h-4 w-4" /> Create
               </button>
             </div>
             {filteredCollections.length > 0 ? (
@@ -346,8 +346,8 @@ export default function MyProjects() {
                         {renamingId === c.id ? (
                           <div className="flex items-center gap-2">
                             <input className="input-field flex-1 text-sm font-bold" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} autoFocus onKeyDown={(e) => e.key === 'Enter' && handleRename(c.id)} />
-                            <button type="button" onClick={() => handleRename(c.id)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check className="h-4 w-4" /></button>
-                            <button type="button" onClick={() => setRenamingId(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:border-white/5 dark:text-neutral-400"><X className="h-4 w-4" /></button>
+                            <button type="button" onClick={() => handleRename(c.id)} className="rounded-md bg-brand-purple p-1.5 text-white"><Check aria-hidden="true" className="h-4 w-4" /></button>
+                            <button type="button" onClick={() => setRenamingId(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:border-white/5 dark:text-neutral-400"><X aria-hidden="true" className="h-4 w-4" /></button>
                           </div>
                         ) : (
                           <>
@@ -360,7 +360,7 @@ export default function MyProjects() {
                       {renamingId !== c.id && (
                         <div className="flex shrink-0 items-center gap-2">
                           <button type="button" onClick={() => { setRenamingId(c.id); setRenameValue(c.name); }} className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter" title="Rename"><Pencil className="h-4 w-4" /></button>
-                          <button type="button" onClick={() => handleDeleteCollection(c.id)} className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                          <button type="button" onClick={() => handleDeleteCollection(c.id)} className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50" title="Delete"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
                         </div>
                       )}
                     </div>
@@ -375,7 +375,7 @@ export default function MyProjects() {
                             {collections.length > 1 && (
                               <div className="relative">
                                 <button type="button" onClick={() => setMoveState({ colorId: col.id, fromColl: c.id })} className="rounded p-0.5 text-neutral-400 hover:text-brand-purple" title="Move to another collection">
-                                  <ArrowRight className="h-3.5 w-3.5" />
+                                  <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
                                 </button>
                                 {moveState?.colorId === col.id && (
                                   <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/5 dark:bg-brand-navy-mid">
@@ -411,7 +411,7 @@ export default function MyProjects() {
               <>
                 <div className="mb-4 flex justify-end">
                   <button type="button" onClick={handleClearRecent} className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-red-500 dark:border-white/5 dark:text-neutral-300 dark:hover:text-red-400">
-                    <Trash2 className="h-4 w-4" /> Clear History
+                    <Trash2 aria-hidden="true" className="h-4 w-4" /> Clear History
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">

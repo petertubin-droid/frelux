@@ -96,13 +96,13 @@ export default function AdminTemplates() {
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Manage public FRELUX templates and user-submitted templates.</p>
         </div>
         <AdminButton onClick={() => setCreating(true)}>
-          <Plus className="h-4 w-4" /> New Template
+          <Plus aria-hidden="true" className="h-4 w-4" /> New Template
         </AdminButton>
       </div>
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
         <AdminInput
  type="text"
  value={search}
@@ -115,7 +115,7 @@ export default function AdminTemplates() {
       {/* Table */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+          <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
@@ -146,7 +146,7 @@ export default function AdminTemplates() {
                   <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-400">{t.visibility}</td>
                   <td className="px-4 py-3">
                     <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-neutral-300 dark:text-neutral-600')}>
-                      {t.is_published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                      {t.is_published ? <Eye aria-hidden="true" className="h-4 w-4" /> : <EyeOff aria-hidden="true" className="h-4 w-4" />}
                     </AdminIconButton>
                   </td>
                   <td className="px-4 py-3">
@@ -158,13 +158,13 @@ export default function AdminTemplates() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <AdminIconButton variant="ghost" onClick={() => setEditing(t)} title="Edit">
-                        <Edit2 className="h-3.5 w-3.5" />
+                        <Edit2 aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton variant="ghost" onClick={() => handleDuplicate(t)} title="Duplicate">
-                        <Copy className="h-3.5 w-3.5" />
+                        <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                       <AdminIconButton variant="danger" onClick={() => handleDelete(t.id)}  title="Delete">
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                       </AdminIconButton>
                     </div>
                   </td>
@@ -328,7 +328,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
           <div className="flex items-center gap-2 pt-2">
             <AdminButton variant="secondary" onClick={onClose} className="flex-1">Cancel</AdminButton>
             <AdminButton onClick={handleSave} disabled={saving} className="flex-1">
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Template'}
             </AdminButton>
           </div>

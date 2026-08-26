@@ -184,10 +184,10 @@ export function RoofGeometryEditor({
                 : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
             }`}
           >
-            <Layers className="w-3 h-3" />
+            <Layers aria-hidden="true" className="w-3 h-3" />
             {section.name}
             {section.confirmed && (
-              <CheckCircle2 className="w-3 h-3 text-green-400" />
+              <CheckCircle2 aria-hidden="true" className="w-3 h-3 text-green-400" />
             )}
           </button>
         ))}
@@ -196,7 +196,7 @@ export function RoofGeometryEditor({
           disabled={disabled}
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-500 hover:border-neutral-400 hover:text-neutral-600 disabled:opacity-50"
         >
-          <Plus className="w-3 h-3" />
+          <Plus aria-hidden="true" className="w-3 h-3" />
           Add Section
         </button>
       </div>
@@ -224,7 +224,7 @@ export function RoofGeometryEditor({
               disabled={disabled}
               className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
@@ -427,13 +427,13 @@ export function RoofGeometryEditor({
           disabled={disabled}
           className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-green/90 transition-colors"
         >
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Confirm Roof Geometry
         </button>
       )}
       {allConfirmed && (
         <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700">
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Geometry confirmed — ready for calculation
         </div>
       )}

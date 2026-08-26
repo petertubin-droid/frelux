@@ -134,7 +134,7 @@ export default function AdminEstimationProducts() {
       <AdminHeader
         title="Estimation Products"
         subtitle="Manage paint types and quality levels. Coverage settings here feed the FRELUX ROOM-BASED estimation engine — not an m² calculator."
-        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus className="h-4 w-4" /> Add product</AdminButton>}
+        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add product</AdminButton>}
       />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       {loading ? (
@@ -145,7 +145,7 @@ export default function AdminEstimationProducts() {
         <>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
               <AdminInput
  type="search"
  value={search}
@@ -221,7 +221,7 @@ export default function AdminEstimationProducts() {
                             </div>
                             <div className="flex items-center gap-0.5">
                               <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(p); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                              <AdminIconButton variant="danger" type="button" onClick={() => remove(p)} ><Trash2 className="h-3 w-3" /></AdminIconButton>
+                              <AdminIconButton variant="danger" type="button" onClick={() => remove(p)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
                             </div>
                           </div>
                           {expandedId === p.id && p.has_quality_levels && (
@@ -229,7 +229,7 @@ export default function AdminEstimationProducts() {
                               {(qualityMap[p.id] ?? []).map(q => (
                                 <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
                                   <div className="flex items-center gap-2">
-                                    <Tag className="h-4 w-4 text-purple-500" />
+                                    <Tag aria-hidden="true" className="h-4 w-4 text-purple-500" />
                                     <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
                                     {q.coverage && <span className="text-xs text-neutral-400 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
                                     {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
@@ -237,12 +237,12 @@ export default function AdminEstimationProducts() {
                                   <div className="flex items-center gap-2">
                                     <Toggle checked={q.is_active} onChange={() => toggleQualityActive(q)} />
                                     <AdminButton variant="secondary" onClick={() => { setEditingQuality(q); setQualityProductId(p.id); setShowQualityForm(true); }}><Pencil className="h-3 w-3" /></AdminButton>
-                                    <AdminButton variant="danger" onClick={() => removeQuality(q)}><Trash2 className="h-3 w-3" /></AdminButton>
+                                    <AdminButton variant="danger" onClick={() => removeQuality(q)}><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminButton>
                                   </div>
                                 </div>
                               ))}
                               <AdminButton variant="secondary" onClick={() => { setEditingQuality(null); setQualityProductId(p.id); setShowQualityForm(true); }}>
-                                <Plus className="h-3.5 w-3.5" /> Add quality level
+                                <Plus aria-hidden="true" className="h-3.5 w-3.5" /> Add quality level
                               </AdminButton>
                             </div>
                           )}

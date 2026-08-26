@@ -98,9 +98,9 @@ export default function AdminTileMaterials() {
     <>
       <AdminHeader title="Tile Library" subtitle="Manage tile sizes and installation materials."
         action={tab === 'sizes' ?
-          <div className="flex gap-2"><AdminButton onClick={handleExportSizes}><Download className="h-4 w-4" /> Export</AdminButton>
-          <AdminButton onClick={() => { setEditingSize(null); setShowSizeEditor(true); }}><Plus className="h-4 w-4" /> Add Size</AdminButton></div> :
-          <AdminButton onClick={() => { setEditingMat(null); setShowMatEditor(true); }}><Plus className="h-4 w-4" /> Add Material</AdminButton>
+          <div className="flex gap-2"><AdminButton onClick={handleExportSizes}><Download aria-hidden="true" className="h-4 w-4" /> Export</AdminButton>
+          <AdminButton onClick={() => { setEditingSize(null); setShowSizeEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Size</AdminButton></div> :
+          <AdminButton onClick={() => { setEditingMat(null); setShowMatEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>
         }
       />
 
@@ -133,8 +133,8 @@ export default function AdminTileMaterials() {
               <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
                 <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
                 <div className="flex items-center gap-0.5">
-                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-400 hover:text-brand-purple"><Pencil className="h-3.5 w-3.5" /></AdminIconButton>
-                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 className="h-3.5 w-3.5" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-400 hover:text-brand-purple"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
                 </div>
               </div>
             </AdminCard>
@@ -171,8 +171,8 @@ export default function AdminTileMaterials() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Toggle checked={m.is_active} onChange={() => handleToggleMatActive(m)} />
-                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil className="h-4 w-4" /></AdminIconButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 className="h-4 w-4" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-neutral-400 hover:text-brand-purple"><Pencil aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
                       </div>
                     </AdminCard>
                   ))}
@@ -219,7 +219,7 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
       </div>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check className="h-4 w-4" /> Save</AdminButton>
+        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check aria-hidden="true" className="h-4 w-4" /> Save</AdminButton>
       </div>
     </AdminCard>
   );
@@ -270,7 +270,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
       <label className="flex items-center gap-2 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
-        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check className="h-4 w-4" /> Save</AdminButton>
+        <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check aria-hidden="true" className="h-4 w-4" /> Save</AdminButton>
       </div>
     </AdminCard>
   );

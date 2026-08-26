@@ -102,7 +102,7 @@ export default function TemplateDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function TemplateDetail() {
   if (error || !template) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <AlertCircle className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600" />
+        <AlertCircle aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600" />
         <h1 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">Template Not Found</h1>
         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{error ?? 'This template may have been removed.'}</p>
         <Link to="/templates" className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
@@ -135,7 +135,7 @@ export default function TemplateDetail() {
       {/* Header */}
       <div className="mt-6">
         <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
-          <Calculator className="h-3 w-3" />
+          <Calculator aria-hidden="true" className="h-3 w-3" />
           {calcLabel}
         </span>
         <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
@@ -159,7 +159,7 @@ export default function TemplateDetail() {
       {/* Input summary */}
       <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-brand-navy-mid">
         <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white">
-          <Layers className="h-4 w-4 text-brand-purple" />
+          <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           Template Configuration
         </h2>
         <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
@@ -190,7 +190,7 @@ export default function TemplateDetail() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
         >
           Use This Template
-          <ArrowRight className="h-4 w-4" />
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </button>
         <Link
           to={calcPath}
@@ -257,7 +257,7 @@ export default function TemplateDetail() {
           className="group inline-flex items-center gap-2 text-sm font-semibold text-brand-purple dark:text-brand-purple-lighter"
         >
           Open the {calcLabel} directly
-          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
     </div>

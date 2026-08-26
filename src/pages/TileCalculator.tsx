@@ -244,7 +244,7 @@ const mountedRef = useRef(true);
     return (
       <>
         <PageHeader eyebrow="Calculate" title="Tile Calculator" subtitle="Calculate tile quantities, adhesive, and grout." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Tile Calculator' }]} />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -257,7 +257,7 @@ const mountedRef = useRef(true);
           <LoadTemplateButton calculatorType="tile" onLoad={(t) => setInput(t.input_data as unknown as TileCalcInput)} />
           <SaveTemplateButton calculatorType="tile" inputData={input as unknown as Record<string, unknown>} defaultName={`${input.length}×${input.width} ${input.surfaceType}`} />
         </div>
-      <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div role="region" aria-label="Tile calculator" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
             {/* Surface type */}
@@ -273,7 +273,7 @@ const mountedRef = useRef(true);
                   <button key={s.value} type="button" onClick={() => update('surfaceType', s.value)}
                     className={'select-card flex items-start gap-3 rounded-xl border p-4 text-left ' + (selected ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200')}>
                     <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
-                      <Grid3x3 className="h-5 w-5" />
+                      <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                     </span>
                     <span>
                       <span className="block text-sm font-semibold text-brand-navy dark:text-white">{s.label}</span>
@@ -356,7 +356,7 @@ const mountedRef = useRef(true);
                     <button key={m.value} type="button" onClick={() => update('method', m.value)}
                       className={'select-card flex items-start gap-3 rounded-xl border p-4 text-left ' + (selected ? 'select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200')}>
                       <span className={'inline-flex h-10 w-10 items-center justify-center rounded-lg ' + (selected ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600')}>
-                        <Grid3x3 className="h-5 w-5" />
+                        <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                       </span>
                       <span>
                         <span className="block text-sm font-semibold text-brand-navy">{m.label}</span>
@@ -429,7 +429,7 @@ const mountedRef = useRef(true);
 
             {Object.keys(errors).length > 0 && (
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>Please fix the errors above before calculating.</p>
               </div>
             )}
@@ -607,7 +607,7 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
         <button type="button" onClick={onAgain} className="btn-secondary">
-          <RotateCcw className="h-4 w-4" /> Calculate Again
+          <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
         </button>
         <div className="flex flex-col gap-3 sm:flex-row">
           {user && (

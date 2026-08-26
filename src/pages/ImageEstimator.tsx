@@ -295,7 +295,7 @@ export default function ImageEstimator() {
         <div className="relative max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
             <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-              <Camera className="w-7 h-7 text-accent-green" />
+              <Camera aria-hidden="true" className="w-7 h-7 text-accent-green" />
               <Zap className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
             </div>
             <div>
@@ -321,7 +321,7 @@ export default function ImageEstimator() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <AlertCircle aria-hidden="true" className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
             <p className="text-sm text-amber-800">{error}</p>
           </div>
         )}
@@ -358,7 +358,7 @@ export default function ImageEstimator() {
                     onClick={() => fileRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark transition-colors"
                   >
-                    <Camera className="w-4 h-4" />
+                    <Camera aria-hidden="true" className="w-4 h-4" />
                     Choose Building Photo
                   </button>
                 </>
@@ -408,7 +408,7 @@ export default function ImageEstimator() {
                 </div>
 
                 <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                  <Info aria-hidden="true" className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
                   <p className="text-xs text-blue-700">
                     The AI will analyze your building photo to estimate
                     dimensions, roof type, building type, and more. You'll be
@@ -436,7 +436,7 @@ export default function ImageEstimator() {
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative">
               <Building2 className="w-20 h-20 text-brand-purple/20" />
-              <Loader2 className="w-8 h-8 text-brand-purple absolute inset-0 m-auto animate-spin" />
+              <Loader2 aria-hidden="true" className="w-8 h-8 text-brand-purple absolute inset-0 m-auto animate-spin" />
             </div>
             <h3 className="mt-6 text-lg font-semibold text-neutral-900">
               Analyzing your building photo…
@@ -732,7 +732,7 @@ export default function ImageEstimator() {
         {/* Phase: Error */}
         {phase === "error" && (
           <div className="flex flex-col items-center justify-center py-20">
-            <AlertCircle className="w-16 h-16 text-amber-400 mb-4" />
+            <AlertCircle aria-hidden="true" className="w-16 h-16 text-amber-400 mb-4" />
             <h3 className="text-lg font-semibold text-neutral-900">
               Something went wrong
             </h3>
@@ -966,7 +966,7 @@ function EstimateResultView({
       {analysis && analysis.warnings.length > 0 && (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
           <h3 className="font-semibold text-amber-900 flex items-center gap-2 mb-3">
-            <AlertCircle className="w-5 h-5" />
+            <AlertCircle aria-hidden="true" className="w-5 h-5" />
             Important Limitations
           </h3>
           <ul className="space-y-1.5">

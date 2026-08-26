@@ -167,7 +167,7 @@ const mountedRef = useRef(true);
       <>
         <PageHeader eyebrow="Calculate" title="POP Ceiling Calculator" subtitle="Calculate POP ceiling materials and quantities." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'POP Ceiling Calculator' }]}
         />
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
   }
@@ -249,14 +249,14 @@ const mountedRef = useRef(true);
 
             {Object.keys(errors).length > 0 && (
               <div className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
                 <p>Please fix the errors above before calculating.</p>
               </div>
             )}
 
             <button type="button" onClick={compute} className="btn-primary btn-glow mt-6 w-full sm:w-auto">
               Calculate POP Ceiling
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -468,7 +468,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <button type="button" onClick={onAgain} className="btn-secondary">
-            <RotateCcw className="h-4 w-4" /> Calculate Again
+            <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
           </button>
           <div className="flex flex-col gap-3 sm:flex-row">
             {user && (
@@ -479,7 +479,7 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
             <button type="button" onClick={onStartOver} className="btn-secondary">Start Over</button>
             <Link to="/pop-ceiling-calculator?mode=cost" state={{ ceilingArea: result.ceilingArea, workflow: input.workflow, grandTotal: result.grandTotal }}
               className="btn-primary">
-              Continue to Cost Estimate <ArrowRight className="h-4 w-4" />
+              Continue to Cost Estimate <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
         </div>

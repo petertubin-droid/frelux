@@ -92,10 +92,10 @@ export default function PaintColorDetail() {
   }
 
   if (status === 'loading') {
-    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>;
+    return <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>;
   }
   if (status === 'error') {
-    return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm font-semibold text-red-700">Couldn't load this color.</p><Link to="/colors" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to color library</Link></div>;
+    return <div className="mx-auto max-w-md py-20 text-center"><AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm font-semibold text-red-700">Couldn't load this color.</p><Link to="/colors" className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline">Back to color library</Link></div>;
   }
   if (!color) return <NotFound />;
 
@@ -114,7 +114,7 @@ export default function PaintColorDetail() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <Link to="/colors" className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-brand-purple">
-        <ArrowLeft className="h-4 w-4" /> All colors
+        <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All colors
       </Link>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
@@ -152,7 +152,7 @@ export default function PaintColorDetail() {
                   <p className="mt-0.5 text-sm font-semibold text-brand-navy dark:text-white">{f.value}</p>
                 </div>
                 <button type="button" onClick={() => copy(f.value)} className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter">
-                  {copied === f.value ? <Check className="h-3.5 w-3.5 text-accent-green" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied === f.value ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
                   {copied === f.value ? 'Copied' : 'Copy'}
                 </button>
               </div>
@@ -185,7 +185,7 @@ export default function PaintColorDetail() {
 
           <div className="mt-6 flex gap-3">
             <Link to="/colors/compare" className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95">
-              Compare colors <ArrowRight className="h-4 w-4" />
+              Compare colors <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
           </div>
         </div>

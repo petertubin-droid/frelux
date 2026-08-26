@@ -56,7 +56,7 @@ export default function Learn() {
     return (
       <>
         <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
-        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 className="h-5 w-5 animate-spin" /> Loading…</div>
+        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-400"><Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…</div>
       </>
     );
 
@@ -64,7 +64,7 @@ export default function Learn() {
     return (
       <>
         <PageHeader eyebrow="Education" title="Learn" subtitle="Guides, tutorials, and expert tips to help you paint with confidence." breadcrumbs={[{ label: 'Learn Hub' }]} />
-        <div className="mx-auto max-w-md py-20 text-center"><AlertCircle className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>
+        <div className="mx-auto max-w-md py-20 text-center"><AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-400" /><p className="mt-3 text-sm text-red-600">{error}</p></div>
       </>
     );
 
@@ -87,7 +87,7 @@ export default function Learn() {
                   )}
                   <div className="p-5">
                     <div className="flex items-center gap-2">
-                      <Award className="h-3.5 w-3.5 text-accent-orange" />
+                      <Award aria-hidden="true" className="h-3.5 w-3.5 text-accent-orange" />
                       <span className="text-xs font-semibold uppercase tracking-widest text-accent-orange">Featured</span>
                     </div>
                     <h3 className="mt-2 text-lg font-bold text-brand-navy dark:text-white">{article.title}</h3>
@@ -118,7 +118,7 @@ export default function Learn() {
                     <h3 className="text-sm font-bold text-brand-navy dark:text-white">{cat.name}</h3>
                     {cat.description && <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400 line-clamp-2">{cat.description}</p>}
                     <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple">
-                      Explore <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                      Explore <ArrowRight aria-hidden="true" className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                     </span>
                   </div>
                 </Link>
@@ -156,7 +156,7 @@ export default function Learn() {
 
         {recent.length === 0 && featured.length === 0 && (
           <div className="rounded-xl border border-dashed border-neutral-200 bg-neutral-50 p-16 text-center">
-            <BookOpen className="mx-auto h-10 w-10 text-neutral-300" />
+            <BookOpen aria-hidden="true" className="mx-auto h-10 w-10 text-neutral-300" />
             <p className="mt-4 text-sm font-semibold text-neutral-600">Articles coming soon</p>
             <p className="mt-1 text-xs text-neutral-400">We're preparing guides, tutorials, and tips. Check back shortly.</p>
           </div>

@@ -40,7 +40,7 @@ export default function ConstructionSequence() {
         <div className="bg-brand-navy text-white">
           <div className="max-w-5xl mx-auto px-4 py-10">
             <div className="flex items-center gap-3 mb-2">
-              <ListChecks className="w-8 h-8 text-accent-green" />
+              <ListChecks aria-hidden="true" className="w-8 h-8 text-accent-green" />
               <h1 className="text-2xl md:text-3xl font-bold">
                 Construction Sequence Planner
               </h1>
@@ -102,7 +102,7 @@ export default function ConstructionSequence() {
                         key={j}
                         className="text-xs text-blue-700 flex items-start gap-2"
                       >
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />{" "}
+                        <CheckCircle2 aria-hidden="true" className="w-3.5 h-3.5 text-blue-400 mt-0.5 shrink-0" />{" "}
                         {c}
                       </li>
                     ))}
@@ -116,7 +116,7 @@ export default function ConstructionSequence() {
           {plan.parallel_activities.length > 0 && (
             <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
               <h3 className="font-semibold text-green-900 flex items-center gap-2 mb-3">
-                <Wrench className="w-5 h-5" /> Time-Saving Overlaps
+                <Wrench aria-hidden="true" className="w-5 h-5" /> Time-Saving Overlaps
               </h3>
               <div className="space-y-2">
                 {plan.parallel_activities.map((p, i) => (
@@ -206,7 +206,7 @@ function StepCard({
           </div>
         </div>
         {isOpen ? (
-          <ChevronDown className="w-5 h-5 text-neutral-400" />
+          <ChevronDown aria-hidden="true" className="w-5 h-5 text-neutral-400" />
         ) : (
           <ChevronRight className="w-5 h-5 text-neutral-400" />
         )}

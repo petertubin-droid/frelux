@@ -106,12 +106,12 @@ export default function AdminAiLearningAssistant() {
 
             {error && (
               <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-                <AlertCircle className="h-4 w-4" /> {error}
+                <AlertCircle aria-hidden="true" className="h-4 w-4" /> {error}
               </div>
             )}
 
             <AdminButton onClick={handleRun} disabled={loading}>
-              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GraduationCap className="h-4 w-4" />}
+              {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <GraduationCap className="h-4 w-4" />}
               {loading ? 'Generating…' : 'Run AI'}
             </AdminButton>
           </AdminCard>
@@ -121,7 +121,7 @@ export default function AdminAiLearningAssistant() {
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Result</h2>
                 <AdminButton variant="secondary" type="button" onClick={handleCopyResult} className="text-xs">
-                  <Send className="h-3 w-3" /> Copy
+                  <Send aria-hidden="true" className="h-3 w-3" /> Copy
                 </AdminButton>
               </div>
               <div className="max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-4">
