@@ -146,7 +146,15 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow, code standard
 
 ## API Documentation
 
-See [docs/API.md](./docs/API.md) for Supabase backend API documentation, table schemas, and query patterns.
+See [docs/API.md](./docs/API.md) for Supabase backend API documentation, table schemas, query patterns, and Edge Function reference.
+
+## Security
+
+See [SECURITY.md](./SECURITY.md) for the vulnerability reporting process.
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for a history of notable changes.
 
 ## License
 
