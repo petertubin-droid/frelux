@@ -13,7 +13,6 @@ import { useAuth } from "@/lib/auth";
 
 // Lazy-loaded below-the-fold components — not visible on first paint
 const SupportChatWidget = lazy(() => import("@/components/layout/SupportChatWidget"));
-const WhatsAppFab = lazy(() => import("@/components/layout/WhatsAppFab"));
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
 const OfflineIndicator = lazy(() => import("@/components/ui/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
 const CommandPalette = lazy(() => import("@/components/ui/CommandPalette").then(m => ({ default: m.CommandPalette })));
@@ -171,7 +170,6 @@ export default function Layout() {
       <Footer />
       <Suspense fallback={null}><OfflineIndicator /></Suspense>
       <Suspense fallback={null}><SupportChatWidget /></Suspense>
-      <Suspense fallback={null}><WhatsAppFab /></Suspense>
       <Suspense fallback={null}><MobileBottomNav /></Suspense>
       <Suspense fallback={null}><CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} /></Suspense>
       {showOnboarding && (

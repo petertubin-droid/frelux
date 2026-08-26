@@ -3,11 +3,12 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import {
   Menu, X, Calculator, LogIn, LogOut, User, ChevronDown,
   Sun, Moon, LayoutDashboard, ShoppingBag, Briefcase, Package, UserCircle, ClipboardList, FileStack, Gem, Bot,
-  Users, BarChart3, Search, ChevronRight, Crown,
+  Users, BarChart3, Search, ChevronRight, Crown, MessageCircle,
 } from 'lucide-react';
 import Logo from '@/components/brand/Logo';
 import { navWorkspaces, type NavChild } from '@/config/site';
 import { classNames } from '@/lib/utils';
+import { whatsappUrl } from '@/lib/analytics';
 import { useAuth } from '@/lib/auth';
 import { useCredits } from '@/lib/credits-context';
 import { AI_CREDIT_TIERS, MAX_AI_ACCESSES_PER_DAY, CREDITS_PER_AD, MAX_ADS_PER_DAY } from '@/lib/credits';
@@ -286,6 +287,9 @@ export default function Navbar() {
               <button type="button" onClick={toggle} aria-label="Toggle dark mode" className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200">
                 {theme === 'dark' ? <Sun className="h-[18px] w-[18px]" /> : <Moon className="h-[18px] w-[18px]" />}
               </button>
+              <a href={whatsappUrl('Hello FRELUX, I would like to chat about a paint project.')} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp" className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-accent-green active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-accent-green">
+                <MessageCircle className="h-[18px] w-[18px]" />
+              </a>
             </div>
 
             {/* Language switcher — Nigerian languages */}
@@ -552,6 +556,12 @@ export default function Navbar() {
                 </span>
               </button>
             </div>
+
+            {/* WhatsApp contact */}
+            <a href={whatsappUrl('Hello FRELUX, I would like to chat about a paint project.')} target="_blank" rel="noopener noreferrer" className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5">
+              <MessageCircle className="h-4 w-4" />
+              <span>WhatsApp</span>
+            </a>
 
             {/* AI Credit info */}
             {user && (
