@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { CheckCircle2, RotateCcw } from 'lucide-react';
+import { CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
 import { formatNumber } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent } from '@/lib/queries';
 import { useCalcDefaults } from '@/lib/use-calc-defaults';
@@ -235,14 +236,24 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
               The waste allowance above will apply when material quantity is calculated.
             </div>
 
-            <button
-              type="button"
-              onClick={startOver}
-              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
-            >
-              <RotateCcw aria-hidden="true" className="h-4 w-4" />
-              Start Over
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={startOver}
+                className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+              >
+                <RotateCcw aria-hidden="true" className="h-4 w-4" />
+                Start Over
+              </button>
+              <Link
+                to="/screeding-calculator?mode=cost"
+                state={{ netScreedingArea: screedingResult.totalAreaM2 }}
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                Continue to Cost Estimate
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         )}
       </div>
