@@ -1,25 +1,25 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import SupportChatWidget from "@/components/layout/SupportChatWidget";
-import WhatsAppFab from "@/components/layout/WhatsAppFab";
-import FloatingActions from "@/components/ui/FloatingActions";
-import MobileBottomNav from "@/components/ui/MobileBottomNav";
-import { OfflineIndicator } from "@/components/ui/OfflineIndicator";
-import {
-  CommandPalette,
-  useCommandPalette,
-} from "@/components/ui/CommandPalette";
-import { OnboardingTour } from "@/components/ui/OnboardingTour";
-import { AchievementToast } from "@/components/ui/AchievementBadges";
+import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
+
+// Lazy-loaded below-the-fold components — not visible on first paint
+const SupportChatWidget = lazy(() => import("@/components/layout/SupportChatWidget"));
+const WhatsAppFab = lazy(() => import("@/components/layout/WhatsAppFab"));
+const FloatingActions = lazy(() => import("@/components/ui/FloatingActions"));
+const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
+const OfflineIndicator = lazy(() => import("@/components/ui/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
+const CommandPalette = lazy(() => import("@/components/ui/CommandPalette").then(m => ({ default: m.CommandPalette })));
+const OnboardingTour = lazy(() => import("@/components/ui/OnboardingTour").then(m => ({ default: m.OnboardingTour })));
+const AchievementToast = lazy(() => import("@/components/ui/AchievementBadges").then(m => ({ default: m.AchievementToast })));
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -170,19 +170,19 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <OfflineIndicator />
-      <SupportChatWidget />
-      <WhatsAppFab />
-      <FloatingActions />
-      <MobileBottomNav />
-      <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+      <Suspense fallback={null}><OfflineIndicator /></Suspense>
+      <Suspense fallback={null}><SupportChatWidget /></Suspense>
+      <Suspense fallback={null}><WhatsAppFab /></Suspense>
+      <Suspense fallback={null}><FloatingActions /></Suspense>
+      <Suspense fallback={null}><MobileBottomNav /></Suspense>
+      <Suspense fallback={null}><CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} /></Suspense>
       {showOnboarding && (
-        <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+        <Suspense fallback={null}><OnboardingTour onComplete={() => setShowOnboarding(false)} /></Suspense>
       )}
-      <AchievementToast
+      <Suspense fallback={null}><AchievementToast
         achievements={newAchievements}
         onDismiss={() => setNewAchievements([])}
-      />
+      /></Suspense>
     </div>
   );
 }

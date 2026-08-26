@@ -51,6 +51,7 @@ export default defineConfig({
           "supabase-vendor": ["@supabase/supabase-js"],
           "pdf-vendor": ["jspdf"],
           "canvas-vendor": ["html2canvas"],
+          "icon-vendor": ["lucide-react"],
         },
         // Use content-based hashing for long-term caching
         chunkFileNames: "assets/js/[name]-[hash].js",
