@@ -132,6 +132,7 @@ const AdminTyroleneConfig = lazy(
 );
 const AdminPaintTypes = lazy(() => import("@/pages/admin/AdminPaintTypes"));
 const AdminPricing = lazy(() => import("@/pages/admin/AdminPricing"));
+const AdminPriceUpdater = lazy(() => import("@/pages/admin/AdminPriceUpdater"));
 const AdminLabourSettings = lazy(
   () => import("@/pages/admin/AdminLabourSettings"),
 );
@@ -999,6 +1000,7 @@ export default function App() {
 
                     {/* Pricing */}
                     <Route path="pricing" element={<AdminPricing />} />
+                    <Route path="price-updater" element={<AdminPriceUpdater />} />
                     <Route
                       path="labour-settings"
                       element={<AdminLabourSettings />}
