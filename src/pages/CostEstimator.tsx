@@ -521,21 +521,19 @@ export default function CostEstimator({
                 </p>
               )}
 
-              {input.paintUseContainerPricing &&
+              {/* Product selected → show container pricing summary */}
+              {input.paintProductId &&
+              input.paintUseContainerPricing &&
               input.paintContainerSize > 0 ? (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
                   <p className="text-sm font-semibold text-brand-navy dark:text-white">
-                    {input.paintProductId
-                      ? "Container based pricing"
-                      : "Bucket based pricing"}
+                    Container based pricing
                   </p>
                   <p className="mt-1 text-xs text-neutral-500">
                     {formatNumber(input.paintLiters, 1)} L required ·{" "}
-                    {input.paintContainerSize} L{" "}
-                    {input.paintProductId ? "containers" : "buckets"} ·{" "}
+                    {input.paintContainerSize} L containers ·{" "}
                     {Math.ceil(input.paintLiters / input.paintContainerSize)}{" "}
-                    {input.paintProductId ? "container(s)" : "bucket(s)"} needed
-                    ·{" "}
+                    container(s) needed ·{" "}
                     {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
                     each
                   </p>
@@ -555,40 +553,68 @@ export default function CostEstimator({
                   </p>
                 </div>
               ) : (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <Field label="Paint bucket size" hint="Select a bucket size">
-                    <select
-                      value={manualBucketSize}
-                      onChange={(e) => {
-                        setManualBucketSize(Number(e.target.value));
-                      }}
-                      className="input-field"
+                <>
+                  {/* Manual entry — always show inputs */}
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                    <Field label="Paint bucket size" hint="Select a bucket size">
+                      <select
+                        value={manualBucketSize}
+                        onChange={(e) => {
+                          setManualBucketSize(Number(e.target.value));
+                        }}
+                        className="input-field"
+                      >
+                        {(settings?.manual_paint_bucket_sizes ?? [20, 4]).map(
+                          (size) => (
+                            <option key={size} value={size}>
+                              {size} L
+                            </option>
+                          ),
+                        )}
+                      </select>
+                    </Field>
+                    <Field
+                      label={`Price per ${manualBucketSize}L bucket (${currencySymbol})`}
+                      hint="Manual entry"
                     >
-                      {(settings?.manual_paint_bucket_sizes ?? [20, 4]).map(
-                        (size) => (
-                          <option key={size} value={size}>
-                            {size} L
-                          </option>
-                        ),
-                      )}
-                    </select>
-                  </Field>
-                  <Field
-                    label={`Price per ${manualBucketSize}L bucket (${currencySymbol})`}
-                    hint="Manual entry"
-                  >
-                    <input
-                      type="number"
-                      min={0}
-                      value={manualBucketPrice || ""}
-                      onChange={(e) =>
-                        setManualBucketPrice(Number(e.target.value))
-                      }
-                      className="input-field"
-                      placeholder="0"
-                    />
-                  </Field>
-                </div>
+                      <input
+                        type="number"
+                        min={0}
+                        value={manualBucketPrice || ""}
+                        onChange={(e) =>
+                          setManualBucketPrice(Number(e.target.value))
+                        }
+                        className="input-field"
+                        placeholder="0"
+                      />
+                    </Field>
+                  </div>
+                  {/* Show live cost summary below the inputs when a price is entered */}
+                  {manualBucketPrice > 0 && input.paintLiters > 0 && (
+                    <div className="mt-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+                      <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                        Bucket based pricing
+                      </p>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {formatNumber(input.paintLiters, 1)} L required ·{" "}
+                        {manualBucketSize} L buckets ·{" "}
+                        {Math.ceil(input.paintLiters / manualBucketSize)} bucket(s) needed ·{" "}
+                        {formatCurrency(manualBucketPrice, currencySymbol)} each
+                      </p>
+                      <p className="mt-2 text-xs text-neutral-500">
+                        Paint cost ={" "}
+                        {Math.ceil(input.paintLiters / manualBucketSize)} ×{" "}
+                        {formatCurrency(manualBucketPrice, currencySymbol)} ={" "}
+                        <span className="font-semibold text-brand-navy dark:text-white">
+                          {formatCurrency(
+                            Math.ceil(input.paintLiters / manualBucketSize) * manualBucketPrice,
+                            currencySymbol,
+                          )}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </Section>
 
