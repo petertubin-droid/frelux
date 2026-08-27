@@ -498,16 +498,24 @@ export default function AdSlot({
       className={`frelux-ad-unit ${className ?? ''}`}
       style={{
         /* Clear visual separation from content */
-        borderTop: '1px solid rgba(0,0,0,0.08)',
-        borderBottom: '1px solid rgba(0,0,0,0.08)',
-        padding: '12px 0',
+        borderTop: '1px solid rgba(0,0,0,0.04)',
+        borderBottom: '1px solid rgba(0,0,0,0.04)',
+        padding: '8px 0',
         margin: '0 auto',
       }}
       data-ad-slot-key={slotKey}
     >
       <div
-        className="mb-1 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-neutral-400"
+        className="ad-label-subtle mb-0.5 text-center"
         aria-label="Advertisement"
+        style={{
+          fontSize: '8px',
+          opacity: '0.35',
+          color: 'inherit',
+          letterSpacing: '0.02em',
+          fontWeight: 400,
+          textTransform: 'none',
+        }}
       >
         Advertisement
       </div>
