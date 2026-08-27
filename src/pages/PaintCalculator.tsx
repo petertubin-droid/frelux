@@ -836,6 +836,9 @@ function Step3({
   const isFence = input.projectType === 'fence';
   const isExterior = input.projectType === 'exterior';
 
+  // Resolve the selected quality object from availableQualities + selectedQualityId
+  const selectedQuality = availableQualities.find(q => q.id === selectedQualityId) ?? null;
+
   // Fence and exterior projects typically have no doors/windows to subtract.
   const showOpenings = !isFence && !isExterior;
 

@@ -73,7 +73,7 @@ export function saveCostEstimateDefaults(settings: DefaultSettings['costEstimate
 }
 
 /** Load cost estimate settings */
-export function loadCostEstimateDefaults(): DefaultSettings['costEstimate'] {
+export function loadCostEstimateDefaults(): NonNullable<DefaultSettings['costEstimate']> {
   return getDefaults().costEstimate ?? {};
 }
 
@@ -85,7 +85,7 @@ export function saveScreedingDefaults(settings: DefaultSettings['screedingCalc']
 }
 
 /** Load screeding calculator settings */
-export function loadScreedingDefaults(): DefaultSettings['screedingCalc'] {
+export function loadScreedingDefaults(): NonNullable<DefaultSettings['screedingCalc']> {
   return getDefaults().screedingCalc ?? {};
 }
 
@@ -97,7 +97,7 @@ export function saveTileDefaults(settings: DefaultSettings['tileCalc']): void {
 }
 
 /** Load tile calculator settings */
-export function loadTileDefaults(): DefaultSettings['tileCalc'] {
+export function loadTileDefaults(): NonNullable<DefaultSettings['tileCalc']> {
   return getDefaults().tileCalc ?? {};
 }
 
@@ -109,7 +109,7 @@ export function savePopDefaults(settings: DefaultSettings['popCalc']): void {
 }
 
 /** Load POP calculator settings */
-export function loadPopDefaults(): DefaultSettings['popCalc'] {
+export function loadPopDefaults(): NonNullable<DefaultSettings['popCalc']> {
   return getDefaults().popCalc ?? {};
 }
 
