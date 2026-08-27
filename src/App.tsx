@@ -103,6 +103,7 @@ const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
+const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
   () => import("@/pages/admin/AdminEstimationConfig"),
 );
