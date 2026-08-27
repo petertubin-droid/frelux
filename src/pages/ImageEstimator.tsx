@@ -85,9 +85,9 @@ function AiFeatureSlide() {
 
 export default function ImageEstimator() {
   useSeo({
-    title: "AI Building Photo Estimator | FRELUX",
+    title: "AI Photo Estimator — AI-Assisted Preliminary Estimation | FRELUX",
     description:
-      "Upload a photo of any building and get an instant construction cost estimate. AI-powered analysis with the FRELUX Build-to-Roof engine.",
+      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary — verify with actual drawings and a qualified professional.",
     keywords:
       "AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI",
   });
@@ -295,7 +295,10 @@ export default function ImageEstimator() {
         <div className="relative max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
             <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
-              <Camera aria-hidden="true" className="w-7 h-7 text-accent-green" />
+              <Camera
+                aria-hidden="true"
+                className="w-7 h-7 text-accent-green"
+              />
               <Zap className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
             </div>
             <div>
@@ -321,7 +324,10 @@ export default function ImageEstimator() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
-            <AlertCircle aria-hidden="true" className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+            <AlertCircle
+              aria-hidden="true"
+              className="w-5 h-5 text-amber-500 shrink-0 mt-0.5"
+            />
             <p className="text-sm text-amber-800">{error}</p>
           </div>
         )}
@@ -408,14 +414,20 @@ export default function ImageEstimator() {
                 </div>
 
                 <div className="rounded-lg bg-blue-50 border border-blue-100 p-3 flex items-start gap-2">
-                  <Info aria-hidden="true" className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                  <Info
+                    aria-hidden="true"
+                    className="w-4 h-4 text-blue-500 mt-0.5 shrink-0"
+                  />
                   <p className="text-xs text-blue-700">
-                    The AI will analyze your building photo to estimate
-                    dimensions, roof type, building type, and more. You'll be
-                    able to review and adjust the AI's estimates before
-                    generating the final cost breakdown. This is a{" "}
-                    <strong>preliminary estimate</strong> — always verify with
-                    actual drawings and a structural engineer.
+                    The AI will analyze your building photo to estimate visible
+                    dimensions, roof type, and building type. You can review and
+                    adjust the AI's estimates before generating a cost
+                    breakdown. This is an{" "}
+                    <strong>AI-assisted preliminary estimate</strong> — a
+                    photograph cannot determine hidden construction conditions,
+                    exact dimensions, or structural integrity. Always verify
+                    with actual drawings, site measurements, and a qualified
+                    structural engineer.
                   </p>
                 </div>
 
@@ -436,7 +448,10 @@ export default function ImageEstimator() {
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative">
               <Building2 className="w-20 h-20 text-brand-purple/20" />
-              <Loader2 aria-hidden="true" className="w-8 h-8 text-brand-purple absolute inset-0 m-auto animate-spin" />
+              <Loader2
+                aria-hidden="true"
+                className="w-8 h-8 text-brand-purple absolute inset-0 m-auto animate-spin"
+              />
             </div>
             <h3 className="mt-6 text-lg font-semibold text-neutral-900">
               Analyzing your building photo…
@@ -732,7 +747,10 @@ export default function ImageEstimator() {
         {/* Phase: Error */}
         {phase === "error" && (
           <div className="flex flex-col items-center justify-center py-20">
-            <AlertCircle aria-hidden="true" className="w-16 h-16 text-amber-400 mb-4" />
+            <AlertCircle
+              aria-hidden="true"
+              className="w-16 h-16 text-amber-400 mb-4"
+            />
             <h3 className="text-lg font-semibold text-neutral-900">
               Something went wrong
             </h3>

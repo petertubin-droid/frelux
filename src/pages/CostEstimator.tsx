@@ -81,18 +81,19 @@ export default function CostEstimator({
   useSeo(
     !embedded
       ? {
-          title: "Cost Estimator — Estimate Your Painting Project Cost",
+          title:
+            "Paint Cost Estimator — How Much Will Your Paint Materials Cost?",
           description:
-            "Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.",
+            "Estimate the cost of your paint materials. Enter your paint bucket count, select products, and get a material cost breakdown. Labour not included.",
           canonicalPath: "/cost-estimator",
           ogType: "website",
           structuredDataArray: [
             {
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "FRELUX Cost Estimator",
+              name: "FRELUX Paint Cost Estimator",
               description:
-                "Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.",
+                "Estimate the cost of your paint materials. Enter your paint bucket count, select products, and get a material cost breakdown. Labour not included.",
               url: "https://freluxtools.netlify.app/cost-estimator",
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
@@ -373,7 +374,7 @@ export default function CostEstimator({
         <PageHeader
           eyebrow="Tool"
           title="Cost Estimator"
-          subtitle="Get a practical estimate for materials and painting labor."
+          subtitle="Estimate the cost of your paint materials — buckets, primer, and supplies."
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
@@ -393,7 +394,7 @@ export default function CostEstimator({
       <PageHeader
         eyebrow="Tool"
         title="Cost Estimator"
-        subtitle="Get a practical estimate for materials and painting labor. Prices are editable so you can match local rates."
+        subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -556,7 +557,10 @@ export default function CostEstimator({
                 <>
                   {/* Manual entry — always show inputs */}
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                    <Field label="Paint bucket size" hint="Select a bucket size">
+                    <Field
+                      label="Paint bucket size"
+                      hint="Select a bucket size"
+                    >
                       <select
                         value={manualBucketSize}
                         onChange={(e) => {
@@ -598,7 +602,8 @@ export default function CostEstimator({
                       <p className="mt-1 text-xs text-neutral-500">
                         {formatNumber(input.paintLiters, 1)} L required ·{" "}
                         {manualBucketSize} L buckets ·{" "}
-                        {Math.ceil(input.paintLiters / manualBucketSize)} bucket(s) needed ·{" "}
+                        {Math.ceil(input.paintLiters / manualBucketSize)}{" "}
+                        bucket(s) needed ·{" "}
                         {formatCurrency(manualBucketPrice, currencySymbol)} each
                       </p>
                       <p className="mt-2 text-xs text-neutral-500">
@@ -607,7 +612,8 @@ export default function CostEstimator({
                         {formatCurrency(manualBucketPrice, currencySymbol)} ={" "}
                         <span className="font-semibold text-brand-navy dark:text-white">
                           {formatCurrency(
-                            Math.ceil(input.paintLiters / manualBucketSize) * manualBucketPrice,
+                            Math.ceil(input.paintLiters / manualBucketSize) *
+                              manualBucketPrice,
                             currencySymbol,
                           )}
                         </span>
@@ -629,7 +635,7 @@ export default function CostEstimator({
               </div>
               {input.includePrimer && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <Field label="Primer liters">
+                  <Field label="Primer buckets">
                     <input
                       type="number"
                       min={0}
@@ -642,7 +648,7 @@ export default function CostEstimator({
                       placeholder="0.00"
                     />
                   </Field>
-                  <Field label={`Primer price per liter (${currencySymbol})`}>
+                  <Field label={`Primer price per bucket (${currencySymbol})`}>
                     <input
                       type="number"
                       min={0}

@@ -158,7 +158,7 @@ export default function PaintCalculator({
       ? {
           title: "Paint Calculator — How Much Paint Do I Need?",
           description:
-            "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.",
+            "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
           canonicalPath: "/paint-calculator",
           ogType: "website",
           structuredDataArray: [
@@ -167,7 +167,7 @@ export default function PaintCalculator({
               "@type": "WebApplication",
               name: "FRELUX Paint Calculator",
               description:
-                "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate exactly how many liters of paint your project requires.",
+                "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
               url: "https://freluxtools.netlify.app/paint-calculator",
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
@@ -826,7 +826,7 @@ export default function PaintCalculator({
       <PageHeader
         eyebrow="Tool"
         title="Paint Calculator"
-        subtitle="Estimate how much paint your project may require, step by step."
+        subtitle="Estimate how many paint buckets your project requires, step by step."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -967,12 +967,12 @@ export default function PaintCalculator({
       </div>
       <RelatedTools
         links={[
-          CALC_LINKS.buildToRoof,
+          CALC_LINKS.paintCost,
+          CALC_LINKS.paintingEstimator,
+          CALC_LINKS.aiColor,
+          CALC_LINKS.finishEstimator,
           CALC_LINKS.screedingCalc,
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
+          CALC_LINKS.templates,
         ]}
       />
     </>
@@ -1620,10 +1620,11 @@ function ResultCard({
             ` · ${SURFACE_CONDITION_FACTORS[result.surfaceCondition]?.label ?? ""}`}
         </p>
         <p className="relative mt-1 text-4xl font-bold sm:text-5xl animate-count-glow">
-          {formatNumber(result.adjustedLiters, 1)} L
+          {result.recommendedContainers.reduce((s, c) => s + c.count, 0)}{" "}
+          buckets
         </p>
         <p className="relative mt-1 text-sm text-white/60">
-          estimated paint required (incl. waste margin)
+          estimated paint buckets required for your project
         </p>
       </div>
 
@@ -1638,38 +1639,47 @@ function ResultCard({
         {qualityName && <Stat label="Quality" value={qualityName} />}
         <Stat
           label="Coverage rate"
-          value={`${formatNumber(result.coverageRate, 1)} m²/L per coat`}
+          value={`${formatNumber(result.coverageRate, 1)} m²/L per coat (internal)`}
           countValue={result.coverageRate}
           decimals={1}
           suffix=" m²/L"
         />
         <Stat
-          label="Base paint required"
-          value={`${formatNumber(result.paintRequiredLiters, 1)} L`}
-          countValue={result.paintRequiredLiters}
-          decimals={1}
-          suffix=" L"
+          label="Paint buckets (theoretical)"
+          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+          countValue={result.recommendedContainers.reduce(
+            (s, c) => s + c.count,
+            0,
+          )}
+          decimals={0}
+          suffix=" buckets"
         />
         {input.wasteMargin > 0 && (
           <Stat
             label="After waste margin"
-            value={`${formatNumber(result.adjustedLiters, 1)} L`}
-            countValue={result.adjustedLiters}
-            decimals={1}
-            suffix=" L"
+            value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+            countValue={result.recommendedContainers.reduce(
+              (s, c) => s + c.count,
+              0,
+            )}
+            decimals={0}
+            suffix=" buckets"
           />
         )}
         <Stat
-          label="Total to purchase"
-          value={`${formatNumber(result.totalRecommendedLiters, 1)} L`}
-          countValue={result.totalRecommendedLiters}
-          decimals={1}
-          suffix=" L"
+          label="Total buckets to purchase"
+          value={`${result.recommendedContainers.reduce((s, c) => s + c.count, 0)} buckets`}
+          countValue={result.recommendedContainers.reduce(
+            (s, c) => s + c.count,
+            0,
+          )}
+          decimals={0}
+          suffix=" buckets"
           highlight
         />
         {result.leftoverLiters > 0 && (
           <Stat
-            label="Excess from containers"
+            label="Excess from buckets"
             value={`${formatNumber(result.leftoverLiters, 1)} L`}
             countValue={result.leftoverLiters}
             decimals={1}
@@ -1711,15 +1721,16 @@ function ResultCard({
                 key={i}
                 className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white"
               >
-                {c.count} × {c.size} L
+                {c.count} × {c.size} L bucket
               </span>
             ))}
             <span className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-semibold text-brand-purple">
-              {formatNumber(result.primerLiters, 1)} L needed
+              {result.primerContainers.reduce((s, c) => s + c.count, 0)} buckets
+              needed
             </span>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            Primer covers ~30% more area per liter than paint. Applied as 1 coat
+            Primer covers ~30% more area per litre than paint. Applied as 1 coat
             before painting.
           </p>
         </div>
@@ -1727,7 +1738,7 @@ function ResultCard({
 
       <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
         <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
-          Recommended containers
+          Recommended paint buckets
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {result.recommendedContainers.map((c, i) => (
@@ -1735,7 +1746,7 @@ function ResultCard({
               key={i}
               className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white"
             >
-              {c.count} × {c.size} L
+              {c.count} × {c.size} L bucket
             </span>
           ))}
         </div>

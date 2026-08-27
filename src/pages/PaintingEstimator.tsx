@@ -140,9 +140,9 @@ export default function PaintingEstimator({
     !embedded
       ? {
           title:
-            "FRELUX Painting Estimator: Room-Based Paint Quantity & Cost Calculator",
+            "Painting Estimator — Complete Paint Project Estimate & Summary",
           description:
-            "Professional room-based painting estimator. Calculate paint quantity, purchase buckets, ceiling paint, and material costs based on FRELUX estimation methodology.",
+            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions — the full project overview.",
           canonicalPath: "/painting-estimator",
           ogType: "website",
           keywords:
@@ -700,7 +700,7 @@ export default function PaintingEstimator({
         <PageHeader
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
-          subtitle="Professional room-based paint quantity and cost estimation."
+          subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
           breadcrumbs={[
             { label: "Calculators", path: "/paint-calculator" },
             { label: "Painting Estimator" },
@@ -722,15 +722,21 @@ export default function PaintingEstimator({
         <PageHeader
           eyebrow="FRELUX Estimator"
           title="Painting Estimator"
-          subtitle="Professional room-based paint quantity and cost estimation."
+          subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
           breadcrumbs={[
             { label: "Calculators", path: "/paint-calculator" },
             { label: "Painting Estimator" },
           ]}
         />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-          <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10">
-            <AlertCircle aria-hidden="true" className="mx-auto h-8 w-8 text-red-500" />
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-500/20 dark:bg-red-500/10"
+          >
+            <AlertCircle
+              aria-hidden="true"
+              className="mx-auto h-8 w-8 text-red-500"
+            />
             <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400">
               Failed to load
             </p>
@@ -752,12 +758,19 @@ export default function PaintingEstimator({
           { label: "Painting Estimator" },
         ]}
       />
-      <div role="region" aria-label="Room painting estimator" className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div
+        role="region"
+        aria-label="Room painting estimator"
+        className="mx-auto max-w-5xl px-4 py-8 sm:px-6"
+      >
         {/* Configuration warnings */}
         {configWarnings.length > 0 && (
           <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
             <div className="flex items-start gap-3">
-              <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+              <AlertCircle
+                aria-hidden="true"
+                className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400"
+              />
               <div>
                 <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
                   Configuration Required
@@ -1035,9 +1048,15 @@ function RoomCard({
             </button>
           )}
           {isExpanded ? (
-            <ChevronUp aria-hidden="true" className="h-5 w-5 text-neutral-500" />
+            <ChevronUp
+              aria-hidden="true"
+              className="h-5 w-5 text-neutral-500"
+            />
           ) : (
-            <ChevronDown aria-hidden="true" className="h-5 w-5 text-neutral-500" />
+            <ChevronDown
+              aria-hidden="true"
+              className="h-5 w-5 text-neutral-500"
+            />
           )}
         </div>
       </div>
@@ -1421,7 +1440,10 @@ function EstimateResult({
       {result.warnings.length > 0 && (
         <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10">
           <div className="flex items-start gap-3">
-            <AlertCircle aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+            <AlertCircle
+              aria-hidden="true"
+              className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400"
+            />
             <div>
               <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">
                 Warnings & Recommendations
@@ -1557,14 +1579,13 @@ function EstimateResult({
             {/* Professional detail stats (supplementary, not primary) */}
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
               <StatBox
-                label="Theoretical Qty"
-                value={`${room.theoretical_total_litres.toFixed(2)} L`}
+                label="Paint Buckets Required"
+                value={`${room.practical_total_buckets} bucket(s)`}
                 highlight
               />
               <StatBox
-                label="Purchase Qty"
-                value={`${room.practical_total_buckets} bucket(s)`}
-                highlight
+                label="Paint Buckets Required"
+                value={`${room.theoretical_total_litres.toFixed(2)} L (internal)`}
               />
               <StatBox
                 label="Net Wall Area"
@@ -1661,17 +1682,13 @@ function EstimateResult({
           {/* Combined quantities */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
             <StatBox
-              label="Total Theoretical"
-              value={`${result.combined_theoretical_litres.toFixed(2)} L`}
-            />
-            <StatBox
-              label="Total Theoretical"
-              value={`${result.combined_theoretical_buckets.toFixed(2)} buckets`}
-            />
-            <StatBox
-              label="Total Purchase"
-              value={`${result.combined_practical_buckets} buckets`}
+              label="Total Paint Buckets"
+              value={`${result.combined_practical_buckets} bucket(s)`}
               highlight
+            />
+            <StatBox
+              label="Theoretical (internal)"
+              value={`${result.combined_theoretical_litres.toFixed(2)} L`}
             />
           </div>
 
@@ -1843,15 +1860,15 @@ function EstimateResult({
           <EngineExplanationPanel
             result={engine.buildExplanation({
               subject: "Painting Estimate",
-              resultSummary: `${result.combined_practical_buckets} buckets needed (${result.combined_theoretical_litres.toFixed(2)} L theoretical)`,
+              resultSummary: `${result.combined_practical_buckets} paint buckets needed`,
               steps: [
                 {
                   description: "Number of rooms",
                   value: String(result.rooms.length),
                 },
                 {
-                  description: "Total theoretical litres",
-                  value: `${result.combined_theoretical_litres.toFixed(2)} L`,
+                  description: "Total paint buckets required",
+                  value: `${result.combined_practical_buckets} bucket(s)`,
                 },
                 {
                   description: "Total theoretical buckets",

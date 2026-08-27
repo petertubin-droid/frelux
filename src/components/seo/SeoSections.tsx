@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronDown } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { Link } from "react-router-dom";
+import { ArrowRight, ChevronDown } from "lucide-react";
+import { useState, type ReactNode } from "react";
 
 // ── FAQ Section ────────────────────────────────────────────────────
 
@@ -9,12 +9,23 @@ interface FaqItem {
   answer: ReactNode;
 }
 
-export function FaqSection({ title = 'Frequently Asked Questions', faqs }: { title?: string; faqs: FaqItem[] }) {
+export function FaqSection({
+  title = "Frequently Asked Questions",
+  faqs,
+}: {
+  title?: string;
+  faqs: FaqItem[];
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section className="mx-auto max-w-3xl px-4 py-12 sm:px-6" aria-label={title}>
-      <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">{title}</h2>
+    <section
+      className="mx-auto max-w-3xl px-4 py-12 sm:px-6"
+      aria-label={title}
+    >
+      <h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
+        {title}
+      </h2>
       <div className="mt-6 space-y-3">
         {faqs.map((faq, i) => (
           <div
@@ -27,10 +38,12 @@ export function FaqSection({ title = 'Frequently Asked Questions', faqs }: { tit
               className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
               aria-expanded={openIndex === i}
             >
-              <span className="text-sm font-semibold text-neutral-900 dark:text-white">{faq.question}</span>
+              <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {faq.question}
+              </span>
               <ChevronDown
                 className={`h-4 w-4 shrink-0 text-neutral-500 transition-transform duration-200 ${
-                  openIndex === i ? 'rotate-180' : ''
+                  openIndex === i ? "rotate-180" : ""
                 }`}
               />
             </button>
@@ -54,10 +67,21 @@ interface RelatedLink {
   description?: string;
 }
 
-export function RelatedTools({ title = 'Related calculators & tools', links }: { title?: string; links: RelatedLink[] }) {
+export function RelatedTools({
+  title = "Related calculators & tools",
+  links,
+}: {
+  title?: string;
+  links: RelatedLink[];
+}) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8" aria-label={title}>
-      <h2 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">{title}</h2>
+    <section
+      className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+      aria-label={title}
+    >
+      <h2 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
+        {title}
+      </h2>
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((link) => (
           <Link
@@ -66,9 +90,13 @@ export function RelatedTools({ title = 'Related calculators & tools', links }: {
             className="group flex items-center justify-between gap-3 rounded-xl border border-neutral-200/60 bg-white px-5 py-4 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 hover:-translate-y-0.5 dark:border-white/8 dark:bg-brand-navy-mid dark:hover:border-brand-purple/30 dark:hover:bg-white/5"
           >
             <div>
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">{link.label}</p>
+              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                {link.label}
+              </p>
               {link.description && (
-                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{link.description}</p>
+                <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                  {link.description}
+                </p>
               )}
             </div>
             <ArrowRight className="h-4 w-4 shrink-0 text-brand-purple opacity-0 transition-all group-hover:opacity-100 group-hover:translate-x-0.5" />
@@ -94,19 +122,120 @@ export function SeoContent({ children }: { children: ReactNode }) {
 // ── Standard related calculator groups ──────────────────────────────
 
 const CALC_LINKS = {
-  paintCalculator: { label: 'Painting Calculator', path: '/paint-calculator', description: 'Paint quantity, cost & room estimate' },
-  screedingCalc: { label: 'Screeding Calculator', path: '/screeding-calculator', description: 'Screeding quantity & cost' },
-  popCeilingCalc: { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator', description: 'POP material quantity & cost' },
-  tileCalc: { label: 'Tile Calculator', path: '/tile-calculator', description: 'Tile quantity, boxes & cost' },
-  finishEstimator: { label: 'Finishing Calculator', path: '/finish-estimator', description: 'Painting, Tyrolene & Grafitex' },
-  aiColor: { label: 'Smart Color Assistant', path: '/ai-color-assistant', description: 'AI color ideas' },
-  colors: { label: 'Color Library', path: '/colors', description: 'Browse paint colors' },
-  compareColors: { label: 'Compare Colors', path: '/colors/compare', description: 'Side-by-side comparison' },
-  buildToRoof: { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator', description: 'Full build cost from foundation to roof' },
-  imageEstimator: { label: 'AI Photo Estimator', path: '/image-estimator', description: 'Upload a photo for AI cost estimation' },
-  structuralCalc: { label: 'Structural Calculator', path: '/structural-calculator', description: 'Beams, columns & slabs' },
-  foundationCalc: { label: 'Foundation Calculator', path: '/foundation-calculator', description: 'Foundation sizing & materials' },
-  constructionSeq: { label: 'Construction Sequence', path: '/construction-sequence', description: 'Step-by-step build timeline' },
+  // Painting routes — differentiated
+  paintBuckets: {
+    label: "Paint Calculator",
+    path: "/paint-calculator",
+    description: "How many paint buckets do I need?",
+  },
+  paintCost: {
+    label: "Paint Cost Estimator",
+    path: "/cost-estimator",
+    description: "How much will my paint materials cost?",
+  },
+  paintingEstimator: {
+    label: "Painting Estimator",
+    path: "/painting-estimator",
+    description: "Complete painting project estimate & summary",
+  },
+  // Legacy alias (backward compat)
+  paintCalculator: {
+    label: "Painting Calculator",
+    path: "/paint-calculator",
+    description: "Paint buckets, cost & room estimate",
+  },
+  // Screeding routes
+  screedingCalc: {
+    label: "Screeding Calculator",
+    path: "/screeding-calculator",
+    description: "Screeding quantity (m²) & cost",
+  },
+  screedingCost: {
+    label: "Screeding Cost Estimator",
+    path: "/screeding-calculator?mode=cost",
+    description: "Screeding project cost estimate",
+  },
+  // POP routes
+  popCeilingCalc: {
+    label: "POP Ceiling Calculator",
+    path: "/pop-ceiling-calculator",
+    description: "POP material quantity & cost",
+  },
+  // Tile routes
+  tileCalc: {
+    label: "Tile Calculator",
+    path: "/tile-calculator",
+    description: "Tile quantity, boxes & cost",
+  },
+  tileCost: {
+    label: "Tile Cost Estimator",
+    path: "/tile-calculator?mode=cost",
+    description: "Tile installation cost breakdown",
+  },
+  // Finishing
+  finishEstimator: {
+    label: "Finish Estimator",
+    path: "/finish-estimator",
+    description: "Compare paint, Tyrolene & Grafitex finishes",
+  },
+  tyrolene: {
+    label: "Tyrolene Estimator",
+    path: "/finish-estimator?mode=tyrolene",
+    description: "Tyrolene putty estimator",
+  },
+  // Colors
+  aiColor: {
+    label: "Smart Color Assistant",
+    path: "/ai-color-assistant",
+    description: "AI color recommendations",
+  },
+  colors: {
+    label: "Color Library",
+    path: "/colors",
+    description: "Browse paint colors with HEX, RGB & HSL",
+  },
+  compareColors: {
+    label: "Compare Colors",
+    path: "/colors/compare",
+    description: "Side-by-side color comparison",
+  },
+  // Construction
+  buildToRoof: {
+    label: "Build-to-Roof Estimator",
+    path: "/build-to-roof-estimator",
+    description: "Foundation to roof construction estimate",
+  },
+  imageEstimator: {
+    label: "AI Photo Estimator",
+    path: "/image-estimator",
+    description: "AI-assisted photo-based estimate",
+  },
+  structuralCalc: {
+    label: "Structural Calculator",
+    path: "/structural-calculator",
+    description: "Preliminary beam, column & slab sizing",
+  },
+  foundationCalc: {
+    label: "Foundation Calculator",
+    path: "/foundation-calculator",
+    description: "Preliminary foundation sizing by soil type",
+  },
+  constructionSeq: {
+    label: "Construction Sequence",
+    path: "/construction-sequence",
+    description: "Correct build order with quality gates",
+  },
+  projectTimeline: {
+    label: "Project Timeline",
+    path: "/project-timeline",
+    description: "Stage-by-stage construction schedule",
+  },
+  // Templates
+  templates: {
+    label: "Calculator Templates",
+    path: "/templates",
+    description: "Pre-set calculator scenarios",
+  },
 };
 
 export { CALC_LINKS };
