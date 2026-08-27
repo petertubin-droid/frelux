@@ -1210,6 +1210,40 @@ export async function deleteVerificationDocument(docId: string, storagePath: str
   return true;
 }
 
+
+
+// -- Admin: Get verification documents for a profile/request --
+
+export async function getAdminVerificationDocuments(profileId: string): Promise<DbProVerificationDocument[]> {
+  if (!isSupabaseConfigured) return [];
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+  const { data, error } = await supabase
+    .from('pro_verification_documents')
+    .select('*')
+    .eq('profile_id', profileId)
+    .order('uploaded_at DESC');
+  if (error) {
+    if (import.meta.env.DEV) console.error('[pro-connect] getAdminVerificationDocuments:', error.message);
+    return [];
+  }
+  return data as DbProVerificationDocument[];
+}
+
+export async function createAdminSignedUrlForDocument(storagePath: string): Promise<string | null> {
+  if (!isSupabaseConfigured) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+  const { data, error } = await supabase.storage
+    .from('pro-verification')
+    .createSignedUrl(storagePath, 300); // 5-minute expiry
+  if (error) {
+    if (import.meta.env.DEV) console.error('[pro-connect] createAdminSignedUrlForDocument:', error.message);
+    return null;
+  }
+  return data?.signedUrl || null;
+}
+
 // -- Verification tier helper re-export --
 export { getVerificationTier } from '@/types/pro-connect';
 export type { VerificationTier } from '@/types/pro-connect';

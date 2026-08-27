@@ -1,16 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { AdminModal } from '@/components/admin/AdminModal';
 import { supabase } from '@/lib/supabase';
-import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save } from 'lucide-react';
+import { Ban, Eye, ThumbsUp, Search, Check, X, FileWarning, Award, Shield, Phone, KeyRound, AlertCircle, Hash, Bot, Plus, Trash2, Save, FileText, Download } from 'lucide-react';
 import {AdminButton, AdminIconButton, AdminInput, AdminSelect, AdminTextarea,
   AdminTabButton} from '@/components/admin/AdminUi';
-import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings } from '@/types/pro-connect';
+import type { DbProProfile, DbProReport, DbProVerificationRequest, DbProSettings, DbProVerificationDocument } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import {
   adminApproveVerification, adminRejectVerification, adminRequestMoreInfo,
   adminSuspendVerification, adminReinstateVerification,
   adminAwardProLevel, adminRevokeProLevel,
   getAllVerificationRequests, fetchProSettings, updateProSettings,
+  getAdminVerificationDocuments, createAdminSignedUrlForDocument,
 } from '@/lib/pro-connect';
 import {
   adminGetNinSubmissions, adminApproveNin, adminRejectNin,
@@ -189,6 +190,10 @@ function AdminVerificationTab() {
   const [actionNotes, setActionNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [moreInfoText, setMoreInfoText] = useState('');
+  const [viewingDocs, setViewingDocs] = useState<DbProVerificationRequest | null>(null);
+  const [documents, setDocuments] = useState<DbProVerificationDocument[]>([]);
+  const [docsLoading, setDocsLoading] = useState(false);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -234,6 +239,22 @@ function AdminVerificationTab() {
     setActionNotes('');
     setSelectedRequest(null);
     load();
+  }
+
+  async function handleViewDocs(req: DbProVerificationRequest) {
+    setViewingDocs(req);
+    setDocsLoading(true);
+    setSignedUrls({});
+    const docs = await getAdminVerificationDocuments(req.profile_id);
+    setDocuments(docs);
+    // Create signed URLs for each document
+    const urls: Record<string, string> = {};
+    for (const doc of docs) {
+      const url = await createAdminSignedUrlForDocument(doc.storage_path);
+      if (url) urls[doc.id] = url;
+    }
+    setSignedUrls(urls);
+    setDocsLoading(false);
   }
 
   return (
@@ -310,11 +331,20 @@ function AdminVerificationTab() {
                       <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">Admin notes: {req.admin_notes}</p>
                     )}
                   </div>
-                  {profile && (
-                    <a href={`/pro-connect/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple">
-                      <Eye aria-hidden="true" className="h-4 w-4" />
-                    </a>
-                  )}
+                  <div className="flex shrink-0 gap-1">
+                    {profile && (
+                      <a href={`/pro-connect/${profile.slug}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple" title="View profile">
+                        <Eye aria-hidden="true" className="h-4 w-4" />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => handleViewDocs(req)}
+                      className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
+                      title="View verification documents"
+                    >
+                      <FileText aria-hidden="true" className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Actions */}
