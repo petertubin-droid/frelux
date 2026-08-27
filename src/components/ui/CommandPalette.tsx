@@ -212,10 +212,11 @@ export function CommandPalette({
 
   useEffect(() => {
     if (open) {
+      const previouslyFocused = document.activeElement as HTMLElement | null;
       setQuery("");
       setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
-    return () => previouslyFocused?.focus();
+      return () => previouslyFocused?.focus();
     }
   }, [open]);
 
