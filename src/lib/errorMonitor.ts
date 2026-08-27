@@ -1,5 +1,4 @@
 /**
-import { supabase } from '@/lib/supabase';
  * FRELUX Error Monitor — centralized client-side error capture.
  *
  * Captures: JS runtime errors, unhandled promise rejections, React errors,
@@ -13,6 +12,8 @@ import { supabase } from '@/lib/supabase';
  * - Non-blocking, fire-and-forget (never throws, never loops)
  * - App version tracking via build-time injection
  */
+
+import { supabase } from '@/lib/supabase';
 
 // ── Types ──
 
