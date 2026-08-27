@@ -5,6 +5,7 @@ import { AdminHeader, AdminCard, AdminButton, AdminField, StateMessage, Toggle, 
 import { MediaUploader } from '@/components/admin/MediaUploader';
 import type { DbLearnCategory, DbLearnArticle, LearnArticleStatus } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { checkGoogleCompliance, type GoogleComplianceReport } from '@/lib/google-compliance';
 
 type Status = 'loading' | 'ready' | 'error';
 
@@ -199,11 +200,41 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [complianceReport, setComplianceReport] = useState<GoogleComplianceReport | null>(null);
+  const [showCompliance, setShowCompliance] = useState(false);
+
+  function runComplianceCheck(): GoogleComplianceReport {
+    return checkGoogleCompliance({
+      slug: form.slug.trim(),
+      title: form.title.trim(),
+      excerpt: form.excerpt.trim() || null,
+      content: form.content,
+      category_slug: form.category_slug,
+      author: form.author.trim() || null,
+      read_time_minutes: Number(form.read_time_minutes) || null,
+      meta_title: form.meta_title.trim() || null,
+      meta_description: form.meta_description.trim() || null,
+      meta_keywords: null,
+      cover_image_url: form.cover_image_url.trim() || null,
+      status: form.status,
+      is_featured: form.is_featured,
+    });
+  }
 
   async function handleSubmit() {
     if (!form.slug.trim() || !form.title.trim() || !form.category_slug) {
       setError('Slug, title, and category are required.');
       return;
+    }
+    // Google compliance gate — block publishing non-compliant articles
+    if (form.status === 'published') {
+      const report = runComplianceCheck();
+      if (!report.compliant) {
+        setComplianceReport(report);
+        setShowCompliance(true);
+        setError(`Article fails Google compliance check (${report.blockingIssues.length} blocking issue(s)). Fix issues or save as draft.`);
+        return;
+      }
     }
     setSaving(true); setError('');
     try {
@@ -290,6 +321,41 @@ function ArticleEditor({ article, categories, onSave, onCancel }: {
           Featured article
         </label>
       </div>
+
+      {/* Google Compliance Checker */}
+      <div className="flex items-center gap-3">
+        <AdminButton type="button" onClick={() => { setComplianceReport(runComplianceCheck()); setShowCompliance(true); }}>
+          <AlertCircle aria-hidden="true" className="h-4 w-4" /> Check Google Compliance
+        </AdminButton>
+      </div>
+
+      {showCompliance && complianceReport && (
+        <AdminCard className={classNames('space-y-2', complianceReport.compliant ? 'border-green-200 bg-green-50 dark:border-green-500/20 dark:bg-green-500/5' : 'border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/5')}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Google Compliance Report</h3>
+            <AdminIconButton variant="ghost" type="button" onClick={() => setShowCompliance(false)}><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
+          </div>
+          <p className="text-sm font-semibold text-brand-navy dark:text-white">Score: {complianceReport.score}/100 — {complianceReport.compliant ? '✅ Compliant' : '❌ Not compliant for publishing'}</p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            <span className={classNames('rounded-full px-2 py-1 font-semibold', complianceReport.eeattAssessment.experience === 'pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>Experience: {complianceReport.eeattAssessment.experience}</span>
+            <span className={classNames('rounded-full px-2 py-1 font-semibold', complianceReport.eeattAssessment.expertise === 'pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>Expertise: {complianceReport.eeattAssessment.expertise}</span>
+            <span className={classNames('rounded-full px-2 py-1 font-semibold', complianceReport.eeattAssessment.authoritativeness === 'pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>Authoritativeness: {complianceReport.eeattAssessment.authoritativeness}</span>
+            <span className={classNames('rounded-full px-2 py-1 font-semibold', complianceReport.eeattAssessment.trustworthiness === 'pass' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>Trustworthiness: {complianceReport.eeattAssessment.trustworthiness}</span>
+          </div>
+          {complianceReport.blockingIssues.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-red-600">Blocking Issues</p>
+              {complianceReport.blockingIssues.map((issue, i) => <p key={i} className="text-xs text-red-600">{issue}</p>)}
+            </div>
+          )}
+          {complianceReport.advisoryIssues.length > 0 && (
+            <div className="space-y-1">
+              <p className="text-xs font-bold uppercase tracking-widest text-amber-600">Advisory Issues</p>
+              {complianceReport.advisoryIssues.map((issue, i) => <p key={i} className="text-xs text-amber-600">{issue}</p>)}
+            </div>
+          )}
+        </AdminCard>
+      )}
 
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
