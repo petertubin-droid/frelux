@@ -53,17 +53,25 @@ export default function Rewards() {
   const loadData = useCallback(async () => {
     if (!user) return;
     setRewardsLoading(true);
-    const [rwd, txs, mis, tokens] = await Promise.all([
-      getRewardCatalogue(),
-      getCreditTransactions(user.id, { limit: 20 }),
-      getCurrentWeeklyMission(),
-      getUnusedRewardGrantCount(user.id, 'ai_token'),
-    ]);
-    setRewards(rwd);
-    setTransactions(txs.transactions);
-    if (mis) {
-      const prog = await getMissionProgress(user.id, mis.id);
-      setMissionProgress(prog);
+    try {
+      const [rwd, txs, mis, tokens] = await Promise.all([
+        getRewardCatalogue(),
+        getCreditTransactions(user.id, { limit: 20 }),
+        getCurrentWeeklyMission(),
+        getUnusedRewardGrantCount(user.id, 'ai_token'),
+      ]);
+      setRewards(rwd);
+      setTransactions(txs.transactions);
+      setMission(mis);
+      setUnusedAiTokens(tokens);
+      if (mis) {
+        const prog = await getMissionProgress(user.id, mis.id);
+        setMissionProgress(prog);
+      }
+    } catch (err) {
+      console.error('[Rewards] Failed to load data:', err);
+    } finally {
+      setRewardsLoading(false);
     }
   }, [user]);
 
