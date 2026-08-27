@@ -26,6 +26,64 @@ export default function LearnArticle() {
   const [nextArticle, setNextArticle] = useState<DbLearnArticle | null>(null);
   const [status, setStatus] = useState<Status>("loading");
 
+  // Build structured data — Article schema + BreadcrumbList for rich results.
+  const SITE_URL_ =
+    import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
+  const articleStructuredData = article
+    ? [
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: article.title,
+          description: article.meta_description ?? article.excerpt ?? "",
+          author: article.author
+            ? { "@type": "Person", name: article.author }
+            : { "@type": "Organization", name: "FRELUX PAINT CALC" },
+          publisher: {
+            "@type": "Organization",
+            name: "FRELUX PAINT CALC",
+            logo: { "@type": "ImageObject", url: `${SITE_URL_}/logo.png` },
+          },
+          datePublished: article.published_at ?? article.created_at,
+          dateModified: article.updated_at,
+          image: article.cover_image_url
+            ? [article.cover_image_url]
+            : undefined,
+          articleBody: article.content.slice(0, 5000),
+          wordCount: article.content.split(/\s+/).length,
+          keywords: article.meta_keywords ?? undefined,
+          mainEntityOfPage: {
+            "@type": "WebPage",
+            "@id": `${SITE_URL_}/learn/${articleSlug}`,
+          },
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Learn",
+              item: `${SITE_URL_}/learn`,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: article.category_slug.replace(/-/g, " "),
+              item: `${SITE_URL_}/learn/category/${article.category_slug}`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: article.title,
+              item: `${SITE_URL_}/learn/${articleSlug}`,
+            },
+          ],
+        },
+      ]
+    : undefined;
+
   useSeo({
     title: article ? (article.meta_title ?? article.title) : "Article",
     description:
@@ -35,19 +93,8 @@ export default function LearnArticle() {
     canonicalPath: `/learn/${articleSlug}`,
     ogType: "article",
     ogImage: article?.cover_image_url ?? undefined,
-    structuredData: article
-      ? {
-          "@context": "https://schema.org",
-          "@type": "Article",
-          headline: article.title,
-          description: article.meta_description ?? article.excerpt ?? "",
-          author: article.author
-            ? { "@type": "Person", name: article.author }
-            : undefined,
-          datePublished: article.published_at ?? article.created_at,
-          image: article.cover_image_url ?? undefined,
-        }
-      : undefined,
+    keywords: article?.meta_keywords ?? undefined,
+    structuredDataArray: articleStructuredData,
   });
 
   useEffect(() => {
@@ -225,6 +272,15 @@ export default function LearnArticle() {
         </div>
       )}
 
+      {/* In-article ad — placed after cover image, before content.
+           Labeled "Advertisement" per Google Better Ads Standards. */}
+      <div className="mb-8">
+        <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
+          Advertisement
+        </div>
+        <AdSlot slotKey="learn_in_article" />
+      </div>
+
       {/* Content */}
       <div className="prose prose-sm max-w-none sm:prose-base">
         <RenderedMarkdown content={article.content} />
@@ -388,7 +444,13 @@ export default function LearnArticle() {
         </section>
       )}
 
-      <AdSlot slotKey="learn_article_bottom" className="mt-8" />
+      {/* Bottom ad — labeled per Google Better Ads Standards */}
+      <div className="mt-8">
+        <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
+          Advertisement
+        </div>
+        <AdSlot slotKey="learn_article_bottom" />
+      </div>
     </article>
   );
 }

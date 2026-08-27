@@ -25,12 +25,40 @@ export default function LearnCategory() {
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
   const [status, setStatus] = useState<Status>("loading");
 
+  const SITE_URL_ =
+    import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
   useSeo({
     title: category ? `${category.name}: Learn` : "Learn Category",
     description:
       category?.description ?? "Browse educational articles from FRELUX.",
     canonicalPath: `/learn/category/${categorySlug}`,
     ogType: "website",
+    structuredData: category
+      ? {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: `${SITE_URL_}/`,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Learn",
+              item: `${SITE_URL_}/learn`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: category.name,
+              item: `${SITE_URL_}/learn/category/${categorySlug}`,
+            },
+          ],
+        }
+      : undefined,
   });
 
   useEffect(() => {
@@ -219,7 +247,13 @@ export default function LearnCategory() {
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All topics
           </Link>
         </div>
-        <AdSlot slotKey="learn_category_bottom" className="mt-8" />
+        {/* Bottom ad — labeled per Google Better Ads Standards */}
+        <div className="mt-8">
+          <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
+            Advertisement
+          </div>
+          <AdSlot slotKey="learn_category_bottom" />
+        </div>
       </div>
     </>
   );

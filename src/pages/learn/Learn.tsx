@@ -26,13 +26,33 @@ export default function Learn() {
       "Explore painting guides, DIY tutorials, color psychology, buying guides, and expert tips to make your next paint project a success.",
     canonicalPath: "/learn",
     ogType: "website",
-    structuredData: {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      name: "FRELUX Learn: Painting Guides & Tutorials",
-      description:
-        "Educational hub for painting guides, DIY tutorials, color psychology, and more.",
-    },
+    structuredDataArray: [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "FRELUX Learn: Painting Guides & Tutorials",
+        description:
+          "Educational hub for painting guides, DIY tutorials, color psychology, and more.",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://freluxtools.netlify.app/",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Learn",
+            item: "https://freluxtools.netlify.app/learn",
+          },
+        ],
+      },
+    ],
   });
 
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
@@ -298,7 +318,13 @@ export default function Learn() {
             </p>
           </div>
         )}
-        <AdSlot slotKey="learn_bottom" className="mt-8" />
+        {/* Bottom ad — labeled per Google Better Ads Standards */}
+        <div className="mt-8">
+          <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
+            Advertisement
+          </div>
+          <AdSlot slotKey="learn_bottom" />
+        </div>
       </div>
       <AskAiWidget />
     </>
