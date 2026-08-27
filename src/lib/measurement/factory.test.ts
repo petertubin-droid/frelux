@@ -29,9 +29,9 @@ describe("measurement/factory", () => {
   });
 
   it("createMeasurementEntry accepts partial overrides", () => {
-    const entry = createMeasurementEntry({ length: 5, unit: "metres" });
+    const entry = createMeasurementEntry({ length: 5, unit: "meters" });
     expect(entry.length).toBe(5);
-    expect(entry.unit).toBe("metres");
+    expect(entry.unit).toBe("meters");
   });
 
   it("createMeasurementGroup creates group with label and entry", () => {
@@ -70,8 +70,8 @@ describe("measurement/factory", () => {
   });
 
   it("createMeasurementProject falls back to first allowed unit if preferred not allowed", () => {
-    const project = createMeasurementProject("paint_calc", "lightyears" as any);
-    // Should fall back to first allowed unit for paint_calc
+    const project = createMeasurementProject("painting", "lightyears" as any);
+    // Should fall back to first allowed unit for painting
     expect(project.preferredUnit).not.toBe("lightyears");
   });
 });
