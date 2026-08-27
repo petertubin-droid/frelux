@@ -68,74 +68,74 @@ const {
 
 describe("queries (supabase not configured)", () => {
   it("fetchProviders does not throw", async () => {
-    await expect(fetchProviders({} as any)).resolves.not.toThrow();
+    await expect(fetchProviders()).resolves.not.toThrow();
   });
   it("upsertProvider does not throw", async () => {
     await expect(upsertProvider({} as any)).resolves.not.toThrow();
   });
   it("toggleProvider does not throw", async () => {
-    await expect(toggleProvider({} as any)).resolves.not.toThrow();
+    await expect(toggleProvider('id', true)).resolves.not.toThrow();
   });
   it("fetchSources does not throw", async () => {
-    await expect(fetchSources({} as any)).resolves.not.toThrow();
+    await expect(fetchSources()).resolves.not.toThrow();
   });
   it("upsertSource does not throw", async () => {
     await expect(upsertSource({} as any)).resolves.not.toThrow();
   });
   it("deleteSource does not throw", async () => {
-    await expect(deleteSource({} as any)).resolves.not.toThrow();
+    await expect(deleteSource('id')).resolves.not.toThrow();
   });
   it("fetchProductAliases does not throw", async () => {
-    await expect(fetchProductAliases({} as any)).resolves.not.toThrow();
+    await expect(fetchProductAliases()).resolves.not.toThrow();
   });
   it("upsertProductAlias does not throw", async () => {
     await expect(upsertProductAlias({} as any)).resolves.not.toThrow();
   });
   it("verifyProductAlias does not throw", async () => {
-    await expect(verifyProductAlias({} as any)).resolves.not.toThrow();
+    await expect(verifyProductAlias('id', 'user')).resolves.not.toThrow();
   });
   it("deleteProductAlias does not throw", async () => {
-    await expect(deleteProductAlias({} as any)).resolves.not.toThrow();
+    await expect(deleteProductAlias('id')).resolves.not.toThrow();
   });
   it("fetchObservations does not throw", async () => {
-    await expect(fetchObservations({} as any)).resolves.not.toThrow();
+    await expect(fetchObservations()).resolves.not.toThrow();
   });
   it("insertObservation does not throw", async () => {
     await expect(insertObservation({} as any)).resolves.not.toThrow();
   });
   it("updateObservationStatus does not throw", async () => {
-    await expect(updateObservationStatus({} as any)).resolves.not.toThrow();
+    await expect(updateObservationStatus('id', 'approved' as any)).resolves.not.toThrow();
   });
   it("setObservationFreshness does not throw", async () => {
-    await expect(setObservationFreshness({} as any)).resolves.not.toThrow();
+    await expect(setObservationFreshness('id', 'fresh' as any)).resolves.not.toThrow();
   });
   it("fetchApprovedPrices does not throw", async () => {
-    await expect(fetchApprovedPrices({} as any)).resolves.not.toThrow();
+    await expect(fetchApprovedPrices()).resolves.not.toThrow();
   });
   it("upsertApprovedPrice does not throw", async () => {
     await expect(upsertApprovedPrice({} as any)).resolves.not.toThrow();
   });
   it("deactivateApprovedPrice does not throw", async () => {
-    await expect(deactivateApprovedPrice({} as any)).resolves.not.toThrow();
+    await expect(deactivateApprovedPrice('id')).resolves.not.toThrow();
   });
   it("fetchCrawlLogs does not throw", async () => {
-    await expect(fetchCrawlLogs({} as any)).resolves.not.toThrow();
+    await expect(fetchCrawlLogs()).resolves.not.toThrow();
   });
   it("insertCrawlLog does not throw", async () => {
-    await expect(insertCrawlLog({} as any)).resolves.not.toThrow();
+    await expect(insertCrawlLog("crawl_started", "test")).resolves.not.toThrow();
   });
   it("fetchProviderUsage does not throw", async () => {
-    await expect(fetchProviderUsage({} as any)).resolves.not.toThrow();
+    await expect(fetchProviderUsage()).resolves.not.toThrow();
   });
   it("fetchAnomalies does not throw", async () => {
-    await expect(fetchAnomalies({} as any)).resolves.not.toThrow();
+    await expect(fetchAnomalies()).resolves.not.toThrow();
   });
   it("resolveAnomaly does not throw", async () => {
-    await expect(resolveAnomaly({} as any)).resolves.not.toThrow();
+    await expect(resolveAnomaly("id", "resolved", "user")).resolves.not.toThrow();
   });
   it("insertAnomalyFlag does not throw", async () => {
     await expect(
-      insertAnomalyFlag("obs1", "price_spike", {}),
+      insertAnomalyFlag("obs1", "price_deviation", {} as any),
     ).resolves.not.toThrow();
   });
   it("manuallyEnterPrice is callable", async () => {

@@ -17,6 +17,8 @@ describe("crawler/frelux-crawler-adapter", () => {
       {
         html: "<html><body>No products</body></html>",
         url: "https://example.com",
+        statusCode: 200,
+        fetchedAt: new Date().toISOString(),
       },
       { country_code: "NG", name: "Test Source" } as any,
     );
@@ -33,7 +35,7 @@ describe("crawler/frelux-crawler-adapter", () => {
       </script>
     `;
     const result = extractMultipleProducts(
-      { html, url: "https://example.com" },
+      { html, url: "https://example.com", statusCode: 200, fetchedAt: new Date().toISOString() },
       { country_code: "NG", name: "Nigeria" } as any,
     );
     expect(result.products.length).toBeGreaterThan(0);

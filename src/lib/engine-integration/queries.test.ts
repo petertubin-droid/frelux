@@ -75,98 +75,98 @@ const {
 
 describe("queries (supabase not configured)", () => {
   it("fetchMaterialProfiles does not throw", async () => {
-    await expect(fetchMaterialProfiles({} as any)).resolves.not.toThrow();
+    await expect(fetchMaterialProfiles()).resolves.not.toThrow();
   });
   it("fetchMaterialProfilesByCategory does not throw", async () => {
     await expect(
-      fetchMaterialProfilesByCategory({} as any),
+      fetchMaterialProfilesByCategory('paint'),
     ).resolves.not.toThrow();
   });
   it("upsertMaterialProfile does not throw", async () => {
-    await expect(upsertMaterialProfile({} as any)).resolves.not.toThrow();
+    await expect(upsertMaterialProfile({ material_key: 'test' } as any)).resolves.not.toThrow();
   });
   it("deleteMaterialProfile does not throw", async () => {
-    await expect(deleteMaterialProfile({} as any)).resolves.not.toThrow();
+    await expect(deleteMaterialProfile('id')).resolves.not.toThrow();
   });
   it("approveMaterialProfile does not throw", async () => {
-    await expect(approveMaterialProfile({} as any)).resolves.not.toThrow();
+    await expect(approveMaterialProfile('id', 'user')).resolves.not.toThrow();
   });
   it("toggleMaterialProfileActive does not throw", async () => {
-    await expect(toggleMaterialProfileActive({} as any)).resolves.not.toThrow();
+    await expect(toggleMaterialProfileActive('id', true)).resolves.not.toThrow();
   });
   it("fetchRoofMaterials does not throw", async () => {
-    await expect(fetchRoofMaterials({} as any)).resolves.not.toThrow();
+    await expect(fetchRoofMaterials()).resolves.not.toThrow();
   });
   it("upsertRoofMaterial does not throw", async () => {
-    await expect(upsertRoofMaterial({} as any)).resolves.not.toThrow();
+    await expect(upsertRoofMaterial({ material_key: 'test' } as any)).resolves.not.toThrow();
   });
   it("deleteRoofMaterial does not throw", async () => {
-    await expect(deleteRoofMaterial({} as any)).resolves.not.toThrow();
+    await expect(deleteRoofMaterial('id')).resolves.not.toThrow();
   });
   it("fetchRoofSections does not throw", async () => {
-    await expect(fetchRoofSections({} as any)).resolves.not.toThrow();
+    await expect(fetchRoofSections()).resolves.not.toThrow();
   });
   it("upsertRoofSection does not throw", async () => {
-    await expect(upsertRoofSection({} as any)).resolves.not.toThrow();
+    await expect(upsertRoofSection({ section_key: 'test' } as any)).resolves.not.toThrow();
   });
   it("deleteRoofSection does not throw", async () => {
-    await expect(deleteRoofSection({} as any)).resolves.not.toThrow();
+    await expect(deleteRoofSection('id')).resolves.not.toThrow();
   });
   it("fetchWasteConfigs does not throw", async () => {
-    await expect(fetchWasteConfigs({} as any)).resolves.not.toThrow();
+    await expect(fetchWasteConfigs()).resolves.not.toThrow();
   });
   it("fetchWasteConfigsByScope does not throw", async () => {
-    await expect(fetchWasteConfigsByScope({} as any)).resolves.not.toThrow();
+    await expect(fetchWasteConfigsByScope('global')).resolves.not.toThrow();
   });
   it("upsertWasteConfig does not throw", async () => {
     await expect(upsertWasteConfig({} as any)).resolves.not.toThrow();
   });
   it("updateWasteConfig does not throw", async () => {
-    await expect(updateWasteConfig({} as any)).resolves.not.toThrow();
+    await expect(updateWasteConfig('id', {} as any)).resolves.not.toThrow();
   });
   it("deleteWasteConfig does not throw", async () => {
-    await expect(deleteWasteConfig({} as any)).resolves.not.toThrow();
+    await expect(deleteWasteConfig('id')).resolves.not.toThrow();
   });
   it("fetchAiVerifications does not throw", async () => {
-    await expect(fetchAiVerifications({} as any)).resolves.not.toThrow();
+    await expect(fetchAiVerifications()).resolves.not.toThrow();
   });
   it("updateAiVerificationState does not throw", async () => {
-    await expect(updateAiVerificationState({} as any)).resolves.not.toThrow();
+    await expect(updateAiVerificationState('id', 'verified' as any)).resolves.not.toThrow();
   });
   it("createAiVerification does not throw", async () => {
     await expect(createAiVerification({} as any)).resolves.not.toThrow();
   });
   it("fetchRuleMetadata does not throw", async () => {
-    await expect(fetchRuleMetadata({} as any)).resolves.not.toThrow();
+    await expect(fetchRuleMetadata()).resolves.not.toThrow();
   });
   it("fetchRuleMetadataById does not throw", async () => {
-    await expect(fetchRuleMetadataById({} as any)).resolves.not.toThrow();
+    await expect(fetchRuleMetadataById('rule_1')).resolves.not.toThrow();
   });
   it("upsertRuleMetadata does not throw", async () => {
-    await expect(upsertRuleMetadata({} as any)).resolves.not.toThrow();
+    await expect(upsertRuleMetadata({ rule_id: 'rule_1' } as any)).resolves.not.toThrow();
   });
   it("deleteRuleMetadata does not throw", async () => {
-    await expect(deleteRuleMetadata({} as any)).resolves.not.toThrow();
+    await expect(deleteRuleMetadata('id')).resolves.not.toThrow();
   });
   it("verifyRuleMetadata does not throw", async () => {
-    await expect(verifyRuleMetadata({} as any)).resolves.not.toThrow();
+    await expect(verifyRuleMetadata('id', 'user')).resolves.not.toThrow();
   });
   it("fetchEngineSettings does not throw", async () => {
-    await expect(fetchEngineSettings({} as any)).resolves.not.toThrow();
+    await expect(fetchEngineSettings()).resolves.not.toThrow();
   });
   it("fetchEngineSetting does not throw", async () => {
-    await expect(fetchEngineSetting({} as any)).resolves.not.toThrow();
+    await expect(fetchEngineSetting('key')).resolves.not.toThrow();
   });
   it("updateEngineSetting does not throw", async () => {
-    await expect(updateEngineSetting({} as any)).resolves.not.toThrow();
+    await expect(updateEngineSetting('key', 'val')).resolves.not.toThrow();
   });
   it("upsertEngineSetting does not throw", async () => {
-    await expect(upsertEngineSetting({} as any)).resolves.not.toThrow();
+    await expect(upsertEngineSetting({ setting_key: 'key' } as any)).resolves.not.toThrow();
   });
   it("toggleMarketActivation does not throw", async () => {
-    await expect(toggleMarketActivation({} as any)).resolves.not.toThrow();
+    await expect(toggleMarketActivation('NG', 'active')).resolves.not.toThrow();
   });
   it("fetchMarketActivationStatus does not throw", async () => {
-    await expect(fetchMarketActivationStatus({} as any)).resolves.not.toThrow();
+    await expect(fetchMarketActivationStatus()).resolves.not.toThrow();
   });
 });

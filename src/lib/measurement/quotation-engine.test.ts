@@ -40,7 +40,7 @@ describe("measurement/quotation-engine", () => {
     expect(DEFAULT_QUOTATION_SETTINGS.validityDays).toBeGreaterThan(0);
     expect(DEFAULT_QUOTATION_SETTINGS.paymentTerms).toBeTruthy();
     expect(
-      DEFAULT_QUOTATION_SETTINGS.termsAndConditions.length,
+      DEFAULT_QUOTATION_SETTINGS.termsAndConditions!.length,
     ).toBeGreaterThan(0);
   });
 

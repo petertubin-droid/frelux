@@ -93,10 +93,10 @@ describe("measurement/space-engine", () => {
     const mockResults = [
       { finishType: "paint", totalAreaM2: 100 } as any,
       { finishType: "paint", totalAreaM2: 50 } as any,
-      { finishType: "tile", totalAreaM2: 200 } as any,
+      { finishType: "tiling", totalAreaM2: 200 } as any,
     ];
     expect(totalAreaByFinishType(mockResults, "paint")).toBe(150);
-    expect(totalAreaByFinishType(mockResults, "tile")).toBe(200);
+    expect(totalAreaByFinishType(mockResults, "tiling")).toBe(200);
   });
 
   it("spaceSummary aggregates by type", () => {

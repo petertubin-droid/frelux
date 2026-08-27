@@ -23,9 +23,9 @@ describe("measurement/project-engine", () => {
   });
 
   it("createProjectElement creates with spaces", () => {
-    const e = createProjectElement("Living Room", "interior_space", "painting");
+    const e = createProjectElement("Living Room", "interior", "painting");
     expect(e.name).toBe("Living Room");
-    expect(e.elementType).toBe("interior_space");
+    expect(e.elementType).toBe("interior");
     expect(e.primaryCalculator).toBe("painting");
     expect(e.spaces).toEqual([]);
     expect(e.id).toBeTruthy();

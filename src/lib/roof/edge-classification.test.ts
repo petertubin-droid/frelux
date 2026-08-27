@@ -7,14 +7,14 @@ import {
   confirmAllEdges,
   getUnconfirmedEdges,
   calculateEdgeLengths,
-  type RoofEdge,
 } from "./edge-classification";
-import type { EdgeType } from "./geometry-types";
+import type { EdgeType, RoofEdge } from "./geometry-types";
 
 describe("roof/edge-classification", () => {
   const mockEdges: RoofEdge[] = [
     {
       id: "e1",
+      sectionId: "s1",
       from: { id: "p1", x: 0, y: 0 },
       to: { id: "p2", x: 10, y: 0 },
       type: "ridge",
@@ -22,6 +22,7 @@ describe("roof/edge-classification", () => {
     },
     {
       id: "e2",
+      sectionId: "s1",
       from: { id: "p2", x: 10, y: 0 },
       to: { id: "p3", x: 10, y: 10 },
       type: "eave",

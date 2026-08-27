@@ -127,7 +127,7 @@ describe("roof/geometry-engine", () => {
   it("addSection adds to geometry", () => {
     const g = createDefaultRoofGeometry();
     const newSec = createRoofSection("Garage");
-    const updated = addSection(g, newSec);
+    const updated = addSection(g, "Garage");
     expect(updated.sections.length).toBe(g.sections.length + 1);
   });
 

@@ -62,59 +62,59 @@ const {
 
 describe("queries (supabase not configured)", () => {
   it("fetchMarketProfiles does not throw", async () => {
-    await expect(fetchMarketProfiles({} as any)).resolves.not.toThrow();
+    await expect(fetchMarketProfiles()).resolves.not.toThrow();
   });
   it("fetchMarketProfile does not throw", async () => {
-    await expect(fetchMarketProfile({} as any)).resolves.not.toThrow();
+    await expect(fetchMarketProfile('NG')).resolves.not.toThrow();
   });
   it("upsertMarketProfile does not throw", async () => {
-    await expect(upsertMarketProfile({} as any)).resolves.not.toThrow();
+    await expect(upsertMarketProfile({ country_code: 'NG' } as any)).resolves.not.toThrow();
   });
   it("deleteMarketProfile does not throw", async () => {
-    await expect(deleteMarketProfile({} as any)).resolves.not.toThrow();
+    await expect(deleteMarketProfile('NG')).resolves.not.toThrow();
   });
   it("fetchMaterialRulesDb does not throw", async () => {
-    await expect(fetchMaterialRulesDb({} as any)).resolves.not.toThrow();
+    await expect(fetchMaterialRulesDb('NG')).resolves.not.toThrow();
   });
   it("upsertMaterialRule does not throw", async () => {
     await expect(upsertMaterialRule({} as any)).resolves.not.toThrow();
   });
   it("deleteMaterialRule does not throw", async () => {
-    await expect(deleteMaterialRule({} as any)).resolves.not.toThrow();
+    await expect(deleteMaterialRule('id')).resolves.not.toThrow();
   });
   it("fetchMarketProductsDb does not throw", async () => {
-    await expect(fetchMarketProductsDb({} as any)).resolves.not.toThrow();
+    await expect(fetchMarketProductsDb('NG')).resolves.not.toThrow();
   });
   it("upsertMarketProduct does not throw", async () => {
     await expect(upsertMarketProduct({} as any)).resolves.not.toThrow();
   });
   it("deleteMarketProduct does not throw", async () => {
-    await expect(deleteMarketProduct({} as any)).resolves.not.toThrow();
+    await expect(deleteMarketProduct('id')).resolves.not.toThrow();
   });
   it("fetchMarketPricingDb does not throw", async () => {
-    await expect(fetchMarketPricingDb({} as any)).resolves.not.toThrow();
+    await expect(fetchMarketPricingDb('NG')).resolves.not.toThrow();
   });
   it("upsertMarketPricing does not throw", async () => {
     await expect(upsertMarketPricing({} as any)).resolves.not.toThrow();
   });
   it("deleteMarketPricing does not throw", async () => {
-    await expect(deleteMarketPricing({} as any)).resolves.not.toThrow();
+    await expect(deleteMarketPricing('id')).resolves.not.toThrow();
   });
   it("fetchCalculatorConfigsDb does not throw", async () => {
-    await expect(fetchCalculatorConfigsDb({} as any)).resolves.not.toThrow();
+    await expect(fetchCalculatorConfigsDb('NG')).resolves.not.toThrow();
   });
   it("upsertCalculatorConfig does not throw", async () => {
     await expect(upsertCalculatorConfig({} as any)).resolves.not.toThrow();
   });
   it("toggleCalculatorAvailability does not throw", async () => {
     await expect(
-      toggleCalculatorAvailability({} as any),
+      toggleCalculatorAvailability('NG', 'painting', true),
     ).resolves.not.toThrow();
   });
   it("fetchUserMarketPreference does not throw", async () => {
-    await expect(fetchUserMarketPreference({} as any)).resolves.not.toThrow();
+    await expect(fetchUserMarketPreference('user_1')).resolves.not.toThrow();
   });
   it("upsertUserMarketPreference does not throw", async () => {
-    await expect(upsertUserMarketPreference({} as any)).resolves.not.toThrow();
+    await expect(upsertUserMarketPreference('user_1', {} as any)).resolves.not.toThrow();
   });
 });

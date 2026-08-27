@@ -65,7 +65,7 @@ describe("estimation/validation", () => {
   });
 
   it("validateDimensions rejects non-number, non-object", () => {
-    const r = validateDimensions("hello");
+    const r = validateDimensions("hello" as unknown as number);
     expect(r.valid).toBe(false);
   });
 
