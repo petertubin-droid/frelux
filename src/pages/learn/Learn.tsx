@@ -318,11 +318,8 @@ export default function Learn() {
             </p>
           </div>
         )}
-        {/* Bottom ad — labeled per Google Better Ads Standards */}
+        {/* Bottom ad — label built into AdSlot */}
         <div className="mt-8">
-          <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
-            Advertisement
-          </div>
           <AdSlot slotKey="learn_bottom" />
         </div>
       </div>

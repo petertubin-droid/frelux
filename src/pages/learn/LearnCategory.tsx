@@ -247,11 +247,8 @@ export default function LearnCategory() {
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All topics
           </Link>
         </div>
-        {/* Bottom ad — labeled per Google Better Ads Standards */}
+        {/* Bottom ad — label built into AdSlot */}
         <div className="mt-8">
-          <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
-            Advertisement
-          </div>
           <AdSlot slotKey="learn_category_bottom" />
         </div>
       </div>

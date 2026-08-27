@@ -5,7 +5,6 @@ import { siteConfig } from '@/config/site';
 import { useLegalPage } from '@/lib/useLegalPage';
 import { classNames } from '@/lib/utils';
 import Container from '@/components/ui/Container';
-import AdSlot from '@/components/ui/AdSlot';
 
 export default function LegalLayout({
   slug,
@@ -102,7 +101,6 @@ export default function LegalLayout({
                 ))}
               </div>
             </div>
-            <AdSlot slotKey="legal_bottom" className="mt-10" />
           </div>
         </Container>
       ) : (
@@ -162,10 +160,6 @@ export default function LegalLayout({
                 ))}
               </div>
 
-              {/* Ad placement */}
-              <div className="mt-8">
-                <AdSlot slotKey="legal_bottom" />
-              </div>
 
               {/* Footer note */}
               <div className="mt-8 rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-white/5 dark:bg-white/5">

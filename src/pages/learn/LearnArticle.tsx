@@ -275,10 +275,7 @@ export default function LearnArticle() {
       {/* In-article ad — placed after cover image, before content.
            Labeled "Advertisement" per Google Better Ads Standards. */}
       <div className="mb-8">
-        <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
-          Advertisement
-        </div>
-        <AdSlot slotKey="learn_in_article" />
+        <AdSlot slotKey="learn_in_article" hideLabel />
       </div>
 
       {/* Content */}
@@ -444,11 +441,8 @@ export default function LearnArticle() {
         </section>
       )}
 
-      {/* Bottom ad — labeled per Google Better Ads Standards */}
+      {/* Bottom ad — label built into AdSlot */}
       <div className="mt-8">
-        <div className="mb-1 text-center text-xs font-medium uppercase tracking-widest text-neutral-400">
-          Advertisement
-        </div>
         <AdSlot slotKey="learn_article_bottom" />
       </div>
     </article>

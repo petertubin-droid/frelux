@@ -608,3 +608,33 @@
   }
 }
 
+
+/* ============================================================
+   AdSense Compliance Styles
+   Ensures ads are visually separated from content per Google
+   AdSense placement policies.
+   ============================================================ */
+
+/* The wrapper around every rendered ad */
+.frelux-ad-unit {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Ensure AdSense ins elements have minimum height to prevent layout shift */
+.frelux-ad-unit .adsbygoogle {
+  min-height: 90px;
+}
+
+/* Dark mode — lighter borders for visibility */
+@media (prefers-color-scheme: dark) {
+  .frelux-ad-unit {
+    border-top-color: rgba(255, 255, 255, 0.08);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* Prevent ads from overlapping with navigation or interactive elements */
+.frelux-ad-unit + .frelux-ad-unit {
+  margin-top: 2rem;
+}

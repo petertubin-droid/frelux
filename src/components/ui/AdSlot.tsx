@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { fetchAdConfig, getProvidersForPlacement, getAdUnitId, shouldDisplayPlacement, logAdEvent } from '@/lib/ad-config';
 import { supabase } from '@/lib/supabase';
 import type { DbAdProvider, DbAdPlacement } from '@/types/database';
@@ -28,6 +28,10 @@ declare global {
  * - Rewarded providers (AdGate, OfferToro, etc.): offerwall iframe containers
  *
  * Ads are never fake — nothing is shown until a real provider + ad unit is configured.
+ *
+ * Every rendered ad is wrapped in an "Advertisement" label container per Google
+ * AdSense placement policies (ads must be clearly distinguishable from content).
+ * Pass `hideLabel` only when the caller already provides its own label.
  */
 
 interface ResolvedAd {
@@ -40,10 +44,13 @@ export default function AdSlot({
   slotKey,
   className,
   format = 'auto',
+  hideLabel = false,
 }: {
   slotKey: string;
   className?: string;
   format?: string;
+  /** Skip the built-in "Advertisement" label (caller provides their own). */
+  hideLabel?: boolean;
 }) {
   const [resolved, setResolved] = useState<ResolvedAd | null | 'none'>(null);
   const loggedRef = useRef(false);
@@ -305,186 +312,207 @@ export default function AdSlot({
   const { provider, adUnitId } = resolved;
   const creds = provider.credentials ?? {};
 
+  // ============================================================
+  // Provider-specific inner content (unwrapped — label applied below)
+  // ============================================================
+  let adInner: ReactNode = null;
+
   // Google AdSense rendering
   if (provider.slug === 'google_adsense') {
     if (!creds.publisher_id) return null;
-    return (
-      <div className={className}>
-        <ins
-          className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client={creds.publisher_id}
-          data-ad-slot={adUnitId}
-          data-ad-format={format}
-          data-full-width-responsive="true"
-        />
-      </div>
+    adInner = (
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client={creds.publisher_id}
+        data-ad-slot={adUnitId}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
     );
   }
 
   // Media.net rendering (uses same adsbygoogle mechanism)
-  if (provider.slug === 'media_net') {
+  else if (provider.slug === 'media_net') {
     if (!creds.cid) return null;
-    return (
-      <div className={className}>
-        <ins
-          className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client={creds.cid}
-          data-ad-slot={adUnitId}
-          data-ad-format={format}
-          data-full-width-responsive="true"
-        />
-      </div>
+    adInner = (
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client={creds.cid}
+        data-ad-slot={adUnitId}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
     );
   }
 
   // Google Ad Manager rendering
-  if (provider.slug === 'google_ad_manager') {
+  else if (provider.slug === 'google_ad_manager') {
     if (!creds.network_code) return null;
-    return (
-      <div className={className} data-ad-provider="gam" data-network-code={creds.network_code} data-ad-unit={adUnitId} />
+    adInner = (
+      <div data-ad-provider="gam" data-network-code={creds.network_code} data-ad-unit={adUnitId} />
     );
   }
 
   // Adsterra rendering
-  if (provider.slug === 'adsterra') {
+  else if (provider.slug === 'adsterra') {
     if (!creds.key) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="adsterra" data-ad-zone={creds.key} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="adsterra" data-ad-zone={creds.key} data-ad-placement={slotKey} />
     );
   }
 
   // BuySellAds rendering
-  if (provider.slug === 'buysellads') {
+  else if (provider.slug === 'buysellads') {
     if (!creds.site_key) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="buysellads" data-bsa-site={creds.site_key} data-bsa-zone={adUnitId} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="buysellads" data-bsa-site={creds.site_key} data-bsa-zone={adUnitId} />
     );
   }
 
   // Taboola rendering
-  if (provider.slug === 'taboola') {
+  else if (provider.slug === 'taboola') {
     if (!creds.publisher_id) return null;
-    return (
-      <div className={className}>
-        <div id={`taboola-${slotKey}`} data-ad-provider="taboola" data-placement={creds.placement || slotKey} />
-      </div>
+    adInner = (
+      <div id={`taboola-${slotKey}`} data-ad-provider="taboola" data-placement={creds.placement || slotKey} />
     );
   }
 
   // Outbrain rendering
-  if (provider.slug === 'outbrain') {
+  else if (provider.slug === 'outbrain') {
     if (!creds.widget_id) return null;
-    return (
-      <div className={className}>
-        <div
-          className="OUTBRAIN"
-          data-widget-id={creds.widget_id}
-          data-ob-template={creds.publisher_key || 'FRELUX'}
-          data-ob-installation-key={slotKey}
-        />
-      </div>
+    adInner = (
+      <div
+        className="OUTBRAIN"
+        data-widget-id={creds.widget_id}
+        data-ob-template={creds.publisher_key || 'FRELUX'}
+        data-ob-installation-key={slotKey}
+      />
     );
   }
 
   // PropellerAds rendering
-  if (provider.slug === 'propellerads') {
+  else if (provider.slug === 'propellerads') {
     if (!creds.zone_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="propellerads" data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="propellerads" data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
     );
   }
 
   // Ezoic rendering
-  if (provider.slug === 'ezoic') {
+  else if (provider.slug === 'ezoic') {
     if (!creds.site_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="ezoic" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="ezoic" data-site-id={creds.site_id} data-ad-placement={slotKey} />
     );
   }
 
   // Snigel rendering
-  if (provider.slug === 'snigel') {
+  else if (provider.slug === 'snigel') {
     if (!creds.site_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="snigel" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="snigel" data-site-id={creds.site_id} data-ad-placement={slotKey} />
     );
   }
 
   // Monumetric rendering
-  if (provider.slug === 'monumetric') {
+  else if (provider.slug === 'monumetric') {
     if (!creds.client_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="monumetric" data-client-id={creds.client_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="monumetric" data-client-id={creds.client_id} data-ad-placement={slotKey} />
     );
   }
 
   // Carbon Ads rendering
-  if (provider.slug === 'carbon_ads') {
+  else if (provider.slug === 'carbon_ads') {
     if (!creds.serve) return null;
-    return (
-      <div ref={containerRef} className={className}>
-        <div data-ad-provider="carbon-ads" data-serve={creds.serve} data-placement={creds.placement || slotKey} />
-      </div>
+    adInner = (
+      <div data-ad-provider="carbon-ads" data-serve={creds.serve} data-placement={creds.placement || slotKey} />
     );
   }
 
   // EthicalAds rendering
-  if (provider.slug === 'ethical_ads') {
+  else if (provider.slug === 'ethical_ads') {
     if (!creds.publisher_id) return null;
-    return (
-      <div ref={containerRef} className={className}>
-        <div
-          data-ad-provider="ethical-ads"
-          data-ea-publisher={creds.publisher_id}
-          data-ea-type={creds.placement || 'image-text'}
-        />
-      </div>
+    adInner = (
+      <div
+        data-ad-provider="ethical-ads"
+        data-ea-publisher={creds.publisher_id}
+        data-ea-type={creds.placement || 'image-text'}
+      />
     );
   }
 
   // Amazon Publisher (APS) rendering
-  if (provider.slug === 'amazon_publisher') {
+  else if (provider.slug === 'amazon_publisher') {
     if (!creds.publisher_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="amazon" data-publisher-id={creds.publisher_id} data-slot-id={creds.slot_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div data-ad-provider="amazon" data-publisher-id={creds.publisher_id} data-slot-id={creds.slot_id} data-ad-placement={slotKey} />
     );
   }
 
   // YlliX rendering
-  if (provider.slug === 'yllix') {
+  else if (provider.slug === 'yllix') {
     if (!creds.publisher_id) return null;
-    return (
-      <div ref={containerRef} className={className} data-ad-provider="yllix" data-publisher-id={creds.publisher_id} data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+    adInner = (
+      <div ref={containerRef} data-ad-provider="yllix" data-publisher-id={creds.publisher_id} data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
     );
   }
 
   // RevContent rendering
-  if (provider.slug === 'revcontent') {
+  else if (provider.slug === 'revcontent') {
     if (!creds.widget_id) return null;
-    return (
-      <div ref={containerRef} className={className}>
-        <div data-ad-provider="revcontent" data-widget-id={creds.widget_id} data-sub-id={creds.sub_id || ''} />
-      </div>
+    adInner = (
+      <div data-ad-provider="revcontent" data-widget-id={creds.widget_id} data-sub-id={creds.sub_id || ''} />
     );
   }
 
   // Rewarded ad providers (offerwall iframe based) — not rendered as regular ad slots
-  // These are triggered via the rewarded-access hook which opens an offerwall iframe
-  if (provider.provider_type === 'rewarded') {
+  else if (provider.provider_type === 'rewarded') {
     return null;
   }
 
   // Generic provider container — SDK scripts (when loaded) will fill this
+  else {
+    adInner = (
+      <div
+        ref={containerRef}
+        data-ad-provider={provider.slug}
+        data-ad-unit={adUnitId}
+        data-ad-placement={slotKey}
+      />
+    );
+  }
+
+  // ============================================================
+  // Wrap with "Advertisement" label per Google AdSense policy
+  // (ads must be clearly distinguishable from content)
+  // ============================================================
+  if (hideLabel) {
+    return <div className={className}>{adInner}</div>;
+  }
+
   return (
     <div
-      ref={containerRef}
-      className={className}
-      data-ad-provider={provider.slug}
-      data-ad-unit={adUnitId}
-      data-ad-placement={slotKey}
-    />
+      className={`frelux-ad-unit ${className ?? ''}`}
+      style={{
+        /* Clear visual separation from content */
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        borderBottom: '1px solid rgba(0,0,0,0.08)',
+        padding: '12px 0',
+        margin: '0 auto',
+      }}
+      data-ad-slot-key={slotKey}
+    >
+      <div
+        className="mb-1 text-center text-[10px] font-semibold uppercase tracking-[0.15em] text-neutral-400"
+        aria-label="Advertisement"
+      >
+        Advertisement
+      </div>
+      <div className="flex justify-center">{adInner}</div>
+    </div>
   );
 }
 
