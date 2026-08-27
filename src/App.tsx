@@ -186,7 +186,6 @@ const MyTemplates = lazy(() => import("@/pages/MyTemplates"));
 const StudioLayout = lazy(() => import("@/components/studio/StudioLayout"));
 const StudioOverview = lazy(() => import("@/pages/studio/StudioOverview"));
 const StudioTool = lazy(() => import("@/pages/studio/StudioTool"));
-const StudioManagement = lazy(() => import("@/pages/studio/StudioManagement"));
 const ErrorAnalysis = lazy(() => import("@/pages/studio/ErrorAnalysis"));
 
 // Pro Connect pages — professional network
@@ -1123,19 +1122,7 @@ export default function App() {
                     {/* AI Developer Studio (nested) */}
                     <Route path="studio" element={<StudioLayout />}>
                       <Route index element={<StudioOverview />} />
-                      <Route path="chat" element={<StudioTool />} />
-                      <Route path="page_builder" element={<StudioTool />} />
-                      <Route path="crud_generator" element={<StudioTool />} />
-                      <Route path="db_designer" element={<StudioTool />} />
-                      <Route path="api_builder" element={<StudioTool />} />
-                      <Route
-                        path="dashboard_builder"
-                        element={<StudioTool />}
-                      />
-                      <Route path="form_builder" element={<StudioTool />} />
-                      <Route path="workflow_builder" element={<StudioTool />} />
-                      <Route path="page/:pageId" element={<StudioTool />} />
-                      <Route path="management" element={<StudioManagement />} />
+                      {/* Error analysis uses a dedicated component */}
                       <Route
                         path="error_analysis"
                         element={
@@ -1144,6 +1131,10 @@ export default function App() {
                           </Suspense>
                         }
                       />
+                      {/* All other tools — StudioDispatcher reads :toolSlug
+                           and routes to StudioTool (chat/generation) or
+                           StudioManagement (plugins/prompts/etc) */}
+                      <Route path=":toolSlug" element={<StudioTool />} />
                     </Route>
                   </Route>
 

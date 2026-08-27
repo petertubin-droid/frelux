@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
+import StudioManagement from './StudioManagement';
 import { X } from 'lucide-react';
 import { invokeStudioAi, createArtifact, fetchChatHistory, createSession, fetchSessions, deleteSession } from '@/lib/ai-studio';
 import { getTool, getToolType } from '@/components/studio/tools';
@@ -30,8 +31,20 @@ const PLACEHOLDERS: Record<string, string> = {
   docs_generator: 'Describe what to document. e.g., "Generate API documentation for the color consultation endpoint"',
 };
 
-export default function StudioTool() {
+const MANAGEMENT_TOOLS = new Set([
+  'plugin_manager', 'prompt_library', 'integration_center',
+  'feature_management', 'role_management', 'system_monitoring',
+  'version_history', 'project_explorer', 'file_manager',
+]);
+
+export default function StudioDispatcher() {
   const { toolSlug } = useParams<{ toolSlug: string }>();
+
+  // Route management/infrastructure tools to StudioManagement
+  if (MANAGEMENT_TOOLS.has(toolSlug ?? '')) {
+    return <StudioManagement />;
+  }
+
   const tool = getTool(toolSlug ?? '');
   const isChat = toolSlug === 'chat';
   const isGeneration = toolSlug ? GENERATION_TOOLS.has(toolSlug) : false;
