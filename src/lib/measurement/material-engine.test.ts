@@ -37,7 +37,7 @@ describe('measurement/material-engine', () => {
   it('calculateMaterialQuantity calculates area-based coverage', () => {
     const spec = createMaterialSpec({
       productName: 'Test Paint',
-      coverage: { type: 'area', value: 35, coats: 1 },
+      coverage: { type: 'area', value: 35, coats: 1, unit: 'm2' },
       quantityUnit: 'buckets',
     });
     const result = calculateMaterialQuantity(50, spec, 2, 10);
@@ -54,7 +54,7 @@ describe('measurement/material-engine', () => {
   it('calculateMaterialQuantity throws for non-area coverage', () => {
     const spec = createMaterialSpec({
       productName: 'Nails',
-      coverage: { type: 'count', value: 10 },
+      coverage: { type: 'count', value: 10, unit: 'pieces' },
     });
     expect(() => calculateMaterialQuantity(50, spec)).toThrow('area-based coverage');
   });
@@ -62,7 +62,7 @@ describe('measurement/material-engine', () => {
   it('calculateMaterialQuantity throws for zero coverage', () => {
     const spec = createMaterialSpec({
       productName: 'Bad Paint',
-      coverage: { type: 'area', value: 0 },
+      coverage: { type: 'area', value: 0, unit: 'm2' },
     });
     expect(() => calculateMaterialQuantity(50, spec)).toThrow('zero or negative');
   });
@@ -70,7 +70,7 @@ describe('measurement/material-engine', () => {
   it('calculateMaterialQuantity handles coverage already at 2 coats', () => {
     const spec = createMaterialSpec({
       productName: '2-Coat Paint',
-      coverage: { type: 'area', value: 35, coats: 2 },
+      coverage: { type: 'area', value: 35, coats: 2, unit: 'm2' },
       quantityUnit: 'buckets',
     });
     // At 2 coats, effective coverage = 35 (already accounts for 2 coats)
@@ -82,7 +82,7 @@ describe('measurement/material-engine', () => {
   it('calculateMaterialQuantity uses material default waste when not specified', () => {
     const spec = createMaterialSpec({
       productName: 'Default Waste Paint',
-      coverage: { type: 'area', value: 35, coats: 1 },
+      coverage: { type: 'area', value: 35, coats: 1, unit: 'm2' },
       defaultWastePercent: 10,
     });
     const result = calculateMaterialQuantity(35, spec, 1);
