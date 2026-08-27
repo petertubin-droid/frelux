@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Gem, TrendingUp, AlertTriangle, Save, Loader2, Gift, Settings } from 'lucide-react';
+import { Gem, TrendingUp, AlertTriangle, Save, Loader2, Gift, Settings, Sparkles, Database } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 import { classNames } from '@/lib/utils';
@@ -9,6 +9,7 @@ import {
   adminUpdateReward,
   adminUpdateSettings,
   adminAdjustCredits,
+  adminSeedRewards,
   getRewardCatalogue,
   getRewardSettings,
   type CreditWallet,
@@ -34,6 +35,7 @@ export default function AdminRewards() {
   const [adjustAmount, setAdjustAmount] = useState(0);
   const [adjustReason, setAdjustReason] = useState('');
   const [adjusting, setAdjusting] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -87,6 +89,18 @@ export default function AdminRewards() {
       toast({ type: 'error', title: 'Failed to save settings' });
     }
     setSavingSettings(false);
+  }
+
+  async function handleSeedRewards() {
+    setSeeding(true);
+    const result = await adminSeedRewards();
+    if (result.success) {
+      toast({ type: 'success', title: 'Rewards seeded', message: result.message ?? '4 rewards created/updated successfully.' });
+      await load();
+    } else {
+      toast({ type: 'error', title: 'Seeding failed', message: result.error ?? 'Unknown error' });
+    }
+    setSeeding(false);
   }
 
   async function handleAdjustCredits() {
@@ -244,6 +258,34 @@ export default function AdminRewards() {
       {/* Reward catalogue tab */}
       {tab === 'rewards' && (
         <div className="space-y-4">
+          {/* Seed button */}
+          <div className="flex items-center justify-between rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+            <div className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-brand-purple" />
+              <div>
+                <p className="text-sm font-semibold text-brand-navy dark:text-white">Reward Catalogue</p>
+                <p className="text-xs text-neutral-500">{rewards.length} reward{rewards.length !== 1 ? 's' : ''} in catalogue</p>
+              </div>
+            </div>
+            <button
+              onClick={handleSeedRewards}
+              disabled={seeding}
+              className="flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+            >
+              {seeding ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Sparkles aria-hidden="true" className="h-4 w-4" />}
+              {seeding ? 'Seeding...' : 'Seed 4 Core Rewards'}
+            </button>
+          </div>
+
+          {/* Empty state */}
+          {rewards.length === 0 && !seeding && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-500/20 dark:bg-amber-500/5">
+              <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
+              <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">No rewards found in the database.</p>
+              <p className="mt-1 text-xs text-neutral-500">Click "Seed 4 Core Rewards" above to create them.</p>
+            </div>
+          )}
+
           {rewards.map((reward) => {
             const draft = editingReward[reward.id];
             return (

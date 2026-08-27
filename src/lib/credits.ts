@@ -399,7 +399,27 @@ export async function adminUpdateReward(
   return !error;
 }
 
-/** Admin: get all wallets (for overview) */
+/** Seed the 4 core rewards into the database (admin only, via Edge Function) */
+export async function adminSeedRewards(): Promise<{ success: boolean; message?: string; error?: string }> {
+  if (!isSupabaseConfigured || !EDGE_FUNCTION_URL) return { success: false, error: 'Supabase not configured' };
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return { success: false, error: 'Not authenticated' };
+    const res = await fetch(`${EDGE_FUNCTION_URL}/seed-rewards`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`,
+      },
+    });
+    const data = await res.json();
+    if (!res.ok) return { success: false, error: data.error ?? 'Failed to seed rewards' };
+    return { success: true, message: data.message ?? 'Rewards seeded successfully' };
+  } catch (err) {
+    return { success: false, error: (err as Error).message };
+  }
+}
+
 export async function adminGetAllWallets(limit = 50): Promise<CreditWallet[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase

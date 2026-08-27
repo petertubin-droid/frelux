@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Gem, Flame, Gift, Trophy, TrendingUp, Loader2, CheckCircle2, Lock, Clock } from 'lucide-react';
+import { ArrowLeft, Gem, Flame, Gift, Trophy, TrendingUp, Loader2, CheckCircle2, Lock, Clock, Sparkles, FileDown, Calculator, Crown } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { useCredits } from '@/lib/credits-context';
 import { useToast } from '@/components/ui/Toast';
@@ -21,6 +21,15 @@ import {
 } from '@/lib/credits';
 import { getClientHash } from '@/lib/rewarded-access';
 
+
+// Icon mapping for reward types
+const rewardIcon: Record<string, typeof Sparkles> = {
+  ai_token: Sparkles,
+  pdf_export: FileDown,
+  calc_unlock: Calculator,
+  premium_week: Crown,
+};
+
 export default function Rewards() {
   useSeo({
     title: 'FRELUX Rewards — Earn Credits & Unlock Features',
@@ -39,9 +48,11 @@ export default function Rewards() {
   const [activeTab, setActiveTab] = useState<'rewards' | 'achievements' | 'history'>('rewards');
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [unusedAiTokens, setUnusedAiTokens] = useState(0);
+  const [rewardsLoading, setRewardsLoading] = useState(true);
 
   const loadData = useCallback(async () => {
     if (!user) return;
+    setRewardsLoading(true);
     const [rwd, txs, mis, tokens] = await Promise.all([
       getRewardCatalogue(),
       getCreditTransactions(user.id, { limit: 20 }),
@@ -50,8 +61,6 @@ export default function Rewards() {
     ]);
     setRewards(rwd);
     setTransactions(txs.transactions);
-    setMission(mis);
-    setUnusedAiTokens(tokens);
     if (mis) {
       const prog = await getMissionProgress(user.id, mis.id);
       setMissionProgress(prog);
@@ -208,12 +217,29 @@ export default function Rewards() {
               You have <strong>{unusedAiTokens}</strong> unused AI Estimate Token{unusedAiTokens > 1 ? 's' : ''} — it&apos;ll be used automatically next time you hit your daily AI limit.
             </div>
           )}
-          {rewards.length === 0 && (
+          {rewardsLoading && (
+            <>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="animate-pulse rounded-2xl border border-neutral-200 bg-neutral-50 p-5 dark:border-white/5 dark:bg-white/5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="h-4 w-32 rounded bg-neutral-200 dark:bg-white/10" />
+                      <div className="mt-2 h-3 w-48 rounded bg-neutral-100 dark:bg-white/5" />
+                    </div>
+                    <div className="h-8 w-14 rounded-lg bg-neutral-200 dark:bg-white/10" />
+                  </div>
+                  <div className="mt-4 h-10 rounded-xl bg-neutral-200 dark:bg-white/10" />
+                </div>
+              ))}
+            </>
+          )}
+          {!rewardsLoading && rewards.length === 0 && (
             <p className="col-span-full text-center text-sm text-neutral-500 py-8">No rewards available.</p>
           )}
           {rewards.map((reward) => {
             const canAfford = balance >= reward.credit_cost;
             const isRedeeming = redeeming === reward.reward_key;
+            const Icon = rewardIcon[reward.reward_type] ?? Gift;
             return (
               <div
                 key={reward.id}
@@ -225,9 +251,20 @@ export default function Rewards() {
                 )}
               >
                 <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{reward.name}</h3>
-                    <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{reward.description}</p>
+                  <div className="flex flex-1 items-start gap-3">
+                    <div className={classNames(
+                      'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                      reward.reward_type === 'ai_token' ? 'bg-purple-50 text-purple-500 dark:bg-purple-500/10' :
+                      reward.reward_type === 'pdf_export' ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10' :
+                      reward.reward_type === 'calc_unlock' ? 'bg-amber-50 text-amber-500 dark:bg-amber-500/10' :
+                      'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
+                    )}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-base font-bold text-brand-navy dark:text-white">{reward.name}</h3>
+                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{reward.description}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-1 rounded-lg bg-brand-purple/10 px-2.5 py-1.5">
                     <Gem className="h-3.5 w-3.5 text-brand-purple" />
