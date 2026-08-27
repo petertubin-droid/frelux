@@ -20,7 +20,7 @@ const { invokeStudioAi, StudioAiError } = await import('./ai-studio');
 
 describe('ai-studio (supabase not configured)', () => {
   it('StudioAiError is an Error subclass', () => {
-    const err = new StudioAiError('msg', 'CODE');
+    const err = new StudioAiError('msg', 'CODE', 500);
     expect(err).toBeInstanceOf(Error);
     expect(err.code).toBe('CODE');
   });

@@ -21,7 +21,7 @@ describe('ai-credit-gate', () => {
   });
 
   it('unlockViaAd returns success=false when feature not configured', async () => {
-    const result = await unlockViaAd('ai_photo_estimator', 'test-ad-id');
+    const result = await unlockViaAd('ai_photo_estimator', 'test-ad-provider', 'test-ad-id');
     expect(result.success).toBe(false);
   });
 });
