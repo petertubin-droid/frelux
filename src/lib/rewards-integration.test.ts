@@ -53,20 +53,20 @@ describe("rewards-integration (supabase not configured)", () => {
     await expect(trackCalculationWithRewards({} as any)).resolves.not.toThrow();
   });
   it("trackProjectSaveWithRewards does not throw", async () => {
-    await expect(trackProjectSaveWithRewards({} as any)).resolves.not.toThrow();
+    await expect(trackProjectSaveWithRewards()).resolves.not.toThrow();
   });
   it("trackBuildToRoofRewards does not throw", async () => {
-    await expect(trackBuildToRoofRewards({} as any)).resolves.not.toThrow();
+    await expect(trackBuildToRoofRewards()).resolves.not.toThrow();
   });
   it("trackAiPhotoEstimatorRewards does not throw", async () => {
     await expect(
-      trackAiPhotoEstimatorRewards({} as any),
+      trackAiPhotoEstimatorRewards(),
     ).resolves.not.toThrow();
   });
   it("trackReferralRewards does not throw", async () => {
     await expect(trackReferralRewards({} as any)).resolves.not.toThrow();
   });
   it("trackReturnVisitRewards does not throw", async () => {
-    await expect(trackReturnVisitRewards({} as any)).resolves.not.toThrow();
+    await expect(trackReturnVisitRewards()).resolves.not.toThrow();
   });
 });
