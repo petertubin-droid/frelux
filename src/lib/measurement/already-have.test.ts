@@ -9,7 +9,6 @@ import {
   getAlreadyHaveEntries,
   inventoryToMap,
   quantityBreakdownToText,
-  type QuantityType,
 } from "./already-have";
 
 describe("measurement/already-have", () => {
@@ -105,7 +104,7 @@ describe("measurement/already-have", () => {
   });
 
   it("inventoryToMap converts to Map", () => {
-    let inv = setAlreadyHave(createAlreadyHaveInventory(), "m1", "A", 5, "u");
+    const inv = setAlreadyHave(createAlreadyHaveInventory(), "m1", "A", 5, "u");
     const map = inventoryToMap(inv);
     expect(map.get("m1")).toBe(5);
   });

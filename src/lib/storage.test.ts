@@ -23,7 +23,7 @@ describe("storage", () => {
   it("throws if user is not logged in", async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: null },
-    } as any);
+    } as unknown as never);
 
     await expect(uploadProductImage(new File([], "test.jpg"))).rejects.toThrow(
       "Must be logged in to upload",
@@ -33,7 +33,7 @@ describe("storage", () => {
   it("uploads file and returns public URL", async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: { id: "user-123" } },
-    } as any);
+    } as unknown as never);
 
     const mockUpload = vi.fn().mockResolvedValue({ error: null });
     const mockGetPublicUrl = vi.fn().mockReturnValue({
@@ -43,7 +43,7 @@ describe("storage", () => {
     vi.mocked(supabase.storage.from).mockReturnValue({
       upload: mockUpload,
       getPublicUrl: mockGetPublicUrl,
-    } as any);
+    } as unknown as never);
 
     const file = new File(["content"], "photo.png", { type: "image/png" });
     const url = await uploadProductImage(file);
@@ -54,7 +54,7 @@ describe("storage", () => {
   it("falls back to base64 when bucket not found", async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: { id: "user-456" } },
-    } as any);
+    } as unknown as never);
 
     const mockUpload = vi.fn().mockResolvedValue({
       error: { message: "Bucket not found" },
@@ -63,7 +63,7 @@ describe("storage", () => {
     vi.mocked(supabase.storage.from).mockReturnValue({
       upload: mockUpload,
       getPublicUrl: vi.fn(),
-    } as any);
+    } as unknown as never);
 
     const file = new File(["test"], "img.jpg", { type: "image/jpeg" });
     const url = await uploadProductImage(file);
@@ -73,14 +73,14 @@ describe("storage", () => {
   it("throws on non-bucket upload errors", async () => {
     vi.mocked(supabase.auth.getUser).mockResolvedValue({
       data: { user: { id: "user-789" } },
-    } as any);
+    } as unknown as never);
 
     vi.mocked(supabase.storage.from).mockReturnValue({
       upload: vi
         .fn()
         .mockResolvedValue({ error: { message: "Permission denied" } }),
       getPublicUrl: vi.fn(),
-    } as any);
+    } as unknown as never);
 
     const file = new File(["test"], "img.jpg");
     await expect(uploadProductImage(file)).rejects.toThrow("Permission denied");

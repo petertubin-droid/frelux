@@ -121,7 +121,7 @@ describe("measurement/hierarchy", () => {
       width: 3,
       unit: "meters",
       quantity: 0, // should be treated as 1
-    } as any;
+    } as unknown as never;
     const result = calculateMeasurementEntry(entry);
     expect(result.totalAreaM2).toBe(12);
   });
@@ -185,8 +185,8 @@ describe("measurement/hierarchy", () => {
   it("calculateMeasurementProject sums sections", () => {
     const project: MeasurementProject = {
       id: "p1",
-      calculatorContext: "painting" as any,
-      projectMode: "single" as any,
+      calculatorContext: "painting" as unknown as never,
+      projectMode: "single" as unknown as never,
       sections: [
         {
           id: "s1",
@@ -208,7 +208,7 @@ describe("measurement/hierarchy", () => {
         },
       ],
       preferredUnit: "meters",
-    } as any;
+    } as unknown as never;
     const result = calculateMeasurementProject(project);
     expect(result.projectId).toBe("p1");
     expect(result.totalAreaM2).toBe(30);
@@ -218,11 +218,11 @@ describe("measurement/hierarchy", () => {
   it("calculateMeasurementProject handles empty sections", () => {
     const project: MeasurementProject = {
       id: "p2",
-      calculatorContext: "painting" as any,
-      projectMode: "single" as any,
+      calculatorContext: "painting" as unknown as never,
+      projectMode: "single" as unknown as never,
       sections: [],
       preferredUnit: "meters",
-    } as any;
+    } as unknown as never;
     const result = calculateMeasurementProject(project);
     expect(result.totalAreaM2).toBe(0);
   });

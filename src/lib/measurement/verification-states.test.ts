@@ -51,7 +51,9 @@ describe("measurement/verification-states", () => {
   });
 
   it("canTransition returns boolean", () => {
-    const states = Object.keys(VERIFICATION_STATE_LABELS) as VerificationState[];
+    const states = Object.keys(
+      VERIFICATION_STATE_LABELS,
+    ) as VerificationState[];
     // At least some transitions should be valid
     let hasValidTransition = false;
     for (const from of states) {
@@ -63,9 +65,11 @@ describe("measurement/verification-states", () => {
   });
 
   it("transitionVerificationState returns target if valid, original if invalid", () => {
-    const states = Object.keys(VERIFICATION_STATE_LABELS) as VerificationState[];
+    const states = Object.keys(
+      VERIFICATION_STATE_LABELS,
+    ) as VerificationState[];
     let testedValid = false;
-    let testedInvalid = false;
+    let _testedInvalid = false;
     for (const from of states) {
       for (const to of states) {
         const result = transitionVerificationState(from, to);
@@ -74,7 +78,7 @@ describe("measurement/verification-states", () => {
           testedValid = true;
         } else {
           expect(result).toBe(from);
-          testedInvalid = true;
+          _testedInvalid = true;
         }
       }
     }
@@ -82,7 +86,9 @@ describe("measurement/verification-states", () => {
   });
 
   it("buildVerificationBadge creates badge with all fields", () => {
-    const states = Object.keys(VERIFICATION_STATE_LABELS) as VerificationState[];
+    const states = Object.keys(
+      VERIFICATION_STATE_LABELS,
+    ) as VerificationState[];
     const state = states[0];
     const badge = buildVerificationBadge(state);
     expect(badge.state).toBe(state);

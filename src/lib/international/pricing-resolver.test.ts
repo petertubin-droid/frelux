@@ -38,7 +38,7 @@ describe("pricing-resolver", () => {
     clearPriceCache();
     vi.clearAllMocks();
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = mockSelect.mockReturnValue(chain);
     chain.eq = mockEq.mockReturnValue(chain);
     chain.is = mockIs.mockReturnValue(chain);
@@ -89,7 +89,7 @@ describe("pricing-resolver", () => {
       { id: "2", price: 200 },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.is = vi.fn().mockReturnValue(chain);
@@ -108,12 +108,12 @@ describe("pricing-resolver", () => {
     ];
 
     const eqFn = vi.fn();
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = eqFn.mockImplementation(() => chain);
     chain.is = vi.fn().mockReturnValue(chain);
     chain.order = vi.fn().mockReturnValue(chain);
-    chain.then = (onfulfilled: any) =>
+    chain.then = (onfulfilled: (v: unknown) => unknown) =>
       Promise.resolve({ data: mockList, error: null }).then(onfulfilled);
 
     mockFrom.mockReturnValue(chain);
@@ -124,7 +124,7 @@ describe("pricing-resolver", () => {
   });
 
   it("fetchMarketPrices returns empty array on error", async () => {
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.is = vi.fn().mockReturnValue(chain);
@@ -145,10 +145,10 @@ describe("pricing-resolver", () => {
       { id: "p2", calculator_compatibility: ["tile"] },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
-    chain.then = (onfulfilled: any) =>
+    chain.then = (onfulfilled: (v: unknown) => unknown) =>
       Promise.resolve({ data: mockProducts, error: null }).then(onfulfilled);
     mockFrom.mockReturnValue(chain);
 
@@ -162,10 +162,10 @@ describe("pricing-resolver", () => {
       { id: "p2", calculator_compatibility: ["tile"] },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
-    chain.then = (onfulfilled: any) =>
+    chain.then = (onfulfilled: (v: unknown) => unknown) =>
       Promise.resolve({ data: mockProducts, error: null }).then(onfulfilled);
     mockFrom.mockReturnValue(chain);
 
@@ -176,10 +176,10 @@ describe("pricing-resolver", () => {
   });
 
   it("fetchMarketProducts returns empty array on error", async () => {
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
-    chain.then = (onfulfilled: any) =>
+    chain.then = (onfulfilled: (v: unknown) => unknown) =>
       Promise.resolve({ data: null, error: { message: "err" } }).then(
         onfulfilled,
       );

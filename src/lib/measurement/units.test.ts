@@ -138,9 +138,9 @@ describe("units", () => {
     });
 
     it("tileDimensionToMeters throws on unknown unit", () => {
-      expect(() => tileDimensionToMeters(600, "km" as any)).toThrowError(
-        "Unknown tile dimension unit: km",
-      );
+      expect(() =>
+        tileDimensionToMeters(600, "km" as unknown as never),
+      ).toThrowError("Unknown tile dimension unit: km");
     });
 
     it("tileAreaM2 computes area in m²", () => {

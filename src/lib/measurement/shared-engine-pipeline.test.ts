@@ -35,8 +35,8 @@ describe("measurement/shared-engine-pipeline", () => {
           width: 4,
         },
       ],
-      measurementVerification: "pending" as any,
-    } as any);
+      measurementVerification: "pending" as unknown as never,
+    } as unknown as never);
 
     expect(result).toBeTruthy();
     expect(result.trace).toBeTruthy();
@@ -52,8 +52,8 @@ describe("measurement/shared-engine-pipeline", () => {
         { id: "s1", name: "A", type: "bedroom", length: 5, width: 4 },
         { id: "s2", name: "B", type: "bedroom", length: 3, width: 3 },
       ],
-      measurementVerification: "pending" as any,
-    } as any);
+      measurementVerification: "pending" as unknown as never,
+    } as unknown as never);
 
     // 5*4 + 3*3 = 20 + 9 = 29
     expect(result.stages.measurement.totalAreaM2).toBe(29);

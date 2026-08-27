@@ -67,7 +67,7 @@ describe("roof/section-model", () => {
     const s = {
       ...createRoofSectionSpec(),
       planAreaM2: 50,
-      roofType: "flat" as any,
+      roofType: "flat" as unknown as never,
     };
     expect(getSectionMissing(s)).toEqual([]);
   });

@@ -16,7 +16,7 @@ describe("market-intelligence/crawler/url-validator", () => {
 
   it("rejects empty URL", () => {
     expect(validateUrl("").valid).toBe(false);
-    expect(validateUrl(null as any).valid).toBe(false);
+    expect(validateUrl(null as unknown as never).valid).toBe(false);
   });
 
   it("rejects non-http protocols", () => {

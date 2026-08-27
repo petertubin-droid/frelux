@@ -4,7 +4,6 @@ import {
   completeOnboarding,
   resetOnboarding,
   TOUR_STEPS,
-  type TourStep,
 } from "./onboarding";
 
 describe("onboarding", () => {

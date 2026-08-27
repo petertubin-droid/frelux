@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   loadFont,
   clearDynamicFonts,
@@ -17,7 +17,9 @@ describe("font-loader", () => {
     const link = document.head.querySelector('link[data-font-loader="Inter"]');
     expect(link).toBeTruthy();
     expect((link as HTMLLinkElement)?.rel).toBe("stylesheet");
-    expect((link as HTMLLinkElement)?.href).toContain("fonts.googleapis.com/css2");
+    expect((link as HTMLLinkElement)?.href).toContain(
+      "fonts.googleapis.com/css2",
+    );
     expect((link as HTMLLinkElement)?.href).toContain("family=Inter");
   });
 

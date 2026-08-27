@@ -34,7 +34,7 @@ describe("measurement-bridge", () => {
     defaultAreaUnit: "sqft",
     supportedLengthUnits: ["feet", "meters", "inches"],
     supportedAreaUnits: ["sqft", "sqm"],
-  } as any;
+  } as unknown as never;
 
   it("getMarketDefaults returns correct default units", () => {
     const defaults = getMarketDefaults(mockMarket);
@@ -50,7 +50,7 @@ describe("measurement-bridge", () => {
     const limitedMarket: ResolvedMarketContext = {
       ...mockMarket,
       supportedLengthUnits: ["meters"],
-    } as any;
+    } as unknown as never;
     expect(isLengthUnitSupported(limitedMarket, "feet")).toBe(false);
   });
 
@@ -59,7 +59,7 @@ describe("measurement-bridge", () => {
     const limitedMarket: ResolvedMarketContext = {
       ...mockMarket,
       supportedAreaUnits: ["sqm"],
-    } as any;
+    } as unknown as never;
     expect(isAreaUnitSupported(limitedMarket, "sqft")).toBe(false);
   });
 
@@ -69,7 +69,7 @@ describe("measurement-bridge", () => {
       ...mockMarket,
       defaultLengthUnit: "meters",
       supportedLengthUnits: ["meters"],
-    } as any;
+    } as unknown as never;
     expect(getSafeLengthUnit(limitedMarket, "feet")).toBe("meters");
   });
 
@@ -79,7 +79,7 @@ describe("measurement-bridge", () => {
       ...mockMarket,
       defaultAreaUnit: "sqm",
       supportedAreaUnits: ["sqm"],
-    } as any;
+    } as unknown as never;
     expect(getSafeAreaUnit(limitedMarket, "sqft")).toBe("sqm");
   });
 

@@ -80,7 +80,7 @@ describe("explanation-engine", () => {
         ],
         totalAreaM2: 30,
         steps: [{ label: "Total Fence Area", formula: "30", value: "30 m²" }],
-      } as any;
+      } as unknown as never;
 
       const explanation = explainFenceCalculation(mockFenceResult);
       expect(explanation.subject).toContain("Front Perimeter");
@@ -110,7 +110,7 @@ describe("explanation-engine", () => {
           { label: "Waste 10%", formula: "10 * 1.1", value: "11 L" },
           { label: "Purchase Quantity", formula: "ceil(11)", value: "11 L" },
         ],
-      } as any;
+      } as unknown as never;
 
       const explanation = explainMaterialCalculation(
         mockMaterialResult,
@@ -142,7 +142,7 @@ describe("explanation-engine", () => {
         steps: [
           { label: "Total Project Area", formula: "120", value: "120 m²" },
         ],
-      } as any;
+      } as unknown as never;
 
       const explanation = explainProjectCalculation(mockProjectResult);
       expect(explanation.subject).toBe("Project: Villa A");

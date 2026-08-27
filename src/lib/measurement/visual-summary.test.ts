@@ -1,4 +1,6 @@
 import { describe, it, expect } from "vitest";
+import type { ConstructionProjectResult } from "./project-engine";
+import type { ProjectMaterialSummary } from "./material-summary";
 import {
   buildAreaChart,
   buildFinishTypeChart,
@@ -35,7 +37,7 @@ function makeResult() {
     areaByElementType: { interior_space: 100 },
     allSpaceResults: [],
     steps: [],
-  } as any;
+  } as unknown as ConstructionProjectResult;
 }
 
 describe("measurement/visual-summary", () => {
@@ -73,7 +75,7 @@ describe("measurement/visual-summary", () => {
         { category: "paint", totalBuyQuantity: 5, quantityUnit: "bucket" },
         { category: "cement", totalBuyQuantity: 10, quantityUnit: "bag" },
       ],
-    } as any;
+    } as unknown as ProjectMaterialSummary;
     const chart = buildMaterialChart(summary);
     expect(chart.bars.length).toBe(2);
     expect(chart.bars[0].label).toBe("paint");

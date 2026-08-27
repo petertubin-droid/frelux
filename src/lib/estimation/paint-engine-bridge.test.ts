@@ -28,7 +28,7 @@ describe("estimation/paint-engine-bridge", () => {
       doorDims: { width: 0.9, height: 2.1 },
       windows: 3,
       windowDims: { width: 1.2, height: 1.5 },
-    } as any;
+    } as unknown as never;
     const result = calculatorInputToEngineInput(input);
     expect(result.length).toBe(5);
     expect(result.width).toBe(4);
@@ -49,7 +49,7 @@ describe("estimation/paint-engine-bridge", () => {
       doorDims: { width: 0.9, height: 2.1 },
       windows: 0,
       windowDims: { width: 1.2, height: 1.5 },
-    } as any;
+    } as unknown as never;
     const result = calculatorInputToEngineInput(input);
     expect(result.doors).toEqual([]);
     expect(result.windows).toEqual([]);

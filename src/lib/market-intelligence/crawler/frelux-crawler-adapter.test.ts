@@ -20,7 +20,7 @@ describe("crawler/frelux-crawler-adapter", () => {
         statusCode: 200,
         fetchedAt: new Date().toISOString(),
       },
-      { country_code: "NG", name: "Test Source" } as any,
+      { country_code: "NG", name: "Test Source" } as unknown as never,
     );
     expect(result).toBeTruthy();
     expect(Array.isArray(result.products)).toBe(true);
@@ -35,8 +35,13 @@ describe("crawler/frelux-crawler-adapter", () => {
       </script>
     `;
     const result = extractMultipleProducts(
-      { html, url: "https://example.com", statusCode: 200, fetchedAt: new Date().toISOString() },
-      { country_code: "NG", name: "Nigeria" } as any,
+      {
+        html,
+        url: "https://example.com",
+        statusCode: 200,
+        fetchedAt: new Date().toISOString(),
+      },
+      { country_code: "NG", name: "Nigeria" } as unknown as never,
     );
     expect(result.products.length).toBeGreaterThan(0);
     expect(result.products[0].currency).toBe("NGN");

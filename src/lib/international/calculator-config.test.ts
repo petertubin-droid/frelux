@@ -37,7 +37,7 @@ describe("calculator-config", () => {
       labels: { title: "Paint Calc KE" },
       created_at: "",
       updated_at: "",
-    } as any;
+    } as unknown as never;
 
     mockEq.mockResolvedValueOnce({ data: [mockRow], error: null });
 

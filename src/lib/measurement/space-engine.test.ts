@@ -91,9 +91,9 @@ describe("measurement/space-engine", () => {
 
   it("totalAreaByFinishType sums matching results", () => {
     const mockResults = [
-      { finishType: "paint", totalAreaM2: 100 } as any,
-      { finishType: "paint", totalAreaM2: 50 } as any,
-      { finishType: "tiling", totalAreaM2: 200 } as any,
+      { finishType: "paint", totalAreaM2: 100 } as unknown as never,
+      { finishType: "paint", totalAreaM2: 50 } as unknown as never,
+      { finishType: "tiling", totalAreaM2: 200 } as unknown as never,
     ];
     expect(totalAreaByFinishType(mockResults, "paint")).toBe(150);
     expect(totalAreaByFinishType(mockResults, "tiling")).toBe(200);
@@ -101,9 +101,9 @@ describe("measurement/space-engine", () => {
 
   it("spaceSummary aggregates by type", () => {
     const mockResults = [
-      { type: "living_room", totalAreaM2: 50 } as any,
-      { type: "living_room", totalAreaM2: 30 } as any,
-      { type: "bedroom", totalAreaM2: 20 } as any,
+      { type: "living_room", totalAreaM2: 50 } as unknown as never,
+      { type: "living_room", totalAreaM2: 30 } as unknown as never,
+      { type: "bedroom", totalAreaM2: 20 } as unknown as never,
     ];
     const summary = spaceSummary(mockResults);
     expect(summary.length).toBe(2);

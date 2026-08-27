@@ -8,8 +8,16 @@ import {
 describe("measurement/bridges", () => {
   it("aggregateTilingResults sums across results", () => {
     const results = [
-      { surfaceAreaM2: 10, tilesRequired: 100, cartonsRequired: 5 } as any,
-      { surfaceAreaM2: 20, tilesRequired: 200, cartonsRequired: 10 } as any,
+      {
+        surfaceAreaM2: 10,
+        tilesRequired: 100,
+        cartonsRequired: 5,
+      } as unknown as never,
+      {
+        surfaceAreaM2: 20,
+        tilesRequired: 200,
+        cartonsRequired: 10,
+      } as unknown as never,
     ];
     const agg = aggregateTilingResults(results);
     expect(agg.totalAreaM2).toBe(30);
@@ -43,7 +51,7 @@ describe("measurement/bridges", () => {
           totalAreaM2: 12,
         },
       ],
-    } as any;
+    } as unknown as never;
     const painted = bridgePainting(projectResult);
     expect(painted.length).toBe(2);
     expect(painted[0].entryId).toBe("e1");
@@ -55,7 +63,7 @@ describe("measurement/bridges", () => {
     const projectResult = {
       totalAreaM2: 250,
       steps: [],
-    } as any;
+    } as unknown as never;
     const result = bridgeGrafitex(projectResult);
     expect(result.totalAreaM2).toBe(250);
     expect(result.materialQuantity).toBeNull();

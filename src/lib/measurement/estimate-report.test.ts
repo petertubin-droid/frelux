@@ -16,7 +16,7 @@ function makeProjectResult() {
     spaceResults: [],
     allSpaceResults: [],
     steps: [],
-  } as any;
+  } as unknown as never;
 }
 
 describe("measurement/estimate-report", () => {

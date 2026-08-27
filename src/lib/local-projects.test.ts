@@ -6,7 +6,6 @@ import {
   deleteLocalProject,
   clearLocalProjects,
   hasLocalProjects,
-  type LocalProject,
 } from "./local-projects";
 
 describe("local-projects", () => {

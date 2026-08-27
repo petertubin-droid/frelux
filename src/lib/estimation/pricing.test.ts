@@ -56,7 +56,7 @@ describe("estimation/pricing", () => {
 
   it("calculateEstimateTotal handles empty/invalid", () => {
     expect(calculateEstimateTotal([])).toBe(0);
-    expect(calculateEstimateTotal(null as any)).toBe(0);
+    expect(calculateEstimateTotal(null as unknown as never)).toBe(0);
   });
 
   it("calculateEstimateTotal supports alternative field names", () => {

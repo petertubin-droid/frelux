@@ -4,16 +4,16 @@ const {
   mockFrom,
   mockSelect,
   mockEq,
-  mockIlike,
-  mockIn,
+  _mockIlike,
+  _mockIn,
   mockOrder,
   mockLimit,
 } = vi.hoisted(() => ({
   mockFrom: vi.fn(),
   mockSelect: vi.fn(),
   mockEq: vi.fn(),
-  mockIlike: vi.fn(),
-  mockIn: vi.fn(),
+  _mockIlike: vi.fn(),
+  _mockIn: vi.fn(),
   mockOrder: vi.fn(),
   mockLimit: vi.fn(),
 }));
@@ -59,7 +59,7 @@ describe("price-resolver", () => {
       },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = mockSelect.mockReturnValue(chain);
     chain.eq = mockEq.mockReturnValue(chain);
     chain.order = mockOrder.mockReturnValue(chain);
@@ -96,7 +96,7 @@ describe("price-resolver", () => {
       },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = mockSelect.mockReturnValue(chain);
     chain.eq = mockEq.mockReturnValue(chain);
     chain.order = mockOrder.mockReturnValue(chain);
@@ -113,7 +113,7 @@ describe("price-resolver", () => {
   });
 
   it("resolveCalculatorPrice tries fallback when query returns no data", async () => {
-    const chain1: any = {};
+    const chain1: Record<string, unknown> = {};
     chain1.select = vi.fn().mockReturnValue(chain1);
     chain1.eq = vi.fn().mockReturnValue(chain1);
     chain1.order = vi.fn().mockReturnValue(chain1);
@@ -128,7 +128,7 @@ describe("price-resolver", () => {
       last_updated: "2026-01-01T00:00:00Z",
     };
 
-    const chain2: any = {};
+    const chain2: Record<string, unknown> = {};
     chain2.select = vi.fn().mockReturnValue(chain2);
     chain2.eq = vi.fn().mockReturnValue(chain2);
     chain2.order = vi.fn().mockReturnValue(chain2);
@@ -147,7 +147,7 @@ describe("price-resolver", () => {
   });
 
   it("resolveCalculatorPrice returns NO_PRICE_AVAILABLE when fallback also fails or error occurs", async () => {
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.order = vi.fn().mockReturnValue(chain);
@@ -169,7 +169,7 @@ describe("price-resolver", () => {
       },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.ilike = vi.fn().mockReturnValue(chain);
@@ -189,7 +189,7 @@ describe("price-resolver", () => {
   });
 
   it("resolveCalculatorPriceByName returns NO_PRICE_AVAILABLE on empty result", async () => {
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.ilike = vi.fn().mockReturnValue(chain);
@@ -220,7 +220,7 @@ describe("price-resolver", () => {
       },
     ];
 
-    const chain: any = {};
+    const chain: Record<string, unknown> = {};
     chain.select = vi.fn().mockReturnValue(chain);
     chain.eq = vi.fn().mockReturnValue(chain);
     chain.in = vi.fn().mockReturnValue(chain);

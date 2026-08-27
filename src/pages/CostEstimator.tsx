@@ -1,22 +1,56 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useLocation, Link } from 'react-router-dom';
-import { CheckCircle2, ArrowRight, Info, AlertCircle, Loader2, MessageCircle, ShoppingBag, FileText, Save } from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import { calculateEstimatedTotal } from '@/lib/calc';
-import { track } from '@/lib/analytics';
-import { logAnalyticsEvent, fetchPaintProducts, fetchMaterialPrices, fetchSiteSettings } from '@/lib/queries';
-import { formatCurrency, formatNumber, classNames } from '@/lib/utils';
-import type { CostEstimateInput, CostEstimateResult, ProjectType, ContainerRecommendation } from '@/types';
-import type { DbPaintProduct, DbMaterialPrice, DbSiteSettings } from '@/types/database';
-import { shareCostEstimateOnWhatsApp } from '@/lib/share';
-import { generateCostEstimateShoppingList, type ShoppingListItem } from '@/lib/shopping-list';
-import { exportPdfQuote } from '@/lib/pdf-export';
-import { saveLocalProject } from '@/lib/local-projects';
-import { ShoppingListModal } from '@/components/ui/ShoppingListModal';
-import { useCalcDefaults } from '@/lib/use-calc-defaults';
-import { EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
-import LabourCostSection from '@/components/labour/LabourCostSection';
-import { type LabourConfig, calculateLabourCost, DEFAULT_LABOUR_CONFIG } from '@/lib/labour';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useLocation, Link } from "react-router-dom";
+import {
+  CheckCircle2,
+  ArrowRight,
+  Info,
+  AlertCircle,
+  Loader2,
+  MessageCircle,
+  ShoppingBag,
+  FileText,
+  Save,
+} from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { calculateEstimatedTotal } from "@/lib/calc";
+import { track } from "@/lib/analytics";
+import {
+  logAnalyticsEvent,
+  fetchPaintProducts,
+  fetchMaterialPrices,
+  fetchSiteSettings,
+} from "@/lib/queries";
+import { formatCurrency, formatNumber, classNames } from "@/lib/utils";
+import type {
+  CostEstimateInput,
+  CostEstimateResult,
+  ProjectType,
+  ContainerRecommendation,
+} from "@/types";
+import type {
+  DbPaintProduct,
+  DbMaterialPrice,
+  DbSiteSettings,
+} from "@/types/database";
+import { shareCostEstimateOnWhatsApp } from "@/lib/share";
+import {
+  generateCostEstimateShoppingList,
+  type ShoppingListItem,
+} from "@/lib/shopping-list";
+import { exportPdfQuote } from "@/lib/pdf-export";
+import { saveLocalProject } from "@/lib/local-projects";
+import { ShoppingListModal } from "@/components/ui/ShoppingListModal";
+import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import {
+  EstimateDisclaimer,
+  ReportCalculationIssue,
+} from "@/components/calculators";
+import LabourCostSection from "@/components/labour/LabourCostSection";
+import {
+  type LabourConfig,
+  calculateLabourCost,
+  DEFAULT_LABOUR_CONFIG,
+} from "@/lib/labour";
 
 interface PassedState {
   projectType?: ProjectType;
@@ -33,51 +67,75 @@ interface PassedState {
   totalRecommendedLiters?: number;
 }
 
-import { useSeo } from '@/lib/seo';
-import { trackCalculation } from '@/lib/achievements';
-import { trackCalculationWithRewards } from '@/lib/rewards-integration';
-import { trackRecentTool } from '@/lib/smart-defaults';
-import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { useSeo } from "@/lib/seo";
+import { trackCalculation } from "@/lib/achievements";
+import { trackCalculationWithRewards } from "@/lib/rewards-integration";
+import { trackRecentTool } from "@/lib/smart-defaults";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 
-export default function CostEstimator({ embedded = false }: { embedded?: boolean } = {}) {
-  const { defaults: calcDefaults } = useCalcDefaults('cost');
-  useSeo(!embedded ? {
-    title: 'Cost Estimator — Estimate Your Painting Project Cost',
-    description:
-      'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
-    canonicalPath: '/cost-estimator',
-    ogType: 'website',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: 'FRELUX Cost Estimator',
-        description: 'Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.',
-        url: 'https://freluxtools.netlify.app/cost-estimator',
-        applicationCategory: 'CalculatorApplication',
-        operatingSystem: 'Web',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
-          { '@type': 'ListItem', position: 3, name: 'Cost Estimator', item: 'https://freluxtools.netlify.app/cost-estimator' }
-        ]
-      }
-    ],
-  } : null);
-
+export default function CostEstimator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
+  const { defaults: calcDefaults } = useCalcDefaults("cost");
+  useSeo(
+    !embedded
+      ? {
+          title: "Cost Estimator — Estimate Your Painting Project Cost",
+          description:
+            "Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.",
+          canonicalPath: "/cost-estimator",
+          ogType: "website",
+          structuredDataArray: [
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "FRELUX Cost Estimator",
+              description:
+                "Estimate the practical cost of your painting project. Paint, primer, materials, based on real product prices and your paint quantity. Labour not included.",
+              url: "https://freluxtools.netlify.app/cost-estimator",
+              applicationCategory: "CalculatorApplication",
+              operatingSystem: "Web",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://freluxtools.netlify.app",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Calculators",
+                  item: "https://freluxtools.netlify.app/calculators",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: "Cost Estimator",
+                  item: "https://freluxtools.netlify.app/cost-estimator",
+                },
+              ],
+            },
+          ],
+        }
+      : null,
+  );
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
 
-const mountedRef = useRef(true);
-    useEffect(() => { trackRecentTool('/cost-estimator', 'Cost Estimator', 'DollarSign'); 
-    return () => { mountedRef.current = false; };
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    trackRecentTool("/cost-estimator", "Cost Estimator", "DollarSign");
+    return () => {
+      mountedRef.current = false;
+    };
   });
   const [products, setProducts] = useState<DbPaintProduct[]>([]);
   const [materials, setMaterials] = useState<DbMaterialPrice[]>([]);
@@ -85,17 +143,17 @@ const mountedRef = useRef(true);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const currencySymbol = settings?.default_currency_symbol ?? '₦';
-  const currency = settings?.default_currency ?? 'NGN';
+  const currencySymbol = settings?.default_currency_symbol ?? "₦";
+  const currency = settings?.default_currency ?? "NGN";
 
   const [input, setInput] = useState<CostEstimateInput>({
-    projectType: passed.projectType ?? 'room',
+    projectType: passed.projectType ?? "room",
     paintableArea: passed.paintableArea ?? 0,
     paintLiters: passed.paintLiters ?? 0,
     coats: passed.coats ?? 2,
-    paintType: passed.paintType ?? '',
+    paintType: passed.paintType ?? "",
     paintProductId: null,
-    paintProductName: '',
+    paintProductName: "",
     paintContainerSize: 0,
     paintContainerPrice: 0,
     paintPricePerLiter: 0,
@@ -115,7 +173,7 @@ const mountedRef = useRef(true);
     rollersCost: 0,
     includeOther: false,
     otherMaterialsCost: 0,
-    laborMode: 'manual' as const,
+    laborMode: "manual" as const,
     laborRatePerSqm: 0,
     laborTotal: 0,
     currency,
@@ -123,8 +181,12 @@ const mountedRef = useRef(true);
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
-  const [shoppingListItems, setShoppingListItems] = useState<ShoppingListItem[]>([]);
-  const [labourConfig, setLabourConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
+  const [shoppingListItems, setShoppingListItems] = useState<
+    ShoppingListItem[]
+  >([]);
+  const [labourConfig, setLabourConfig] = useState<LabourConfig>(
+    DEFAULT_LABOUR_CONFIG,
+  );
 
   useEffect(() => {
     async function loadAll() {
@@ -143,18 +205,22 @@ const mountedRef = useRef(true);
       setSettings(settingsRes.data);
 
       // Pre-fill primer price from the first primer material.
-      const primer = matRes.data.find((m) => m.category === 'primer');
+      const primer = matRes.data.find((m) => m.category === "primer");
       if (primer) {
-        setInput((prev) => ({ ...prev, primerPricePerLiter: Number(primer.price) }));
+        setInput((prev) => ({
+          ...prev,
+          primerPricePerLiter: Number(primer.price),
+        }));
       }
 
       // If quality-level pricing was passed from the Paint Calculator,
       // auto-fill the paint price per liter so the user doesn't have to
       // manually select a product or enter a price.
       if (passed.qualityPrice && passed.qualityPrice > 0) {
-        const containerSizes = passed.recommendedContainers
-          ?.map((c) => c.size)
-          ?.filter((s): s is number => s > 0) ?? [];
+        const containerSizes =
+          passed.recommendedContainers
+            ?.map((c) => c.size)
+            ?.filter((s): s is number => s > 0) ?? [];
         const containerSize = containerSizes[0] ?? 20;
         const containerPrice = passed.qualityPrice * containerSize;
         setInput((prev) => ({
@@ -163,13 +229,14 @@ const mountedRef = useRef(true);
           paintContainerSize: containerSize,
           paintContainerPrice: containerPrice,
           paintUseContainerPricing: true,
-          paintProductName: passed.qualityName ?? '',
+          paintProductName: passed.qualityName ?? "",
         }));
       }
 
       setLoading(false);
     }
     loadAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update currency in input when settings load.
@@ -194,14 +261,15 @@ const mountedRef = useRef(true);
           paintProductName: product.name,
           paintContainerSize: Number(product.container_size),
           paintContainerPrice: Number(product.price),
-          paintPricePerLiter: Number(product.price) / Number(product.container_size),
+          paintPricePerLiter:
+            Number(product.price) / Number(product.container_size),
           paintUseContainerPricing: true,
         }));
       }
     } else {
       setInput((prev) => ({
         ...prev,
-        paintProductName: '',
+        paintProductName: "",
         paintContainerSize: 0,
         paintContainerPrice: 0,
         paintUseContainerPricing: false,
@@ -209,13 +277,17 @@ const mountedRef = useRef(true);
     }
   }, [input.paintProductId, products]);
 
-  function update<K extends keyof CostEstimateInput>(key: K, value: CostEstimateInput[K]) {
+  function update<K extends keyof CostEstimateInput>(
+    key: K,
+    value: CostEstimateInput[K],
+  ) {
     setInput((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleWhatsAppShare() {
     if (!result) return;
-    const paintTypeName = passed.paintTypeName ?? input.paintProductName ?? 'Paint';
+    const paintTypeName =
+      passed.paintTypeName ?? input.paintProductName ?? "Paint";
     shareCostEstimateOnWhatsApp({ result, input, paintTypeName });
   }
 
@@ -224,19 +296,25 @@ const mountedRef = useRef(true);
     exportPdfQuote({
       result,
       input,
-      paintTypeName: passed.paintTypeName ?? input.paintProductName ?? 'Paint',
-      company: settings ? {
-        name: settings.site_name,
-        phone: settings.whatsapp_number,
-        email: settings.contact_email,
-        address: undefined,
-      } : undefined,
+      paintTypeName: passed.paintTypeName ?? input.paintProductName ?? "Paint",
+      company: settings
+        ? {
+            name: settings.site_name,
+            phone: settings.whatsapp_number,
+            email: settings.contact_email,
+            address: undefined,
+          }
+        : undefined,
     });
   }
 
   function handleShoppingList() {
     if (!result) return;
-    const items = generateCostEstimateShoppingList(result, input, passed.paintTypeName ?? input.paintProductName ?? 'Paint');
+    const items = generateCostEstimateShoppingList(
+      result,
+      input,
+      passed.paintTypeName ?? input.paintProductName ?? "Paint",
+    );
     setShoppingListItems(items);
     setShoppingListOpen(true);
   }
@@ -244,23 +322,35 @@ const mountedRef = useRef(true);
   function handleSaveLocal() {
     if (!result) return;
     const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
-    saveLocalProject(name, 'cost_estimate', { input, result });
+    saveLocalProject(name, "cost_estimate", { input, result });
   }
 
   function compute() {
-    const rawResult = calculateEstimatedTotal({ ...input, laborMode: 'manual' as const, laborTotal: 0 });
+    const rawResult = calculateEstimatedTotal({
+      ...input,
+      laborMode: "manual" as const,
+      laborTotal: 0,
+    });
     const laborCost = calculateLabourCost(labourConfig, input.paintableArea);
-    const r: CostEstimateResult = { ...rawResult, laborCost, total: rawResult.total + laborCost };
+    const r: CostEstimateResult = {
+      ...rawResult,
+      laborCost,
+      total: rawResult.total + laborCost,
+    };
     setResult(r);
-    trackCalculation('cost');
-    trackCalculationWithRewards('cost', 'Cost Estimator');
-    track('cost_estimate_completed', { total: r.total });
-    logAnalyticsEvent('cost_estimate_completed', { total: r.total });
+    trackCalculation("cost");
+    trackCalculationWithRewards("cost", "Cost Estimator");
+    track("cost_estimate_completed", { total: r.total });
+    logAnalyticsEvent("cost_estimate_completed", { total: r.total });
   }
 
   const hasArea = input.paintableArea > 0;
 
-  function toggleMaterial(cat: string, costKey: keyof CostEstimateInput, includeKey: keyof CostEstimateInput) {
+  function toggleMaterial(
+    cat: string,
+    costKey: keyof CostEstimateInput,
+    includeKey: keyof CostEstimateInput,
+  ) {
     const mat = materials.find((m) => m.category === cat);
     const isEnabling = !input[includeKey as keyof CostEstimateInput];
     update(includeKey, isEnabling as never);
@@ -272,9 +362,19 @@ const mountedRef = useRef(true);
   if (loading) {
     return (
       <>
-        <PageHeader eyebrow="Tool" title="Cost Estimator" subtitle="Get a practical estimate for materials and painting labor." breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Cost Estimator' }] } />
+        <PageHeader
+          eyebrow="Tool"
+          title="Cost Estimator"
+          subtitle="Get a practical estimate for materials and painting labor."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "Cost Estimator" },
+          ]}
+        />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
-          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading pricing data…
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
+          Loading pricing data…
         </div>
       </>
     );
@@ -286,24 +386,43 @@ const mountedRef = useRef(true);
         eyebrow="Tool"
         title="Cost Estimator"
         subtitle="Get a practical estimate for materials and painting labor. Prices are editable so you can match local rates."
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Cost Estimator' }] }
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Calculators", path: "/calculators" },
+          { label: "Cost Estimator" },
+        ]}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {loadError && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>Some pricing data couldn't be loaded: {loadError}. You can still enter prices manually below.</p>
+            <AlertCircle
+              aria-hidden="true"
+              className="mt-0.5 h-4 w-4 shrink-0"
+            />
+            <p>
+              Some pricing data couldn't be loaded: {loadError}. You can still
+              enter prices manually below.
+            </p>
           </div>
         )}
 
         {!hasArea && (
           <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
-            <Info aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
+            <Info
+              aria-hidden="true"
+              className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow"
+            />
             <p>
-              Tip: Use the{' '}
-              <Link to="/paint-calculator" className="font-semibold text-brand-purple underline">Paint Calculator</Link>{' '}
-              first, then continue here. Your paintable area and paint quantity will carry over automatically.
+              Tip: Use the{" "}
+              <Link
+                to="/paint-calculator"
+                className="font-semibold text-brand-purple underline"
+              >
+                Paint Calculator
+              </Link>{" "}
+              first, then continue here. Your paintable area and paint quantity
+              will carry over automatically.
             </p>
           </div>
         )}
@@ -314,7 +433,13 @@ const mountedRef = useRef(true);
             <Section title="Project summary">
               <div className="grid gap-4 sm:grid-cols-3">
                 <Field label="Project type">
-                  <select value={input.projectType} onChange={(e) => update('projectType', e.target.value as ProjectType)} className="input-field">
+                  <select
+                    value={input.projectType}
+                    onChange={(e) =>
+                      update("projectType", e.target.value as ProjectType)
+                    }
+                    className="input-field"
+                  >
                     <option value="room">Room</option>
                     <option value="house">House</option>
                     <option value="exterior">Exterior</option>
@@ -322,58 +447,130 @@ const mountedRef = useRef(true);
                   </select>
                 </Field>
                 <Field label="Paintable area (m²)">
-                  <input type="number" min={0} step="0.01" value={input.paintableArea || ''} onChange={(e) => update('paintableArea', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={input.paintableArea || ""}
+                    onChange={(e) =>
+                      update("paintableArea", Number(e.target.value))
+                    }
+                    className="input-field"
+                    placeholder="0.00"
+                  />
                 </Field>
                 <Field label="Paint quantity (L)">
-                  <input type="number" min={0} step="0.01" value={input.paintLiters || ''} onChange={(e) => update('paintLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={input.paintLiters || ""}
+                    onChange={(e) =>
+                      update("paintLiters", Number(e.target.value))
+                    }
+                    className="input-field"
+                    placeholder="0.00"
+                  />
                 </Field>
               </div>
               {passed.paintTypeName && (
-                <p className="mt-3 text-xs text-neutral-500">From calculator: {passed.paintTypeName}{passed.qualityName ? ` · ${passed.qualityName}` : ''} · {passed.coats ?? 2} coats</p>
+                <p className="mt-3 text-xs text-neutral-500">
+                  From calculator: {passed.paintTypeName}
+                  {passed.qualityName ? ` · ${passed.qualityName}` : ""} ·{" "}
+                  {passed.coats ?? 2} coats
+                </p>
               )}
             </Section>
 
             {/* Paint cost */}
             <Section title="Paint">
               {products.length > 0 ? (
-                <Field label="Paint product" hint="Selecting a product calculates cost based on actual container purchases">
+                <Field
+                  label="Paint product"
+                  hint="Selecting a product calculates cost based on actual container purchases"
+                >
                   <select
-                    value={input.paintProductId ?? ''}
-                    onChange={(e) => update('paintProductId', e.target.value || null)}
+                    value={input.paintProductId ?? ""}
+                    onChange={(e) =>
+                      update("paintProductId", e.target.value || null)
+                    }
                     className="input-field"
                   >
                     <option value="">Manual price entry</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.name}{p.brand ? ` (${p.brand})` : ''} · {p.container_size}L · {formatCurrency(Number(p.price), currencySymbol)}
+                        {p.name}
+                        {p.brand ? ` (${p.brand})` : ""} · {p.container_size}L ·{" "}
+                        {formatCurrency(Number(p.price), currencySymbol)}
                       </option>
                     ))}
                   </select>
                 </Field>
               ) : (
-                <p className="text-xs text-neutral-500">No paint products configured. Enter a manual price per liter below.</p>
+                <p className="text-xs text-neutral-500">
+                  No paint products configured. Enter a manual price per liter
+                  below.
+                </p>
               )}
 
-              {input.paintUseContainerPricing && input.paintContainerSize > 0 ? (
+              {input.paintUseContainerPricing &&
+              input.paintContainerSize > 0 ? (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                  <p className="text-sm font-semibold text-brand-navy dark:text-white">Container based pricing</p>
+                  <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                    Container based pricing
+                  </p>
                   <p className="mt-1 text-xs text-neutral-500">
-                    {formatNumber(input.paintLiters, 1)} L required · {input.paintContainerSize} L containers ·{' '}
-                    {Math.ceil(input.paintLiters / input.paintContainerSize)} container(s) needed ·{' '}
-                    {formatCurrency(input.paintContainerPrice, currencySymbol)} each
+                    {formatNumber(input.paintLiters, 1)} L required ·{" "}
+                    {input.paintContainerSize} L containers ·{" "}
+                    {Math.ceil(input.paintLiters / input.paintContainerSize)}{" "}
+                    container(s) needed ·{" "}
+                    {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
+                    each
                   </p>
                   <p className="mt-2 text-xs text-neutral-500">
-                    Paint cost = {Math.ceil(input.paintLiters / input.paintContainerSize)} × {formatCurrency(input.paintContainerPrice, currencySymbol)} ={' '}
-                    <span className="font-semibold text-brand-navy dark:text-white">{formatCurrency(Math.ceil(input.paintLiters / input.paintContainerSize) * input.paintContainerPrice, currencySymbol)}</span>
+                    Paint cost ={" "}
+                    {Math.ceil(input.paintLiters / input.paintContainerSize)} ×{" "}
+                    {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
+                    ={" "}
+                    <span className="font-semibold text-brand-navy dark:text-white">
+                      {formatCurrency(
+                        Math.ceil(
+                          input.paintLiters / input.paintContainerSize,
+                        ) * input.paintContainerPrice,
+                        currencySymbol,
+                      )}
+                    </span>
                   </p>
                 </div>
               ) : (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <Field label={`Paint price per liter (${currencySymbol})`} hint="Manual entry">
-                    <input type="number" min={0} value={input.paintPricePerLiter || ''} onChange={(e) => update('paintPricePerLiter', Number(e.target.value))} className="input-field" placeholder="0" />
+                  <Field
+                    label={`Paint price per liter (${currencySymbol})`}
+                    hint="Manual entry"
+                  >
+                    <input
+                      type="number"
+                      min={0}
+                      value={input.paintPricePerLiter || ""}
+                      onChange={(e) =>
+                        update("paintPricePerLiter", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="0"
+                    />
                   </Field>
                   <Field label="Paint liters" hint="From calculator or manual">
-                    <input type="number" min={0} step="0.01" value={input.paintLiters || ''} onChange={(e) => update('paintLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={input.paintLiters || ""}
+                      onChange={(e) =>
+                        update("paintLiters", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="0.00"
+                    />
                   </Field>
                 </div>
               )}
@@ -382,16 +579,38 @@ const mountedRef = useRef(true);
             {/* Primer */}
             <Section title="Primer">
               <div className="flex items-center gap-3">
-                <Toggle checked={input.includePrimer} onChange={(v) => update('includePrimer', v)} />
+                <Toggle
+                  checked={input.includePrimer}
+                  onChange={(v) => update("includePrimer", v)}
+                />
                 <span className="text-sm text-neutral-600">Include primer</span>
               </div>
               {input.includePrimer && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   <Field label="Primer liters">
-                    <input type="number" min={0} step="0.01" value={input.primerLiters || ''} onChange={(e) => update('primerLiters', Number(e.target.value))} className="input-field" placeholder="0.00" />
+                    <input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={input.primerLiters || ""}
+                      onChange={(e) =>
+                        update("primerLiters", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="0.00"
+                    />
                   </Field>
                   <Field label={`Primer price per liter (${currencySymbol})`}>
-                    <input type="number" min={0} value={input.primerPricePerLiter || ''} onChange={(e) => update('primerPricePerLiter', Number(e.target.value))} className="input-field" placeholder="0" />
+                    <input
+                      type="number"
+                      min={0}
+                      value={input.primerPricePerLiter || ""}
+                      onChange={(e) =>
+                        update("primerPricePerLiter", Number(e.target.value))
+                      }
+                      className="input-field"
+                      placeholder="0"
+                    />
                   </Field>
                 </div>
               )}
@@ -399,14 +618,73 @@ const mountedRef = useRef(true);
 
             {/* Materials */}
             <Section title="Additional materials">
-              <p className="mb-3 text-xs text-neutral-500">Toggle materials to include them. Prices auto fill from configured data when available.</p>
+              <p className="mb-3 text-xs text-neutral-500">
+                Toggle materials to include them. Prices auto fill from
+                configured data when available.
+              </p>
               <div className="space-y-2">
-                <MaterialToggle label="Filler" checked={input.includeFiller} onToggle={() => toggleMaterial('filler', 'fillerCost', 'includeFiller')} cost={input.fillerCost} symbol={currencySymbol} onCostChange={(v) => update('fillerCost', v)} />
-                <MaterialToggle label="Putty" checked={input.includePutty} onToggle={() => toggleMaterial('putty', 'puttyCost', 'includePutty')} cost={input.puttyCost} symbol={currencySymbol} onCostChange={(v) => update('puttyCost', v)} />
-                <MaterialToggle label="Sandpaper" checked={input.includeSandpaper} onToggle={() => toggleMaterial('sandpaper', 'sandpaperCost', 'includeSandpaper')} cost={input.sandpaperCost} symbol={currencySymbol} onCostChange={(v) => update('sandpaperCost', v)} />
-                <MaterialToggle label="Brushes" checked={input.includeBrushes} onToggle={() => toggleMaterial('brushes', 'brushesCost', 'includeBrushes')} cost={input.brushesCost} symbol={currencySymbol} onCostChange={(v) => update('brushesCost', v)} />
-                <MaterialToggle label="Rollers" checked={input.includeRollers} onToggle={() => toggleMaterial('rollers', 'rollersCost', 'includeRollers')} cost={input.rollersCost} symbol={currencySymbol} onCostChange={(v) => update('rollersCost', v)} />
-                <MaterialToggle label="Other materials" checked={input.includeOther} onToggle={() => update('includeOther', !input.includeOther)} cost={input.otherMaterialsCost} symbol={currencySymbol} onCostChange={(v) => update('otherMaterialsCost', v)} />
+                <MaterialToggle
+                  label="Filler"
+                  checked={input.includeFiller}
+                  onToggle={() =>
+                    toggleMaterial("filler", "fillerCost", "includeFiller")
+                  }
+                  cost={input.fillerCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("fillerCost", v)}
+                />
+                <MaterialToggle
+                  label="Putty"
+                  checked={input.includePutty}
+                  onToggle={() =>
+                    toggleMaterial("putty", "puttyCost", "includePutty")
+                  }
+                  cost={input.puttyCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("puttyCost", v)}
+                />
+                <MaterialToggle
+                  label="Sandpaper"
+                  checked={input.includeSandpaper}
+                  onToggle={() =>
+                    toggleMaterial(
+                      "sandpaper",
+                      "sandpaperCost",
+                      "includeSandpaper",
+                    )
+                  }
+                  cost={input.sandpaperCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("sandpaperCost", v)}
+                />
+                <MaterialToggle
+                  label="Brushes"
+                  checked={input.includeBrushes}
+                  onToggle={() =>
+                    toggleMaterial("brushes", "brushesCost", "includeBrushes")
+                  }
+                  cost={input.brushesCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("brushesCost", v)}
+                />
+                <MaterialToggle
+                  label="Rollers"
+                  checked={input.includeRollers}
+                  onToggle={() =>
+                    toggleMaterial("rollers", "rollersCost", "includeRollers")
+                  }
+                  cost={input.rollersCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("rollersCost", v)}
+                />
+                <MaterialToggle
+                  label="Other materials"
+                  checked={input.includeOther}
+                  onToggle={() => update("includeOther", !input.includeOther)}
+                  cost={input.otherMaterialsCost}
+                  symbol={currencySymbol}
+                  onCostChange={(v) => update("otherMaterialsCost", v)}
+                />
               </div>
             </Section>
 
@@ -419,7 +697,11 @@ const mountedRef = useRef(true);
               last
             />
 
-            <button type="button" onClick={compute} className="btn-primary btn-glow mt-6 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={compute}
+              className="btn-primary btn-glow mt-6 w-full sm:w-auto"
+            >
               Calculate estimate
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </button>
@@ -429,62 +711,197 @@ const mountedRef = useRef(true);
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
               <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">Estimated total</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                  Estimated total
+                </p>
                 {result ? (
-                  <p className="mt-1 text-3xl font-bold sm:text-4xl">{formatCurrency(result.total, currencySymbol)}</p>
+                  <p className="mt-1 text-3xl font-bold sm:text-4xl">
+                    {formatCurrency(result.total, currencySymbol)}
+                  </p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">{currencySymbol}0</p>
+                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">
+                    {currencySymbol}0
+                  </p>
                 )}
-                <p className="mt-1 text-xs text-white/50">Estimate only, not a final quote.</p>
+                <p className="mt-1 text-xs text-white/50">
+                  Estimate only, not a final quote.
+                </p>
               </div>
               <div className="space-y-2 p-6">
                 <Row
-                  label={result && result.paintContainerCount > 0 ? `Paint (${result.paintContainerCount} containers)` : 'Paint'}
-                  value={result ? formatCurrency(result.paintCost, currencySymbol) : 'N/A'}
+                  label={
+                    result && result.paintContainerCount > 0
+                      ? `Paint (${result.paintContainerCount} containers)`
+                      : "Paint"
+                  }
+                  value={
+                    result
+                      ? formatCurrency(result.paintCost, currencySymbol)
+                      : "N/A"
+                  }
                 />
-                {input.includePrimer && <Row label="Primer" value={result ? formatCurrency(result.primerCost, currencySymbol) : 'N/A'} />}
-                {input.includeFiller && <Row label="Filler" value={result ? formatCurrency(result.fillerCost, currencySymbol) : 'N/A'} />}
-                {input.includePutty && <Row label="Putty" value={result ? formatCurrency(result.puttyCost, currencySymbol) : 'N/A'} />}
-                {input.includeSandpaper && <Row label="Sandpaper" value={result ? formatCurrency(result.sandpaperCost, currencySymbol) : 'N/A'} />}
-                {input.includeBrushes && <Row label="Brushes" value={result ? formatCurrency(result.brushesCost, currencySymbol) : 'N/A'} />}
-                {input.includeRollers && <Row label="Rollers" value={result ? formatCurrency(result.rollersCost, currencySymbol) : 'N/A'} />}
-                {input.includeOther && <Row label="Other" value={result ? formatCurrency(result.otherMaterialsCost, currencySymbol) : 'N/A'} />}
+                {input.includePrimer && (
+                  <Row
+                    label="Primer"
+                    value={
+                      result
+                        ? formatCurrency(result.primerCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includeFiller && (
+                  <Row
+                    label="Filler"
+                    value={
+                      result
+                        ? formatCurrency(result.fillerCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includePutty && (
+                  <Row
+                    label="Putty"
+                    value={
+                      result
+                        ? formatCurrency(result.puttyCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includeSandpaper && (
+                  <Row
+                    label="Sandpaper"
+                    value={
+                      result
+                        ? formatCurrency(result.sandpaperCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includeBrushes && (
+                  <Row
+                    label="Brushes"
+                    value={
+                      result
+                        ? formatCurrency(result.brushesCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includeRollers && (
+                  <Row
+                    label="Rollers"
+                    value={
+                      result
+                        ? formatCurrency(result.rollersCost, currencySymbol)
+                        : "N/A"
+                    }
+                  />
+                )}
+                {input.includeOther && (
+                  <Row
+                    label="Other"
+                    value={
+                      result
+                        ? formatCurrency(
+                            result.otherMaterialsCost,
+                            currencySymbol,
+                          )
+                        : "N/A"
+                    }
+                  />
+                )}
                 <div className="border-t border-neutral-100 pt-2">
-                  <Row label="Material cost" value={result ? formatCurrency(result.total - result.laborCost, currencySymbol) : 'N/A'} />
-                  {labourConfig.includeLabour && <Row label="Labour cost" value={result ? formatCurrency(result.laborCost, currencySymbol) : 'N/A'} />}
+                  <Row
+                    label="Material cost"
+                    value={
+                      result
+                        ? formatCurrency(
+                            result.total - result.laborCost,
+                            currencySymbol,
+                          )
+                        : "N/A"
+                    }
+                  />
+                  {labourConfig.includeLabour && (
+                    <Row
+                      label="Labour cost"
+                      value={
+                        result
+                          ? formatCurrency(result.laborCost, currencySymbol)
+                          : "N/A"
+                      }
+                    />
+                  )}
                 </div>
                 <div className="border-t border-neutral-100 pt-2">
-                  <Row label="Grand total" value={result ? formatCurrency(result.total, currencySymbol) : 'N/A'} strong />
+                  <Row
+                    label="Grand total"
+                    value={
+                      result
+                        ? formatCurrency(result.total, currencySymbol)
+                        : "N/A"
+                    }
+                    strong
+                  />
                 </div>
                 {result && (
                   <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
                     <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
-                    Based on {formatNumber(input.paintableArea)} m² and {formatNumber(input.paintLiters, 1)} L of paint.
+                    Based on {formatNumber(input.paintableArea)} m² and{" "}
+                    {formatNumber(input.paintLiters, 1)} L of paint.
                   </div>
                 )}
               </div>
               <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
-                Estimate only. Actual costs may vary depending on product brand, location, surface condition, market prices, and labor rates.
+                Estimate only. Actual costs may vary depending on product brand,
+                location, surface condition, market prices, and labor rates.
               </div>
 
               {/* Smart action buttons */}
               {result && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 sm:grid-cols-4">
-                  <button type="button" onClick={handleWhatsAppShare} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20">
+                  <button
+                    type="button"
+                    onClick={handleWhatsAppShare}
+                    className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
+                  >
                     <MessageCircle className="h-5 w-5 text-accent-green" />
-                    <span className="text-xs font-semibold text-accent-green">WhatsApp</span>
+                    <span className="text-xs font-semibold text-accent-green">
+                      WhatsApp
+                    </span>
                   </button>
-                  <button type="button" onClick={handlePdfExport} className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20">
+                  <button
+                    type="button"
+                    onClick={handlePdfExport}
+                    className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20"
+                  >
                     <FileText className="h-5 w-5 text-brand-purple" />
-                    <span className="text-xs font-semibold text-brand-purple">Export PDF</span>
+                    <span className="text-xs font-semibold text-brand-purple">
+                      Export PDF
+                    </span>
                   </button>
-                  <button type="button" onClick={handleShoppingList} className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20">
+                  <button
+                    type="button"
+                    onClick={handleShoppingList}
+                    className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
+                  >
                     <ShoppingBag className="h-5 w-5 text-accent-orange" />
-                    <span className="text-xs font-semibold text-accent-orange">Shopping List</span>
+                    <span className="text-xs font-semibold text-accent-orange">
+                      Shopping List
+                    </span>
                   </button>
-                  <button type="button" onClick={handleSaveLocal} className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">
+                  <button
+                    type="button"
+                    onClick={handleSaveLocal}
+                    className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                  >
                     <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
-                    <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">Save to Device</span>
+                    <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                      Save to Device
+                    </span>
                   </button>
                 </div>
               )}
@@ -494,8 +911,17 @@ const mountedRef = useRef(true);
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="cost"
-                    userInput={{ projectType: input.projectType, area: input.paintableArea, coats: input.coats, includePrimer: input.includePrimer }}
-                    actualResult={{ total: result.total, materialCost: result.total - result.laborCost, laborCost: result.laborCost }}
+                    userInput={{
+                      projectType: input.projectType,
+                      area: input.paintableArea,
+                      coats: input.coats,
+                      includePrimer: input.includePrimer,
+                    }}
+                    actualResult={{
+                      total: result.total,
+                      materialCost: result.total - result.laborCost,
+                      laborCost: result.laborCost,
+                    }}
                   />
                 </>
               )}
@@ -511,56 +937,120 @@ const mountedRef = useRef(true);
           />
         )}
       </div>
-      <RelatedTools links={[
-        CALC_LINKS.paintCalculator,
-        CALC_LINKS.screedingCalc,
-        CALC_LINKS.popCeilingCalc,
-        CALC_LINKS.tileCalc,
-        CALC_LINKS.buildToRoof,
-        CALC_LINKS.imageEstimator,
-      ]} />
+      <RelatedTools
+        links={[
+          CALC_LINKS.paintCalculator,
+          CALC_LINKS.screedingCalc,
+          CALC_LINKS.popCeilingCalc,
+          CALC_LINKS.tileCalc,
+          CALC_LINKS.buildToRoof,
+          CALC_LINKS.imageEstimator,
+        ]}
+      />
     </>
   );
 }
 
-function Section({ title, children, last }: { title: string; children: ReactNode; last?: boolean }) {
+function Section({
+  title,
+  children,
+  last,
+}: {
+  title: string;
+  children: ReactNode;
+  last?: boolean;
+}) {
   return (
-    <div className={last ? '' : 'mb-6 border-b border-neutral-100 pb-6'}>
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">{title}</h2>
+    <div className={last ? "" : "mb-6 border-b border-neutral-100 pb-6"}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
+        {title}
+      </h2>
       {children}
-        <RelatedToolsLinks />
+      <RelatedToolsLinks />
     </div>
   );
 }
 
-function Row({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function Row({
+  label,
+  value,
+  strong,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between">
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>{label}</span>
-      <span className={'text-sm ' + (strong ? 'font-bold text-brand-navy dark:text-white' : 'text-neutral-700 dark:text-neutral-200')}>{value}</span>
+      <span
+        className={
+          "text-sm " +
+          (strong
+            ? "font-bold text-brand-navy dark:text-white"
+            : "text-neutral-500 dark:text-neutral-500")
+        }
+      >
+        {label}
+      </span>
+      <span
+        className={
+          "text-sm " +
+          (strong
+            ? "font-bold text-brand-navy dark:text-white"
+            : "text-neutral-700 dark:text-neutral-200")
+        }
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
+      <span className="block text-sm font-semibold text-neutral-700">
+        {label}
+      </span>
+      {hint && (
+        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+      )}
       <div className="mt-1.5">{children}</div>
     </label>
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={'relative h-5 w-9 shrink-0 rounded-full transition-colors ' + (checked ? 'bg-accent-green' : 'bg-neutral-300')}
+      className={
+        "relative h-5 w-9 shrink-0 rounded-full transition-colors " +
+        (checked ? "bg-accent-green" : "bg-neutral-300")
+      }
       aria-pressed={checked}
     >
-      <span className={'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid ' + (checked ? 'translate-x-4' : 'translate-x-0.5')} />
+      <span
+        className={
+          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+          (checked ? "translate-x-4" : "translate-x-0.5")
+        }
+      />
     </button>
   );
 }
@@ -581,11 +1071,20 @@ function MaterialToggle({
   onCostChange: (v: number) => void;
 }) {
   return (
-    <div className={classNames('rounded-lg border p-3 transition-colors', checked ? 'border-brand-purple/30 bg-brand-purple/5' : 'border-neutral-200')}>
+    <div
+      className={classNames(
+        "rounded-lg border p-3 transition-colors",
+        checked
+          ? "border-brand-purple/30 bg-brand-purple/5"
+          : "border-neutral-200",
+      )}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Toggle checked={checked} onChange={onToggle} />
-          <span className="text-sm font-semibold text-neutral-700">{label}</span>
+          <span className="text-sm font-semibold text-neutral-700">
+            {label}
+          </span>
         </div>
         {checked && (
           <div className="flex items-center gap-2">
@@ -593,12 +1092,14 @@ function MaterialToggle({
               <input
                 type="number"
                 min={0}
-                value={cost || ''}
+                value={cost || ""}
                 onChange={(e) => onCostChange(Number(e.target.value))}
                 className="input-field pr-7 text-sm"
                 placeholder="0"
               />
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">{symbol}</span>
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">
+                {symbol}
+              </span>
             </div>
           </div>
         )}

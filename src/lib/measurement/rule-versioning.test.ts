@@ -17,13 +17,13 @@ function makeRule(id: string, version: number = 1): CalculationRule {
   return {
     ruleId: id,
     ruleName: `Rule ${id}`,
-    category: "paint" as any,
-    scope: "global" as any,
+    category: "paint" as unknown as never,
+    scope: "global" as unknown as never,
     formula: "area * rate",
     version,
     effectiveDate: new Date().toISOString(),
     status: "active",
-    approvalStatus: "approved" as any,
+    approvalStatus: "approved" as unknown as never,
     updatedAt: new Date().toISOString(),
   } as unknown as CalculationRule;
 }

@@ -3,7 +3,7 @@ import { getRuleValue, getRuleString, getRuleArray } from "./use-calc-defaults";
 import type { EstimationCalcRule } from "@/types/estimation";
 
 function makeRule(value: unknown): EstimationCalcRule | undefined {
-  return { rule_value: { value } } as any;
+  return { rule_value: { value } } as unknown as never;
 }
 
 describe("use-calc-defaults", () => {

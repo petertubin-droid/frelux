@@ -1,8 +1,15 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi } from "vitest";
 
-vi.mock('./supabase', () => ({
+vi.mock("./supabase", () => ({
   supabase: {
-    functions: { invoke: vi.fn().mockResolvedValue({ data: null, error: { message: 'Not configured' } }) },
+    functions: {
+      invoke: vi
+        .fn()
+        .mockResolvedValue({
+          data: null,
+          error: { message: "Not configured" },
+        }),
+    },
     from: vi.fn().mockReturnValue({
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -16,16 +23,16 @@ vi.mock('./supabase', () => ({
   isSupabaseConfigured: false,
 }));
 
-const { invokeStudioAi, StudioAiError } = await import('./ai-studio');
+const { invokeStudioAi, StudioAiError } = await import("./ai-studio");
 
-describe('ai-studio (supabase not configured)', () => {
-  it('StudioAiError is an Error subclass', () => {
-    const err = new StudioAiError('msg', 'CODE', 500);
+describe("ai-studio (supabase not configured)", () => {
+  it("StudioAiError is an Error subclass", () => {
+    const err = new StudioAiError("msg", "CODE", 500);
     expect(err).toBeInstanceOf(Error);
-    expect(err.code).toBe('CODE');
+    expect(err.code).toBe("CODE");
   });
 
-  it('invokeStudioAi throws when not configured', async () => {
-    await expect(invokeStudioAi({} as any)).rejects.toThrow();
+  it("invokeStudioAi throws when not configured", async () => {
+    await expect(invokeStudioAi({} as unknown as never)).rejects.toThrow();
   });
 });

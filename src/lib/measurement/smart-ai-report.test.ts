@@ -13,7 +13,7 @@ const baseParams = {
     estimatedFloors: 2,
     estimatedHeight: 6,
     heightUnit: "m",
-    verificationState: "verified" as any,
+    verificationState: "verified" as unknown as never,
     userCorrections: [] as string[],
   },
   detectedRooms: [],
@@ -43,13 +43,13 @@ const baseParams = {
 
 describe("measurement/smart-ai-report", () => {
   it("builds report with defaults", () => {
-    const report = buildSmartAiImageReport(baseParams as any);
+    const report = buildSmartAiImageReport(baseParams as unknown as never);
     expect(report).toBeTruthy();
     expect(report.imageReference.reference).toBe("img-001");
   });
 
   it("uses NGN as default currency", () => {
-    const report = buildSmartAiImageReport(baseParams as any);
+    const report = buildSmartAiImageReport(baseParams as unknown as never);
     expect(report).toBeTruthy();
     expect(report.shareText).toBeTruthy();
   });
@@ -58,7 +58,7 @@ describe("measurement/smart-ai-report", () => {
     const report = buildSmartAiImageReport({
       ...baseParams,
       currency: "USD",
-    } as any);
+    } as unknown as never);
     expect(report).toBeTruthy();
   });
 });

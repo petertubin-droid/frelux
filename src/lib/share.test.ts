@@ -37,13 +37,13 @@ describe("share", () => {
         adjustedLiters: 10,
         totalRecommendedLiters: 12,
         recommendedContainers: [{ count: 2, size: 5 }],
-      } as any,
+      } as unknown as never,
       input: {
         projectType: "room",
         coats: 2,
         wasteMargin: 10,
         paintableArea: 50,
-      } as any,
+      } as unknown as never,
       paintTypeName: "Satin",
     });
     expect(openSpy).toHaveBeenCalledTimes(1);
@@ -66,11 +66,11 @@ describe("share", () => {
         laborCost: 0,
         total: 5200,
         currencySymbol: "₦",
-      } as any,
+      } as unknown as never,
       input: {
         projectType: "room",
         paintableArea: 50,
-      } as any,
+      } as unknown as never,
       paintTypeName: "Emulsion",
     });
     expect(openSpy).toHaveBeenCalledTimes(1);

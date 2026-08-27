@@ -36,7 +36,7 @@ describe("validation", () => {
     it("rejects missing or disallowed units", () => {
       const noUnitEntry: MeasurementEntry = {
         ...validEntry,
-        unit: undefined as any,
+        unit: undefined as unknown as never,
       };
       const res1 = validateMeasurementEntry(noUnitEntry, "painting");
       expect(res1.valid).toBe(false);

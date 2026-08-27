@@ -7,8 +7,6 @@ import {
   isSubscriptionActive,
   getDaysRemaining,
   getPlan,
-  type SubscriptionPlan,
-  type PaidFeature,
 } from "./subscription";
 import type { DbUserPaidStatus } from "@/types/database";
 

@@ -28,8 +28,8 @@ describe("shopping-list", () => {
           { count: 2, size: 5 },
           { count: 1, size: 2 },
         ],
-      } as any,
-      baseInput as any,
+      } as unknown as never,
+      baseInput as unknown as never,
       "Satin",
     );
     expect(items.length).toBeGreaterThan(3);
@@ -39,8 +39,8 @@ describe("shopping-list", () => {
 
   it("generatePaintShoppingList shows liters when no containers", () => {
     const items = generatePaintShoppingList(
-      { ...baseResult, recommendedContainers: [] } as any,
-      { ...baseInput, coats: 1 } as any,
+      { ...baseResult, recommendedContainers: [] } as unknown as never,
+      { ...baseInput, coats: 1 } as unknown as never,
       "Emulsion",
     );
     const paintItem = items.find((i) => i.name.includes("Emulsion"));
@@ -50,8 +50,8 @@ describe("shopping-list", () => {
 
   it("generatePaintShoppingList includes primer for multi-coat", () => {
     const items = generatePaintShoppingList(
-      { ...baseResult } as any,
-      { ...baseInput, coats: 3 } as any,
+      { ...baseResult } as unknown as never,
+      { ...baseInput, coats: 3 } as unknown as never,
       "Satin",
     );
     expect(items.some((i) => i.name === "Primer")).toBe(true);
@@ -59,8 +59,8 @@ describe("shopping-list", () => {
 
   it("generatePaintShoppingList excludes primer for single coat", () => {
     const items = generatePaintShoppingList(
-      { ...baseResult } as any,
-      { ...baseInput, coats: 1 } as any,
+      { ...baseResult } as unknown as never,
+      { ...baseInput, coats: 1 } as unknown as never,
       "Satin",
     );
     expect(items.some((i) => i.name === "Primer")).toBe(false);
@@ -68,8 +68,8 @@ describe("shopping-list", () => {
 
   it("generatePaintShoppingList includes accessories", () => {
     const items = generatePaintShoppingList(
-      { ...baseResult } as any,
-      { ...baseInput, coats: 1 } as any,
+      { ...baseResult } as unknown as never,
+      { ...baseInput, coats: 1 } as unknown as never,
       "Satin",
     );
     expect(items.some((i) => i.name.includes("Sandpaper"))).toBe(true);
@@ -81,8 +81,8 @@ describe("shopping-list", () => {
 
   it("all items start unchecked", () => {
     const items = generatePaintShoppingList(
-      { ...baseResult } as any,
-      { ...baseInput, coats: 1 } as any,
+      { ...baseResult } as unknown as never,
+      { ...baseInput, coats: 1 } as unknown as never,
       "Satin",
     );
     expect(items.every((i) => i.checked === false)).toBe(true);
@@ -102,11 +102,11 @@ describe("shopping-list", () => {
         otherMaterialsCost: 100,
         total: 6800,
         currencySymbol: "₦",
-      } as any,
+      } as unknown as never,
       {
         paintLiters: 10,
         paintableArea: 50,
-      } as any,
+      } as unknown as never,
       "Satin",
     );
     expect(items.length).toBe(5); // paint, primer, putty, brushes, other
@@ -123,8 +123,8 @@ describe("shopping-list", () => {
         paintCost: 5000,
         paintContainerCount: 0,
         currencySymbol: "₦",
-      } as any,
-      { paintLiters: 10, paintableArea: 50 } as any,
+      } as unknown as never,
+      { paintLiters: 10, paintableArea: 50 } as unknown as never,
       "Satin",
     );
     const paint = items.find((i) => i.name.includes("Satin"));

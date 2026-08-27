@@ -70,7 +70,10 @@ describe("measurement/factory", () => {
   });
 
   it("createMeasurementProject falls back to first allowed unit if preferred not allowed", () => {
-    const project = createMeasurementProject("painting", "lightyears" as any);
+    const project = createMeasurementProject(
+      "painting",
+      "lightyears" as unknown as never,
+    );
     // Should fall back to first allowed unit for painting
     expect(project.preferredUnit).not.toBe("lightyears");
   });

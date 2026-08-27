@@ -12,7 +12,6 @@ import {
   requiresVerification,
   createSourceRecord,
   verifySourceRecord,
-  type DataSource,
 } from "./source-tracking";
 
 describe("roof/source-tracking", () => {

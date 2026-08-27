@@ -31,7 +31,7 @@ function makeProfile(): EmMaterialProfile {
     created_at: "2026-01-01",
     updated_at: "2026-01-01",
     is_active: true,
-  } as any;
+  } as unknown as never;
 }
 
 describe("engine-integration/bridge", () => {

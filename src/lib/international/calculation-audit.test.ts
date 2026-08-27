@@ -11,7 +11,7 @@ describe("calculation-audit", () => {
     marketCode: "KE",
     currencyCode: "KES",
     profileVersion: "1.2.3",
-  } as any;
+  } as unknown as never;
 
   it("createCalculationAudit produces correct audit object with defaults", () => {
     const audit = createCalculationAudit(mockMarket, {

@@ -4,7 +4,7 @@ vi.mock("@/lib/supabase", () => {
   const mockData = { current: { providers: [], placements: [] } };
   return {
     supabase: {
-      from: vi.fn((table: string) => ({
+      from: vi.fn((_table: string) => ({
         select: vi.fn(() => ({
           eq: vi.fn(() => ({
             order: vi.fn(() =>
@@ -100,7 +100,7 @@ describe("ad-config", () => {
   it("getProvidersForPlacement respects explicit provider_ids order", () => {
     const providers = [makeProvider("1"), makeProvider("2"), makeProvider("3")];
     const placements = [
-      makePlacement("banner", { provider_ids: ["3", "1"] } as any),
+      makePlacement("banner", { provider_ids: ["3", "1"] } as unknown as never),
     ];
     const result = getProvidersForPlacement("banner", providers, placements);
     expect(result.map((p) => p.id)).toEqual(["3", "1"]);
@@ -119,14 +119,14 @@ describe("ad-config", () => {
     Object.defineProperty(window, "innerWidth", { value: 375, writable: true });
     const placement = makePlacement("banner", {
       display_rules: { mobile: false, desktop: true },
-    } as any);
+    } as unknown as never);
     expect(shouldDisplayPlacement(placement)).toBe(false);
   });
 
   it("getAdUnitId returns ID for known provider", () => {
     const placement = makePlacement("banner", {
       ad_unit_ids: { adsense: "ca-pub-123" },
-    } as any);
+    } as unknown as never);
     expect(getAdUnitId(placement, "adsense")).toBe("ca-pub-123");
   });
 

@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  FALLBACK_PRICES,
-  scanMaterialPrices,
-  type PriceScanReport,
-} from "./price-scanner";
+import { FALLBACK_PRICES, scanMaterialPrices } from "./price-scanner";
 
 describe("estimation/price-scanner", () => {
   it("FALLBACK_PRICES has cement, block, sand, granite", () => {
@@ -22,7 +18,7 @@ describe("estimation/price-scanner", () => {
   });
 
   it("all fallback prices have price > 0 and unit", () => {
-    for (const [key, val] of Object.entries(FALLBACK_PRICES)) {
+    for (const [_key, val] of Object.entries(FALLBACK_PRICES)) {
       expect(val.price).toBeGreaterThan(0);
       expect(val.unit.length).toBeGreaterThan(0);
       expect(val.name.length).toBeGreaterThan(0);

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   createCutout,
   addCutout,
@@ -10,6 +10,7 @@ import {
   CUTOUT_TYPES,
   type CutoutType,
 } from "./cutouts";
+import type { RoofCutout } from "./area-pipeline";
 
 describe("roof/cutouts", () => {
   describe("CUTOUT_TYPES", () => {
@@ -61,7 +62,7 @@ describe("roof/cutouts", () => {
     });
 
     it("does not mutate original array", () => {
-      const original: any[] = [];
+      const original: RoofCutout[] = [];
       const result = addCutout(original, "New", 3);
       expect(original.length).toBe(0);
       expect(result.length).toBe(1);
