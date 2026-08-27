@@ -88,7 +88,7 @@ The global paint and coatings market is valued at approximately 200 billion doll
 
 In Africa, the paint market is growing rapidly, driven by urbanization, rising middle class incomes, and construction booms in major cities. Local paint manufacturers are expanding their product lines and improving quality to compete with international brands. The Nigerian paint market in particular is seeing strong growth, with both domestic and international brands competing for market share.
 
-The growth of e-commerce is changing how paint is sold. While most consumers still buy paint in stores to see colors in person, online paint sales are growing. Paint brands are investing in digital color tools and improved online ordering to capture this growing segment.
+The growth of ecommerce is changing how paint is sold. While most consumers still buy paint in stores to see colors in person, online paint sales are growing. Paint brands are investing in digital color tools and improved online ordering to capture this growing segment.
 
 ## What This Means for Homeowners
 
