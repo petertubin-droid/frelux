@@ -14,6 +14,12 @@ import {
 import type { LabourConfig } from "./labour";
 import type { DbLabourSettings } from "@/types/database";
 
+interface MockSupabaseClient {
+  from: ReturnType<typeof vi.fn>;
+  __maybeSingle: ReturnType<typeof vi.fn>;
+  __order: ReturnType<typeof vi.fn>;
+}
+
 vi.mock("@/lib/supabase", () => {
   const maybeSingle = vi.fn();
   const order = vi.fn();
@@ -181,8 +187,9 @@ describe("labels and descriptions", () => {
 describe("fetchLabourSettings / fetchAllLabourSettings / fetchLabourCategories", () => {
   it("returns estimator-specific settings when found", async () => {
     const { supabase } = await import("@/lib/supabase");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any).__maybeSingle.mockResolvedValueOnce({
+    (
+      supabase as unknown as MockSupabaseClient
+    ).__maybeSingle.mockResolvedValueOnce({
       data: { estimator_key: "paint" },
     });
     const result = await fetchLabourSettings("paint" as never);
@@ -191,8 +198,7 @@ describe("fetchLabourSettings / fetchAllLabourSettings / fetchLabourCategories",
 
   it("falls back to global settings when estimator-specific settings are missing", async () => {
     const { supabase } = await import("@/lib/supabase");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any).__maybeSingle
+    (supabase as unknown as MockSupabaseClient).__maybeSingle
       .mockResolvedValueOnce({ data: null })
       .mockResolvedValueOnce({ data: { estimator_key: "global" } });
     const result = await fetchLabourSettings("paint" as never);
@@ -201,8 +207,7 @@ describe("fetchLabourSettings / fetchAllLabourSettings / fetchLabourCategories",
 
   it("returns null when neither specific nor global settings exist", async () => {
     const { supabase } = await import("@/lib/supabase");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any).__maybeSingle
+    (supabase as unknown as MockSupabaseClient).__maybeSingle
       .mockResolvedValueOnce({ data: null })
       .mockResolvedValueOnce({ data: null });
     const result = await fetchLabourSettings("paint" as never);
@@ -211,16 +216,18 @@ describe("fetchLabourSettings / fetchAllLabourSettings / fetchLabourCategories",
 
   it("returns an empty array when no labour settings exist", async () => {
     const { supabase } = await import("@/lib/supabase");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any).__order.mockResolvedValueOnce({ data: null });
+    (supabase as unknown as MockSupabaseClient).__order.mockResolvedValueOnce({
+      data: null,
+    });
     const result = await fetchAllLabourSettings();
     expect(result).toEqual([]);
   });
 
   it("returns categories when present", async () => {
     const { supabase } = await import("@/lib/supabase");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any).__order.mockResolvedValueOnce({ data: [{ id: "1" }] });
+    (supabase as unknown as MockSupabaseClient).__order.mockResolvedValueOnce({
+      data: [{ id: "1" }],
+    });
     const result = await fetchLabourCategories("paint" as never);
     expect(result).toEqual([{ id: "1" }]);
   });

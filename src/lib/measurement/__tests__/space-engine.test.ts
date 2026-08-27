@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the Space Engine (Feature 2 — Space Engine)
  *
@@ -555,11 +554,14 @@ describe("Bridge to Existing Measurement System", () => {
 
 describe("Finish Type Filtering", () => {
   it("filters spaces by finish type", () => {
-    const results = [
-      { finishType: "paint" as const, totalAreaM2: 50 },
-      { finishType: "screeding" as const, totalAreaM2: 30 },
-      { finishType: "paint" as const, totalAreaM2: 20 },
-    ] as any;
+    const results: {
+      finishType: "paint" | "screeding";
+      totalAreaM2: number;
+    }[] = [
+      { finishType: "paint", totalAreaM2: 50 },
+      { finishType: "screeding", totalAreaM2: 30 },
+      { finishType: "paint", totalAreaM2: 20 },
+    ];
 
     const paintArea = totalAreaByFinishType(results, "paint");
     expect(paintArea).toBe(70);

@@ -1,25 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for Feature 17: Roof → Material Engine
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   createRoofMaterialSpec,
   calculateRoofSectionMaterials,
   calculateRoofMaterials,
   calculateRoofMaterialsFromArea,
-} from '../roof-material-engine';
-import type { RoofSectionCalculation, MultiRoofCalculation } from '../section-model-types';
+} from "../roof-material-engine";
+import type {
+  RoofSectionCalculation,
+  MultiRoofCalculation,
+} from "../section-model-types";
+import type { RoofType, RoofingMaterial } from "@/types/build-to-roof";
 
-function makeSection(overrides: Partial<RoofSectionCalculation> = {}): RoofSectionCalculation {
+function makeSection(
+  overrides: Partial<RoofSectionCalculation> = {},
+): RoofSectionCalculation {
   return {
-    sectionId: 's1',
-    sectionName: 'Main Roof',
+    sectionId: "s1",
+    sectionName: "Main Roof",
     planAreaM2: 100,
     pitchDegrees: 25,
     surfaceAreaM2: 110.34,
-    roofType: 'hip' as any,
-    roofingMaterial: 'long_span_aluminium' as any,
+    roofType: "hip" as RoofType,
+    roofingMaterial: "long_span_aluminium" as RoofingMaterial,
     sheetCount: 74,
     ridgeLengthM: 10,
     hipLengthM: 14.14,
@@ -31,7 +36,9 @@ function makeSection(overrides: Partial<RoofSectionCalculation> = {}): RoofSecti
   };
 }
 
-function makeMultiRoof(sections: RoofSectionCalculation[]): MultiRoofCalculation {
+function makeMultiRoof(
+  sections: RoofSectionCalculation[],
+): MultiRoofCalculation {
   const totals = sections.reduce(
     (acc, s) => {
       acc.totalPlanAreaM2 += s.planAreaM2;
@@ -44,9 +51,14 @@ function makeMultiRoof(sections: RoofSectionCalculation[]): MultiRoofCalculation
       return acc;
     },
     {
-      totalPlanAreaM2: 0, totalSurfaceAreaM2: 0, totalSheetCount: 0,
-      totalRidgeLengthM: 0, totalHipLengthM: 0, totalFasciaLengthM: 0, totalTimberM: 0,
-    }
+      totalPlanAreaM2: 0,
+      totalSurfaceAreaM2: 0,
+      totalSheetCount: 0,
+      totalRidgeLengthM: 0,
+      totalHipLengthM: 0,
+      totalFasciaLengthM: 0,
+      totalTimberM: 0,
+    },
   );
   return {
     sections,
@@ -56,14 +68,14 @@ function makeMultiRoof(sections: RoofSectionCalculation[]): MultiRoofCalculation
   };
 }
 
-describe('Feature 17: Roof → Material Engine', () => {
-  describe('createRoofMaterialSpec', () => {
-    it('creates a configurable roofing material spec', () => {
+describe("Feature 17: Roof → Material Engine", () => {
+  describe("createRoofMaterialSpec", () => {
+    it("creates a configurable roofing material spec", () => {
       const spec = createRoofMaterialSpec({
-        productName: 'Long Span Aluminium',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Long Span Aluminium",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 10,
         sheetWidthM: 0.5,
         sheetLengthM: 3.0,
@@ -71,8 +83,8 @@ describe('Feature 17: Roof → Material Engine', () => {
         ridgeCapCoverageM: 1.0,
         fasciaCoverageM: 3.0,
       });
-      expect(spec.materialSpec.productName).toBe('Long Span Aluminium');
-      expect(spec.materialSpec.category).toBe('roofing');
+      expect(spec.materialSpec.productName).toBe("Long Span Aluminium");
+      expect(spec.materialSpec.category).toBe("roofing");
       expect(spec.materialSpec.coverage!.value).toBe(1.5);
       expect(spec.materialSpec.defaultWastePercent).toBe(10);
       expect(spec.isSheetBased).toBe(true);
@@ -80,25 +92,25 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(spec.ridgeCapCoverageM).toBe(1.0);
     });
 
-    it('uses default waste of 10 when not specified', () => {
+    it("uses default waste of 10 when not specified", () => {
       const spec = createRoofMaterialSpec({
-        productName: 'Test Sheet',
-        roofingMaterial: 'gi_sheet' as any,
+        productName: "Test Sheet",
+        roofingMaterial: "gi_sheet",
         coverageM2: 1.52,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
       });
       expect(spec.materialSpec.defaultWastePercent).toBe(10);
     });
   });
 
-  describe('calculateRoofSectionMaterials', () => {
-    it('calculates materials with configured spec', () => {
+  describe("calculateRoofSectionMaterials", () => {
+    it("calculates materials with configured spec", () => {
       const section = makeSection();
       const spec = createRoofMaterialSpec({
-        productName: 'Aluminium Sheet',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Aluminium Sheet",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 10,
         screwsPerUnit: 10,
         ridgeCapCoverageM: 1.0,
@@ -115,7 +127,7 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(result.explanation.length).toBeGreaterThan(0);
     });
 
-    it('returns unconfigured result when no spec provided', () => {
+    it("returns unconfigured result when no spec provided", () => {
       const section = makeSection();
       const result = calculateRoofSectionMaterials(section, null);
       expect(result.materialConfigured).toBe(false);
@@ -125,35 +137,43 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(result.explanation.length).toBeGreaterThan(0);
     });
 
-    it('explains the material derivation', () => {
+    it("explains the material derivation", () => {
       const section = makeSection();
       const spec = createRoofMaterialSpec({
-        productName: 'Test Sheet',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Test Sheet",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 10,
       });
 
       const result = calculateRoofSectionMaterials(section, spec);
-      const explanationText = result.explanation.join(' ');
-      expect(explanationText).toContain('110.34');
-      expect(explanationText).toContain('1.5');
-      expect(explanationText).toContain('sheets');
+      const explanationText = result.explanation.join(" ");
+      expect(explanationText).toContain("110.34");
+      expect(explanationText).toContain("1.5");
+      expect(explanationText).toContain("sheets");
     });
   });
 
-  describe('calculateRoofMaterials (multi-section)', () => {
-    it('calculates materials across multiple sections', () => {
-      const s1 = makeSection({ sectionId: 's1', sectionName: 'Main', surfaceAreaM2: 110 });
-      const s2 = makeSection({ sectionId: 's2', sectionName: 'Porch', surfaceAreaM2: 20 });
+  describe("calculateRoofMaterials (multi-section)", () => {
+    it("calculates materials across multiple sections", () => {
+      const s1 = makeSection({
+        sectionId: "s1",
+        sectionName: "Main",
+        surfaceAreaM2: 110,
+      });
+      const s2 = makeSection({
+        sectionId: "s2",
+        sectionName: "Porch",
+        surfaceAreaM2: 20,
+      });
       const roofCalc = makeMultiRoof([s1, s2]);
 
       const spec = createRoofMaterialSpec({
-        productName: 'Aluminium',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Aluminium",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 10,
       });
 
@@ -163,16 +183,20 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(result.allConfigured).toBe(true);
     });
 
-    it('skips incomplete sections', () => {
+    it("skips incomplete sections", () => {
       const s1 = makeSection({ complete: true });
-      const s2 = makeSection({ sectionId: 's2', complete: false, missing: ['pitch'] });
+      const s2 = makeSection({
+        sectionId: "s2",
+        complete: false,
+        missing: ["pitch"],
+      });
       const roofCalc = makeMultiRoof([s1, s2]);
 
       const spec = createRoofMaterialSpec({
-        productName: 'Test',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Test",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
       });
 
       const result = calculateRoofMaterials(roofCalc, spec);
@@ -180,32 +204,44 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(result.allConfigured).toBe(false);
     });
 
-    it('uses section-specific specs when provided', () => {
-      const s1 = makeSection({ sectionId: 's1', roofingMaterial: 'long_span_aluminium' as any, surfaceAreaM2: 100 });
-      const s2 = makeSection({ sectionId: 's2', roofingMaterial: 'stone_coated' as any, surfaceAreaM2: 50 });
+    it("uses section-specific specs when provided", () => {
+      const s1 = makeSection({
+        sectionId: "s1",
+        roofingMaterial: "long_span_aluminium",
+        surfaceAreaM2: 100,
+      });
+      const s2 = makeSection({
+        sectionId: "s2",
+        roofingMaterial: "stone_coated",
+        surfaceAreaM2: 50,
+      });
       const roofCalc = makeMultiRoof([s1, s2]);
 
       const defaultSpec = createRoofMaterialSpec({
-        productName: 'Default Sheet',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Default Sheet",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
       });
       const sectionSpec = createRoofMaterialSpec({
-        productName: 'Stone Coated Panel',
-        roofingMaterial: 'stone_coated' as any,
+        productName: "Stone Coated Panel",
+        roofingMaterial: "stone_coated",
         coverageM2: 0.53,
-        quantityUnit: 'panels',
+        quantityUnit: "panels",
       });
 
-      const sectionSpecs = new Map([['s2', sectionSpec]]);
-      const result = calculateRoofMaterials(roofCalc, defaultSpec, sectionSpecs);
+      const sectionSpecs = new Map([["s2", sectionSpec]]);
+      const result = calculateRoofMaterials(
+        roofCalc,
+        defaultSpec,
+        sectionSpecs,
+      );
       expect(result.sections).toHaveLength(2);
-      expect(result.sections[0].roofingMaterial!.quantityUnit).toBe('sheets');
-      expect(result.sections[1].roofingMaterial!.quantityUnit).toBe('panels');
+      expect(result.sections[0].roofingMaterial!.quantityUnit).toBe("sheets");
+      expect(result.sections[1].roofingMaterial!.quantityUnit).toBe("panels");
     });
 
-    it('shows area without pricing when no spec configured', () => {
+    it("shows area without pricing when no spec configured", () => {
       const s1 = makeSection();
       const roofCalc = makeMultiRoof([s1]);
 
@@ -217,13 +253,13 @@ describe('Feature 17: Roof → Material Engine', () => {
     });
   });
 
-  describe('calculateRoofMaterialsFromArea', () => {
-    it('calculates from raw surface area', () => {
+  describe("calculateRoofMaterialsFromArea", () => {
+    it("calculates from raw surface area", () => {
       const spec = createRoofMaterialSpec({
-        productName: 'Test Sheet',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Test Sheet",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 1.5,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 10,
       });
 
@@ -233,28 +269,28 @@ describe('Feature 17: Roof → Material Engine', () => {
       expect(explanation.length).toBeGreaterThan(0);
     });
 
-    it('returns null result when no spec', () => {
+    it("returns null result when no spec", () => {
       const { result, explanation } = calculateRoofMaterialsFromArea(100, null);
       expect(result).toBeNull();
-      expect(explanation[0]).toContain('No material specification');
+      expect(explanation[0]).toContain("No material specification");
     });
   });
 
-  describe('Configurable coverage (no hardcoding)', () => {
-    it('different materials produce different quantities', () => {
+  describe("Configurable coverage (no hardcoding)", () => {
+    it("different materials produce different quantities", () => {
       const area = 100;
       const spec1 = createRoofMaterialSpec({
-        productName: 'Wide Sheet',
-        roofingMaterial: 'long_span_aluminium' as any,
+        productName: "Wide Sheet",
+        roofingMaterial: "long_span_aluminium",
         coverageM2: 2.0,
-        quantityUnit: 'sheets',
+        quantityUnit: "sheets",
         wastePercent: 5,
       });
       const spec2 = createRoofMaterialSpec({
-        productName: 'Narrow Panel',
-        roofingMaterial: 'stone_coated' as any,
+        productName: "Narrow Panel",
+        roofingMaterial: "stone_coated",
         coverageM2: 0.5,
-        quantityUnit: 'panels',
+        quantityUnit: "panels",
         wastePercent: 15,
       });
 
