@@ -12,6 +12,15 @@
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY"
 
 
+# Staging environment — deploy previews and branch deploys
+[context.deploy-preview]
+  command = "npm run build"
+  publish = "dist"
+
+[context.deploy-preview.environment]
+  VITE_SENTRY_ENVIRONMENT = "staging"
+
+
 # 301 redirects — consolidated calculator routes
 [[redirects]]
   from = "/cost-estimator"
