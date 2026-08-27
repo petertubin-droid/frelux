@@ -156,6 +156,7 @@ const navModules: NavModule[] = [
   {
     heading: 'System',
     items: [
+      { label: 'AI Assistant', to: '/admin/ai-assistant', icon: Sparkles },
       { label: 'Site Branding', to: '/admin/branding', icon: Palette },
       { label: 'Typography', to: '/admin/typography', icon: Type },
       { label: 'Site Settings', to: '/admin/settings', icon: Settings },

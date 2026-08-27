@@ -922,6 +922,9 @@ export default function App() {
                     {/* Dashboard */}
                     <Route index element={<AdminOverview />} />
 
+                    {/* AI Assistant */}
+                    <Route path="ai-assistant" element={<AdminAIAssistant />} />
+
                     {/* Content */}
                     <Route path="learn" element={<AdminLearn />} />
                     <Route

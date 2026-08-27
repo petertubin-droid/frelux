@@ -6,3 +6,6 @@ verify_jwt = false
 
 [functions.paystack-webhook]
 verify_jwt = false
+
+[functions.ai-admin-assistant]
+verify_jwt = true
