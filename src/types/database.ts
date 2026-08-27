@@ -3,8 +3,8 @@
 export interface DbProfile {
   id: string;
   email: string;
-  role: 'admin' | 'user';
-  account_type: 'client' | 'pro_worker';
+  role: "admin" | "user";
+  account_type: "client" | "pro_worker";
   full_name: string;
   phone: string;
   avatar_url: string;
@@ -15,7 +15,6 @@ export interface DbProfile {
   created_at: string;
   updated_at: string;
 }
-
 
 /** A single word highlight rule for the hero headline. */
 export interface HeroWordHighlight {
@@ -70,7 +69,8 @@ export interface DbSiteBranding {
   updated_at: string;
 }
 
-export type AiAccessMode = 'free' | 'rewarded' | 'paid' | 'free_rewarded' | 'disabled';
+export type AiAccessMode =
+  "free" | "rewarded" | "paid" | "free_rewarded" | "disabled";
 
 // Typography configuration stored in site_settings.typography_config (JSONB)
 export interface TypographyConfig {
@@ -94,7 +94,7 @@ export interface DbSiteSettings {
   whatsapp_number: string;
   default_currency: string;
   default_currency_symbol: string;
-  default_unit: 'meters' | 'feet';
+  default_unit: "meters" | "feet";
   maintenance_mode: boolean;
   seo_title: string | null;
   seo_description: string | null;
@@ -137,6 +137,9 @@ export interface DbSiteSettings {
   estimation_reset_period: string;
   estimation_admin_override: boolean;
   premium_subscriptions_enabled: boolean;
+  // Manual paint price entry (Cost Estimator) — admin-configurable bucket
+  // sizes so users enter a price per bucket (e.g. 20L, 4L) instead of per liter.
+  manual_paint_bucket_sizes: number[];
   updated_at: string;
 }
 
@@ -170,7 +173,14 @@ export interface DbPaintProduct {
 export interface DbMaterialPrice {
   id: string;
   name: string;
-  category: 'primer' | 'filler' | 'putty' | 'sandpaper' | 'brushes' | 'rollers' | 'other';
+  category:
+    | "primer"
+    | "filler"
+    | "putty"
+    | "sandpaper"
+    | "brushes"
+    | "rollers"
+    | "other";
   unit: string;
   price: number;
   currency: string;
@@ -196,7 +206,7 @@ export interface DbColorCategory {
   name: string;
   slug: string;
   description: string | null;
-  type: 'room' | 'style' | 'surface' | 'collection' | 'seasonal';
+  type: "room" | "style" | "surface" | "collection" | "seasonal";
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -332,7 +342,7 @@ export interface DbPaintColor {
 export interface DbUserFavorite {
   id: string;
   user_id: string;
-  item_type: 'color' | 'palette';
+  item_type: "color" | "palette";
   color_id: string | null;
   palette_id: string | null;
   created_at: string;
@@ -343,7 +353,16 @@ export interface DbUserProject {
   user_id: string;
   name: string;
   description: string | null;
-  project_type: 'screeding' | 'paint_calc' | 'cost_estimate' | 'ai_recommendation' | 'custom' | 'pop_ceiling' | 'pop_estimate' | 'tile' | 'tile_estimate';
+  project_type:
+    | "screeding"
+    | "paint_calc"
+    | "cost_estimate"
+    | "ai_recommendation"
+    | "custom"
+    | "pop_ceiling"
+    | "pop_estimate"
+    | "tile"
+    | "tile_estimate";
   project_data: Record<string, unknown>;
   created_at: string;
   updated_at: string;
@@ -374,15 +393,15 @@ export interface DbRecentlyViewedColor {
 }
 
 export type ColorRelationshipType =
-  | 'similar'
-  | 'complementary'
-  | 'analogous'
-  | 'triadic'
-  | 'lighter'
-  | 'darker'
-  | 'matching_trim'
-  | 'matching_ceiling'
-  | 'coordinated_accent';
+  | "similar"
+  | "complementary"
+  | "analogous"
+  | "triadic"
+  | "lighter"
+  | "darker"
+  | "matching_trim"
+  | "matching_ceiling"
+  | "coordinated_accent";
 
 export interface DbColorRelationshipOverride {
   id: string;
@@ -392,7 +411,8 @@ export interface DbColorRelationshipOverride {
   updated_at: string;
 }
 
-export type ShareableResourceType = 'project' | 'paint_estimate' | 'cost_estimate' | 'palette';
+export type ShareableResourceType =
+  "project" | "paint_estimate" | "cost_estimate" | "palette";
 
 export interface DbShareableLink {
   id: string;
@@ -432,36 +452,39 @@ export interface DbMediaItem {
 // =========================================================
 
 export type StudioToolType =
-  | 'chat'
-  | 'page_builder'
-  | 'crud_generator'
-  | 'db_designer'
-  | 'api_builder'
-  | 'dashboard_builder'
-  | 'form_builder'
-  | 'workflow_builder'
-  | 'feature_generator'
-  | 'component_generator'
-  | 'code_generator'
-  | 'bug_detection'
-  | 'refactoring'
-  | 'test_generator'
-  | 'docs_generator'
-  | 'deploy_assistant'
-  | 'plugin_manager'
-  | 'project_explorer'
-  | 'file_manager'
-  | 'version_history'
-  | 'prompt_library'
-  | 'integration_center'
-  | 'role_management'
-  | 'feature_management'
-  | 'system_monitoring';
+  | "chat"
+  | "page_builder"
+  | "crud_generator"
+  | "db_designer"
+  | "api_builder"
+  | "dashboard_builder"
+  | "form_builder"
+  | "workflow_builder"
+  | "feature_generator"
+  | "component_generator"
+  | "code_generator"
+  | "bug_detection"
+  | "refactoring"
+  | "test_generator"
+  | "docs_generator"
+  | "deploy_assistant"
+  | "plugin_manager"
+  | "project_explorer"
+  | "file_manager"
+  | "version_history"
+  | "prompt_library"
+  | "integration_center"
+  | "role_management"
+  | "feature_management"
+  | "system_monitoring";
 
-export type SessionStatus = 'active' | 'archived' | 'completed';
-export type ArtifactStatus = 'draft' | 'review' | 'approved' | 'deployed' | 'rejected';
-export type PluginStatus = 'available' | 'installed' | 'enabled' | 'disabled' | 'error';
-export type IntegrationStatus = 'connected' | 'disconnected' | 'error' | 'pending';
+export type SessionStatus = "active" | "archived" | "completed";
+export type ArtifactStatus =
+  "draft" | "review" | "approved" | "deployed" | "rejected";
+export type PluginStatus =
+  "available" | "installed" | "enabled" | "disabled" | "error";
+export type IntegrationStatus =
+  "connected" | "disconnected" | "error" | "pending";
 
 export interface DbStudioSession {
   id: string;
@@ -580,7 +603,7 @@ export interface DbStudioRole {
 export interface DbStudioChat {
   id: string;
   session_id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   metadata: Record<string, unknown>;
   created_at: string;
@@ -590,7 +613,7 @@ export interface DbStudioChat {
 // Learn Section types
 // =========================================================
 
-export type LearnArticleStatus = 'draft' | 'published' | 'archived';
+export type LearnArticleStatus = "draft" | "published" | "archived";
 
 export interface DbLearnCategory {
   id: string;
@@ -629,9 +652,24 @@ export interface DbLearnArticle {
 // POP Ceiling & Tile Module types
 // =========================================================
 
-export type PopWorkflowType = 'nigeria' | 'international';
-export type PopMaterialCategory = 'primary' | 'finishing' | 'decorative' | 'framework' | 'ceiling_boards' | 'fasteners' | 'labour';
-export type TileMaterialCategory = 'tile' | 'adhesive' | 'grout' | 'spacer' | 'cement' | 'sand' | 'labour' | 'other';
+export type PopWorkflowType = "nigeria" | "international";
+export type PopMaterialCategory =
+  | "primary"
+  | "finishing"
+  | "decorative"
+  | "framework"
+  | "ceiling_boards"
+  | "fasteners"
+  | "labour";
+export type TileMaterialCategory =
+  | "tile"
+  | "adhesive"
+  | "grout"
+  | "spacer"
+  | "cement"
+  | "sand"
+  | "labour"
+  | "other";
 
 export interface DbPopMaterial {
   id: string;
@@ -716,7 +754,7 @@ export interface DbAiLearnChat {
   id: string;
   session_id: string;
   user_id: string | null;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   metadata: Record<string, unknown>;
   created_at: string;
@@ -779,7 +817,7 @@ export interface DbRewardedUnlockLog {
 export interface DbRewardedAdEvent {
   id: string;
   tool_key: string;
-  event_type: 'impression' | 'click' | 'reward' | 'close' | 'error';
+  event_type: "impression" | "click" | "reward" | "close" | "error";
   user_id: string | null;
   client_hash: string | null;
   ad_provider: string | null;
@@ -807,7 +845,8 @@ export interface DbAdvancedEstimate {
 // Ad Management System Types
 // =========================================================
 
-export type AdProviderType = 'display' | 'rewarded' | 'interstitial' | 'native' | 'mixed';
+export type AdProviderType =
+  "display" | "rewarded" | "interstitial" | "native" | "mixed";
 
 export interface DbAdProvider {
   id: string;
@@ -823,8 +862,17 @@ export interface DbAdProvider {
   updated_at: string;
 }
 
-export type AdPlacementType = 'banner' | 'native' | 'rewarded' | 'interstitial' | 'in_article';
-export type AdPageTarget = 'home' | 'calculator' | 'learn' | 'color_detail' | 'gallery' | 'ai' | 'sidebar' | 'global';
+export type AdPlacementType =
+  "banner" | "native" | "rewarded" | "interstitial" | "in_article";
+export type AdPageTarget =
+  | "home"
+  | "calculator"
+  | "learn"
+  | "color_detail"
+  | "gallery"
+  | "ai"
+  | "sidebar"
+  | "global";
 
 export interface AdDisplayRules {
   mobile: boolean;
@@ -847,7 +895,16 @@ export interface DbAdPlacement {
   updated_at: string;
 }
 
-export type AdEventType = 'impression' | 'click' | 'reward' | 'close' | 'error' | 'complete' | 'dismiss' | 'request' | 'fill';
+export type AdEventType =
+  | "impression"
+  | "click"
+  | "reward"
+  | "close"
+  | "error"
+  | "complete"
+  | "dismiss"
+  | "request"
+  | "fill";
 
 export interface DbAdAnalyticsEvent {
   id: string;
@@ -889,8 +946,21 @@ export interface AdProviderSchema {
   slug: string;
   name: string;
   provider_type: AdProviderType;
-  credential_fields: { key: string; label: string; type: 'text' | 'password'; required: boolean; placeholder?: string }[];
-  setting_fields: { key: string; label: string; type: 'text' | 'number' | 'boolean'; default?: string | number | boolean; required?: boolean; placeholder?: string }[];
+  credential_fields: {
+    key: string;
+    label: string;
+    type: "text" | "password";
+    required: boolean;
+    placeholder?: string;
+  }[];
+  setting_fields: {
+    key: string;
+    label: string;
+    type: "text" | "number" | "boolean";
+    default?: string | number | boolean;
+    required?: boolean;
+    placeholder?: string;
+  }[];
   icon: string;
 }
 
@@ -908,8 +978,10 @@ export interface AdProviderSummary {
 // Labour Settings System Types
 // =========================================================
 
-export type LabourPricingMethod = 'fixed' | 'per_sqm' | 'per_room' | 'daily' | 'custom';
-export type LabourEstimatorKey = 'global' | 'paint' | 'screeding' | 'pop_ceiling' | 'tile';
+export type LabourPricingMethod =
+  "fixed" | "per_sqm" | "per_room" | "daily" | "custom";
+export type LabourEstimatorKey =
+  "global" | "paint" | "screeding" | "pop_ceiling" | "tile";
 
 export interface DbLabourSettings {
   id: string;
@@ -944,7 +1016,7 @@ export interface DbLabourCategory {
 // Calculator Templates
 // =========================================================
 
-export type TemplateType = 'paint' | 'screeding' | 'pop_ceiling' | 'tile';
+export type TemplateType = "paint" | "screeding" | "pop_ceiling" | "tile";
 
 export interface DbStudioTemplate {
   id: string;
@@ -964,26 +1036,115 @@ export interface DbStudioTemplate {
 // Phase 5: Professional Contractor Experience
 // =========================================================
 
-export type ProjectType = 'painting' | 'screeding' | 'pop_ceiling' | 'tiling' | 'multi_trade';
-export type BuildingType = 'residential' | 'commercial' | 'industrial' | 'institutional' | 'renovation';
-export type SurfaceLocation = 'interior' | 'exterior' | 'both';
-export type ConstructionType = 'new_construction' | 'renovation' | 'touch_up';
-export type FinishQuality = 'economy' | 'standard' | 'premium' | 'luxury';
-export type BudgetLevel = 'economy' | 'standard' | 'premium' | 'luxury';
-export type MaterialQuality = 'economy' | 'standard' | 'premium' | 'luxury';
-export type ProjectStatus = 'draft' | 'in_progress' | 'on_hold' | 'completed' | 'archived';
-export type RoomType = 'living_room' | 'bedroom' | 'kitchen' | 'bathroom' | 'balcony' | 'hallway' | 'staircase' | 'office' | 'dining' | 'custom';
-export type SurfaceCondition = 'excellent' | 'good' | 'fair' | 'poor' | 'damaged';
-export type SurfaceType = 'fresh_plaster' | 'old_paint' | 'peeling_paint' | 'moisture' | 'cracks' | 'mould' | 'concrete' | 'wood' | 'metal';
-export type WallSmoothness = 'smooth' | 'slightly_rough' | 'rough' | 'very_rough';
-export type Porosity = 'low' | 'medium' | 'high' | 'very_high';
-export type RoomCalcType = 'paint' | 'screeding' | 'pop_ceiling' | 'tiling';
-export type ShoppingCategory = 'paint' | 'primer' | 'white_cement' | 'screeding_paint' | 'pop_cement' | 'soap' | 'fibre' | 'boards' | 'tiles' | 'tile_adhesive' | 'grout' | 'masking_tape' | 'brushes' | 'rollers' | 'sandpaper' | 'extension_pole' | 'ladders' | 'scaffolding' | 'ppe' | 'accessories' | 'labour' | 'transport' | 'misc';
-export type LabourRole = 'painter' | 'pop_installer' | 'wall_screeder' | 'tile_installer' | 'labourer' | 'foreman' | 'electrician' | 'plumber' | 'carpenter' | 'supervisor';
-export type QuotationStatus = 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'revised';
-export type TimelinePhase = 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' | 'touch_up' | 'cleanup';
-export type MaterialCatalogCategory = 'paint' | 'primer' | 'white_cement' | 'screeding_paint' | 'pop_cement' | 'soap' | 'fibre' | 'boards' | 'tiles' | 'tile_adhesive' | 'grout' | 'masking_tape' | 'brushes' | 'rollers' | 'sandpaper' | 'extension_pole' | 'ladders' | 'scaffolding' | 'ppe' | 'accessories';
-export type DurabilityRating = 'low' | 'medium' | 'high' | 'premium';
+export type ProjectType =
+  "painting" | "screeding" | "pop_ceiling" | "tiling" | "multi_trade";
+export type BuildingType =
+  "residential" | "commercial" | "industrial" | "institutional" | "renovation";
+export type SurfaceLocation = "interior" | "exterior" | "both";
+export type ConstructionType = "new_construction" | "renovation" | "touch_up";
+export type FinishQuality = "economy" | "standard" | "premium" | "luxury";
+export type BudgetLevel = "economy" | "standard" | "premium" | "luxury";
+export type MaterialQuality = "economy" | "standard" | "premium" | "luxury";
+export type ProjectStatus =
+  "draft" | "in_progress" | "on_hold" | "completed" | "archived";
+export type RoomType =
+  | "living_room"
+  | "bedroom"
+  | "kitchen"
+  | "bathroom"
+  | "balcony"
+  | "hallway"
+  | "staircase"
+  | "office"
+  | "dining"
+  | "custom";
+export type SurfaceCondition =
+  "excellent" | "good" | "fair" | "poor" | "damaged";
+export type SurfaceType =
+  | "fresh_plaster"
+  | "old_paint"
+  | "peeling_paint"
+  | "moisture"
+  | "cracks"
+  | "mould"
+  | "concrete"
+  | "wood"
+  | "metal";
+export type WallSmoothness =
+  "smooth" | "slightly_rough" | "rough" | "very_rough";
+export type Porosity = "low" | "medium" | "high" | "very_high";
+export type RoomCalcType = "paint" | "screeding" | "pop_ceiling" | "tiling";
+export type ShoppingCategory =
+  | "paint"
+  | "primer"
+  | "white_cement"
+  | "screeding_paint"
+  | "pop_cement"
+  | "soap"
+  | "fibre"
+  | "boards"
+  | "tiles"
+  | "tile_adhesive"
+  | "grout"
+  | "masking_tape"
+  | "brushes"
+  | "rollers"
+  | "sandpaper"
+  | "extension_pole"
+  | "ladders"
+  | "scaffolding"
+  | "ppe"
+  | "accessories"
+  | "labour"
+  | "transport"
+  | "misc";
+export type LabourRole =
+  | "painter"
+  | "pop_installer"
+  | "wall_screeder"
+  | "tile_installer"
+  | "labourer"
+  | "foreman"
+  | "electrician"
+  | "plumber"
+  | "carpenter"
+  | "supervisor";
+export type QuotationStatus =
+  "draft" | "sent" | "accepted" | "rejected" | "expired" | "revised";
+export type TimelinePhase =
+  | "preparation"
+  | "screeding"
+  | "pop_installation"
+  | "primer"
+  | "painting"
+  | "tiling"
+  | "drying"
+  | "inspection"
+  | "completion"
+  | "touch_up"
+  | "cleanup";
+export type MaterialCatalogCategory =
+  | "paint"
+  | "primer"
+  | "white_cement"
+  | "screeding_paint"
+  | "pop_cement"
+  | "soap"
+  | "fibre"
+  | "boards"
+  | "tiles"
+  | "tile_adhesive"
+  | "grout"
+  | "masking_tape"
+  | "brushes"
+  | "rollers"
+  | "sandpaper"
+  | "extension_pole"
+  | "ladders"
+  | "scaffolding"
+  | "ppe"
+  | "accessories";
+export type DurabilityRating = "low" | "medium" | "high" | "premium";
 
 export interface DbContractorProject {
   id: string;
@@ -1028,7 +1189,7 @@ export interface DbProjectRoom {
   length_m: number | null;
   width_m: number | null;
   height_m: number | null;
-  unit: 'meters' | 'feet';
+  unit: "meters" | "feet";
   surface_condition: SurfaceCondition;
   surface_type: SurfaceType;
   wall_smoothness: WallSmoothness;
@@ -1049,7 +1210,7 @@ export interface SurfacePrepStep {
   action: string;
   reason: string;
   product?: string;
-  priority: 'required' | 'recommended' | 'optional';
+  priority: "required" | "recommended" | "optional";
 }
 
 export interface DbProjectShoppingItem {
@@ -1192,17 +1353,17 @@ export interface DbMaterialCatalog {
 export interface DbFinishType {
   id: string;
   name: string;
-  slug: string;              // 'painting', 'tyrolene', 'grafitex'
+  slug: string; // 'painting', 'tyrolene', 'grafitex'
   description: string | null;
-  coverage_rate: number;     // m² per unit per coat
-  coverage_unit: string;     // 'L' for painting, 'kg' for tyrolene/grafitex
-  default_coats: number;    // recommended number of coats
-  package_size: number;      // size of one package
-  package_unit: string;     // 'L' or 'kg'
-  unit_price: number;        // price per package
+  coverage_rate: number; // m² per unit per coat
+  coverage_unit: string; // 'L' for painting, 'kg' for tyrolene/grafitex
+  default_coats: number; // recommended number of coats
+  package_size: number; // size of one package
+  package_unit: string; // 'L' or 'kg'
+  unit_price: number; // price per package
   labour_rate_per_sqm: number;
-  is_base: boolean;           // true for base coat materials
-  is_finishing: boolean;     // true for finishing/top coat materials
+  is_base: boolean; // true for base coat materials
+  is_finishing: boolean; // true for finishing/top coat materials
   is_active: boolean;
   sort_order: number;
   currency: string;
@@ -1260,8 +1421,8 @@ export interface DbWeatherCache {
 // =========================================================
 // Calculator Templates
 // =========================================================
-export type CalculatorType = 'paint' | 'tile' | 'pop' | 'screeding';
-export type TemplateVisibility = 'private' | 'public' | 'unlisted';
+export type CalculatorType = "paint" | "tile" | "pop" | "screeding";
+export type TemplateVisibility = "private" | "public" | "unlisted";
 
 export interface DbCalculatorTemplate {
   id: string;
@@ -1311,7 +1472,7 @@ export interface DbClient {
   phone: string | null;
   address: string | null;
   notes: string | null;
-  status: 'active' | 'inactive' | 'blacklisted';
+  status: "active" | "inactive" | "blacklisted";
   created_at: string;
   updated_at: string;
 }
@@ -1320,7 +1481,7 @@ export interface DbClientCommunication {
   id: string;
   client_id: string;
   user_id: string;
-  type: 'call' | 'email' | 'whatsapp' | 'meeting' | 'note';
+  type: "call" | "email" | "whatsapp" | "meeting" | "note";
   subject: string | null;
   body: string | null;
   created_at: string;
@@ -1346,7 +1507,13 @@ export interface DbIntegrationSetting {
   id: string;
   integration_key: string;
   display_name: string;
-  category: 'payment' | 'analytics' | 'communication' | 'maps' | 'storage' | 'advertising';
+  category:
+    | "payment"
+    | "analytics"
+    | "communication"
+    | "maps"
+    | "storage"
+    | "advertising";
   is_enabled: boolean;
   config: Record<string, unknown>;
   created_at: string;

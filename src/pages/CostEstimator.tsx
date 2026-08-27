@@ -187,6 +187,10 @@ export default function CostEstimator({
   const [labourConfig, setLabourConfig] = useState<LabourConfig>(
     DEFAULT_LABOUR_CONFIG,
   );
+  // Manual bucket pricing — user picks a bucket size (e.g. 20L, 4L) from
+  // admin-configurable options and enters the price for that bucket.
+  const [manualBucketSize, setManualBucketSize] = useState(20);
+  const [manualBucketPrice, setManualBucketPrice] = useState(0);
 
   useEffect(() => {
     async function loadAll() {
@@ -251,7 +255,9 @@ export default function CostEstimator({
   }, [settings]);
 
   // When a paint product is selected, fill container size and price so
-  // the estimator uses actual container purchase cost.
+  // the estimator uses actual container purchase cost. When no product is
+  // selected (manual entry), use the manually chosen bucket size and price
+  // so the estimator still calculates based on whole-bucket purchases.
   useEffect(() => {
     if (input.paintProductId) {
       const product = products.find((p) => p.id === input.paintProductId);
@@ -267,15 +273,17 @@ export default function CostEstimator({
         }));
       }
     } else {
+      // Manual entry — use bucket-based pricing with the user's selection.
       setInput((prev) => ({
         ...prev,
         paintProductName: "",
-        paintContainerSize: 0,
-        paintContainerPrice: 0,
-        paintUseContainerPricing: false,
+        paintContainerSize: manualBucketSize,
+        paintContainerPrice: manualBucketPrice,
+        paintPricePerLiter: 0,
+        paintUseContainerPricing: manualBucketPrice > 0,
       }));
     }
-  }, [input.paintProductId, products]);
+  }, [input.paintProductId, products, manualBucketSize, manualBucketPrice]);
 
   function update<K extends keyof CostEstimateInput>(
     key: K,
@@ -508,7 +516,7 @@ export default function CostEstimator({
                 </Field>
               ) : (
                 <p className="text-xs text-neutral-500">
-                  No paint products configured. Enter a manual price per liter
+                  No paint products configured. Enter a manual price per bucket
                   below.
                 </p>
               )}
@@ -517,13 +525,17 @@ export default function CostEstimator({
               input.paintContainerSize > 0 ? (
                 <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
                   <p className="text-sm font-semibold text-brand-navy dark:text-white">
-                    Container based pricing
+                    {input.paintProductId
+                      ? "Container based pricing"
+                      : "Bucket based pricing"}
                   </p>
                   <p className="mt-1 text-xs text-neutral-500">
                     {formatNumber(input.paintLiters, 1)} L required ·{" "}
-                    {input.paintContainerSize} L containers ·{" "}
+                    {input.paintContainerSize} L{" "}
+                    {input.paintProductId ? "containers" : "buckets"} ·{" "}
                     {Math.ceil(input.paintLiters / input.paintContainerSize)}{" "}
-                    container(s) needed ·{" "}
+                    {input.paintProductId ? "container(s)" : "bucket(s)"} needed
+                    ·{" "}
                     {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
                     each
                   </p>
@@ -544,32 +556,36 @@ export default function CostEstimator({
                 </div>
               ) : (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <Field label="Paint bucket size" hint="Select a bucket size">
+                    <select
+                      value={manualBucketSize}
+                      onChange={(e) => {
+                        setManualBucketSize(Number(e.target.value));
+                      }}
+                      className="input-field"
+                    >
+                      {(settings?.manual_paint_bucket_sizes ?? [20, 4]).map(
+                        (size) => (
+                          <option key={size} value={size}>
+                            {size} L
+                          </option>
+                        ),
+                      )}
+                    </select>
+                  </Field>
                   <Field
-                    label={`Paint price per liter (${currencySymbol})`}
+                    label={`Price per ${manualBucketSize}L bucket (${currencySymbol})`}
                     hint="Manual entry"
                   >
                     <input
                       type="number"
                       min={0}
-                      value={input.paintPricePerLiter || ""}
+                      value={manualBucketPrice || ""}
                       onChange={(e) =>
-                        update("paintPricePerLiter", Number(e.target.value))
+                        setManualBucketPrice(Number(e.target.value))
                       }
                       className="input-field"
                       placeholder="0"
-                    />
-                  </Field>
-                  <Field label="Paint liters" hint="From calculator or manual">
-                    <input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={input.paintLiters || ""}
-                      onChange={(e) =>
-                        update("paintLiters", Number(e.target.value))
-                      }
-                      className="input-field"
-                      placeholder="0.00"
                     />
                   </Field>
                 </div>
