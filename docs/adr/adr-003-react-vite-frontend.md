@@ -1,7 +1,8 @@
 # ADR-003: React + Vite Frontend Stack
 
 **Status:** Accepted  
-**Date:** 2026-08-01
+**Date:** 2026-08-01  
+**Updated:** 2026-08-27
 
 ## Context
 
@@ -9,7 +10,7 @@ Frelux is a measurement-heavy web application with interactive calculators, real
 
 ## Decision
 
-Use **React 18 + Vite** as the frontend build tool, with:
+Use **React 18 + Vite 8.2.2** as the frontend build tool, with:
 
 - Tailwind CSS for styling (utility-first, no CSS-in-JS runtime overhead)
 - shadcn/ui component patterns (owned, customizable components)
@@ -19,7 +20,7 @@ Use **React 18 + Vite** as the frontend build tool, with:
 ## Consequences
 
 - **Positive:** Sub-second HMR during development. Tree-shaking keeps the gzipped entry chunk at ~102 KB. Vitest shares Vite's config, so test setup mirrors production transforms. PWA enables offline calculator usage.
-- **Negative:** Vite's esbuild dependency has dev-only vulnerabilities that don't affect production bundles. Upgrading to Vite 8.x has breaking changes — deferred until ecosystem stabilizes.
+- **Vite 8.x upgrade (2026-08-27):** Upgraded from Vite 7.x to 8.2.2, resolving all dev-dependency vulnerability advisories. The breaking changes (plugin API, `build.target` defaults) were absorbed without regression — all 2,897 tests pass and production build is clean.
 - **Build output:** Netlify deployment via `netlify.toml` with separate staging and production contexts.
 
 ## Alternatives Considered
