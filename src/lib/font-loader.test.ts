@@ -16,9 +16,9 @@ describe("font-loader", () => {
     loadFont("Inter");
     const link = document.head.querySelector('link[data-font-loader="Inter"]');
     expect(link).toBeTruthy();
-    expect(link?.rel).toBe("stylesheet");
-    expect(link?.href).toContain("fonts.googleapis.com/css2");
-    expect(link?.href).toContain("family=Inter");
+    expect((link as HTMLLinkElement)?.rel).toBe("stylesheet");
+    expect((link as HTMLLinkElement)?.href).toContain("fonts.googleapis.com/css2");
+    expect((link as HTMLLinkElement)?.href).toContain("family=Inter");
   });
 
   it("loadFont does not duplicate for same family", () => {
