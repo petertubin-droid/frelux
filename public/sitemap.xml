@@ -583,4 +583,22 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/paint-comparison</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/gallery</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/surface-assessment</loc>
+    <lastmod>2026-08-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>

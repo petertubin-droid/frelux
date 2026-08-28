@@ -1548,3 +1548,183 @@ export interface DbPushSubscription {
   created_at: string;
   updated_at: string;
 }
+
+// ============================================================
+// Phase 56: Project Intelligence Types
+// ============================================================
+
+// Project calculations — structured calc results linked to projects
+export interface DbProjectCalculation {
+  id: string;
+  project_id: string;
+  user_id: string;
+  calculator_type: 'paint' | 'screeding' | 'pop_ceiling' | 'tile' | 'finish' | 'tyrolene' | 'cost' | 'build_to_roof' | 'structural' | 'foundation';
+  calculator_slug: string;
+  calc_title: string;
+  calc_data: Record<string, unknown>;
+  result_summary: Record<string, unknown>;
+  materials: Array<{
+    name: string;
+    category: string;
+    quantity: number;
+    unit: string;
+    estimated_price?: number;
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Gallery entries — Before & After showcase
+export interface DbGalleryEntry {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  project_category: 'painting' | 'screeding' | 'pop_ceiling' | 'tiling' | 'finishing' | 'construction';
+  paint_type_used: string | null;
+  paint_quality_used: string | null;
+  colour_used: string | null;
+  location: string | null;
+  completion_date: string | null;
+  is_public: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'featured' | 'hidden';
+  is_featured: boolean;
+  admin_notes: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Gallery images
+export interface DbGalleryImage {
+  id: string;
+  gallery_entry_id: string;
+  image_type: 'before' | 'after';
+  image_url: string;
+  caption: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+// Client estimates — with approval workflow
+export interface DbClientEstimate {
+  id: string;
+  project_id: string;
+  user_id: string;
+  estimate_number: string;
+  title: string;
+  description: string | null;
+  materials_cost: number;
+  labour_cost: number;
+  transport_cost: number;
+  misc_cost: number;
+  markup_percentage: number;
+  markup_amount: number;
+  grand_total: number;
+  currency: string;
+  materials_summary: Array<{
+    name: string;
+    category: string;
+    quantity: number;
+    unit: string;
+    unit_price: number;
+    total: number;
+  }>;
+  validity_days: number;
+  notes: string | null;
+  terms_conditions: string | null;
+  client_name: string | null;
+  client_email: string | null;
+  client_phone: string | null;
+  status: 'draft' | 'sent' | 'viewed' | 'approved' | 'changes_requested' | 'expired';
+  share_token: string | null;
+  shared_at: string | null;
+  viewed_at: string | null;
+  approved_at: string | null;
+  changes_requested_at: string | null;
+  client_feedback: string | null;
+  price_snapshot: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Paint comparisons
+export interface DbPaintComparison {
+  id: string;
+  paint_type: string;
+  display_name: string;
+  description: string | null;
+  finish: string | null;
+  recommended_use: string | null;
+  durability: string | null;
+  washability: string | null;
+  appearance: string | null;
+  product_characteristics: string | null;
+  suitable_areas: string | null;
+  price_range: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Project progress stages
+export interface DbProjectProgressStage {
+  id: string;
+  project_id: string;
+  stage_key: string;
+  stage_name: string;
+  description: string | null;
+  sort_order: number;
+  is_completed: boolean;
+  completed_at: string | null;
+  notes: string | null;
+  photo_url: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// Surface assessments
+export interface DbSurfaceAssessment {
+  id: string;
+  project_id: string | null;
+  user_id: string;
+  surface_condition: 'new_wall' | 'previously_painted' | 'smooth' | 'rough' | 'dirty' | 'damp' | 'cracked';
+  surface_type: string | null;
+  room_name: string | null;
+  notes: string | null;
+  recommendations: Array<{
+    recommendation: string;
+    priority: 'high' | 'medium' | 'low';
+  }>;
+  created_at: string;
+  updated_at: string;
+}
+
+// Project stage templates
+export interface DbProjectStageTemplate {
+  id: string;
+  stage_key: string;
+  stage_name: string;
+  description: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Material price history
+export interface DbMaterialPriceHistory {
+  id: string;
+  material_id: string | null;
+  material_name: string;
+  category: string;
+  old_price: number | null;
+  new_price: number;
+  unit: string | null;
+  price_source: string | null;
+  changed_by: string | null;
+  change_reason: string | null;
+  created_at: string;
+}

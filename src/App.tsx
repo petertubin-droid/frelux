@@ -1087,7 +1087,12 @@ export default function App() {
                     <Route path="credits-ads" element={<AdminCreditsAds />} />
 
                     {/* Contractor Config */}
-                    <Route
+                                        <Route path="gallery-moderation" element={<AdminGallery />} />
+                    <Route path="paint-comparison" element={<AdminPaintComparison />} />
+                    <Route path="material-prices" element={<AdminMaterialPrices />} />
+                    <Route path="surface-conditions" element={<AdminSurfaceConditions />} />
+                    <Route path="project-stages" element={<AdminProjectStages />} />
+<Route
                       path="material-catalog"
                       element={
                         <Suspense fallback={<PageLoader />}>
@@ -1156,4 +1161,32 @@ export default function App() {
       </AuthProvider>
     </ErrorBoundary>
   );
-}
+}                    <Route
+                      path="/paint-comparison"
+                      element={<PaintComparison />}
+                    />
+                    <Route
+                      path="/gallery"
+                      element={<Gallery />}
+                    />
+                    <Route
+                      path="/gallery/new"
+                      element={<GalleryUpload />}
+                    />
+                    <Route
+                      path="/surface-assessment"
+                      element={<SurfaceAssessment />}
+                    />
+                    <Route
+                      path="/project-workspace"
+                      element={<ProjectWorkspace />}
+                    />
+                    <Route
+                      path="/project-workspace/:id"
+                      element={<ProjectDetail />}
+                    />
+                    <Route
+                      path="/estimate/:token"
+                      element={<ClientEstimateView />}
+                    />
+                    <Route

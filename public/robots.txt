@@ -2,11 +2,15 @@
 # https://freluxtools.netlify.app
 # Public pages are crawlable. Admin, auth, and API routes are excluded.
 
-# Default — allow all public content
 User-agent: *
 Allow: /
 
-# Explicitly allow all public calculator and estimator routes
+# Public feature pages
+Allow: /paint-comparison
+Allow: /gallery
+Allow: /surface-assessment
+
+# Public calculator and estimator routes
 Allow: /start-building
 Allow: /calculators
 Allow: /paint-calculator
@@ -71,6 +75,9 @@ Disallow: /color-preview
 Disallow: /my-projects
 Disallow: /my-templates
 Disallow: /shared/
+Disallow: /gallery/new
+Disallow: /project-workspace
+Disallow: /estimate/
 Disallow: /marketplace/post
 Disallow: /marketplace/products/post
 Disallow: /marketplace/products/my
