@@ -1,694 +1,773 @@
--- Phase 51: Learn articles for Tile Guides category (11 articles)
+-- Phase: tile-guides articles
+-- 11 articles
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('complete-guide-floor-tile-installation',
-'Complete Guide to Floor Tile Installation',
-'Learn the complete process of floor tile installation from subfloor preparation to grouting and sealing with pro tips.',
-$ARTICLE$## Introduction to Complete Guide to Floor Tile Installation
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'complete-guide-floor-tile-installation',
+  'Complete Guide to Floor Tile Installation',
+  'Learn every step of floor tile installation from subfloor preparation to grouting and sealing.',
+  '## Introduction
 
-## Key Concepts
+Complete Guide to Floor Tile Installation is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-This article covers the essential aspects of complete guide to floor tile installation. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
+## Key Principles and Concepts
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
-## Materials and Tools
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+## Materials and Tools Required
 
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-
-## Step by Step Process
-
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
-
-
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
-
-
-## Common Mistakes to Avoid
-
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
-
-
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
-
-
-## Cost Considerations
-
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
-
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
-
-## Conclusion
-
-Complete Guide to Floor Tile Installation requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 12, 'published', true,
-'Complete Guide to Floor Tile Installation',
-'Step by step guide to floor tile installation. Learn subfloor preparation, layout, cutting, adhesive, grouting, and sealing for professional results.',
-'floor tile installation, tile guide, tiling floors, tile laying, Nigerian tiling, floor tiles, ceramic tile',
-now(), 1)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
-
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('how-to-calculate-tile-quantities-any-room',
-'How to Calculate Tile Quantities for Any Room',
-'Learn how to calculate the exact number of tiles needed for any room size, including wastage allowance and pattern adjustments.',
-$ARTICLE$## Introduction to How to Calculate Tile Quantities for Any Room
-
-## Key Concepts
-
-This article covers the essential aspects of how to calculate tile quantities for any room. Understanding these concepts is crucial for anyone involved in Nigerian construction.
-
-
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
-
-
-## Materials and Tools
-
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
-
-
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-How to Calculate Tile Quantities for Any Room requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'How to Calculate Tile Quantities for Any Room',
-'Step by step guide to calculating tile quantities for any room. Includes formulas for wastage, patterns, and irregular room shapes.',
-'tile calculation, tile quantity, how many tiles, tile estimator, floor tile calculation, tiling math, Nigerian tiles',
-now(), 2)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Complete Guide to Floor Tile Installation requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  12,
+  'published',
+  true,
+  'Complete Guide to Floor Tile Installation',
+  'Step by step guide to floor tile installation. Learn subfloor preparation, layout planning, adhesive application, tile cutting, grouting, and sealing for professional results.',
+  'floor tile installation, tile laying, floor tiling guide, tile adhesive, grouting tiles',
+  NOW(),
+  1
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'how-to-calculate-tile-quantities-any-room',
+  'How to Calculate Tile Quantities for Any Room',
+  'Learn how to calculate the exact number of tiles needed for any room, including waste allowance.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('tile-patterns-layouts-choosing-right-design',
-'Tile Patterns and Layouts: Choosing the Right Design',
-'Explore popular tile patterns including straight, diagonal, herringbone, and basket weave. Learn which works best for each room.',
-$ARTICLE$## Introduction to Tile Patterns and Layouts: Choosing the Right Design
+How to Calculate Tile Quantities for Any Room is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of tile patterns and layouts: choosing the right design. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Tile Patterns and Layouts: Choosing the Right Design requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Tile Patterns and Layouts: Choosing the Right Design',
-'Explore popular tile patterns including straight, diagonal, herringbone, and basket weave. Learn which layout works best for each room.',
-'tile patterns, tile layout, herringbone tile, tile design, floor tile patterns, tile arrangement, tiling design',
-now(), 3)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+How to Calculate Tile Quantities for Any Room requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  7,
+  'published',
+  false,
+  'Calculate Tile Quantities for Any Room',
+  'Learn how to calculate tile quantities for any room size. Includes waste allowance, pattern adjustments, and tips for ordering the right amount of tiles.',
+  'tile calculation, tile quantities, how many tiles needed, tile estimator, floor tile calculator',
+  NOW(),
+  2
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'wall-tiling-step-by-step-installation',
+  'Wall Tiling: Step-by-Step Installation Guide',
+  'A complete guide to wall tile installation from surface preparation to finishing.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('wall-tiling-vs-floor-tiling-key-differences',
-'Wall Tiling vs Floor Tiling: Key Differences',
-'Understand the differences between wall and floor tiling, including material requirements, techniques, and installation methods.',
-$ARTICLE$## Introduction to Wall Tiling vs Floor Tiling: Key Differences
+Wall Tiling: Step-by-Step Installation Guide is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of wall tiling vs floor tiling: key differences. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Wall Tiling vs Floor Tiling: Key Differences requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Wall Tiling vs Floor Tiling: Key Differences',
-'Learn the key differences between wall tiling and floor tiling including materials, adhesives, techniques, and installation methods.',
-'wall tiling, floor tiling, tile differences, wall tiles, floor tiles, tiling techniques, tile installation',
-now(), 4)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Wall Tiling: Step-by-Step Installation Guide requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  10,
+  'published',
+  false,
+  'Wall Tiling Step by Step Installation Guide',
+  'Complete guide to wall tile installation. Learn surface preparation, layout, adhesive application, tile fixing, spacing, grouting, and sealing for professional wall tiling results.',
+  'wall tiling, wall tile installation, bathroom wall tiles, kitchen wall tiles, tile fixing',
+  NOW(),
+  3
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'choosing-right-tiles-ceramic-porcelain-stone',
+  'Choosing the Right Tiles: Ceramic, Porcelain, or Natural Stone',
+  'Compare ceramic, porcelain, and natural stone tiles to find the best option for your project.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('common-tiling-mistakes-how-to-avoid',
-'Common Tiling Mistakes and How to Avoid Them',
-'Identify the most common tiling mistakes that cause loose tiles, uneven surfaces, and grout problems. Learn practical solutions.',
-$ARTICLE$## Introduction to Common Tiling Mistakes and How to Avoid Them
+Choosing the Right Tiles: Ceramic, Porcelain, or Natural Stone is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of common tiling mistakes and how to avoid them. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Common Tiling Mistakes and How to Avoid Them requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Common Tiling Mistakes and How to Avoid Them',
-'Learn the most common tiling mistakes that cause loose tiles, uneven surfaces, and grout problems, with practical solutions to avoid them.',
-'tiling mistakes, tile problems, loose tiles, grout issues, tiling errors, tile installation tips, tiling guide',
-now(), 5)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Choosing the Right Tiles: Ceramic, Porcelain, or Natural Stone requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  8,
+  'published',
+  false,
+  'Choosing Right Tiles Ceramic Porcelain Stone',
+  'Compare ceramic, porcelain, and natural stone tiles. Learn the differences in durability, water resistance, cost, and best applications for each tile type.',
+  'ceramic vs porcelain tiles, tile types comparison, natural stone tiles, choosing tiles, tile selection guide',
+  NOW(),
+  4
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'tile-grout-selection-and-application',
+  'Tile Grout Selection and Application Guide',
+  'Learn how to choose the right grout and apply it professionally for long-lasting tile installations.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('tile-adhesive-grout-selection-guide',
-'Tile Adhesive and Grout Selection Guide',
-'Complete guide to selecting the right tile adhesive and grout for different tile types, surfaces, and applications in Nigerian conditions.',
-$ARTICLE$## Introduction to Tile Adhesive and Grout Selection Guide
+Tile Grout Selection and Application Guide is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of tile adhesive and grout selection guide. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Tile Adhesive and Grout Selection Guide requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Tile Adhesive and Grout Selection Guide',
-'Complete guide to selecting the right tile adhesive and grout for different tile types and surfaces. Covers thinset, mastic, epoxy, and grout types.',
-'tile adhesive, tile grout, thinset, mastic, epoxy grout, tile bonding, tiling materials, Nigerian tiling',
-now(), 6)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Tile Grout Selection and Application Guide requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  8,
+  'published',
+  false,
+  'Tile Grout Selection and Application Guide',
+  'Complete guide to tile grout selection and application. Learn grout types, colour matching, mixing, application, cleaning, and sealing for professional tile installations.',
+  'tile grout, grout selection, grout application, epoxy grout, cement grout, grout sealing',
+  NOW(),
+  5
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'common-tiling-mistakes-and-how-to-avoid',
+  'Common Tiling Mistakes and How to Avoid Them',
+  'Identify and avoid the most common tiling mistakes that ruin tile installations.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('how-to-estimate-tiling-costs-nigeria',
-'How to Estimate Tiling Costs in Nigeria',
-'Complete guide to estimating tiling costs in Nigeria including tile prices, adhesive, grout, labour, and total project budgeting.',
-$ARTICLE$## Introduction to How to Estimate Tiling Costs in Nigeria
+Common Tiling Mistakes and How to Avoid Them is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of how to estimate tiling costs in nigeria. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-How to Estimate Tiling Costs in Nigeria requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'How to Estimate Tiling Costs in Nigeria',
-'Complete guide to estimating tiling costs in Nigeria including current tile prices, adhesive, grout, labour rates, and total project budget.',
-'tiling cost Nigeria, tile price, tiling budget, tile installation cost, Nigerian tiles, construction costs, tile estimate',
-now(), 7)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Common Tiling Mistakes and How to Avoid Them requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  8,
+  'published',
+  false,
+  'Common Tiling Mistakes and How to Avoid',
+  'Learn the most common tiling mistakes and how to avoid them. Poor preparation, incorrect adhesive, bad layout, uneven spacing, and grouting errors explained.',
+  'tiling mistakes, tile installation errors, common tiling problems, tile fixing mistakes, tiling tips',
+  NOW(),
+  6
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'tile-layout-patterns-herringbone-straight-diagonal',
+  'Tile Layout Patterns: Herringbone, Straight, Diagonal, and More',
+  'Explore popular tile layout patterns and learn which works best for your space.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('preparing-surfaces-tile-installation',
-'Preparing Surfaces for Tile Installation',
-'Learn how to prepare different surfaces for tile installation, including concrete, wood, and existing tile, for proper adhesion.',
-$ARTICLE$## Introduction to Preparing Surfaces for Tile Installation
+Tile Layout Patterns: Herringbone, Straight, Diagonal, and More is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of preparing surfaces for tile installation. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Preparing Surfaces for Tile Installation requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Preparing Surfaces for Tile Installation',
-'Learn how to prepare concrete, wood, and existing tile surfaces for new tile installation. Covers levelling, cleaning, and priming.',
-'surface preparation, tile prep, subfloor preparation, tile substrate, tiling surface, floor preparation, tile installation prep',
-now(), 8)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Tile Layout Patterns: Herringbone, Straight, Diagonal, and More requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  8,
+  'published',
+  false,
+  'Tile Layout Patterns Herringbone Straight Diagonal',
+  'Explore popular tile layout patterns including herringbone, straight lay, diagonal, chevron, and basket weave. Learn which pattern suits your room size and style.',
+  'tile layout patterns, herringbone tile, diagonal tile, tile patterns, chevron tile, tile design',
+  NOW(),
+  7
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'tile-cost-estimation-materials-labour-budget',
+  'Tile Cost Estimation: Materials, Labour, and Total Budget',
+  'Learn how to estimate the total cost of a tiling project including materials and labour.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('tile-cutting-techniques-tools-guide',
-'Tile Cutting Techniques and Tools Guide',
-'Master tile cutting with this guide to tools and techniques. Learn to cut straight, curved, and notched cuts in ceramic and porcelain tiles.',
-$ARTICLE$## Introduction to Tile Cutting Techniques and Tools Guide
+Tile Cost Estimation: Materials, Labour, and Total Budget is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of tile cutting techniques and tools guide. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Tile Cutting Techniques and Tools Guide requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Tile Cutting Techniques and Tools Guide',
-'Master tile cutting with this complete guide to tools and techniques. Learn straight cuts, curves, notches, and how to use a tile cutter.',
-'tile cutting, tile cutter, tile saw, cutting ceramic, tile tools, porcelain cutting, tile installation tools',
-now(), 9)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Tile Cost Estimation: Materials, Labour, and Total Budget requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  7,
+  'published',
+  false,
+  'Tile Cost Estimation Materials and Labour',
+  'Complete guide to tile cost estimation. Learn tile prices, adhesive costs, grout costs, labour rates, and total project budgeting for Nigerian tiling projects.',
+  'tile cost estimation, tiling budget, tile installation cost, tile price nigeria, tiling project cost',
+  NOW(),
+  8
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'how-to-tile-bathroom-waterproofing-best-practices',
+  'How to Tile a Bathroom: Waterproofing and Best Practices',
+  'Learn bathroom tiling best practices including waterproofing, tile selection, and installation.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('grouting-sealing-tiles-properly',
-'Grouting and Sealing Tiles Properly',
-'Learn the correct process for grouting and sealing tiles, including grout selection, application, cleanup, and sealer types.',
-$ARTICLE$## Introduction to Grouting and Sealing Tiles Properly
+How to Tile a Bathroom: Waterproofing and Best Practices is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of grouting and sealing tiles properly. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Grouting and Sealing Tiles Properly requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Grouting and Sealing Tiles Properly',
-'Learn the correct process for grouting and sealing tiles. Covers grout selection, application techniques, cleanup, and choosing the right sealer.',
-'tile grouting, grout application, tile sealing, grout sealer, tile maintenance, grout cleanup, tiling finishing',
-now(), 10)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+How to Tile a Bathroom: Waterproofing and Best Practices requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  10,
+  'published',
+  false,
+  'How to Tile a Bathroom Waterproofing Guide',
+  'Complete guide to bathroom tiling. Learn waterproofing membrane, tile selection for wet areas, installation techniques, grout selection, and sealing for watertight results.',
+  'bathroom tiling, bathroom waterproofing, wet area tiling, bathroom tile installation, waterproof membrane',
+  NOW(),
+  9
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'tile-maintenance-cleaning-sealing-grout-care',
+  'Tile Maintenance: Cleaning, Sealing, and Grout Care',
+  'Learn how to maintain tiles and grout to keep them looking new for years.',
+  '## Introduction
 
-INSERT INTO learn_articles (slug, title, excerpt, content, category_slug, author, read_time_minutes, status, is_featured, meta_title, meta_description, meta_keywords, published_at, sort_order) VALUES
-('maintaining-cleaning-tile-surfaces',
-'Maintaining and Cleaning Tile Surfaces',
-'Learn how to maintain and clean tile surfaces to keep them looking new. Covers routine care, stain removal, and grout cleaning.',
-$ARTICLE$## Introduction to Maintaining and Cleaning Tile Surfaces
+Tile Maintenance: Cleaning, Sealing, and Grout Care is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
 
-## Key Concepts
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
 
-This article covers the essential aspects of maintaining and cleaning tile surfaces. Understanding these concepts is crucial for anyone involved in Nigerian construction.
+## Key Principles and Concepts
 
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
 
-Whether you are a homeowner planning a project or a contractor looking to improve your skills, this guide provides practical, actionable information based on Nigerian construction practices and current market conditions.
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
 
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
 
-## Materials and Tools
+## Materials and Tools Required
 
-The right materials make all the difference in construction quality. Always source materials from reputable suppliers. Fresh cement, clean sand, and quality additives ensure better results.
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
 
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
 
-Quality tools save time and produce better finishes. Invest in good trowels, levels, and measuring tools. Safety equipment including gloves, glasses, and dust masks should always be used.
-
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
 
 ## Step by Step Process
 
-Every construction project follows a systematic process. Plan thoroughly before starting. Measure accurately. Use the right materials in the right proportions. Work in manageable sections. Allow adequate time for curing and drying.
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
 
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
 
-Use the [tile calculator](/tile-calculator) to estimate material quantities and costs before starting your project.
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
 
+## Common Mistakes and How to Avoid Them
 
-## Common Mistakes to Avoid
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
 
-The most common construction mistakes include: inadequate surface preparation, incorrect material ratios, rushing the curing process, ignoring weather conditions, and using substandard materials. Each of these can compromise the quality and longevity of your project.
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
 
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
 
-Always follow best practices, even when under time pressure. The cost of fixing mistakes is always higher than the cost of doing it right the first time.
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
 
+## Cost Estimation and Budgeting
 
-## Cost Considerations
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
 
-Construction costs in Nigeria vary by location, material quality, and labour rates. Always get multiple quotes for materials and labour. Add 15 percent to your budget for contingencies and wastage. Track expenses throughout the project to stay within budget.
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
 
-
-## Maintenance and Longevity
-
-Proper maintenance extends the life of any construction project. Regular inspections, prompt repairs, and appropriate cleaning keep surfaces looking new for years. Address small issues before they become major problems.
-
-
-For specific maintenance advice, consult the relevant sections of this guide or speak with a qualified professional.
-
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
 
 ## Conclusion
 
-Maintaining and Cleaning Tile Surfaces requires careful planning, quality materials, and attention to detail. By following the guidelines in this article, you can achieve professional results that stand the test of time. Use the [tile calculator](/tile-calculator) to plan your project and estimate costs accurately.
-$ARTICLE$,
-'tile-guides', 'Frelux Editorial Team', 10, 'published', false,
-'Maintaining and Cleaning Tile Surfaces',
-'Learn how to maintain and clean tile and grout surfaces. Covers routine care, stain removal, deep cleaning, and preventing damage.',
-'tile maintenance, tile cleaning, grout cleaning, tile care, floor tile upkeep, tile stain removal, grout maintenance',
-now(), 11)
-ON CONFLICT (slug) DO UPDATE SET
-  title = EXCLUDED.title, excerpt = EXCLUDED.excerpt, content = EXCLUDED.content, author = EXCLUDED.author, read_time_minutes = EXCLUDED.read_time_minutes, status = EXCLUDED.status, is_featured = EXCLUDED.is_featured, meta_title = EXCLUDED.meta_title, meta_description = EXCLUDED.meta_description, meta_keywords = EXCLUDED.meta_keywords, published_at = EXCLUDED.published_at, updated_at = now();
+Tile Maintenance: Cleaning, Sealing, and Grout Care requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  7,
+  'published',
+  false,
+  'Tile Maintenance Cleaning and Grout Care',
+  'Learn tile and grout maintenance. Cleaning techniques, sealing schedules, grout care, stain removal, and tips for keeping your tiles looking new for years.',
+  'tile maintenance, tile cleaning, grout care, tile sealing, tile upkeep, grout cleaning',
+  NOW(),
+  10
+) ON CONFLICT (slug) DO NOTHING;
+INSERT INTO learn_articles (
+  slug, title, excerpt, content, category_slug, author, read_time_minutes,
+  status, is_featured, meta_title, meta_description, meta_keywords,
+  published_at, sort_order
+) VALUES (
+  'outdoor-tiling-weather-resistant-materials',
+  'Outdoor Tiling: Choosing Weather-Resistant Materials',
+  'Learn how to select and install tiles for outdoor spaces that withstand weather conditions.',
+  '## Introduction
+
+Outdoor Tiling: Choosing Weather-Resistant Materials is an essential topic for anyone involved in Nigerian construction and home improvement. Whether you are a homeowner planning a renovation or a contractor seeking to improve your skills, understanding tile installation properly makes the difference between a professional result and a disappointing one. This comprehensive guide covers the key principles, materials, processes, and common pitfalls you need to know.
+
+Nigerian construction presents unique challenges including high humidity, temperature variations, and seasonal rainfall. These environmental factors affect material behaviour and project timelines. By understanding how to work with these conditions rather than against them, you can achieve durable, high-quality results that stand the test of time.
+
+## Key Principles and Concepts
+
+Understanding the fundamental principles of tile installation is the foundation of any successful project. The key concepts include proper material selection, correct mixing ratios, adequate surface preparation, appropriate application techniques, and sufficient curing time. Each principle builds on the others, and skipping any step compromises the entire project.
+
+Material quality is paramount. In Nigeria, source materials from reputable suppliers and check quality before purchase. Cement should be fresh and free from lumps. Sand should be clean and properly graded. Water should be potable. Never compromise on material quality to save costs, as the long-term cost of poor materials far exceeds any short-term savings.
+
+Surface preparation is equally critical. Surfaces must be clean, sound, and properly conditioned before any material is applied. Remove dust, grease, loose particles, and contaminants. In some cases, priming or wetting the surface is necessary to ensure proper adhesion. Skipping surface preparation is the most common cause of premature failure.
+
+## Materials and Tools Required
+
+The materials needed for tile installation depend on the specific project, but certain basics apply across all projects. Quality cement, clean sand, and appropriate additives form the foundation. For finishing work, you need prime, paint, and possibly texture materials. For structural work, reinforcement and formwork materials are required.
+
+Essential tools include measuring tapes for accurate dimensions, spirit levels for horizontal and vertical alignment, trowels for application, mixers for preparing materials, and various hand tools for specific tasks. Safety equipment is non-negotiable: dust masks protect against respiratory hazards, safety goggles prevent eye injuries, and gloves protect hands from cement and chemicals.
+
+Budget for 10 to 15 percent extra material beyond your calculated quantities. This accounts for waste, cuts, mistakes, and small variations in application thickness. Store materials properly before use: cement in dry conditions, boards flat, and tools clean and dry. Poor storage wastes materials and money.
+
+## Step by Step Process
+
+Follow a systematic process for every project. Start with thorough planning: measure all dimensions, calculate material quantities, and create a realistic timeline. Next, prepare the workspace: clean surfaces, remove obstacles, protect adjacent areas, and set up tools and materials within easy reach.
+
+Execute the work in manageable sections. This allows you to maintain quality control and make adjustments as needed. Work methodically from one area to the next, checking alignment, level, and quality at each stage. Do not rush — construction materials need proper time to set, cure, and dry. In Nigerian humidity, drying times may be longer than expected.
+
+After completing the main work, conduct a thorough inspection. Look for defects, uneven areas, hollow spots, or imperfections. Address any issues immediately while materials are still workable. A final quality check ensures the result meets professional standards. Use the [FRELUX Calculator](/tile-calculator) for accurate material calculations.
+
+## Common Mistakes and How to Avoid Them
+
+Inadequate preparation is the number one cause of project failures. Many people skip cleaning, priming, or measuring steps to save time, only to find that the finished result is substandard. Always prepare thoroughly before starting any work.
+
+Incorrect material ratios cause structural weakness and poor adhesion. Follow manufacturer specifications or established industry standards for mixing ratios. Never guess — measure precisely using calibrated containers. Adding too much water weakens the mix, while too little prevents proper bonding.
+
+Rushing the curing process is another common mistake. Materials need time to achieve full strength. In hot Nigerian weather, cover curing materials with damp sacks or plastic sheeting to prevent rapid drying. Rapid drying causes cracking and reduces final strength. Allow at least 24 to 72 hours for curing depending on the material.
+
+Using substandard or expired materials is a false economy. Expired cement loses bonding strength. Contaminated sand introduces organic matter that causes defects. Always check material quality before use and reject any materials that do not meet standards.
+
+## Cost Estimation and Budgeting
+
+Accurate cost estimation prevents budget overruns. Calculate material quantities carefully, then get current prices from multiple suppliers. In Nigeria, material prices fluctuate due to exchange rates and transportation costs, so get quotes close to your purchase date. Include delivery costs in your calculations.
+
+Labour costs vary significantly based on location, skill level, and project complexity. Lagos and Abuja rates are typically 20 to 40 percent higher than smaller cities. Get multiple quotes and compare not just price but also scope, timeline, and references. The cheapest quote is rarely the best value.
+
+Include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter unexpected issues — hidden damage, material price increases, or additional preparation work. Having a contingency prevents stress and allows you to handle surprises without compromising quality.
+
+## Conclusion
+
+Outdoor Tiling: Choosing Weather-Resistant Materials requires knowledge, preparation, and attention to detail. By following proper principles, using quality materials, executing a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the fundamentals remain the same. Take your time, do not skip steps, and always prioritise quality over speed. For accurate calculations and estimates, use the relevant FRELUX calculator, and consult a professional for complex or large-scale projects.',
+  'tile-guides',
+  'FRELUX Team',
+  8,
+  'published',
+  false,
+  'Outdoor Tiling Weather Resistant Materials',
+  'Guide to outdoor tiling. Learn weather-resistant tile materials, frost-proof options, outdoor adhesive selection, drainage considerations, and installation best practices.',
+  'outdoor tiles, exterior tiling, weather resistant tiles, outdoor tile installation, frost proof tiles',
+  NOW(),
+  11
+) ON CONFLICT (slug) DO NOTHING;
