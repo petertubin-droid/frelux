@@ -32,12 +32,7 @@ import { classNames } from "@/lib/utils";
 import { whatsappUrl } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
-import {
-  AI_CREDIT_TIERS,
-  MAX_AI_ACCESSES_PER_DAY,
-  CREDITS_PER_AD,
-  MAX_ADS_PER_DAY,
-} from "@/lib/credits";
+
 import { useTheme } from "@/lib/theme";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
@@ -444,17 +439,18 @@ export default function Navbar() {
                   {user ? (
                     <>
                       {/* Premium profile header with gradient */}
-                      <div className="relative overflow-hidden rounded-t-2xl px-5 py-4">
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/8 via-brand-purple/3 to-transparent dark:from-brand-purple/15 dark:via-brand-purple/5" />
-                        <div className="relative flex items-center gap-3">
+                      <div className="relative overflow-hidden rounded-t-2xl px-5 py-5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/12 via-brand-purple/4 to-transparent dark:from-brand-purple/20 dark:via-brand-purple/8" />
+                        <div className="absolute top-0 right-0 h-20 w-20 rounded-bl-full bg-gradient-to-tl from-brand-purple/10 to-transparent dark:from-brand-purple/15" />
+                        <div className="relative flex items-center gap-3.5">
                           {profile?.avatar_url ? (
                             <img
                               src={profile.avatar_url}
                               alt=""
-                              className="h-11 w-11 rounded-full object-cover ring-2 ring-white/20 dark:ring-white/10"
+                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white/30 shadow-md dark:ring-white/15"
                             />
                           ) : (
-                            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-sm font-bold text-white ring-2 ring-white/20 dark:ring-white/10">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-base font-bold text-white shadow-md ring-2 ring-white/30 dark:ring-white/15">
                               {(
                                 profile?.full_name?.charAt(0) ||
                                 (user.email ?? "?")
@@ -487,19 +483,60 @@ export default function Navbar() {
                                 <Gem className="h-2.5 w-2.5" />
                                 {wallet?.balance ?? 0} Credits
                               </Link>
-                              <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
+                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20">
                                 <Bot className="h-2.5 w-2.5" />
-                                AI: {MAX_AI_ACCESSES_PER_DAY}/day ·{" "}
-                                {CREDITS_PER_AD}cr/ad
+                                AI Credits: {wallet?.balance ?? 0}
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
 
+                      {/* Quick stats strip */}
+                      <div className="flex items-center justify-between gap-2 border-b border-neutral-100 bg-neutral-50/50 px-5 py-2.5 dark:border-white/5 dark:bg-white/3">
+                        <Link
+                          to="/rewards"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                        >
+                          <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                            {wallet?.balance ?? 0}
+                          </span>
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                            Credits
+                          </span>
+                        </Link>
+                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <Link
+                          to="/pricing"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                        >
+                          <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                            {wallet?.balance ?? 0}
+                          </span>
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                            AI Credits
+                          </span>
+                        </Link>
+                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                        >
+                          <span className="text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
+                            {isPaid ? (paidStatus?.plan ?? "Premium") : "Free"}
+                          </span>
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                            Plan
+                          </span>
+                        </Link>
+                      </div>
+
                       {/* Grouped menu sections */}
                       <div
-                        className="max-h-[min(70vh,460px)] overflow-y-auto nav-scroll px-2 py-1"
+                        className="max-h-[min(70vh,420px)] overflow-y-auto nav-scroll px-2 py-1.5"
                         style={{ scrollbarWidth: "thin" }}
                       >
                         {accountMenuSections.map((section, si) => (
@@ -507,7 +544,7 @@ export default function Navbar() {
                             {si > 0 && (
                               <div className="mx-2 my-1.5 border-t border-neutral-100 dark:border-white/5" />
                             )}
-                            <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                            <p className="px-3 pb-1 pt-2.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
                               {section.section}
                             </p>
                             {section.items.map((item) => {
@@ -523,7 +560,7 @@ export default function Navbar() {
                                       : undefined
                                   }
                                   onClick={() => setOpenDropdown(null)}
-                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-neutral-600 transition-all duration-150 hover:bg-brand-purple/5 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-neutral-600 transition-all duration-200 hover:bg-brand-purple/6 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
                                   <Icon className="h-4 w-4 shrink-0 text-neutral-500 transition-colors group-hover:text-brand-purple dark:text-neutral-500 dark:group-hover:text-brand-purple-lighter" />
                                   {item.label}
@@ -535,14 +572,14 @@ export default function Navbar() {
                       </div>
 
                       {/* Sign out footer */}
-                      <div className="border-t border-neutral-100 px-2 py-2 dark:border-white/5">
+                      <div className="border-t border-neutral-100 px-2 py-2.5 dark:border-white/5">
                         <button
                           type="button"
                           onClick={() => {
                             signOut();
                             setOpenDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium text-neutral-500 transition-all duration-150 hover:bg-red-50 hover:text-red-600 dark:text-neutral-400 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-neutral-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-neutral-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                         >
                           <LogOut className="h-4 w-4 shrink-0" />
                           Sign Out
@@ -614,7 +651,7 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "absolute left-0 top-0 h-full w-[190px] max-w-[190px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy",
+            "absolute left-0 top-0 h-full w-[300px] max-w-[300px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
@@ -770,19 +807,42 @@ export default function Navbar() {
                     AI Credits
                   </p>
                 </div>
-                <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-500 dark:text-neutral-500">
-                  {MAX_AI_ACCESSES_PER_DAY} AI accesses/day:{" "}
-                  {AI_CREDIT_TIERS.join(" → ")} credits. Earn {CREDITS_PER_AD}{" "}
-                  credits per ad watch (max {MAX_ADS_PER_DAY}/day).
-                </p>
-                <Link
-                  to="/rewards"
-                  onClick={() => setMobileOpen(false)}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
-                >
-                  <Gem className="h-3 w-3" />
-                  {wallet?.balance ?? 0} Credits balance
-                </Link>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                      AI Credits
+                    </span>
+                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                      {wallet?.balance ?? 0}
+                    </span>
+                  </div>
+                  <div className="h-8 w-px bg-neutral-200 dark:bg-white/10" />
+                  <Link
+                    to="/rewards"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex flex-col transition-opacity hover:opacity-70"
+                  >
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                      Credits
+                    </span>
+                    <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                      {wallet?.balance ?? 0}
+                    </span>
+                  </Link>
+                  <div className="h-8 w-px bg-neutral-200 dark:bg-white/10" />
+                  <Link
+                    to="/pricing"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex flex-col transition-opacity hover:opacity-70"
+                  >
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                      Plan
+                    </span>
+                    <span className="text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
+                      {isPaid ? "Premium" : "Free"}
+                    </span>
+                  </Link>
+                </div>
               </div>
             )}
 
