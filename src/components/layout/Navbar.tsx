@@ -429,28 +429,28 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[300px] rounded-2xl border border-neutral-200/40 bg-white shadow-premium-lg animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid"
+                  className="absolute right-0 top-full z-50 w-[340px] rounded-2xl border border-neutral-200/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
                   style={{
-                    animationDuration: "0.18s",
+                    animationDuration: "0.22s",
                     transformOrigin: "top right",
                   }}
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
-                      {/* Premium profile header with gradient */}
-                      <div className="relative overflow-hidden rounded-t-2xl px-5 py-5">
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/12 via-brand-purple/4 to-transparent dark:from-brand-purple/20 dark:via-brand-purple/8" />
-                        <div className="absolute top-0 right-0 h-20 w-20 rounded-bl-full bg-gradient-to-tl from-brand-purple/10 to-transparent dark:from-brand-purple/15" />
+                      {/* Premium profile header with glass gradient */}
+                      <div className="relative overflow-hidden rounded-t-2xl px-5 pt-5 pb-4">
+                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/14 via-brand-purple/5 to-transparent dark:from-brand-purple/25 dark:via-brand-purple/10" />
+                        <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-brand-purple/8 blur-2xl dark:bg-brand-purple/15" />
                         <div className="relative flex items-center gap-3.5">
                           {profile?.avatar_url ? (
                             <img
                               src={profile.avatar_url}
                               alt=""
-                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white/30 shadow-md dark:ring-white/15"
+                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white/40 shadow-lg dark:ring-white/20"
                             />
                           ) : (
-                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-base font-bold text-white shadow-md ring-2 ring-white/30 dark:ring-white/15">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-base font-bold text-white shadow-lg ring-2 ring-white/40 dark:ring-white/20">
                               {(
                                 profile?.full_name?.charAt(0) ||
                                 (user.email ?? "?")
@@ -466,60 +466,63 @@ export default function Navbar() {
                             <p className="text-xs text-neutral-500 truncate dark:text-neutral-500">
                               {user.email}
                             </p>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
                               {isPaid && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/12 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-brand-purple/15 to-brand-purple-deep/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple dark:from-brand-purple/25 dark:to-brand-purple-deep/25 dark:text-brand-purple-lighter">
                                   <Crown className="h-2.5 w-2.5" />
                                   {paidStatus?.plan
                                     ? paidStatus.plan.toUpperCase()
                                     : "PREMIUM"}
                                 </span>
                               )}
-                              <Link
-                                to="/rewards"
-                                onClick={() => setOpenDropdown(null)}
-                                className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-600 transition-colors hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20"
-                              >
-                                <Gem className="h-2.5 w-2.5" />
-                                {wallet?.balance ?? 0} Credits
-                              </Link>
-                              <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-600 transition-colors hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20">
-                                <Bot className="h-2.5 w-2.5" />
-                                AI Credits: {wallet?.balance ?? 0}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* AI Credits balance card */}
+                      <div className="px-3 pb-2">
+                        <div className="rounded-xl border border-neutral-100 bg-gradient-to-br from-neutral-50 to-white px-3.5 py-3 dark:border-white/5 dark:from-white/5 dark:to-transparent">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-deep text-white shadow-sm">
+                                <Bot className="h-3.5 w-3.5" />
+                              </span>
+                              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                                AI Credits
+                              </span>
+                            </div>
+                            <Link
+                              to="/rewards"
+                              onClick={() => setOpenDropdown(null)}
+                              className="text-[10px] font-medium text-brand-purple transition-opacity hover:opacity-70 dark:text-brand-purple-lighter"
+                            >
+                              Manage →
+                            </Link>
+                          </div>
+                          <div className="mt-2.5 flex items-end justify-between">
+                            <div>
+                              <span className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100">
+                                {wallet?.balance ?? 0}
+                              </span>
+                              <span className="ml-1 text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
+                                available
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-end">
+                              <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                                {wallet?.total_earned ?? 0}
+                              </span>
+                              <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                                total owned
                               </span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Quick stats strip */}
-                      <div className="flex items-center justify-between gap-2 border-b border-neutral-100 bg-neutral-50/50 px-5 py-2.5 dark:border-white/5 dark:bg-white/3">
-                        <Link
-                          to="/rewards"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
-                        >
-                          <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                            {wallet?.balance ?? 0}
-                          </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
-                            Credits
-                          </span>
-                        </Link>
-                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
-                        <Link
-                          to="/pricing"
-                          onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
-                        >
-                          <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                            {wallet?.balance ?? 0}
-                          </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
-                            AI Credits
-                          </span>
-                        </Link>
-                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                      {/* Plan strip */}
+                      <div className="flex items-center justify-between gap-2 border-y border-neutral-100 bg-neutral-50/40 px-5 py-2 dark:border-white/5 dark:bg-white/3">
                         <Link
                           to="/dashboard"
                           onClick={() => setOpenDropdown(null)}
@@ -530,6 +533,32 @@ export default function Navbar() {
                           </span>
                           <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
                             Plan
+                          </span>
+                        </Link>
+                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <Link
+                          to="/rewards"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                        >
+                          <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                            {wallet?.total_earned ?? 0}
+                          </span>
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                            Lifetime Credits
+                          </span>
+                        </Link>
+                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <Link
+                          to="/pricing"
+                          onClick={() => setOpenDropdown(null)}
+                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                        >
+                          <span className="text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                            {wallet?.total_spent ?? 0}
+                          </span>
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                            Spent
                           </span>
                         </Link>
                       </div>
@@ -800,19 +829,28 @@ export default function Navbar() {
 
             {/* AI Credit info */}
             {user && (
-              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-brand-purple/5 p-3 dark:bg-brand-purple/10">
+              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-brand-purple/5 to-transparent p-3 dark:from-brand-purple/10">
                 <div className="flex items-center gap-2">
-                  <Bot className="h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-deep text-white">
+                    <Bot className="h-3.5 w-3.5" />
+                  </span>
                   <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
                     AI Credits
                   </p>
+                  <Link
+                    to="/rewards"
+                    onClick={() => setMobileOpen(false)}
+                    className="ml-auto text-[10px] font-medium text-brand-purple dark:text-brand-purple-lighter"
+                  >
+                    Manage →
+                  </Link>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-2">
+                <div className="mt-2.5 flex items-center justify-between gap-2">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
-                      AI Credits
+                      Available
                     </span>
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    <span className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
                       {wallet?.balance ?? 0}
                     </span>
                   </div>
@@ -823,10 +861,10 @@ export default function Navbar() {
                     className="flex flex-col transition-opacity hover:opacity-70"
                   >
                     <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
-                      Credits
+                      Total Owned
                     </span>
                     <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                      {wallet?.balance ?? 0}
+                      {wallet?.total_earned ?? 0}
                     </span>
                   </Link>
                   <div className="h-8 w-px bg-neutral-200 dark:bg-white/10" />
