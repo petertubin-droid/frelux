@@ -21,18 +21,18 @@ type Status = "loading" | "ready" | "error";
 
 export default function Learn() {
   useSeo({
-    title: "Learn: Painting Guides, Tips & Tutorials",
+    title: "Learn: Construction & Painting Guides, Tips & Tutorials",
     description:
-      "Explore painting guides, DIY tutorials, color psychology, buying guides, and expert tips to make your next paint project a success.",
+      "Explore expert guides on painting, screeding, POP ceiling, tiling, finishing, and construction. Learn techniques, get tips, and use our free calculators.",
     canonicalPath: "/learn",
     ogType: "website",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
         "@type": "CollectionPage",
-        name: "FRELUX Learn: Painting Guides & Tutorials",
+        name: "FRELUX Learn: Construction & Painting Guides",
         description:
-          "Educational hub for painting guides, DIY tutorials, color psychology, and more.",
+          "Educational hub for painting, screeding, POP ceiling, tiling, finishing, and construction guides and tutorials.",
       },
       {
         "@context": "https://schema.org",
@@ -103,7 +103,7 @@ export default function Learn() {
         <PageHeader
           eyebrow="Education"
           title="Learn"
-          subtitle="Guides, tutorials, and expert tips to help you paint with confidence."
+          subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
           breadcrumbs={[{ label: "Learn Hub" }]}
         />
         <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500">
@@ -119,7 +119,7 @@ export default function Learn() {
         <PageHeader
           eyebrow="Education"
           title="Learn"
-          subtitle="Guides, tutorials, and expert tips to help you paint with confidence."
+          subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
           breadcrumbs={[{ label: "Learn Hub" }]}
         />
         <div className="mx-auto max-w-md py-20 text-center">
@@ -137,7 +137,7 @@ export default function Learn() {
       <PageHeader
         eyebrow="Education"
         title="Learn"
-        subtitle="Guides, tutorials, and expert tips to help you paint with confidence."
+        subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
         breadcrumbs={[{ label: "Learn Hub" }]}
       />
 
