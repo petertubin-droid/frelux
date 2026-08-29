@@ -12,12 +12,30 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 
 // Lazy-loaded below-the-fold components — not visible on first paint
-const SupportChatWidget = lazy(() => import("@/components/layout/SupportChatWidget"));
+const SupportChatWidget = lazy(
+  () => import("@/components/layout/SupportChatWidget"),
+);
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
-const OfflineIndicator = lazy(() => import("@/components/ui/OfflineIndicator").then(m => ({ default: m.OfflineIndicator })));
-const CommandPalette = lazy(() => import("@/components/ui/CommandPalette").then(m => ({ default: m.CommandPalette })));
-const OnboardingTour = lazy(() => import("@/components/ui/OnboardingTour").then(m => ({ default: m.OnboardingTour })));
-const AchievementToast = lazy(() => import("@/components/ui/AchievementBadges").then(m => ({ default: m.AchievementToast })));
+const OfflineIndicator = lazy(() =>
+  import("@/components/ui/OfflineIndicator").then((m) => ({
+    default: m.OfflineIndicator,
+  })),
+);
+const CommandPalette = lazy(() =>
+  import("@/components/ui/CommandPalette").then((m) => ({
+    default: m.CommandPalette,
+  })),
+);
+const OnboardingTour = lazy(() =>
+  import("@/components/ui/OnboardingTour").then((m) => ({
+    default: m.OnboardingTour,
+  })),
+);
+const AchievementToast = lazy(() =>
+  import("@/components/ui/AchievementBadges").then((m) => ({
+    default: m.AchievementToast,
+  })),
+);
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -48,10 +66,23 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
-  // ── Maintenance mode check: runs on mount, on route change, and via real-time subscription ──
+  // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel> | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+    // Defer to idle callback so it doesn't compete with initial paint/hydration
+    const ric = (cb: () => void) => {
+      if ("requestIdleCallback" in window) {
+        (
+          window as unknown as {
+            requestIdleCallback: (cb: () => void) => number;
+          }
+        ).requestIdleCallback(cb);
+      } else {
+        setTimeout(cb, 200);
+      }
+    };
 
     async function checkMaintenance() {
       // Always check admin status first (independent of maintenance state)
@@ -85,7 +116,7 @@ export default function Layout() {
       setMaintenance(!!data?.maintenance_mode);
     }
 
-    checkMaintenance();
+    ric(() => checkMaintenance());
 
     // Real-time subscription: detect maintenance_mode changes immediately
     channel = supabase
@@ -168,17 +199,29 @@ export default function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <Suspense fallback={null}><OfflineIndicator /></Suspense>
-      <Suspense fallback={null}><SupportChatWidget /></Suspense>
-      <Suspense fallback={null}><MobileBottomNav /></Suspense>
-      <Suspense fallback={null}><CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} /></Suspense>
+      <Suspense fallback={null}>
+        <OfflineIndicator />
+      </Suspense>
+      <Suspense fallback={null}>
+        <SupportChatWidget />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MobileBottomNav />
+      </Suspense>
+      <Suspense fallback={null}>
+        <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
+      </Suspense>
       {showOnboarding && (
-        <Suspense fallback={null}><OnboardingTour onComplete={() => setShowOnboarding(false)} /></Suspense>
+        <Suspense fallback={null}>
+          <OnboardingTour onComplete={() => setShowOnboarding(false)} />
+        </Suspense>
       )}
-      <Suspense fallback={null}><AchievementToast
-        achievements={newAchievements}
-        onDismiss={() => setNewAchievements([])}
-      /></Suspense>
+      <Suspense fallback={null}>
+        <AchievementToast
+          achievements={newAchievements}
+          onDismiss={() => setNewAchievements([])}
+        />
+      </Suspense>
     </div>
   );
 }

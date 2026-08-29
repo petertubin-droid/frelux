@@ -1,54 +1,57 @@
-import { Link } from 'react-router-dom';
-import { MessageCircle } from 'lucide-react';
-import Logo from '@/components/brand/Logo';
-import { siteConfig } from '@/config/site';
-import { whatsappUrl } from '@/lib/analytics';
-import { withdrawConsent } from '@/lib/cookie-consent';
+import { Link } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
+import Logo from "@/components/brand/Logo";
+import { siteConfig } from "@/config/site";
+import { whatsappUrl } from "@/lib/analytics";
+import { withdrawConsent } from "@/lib/cookie-consent";
 
 const calculateLinks = [
-  { label: 'Painting Calculator', path: '/paint-calculator' },
-  { label: 'Screeding Calculator', path: '/screeding-calculator' },
-  { label: 'POP Ceiling Calculator', path: '/pop-ceiling-calculator' },
-  { label: 'Tile Calculator', path: '/tile-calculator' },
-  { label: 'Finishing Calculator', path: '/finish-estimator' },
+  { label: "Painting Calculator", path: "/paint-calculator" },
+  { label: "Screeding Calculator", path: "/screeding-calculator" },
+  { label: "POP Ceiling Calculator", path: "/pop-ceiling-calculator" },
+  { label: "Tile Calculator", path: "/tile-calculator" },
+  { label: "Finishing Calculator", path: "/finish-estimator" },
 ];
 
 const estimateLinks = [
-  { label: 'Build-to-Roof Estimator', path: '/build-to-roof-estimator' },
-  { label: 'AI Photo Estimator', path: '/image-estimator' },
-  { label: 'Structural Calculator', path: '/structural-calculator' },
-  { label: 'Foundation Calculator', path: '/foundation-calculator' },
+  { label: "Build-to-Roof Estimator", path: "/build-to-roof-estimator" },
+  { label: "AI Photo Estimator", path: "/image-estimator" },
+  { label: "Structural Calculator", path: "/structural-calculator" },
+  { label: "Foundation Calculator", path: "/foundation-calculator" },
 ];
 
 const colorLinks = [
-  { label: 'Color Library', path: '/colors' },
-  { label: 'Compare Colors', path: '/colors/compare' },
-  { label: 'Smart Color Assistant', path: '/ai-color-assistant' },
+  { label: "Color Library", path: "/colors" },
+  { label: "Compare Colors", path: "/colors/compare" },
+  { label: "Smart Color Assistant", path: "/ai-color-assistant" },
 ];
 
-const learnLinks = [
-  { label: 'Learn Hub', path: '/learn' },
-];
+const learnLinks = [{ label: "Learn Hub", path: "/learn" }];
 
 const accountLinks = [
-  { label: 'Sign In', path: '/login' },
-  { label: 'My Projects', path: '/my-projects' },
-  { label: 'Contact', path: '/contact' },
-  { label: 'About', path: '/about' },
-  { label: 'Pricing', path: '/pricing' },
+  { label: "Sign In", path: "/login" },
+  { label: "My Projects", path: "/my-projects" },
+  { label: "Contact", path: "/contact" },
+  { label: "About", path: "/about" },
+  { label: "Pricing", path: "/pricing" },
 ];
 
 const legalLinks = [
-  { label: 'Privacy Policy', path: '/privacy-policy' },
-  { label: 'Terms of Service', path: '/terms' },
-  { label: 'Cookie Policy', path: '/cookie-policy' },
-  { label: 'Disclaimer', path: '/disclaimer' },
-  { label: 'AI Disclaimer', path: '/ai-disclaimer' },
+  { label: "Privacy Policy", path: "/privacy-policy" },
+  { label: "Terms of Service", path: "/terms" },
+  { label: "Cookie Policy", path: "/cookie-policy" },
+  { label: "Disclaimer", path: "/disclaimer" },
+  { label: "AI Disclaimer", path: "/ai-disclaimer" },
 ];
 
 export default function Footer() {
   return (
-    <footer role="contentinfo" aria-label="Site footer" className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy">
+    <footer
+      role="contentinfo"
+      aria-label="Site footer"
+      className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "380px" }}
+    >
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
 
@@ -57,10 +60,13 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
-              Practical tools to plan paint, estimate cost, and discover the right colors for your space.
+              Practical tools to plan paint, estimate cost, and discover the
+              right colors for your space.
             </p>
             <a
-              href={whatsappUrl('Hello FRELUX, I have a question about a paint project.')}
+              href={whatsappUrl(
+                "Hello FRELUX, I have a question about a paint project.",
+              )}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact us on WhatsApp"
@@ -74,7 +80,10 @@ export default function Footer() {
           <FooterColumn title="Calculate" links={calculateLinks} />
           <FooterColumn title="Estimate" links={estimateLinks} />
           <FooterColumn title="Colors & AI" links={[...colorLinks]} />
-          <FooterColumn title="Learn & Account" links={[...learnLinks, ...accountLinks]} />
+          <FooterColumn
+            title="Learn & Account"
+            links={[...learnLinks, ...accountLinks]}
+          />
 
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
@@ -82,11 +91,13 @@ export default function Footer() {
         <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
           <div className="flex items-center gap-4">
             <p className="text-xs text-neutral-500 dark:text-neutral-500">
-            © {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
-          </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-500">
-            Estimates are for guidance only and not a guarantee of final cost or quantity.
-          </p>
+              © {new Date().getFullYear()} {siteConfig.name}. All rights
+              reserved.
+            </p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              Estimates are for guidance only and not a guarantee of final cost
+              or quantity.
+            </p>
           </div>
           <button
             onClick={() => withdrawConsent()}
@@ -101,14 +112,25 @@ export default function Footer() {
   );
 }
 
-function FooterColumn({ title, links }: { title: string; links: { label: string; path: string }[] }) {
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { label: string; path: string }[];
+}) {
   return (
     <nav aria-label={title}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">{title}</h3>
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
+        {title}
+      </h3>
       <ul className="mt-4 space-y-2.5">
         {links.map((link) => (
           <li key={link.path}>
-            <Link to={link.path} className="text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
+            <Link
+              to={link.path}
+              className="text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+            >
               {link.label}
             </Link>
           </li>
