@@ -1222,7 +1222,7 @@ function TileResultCard({
                   calculatorSlug="tile-calculator"
                   calcTitle="Tile Calculation"
                   calcData={{ ...input, ...result }}
-                  resultSummary={result}
+                  resultSummary={result as unknown as Record<string, unknown>}
                   compact
                   label="Save to Project Workspace"
                 />

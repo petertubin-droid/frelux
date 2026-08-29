@@ -14,7 +14,6 @@ import {
   isArticleCompliant,
   formatValidationIssues,
   type ArticleInput,
-  type ArticleValidationResult,
 } from "./article-validation";
 
 // ── Helpers ─────────────────────────────────────────────────────
@@ -460,7 +459,7 @@ describe("Article Validation Engine", () => {
 
   describe("keyword-density", () => {
     it("detects keyword stuffing", () => {
-      const keyword = "paint painting paint painting paint";
+      const _keyword = "paint painting paint painting paint";
       const content =
         "paint painting paint painting paint ".repeat(100) +
         " word ".repeat(200) +

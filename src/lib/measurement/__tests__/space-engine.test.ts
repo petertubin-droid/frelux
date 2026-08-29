@@ -26,6 +26,7 @@ import {
   totalAreaByFinishType,
   spaceSummary,
   FINISH_TYPE_LABELS,
+  type SpaceResult,
 } from "../space-engine";
 import type { Space } from "../space-engine";
 
@@ -563,10 +564,13 @@ describe("Finish Type Filtering", () => {
       { finishType: "paint", totalAreaM2: 20 },
     ];
 
-    const paintArea = totalAreaByFinishType(results, "paint");
+    const paintArea = totalAreaByFinishType(results as SpaceResult[], "paint");
     expect(paintArea).toBe(70);
 
-    const screedingArea = totalAreaByFinishType(results, "screeding");
+    const screedingArea = totalAreaByFinishType(
+      results as SpaceResult[],
+      "screeding",
+    );
     expect(screedingArea).toBe(30);
   });
 });

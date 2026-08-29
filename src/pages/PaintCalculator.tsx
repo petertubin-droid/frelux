@@ -957,18 +957,32 @@ export default function PaintCalculator({
               calcData={input as unknown as Record<string, unknown>}
               resultSummary={{
                 paintableArea: result.paintableArea,
-                totalBuckets: result.totalBuckets,
+                totalBuckets: result.recommendedContainers.reduce(
+                  (sum, c) => sum + c.count,
+                  0,
+                ),
                 totalRecommendedLiters: result.totalRecommendedLiters,
-                primerBuckets: result.primerBuckets,
+                primerBuckets: result.primerContainers.reduce(
+                  (sum, c) => sum + c.count,
+                  0,
+                ),
                 paintType: selectedPaintType?.name ?? input.paintType,
                 coats: result.coats,
               }}
-              materials={(result.buckets || []).map(b => ({
-                name: b.type === 'primer' ? 'Primer' : 'Paint',
-                category: 'paint',
-                quantity: b.count,
-                unit: 'buckets',
-              }))}
+              materials={[
+                ...result.recommendedContainers.map((c) => ({
+                  name: `${c.size}L Container`,
+                  category: "paint",
+                  quantity: c.count,
+                  unit: "containers",
+                })),
+                ...result.primerContainers.map((c) => ({
+                  name: `${c.size}L Primer`,
+                  category: "primer",
+                  quantity: c.count,
+                  unit: "containers",
+                })),
+              ]}
             />
           </div>
         )}

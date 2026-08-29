@@ -11,10 +11,8 @@ import {
   ImageOff,
   ChevronDown,
   Share2,
-  Copy,
   Check,
   BookOpen,
-  CheckCircle2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";

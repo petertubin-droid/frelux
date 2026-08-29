@@ -1,13 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  Upload,
-  Loader2,
-  ImageIcon,
-  X,
-  ArrowLeft,
-  Sparkles,
-} from "lucide-react";
+import { Upload, Loader2, X, ArrowLeft, Sparkles } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/auth";
@@ -50,7 +43,7 @@ export default function GalleryUpload() {
     location: "",
     completion_date: "",
   });
-  const [isPublic, setIsPublic] = useState(true);
+  const [isPublic] = useState(true);
   const [beforeImage, setBeforeImage] = useState<string | null>(null);
   const [afterImage, setAfterImage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -99,7 +92,11 @@ export default function GalleryUpload() {
     }
     const url = await uploadImage(file, type);
     if (url) {
-      type === "before" ? setBeforeImage(url) : setAfterImage(url);
+      if (type === "before") {
+        setBeforeImage(url);
+      } else {
+        setAfterImage(url);
+      }
     }
   }
 
@@ -115,7 +112,17 @@ export default function GalleryUpload() {
     }
     setSubmitting(true);
     try {
-      const entry = await createGalleryEntry({ ...form, is_public: isPublic });
+      const entry = await createGalleryEntry({
+        ...form,
+        project_category: form.project_category as
+          | "screeding"
+          | "pop_ceiling"
+          | "finishing"
+          | "painting"
+          | "tiling"
+          | "construction",
+        is_public: isPublic,
+      });
       if (beforeImage) await addGalleryImage(entry.id, beforeImage, "before");
       if (afterImage) await addGalleryImage(entry.id, afterImage, "after");
       toast({

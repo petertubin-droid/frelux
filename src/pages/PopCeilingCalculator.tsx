@@ -827,7 +827,7 @@ function PopResultCard({
                     calculatorSlug="pop-ceiling-calculator"
                     calcTitle="POP Ceiling Calculation"
                     calcData={{ ...input, ...result }}
-                    resultSummary={result}
+                    resultSummary={result as unknown as Record<string, unknown>}
                     compact
                     label="Save to Project Workspace"
                   />

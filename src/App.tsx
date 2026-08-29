@@ -173,6 +173,19 @@ const AdminTileMaterials = lazy(
 );
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
+const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
+const AdminPaintComparison = lazy(
+  () => import("@/pages/admin/AdminPaintComparison"),
+);
+const AdminMaterialPrices = lazy(
+  () => import("@/pages/admin/AdminMaterialPrices"),
+);
+const AdminSurfaceConditions = lazy(
+  () => import("@/pages/admin/AdminSurfaceConditions"),
+);
+const AdminProjectStages = lazy(
+  () => import("@/pages/admin/AdminProjectStages"),
+);
 const AdminErrors = lazy(() => import("@/pages/admin/AdminErrors"));
 const SystemHealth = lazy(() => import("@/pages/admin/SystemHealth"));
 const AdminSeo = lazy(() => import("@/pages/admin/AdminSeo"));

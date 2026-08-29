@@ -1,8 +1,14 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
-import { CheckCircle2, AlertTriangle, XCircle, Info, X } from 'lucide-react';
-import { classNames } from '@/lib/utils';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useState,
+  type ReactNode,
+} from "react";
+import { CheckCircle2, AlertTriangle, XCircle, Info, X } from "lucide-react";
+import { classNames } from "@/lib/utils";
 
-type ToastType = 'success' | 'warning' | 'error' | 'info';
+type ToastType = "success" | "warning" | "error" | "info";
 
 interface Toast {
   id: string;
@@ -13,7 +19,13 @@ interface Toast {
 }
 
 interface ToastContextValue {
-  toast: (opts: { type?: ToastType; title: string; message?: string; duration?: number }) => void;
+  toast: (opts: {
+    type?: ToastType;
+    variant?: ToastType;
+    title: string;
+    message?: string;
+    duration?: number;
+  }) => void;
   success: (title: string, message?: string) => void;
   warning: (title: string, message?: string) => void;
   error: (title: string, message?: string) => void;
@@ -30,17 +42,20 @@ const icons: Record<ToastType, typeof CheckCircle2> = {
 };
 
 const styles: Record<ToastType, string> = {
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200',
-  warning: 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200',
-  error: 'border-red-200 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300',
-  info: 'border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200',
+  success:
+    "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200",
+  warning:
+    "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200",
+  error:
+    "border-red-200 bg-red-50 text-red-800 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300",
+  info: "border-blue-200 bg-blue-50 text-blue-800 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-200",
 };
 
 const iconColors: Record<ToastType, string> = {
-  success: 'text-emerald-500',
-  warning: 'text-amber-500',
-  error: 'text-red-500',
-  info: 'text-blue-500',
+  success: "text-emerald-500",
+  warning: "text-amber-500",
+  error: "text-red-500",
+  info: "text-blue-500",
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -51,7 +66,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toast = useCallback(
-    ({ type = 'info', title, message, duration = 4000 }: { type?: ToastType; title: string; message?: string; duration?: number }) => {
+    ({
+      type: typeArg,
+      variant,
+      title,
+      message,
+      duration = 4000,
+    }: {
+      type?: ToastType;
+      variant?: ToastType;
+      title: string;
+      message?: string;
+      duration?: number;
+    }) => {
+      const type = typeArg ?? variant ?? "info";
       const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
       setToasts((prev) => [...prev, { id, type, title, message, duration }]);
       if (duration > 0) {
@@ -63,10 +91,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const value: ToastContextValue = {
     toast,
-    success: (title, message) => toast({ type: 'success', title, message }),
-    warning: (title, message) => toast({ type: 'warning', title, message }),
-    error: (title, message) => toast({ type: 'error', title, message }),
-    info: (title, message) => toast({ type: 'info', title, message }),
+    success: (title, message) => toast({ type: "success", title, message }),
+    warning: (title, message) => toast({ type: "warning", title, message }),
+    error: (title, message) => toast({ type: "error", title, message }),
+    info: (title, message) => toast({ type: "info", title, message }),
   };
 
   return (
@@ -79,15 +107,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={t.id}
               className={classNames(
-                'pointer-events-auto relative flex w-full max-w-sm items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-lg animate-toast-in',
+                "pointer-events-auto relative flex w-full max-w-sm items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-lg animate-toast-in",
                 styles[t.type],
               )}
               role="alert"
             >
-              <Icon className={classNames('mt-0.5 h-5 w-5 shrink-0', iconColors[t.type])} />
+              <Icon
+                className={classNames(
+                  "mt-0.5 h-5 w-5 shrink-0",
+                  iconColors[t.type],
+                )}
+              />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">{t.title}</p>
-                {t.message && <p className="mt-0.5 text-xs opacity-80">{t.message}</p>}
+                {t.message && (
+                  <p className="mt-0.5 text-xs opacity-80">{t.message}</p>
+                )}
               </div>
               <button
                 onClick={() => remove(t.id)}
@@ -98,10 +133,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               </button>
               {/* Auto-dismiss progress bar */}
               {t.duration > 0 && (
-                <div className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30" style={{
-                  animation: `toast-progress ${t.duration}ms linear forwards`,
-                }} />
-                )}
+                <div
+                  className="absolute bottom-0 left-0 h-0.5 bg-current opacity-30"
+                  style={{
+                    animation: `toast-progress ${t.duration}ms linear forwards`,
+                  }}
+                />
+              )}
             </div>
           );
         })}
@@ -113,8 +151,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useToast() {
   const ctx = useContext(ToastContext);
-  if (!ctx) throw new Error('useToast must be used within ToastProvider');
+  if (!ctx) throw new Error("useToast must be used within ToastProvider");
   return ctx;
 }
-
-

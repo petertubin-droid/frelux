@@ -73,6 +73,7 @@ import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 
 export default function CostEstimator({
   embedded = false,
@@ -958,8 +959,12 @@ export default function CostEstimator({
                       calculatorType="cost"
                       calculatorSlug="cost-estimator"
                       calcTitle="Cost Estimate"
-                      calcData={{ ...input, ...result }}
-                      resultSummary={result}
+                      calcData={
+                        { ...input, ...result } as Record<string, unknown>
+                      }
+                      resultSummary={
+                        result as unknown as Record<string, unknown>
+                      }
                       compact
                       label="Save to Project Workspace"
                     />

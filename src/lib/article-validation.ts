@@ -20,7 +20,7 @@
 
 // ── Types ──────────────────────────────────────────────────────
 
-export type ValidationLevel = 'error' | 'warning' | 'info';
+export type ValidationLevel = "error" | "warning" | "info";
 
 export interface ArticleValidationRule {
   rule: string;
@@ -77,12 +77,15 @@ const MAX_KEYWORD_DENSITY = 0.05; // 5% max for any single keyword
 // ── Validation Functions ───────────────────────────────────────
 
 function countWords(text: string): number {
-  return text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((w) => w.length > 0).length;
 }
 
 function extractHeadings(content: string): { level: number; text: string }[] {
   const headings: { level: number; text: string }[] = [];
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   for (const line of lines) {
     const match = line.match(/^(#{1,6})\s+(.+)/);
     if (match) {
@@ -94,14 +97,20 @@ function extractHeadings(content: string): { level: number; text: string }[] {
 
 function calculateKeywordDensity(content: string, keyword: string): number {
   if (!keyword || !content) return 0;
-  const words = content.toLowerCase().split(/\s+/).filter((w) => w.length > 0);
+  const words = content
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 0);
   const totalWords = words.length;
   if (totalWords === 0) return 0;
-  const keywordWords = keyword.toLowerCase().split(/\s+/).filter((w) => w.length > 0);
+  const keywordWords = keyword
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((w) => w.length > 0);
   let count = 0;
   const kwLen = keywordWords.length;
   for (let i = 0; i <= words.length - kwLen; i++) {
-    const slice = words.slice(i, i + kwLen).join(' ');
+    const slice = words.slice(i, i + kwLen).join(" ");
     if (slice === keyword.toLowerCase()) count++;
   }
   return count / totalWords;
@@ -133,17 +142,19 @@ function countImagesWithAlt(content: string): number {
 
 // ── Main Validation Entry Point ────────────────────────────────
 
-export function validateArticle(article: ArticleInput): ArticleValidationResult {
+export function validateArticle(
+  article: ArticleInput,
+): ArticleValidationResult {
   const rules: ArticleValidationRule[] = [];
 
   // 1. Slug format (kebab-case)
   const slugValid = SLUG_REGEX.test(article.slug);
   rules.push({
-    rule: 'slug-format',
-    level: 'error',
+    rule: "slug-format",
+    level: "error",
     passed: slugValid,
     message: slugValid
-      ? 'Slug is valid kebab-case'
+      ? "Slug is valid kebab-case"
       : 'Slug must be lowercase kebab-case (e.g., "my-article-title")',
     value: article.slug,
   });
@@ -152,8 +163,8 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   const titleLen = article.title.length;
   const titleValid = titleLen >= 10 && titleLen <= 70;
   rules.push({
-    rule: 'title-length',
-    level: 'error',
+    rule: "title-length",
+    level: "error",
     passed: titleValid,
     message: titleValid
       ? `Title length is ${titleLen} chars (within 10-70)`
@@ -162,13 +173,13 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   });
 
   // 3. Meta title
-  const metaTitle = article.meta_title ?? '';
+  const metaTitle = article.meta_title ?? "";
   if (metaTitle) {
     const mtLen = metaTitle.length;
     const mtValid = mtLen >= META_TITLE_MIN && mtLen <= META_TITLE_MAX;
     rules.push({
-      rule: 'meta-title-length',
-      level: mtValid ? 'info' : 'warning',
+      rule: "meta-title-length",
+      level: mtValid ? "info" : "warning",
       passed: mtValid,
       message: mtValid
         ? `Meta title is ${mtLen} chars (optimal ${META_TITLE_MIN}-${META_TITLE_MAX})`
@@ -177,21 +188,21 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
     });
   } else {
     rules.push({
-      rule: 'meta-title-missing',
-      level: 'warning',
+      rule: "meta-title-missing",
+      level: "warning",
       passed: false,
-      message: 'Meta title is missing — will fall back to article title',
+      message: "Meta title is missing — will fall back to article title",
     });
   }
 
   // 4. Meta description
-  const metaDesc = article.meta_description ?? '';
+  const metaDesc = article.meta_description ?? "";
   if (metaDesc) {
     const mdLen = metaDesc.length;
     const mdValid = mdLen >= META_DESC_MIN && mdLen <= META_DESC_MAX;
     rules.push({
-      rule: 'meta-description-length',
-      level: mdValid ? 'info' : 'warning',
+      rule: "meta-description-length",
+      level: mdValid ? "info" : "warning",
       passed: mdValid,
       message: mdValid
         ? `Meta description is ${mdLen} chars (optimal ${META_DESC_MIN}-${META_DESC_MAX})`
@@ -200,10 +211,10 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
     });
   } else {
     rules.push({
-      rule: 'meta-description-missing',
-      level: 'error',
+      rule: "meta-description-missing",
+      level: "error",
       passed: false,
-      message: 'Meta description is required for Google search results',
+      message: "Meta description is required for Google search results",
     });
   }
 
@@ -212,8 +223,8 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   const minWordsMet = wordCount >= MIN_WORD_COUNT;
   const recWordsMet = wordCount >= RECOMMENDED_WORD_COUNT;
   rules.push({
-    rule: 'word-count-minimum',
-    level: 'error',
+    rule: "word-count-minimum",
+    level: "error",
     passed: minWordsMet,
     message: minWordsMet
       ? `Content has ${wordCount} words (meets minimum of ${MIN_WORD_COUNT})`
@@ -221,8 +232,8 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
     value: wordCount,
   });
   rules.push({
-    rule: 'word-count-recommended',
-    level: 'warning',
+    rule: "word-count-recommended",
+    level: "warning",
     passed: recWordsMet,
     message: recWordsMet
       ? `Content has ${wordCount} words (meets recommended ${RECOMMENDED_WORD_COUNT}+)`
@@ -234,54 +245,56 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   const headings = extractHeadings(article.content);
   const h1Count = headings.filter((h) => h.level === 1).length;
   const h2Count = headings.filter((h) => h.level === 2).length;
-  const h3Count = headings.filter((h) => h.level === 3).length;
+  const _h3Count = headings.filter((h) => h.level === 3).length;
 
   // H1 is rendered by the LearnArticle component from article.title.
   // Content should not contain H1 headings (use H2 for sections).
   // 0 H1s in content is correct; 2+ is an error (duplicate H1s).
   rules.push({
-    rule: 'h1-count',
-    level: 'error',
+    rule: "h1-count",
+    level: "error",
     passed: h1Count === 0 || h1Count === 1,
-    message: h1Count === 0
-      ? 'No H1 in content (correct — H1 is rendered from article title)'
-      : h1Count === 1
-        ? 'One H1 heading present'
-        : `Found ${h1Count} H1 headings — content should use H2+ (H1 comes from article title)`,
+    message:
+      h1Count === 0
+        ? "No H1 in content (correct — H1 is rendered from article title)"
+        : h1Count === 1
+          ? "One H1 heading present"
+          : `Found ${h1Count} H1 headings — content should use H2+ (H1 comes from article title)`,
     value: h1Count,
   });
 
   rules.push({
-    rule: 'h2-count',
-    level: 'warning',
+    rule: "h2-count",
+    level: "warning",
     passed: h2Count >= 2,
-    message: h2Count >= 2
-      ? `${h2Count} H2 headings present (good structure)`
-      : `Only ${h2Count} H2 headings — should have at least 2 for content structure`,
+    message:
+      h2Count >= 2
+        ? `${h2Count} H2 headings present (good structure)`
+        : `Only ${h2Count} H2 headings — should have at least 2 for content structure`,
     value: h2Count,
   });
 
   // 7. Author attribution (E-E-A-T)
   const hasAuthor = !!article.author && article.author.trim().length > 0;
   rules.push({
-    rule: 'author-attribution',
-    level: 'error',
+    rule: "author-attribution",
+    level: "error",
     passed: hasAuthor,
     message: hasAuthor
       ? `Author: "${article.author}" (E-E-A-T requirement met)`
-      : 'No author attributed — Google E-E-A-T requires author attribution',
+      : "No author attributed — Google E-E-A-T requires author attribution",
     value: article.author ?? undefined,
   });
 
   // 8. Excerpt
   const hasExcerpt = !!article.excerpt && article.excerpt.trim().length > 0;
   rules.push({
-    rule: 'excerpt-present',
-    level: 'warning',
+    rule: "excerpt-present",
+    level: "warning",
     passed: hasExcerpt,
     message: hasExcerpt
-      ? 'Excerpt present (used for search snippets and previews)'
-      : 'No excerpt — recommended for search snippets and social previews',
+      ? "Excerpt present (used for search snippets and previews)"
+      : "No excerpt — recommended for search snippets and social previews",
   });
 
   // 9. Thin content / placeholder detection
@@ -293,33 +306,36 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
     }
   }
   rules.push({
-    rule: 'no-placeholder-content',
-    level: 'error',
+    rule: "no-placeholder-content",
+    level: "error",
     passed: !hasThinContent,
     message: hasThinContent
-      ? 'Placeholder/lorem ipsum text detected — Google flags this as unhelpful content'
-      : 'No placeholder content detected',
+      ? "Placeholder/lorem ipsum text detected — Google flags this as unhelpful content"
+      : "No placeholder content detected",
   });
 
   // 10. Keyword density (if keywords provided)
   if (article.meta_keywords) {
-    const keywords = article.meta_keywords.split(',').map((k) => k.trim()).filter((k) => k.length > 0);
+    const keywords = article.meta_keywords
+      .split(",")
+      .map((k) => k.trim())
+      .filter((k) => k.length > 0);
     for (const kw of keywords) {
       const density = calculateKeywordDensity(article.content, kw);
       if (density > MAX_KEYWORD_DENSITY) {
         rules.push({
-          rule: 'keyword-density',
-          level: 'warning',
+          rule: "keyword-density",
+          level: "warning",
           passed: false,
-          message: `Keyword "${kw}" density is ${(density * 100).toFixed(1)}% — should be under ${(MAX_KEYWORD_DENSITY * 100)}% to avoid keyword stuffing`,
+          message: `Keyword "${kw}" density is ${(density * 100).toFixed(1)}% — should be under ${MAX_KEYWORD_DENSITY * 100}% to avoid keyword stuffing`,
           value: density,
         });
       }
     }
     if (keywords.length > 0) {
       rules.push({
-        rule: 'keywords-present',
-        level: 'info',
+        rule: "keywords-present",
+        level: "info",
         passed: true,
         message: `${keywords.length} keyword(s) specified`,
         value: keywords.length,
@@ -327,27 +343,30 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
     }
   } else {
     rules.push({
-      rule: 'keywords-missing',
-      level: 'warning',
+      rule: "keywords-missing",
+      level: "warning",
       passed: false,
-      message: 'No meta keywords specified — recommended for topical relevance signals',
+      message:
+        "No meta keywords specified — recommended for topical relevance signals",
     });
   }
 
   // 11. Internal linking
   const links = extractLinks(article.content);
-  const internalLinks = links.filter((l) =>
-    l.url.startsWith('/') ||
-    l.url.includes('freluxtools.netlify.app') ||
-    l.url.includes('frelux.com')
+  const internalLinks = links.filter(
+    (l) =>
+      l.url.startsWith("/") ||
+      l.url.includes("freluxtools.netlify.app") ||
+      l.url.includes("frelux.com"),
   );
   rules.push({
-    rule: 'internal-links',
-    level: 'warning',
+    rule: "internal-links",
+    level: "warning",
     passed: internalLinks.length >= 1,
-    message: internalLinks.length >= 1
-      ? `${internalLinks.length} internal link(s) found (good for SEO)`
-      : 'No internal links — add links to related FRELUX pages for better crawling',
+    message:
+      internalLinks.length >= 1
+        ? `${internalLinks.length} internal link(s) found (good for SEO)`
+        : "No internal links — add links to related FRELUX pages for better crawling",
     value: internalLinks.length,
   });
 
@@ -356,12 +375,13 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   if (totalImages > 0) {
     const imagesWithAlt = countImagesWithAlt(article.content);
     rules.push({
-      rule: 'image-alt-text',
-      level: 'warning',
+      rule: "image-alt-text",
+      level: "warning",
       passed: imagesWithAlt === totalImages,
-      message: imagesWithAlt === totalImages
-        ? `All ${totalImages} image(s) have alt text`
-        : `${imagesWithAlt}/${totalImages} image(s) have alt text — all images need descriptive alt text`,
+      message:
+        imagesWithAlt === totalImages
+          ? `All ${totalImages} image(s) have alt text`
+          : `${imagesWithAlt}/${totalImages} image(s) have alt text — all images need descriptive alt text`,
       value: `${imagesWithAlt}/${totalImages}`,
     });
   }
@@ -375,8 +395,8 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
       article.read_time_minutes >= expectedMin &&
       article.read_time_minutes <= expectedMax + 2; // +2 for tolerance
     rules.push({
-      rule: 'read-time-accuracy',
-      level: 'warning',
+      rule: "read-time-accuracy",
+      level: "warning",
       passed: readTimeValid,
       message: readTimeValid
         ? `Read time ${article.read_time_minutes} min matches word count (${wordCount} words)`
@@ -386,31 +406,40 @@ export function validateArticle(article: ArticleInput): ArticleValidationResult 
   }
 
   // 14. Content has a conclusion paragraph (helpful content signal)
-  const lastParagraphs = article.content.split('\n\n').slice(-3).join(' ').toLowerCase();
-  const hasConclusion = /(conclusion|in summary|to summarize|final thought|takeaway|remember that|key takeaway|whether you)/.test(lastParagraphs);
+  const lastParagraphs = article.content
+    .split("\n\n")
+    .slice(-3)
+    .join(" ")
+    .toLowerCase();
+  const hasConclusion =
+    /(conclusion|in summary|to summarize|final thought|takeaway|remember that|key takeaway|whether you)/.test(
+      lastParagraphs,
+    );
   rules.push({
-    rule: 'conclusion-section',
-    level: 'info',
+    rule: "conclusion-section",
+    level: "info",
     passed: hasConclusion,
     message: hasConclusion
-      ? 'Conclusion/wrap-up section detected (helpful content signal)'
-      : 'No conclusion section detected — articles should end with a summary or takeaway',
+      ? "Conclusion/wrap-up section detected (helpful content signal)"
+      : "No conclusion section detected — articles should end with a summary or takeaway",
   });
 
   // 15. Category slug is non-empty
   rules.push({
-    rule: 'category-assigned',
-    level: 'error',
+    rule: "category-assigned",
+    level: "error",
     passed: !!article.category_slug && article.category_slug.trim().length > 0,
     message: article.category_slug
       ? `Category: ${article.category_slug}`
-      : 'No category assigned — articles must belong to a category',
+      : "No category assigned — articles must belong to a category",
     value: article.category_slug ?? undefined,
   });
 
   // ── Score calculation ────────────────────────────────────────
-  const errors = rules.filter((r) => r.level === 'error' && !r.passed).length;
-  const warnings = rules.filter((r) => r.level === 'warning' && !r.passed).length;
+  const errors = rules.filter((r) => r.level === "error" && !r.passed).length;
+  const warnings = rules.filter(
+    (r) => r.level === "warning" && !r.passed,
+  ).length;
   const passedRules = rules.filter((r) => r.passed).length;
   const score = Math.round((passedRules / rules.length) * 100);
   const valid = errors === 0;
@@ -429,11 +458,14 @@ export function isArticleCompliant(article: ArticleInput): boolean {
 /**
  * Returns a human-readable summary of validation issues.
  */
-export function formatValidationIssues(result: ArticleValidationResult): string[] {
+export function formatValidationIssues(
+  result: ArticleValidationResult,
+): string[] {
   const issues: string[] = [];
   for (const rule of result.rules) {
     if (!rule.passed) {
-      const prefix = rule.level === 'error' ? '❌' : rule.level === 'warning' ? '⚠️' : 'ℹ️';
+      const prefix =
+        rule.level === "error" ? "❌" : rule.level === "warning" ? "⚠️" : "ℹ️";
       issues.push(`${prefix} [${rule.rule}] ${rule.message}`);
     }
   }

@@ -58,6 +58,9 @@ Whether you are a professional contractor or a DIY enthusiast, ${meta.title.toLo
     meta_title: meta.meta_title,
     meta_description: meta.meta_desc,
     meta_keywords: meta.meta_keywords,
+    cover_image_url: null,
+    status: "published",
+    is_featured: false,
   };
 }
 

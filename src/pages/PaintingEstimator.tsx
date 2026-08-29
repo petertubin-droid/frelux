@@ -1945,18 +1945,27 @@ function EstimateResult({
               calculatorType="cost"
               calculatorSlug="painting-estimator"
               calcTitle="Painting Cost Estimate"
-              calcData={{ rooms: estimateResult?.rooms, totals: estimateResult?.totals }}
-              resultSummary={{
-                grandTotal: estimateResult?.totals?.grand_total,
-                materialCost: estimateResult?.totals?.material_cost,
-                labourCost: estimateResult?.totals?.labour_cost,
-                roomCount: estimateResult?.rooms?.length,
-              }}
-              materials={(estimateResult?.materials || []).map((m: any) => ({
-                name: m.materialName || m.name,
-                category: m.category || 'paint',
-                quantity: m.quantity || m.buckets || 0,
-                unit: m.unit || 'buckets',
+              calcData={
+                {
+                  rooms: result?.rooms,
+                  totals: {
+                    material_cost: result?.total_material_cost,
+                    currency: result?.currency,
+                  },
+                } as Record<string, unknown>
+              }
+              resultSummary={
+                {
+                  grandTotal: result?.total_material_cost,
+                  materialCost: result?.total_material_cost,
+                  roomCount: result?.rooms?.length,
+                } as Record<string, unknown>
+              }
+              materials={(result?.line_items || []).map((m) => ({
+                name: m.item_name,
+                category: m.item_type,
+                quantity: m.practical_purchase_qty,
+                unit: m.unit,
               }))}
               compact
               label="Save to Project"

@@ -18,6 +18,7 @@ import {
   approvePrice,
   rejectPrice,
   priceEstimateToText,
+  type PriceEstimate,
   PRICE_SOURCE_LABELS,
   SOURCE_RELIABILITY_LABELS,
 } from "../market-intelligence";
@@ -281,7 +282,7 @@ describe("Price Approval", () => {
 
 describe("Formatting and Labels", () => {
   it("formats price estimate as text", () => {
-    const estimate: Record<string, unknown> = {
+    const estimate: PriceEstimate = {
       productName: "Cement",
       brand: "Lafarge",
       unitPrice: 7500,

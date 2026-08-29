@@ -21,6 +21,7 @@ import {
   isMarketActive,
   marketProfileToText,
   listProfiles,
+  type MarketProfile,
 } from "../market-profile";
 
 describe("Market Profile Creation", () => {
@@ -217,7 +218,7 @@ describe("Formatting", () => {
 describe("Architecture Principles", () => {
   it("new markets are added by configuration, not code changes", () => {
     // Create a custom market profile without touching engine code
-    const customProfile: Record<string, unknown> = {
+    const customProfile: MarketProfile = {
       marketCode: "ZA",
       marketName: "South Africa",
       unitSystem: "metric",
