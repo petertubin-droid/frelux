@@ -77,7 +77,7 @@ export function countWords(content: string): number {
   // Strip markdown headings, table separators, image/link references
   const cleaned = content
     .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\|[-:|\s]+\|$/gm, "")
+    .replace(new RegExp("^\\|[-:|" + "\\s]+\\|", "gm"), "")
     .replace(/!\[.*?\]\(.*?\)/g, "")
     .replace(/\[(.*?)\]\(.*?\)/g, "$1")
     .replace(/\*{1,2}(.*?)\*{1,2}/g, "$1")

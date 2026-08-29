@@ -1,11 +1,14 @@
 import { test, expect } from "@playwright/test";
+import { dismissCookieBanner } from "./helpers";
 
 test("home page loads", async ({ page }) => {
+  await dismissCookieBanner(page);
   await page.goto("/");
   await expect(page).toHaveTitle(/FRELUX/i);
 });
 
 test("navigation to paint calculator", async ({ page }) => {
+  await dismissCookieBanner(page);
   await page.goto("/");
   await page.click('a[href*="paint-calculator"]');
   await expect(page).toHaveURL(/paint-calculator/);
@@ -17,8 +20,13 @@ test("404 page renders", async ({ page }) => {
 });
 
 test("calculator page is interactive", async ({ page }) => {
+  await dismissCookieBanner(page);
   await page.goto("/paint-calculator");
-  await expect(page.locator("input, select, button").first()).toBeVisible();
+  // Filter for visible interactive elements (skip hidden mobile menu button)
+  const visibleInputs = page.locator(
+    "input:visible, select:visible, button:visible",
+  );
+  await expect(visibleInputs.first()).toBeVisible();
 });
 
 test("learn hub loads articles", async ({ page }) => {

@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { dismissCookieBanner } from "./helpers";
 
 /**
  * Calculators index page — verifies all calculator tools are listed
@@ -6,6 +7,7 @@ import { test, expect } from "@playwright/test";
  */
 test.describe("Calculators page", () => {
   test("lists all core calculator tools", async ({ page }) => {
+    await dismissCookieBanner(page);
     await page.goto("/calculators");
     await page.waitForLoadState("networkidle");
 
@@ -24,6 +26,7 @@ test.describe("Calculators page", () => {
   });
 
   test("navigates to the painting calculator", async ({ page }) => {
+    await dismissCookieBanner(page);
     await page.goto("/calculators");
     await page.waitForLoadState("networkidle");
 
