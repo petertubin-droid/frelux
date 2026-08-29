@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSeo } from "@/lib/seo";
+import PageHeader from "@/components/ui/PageHeader";
 import {
   generateSequencePlan,
   type SequenceStep,
@@ -36,24 +37,18 @@ export default function ConstructionSequence() {
 
   return (
     <SubscriptionGate feature="construction_sequence">
-      <div className="min-h-screen bg-neutral-50">
-        <div className="bg-brand-navy text-white">
-          <div className="max-w-5xl mx-auto px-4 py-10">
-            <div className="flex items-center gap-3 mb-2">
-              <ListChecks aria-hidden="true" className="w-8 h-8 text-accent-green" />
-              <h1 className="text-2xl md:text-3xl font-bold">
-                Construction Sequence Planner
-              </h1>
-            </div>
-            <p className="text-white/70 text-sm md:text-base">
-              The correct build order from site clearing to weathertight. Every
-              step includes quality checks, materials, safety notes, and common
-              mistakes.
-            </p>
-          </div>
-        </div>
+      <PageHeader
+        eyebrow="Planning Tool"
+        title="Construction Sequence Planner"
+        subtitle="The correct build order from site clearing to weathertight. Every step includes quality checks, materials, safety notes, and common mistakes."
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Calculators", path: "/calculators" },
+          { label: "Construction Sequence" },
+        ]}
+      />
 
-        <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
           {/* Stage overview */}
           <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
             <h3 className="font-semibold text-neutral-900 mb-3">
@@ -171,7 +166,6 @@ export default function ConstructionSequence() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </SubscriptionGate>
   );

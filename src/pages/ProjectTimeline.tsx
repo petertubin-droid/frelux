@@ -9,6 +9,7 @@ import {
 } from "@/lib/engineering/timeline-estimator";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function ProjectTimeline() {
   useSeo({
@@ -63,23 +64,19 @@ export default function ProjectTimeline() {
   if (!result) calculate();
 
   return (
-    <div className="min-h-screen bg-neutral-50">
-      <div className="bg-brand-navy text-white">
-        <div className="max-w-5xl mx-auto px-4 py-10">
-          <div className="flex items-center gap-3 mb-2">
-            <Calendar aria-hidden="true" className="w-8 h-8 text-accent-green" />
-            <h1 className="text-2xl md:text-3xl font-bold">
-              Construction Timeline Estimator
-            </h1>
-          </div>
-          <p className="text-white/70 text-sm md:text-base">
-            How long will your project take? Stage-by-stage estimates based on
-            Nigerian construction benchmarks.
-          </p>
-        </div>
-      </div>
+    <>
+    <PageHeader
+      eyebrow="Planning Tool"
+      title="Construction Timeline Estimator"
+      subtitle="How long will your project take? Stage-by-stage estimates based on Nigerian construction benchmarks."
+      breadcrumbs={[
+        { label: "Home", path: "/" },
+        { label: "Calculators", path: "/calculators" },
+        { label: "Project Timeline" },
+      ]}
+    />
 
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
         {/* Inputs */}
         <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -339,7 +336,7 @@ export default function ProjectTimeline() {
           </>
         )}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -411,10 +408,11 @@ function SummaryCard({
   unit: string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-brand-navy p-5 text-white">
-      <p className="text-xs text-white/60 mb-1">{label}</p>
-      <p className="text-xl font-bold">
-        {value} {unit && <span className="text-sm text-white/60">{unit}</span>}
+    <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-5 dark:border-brand-purple/30">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-purple/10 blur-2xl" />
+      <p className="relative text-xs font-medium text-neutral-500 mb-1.5">{label}</p>
+      <p className="relative text-xl font-bold text-brand-navy dark:text-white">
+        {value} {unit && <span className="text-sm font-normal text-neutral-400">{unit}</span>}
       </p>
     </div>
   );
