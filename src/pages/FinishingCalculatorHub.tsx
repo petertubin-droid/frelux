@@ -100,18 +100,18 @@ export default function FinishingCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">About the FRELUX Finishing Calculator</h2>
+          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">About the FRELUX Finishing Calculator</h2>
           <p className="text-neutral-600 dark:text-neutral-300">
             The FRELUX Finishing Calculator is a comprehensive tool for wall finishing calculations.
             It combines side-by-side finish comparison with a detailed Tyrolene estimator, supporting
             Painting, Tyrolene, and Grafitex finishes.
           </p>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">Calculation Modes</h3>
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">Calculation Modes</h3>
           <ul>
             <li><strong>Compare Finishes</strong> — Compare material quantities and costs for Painting, Tyrolene, and Grafitex side by side. Enter your wall area and see which finish suits your budget.</li>
             <li><strong>Tyrolene Estimator</strong> — A detailed partition-based exterior finishing estimator using the FRELUX Tyrolene engine with production rules, material breakdowns, and saveable estimates.</li>
           </ul>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">FRELUX Tyrolene Methodology</h3>
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">FRELUX Tyrolene Methodology</h3>
           <p className="text-neutral-600 dark:text-neutral-300">
             The established FRELUX Tyrolene rule is:
           </p>

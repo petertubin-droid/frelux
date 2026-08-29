@@ -162,7 +162,7 @@ export default function TileCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
             About the FRELUX Tile Calculator
           </h2>
           <p className="text-neutral-600 dark:text-neutral-300">
@@ -171,7 +171,7 @@ export default function TileCalculatorHub() {
             you're tiling a floor, wall, bathroom, or kitchen, it handles all
             the calculations you need in one place.
           </p>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             Calculation Modes
           </h3>
           <ul>
@@ -186,7 +186,7 @@ export default function TileCalculatorHub() {
               including labour cost options.
             </li>
           </ul>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             FRELUX Tiling Methodology
           </h3>
           <p className="text-neutral-600 dark:text-neutral-300">

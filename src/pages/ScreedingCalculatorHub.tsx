@@ -165,7 +165,7 @@ export default function ScreedingCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
             About the FRELUX Screeding Calculator
           </h2>
           <p className="text-neutral-600 dark:text-neutral-300">
@@ -175,7 +175,7 @@ export default function ScreedingCalculatorHub() {
             handles both metric and imperial measurements and converts
             everything to m² for accurate material calculation.
           </p>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             Calculation Modes
           </h3>
           <ul>
@@ -190,7 +190,7 @@ export default function ScreedingCalculatorHub() {
               Nigerian market prices.
             </li>
           </ul>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             FRELUX Screeding Methodology
           </h3>
           <p className="text-neutral-600 dark:text-neutral-300">

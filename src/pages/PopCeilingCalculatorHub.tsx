@@ -165,7 +165,7 @@ export default function PopCeilingCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
             About the FRELUX POP Ceiling Calculator
           </h2>
           <p className="text-neutral-600 dark:text-neutral-300">
@@ -175,7 +175,7 @@ export default function PopCeilingCalculatorHub() {
             experience, supporting both Nigerian and international POP ceiling
             workflows.
           </p>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             Calculation Modes
           </h3>
           <ul>
@@ -190,7 +190,7 @@ export default function PopCeilingCalculatorHub() {
               factors.
             </li>
           </ul>
-          <h3 className="text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
             FRELUX/Nigerian POP Material Logic
           </h3>
           <p className="text-neutral-600 dark:text-neutral-300">
