@@ -910,59 +910,61 @@ export default function CostEstimator({
 
               {/* Smart action buttons */}
               {result && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 sm:grid-cols-4">
-                  <button
-                    type="button"
-                    onClick={handleWhatsAppShare}
-                    className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
-                  >
-                    <MessageCircle className="h-5 w-5 text-accent-green" />
-                    <span className="text-xs font-semibold text-accent-green">
-                      WhatsApp
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handlePdfExport}
-                    className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20"
-                  >
-                    <FileText className="h-5 w-5 text-brand-purple" />
-                    <span className="text-xs font-semibold text-brand-purple">
-                      Export PDF
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleShoppingList}
-                    className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
-                  >
-                    <ShoppingBag className="h-5 w-5 text-accent-orange" />
-                    <span className="text-xs font-semibold text-accent-orange">
-                      Shopping List
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSaveLocal}
-                    className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
-                  >
-                    <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
-                    <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-                      Save to Device
-                    </span>
-                  </button>
-                </div>
-                    <div className="mt-3 flex justify-center">
-                      <SaveToProjectButton
-                        calculatorType="cost"
-                        calculatorSlug="cost-estimator"
-                        calcTitle="Cost Estimate"
-                        calcData={{ ...input, ...result }}
-                        resultSummary={result}
-                        compact
-                        label="Save to Project Workspace"
-                      />
-                    </div>
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 sm:grid-cols-4">
+                    <button
+                      type="button"
+                      onClick={handleWhatsAppShare}
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
+                    >
+                      <MessageCircle className="h-5 w-5 text-accent-green" />
+                      <span className="text-xs font-semibold text-accent-green">
+                        WhatsApp
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePdfExport}
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20"
+                    >
+                      <FileText className="h-5 w-5 text-brand-purple" />
+                      <span className="text-xs font-semibold text-brand-purple">
+                        Export PDF
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleShoppingList}
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
+                    >
+                      <ShoppingBag className="h-5 w-5 text-accent-orange" />
+                      <span className="text-xs font-semibold text-accent-orange">
+                        Shopping List
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveLocal}
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                    >
+                      <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
+                      <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                        Save to Device
+                      </span>
+                    </button>
+                  </div>
+                  <div className="mt-3 flex justify-center">
+                    <SaveToProjectButton
+                      calculatorType="cost"
+                      calculatorSlug="cost-estimator"
+                      calcTitle="Cost Estimate"
+                      calcData={{ ...input, ...result }}
+                      resultSummary={result}
+                      compact
+                      label="Save to Project Workspace"
+                    />
+                  </div>
+                </>
               )}
 
               {result && (

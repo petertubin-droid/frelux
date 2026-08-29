@@ -147,9 +147,7 @@ const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminAiMonetization = lazy(
   () => import("@/pages/admin/AdminAiMonetization"),
 );
-const AdminAiSettings = lazy(
-  () => import("@/pages/admin/AdminAiSettings"),
-);
+const AdminAiSettings = lazy(() => import("@/pages/admin/AdminAiSettings"));
 const AdminAds = lazy(() => import("@/pages/admin/AdminAds"));
 const AdminRewardedAccess = lazy(
   () => import("@/pages/admin/AdminRewardedAccess"),
@@ -249,6 +247,15 @@ const MarketplaceLayout = lazy(
 const SellerDashboard = lazy(
   () => import("@/pages/marketplace/SellerDashboard"),
 );
+
+// Project Intelligence routes
+const PaintComparison = lazy(() => import("@/pages/PaintComparison"));
+const Gallery = lazy(() => import("@/pages/Gallery"));
+const GalleryUpload = lazy(() => import("@/pages/GalleryUpload"));
+const SurfaceAssessment = lazy(() => import("@/pages/SurfaceAssessment"));
+const ProjectWorkspace = lazy(() => import("@/pages/ProjectWorkspace"));
+const ProjectDetail = lazy(() => import("@/pages/ProjectDetail"));
+const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1006,7 +1013,10 @@ export default function App() {
 
                     {/* Pricing */}
                     <Route path="pricing" element={<AdminPricing />} />
-                    <Route path="price-updater" element={<AdminPriceUpdater />} />
+                    <Route
+                      path="price-updater"
+                      element={<AdminPriceUpdater />}
+                    />
                     <Route
                       path="labour-settings"
                       element={<AdminLabourSettings />}
@@ -1017,10 +1027,7 @@ export default function App() {
                       path="ai-monetization"
                       element={<AdminAiMonetization />}
                     />
-                    <Route
-                      path="ai-settings"
-                      element={<AdminAiSettings />}
-                    />
+                    <Route path="ai-settings" element={<AdminAiSettings />} />
                     <Route path="ads" element={<AdminAds />} />
                     <Route
                       path="rewarded-access"
@@ -1087,12 +1094,27 @@ export default function App() {
                     <Route path="credits-ads" element={<AdminCreditsAds />} />
 
                     {/* Contractor Config */}
-                                        <Route path="gallery-moderation" element={<AdminGallery />} />
-                    <Route path="paint-comparison" element={<AdminPaintComparison />} />
-                    <Route path="material-prices" element={<AdminMaterialPrices />} />
-                    <Route path="surface-conditions" element={<AdminSurfaceConditions />} />
-                    <Route path="project-stages" element={<AdminProjectStages />} />
-<Route
+                    <Route
+                      path="gallery-moderation"
+                      element={<AdminGallery />}
+                    />
+                    <Route
+                      path="paint-comparison"
+                      element={<AdminPaintComparison />}
+                    />
+                    <Route
+                      path="material-prices"
+                      element={<AdminMaterialPrices />}
+                    />
+                    <Route
+                      path="surface-conditions"
+                      element={<AdminSurfaceConditions />}
+                    />
+                    <Route
+                      path="project-stages"
+                      element={<AdminProjectStages />}
+                    />
+                    <Route
                       path="material-catalog"
                       element={
                         <Suspense fallback={<PageLoader />}>
@@ -1151,6 +1173,29 @@ export default function App() {
                       </Suspense>
                     }
                   />
+                  {/* Project intelligence routes */}
+                  <Route
+                    path="/paint-comparison"
+                    element={<PaintComparison />}
+                  />
+                  <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/gallery/new" element={<GalleryUpload />} />
+                  <Route
+                    path="/surface-assessment"
+                    element={<SurfaceAssessment />}
+                  />
+                  <Route
+                    path="/project-workspace"
+                    element={<ProjectWorkspace />}
+                  />
+                  <Route
+                    path="/project-workspace/:id"
+                    element={<ProjectDetail />}
+                  />
+                  <Route
+                    path="/estimate/:token"
+                    element={<ClientEstimateView />}
+                  />
                   {/* Fallback for unmatched admin routes */}
                   <Route path="/admin/*" element={<NotFound />} />
                 </SentryRoutes>
@@ -1161,32 +1206,4 @@ export default function App() {
       </AuthProvider>
     </ErrorBoundary>
   );
-}                    <Route
-                      path="/paint-comparison"
-                      element={<PaintComparison />}
-                    />
-                    <Route
-                      path="/gallery"
-                      element={<Gallery />}
-                    />
-                    <Route
-                      path="/gallery/new"
-                      element={<GalleryUpload />}
-                    />
-                    <Route
-                      path="/surface-assessment"
-                      element={<SurfaceAssessment />}
-                    />
-                    <Route
-                      path="/project-workspace"
-                      element={<ProjectWorkspace />}
-                    />
-                    <Route
-                      path="/project-workspace/:id"
-                      element={<ProjectDetail />}
-                    />
-                    <Route
-                      path="/estimate/:token"
-                      element={<ClientEstimateView />}
-                    />
-                    <Route
+}
