@@ -14,7 +14,12 @@
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
-import { corsHeaders, jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
+import {
+  corsHeaders as _corsHeaders,
+  jsonResponse,
+  errorResponse,
+  handleCors,
+} from "../_shared/cors.ts";
 
 const SUPERAGENT_BASE = "https://app.base44.com/api/agents";
 const DEFAULT_AGENT_ID = "6a872e1df3b5e9fc45fc13fb";
@@ -27,7 +32,9 @@ interface RequestBody {
   actionCategory?: string;
 }
 
-async function getApiKey(supabaseClient: ReturnType<typeof createClient>): Promise<string | null> {
+async function getApiKey(
+  supabaseClient: ReturnType<typeof createClient>,
+): Promise<string | null> {
   // 1. Try environment variable (Supabase secret)
   const envKey = Deno.env.get("SOLAS_API_KEY");
   if (envKey) return envKey;
@@ -43,7 +50,9 @@ async function getApiKey(supabaseClient: ReturnType<typeof createClient>): Promi
   return data.solas_api_key;
 }
 
-async function getAgentId(supabaseClient: ReturnType<typeof createClient>): Promise<string> {
+async function getAgentId(
+  supabaseClient: ReturnType<typeof createClient>,
+): Promise<string> {
   const { data } = await supabaseClient
     .from("site_settings")
     .select("solas_agent_id")
@@ -61,19 +70,25 @@ async function createConversation(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "api_key": apiKey,
+        api_key: apiKey,
       },
       body: JSON.stringify({}),
     });
 
     if (!res.ok) {
-      console.error("[ai-admin-assistant] createConversation failed:", res.status, await res.text());
+      console.error(
+        "[ai-admin-assistant] createConversation failed:",
+        res.status,
+        await res.text(),
+      );
       return null;
     }
 
     const data = await res.json();
     // The API might return { id } or { conversation: { id } } or similar
-    return { id: data.id || data.conversation_id || data.conversation?.id || data._id };
+    return {
+      id: data.id || data.conversation_id || data.conversation?.id || data._id,
+    };
   } catch (err) {
     console.error("[ai-admin-assistant] createConversation error:", err);
     return null;
@@ -93,14 +108,18 @@ async function sendMessage(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "api_key": apiKey,
+          api_key: apiKey,
         },
         body: JSON.stringify({ message }),
       },
     );
 
     if (!res.ok) {
-      console.error("[ai-admin-assistant] sendMessage failed:", res.status, await res.text());
+      console.error(
+        "[ai-admin-assistant] sendMessage failed:",
+        res.status,
+        await res.text(),
+      );
       return null;
     }
 
@@ -137,7 +156,10 @@ Deno.serve(async (req: Request) => {
     }
 
     const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
+    const {
+      data: { user },
+      error: authError,
+    } = await supabaseClient.auth.getUser(token);
     if (authError || !user) {
       return errorResponse("Invalid authentication", 401);
     }
@@ -161,10 +183,14 @@ Deno.serve(async (req: Request) => {
     // Get API key and agent ID
     const apiKey = await getApiKey(supabaseClient);
     if (!apiKey) {
-      return jsonResponse({
-        error: "Solas API key not configured. Go to Admin → AI Assistant → Settings to add it.",
-        needsConfig: true,
-      }, 400);
+      return jsonResponse(
+        {
+          error:
+            "Solas API key not configured. Go to Admin → AI Assistant → Settings to add it.",
+          needsConfig: true,
+        },
+        400,
+      );
     }
 
     const agentId = await getAgentId(supabaseClient);
@@ -174,15 +200,26 @@ Deno.serve(async (req: Request) => {
     if (!conversationId) {
       const conv = await createConversation(agentId, apiKey);
       if (!conv) {
-        return errorResponse("Failed to create conversation with Solas. Check the API key.", 502);
+        return errorResponse(
+          "Failed to create conversation with Solas. Check the API key.",
+          502,
+        );
       }
       conversationId = conv.id;
     }
 
     // Send message and get response
-    const result = await sendMessage(agentId, conversationId, apiKey, body.message);
+    const result = await sendMessage(
+      agentId,
+      conversationId,
+      apiKey,
+      body.message,
+    );
     if (!result) {
-      return errorResponse("Failed to get response from Solas. The request may have timed out.", 502);
+      return errorResponse(
+        "Failed to get response from Solas. The request may have timed out.",
+        502,
+      );
     }
 
     // Log the action
