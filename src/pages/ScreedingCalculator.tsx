@@ -200,8 +200,8 @@ export default function ScreedingCalculator({
               onRemoveMeasurement={removeMeasurement}
             >
               {project.projectMode === "fence" && (
-                <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">
+                <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
+                  <p className="font-medium text-brand-navy dark:text-white mb-1.5">
                     Fence Screeding
                   </p>
                   Each fence dimension has its own partition count. The area is
@@ -210,8 +210,8 @@ export default function ScreedingCalculator({
                 </div>
               )}
               {project.projectMode === "house_building" && (
-                <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">
+                <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
+                  <p className="font-medium text-brand-navy dark:text-white mb-1.5">
                     House / Building
                   </p>
                   Add each space type separately. Use quantity for identical
@@ -225,7 +225,7 @@ export default function ScreedingCalculator({
               type="button"
               onClick={handleCalculate}
               disabled={!validation.valid}
-              className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
+              className="w-full btn-primary btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Calculate Screeding Area
             </button>
@@ -234,9 +234,9 @@ export default function ScreedingCalculator({
 
         {screedingResult && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+              <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
                 Screeding Area Result
               </h2>
               {confidence && (
@@ -246,14 +246,15 @@ export default function ScreedingCalculator({
               )}
             </div>
 
-            <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 text-center">
-              <p className="text-sm font-medium text-muted-foreground">
+            <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-8 text-center dark:border-brand-purple/30">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-brand-purple/10 blur-3xl" />
+              <p className="relative text-sm font-medium text-neutral-500">
                 Total Screeding Area
               </p>
-              <p className="mt-2 text-4xl font-bold text-primary">
-                {formatNumber(screedingResult.totalAreaM2, 2)} m²
+              <p className="relative mt-3 text-4xl font-bold text-brand-navy dark:text-white">
+                {formatNumber(screedingResult.totalAreaM2, 2)} <span className="text-2xl text-neutral-400">m²</span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="relative mt-1 text-xs text-neutral-400">
                 Surface area in square metres
               </p>
             </div>
@@ -275,8 +276,8 @@ export default function ScreedingCalculator({
               onUserWasteChange={engine.setUserWaste}
             />
 
-            <div className="rounded-lg bg-muted/30 border border-border p-4 text-sm text-muted-foreground">
-              <p className="font-medium text-foreground mb-1">Next Step</p>
+            <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
+              <p className="font-medium text-brand-navy dark:text-white mb-1.5">Next Step</p>
               This area feeds into the FRELUX screeding material calculation
               rules, which determine material quantity based on coverage rate
               and package configuration. The waste allowance above will apply
@@ -287,7 +288,7 @@ export default function ScreedingCalculator({
               <button
                 type="button"
                 onClick={startOver}
-                className="flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted/50 transition-colors"
+                className="btn-secondary inline-flex items-center gap-2"
               >
                 <RotateCcw aria-hidden="true" className="h-4 w-4" />
                 Start Over
@@ -295,7 +296,7 @@ export default function ScreedingCalculator({
               <Link
                 to="/screeding-calculator?mode=cost"
                 state={{ netScreedingArea: screedingResult.totalAreaM2 }}
-                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="btn-primary btn-glow inline-flex items-center gap-2"
               >
                 Continue to Cost Estimate
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
