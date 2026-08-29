@@ -105,19 +105,19 @@ export interface RewardEventDef {
 }
 
 export const REWARD_EVENTS = {
-  first_calc: { eventType: 'first_calc', amount: 10, reason: 'Completed first calculator' },
-  three_different_calcs: { eventType: 'three_different_calcs', amount: 20, reason: 'Completed 3 different calculators' },
-  save_estimate: { eventType: 'save_estimate', amount: 10, reason: 'Saved an estimate' },
-  return_3_days: { eventType: 'return_3_days', amount: 15, reason: 'Returned on 3 different days' },
-  streak_7_day: { eventType: 'streak_7_day', amount: 50, reason: '7-day activity streak' },
-  build_to_roof: { eventType: 'build_to_roof', amount: 30, reason: 'Completed a Build-to-Roof estimate' },
-  ai_photo_estimator: { eventType: 'ai_photo_estimator', amount: 20, reason: 'Successfully used AI Photo Estimator' },
-  five_estimates: { eventType: 'five_estimates', amount: 50, reason: 'Completed 5 estimates' },
-  referral: { eventType: 'referral', amount: 100, reason: 'Referred a new user to FRELUX' },
+  first_calc: { eventType: 'first_calc', amount: 2, reason: 'Completed first calculator' },
+  three_different_calcs: { eventType: 'three_different_calcs', amount: 5, reason: 'Completed 3 different calculators' },
+  save_estimate: { eventType: 'save_estimate', amount: 3, reason: 'Saved an estimate' },
+  return_3_days: { eventType: 'return_3_days', amount: 5, reason: 'Returned on 3 different days' },
+  streak_7_day: { eventType: 'streak_7_day', amount: 15, reason: '7-day activity streak' },
+  build_to_roof: { eventType: 'build_to_roof', amount: 10, reason: 'Completed a Build-to-Roof estimate' },
+  ai_photo_estimator: { eventType: 'ai_photo_estimator', amount: 5, reason: 'Successfully used AI Photo Estimator' },
+  five_estimates: { eventType: 'five_estimates', amount: 15, reason: 'Completed 5 estimates' },
+  referral: { eventType: 'referral', amount: 25, reason: 'Referred a new user to FRELUX' },
   // Achievement-linked credit rewards
-  ach_builder_10: { eventType: 'ach_builder_10', amount: 100, reason: 'Achievement: FRELUX Builder (10 estimates)' },
-  ach_estimator_25: { eventType: 'ach_estimator_25', amount: 250, reason: 'Achievement: Estimator Pro (25 estimates)' },
-  ach_master_5: { eventType: 'ach_master_5', amount: 500, reason: 'Achievement: FRELUX Master (5 categories)' },
+  ach_builder_10: { eventType: 'ach_builder_10', amount: 25, reason: 'Achievement: FRELUX Builder (10 estimates)' },
+  ach_estimator_25: { eventType: 'ach_estimator_25', amount: 50, reason: 'Achievement: Estimator Pro (25 estimates)' },
+  ach_master_5: { eventType: 'ach_master_5', amount: 100, reason: 'Achievement: FRELUX Master (5 categories)' },
 } as const;
 
 export type RewardEventKey = keyof typeof REWARD_EVENTS;
@@ -522,19 +522,10 @@ export interface SpendResult {
   currentBalance?: number;
   requiredCredits?: number;
   adUnlockEnabled?: boolean;
-  /** Tiered pricing: which tier was charged (0-indexed) */
-  tier?: number;
-  /** Tiered pricing: cost of the NEXT tier, or null if last tier */
-  nextTierCost?: number | null;
-  /** Tiered pricing: remaining accesses today */
-  accessesRemaining?: number;
-  /** Tiered pricing: max accesses per day */
-  maxTier?: number;
 }
 
 /** Tiered AI credit pricing config */
-export const AI_CREDIT_TIERS = [5, 8, 12] as const;
-export const MAX_AI_ACCESSES_PER_DAY = 3;
+export const AI_CREDIT_COST = 10;
 export const CREDITS_PER_AD = 5;
 export const MAX_ADS_PER_DAY = 5;
 

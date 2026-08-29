@@ -21,16 +21,12 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 /**
- * Tiered AI credit pricing.
- * Each rewarded video ad grants 5 credits. Max 5 ads/day = 25 credits/day.
- * AI feature access costs escalate:
- *   1st access: 5 credits
- *   2nd access: 8 credits
- *   3rd access (last): 12 credits
- *   Total: 25 credits for 3 accesses per day
+ * Flat AI credit pricing.
+ * Each rewarded video ad grants 5 credits.
+ * Every AI feature costs 10 credits per use — flat, no tiering.
+ * Credits are the gate, not daily access caps.
  */
-const AI_TIERS = [5, 8, 12];
-const MAX_AI_ACCESSES_PER_DAY = 3;
+const AI_CREDIT_COST = 10;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS")
@@ -132,42 +128,16 @@ Deno.serve(async (req: Request) => {
       cost: 0,
     });
 
-  // ── Tiered pricing: check today's usage count for this feature ──
-  const today = new Date().toISOString().slice(0, 10);
+  // Flat cost: 10 credits per AI tool use
+  const cost = AI_CREDIT_COST;
 
-  const { data: usageToday } = await admin
-    .from("ai_feature_usage")
-    .select("id", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("feature_key", featureKey)
-    .gte("created_at", today + "T00:00:00Z");
-
-  const usageCount = usageToday?.count ?? 0;
-
-  // Check if max accesses reached
-  if (usageCount >= MAX_AI_ACCESSES_PER_DAY) {
-    return jsonResponse(
-      {
-        success: false,
-        error: `Daily AI access limit reached (${MAX_AI_ACCESSES_PER_DAY} accesses/day). Come back tomorrow!`,
-        code: "DAILY_LIMIT",
-        tier: usageCount,
-        maxTier: MAX_AI_ACCESSES_PER_DAY,
-      },
-      429,
-    );
-  }
-
-  // Determine tiered cost
-  const tierCost = AI_TIERS[usageCount] ?? feature.credit_cost;
-
-  // Call the atomic spend function with tiered cost
+  // Call the atomic spend function
   const { data: result, error: fnError } = await admin.rpc("spend_credits", {
     p_user_id: user.id,
     p_feature_key: featureKey,
-    p_amount: tierCost,
+    p_amount: cost,
     p_idempotency_key: idempotencyKey,
-    p_metadata: { ...metadata, tier: usageCount, tier_cost: tierCost },
+    p_metadata: { ...metadata, flat_cost: cost },
   });
 
   if (fnError)
@@ -189,14 +159,8 @@ Deno.serve(async (req: Request) => {
           error: "Not enough FRELUX Credits",
           code: "INSUFFICIENT_CREDITS",
           currentBalance: row?.new_balance ?? 0,
-          requiredCredits: tierCost,
+          requiredCredits: cost,
           adUnlockEnabled: feature.ad_unlock_enabled,
-          tier: usageCount,
-          nextTierCost:
-            usageCount + 1 < MAX_AI_ACCESSES_PER_DAY
-              ? AI_TIERS[usageCount + 1]
-              : null,
-          maxTier: MAX_AI_ACCESSES_PER_DAY,
         },
         402,
       );
@@ -231,13 +195,6 @@ Deno.serve(async (req: Request) => {
     success: true,
     message: "Credits spent",
     newBalance: row.new_balance,
-    cost: tierCost,
-    tier: usageCount,
-    nextTierCost:
-      usageCount + 1 < MAX_AI_ACCESSES_PER_DAY
-        ? AI_TIERS[usageCount + 1]
-        : null,
-    accessesRemaining: MAX_AI_ACCESSES_PER_DAY - usageCount - 1,
-    maxTier: MAX_AI_ACCESSES_PER_DAY,
+    cost,
   });
 });

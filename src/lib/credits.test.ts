@@ -2,8 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   generateReferenceId,
   getDailyRefId,
-  AI_CREDIT_TIERS,
-  MAX_AI_ACCESSES_PER_DAY,
+  AI_CREDIT_COST,
   CREDITS_PER_AD,
   MAX_ADS_PER_DAY,
   REWARD_EVENTS,
@@ -61,27 +60,8 @@ describe("credits — getDailyRefId", () => {
 });
 
 describe("credits — constants", () => {
-  it("AI_CREDIT_TIERS has 3 tiered prices", () => {
-    expect(AI_CREDIT_TIERS).toHaveLength(3);
-    expect(AI_CREDIT_TIERS[0]).toBe(5);
-    expect(AI_CREDIT_TIERS[1]).toBe(8);
-    expect(AI_CREDIT_TIERS[2]).toBe(12);
-  });
-
-  it("tier prices are ascending", () => {
-    for (let i = 1; i < AI_CREDIT_TIERS.length; i++) {
-      expect(AI_CREDIT_TIERS[i]).toBeGreaterThan(AI_CREDIT_TIERS[i - 1]);
-    }
-  });
-
-  it("total credits for all tiers equals daily ad cap × credits per ad", () => {
-    const total = AI_CREDIT_TIERS.reduce((sum, c) => sum + c, 0);
-    expect(total).toBe(CREDITS_PER_AD * MAX_ADS_PER_DAY);
-    expect(total).toBe(25);
-  });
-
-  it("MAX_AI_ACCESSES_PER_DAY matches tier count", () => {
-    expect(MAX_AI_ACCESSES_PER_DAY).toBe(AI_CREDIT_TIERS.length);
+  it("AI_CREDIT_COST is 10 (flat per AI tool use)", () => {
+    expect(AI_CREDIT_COST).toBe(10);
   });
 
   it("CREDITS_PER_AD is 5", () => {
@@ -90,6 +70,10 @@ describe("credits — constants", () => {
 
   it("MAX_ADS_PER_DAY is 5", () => {
     expect(MAX_ADS_PER_DAY).toBe(5);
+  });
+
+  it("two ad watches equal one AI tool use", () => {
+    expect(AI_CREDIT_COST).toBe(CREDITS_PER_AD * 2);
   });
 });
 
@@ -112,7 +96,7 @@ describe("credits — REWARD_EVENTS", () => {
 
   it("referral reward has the highest amount", () => {
     const amounts = Object.values(REWARD_EVENTS).map((e) => e.amount);
-    expect(Math.max(...amounts)).toBe(500);
+    expect(Math.max(...amounts)).toBe(100);
   });
 
   it("achievement rewards are worth more than basic rewards", () => {

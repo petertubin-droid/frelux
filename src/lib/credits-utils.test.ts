@@ -2,8 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   generateReferenceId,
   getDailyRefId,
-  AI_CREDIT_TIERS,
-  MAX_AI_ACCESSES_PER_DAY,
+  AI_CREDIT_COST,
   CREDITS_PER_AD,
   MAX_ADS_PER_DAY,
 } from "./credits";
@@ -33,15 +32,12 @@ describe("getDailyRefId", () => {
   });
 });
 
-describe("AI credit tier constants", () => {
-  it("defines ascending tier pricing", () => {
-    expect(AI_CREDIT_TIERS.length).toBe(3);
-    expect(AI_CREDIT_TIERS[0]).toBeLessThan(AI_CREDIT_TIERS[1]);
-    expect(AI_CREDIT_TIERS[1]).toBeLessThan(AI_CREDIT_TIERS[2]);
+describe("AI credit cost constants", () => {
+  it("defines a flat cost per AI tool use", () => {
+    expect(AI_CREDIT_COST).toBe(10);
   });
 
-  it("caps ad and access limits at sane positive values", () => {
-    expect(MAX_AI_ACCESSES_PER_DAY).toBeGreaterThan(0);
+  it("caps ad limits at sane positive values", () => {
     expect(CREDITS_PER_AD).toBeGreaterThan(0);
     expect(MAX_ADS_PER_DAY).toBeGreaterThan(0);
   });

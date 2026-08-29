@@ -29,12 +29,18 @@ import {
   getMissionProgress,
   redeemReward,
   getUnusedRewardGrantCount,
+  getRewardedAdConfig,
+  getRewardedAdHistory,
+  verifyRewardedAd,
   type RewardItem,
   type CreditTransaction,
   type WeeklyMission,
   type MissionProgress,
+  type RewardedAdCreditConfig,
+  type RewardedAdCreditEvent,
 } from "@/lib/credits";
 import { getClientHash } from "@/lib/rewarded-access";
+import { PlayCircle, Film } from "lucide-react";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Sparkles> = {
@@ -66,21 +72,28 @@ export default function Rewards() {
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [unusedAiTokens, setUnusedAiTokens] = useState(0);
   const [rewardsLoading, setRewardsLoading] = useState(true);
+  const [adConfig, setAdConfig] = useState<RewardedAdCreditConfig | null>(null);
+  const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
+  const [watchingAd, setWatchingAd] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setRewardsLoading(true);
     try {
-      const [rwd, txs, mis, tokens] = await Promise.all([
+      const [rwd, txs, mis, tokens, adCfg, adHist] = await Promise.all([
         getRewardCatalogue(),
         getCreditTransactions(user.id, { limit: 20 }),
         getCurrentWeeklyMission(),
         getUnusedRewardGrantCount(user.id, "ai_token"),
+        getRewardedAdConfig(),
+        getRewardedAdHistory(10),
       ]);
       setRewards(rwd);
       setTransactions(txs.transactions);
       setMission(mis);
       setUnusedAiTokens(tokens);
+      setAdConfig(adCfg);
+      setAdHistory(adHist);
       if (mis) {
         const prog = await getMissionProgress(user.id, mis.id);
         setMissionProgress(prog);
@@ -154,6 +167,59 @@ export default function Rewards() {
       }
     }
     setRedeeming(null);
+  }
+
+  async function handleWatchAd() {
+    if (!user || watchingAd) return;
+    if (!adConfig?.is_enabled) {
+      toast({ type: "warning", title: "Ads unavailable", message: "Rewarded ads are currently disabled." });
+      return;
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+    const todayEarned = adHistory.filter(
+      (e) => e.created_at.startsWith(today) && e.status === "completed",
+    ).length;
+    const dailyLimit = adConfig?.daily_earn_limit ?? 10;
+
+    if (todayEarned >= dailyLimit) {
+      toast({
+        type: "info",
+        title: "Daily limit reached",
+        message: `You can earn up to ${dailyLimit} ad credits per day. Come back tomorrow!`,
+      });
+      return;
+    }
+
+    setWatchingAd(true);
+    try {
+      // Generate a unique ad event ID
+      const adEventId = `ad_${user.id}_${Date.now()}`;
+      const adProvider = "frelux_rewarded";
+
+      const result = await verifyRewardedAd(adProvider, adEventId, "earn_credits");
+      if (result.success) {
+        toast({
+          type: "success",
+          title: `+${result.creditsEarned} Credits!`,
+          message: result.message ?? "Credits earned from watching ad.",
+        });
+        await refresh();
+        await loadData();
+      } else {
+        if (result.code === "ALREADY_AWARDED") {
+          toast({ type: "info", title: "Already rewarded", message: "This ad has already been counted." });
+        } else if (result.code === "DAILY_LIMIT") {
+          toast({ type: "info", title: "Daily limit reached", message: result.error ?? "Come back tomorrow!" });
+        } else {
+          toast({ type: "error", title: "Ad not verified", message: result.error ?? "Please try again." });
+        }
+      }
+    } catch {
+      toast({ type: "error", title: "Ad failed", message: "Unable to verify ad. Please try again." });
+    } finally {
+      setWatchingAd(false);
+    }
   }
 
   if (!user) {
@@ -258,6 +324,66 @@ export default function Rewards() {
           </div>
         </div>
       </div>
+
+      {/* Watch Ad to Earn Credits */}
+      {adConfig?.is_enabled && (() => {
+        const today = new Date().toISOString().split("T")[0];
+        const todayEarned = adHistory.filter(
+          (e) => e.created_at.startsWith(today) && e.status === "completed",
+        ).length;
+        const dailyLimit = adConfig?.daily_earn_limit ?? 10;
+        const creditsPerAd = adConfig?.credits_per_ad ?? 5;
+        const canEarn = todayEarned < dailyLimit;
+
+        return (
+          <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
+                  <Film className="h-6 w-6 text-brand-purple" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">
+                    Watch Ad — Earn {creditsPerAd} Credits
+                  </p>
+                  <p className="text-xs text-neutral-500">
+                    Today: {todayEarned} / {dailyLimit} ads watched
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleWatchAd}
+                disabled={!canEarn || watchingAd}
+                className={classNames(
+                  "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                  canEarn && !watchingAd
+                    ? "bg-brand-purple text-white hover:bg-brand-purple/90"
+                    : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
+                )}
+              >
+                {watchingAd ? (
+                  <>
+                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                    Verifying...
+                  </>
+                ) : (
+                  <>
+                    <PlayCircle className="h-4 w-4" />
+                    {canEarn ? `Watch Ad (+${creditsPerAd})` : "Daily limit reached"}
+                  </>
+                )}
+              </button>
+            </div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+              <div
+                className="h-full rounded-full bg-brand-purple transition-all duration-500"
+                style={{ width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Weekly Mission */}
       {mission && (
