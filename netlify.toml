@@ -9,7 +9,13 @@
   # VITE_OPENWEATHER_API_KEY / VITE_SITE_URL are also client-facing by design.
   # Without this, Netlify's secret scanner flags them as "exposed secrets"
   # in the build output, which fails the build.
-  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY"
+  SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY,TERMLII_SENDER_ID,TERMII_SENDER_ID,VITE_TERMII_SENDER_ID"
+  # TERMII_SENDER_ID (Termii SMS sender ID) is not a real credential — it's
+  # a public display name shown in every SMS ("FRELUX"), which also happens
+  # to be the project's own brand name used throughout the codebase (CSS,
+  # types, docs). That coincidence made Netlify's scanner flag hundreds of
+  # unrelated files as "leaking" it. Omitted here (both spellings, in case
+  # the Netlify dashboard var has a typo vs. the code's TERMII_SENDER_ID).
   # supabase/migrations and supabase/functions are Deno/SQL files deployed
   # separately via the Supabase CLI — Netlify never builds or ships them.
   # They only reference secrets via Deno.env.get()/env vars (never hardcoded),
