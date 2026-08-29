@@ -68,7 +68,7 @@ export default function Layout() {
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let channel: ReturnType<Awaited<ReturnType<typeof getSupabase>>["channel"]> | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     // Defer to idle callback so it doesn't compete with initial paint/hydration
@@ -122,7 +122,7 @@ export default function Layout() {
     // Real-time subscription: detect maintenance_mode changes immediately
     // Get supabase for the real-time subscription (reuses cached client from checkMaintenance)
     getSupabase().then((sb) => {
-      if (!mounted) return;
+      if (!mountedRef.current) return;
       channel = sb
         .channel("site_settings_maintenance")
         .on(
@@ -141,7 +141,9 @@ export default function Layout() {
     pollTimer = setInterval(checkMaintenance, 30_000);
 
     return () => {
-      if (channel) supabase.removeChannel(channel);
+      if (channel) {
+        getSupabase().then((sb) => sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]));
+      }
       if (pollTimer) clearInterval(pollTimer);
     };
   }, [location.pathname]);
@@ -159,7 +161,8 @@ export default function Layout() {
     // Only check once per session
     if (sessionStorage.getItem("frelux_onboarding_checked")) return;
     (async () => {
-      const { data: profile } = await supabase
+      const sb = await getSupabase();
+      const { data: profile } = await sb
         .from("profiles")
         .select("account_type, onboarding_completed")
         .eq("id", user.id)
