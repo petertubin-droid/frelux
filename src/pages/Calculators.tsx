@@ -12,6 +12,7 @@ import {
   ListChecks,
   Palette,
   ArrowRight,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import Container from '@/components/ui/Container';
@@ -68,7 +69,7 @@ const calculators: Tool[] = [
     description: 'Compare painting, Tyrolene and Grafitex finishes — material quantities and costs side by side.',
     benefit: 'Tyrolene · Grafitex',
     to: '/finish-estimator',
-    accent: 'text-amber-600 bg-amber-100 dark:bg-amber-500/10',
+    accent: 'text-accent-amber bg-accent-amber/10',
   },
   {
     icon: Building2,
@@ -158,16 +159,16 @@ export default function Calculators() {
 
   return (
     <>
-      {/* Hero strip */}
+      {/* Hero strip — premium */}
       <section aria-label="All FRELUX calculators" className="relative overflow-hidden bg-mesh text-white">
         <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
         <div className="pointer-events-none absolute inset-0" aria-hidden="true">
           <div className="absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/20 blur-[140px]" />
         </div>
-        <Container className="relative py-16 sm:py-20">
+        <Container className="relative py-16 sm:py-24">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md">
-            <Calculator aria-hidden="true" className="h-3 w-3 text-brand-purple-light" />
-            All Calculators
+            <Sparkles aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple-light" />
+            {calculators.length}+ Free Tools
           </span>
           <h1 className="mt-6 font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl text-balance">
             Every FRELUX calculator in one place
@@ -189,7 +190,7 @@ export default function Calculators() {
                 <Link
                   key={tool.to}
                   to={tool.to}
-                  className={`calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid ${
+                  className={`calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-brand-navy-mid ${
                     isFeatured ? 'lg:col-span-2' : ''
                   }`}
                   style={{
@@ -215,7 +216,7 @@ export default function Calculators() {
                     )}
                   </div>
 
-                  <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h3>
+                  <h3 className="mt-5 font-display text-base font-bold text-neutral-900 dark:text-white">{tool.title}</h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{tool.description}</p>
 
                   <div className="mt-4 flex items-center gap-2">
@@ -235,7 +236,7 @@ export default function Calculators() {
             {/* Color & AI card */}
             <Link
               to="/colors"
-              className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-brand-navy-mid"
               style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
@@ -251,7 +252,7 @@ export default function Calculators() {
                   <Palette aria-hidden="true" className="h-5 w-5" />
                 </span>
               </div>
-              <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h3>
+              <h3 className="mt-5 font-display text-base font-bold text-neutral-900 dark:text-white">Color Library & AI</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
                 Browse paint colors, compare combinations, and get AI-powered color suggestions.
               </p>
