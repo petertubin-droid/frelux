@@ -70,19 +70,17 @@
   status = 301
   force = true
 
-# 404 page — return real 404 for unknown routes
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
-
-# SPA routing — fallback for known routes that don't have prerendered HTML
-# This only fires if no static file matches (prerendered pages are found first)
+# SPA fallback — all routes serve index.html so React Router can handle
+# client-side routing (including the 404 NotFound component for unknown routes).
+# This must come AFTER specific redirects but BEFORE any catch-all 404 rule.
+# Removed the old "/* -> /404.html status=404" redirect because:
+#   1. No prerendered 404.html exists in the build output
+#   2. It fired before the SPA fallback, showing a Netlify error screen
+#   3. React Router already renders a proper <NotFound /> component for unknown routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
 
 # Security headers
 [[headers]]

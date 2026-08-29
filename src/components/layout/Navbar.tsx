@@ -438,7 +438,7 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[340px] rounded-2xl border border-neutral-200/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
+                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-neutral-200/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
                   style={{
                     animationDuration: "0.22s",
                     transformOrigin: "top right",

@@ -3,18 +3,20 @@
  *
  * Uses the bait element technique: creates a hidden element that looks like
  * an ad to common ad blockers. If the element is hidden or removed by an
- * ad blocker, we detect it. This signal is reliable because ad blockers
- * apply their CSS hiding rules synchronously/very early — a short wait is
- * enough for them to act.
+ * ad blocker, we detect it.
  *
  * The AdSense script-load check is intentionally conservative: it only
  * counts as a "blocked" signal when the script tag is missing outright or
  * its network request actually failed (onerror) — never from
- * `window.adsbygoogle` being merely "not yet initialized". The old logic
- * checked that global 100ms after mount, which produced a flood of false
- * positives: the script is loaded async and often hasn't finished
- * downloading/executing within 100ms on mobile/slower connections, making
- * every such visit look like an ad blocker even when none was present.
+ * `window.adsbygoogle` being merely "not yet initialized".
+ *
+ * Mobile fix: The old code checked `offsetParent === null` and
+ * `offsetHeight === 0` on a `position:absolute;left:-9999px` element.
+ * On mobile browsers, elements positioned off-screen can have
+ * `offsetParent === null` and zero dimensions WITHOUT an ad blocker,
+ * causing false positives. Now we rely solely on computed style
+ * (`display:none` or `visibility:hidden`) which is the actual signal
+ * ad blockers produce via CSS filter rules.
  */
 
 let detected = false;
@@ -39,11 +41,15 @@ export async function detectAdBlocker(): Promise<boolean> {
 
   attachAdsenseFailureListener();
 
-  // Create a bait element that ad blockers typically target
+  // Create a bait element that ad blockers typically target.
+  // Use position:fixed (not absolute) with visible coordinates so the
+  // element has a proper layout box — ad blockers hide it via CSS rules
+  // that set display:none or visibility:hidden, which we can detect
+  // reliably via getComputedStyle on any device.
   const bait = document.createElement("div");
   bait.className = "adsbox ad ads adsbygoogle ad-placement";
   bait.style.cssText =
-    "position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;";
+    "position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;pointer-events:none;z-index:-1;";
   bait.innerHTML = "&nbsp;";
   document.body.appendChild(bait);
 
@@ -51,13 +57,14 @@ export async function detectAdBlocker(): Promise<boolean> {
   // synchronously/very early, so 100ms is plenty for this signal).
   await new Promise((r) => setTimeout(r, 100));
 
+  // Only check computed style — this is the actual mechanism ad blockers
+  // use (CSS filter rules that set display:none or visibility:hidden).
+  // Avoid offsetParent/offsetHeight checks which are unreliable on mobile
+  // for off-screen or fixed-position elements.
+  const computedStyle = window.getComputedStyle(bait);
   const baitBlocked =
-    bait.offsetParent === null ||
-    bait.offsetHeight === 0 ||
-    bait.clientHeight === 0 ||
-    bait.offsetWidth === 0 ||
-    window.getComputedStyle(bait).display === "none" ||
-    window.getComputedStyle(bait).visibility === "hidden";
+    computedStyle.display === "none" ||
+    computedStyle.visibility === "hidden";
 
   document.body.removeChild(bait);
 
