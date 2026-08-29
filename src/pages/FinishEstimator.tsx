@@ -232,17 +232,21 @@ export default function FinishEstimator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Estimate"
-        title="Finish Estimator"
-        subtitle="Calculate material quantities and costs for Painting, Tyrolene, and Grafitex wall finishes."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Finish Estimator" },
-        ]}
-      />
-      <WorkWeatherBanner workType="finishing" />
+      {!embedded && (
+        <>
+          <PageHeader
+            eyebrow="Estimate"
+            title="Finish Estimator"
+            subtitle="Calculate material quantities and costs for Painting, Tyrolene, and Grafitex wall finishes."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "Finish Estimator" },
+            ]}
+          />
+          <WorkWeatherBanner workType="finishing" />
+        </>
+      )}
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {loading && (
@@ -761,16 +765,18 @@ export default function FinishEstimator({
           </div>
         )}
       </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.finishEstimator,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+      {!embedded && (
+        <RelatedTools
+          links={[
+            CALC_LINKS.paintCalculator,
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.paintCalculator,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      )}
     </>
   );
 }

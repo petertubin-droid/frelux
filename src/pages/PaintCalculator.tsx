@@ -825,17 +825,21 @@ export default function PaintCalculator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Tool"
-        title="Paint Calculator"
-        subtitle="Estimate how many paint buckets your project requires, step by step."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Paint Calculator" },
-        ]}
-      />
-      <WorkWeatherBanner workType="painting" />
+      {!embedded && (
+        <>
+          <PageHeader
+            eyebrow="Tool"
+            title="Paint Calculator"
+            subtitle="Estimate how many paint buckets your project requires, step by step."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "Paint Calculator" },
+            ]}
+          />
+          <WorkWeatherBanner workType="painting" />
+        </>
+      )}
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {typesError && (
@@ -1007,16 +1011,18 @@ export default function PaintCalculator({
           </RewardedFeatureGate>
         )}
       </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.paintCost,
-          CALC_LINKS.paintingEstimator,
-          CALC_LINKS.aiColor,
-          CALC_LINKS.finishEstimator,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.templates,
-        ]}
-      />
+      {!embedded && (
+        <RelatedTools
+          links={[
+            CALC_LINKS.paintCost,
+            CALC_LINKS.paintingEstimator,
+            CALC_LINKS.aiColor,
+            CALC_LINKS.finishEstimator,
+            CALC_LINKS.screedingCalc,
+            CALC_LINKS.templates,
+          ]}
+        />
+      )}
     </>
   );
 }
@@ -1077,7 +1083,6 @@ function Step1({
           );
         })}
       </div>
-      <RelatedToolsLinks />
     </div>
   );
 }

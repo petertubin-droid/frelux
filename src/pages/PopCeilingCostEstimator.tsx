@@ -208,15 +208,17 @@ export default function PopCeilingCostEstimator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="Estimate"
-          title="POP Ceiling Cost Estimator"
-          subtitle="Estimate material costs for your POP ceiling project. Labour not included."
-          breadcrumbs={[
-            { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
-            { label: "POP Ceiling Cost Estimator" },
-          ]}
-        />
+        {!embedded && (
+          <PageHeader
+            eyebrow="Estimate"
+            title="POP Ceiling Cost Estimator"
+            subtitle="Estimate material costs for your POP ceiling project. Labour not included."
+            breadcrumbs={[
+              { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
+              { label: "POP Ceiling Cost Estimator" },
+            ]}
+          />
+        )}
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
@@ -227,16 +229,17 @@ export default function PopCeilingCostEstimator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Estimate"
-        title="POP Ceiling Cost Estimator"
-        subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included."
-        breadcrumbs={[
-          { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
-          { label: "POP Ceiling Cost Estimator" },
-        ]}
-      />
-
+      {!embedded && (
+        <PageHeader
+          eyebrow="Estimate"
+          title="POP Ceiling Cost Estimator"
+          subtitle="Estimate material quantities and grand total for your POP ceiling project. Labour not included."
+          breadcrumbs={[
+            { label: "Cost Estimators", path: "/paint-calculator?mode=cost" },
+            { label: "POP Ceiling Cost Estimator" },
+          ]}
+        />
+      )}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
@@ -564,43 +567,47 @@ export default function PopCeilingCostEstimator({
         </div>
       </div>
 
-      <PopCeilingCostEstimatorSeo />
+      {!embedded && (
+        <>
+          <PopCeilingCostEstimatorSeo />
 
-      <FaqSection
-        faqs={[
-          {
-            question: "How much does a POP ceiling cost?",
-            answer: (
-              <span>
-                POP ceiling cost depends on ceiling area, POP cement price,
-                mesh, and labour. Enter your ceiling area to get a practical
-                cost estimate based on real material prices.
-              </span>
-            ),
-          },
-          {
-            question: "What materials are needed for a POP ceiling?",
-            answer: (
-              <span>
-                Typical materials include POP cement, fibre mesh, bonding agent,
-                and water. The estimator calculates quantities and costs based
-                on your ceiling area.
-              </span>
-            ),
-          },
-        ]}
-      />
+          <FaqSection
+            faqs={[
+              {
+                question: "How much does a POP ceiling cost?",
+                answer: (
+                  <span>
+                    POP ceiling cost depends on ceiling area, POP cement price,
+                    mesh, and labour. Enter your ceiling area to get a practical
+                    cost estimate based on real material prices.
+                  </span>
+                ),
+              },
+              {
+                question: "What materials are needed for a POP ceiling?",
+                answer: (
+                  <span>
+                    Typical materials include POP cement, fibre mesh, bonding
+                    agent, and water. The estimator calculates quantities and
+                    costs based on your ceiling area.
+                  </span>
+                ),
+              },
+            ]}
+          />
 
-      <RelatedTools
-        links={[
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+          <RelatedTools
+            links={[
+              CALC_LINKS.popCeilingCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.tileCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+        </>
+      )}
     </>
   );
 }
@@ -620,7 +627,6 @@ function Section({
         {title}
       </h2>
       {children}
-      <RelatedToolsLinks />
     </div>
   );
 }

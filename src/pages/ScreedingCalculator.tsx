@@ -171,17 +171,21 @@ export default function ScreedingCalculator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Tool"
-        title="Wall Screeding Calculator"
-        subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres — we handle the conversion."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Screeding Calculator" },
-        ]}
-      />
-      <WorkWeatherBanner workType="screeding" />
+      {!embedded && (
+        <>
+          <PageHeader
+            eyebrow="Tool"
+            title="Wall Screeding Calculator"
+            subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres — we handle the conversion."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "Screeding Calculator" },
+            ]}
+          />
+          <WorkWeatherBanner workType="screeding" />
+        </>
+      )}
 
       <div
         role="region"
@@ -252,7 +256,8 @@ export default function ScreedingCalculator({
                 Total Screeding Area
               </p>
               <p className="relative mt-3 text-4xl font-bold text-brand-navy dark:text-white">
-                {formatNumber(screedingResult.totalAreaM2, 2)} <span className="text-2xl text-neutral-400">m²</span>
+                {formatNumber(screedingResult.totalAreaM2, 2)}{" "}
+                <span className="text-2xl text-neutral-400">m²</span>
               </p>
               <p className="relative mt-1 text-xs text-neutral-400">
                 Surface area in square metres
@@ -277,7 +282,9 @@ export default function ScreedingCalculator({
             />
 
             <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
-              <p className="font-medium text-brand-navy dark:text-white mb-1.5">Next Step</p>
+              <p className="font-medium text-brand-navy dark:text-white mb-1.5">
+                Next Step
+              </p>
               This area feeds into the FRELUX screeding material calculation
               rules, which determine material quantity based on coverage rate
               and package configuration. The waste allowance above will apply
@@ -327,14 +334,18 @@ export default function ScreedingCalculator({
         <HowCalculatedSection methodologyText="Screeding area is calculated by measuring the room length, width, and wall height, normalising to metres using exact conversion factors (1 ft = 0.3048 m), computing wall area as perimeter × height (where perimeter = 2 × (length + width)), and subtracting door and window openings. The final result is in m²." />
         <EstimateDisclaimer />
         <ReportCalculationIssue calculatorType="screeding-calculator" />
-        <CalculatorNearMe tradeSlug="screeding" />
+        {!embedded && (
+          <>
+            <CalculatorNearMe tradeSlug="screeding" />
 
-        <div className="mt-8">
-          <RelatedTools links={Object.values(CALC_LINKS)} />
-        </div>
-        <div className="mt-6">
-          <RelatedToolsLinks />
-        </div>
+            <div className="mt-8">
+              <RelatedTools links={Object.values(CALC_LINKS)} />
+            </div>
+            <div className="mt-6">
+              <RelatedToolsLinks />
+            </div>
+          </>
+        )}
       </div>
     </>
   );

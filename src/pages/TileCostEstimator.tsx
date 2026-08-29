@@ -239,16 +239,18 @@ export default function TileCostEstimator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="Estimate"
-          title="Tile Cost Estimator"
-          subtitle="Estimate material and labour costs for your tile installation."
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
-            { label: "Tile Cost Estimator" },
-          ]}
-        />
+        {!embedded && (
+          <PageHeader
+            eyebrow="Estimate"
+            title="Tile Cost Estimator"
+            subtitle="Estimate material and labour costs for your tile installation."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "Tile Cost Estimator" },
+            ]}
+          />
+        )}
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
@@ -259,17 +261,18 @@ export default function TileCostEstimator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Estimate"
-        title="Tile Cost Estimator"
-        subtitle="Estimate tile, adhesive, grout, and labour costs for your tiling project."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Tile Cost Estimator" },
-        ]}
-      />
-
+      {!embedded && (
+        <PageHeader
+          eyebrow="Estimate"
+          title="Tile Cost Estimator"
+          subtitle="Estimate tile, adhesive, grout, and labour costs for your tiling project."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "Tile Cost Estimator" },
+          ]}
+        />
+      )}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
@@ -740,16 +743,18 @@ export default function TileCostEstimator({
           </div>
         </div>
       </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+      {!embedded && (
+        <RelatedTools
+          links={[
+            CALC_LINKS.tileCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.screedingCalc,
+            CALC_LINKS.popCeilingCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      )}
     </>
   );
 }
@@ -769,7 +774,6 @@ function Section({
         {title}
       </h2>
       {children}
-      <RelatedToolsLinks />
     </div>
   );
 }

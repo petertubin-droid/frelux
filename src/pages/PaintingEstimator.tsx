@@ -699,16 +699,20 @@ export default function PaintingEstimator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="FRELUX Estimator"
-          title="Painting Estimator"
-          subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
-          breadcrumbs={[
-            { label: "Calculators", path: "/paint-calculator" },
-            { label: "Painting Estimator" },
-          ]}
-        />
-        <WorkWeatherBanner workType="painting" />
+        {!embedded && (
+          <>
+            <PageHeader
+              eyebrow="FRELUX Estimator"
+              title="Painting Estimator"
+              subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
+              breadcrumbs={[
+                { label: "Calculators", path: "/paint-calculator" },
+                { label: "Painting Estimator" },
+              ]}
+            />
+            <WorkWeatherBanner workType="painting" />
+          </>
+        )}
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="flex items-center justify-center gap-3 text-neutral-500">
             <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" />
@@ -722,15 +726,17 @@ export default function PaintingEstimator({
   if (loadError) {
     return (
       <>
-        <PageHeader
-          eyebrow="FRELUX Estimator"
-          title="Painting Estimator"
-          subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
-          breadcrumbs={[
-            { label: "Calculators", path: "/paint-calculator" },
-            { label: "Painting Estimator" },
-          ]}
-        />
+        {!embedded && (
+          <PageHeader
+            eyebrow="FRELUX Estimator"
+            title="Painting Estimator"
+            subtitle="Complete painting project overview: paint buckets, material costs, finishes, and assumptions."
+            breadcrumbs={[
+              { label: "Calculators", path: "/paint-calculator" },
+              { label: "Painting Estimator" },
+            ]}
+          />
+        )}
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div
             role="alert"
@@ -752,15 +758,17 @@ export default function PaintingEstimator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="FRELUX Estimator"
-        title="Painting Estimator"
-        subtitle="Professional room-based paint quantity and cost estimation using FRELUX methodology."
-        breadcrumbs={[
-          { label: "Calculators", path: "/paint-calculator" },
-          { label: "Painting Estimator" },
-        ]}
-      />
+      {!embedded && (
+        <PageHeader
+          eyebrow="FRELUX Estimator"
+          title="Painting Estimator"
+          subtitle="Professional room-based paint quantity and cost estimation using FRELUX methodology."
+          breadcrumbs={[
+            { label: "Calculators", path: "/paint-calculator" },
+            { label: "Painting Estimator" },
+          ]}
+        />
+      )}
       <div
         role="region"
         aria-label="Room painting estimator"
@@ -914,54 +922,59 @@ export default function PaintingEstimator({
         )}
       </div>
 
-      <PaintingEstimatorSeo />
+      {!embedded && (
+        <>
+          <PaintingEstimatorSeo />
 
-      <FaqSection
-        faqs={[
-          {
-            question: "What is the FRELUX painting estimation methodology?",
-            answer: (
-              <span>
-                The FRELUX methodology calculates paint quantity based on
-                room-by-room dimensions, ceiling area, door and window
-                deductions, paint quality tiers, colour conditions, and surface
-                conditions. It uses admin-configured coverage rates and product
-                prices for accurate estimates.
-              </span>
-            ),
-          },
-          {
-            question: "Can I estimate paint for multiple rooms?",
-            answer: (
-              <span>
-                Yes. The Painting Estimator supports multiple rooms. Add each
-                room with its dimensions and conditions to get a combined
-                project estimate.
-              </span>
-            ),
-          },
-          {
-            question: "Does the Painting Estimator include labour costs?",
-            answer: (
-              <span>
-                Yes. The Painting Estimator includes configurable labour rates
-                alongside material costs for a complete project budget estimate.
-              </span>
-            ),
-          },
-        ]}
-      />
+          <FaqSection
+            faqs={[
+              {
+                question: "What is the FRELUX painting estimation methodology?",
+                answer: (
+                  <span>
+                    The FRELUX methodology calculates paint quantity based on
+                    room-by-room dimensions, ceiling area, door and window
+                    deductions, paint quality tiers, colour conditions, and
+                    surface conditions. It uses admin-configured coverage rates
+                    and product prices for accurate estimates.
+                  </span>
+                ),
+              },
+              {
+                question: "Can I estimate paint for multiple rooms?",
+                answer: (
+                  <span>
+                    Yes. The Painting Estimator supports multiple rooms. Add
+                    each room with its dimensions and conditions to get a
+                    combined project estimate.
+                  </span>
+                ),
+              },
+              {
+                question: "Does the Painting Estimator include labour costs?",
+                answer: (
+                  <span>
+                    Yes. The Painting Estimator includes configurable labour
+                    rates alongside material costs for a complete project budget
+                    estimate.
+                  </span>
+                ),
+              },
+            ]}
+          />
 
-      <RelatedTools
-        links={[
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.finishEstimator,
-          CALC_LINKS.finishEstimator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+          <RelatedTools
+            links={[
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.finishEstimator,
+              CALC_LINKS.finishEstimator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+        </>
+      )}
     </>
   );
 }
@@ -1401,7 +1414,6 @@ function RoomCard({
           </Section>
         </div>
       )}
-      <RelatedToolsLinks />
     </div>
   );
 }

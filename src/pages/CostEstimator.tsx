@@ -372,16 +372,18 @@ export default function CostEstimator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="Tool"
-          title="Cost Estimator"
-          subtitle="Estimate the cost of your paint materials — buckets, primer, and supplies."
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
-            { label: "Cost Estimator" },
-          ]}
-        />
+        {!embedded && (
+          <PageHeader
+            eyebrow="Tool"
+            title="Cost Estimator"
+            subtitle="Estimate the cost of your paint materials — buckets, primer, and supplies."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "Cost Estimator" },
+            ]}
+          />
+        )}
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading pricing data…
@@ -392,17 +394,18 @@ export default function CostEstimator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Tool"
-        title="Cost Estimator"
-        subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Cost Estimator" },
-        ]}
-      />
-
+      {!embedded && (
+        <PageHeader
+          eyebrow="Tool"
+          title="Cost Estimator"
+          subtitle="Estimate the cost of your paint materials. Prices are editable so you can match local rates. Labour not included."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "Cost Estimator" },
+          ]}
+        />
+      )}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {loadError && (
           <div className="mb-6 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
@@ -1003,16 +1006,18 @@ export default function CostEstimator({
           />
         )}
       </div>
-      <RelatedTools
-        links={[
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+      {!embedded && (
+        <RelatedTools
+          links={[
+            CALC_LINKS.paintCalculator,
+            CALC_LINKS.screedingCalc,
+            CALC_LINKS.popCeilingCalc,
+            CALC_LINKS.tileCalc,
+            CALC_LINKS.buildToRoof,
+            CALC_LINKS.imageEstimator,
+          ]}
+        />
+      )}
     </>
   );
 }
@@ -1032,7 +1037,6 @@ function Section({
         {title}
       </h2>
       {children}
-      <RelatedToolsLinks />
     </div>
   );
 }

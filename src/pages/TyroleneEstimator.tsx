@@ -595,15 +595,19 @@ export default function TyroleneEstimator({
 
   return (
     <>
-      <PageHeader
-        title="Tyrolene Estimator"
-        subtitle="Partition-based exterior finishing calculator: FRELUX production methodology"
-        breadcrumbs={[
-          { label: "Calculators", path: "/paint-calculator" },
-          { label: "Tyrolene Estimator" },
-        ]}
-      />
-      <WorkWeatherBanner workType="tyrolene" />
+      {!embedded && (
+        <>
+          <PageHeader
+            title="Tyrolene Estimator"
+            subtitle="Partition-based exterior finishing calculator: FRELUX production methodology"
+            breadcrumbs={[
+              { label: "Calculators", path: "/paint-calculator" },
+              { label: "Tyrolene Estimator" },
+            ]}
+          />
+          <WorkWeatherBanner workType="tyrolene" />
+        </>
+      )}
 
       <Container className="py-8 space-y-6 max-w-4xl">
         {/* Product Info Banner */}
@@ -1484,54 +1488,59 @@ export default function TyroleneEstimator({
         )}
       </Container>
 
-      <TyroleneEstimatorSeo />
+      {!embedded && (
+        <>
+          <TyroleneEstimatorSeo />
 
-      <FaqSection
-        faqs={[
-          {
-            question: "What is Tyrolene?",
-            answer: (
-              <span>
-                Tyrolene is a textured exterior wall finish made from a mixture
-                of cement, sand, acrylic bond, and water seal. It provides
-                weather resistance and a decorative texture to building
-                exteriors.
-              </span>
-            ),
-          },
-          {
-            question: "How is Tyrolene calculated?",
-            answer: (
-              <span>
-                Tyrolene is calculated based on the wall area and the number of
-                partitions (coats/layers). The estimator uses partition-based
-                methodology to determine cement, sand, acrylic bond, water seal,
-                and anti-fungal quantities.
-              </span>
-            ),
-          },
-          {
-            question: "Is Tyrolene only for exterior walls?",
-            answer: (
-              <span>
-                Yes, Tyrolene is designed for exterior surfaces. It provides
-                weather protection and decorative texture for building facades.
-              </span>
-            ),
-          },
-        ]}
-      />
+          <FaqSection
+            faqs={[
+              {
+                question: "What is Tyrolene?",
+                answer: (
+                  <span>
+                    Tyrolene is a textured exterior wall finish made from a
+                    mixture of cement, sand, acrylic bond, and water seal. It
+                    provides weather resistance and a decorative texture to
+                    building exteriors.
+                  </span>
+                ),
+              },
+              {
+                question: "How is Tyrolene calculated?",
+                answer: (
+                  <span>
+                    Tyrolene is calculated based on the wall area and the number
+                    of partitions (coats/layers). The estimator uses
+                    partition-based methodology to determine cement, sand,
+                    acrylic bond, water seal, and anti-fungal quantities.
+                  </span>
+                ),
+              },
+              {
+                question: "Is Tyrolene only for exterior walls?",
+                answer: (
+                  <span>
+                    Yes, Tyrolene is designed for exterior surfaces. It provides
+                    weather protection and decorative texture for building
+                    facades.
+                  </span>
+                ),
+              },
+            ]}
+          />
 
-      <RelatedTools
-        links={[
-          CALC_LINKS.finishEstimator,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
+          <RelatedTools
+            links={[
+              CALC_LINKS.finishEstimator,
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+        </>
+      )}
     </>
   );
 }

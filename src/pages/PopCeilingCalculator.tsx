@@ -250,16 +250,18 @@ export default function PopCeilingCalculator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="Calculate"
-          title="POP Ceiling Calculator"
-          subtitle="Calculate POP ceiling materials and quantities."
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
-            { label: "POP Ceiling Calculator" },
-          ]}
-        />
+        {!embedded && (
+          <PageHeader
+            eyebrow="Calculate"
+            title="POP Ceiling Calculator"
+            subtitle="Calculate POP ceiling materials and quantities."
+            breadcrumbs={[
+              { label: "Home", path: "/" },
+              { label: "Calculators", path: "/calculators" },
+              { label: "POP Ceiling Calculator" },
+            ]}
+          />
+        )}
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
@@ -270,17 +272,18 @@ export default function PopCeilingCalculator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Calculate"
-        title="POP Ceiling Calculator"
-        subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "POP Ceiling Calculator" },
-        ]}
-      />
-
+      {!embedded && (
+        <PageHeader
+          eyebrow="Calculate"
+          title="POP Ceiling Calculator"
+          subtitle="Calculate ceiling area, material quantities, and labour for your POP ceiling project."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "POP Ceiling Calculator" },
+          ]}
+        />
+      )}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <LoadTemplateButton
           calculatorType="pop"
@@ -484,55 +487,59 @@ export default function PopCeilingCalculator({
         )}
       </div>
 
-      <PopCeilingCalculatorSeo />
+      {!embedded && (
+        <>
+          <PopCeilingCalculatorSeo />
 
-      <FaqSection
-        faqs={[
-          {
-            question: "What is a POP ceiling?",
-            answer: (
-              <span>
-                A POP (Plaster of Paris) ceiling is a decorative ceiling made
-                from gypsum-based plaster. It is popular in Nigerian homes for
-                creating smooth, sculpted ceiling designs.
-              </span>
-            ),
-          },
-          {
-            question: "How much POP cement do I need?",
-            answer: (
-              <span>
-                POP cement quantity depends on your ceiling area and design
-                complexity. The calculator estimates material based on room
-                dimensions and your selected workflow.
-              </span>
-            ),
-          },
-          {
-            question:
-              "What is the difference between Nigerian and international POP workflows?",
-            answer: (
-              <span>
-                The Nigerian workflow uses specific local materials and
-                techniques, while the international workflow follows standard
-                gypsum board methods. The calculator supports both.
-              </span>
-            ),
-          },
-        ]}
-      />
+          <FaqSection
+            faqs={[
+              {
+                question: "What is a POP ceiling?",
+                answer: (
+                  <span>
+                    A POP (Plaster of Paris) ceiling is a decorative ceiling
+                    made from gypsum-based plaster. It is popular in Nigerian
+                    homes for creating smooth, sculpted ceiling designs.
+                  </span>
+                ),
+              },
+              {
+                question: "How much POP cement do I need?",
+                answer: (
+                  <span>
+                    POP cement quantity depends on your ceiling area and design
+                    complexity. The calculator estimates material based on room
+                    dimensions and your selected workflow.
+                  </span>
+                ),
+              },
+              {
+                question:
+                  "What is the difference between Nigerian and international POP workflows?",
+                answer: (
+                  <span>
+                    The Nigerian workflow uses specific local materials and
+                    techniques, while the international workflow follows
+                    standard gypsum board methods. The calculator supports both.
+                  </span>
+                ),
+              },
+            ]}
+          />
 
-      <RelatedTools
-        links={[
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
-      <ProConnectCTA calculatorType="pop-ceiling" />
+          <RelatedTools
+            links={[
+              CALC_LINKS.popCeilingCalc,
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.tileCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+          <ProConnectCTA calculatorType="pop-ceiling" />
+        </>
+      )}
     </>
   );
 }
@@ -856,7 +863,6 @@ function PopResultCard({
           </div>
         </div>
       </div>
-      <RelatedToolsLinks />
     </div>
   );
 }

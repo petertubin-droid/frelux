@@ -330,17 +330,21 @@ export default function TileCalculator({
   if (loading) {
     return (
       <>
-        <PageHeader
-          eyebrow="Calculate"
-          title="Tile Calculator"
-          subtitle="Calculate tile quantities, adhesive, and grout."
-          breadcrumbs={[
-            { label: "Home", path: "/" },
-            { label: "Calculators", path: "/calculators" },
-            { label: "Tile Calculator" },
-          ]}
-        />
-        <WorkWeatherBanner workType="tiling" />
+        {!embedded && (
+          <>
+            <PageHeader
+              eyebrow="Calculate"
+              title="Tile Calculator"
+              subtitle="Calculate tile quantities, adhesive, and grout."
+              breadcrumbs={[
+                { label: "Home", path: "/" },
+                { label: "Calculators", path: "/calculators" },
+                { label: "Tile Calculator" },
+              ]}
+            />
+            <WorkWeatherBanner workType="tiling" />
+          </>
+        )}
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
@@ -351,17 +355,18 @@ export default function TileCalculator({
 
   return (
     <>
-      <PageHeader
-        eyebrow="Calculate"
-        title="Tile Calculator"
-        subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project."
-        breadcrumbs={[
-          { label: "Home", path: "/" },
-          { label: "Calculators", path: "/calculators" },
-          { label: "Tile Calculator" },
-        ]}
-      />
-
+      {!embedded && (
+        <PageHeader
+          eyebrow="Calculate"
+          title="Tile Calculator"
+          subtitle="Calculate tile quantity, boxes, adhesive, grout, and labour cost for your tiling project."
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Calculators", path: "/calculators" },
+            { label: "Tile Calculator" },
+          ]}
+        />
+      )}
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <LoadTemplateButton
           calculatorType="tile"
@@ -851,54 +856,59 @@ export default function TileCalculator({
         )}
       </div>
 
-      <TileCalculatorSeo />
+      {!embedded && (
+        <>
+          <TileCalculatorSeo />
 
-      <FaqSection
-        faqs={[
-          {
-            question: "How do I calculate how many tiles I need?",
-            answer: (
-              <span>
-                Measure the area to be tiled and divide by the area of one tile.
-                Add 10–15% for cuts and breakage. The calculator does this
-                automatically and also estimates adhesive and grout.
-              </span>
-            ),
-          },
-          {
-            question: "How much extra tile should I buy?",
-            answer: (
-              <span>
-                Buy 10–15% more tiles than the calculated quantity to cover
-                cuts, breakage, and future repairs. The calculator includes a
-                waste factor for this.
-              </span>
-            ),
-          },
-          {
-            question: "Does the calculator work for both floor and wall tiles?",
-            answer: (
-              <span>
-                Yes. Select the surface type (floor or wall) and enter your
-                dimensions. The calculator adjusts for the different tile sizes
-                and materials typically used.
-              </span>
-            ),
-          },
-        ]}
-      />
+          <FaqSection
+            faqs={[
+              {
+                question: "How do I calculate how many tiles I need?",
+                answer: (
+                  <span>
+                    Measure the area to be tiled and divide by the area of one
+                    tile. Add 10–15% for cuts and breakage. The calculator does
+                    this automatically and also estimates adhesive and grout.
+                  </span>
+                ),
+              },
+              {
+                question: "How much extra tile should I buy?",
+                answer: (
+                  <span>
+                    Buy 10–15% more tiles than the calculated quantity to cover
+                    cuts, breakage, and future repairs. The calculator includes
+                    a waste factor for this.
+                  </span>
+                ),
+              },
+              {
+                question:
+                  "Does the calculator work for both floor and wall tiles?",
+                answer: (
+                  <span>
+                    Yes. Select the surface type (floor or wall) and enter your
+                    dimensions. The calculator adjusts for the different tile
+                    sizes and materials typically used.
+                  </span>
+                ),
+              },
+            ]}
+          />
 
-      <RelatedTools
-        links={[
-          CALC_LINKS.tileCalc,
-          CALC_LINKS.paintCalculator,
-          CALC_LINKS.screedingCalc,
-          CALC_LINKS.popCeilingCalc,
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.imageEstimator,
-        ]}
-      />
-      <ProConnectCTA calculatorType="tile" />
+          <RelatedTools
+            links={[
+              CALC_LINKS.tileCalc,
+              CALC_LINKS.paintCalculator,
+              CALC_LINKS.screedingCalc,
+              CALC_LINKS.popCeilingCalc,
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+          <ProConnectCTA calculatorType="tile" />
+        </>
+      )}
     </>
   );
 }
@@ -1277,8 +1287,6 @@ function TileResultCard({
           projectType="tiling"
         />
       </div>
-
-      <RelatedToolsLinks />
     </div>
   );
 }
