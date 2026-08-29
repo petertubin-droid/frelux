@@ -69,6 +69,7 @@
     "globals": "^15.9.1",
     "happy-dom": "^20.11.2",
     "husky": "^9.1.7",
+    "lighthouse": "^12.8.2",
     "lint-staged": "^16.4.0",
     "msw": "^2.15.0",
     "postcss": "^8.4.35",
