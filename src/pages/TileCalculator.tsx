@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { calculateTile } from '@/lib/pop-tile-calc';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchTileSizes, fetchTileMaterials, fetchSiteSettings, saveUserProject } from '@/lib/queries';
+import { SaveToProjectButton } from '@/components/calculators';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
@@ -614,6 +615,17 @@ function TileResultCard({ result, input, currencySymbol, onAgain, onStartOver, u
             <button type="button" onClick={onSave} disabled={saving} className="btn-secondary disabled:opacity-50">
               {saving ? 'Saving…' : 'Save to Projects'}
             </button>
+            <div className="mt-3 flex justify-center">
+              <SaveToProjectButton
+                calculatorType="tile"
+                calculatorSlug="tile-calculator"
+                calcTitle="Tile Calculation"
+                calcData={{ ...input, ...result }}
+                resultSummary={result}
+                compact
+                label="Save to Project Workspace"
+              />
+            </div>
           )}
           <button type="button" onClick={onStartOver} className="btn-secondary">Start Over</button>
         {/* Post as Job CTA */}

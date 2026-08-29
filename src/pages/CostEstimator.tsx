@@ -952,6 +952,17 @@ export default function CostEstimator({
                     </span>
                   </button>
                 </div>
+                    <div className="mt-3 flex justify-center">
+                      <SaveToProjectButton
+                        calculatorType="cost"
+                        calculatorSlug="cost-estimator"
+                        calcTitle="Cost Estimate"
+                        calcData={{ ...input, ...result }}
+                        resultSummary={result}
+                        compact
+                        label="Save to Project Workspace"
+                      />
+                    </div>
               )}
 
               {result && (

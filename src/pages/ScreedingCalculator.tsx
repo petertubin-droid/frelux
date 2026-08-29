@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
 import PageHeader from '@/components/ui/PageHeader';
+import { SaveToProjectButton } from '@/components/calculators';
 import { formatNumber } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { track } from '@/lib/analytics';
@@ -253,6 +254,20 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
                 Continue to Cost Estimate
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
+            </div>
+
+            <div className="pt-2 flex justify-center">
+              <SaveToProjectButton
+                calculatorType="screeding"
+                calculatorSlug="screeding-calculator"
+                calcTitle={`Screeding: ${formatNumber(screedingResult.totalAreaM2, 2)} m²`}
+                calcData={{ totalAreaM2: screedingResult.totalAreaM2, steps: screedingResult.steps }}
+                resultSummary={{
+                  totalAreaM2: screedingResult.totalAreaM2,
+                  stepCount: screedingResult.steps.length,
+                }}
+                materials={[]}
+              />
             </div>
           </div>
         )}

@@ -623,6 +623,7 @@ export interface DbLearnCategory {
   icon: string;
   sort_order: number;
   is_active: boolean;
+  parent_slug: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -734,6 +735,17 @@ export interface DbTileMaterial {
   currency: string;
   is_active: boolean;
   sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbLearnArticleFaq {
+  id: string;
+  article_id: string;
+  question: string;
+  answer: string;
+  sort_order: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -1558,7 +1570,17 @@ export interface DbProjectCalculation {
   id: string;
   project_id: string;
   user_id: string;
-  calculator_type: 'paint' | 'screeding' | 'pop_ceiling' | 'tile' | 'finish' | 'tyrolene' | 'cost' | 'build_to_roof' | 'structural' | 'foundation';
+  calculator_type:
+    | "paint"
+    | "screeding"
+    | "pop_ceiling"
+    | "tile"
+    | "finish"
+    | "tyrolene"
+    | "cost"
+    | "build_to_roof"
+    | "structural"
+    | "foundation";
   calculator_slug: string;
   calc_title: string;
   calc_data: Record<string, unknown>;
@@ -1580,14 +1602,20 @@ export interface DbGalleryEntry {
   user_id: string;
   title: string;
   description: string | null;
-  project_category: 'painting' | 'screeding' | 'pop_ceiling' | 'tiling' | 'finishing' | 'construction';
+  project_category:
+    | "painting"
+    | "screeding"
+    | "pop_ceiling"
+    | "tiling"
+    | "finishing"
+    | "construction";
   paint_type_used: string | null;
   paint_quality_used: string | null;
   colour_used: string | null;
   location: string | null;
   completion_date: string | null;
   is_public: boolean;
-  status: 'pending' | 'approved' | 'rejected' | 'featured' | 'hidden';
+  status: "pending" | "approved" | "rejected" | "featured" | "hidden";
   is_featured: boolean;
   admin_notes: string | null;
   reviewed_by: string | null;
@@ -1600,7 +1628,7 @@ export interface DbGalleryEntry {
 export interface DbGalleryImage {
   id: string;
   gallery_entry_id: string;
-  image_type: 'before' | 'after';
+  image_type: "before" | "after";
   image_url: string;
   caption: string | null;
   sort_order: number;
@@ -1637,7 +1665,8 @@ export interface DbClientEstimate {
   client_name: string | null;
   client_email: string | null;
   client_phone: string | null;
-  status: 'draft' | 'sent' | 'viewed' | 'approved' | 'changes_requested' | 'expired';
+  status:
+    "draft" | "sent" | "viewed" | "approved" | "changes_requested" | "expired";
   share_token: string | null;
   shared_at: string | null;
   viewed_at: string | null;
@@ -1690,13 +1719,20 @@ export interface DbSurfaceAssessment {
   id: string;
   project_id: string | null;
   user_id: string;
-  surface_condition: 'new_wall' | 'previously_painted' | 'smooth' | 'rough' | 'dirty' | 'damp' | 'cracked';
+  surface_condition:
+    | "new_wall"
+    | "previously_painted"
+    | "smooth"
+    | "rough"
+    | "dirty"
+    | "damp"
+    | "cracked";
   surface_type: string | null;
   room_name: string | null;
   notes: string | null;
   recommendations: Array<{
     recommendation: string;
-    priority: 'high' | 'medium' | 'low';
+    priority: "high" | "medium" | "low";
   }>;
   created_at: string;
   updated_at: string;

@@ -260,6 +260,17 @@ const mountedRef = useRef(true);
                           productMatched: result.materials.some(m => m.packagesNeeded > 0),
                         })} />
                       </div>
+                      <div className="mt-3 flex justify-center">
+                        <SaveToProjectButton
+                          calculatorType="cost"
+                          calculatorSlug="pop-ceiling-cost-estimator"
+                          calcTitle="POP Ceiling Cost Estimate"
+                          calcData={{ ...input, ...result }}
+                          resultSummary={result}
+                          compact
+                          label="Save to Project Workspace"
+                        />
+                      </div>
 
                       <EngineExplanationPanel result={engine.buildExplanation({
                         subject: 'POP Ceiling Cost Estimate',

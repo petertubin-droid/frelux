@@ -1059,6 +1059,27 @@ const mountedRef = useRef(true);
                         )}
                       </button>
                     </div>
+                    <div className="pt-2 flex justify-center">
+                      <SaveToProjectButton
+                        calculatorType="tyrolene"
+                        calculatorSlug="tyrolene-estimator"
+                        calcTitle={`Tyrolene: ${formatNumber(result.wall_area_m2 ?? 0)} m²`}
+                        calcData={{ ...input, ...result }}
+                        resultSummary={{
+                          wallArea: result.wall_area_m2,
+                          theoreticalCost: result.theoretical_material_cost,
+                          practicalCost: result.practical_purchase_cost,
+                        }}
+                        materials={(result.materials || []).map((m: any) => ({
+                          name: m.name || m.material_name,
+                          category: 'tyrolene',
+                          quantity: m.quantity || m.bags || 0,
+                          unit: m.unit || 'bags',
+                        }))}
+                        compact
+                        label="Save to Project Workspace"
+                      />
+                    </div>
                   </div>
                 </div>
               </>

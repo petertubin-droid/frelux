@@ -322,6 +322,17 @@ const mountedRef = useRef(true);
                           productMatched: result.boxesNeeded > 0,
                         })} />
                       </div>
+                      <div className="mt-3 flex justify-center">
+                        <SaveToProjectButton
+                          calculatorType="cost"
+                          calculatorSlug="tile-cost-estimator"
+                          calcTitle="Tile Cost Estimate"
+                          calcData={{ ...input, ...result }}
+                          resultSummary={result}
+                          compact
+                          label="Save to Project Workspace"
+                        />
+                      </div>
 
                       <EngineExplanationPanel result={engine.buildExplanation({
                         subject: 'Tile Cost Estimate',

@@ -58,6 +58,7 @@ import {
   HowCalculatedSection,
   EstimateDisclaimer,
   ReportCalculationIssue,
+  SaveToProjectButton,
 } from "@/components/calculators";
 import CalculatorNearMe from "@/components/calculators/CalculatorNearMe";
 import type {
@@ -945,6 +946,31 @@ export default function PaintCalculator({
             onShare={handleShare}
             onAskAi={handleAskAi}
           />
+        )}
+
+        {result && (
+          <div className="mt-4 flex justify-center">
+            <SaveToProjectButton
+              calculatorType="paint"
+              calculatorSlug="paint-calculator"
+              calcTitle={`Paint: ${input.projectType} — ${formatNumber(result.paintableArea ?? 0)} m²`}
+              calcData={input as unknown as Record<string, unknown>}
+              resultSummary={{
+                paintableArea: result.paintableArea,
+                totalBuckets: result.totalBuckets,
+                totalRecommendedLiters: result.totalRecommendedLiters,
+                primerBuckets: result.primerBuckets,
+                paintType: selectedPaintType?.name ?? input.paintType,
+                coats: result.coats,
+              }}
+              materials={(result.buckets || []).map(b => ({
+                name: b.type === 'primer' ? 'Primer' : 'Paint',
+                category: 'paint',
+                quantity: b.count,
+                unit: 'buckets',
+              }))}
+            />
+          </div>
         )}
 
         {result && <StickyActionBar onRecalculate={() => setResult(null)} />}

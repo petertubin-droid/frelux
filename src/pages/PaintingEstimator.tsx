@@ -65,6 +65,7 @@ import {
   createAuditLog,
 } from "@/lib/estimation/queries";
 import { saveUserProject } from "@/lib/queries";
+import { SaveToProjectButton } from "@/components/calculators";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
@@ -1940,6 +1941,26 @@ function EstimateResult({
               )}
               {saved ? "Saved" : "Save Estimate"}
             </button>
+            <SaveToProjectButton
+              calculatorType="cost"
+              calculatorSlug="painting-estimator"
+              calcTitle="Painting Cost Estimate"
+              calcData={{ rooms: estimateResult?.rooms, totals: estimateResult?.totals }}
+              resultSummary={{
+                grandTotal: estimateResult?.totals?.grand_total,
+                materialCost: estimateResult?.totals?.material_cost,
+                labourCost: estimateResult?.totals?.labour_cost,
+                roomCount: estimateResult?.rooms?.length,
+              }}
+              materials={(estimateResult?.materials || []).map((m: any) => ({
+                name: m.materialName || m.name,
+                category: m.category || 'paint',
+                quantity: m.quantity || m.buckets || 0,
+                unit: m.unit || 'buckets',
+              }))}
+              compact
+              label="Save to Project"
+            />
             <button
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"

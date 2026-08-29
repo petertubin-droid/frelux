@@ -1,116 +1,262 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Image as ImageIcon, Loader2, MapPin, Calendar, Filter, Sparkles } from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import { useSeo } from '@/lib/seo';
-import { useAuth } from '@/lib/auth';
-import { fetchPublicGallery, fetchGalleryImages } from '@/lib/project-intelligence';
-import type { DbGalleryEntry } from '@/types/database';
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import {
+  Plus,
+  Image as ImageIcon,
+  Loader2,
+  MapPin,
+  Calendar,
+  Filter,
+  Sparkles,
+  ArrowRight,
+  Heart,
+  Share2,
+} from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { useSeo } from "@/lib/seo";
+import { useAuth } from "@/lib/auth";
+import {
+  fetchPublicGallery,
+  fetchGalleryImages,
+} from "@/lib/project-intelligence";
+import type { DbGalleryEntry } from "@/types/database";
 
 const CATEGORIES = [
-  { key: '', label: 'All' },
-  { key: 'painting', label: 'Painting' },
-  { key: 'screeding', label: 'Screeding' },
-  { key: 'pop_ceiling', label: 'POP Ceiling' },
-  { key: 'tiling', label: 'Tiling' },
-  { key: 'finishing', label: 'Finishing' },
-  { key: 'construction', label: 'Construction' },
+  { key: "", label: "All" },
+  { key: "painting", label: "Painting" },
+  { key: "screeding", label: "Screeding" },
+  { key: "pop_ceiling", label: "POP Ceiling" },
+  { key: "tiling", label: "Tiling" },
+  { key: "finishing", label: "Finishing" },
+  { key: "construction", label: "Construction" },
 ];
 
 export default function Gallery() {
   useSeo({
-    title: 'Before & After Project Gallery: Real Painting Transformations',
-    description: 'Browse real FRELUX project transformations. See before and after photos of painting, screeding, POP ceiling, tiling, and finishing projects.',
-    canonicalPath: '/gallery',
-    ogType: 'website',
+    title: "Before & After Project Gallery: Real Painting Transformations",
+    description:
+      "Browse real FRELUX project transformations. See before and after photos of painting, screeding, POP ceiling, tiling, and finishing projects.",
+    canonicalPath: "/gallery",
+    ogType: "website",
+    structuredDataArray: [
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        name: "FRELUX Before & After Gallery",
+        description:
+          "Real project transformations from the FRELUX community showcasing painting, screeding, POP ceiling, tiling, and finishing work.",
+      },
+    ],
   });
 
   const { user } = useAuth();
   const [entries, setEntries] = useState<DbGalleryEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [filter, setFilter] = useState('');
-  const [images, setImages] = useState<Record<string, { before?: string; after?: string }>>({});
+  const [error, setError] = useState("");
+  const [filter, setFilter] = useState("");
+  const [images, setImages] = useState<
+    Record<string, { before?: string; after?: string }>
+  >({});
 
   const loadGallery = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchPublicGallery({ category: filter || undefined, limit: 24 });
+      const data = await fetchPublicGallery({
+        category: filter || undefined,
+        limit: 24,
+      });
       setEntries(data);
       const imgPromises = data.map(async (entry) => {
         const imgs = await fetchGalleryImages(entry.id);
-        const before = imgs.find((i) => i.image_type === 'before');
-        const after = imgs.find((i) => i.image_type === 'after');
-        return [entry.id, { before: before?.image_url, after: after?.image_url }] as const;
+        const before = imgs.find((i) => i.image_type === "before");
+        const after = imgs.find((i) => i.image_type === "after");
+        return [
+          entry.id,
+          { before: before?.image_url, after: after?.image_url },
+        ] as const;
       });
       const imgResults = await Promise.all(imgPromises);
       const imgMap: Record<string, { before?: string; after?: string }> = {};
       for (const [id, urls] of imgResults) imgMap[id] = urls;
       setImages(imgMap);
-    } catch (e) { setError((e as Error).message); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
   }, [filter]);
 
-  useEffect(() => { loadGallery(); }, [loadGallery]);
+  useEffect(() => {
+    loadGallery();
+  }, [loadGallery]);
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader title="Before & After Gallery" subtitle="Real project transformations from the FRELUX community." />
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-6 flex flex-wrap items-center gap-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
+      <PageHeader
+        eyebrow="Community"
+        title="Before & After Gallery"
+        subtitle="Real project transformations from the FRELUX community."
+      />
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+        {/* Filter bar + Share button */}
+        <div className="mb-8 flex flex-wrap items-center gap-2">
+          <Filter className="h-4 w-4 text-neutral-400" />
           {CATEGORIES.map((cat) => (
-            <button key={cat.key} onClick={() => setFilter(cat.key)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                filter === cat.key ? 'bg-primary text-primary-foreground scale-105 shadow-lg' : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:scale-105'
-              }`}>{cat.label}</button>
+            <button
+              key={cat.key}
+              onClick={() => setFilter(cat.key)}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
+                filter === cat.key
+                  ? "bg-brand-purple text-white shadow-md shadow-brand-purple/25"
+                  : "border border-neutral-200 bg-white text-neutral-600 hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-400"
+              }`}
+            >
+              {cat.label}
+            </button>
           ))}
           {user && (
-            <Link to="/gallery/new" className="ml-auto group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-              <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform duration-300" /> Share Your Project
+            <Link
+              to="/gallery/new"
+              className="group ml-auto inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-brand-purple to-brand-purple/80 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
+            >
+              <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+              Share Your Project
             </Link>
           )}
         </div>
 
-        {loading && <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>}
-        {error && <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">{error}</div>}
-
-        {!loading && !error && entries.length === 0 && (
-          <div className="text-center py-20">
-            <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No gallery entries yet. Be the first to share your project!</p>
+        {/* Loading state */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+            <p className="text-sm text-neutral-500">Loading gallery…</p>
           </div>
         )}
 
+        {/* Error state */}
+        {error && (
+          <div className="mx-auto max-w-md rounded-xl border border-red-200 bg-red-50 p-4 text-center text-sm text-red-600 dark:border-red-500/20 dark:bg-red-500/10">
+            {error}
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && !error && entries.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple mb-4">
+              <ImageIcon className="h-10 w-10" />
+            </div>
+            <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+              No gallery entries yet
+            </h3>
+            <p className="mt-1 text-sm text-neutral-500">
+              Be the first to share your project transformation!
+            </p>
+            {user && (
+              <Link
+                to="/gallery/new"
+                className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+              >
+                <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+                Share Your Project
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Gallery grid */}
         {!loading && !error && entries.length > 0 && (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {entries.map((entry, i) => {
               const imgs = images[entry.id] || {};
               return (
-                <div key={entry.id} className="group overflow-hidden rounded-xl border bg-card shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1"
-                  style={{ animationDelay: `${i * 50}ms` }}>
-                  <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                <div
+                  key={entry.id}
+                  className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-brand-navy-mid"
+                  style={{
+                    animation: `fadeInUp 0.4s ease-out ${i * 60}ms both`,
+                  }}
+                >
+                  {/* Image with hover overlay */}
+                  <div className="relative aspect-[4/3] overflow-hidden bg-neutral-100 dark:bg-white/5">
                     {imgs.after ? (
-                      <img src={imgs.after} alt={`${entry.title} - after`} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+                      <img
+                        src={imgs.after}
+                        alt={`${entry.title} - after`}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
                     ) : imgs.before ? (
-                      <img src={imgs.before} alt={`${entry.title} - before`} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+                      <img
+                        src={imgs.before}
+                        alt={`${entry.title} - before`}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                      />
                     ) : (
-                      <div className="flex h-full items-center justify-center text-muted-foreground"><ImageIcon className="h-8 w-8" /></div>
+                      <div className="flex h-full items-center justify-center text-neutral-300">
+                        <ImageIcon className="h-8 w-8" />
+                      </div>
                     )}
+
+                    {/* Gradient overlay on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                    {/* Featured badge */}
                     {entry.is_featured && (
                       <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
                         <Sparkles className="h-3 w-3" /> Featured
                       </span>
                     )}
+
+                    {/* Hover actions */}
+                    <div className="absolute bottom-3 left-3 flex gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
+                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
+                        <Heart className="h-4 w-4" />
+                      </button>
+                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
+                        <Share2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-1">{entry.title}</h3>
-                    {entry.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{entry.description}</p>}
-                    <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                      <span className="rounded-full bg-muted px-2.5 py-1 capitalize">{entry.project_category}</span>
-                      {entry.paint_type_used && <span className="rounded-full bg-muted px-2.5 py-1">{entry.paint_type_used}</span>}
-                      {entry.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {entry.location}</span>}
-                      {entry.completion_date && <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(entry.completion_date).toLocaleDateString()}</span>}
+
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="font-bold text-brand-navy dark:text-white group-hover:text-brand-purple transition-colors duration-300">
+                      {entry.title}
+                    </h3>
+                    {entry.description && (
+                      <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400 line-clamp-2">
+                        {entry.description}
+                      </p>
+                    )}
+
+                    {/* Tags */}
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 font-medium text-brand-purple capitalize">
+                        {entry.project_category}
+                      </span>
+                      {entry.paint_type_used && (
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-neutral-500 dark:bg-white/10">
+                          {entry.paint_type_used}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="mt-3 flex flex-wrap gap-3 text-xs text-neutral-400">
+                      {entry.location && (
+                        <span className="inline-flex items-center gap-1">
+                          <MapPin className="h-3 w-3" /> {entry.location}
+                        </span>
+                      )}
+                      {entry.completion_date && (
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />{" "}
+                          {new Date(entry.completion_date).toLocaleDateString()}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -118,7 +264,40 @@ export default function Gallery() {
             })}
           </div>
         )}
+
+        {/* CTA section */}
+        {!loading && !error && entries.length > 0 && (
+          <div className="mt-12 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 via-transparent to-transparent p-6 text-center sm:p-8">
+            <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+              Showcase Your Work
+            </h3>
+            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+              Share your before and after photos with the FRELUX community and
+              inspire others.
+            </p>
+            {user ? (
+              <Link
+                to="/gallery/new"
+                className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
+              >
+                <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+                Upload Your Project
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            ) : (
+              <Link
+                to="/auth"
+                className="group mt-5 inline-flex items-center gap-2 rounded-lg border border-brand-purple/30 px-5 py-2.5 text-sm font-semibold text-brand-purple transition-all duration-300 hover:scale-105 hover:bg-brand-purple/10"
+              >
+                Sign in to Share
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            )}
+          </div>
+        )}
       </div>
+
+      <style>{`@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }`}</style>
     </div>
   );
 }

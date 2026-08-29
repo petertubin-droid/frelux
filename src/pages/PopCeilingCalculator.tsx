@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { calculatePopCeiling } from '@/lib/pop-tile-calc';
 import { track } from '@/lib/analytics';
 import { logAnalyticsEvent, fetchPopMaterials, fetchPopWorkflows, fetchSiteSettings, saveUserProject } from '@/lib/queries';
+import { SaveToProjectButton } from '@/components/calculators';
 import { formatNumber, formatCurrency } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import { useSeo } from '@/lib/seo';
@@ -475,6 +476,17 @@ function PopResultCard({ result, input, currencySymbol, onAgain, onStartOver, us
               <button type="button" onClick={onSave} disabled={saving} className="btn-secondary disabled:opacity-50">
                 {saving ? 'Saving…' : 'Save to Projects'}
               </button>
+              <div className="mt-3 flex justify-center">
+                <SaveToProjectButton
+                  calculatorType="pop_ceiling"
+                  calculatorSlug="pop-ceiling-calculator"
+                  calcTitle="POP Ceiling Calculation"
+                  calcData={{ ...input, ...result }}
+                  resultSummary={result}
+                  compact
+                  label="Save to Project Workspace"
+                />
+              </div>
             )}
             <button type="button" onClick={onStartOver} className="btn-secondary">Start Over</button>
             <Link to="/pop-ceiling-calculator?mode=cost" state={{ ceilingArea: result.ceilingArea, workflow: input.workflow, grandTotal: result.grandTotal }}

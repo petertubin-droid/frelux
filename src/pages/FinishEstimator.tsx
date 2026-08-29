@@ -429,6 +429,28 @@ const mountedRef = useRef(true);
               onSave={handleSave}
               onRecalculate={startOver}
             >
+              <div className="mb-4 flex justify-center">
+                <SaveToProjectButton
+                  calculatorType="finish"
+                  calculatorSlug="finish-estimator"
+                  calcTitle={`Finish: ${formatNumber(result.area)} m²`}
+                  calcData={{ ...input, ...result }}
+                  resultSummary={{
+                    area: result.area,
+                    coats: result.coats,
+                    totalCost: result.totalCost,
+                    materialCost: result.materialCost,
+                  }}
+                  materials={result.materials.map(m => ({
+                    name: m.name,
+                    category: 'finish',
+                    quantity: m.packages,
+                    unit: 'packages',
+                  }))}
+                  compact
+                  label="Save to Project Workspace"
+                />
+              </div>
               {/* Material Breakdown */}
               <div className="mt-6 space-y-4">
                 <h4 className="text-sm font-bold text-neutral-900">Material Breakdown</h4>
