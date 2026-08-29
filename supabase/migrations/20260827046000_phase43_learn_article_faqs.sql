@@ -8,7 +8,7 @@ INSERT INTO learn_articles (
   published_at, sort_order
 ) VALUES (
   'frequently-asked-questions-about-paint-colors-and-calculators',
-  'Frequently Asked Questions About Paint, Colors, and Calculators',
+  'FAQs About Paint, Colors, and Paint Calculators',
   'Get answers to the most common questions about paint types, color selection, coverage, calculators, and painting problems. This FAQ covers everything homeowners need to know before starting a paint project.',
   $ARTICLE$## Introduction
 
@@ -125,8 +125,8 @@ $ARTICLE$,
   14,
   'published',
   false,
-  'Frequently Asked Questions About Paint, Colors, and Calculators',
-  'Answers to common questions about paint types, coverage, color selection, paint calculators, preparation, and solving painting problems like peeling and lap marks.',
+  'FAQs About Paint, Colors, and Paint Calculators',
+  'Answers to common questions about paint types, coverage, color selection, calculators, and solving painting problems.',
   'paint FAQ, painting questions, how much paint do I need, paint coverage, paint types, paint primer, paint calculator, paint problems, color matching, paint finishes',
   now(),
   1

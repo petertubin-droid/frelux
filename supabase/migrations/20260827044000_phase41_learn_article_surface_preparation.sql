@@ -118,7 +118,7 @@ $ARTICLE$,
   'published',
   false,
   'The Essential Guide to Preparing Surfaces Before Painting',
-  'Complete guide to surface preparation before painting. Covers cleaning, removing old paint, repairing cracks and holes, sanding, priming, and special considerations for drywall, plaster, wood, metal, and masonry.',
+  'Complete guide to surface preparation before painting. Covers cleaning, repair, sanding, and priming for drywall, wood, metal, and masonry.',
   'surface preparation, preparing walls for painting, paint surface prep, cleaning walls before painting, sanding before painting, primer, removing old paint, repairing drywall, plaster repair, painting preparation',
   now(),
   1

@@ -8,7 +8,7 @@ INSERT INTO learn_articles (
   published_at, sort_order
 ) VALUES (
   'essential-painting-video-tutorials-walkthroughs-beginners',
-  'Essential Painting Video Tutorials and Walkthroughs for Beginners',
+  'Essential Painting Video Tutorials for Beginners',
   'A curated guide to the most useful painting video tutorials and walkthroughs. Learn cutting in, rolling, cabinet painting, and advanced techniques through step by step visual demonstrations.',
   $ARTICLE$## Why Video Tutorials Are Invaluable for Learning to Paint
 
@@ -117,8 +117,8 @@ $ARTICLE$,
   13,
   'published',
   false,
-  'Essential Painting Video Tutorials and Walkthroughs for Beginners',
-  'A curated guide to essential painting video tutorials. Learn cutting in, rolling, cabinet painting, wall preparation, trim painting, color selection, and fixing common mistakes through visual demonstrations.',
+  'Essential Painting Video Tutorials for Beginners',
+  'Curated guide to painting video tutorials. Learn cutting in, rolling, cabinet painting, trim work, and fixing common mistakes.',
   'painting video tutorials, painting walkthroughs, how to paint videos, cutting in tutorial, rolling paint video, cabinet painting tutorial, trim painting guide, DIY painting videos, painting techniques demonstration',
   now(),
   1

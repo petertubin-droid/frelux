@@ -110,7 +110,7 @@ $ARTICLE$,
   'published',
   false,
   'Choosing the Right Paint Type and Finish for Every Room',
-  'Complete paint buying guide covering paint types, finishes, sheens, and quality grades. Learn which paint to use in every room for the best results and longevity.',
+  'Complete paint buying guide covering types, finishes, sheens, and quality grades for every room.',
   'paint buying guide, paint types, paint finishes, paint sheen, choosing paint, interior paint, latex paint, oil based paint, eggshell vs satin, semi gloss paint, low VOC paint',
   now(),
   1

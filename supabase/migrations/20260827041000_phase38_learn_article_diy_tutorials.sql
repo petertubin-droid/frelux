@@ -144,7 +144,7 @@ $ARTICLE$,
   'published',
   false,
   'How to Paint Kitchen Cabinets Without Removing Them',
-  'Complete DIY tutorial for painting kitchen cabinets without removing them. Covers cleaning, sanding, priming, painting, and reinstalling hardware for a professional finish.',
+  'Complete DIY tutorial for painting kitchen cabinets without removing them. Covers cleaning, sanding, priming, and painting.',
   'paint kitchen cabinets, DIY cabinet painting, kitchen renovation, cabinet refinishing, painting cabinets without removing, cabinet primer, kitchen makeover on a budget',
   now(),
   1

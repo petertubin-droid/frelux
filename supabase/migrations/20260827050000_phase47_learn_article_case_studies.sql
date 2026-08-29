@@ -122,7 +122,7 @@ $ARTICLE$,
   'published',
   false,
   'Real World Painting Projects and Dramatic Transformations',
-  'Real painting project case studies showcasing dramatic transformations. Covers living room paneling, kitchen cabinet refinishing, exterior painting, and small apartment color strategies with practical takeaways.',
+  'Real painting project case studies with dramatic transformations. Covers living rooms, kitchen cabinets, exteriors, and apartments.',
   'painting case studies, painting transformation, before and after painting, painting projects, kitchen cabinet refinishing, exterior painting project, painting paneling, apartment painting, real world painting examples',
   now(),
   1

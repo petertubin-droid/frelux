@@ -8,7 +8,7 @@ INSERT INTO learn_articles (
   published_at, sort_order
 ) VALUES (
   'paint-industry-trends-innovations-shaping-2026-and-beyond',
-  'Paint Industry Trends and Innovations Shaping 2026 and Beyond',
+  'Paint Industry Trends and Innovations for 2026',
   'Explore the latest trends and innovations in the paint industry. From smart coatings and sustainable formulations to color trends and digital tools, discover what is shaping the future of paint.',
   $ARTICLE$## The Paint Industry Is Evolving Rapidly
 
@@ -131,8 +131,8 @@ $ARTICLE$,
   14,
   'published',
   false,
-  'Paint Industry Trends and Innovations Shaping 2026 and Beyond',
-  'Explore the latest trends and innovations in the paint industry for 2026. From smart coatings and sustainable formulations to color trends, digital tools, and market developments shaping the future of paint.',
+  'Paint Industry Trends and Innovations for 2026',
+  'Explore the latest paint industry trends for 2026. From smart coatings and sustainable formulations to digital tools and color trends.',
   'paint industry trends 2026, paint innovations, smart coatings, sustainable paint, low VOC paint, paint color trends, paint technology, functional paint, paint market trends, digital paint tools',
   now(),
   1

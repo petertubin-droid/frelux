@@ -102,7 +102,7 @@ $ARTICLE$,
   'published',
   false,
   'Professional Painting Tips and Techniques for Better Results',
-  'Learn professional painting tips and techniques for flawless results. Covers brush skills, roller methods, paint selection, timing, tape tricks, cleanup, and pro tips for specific painting situations.',
+  'Professional painting tips and techniques for flawless results. Covers brush skills, roller methods, paint selection, and tape tricks.',
   'painting tips, painting techniques, professional painting, brush techniques, roller techniques, cutting in, painting tricks, paint application, how to paint like a pro, painting advice',
   now(),
   1
