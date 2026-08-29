@@ -1,25 +1,33 @@
-import { useState, useEffect } from 'react';
-import { CheckCircle2, RotateCcw, ArrowRight } from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import { SaveToProjectButton } from '@/components/calculators';
-import { formatNumber } from '@/lib/utils';
-import { Link } from 'react-router-dom';
-import { track } from '@/lib/analytics';
-import { logAnalyticsEvent } from '@/lib/queries';
-import { useCalcDefaults } from '@/lib/use-calc-defaults';
-import { HowCalculatedSection, EstimateDisclaimer, ReportCalculationIssue } from '@/components/calculators';
-import CalculatorNearMe from '@/components/calculators/CalculatorNearMe';
-import { useSeo } from '@/lib/seo';
-import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
-import RelatedToolsLinks from '@/components/ui/RelatedToolsLinks';
+import { useState, useEffect } from "react";
+import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
+import { SaveToProjectButton } from "@/components/calculators";
+import { formatNumber } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { track } from "@/lib/analytics";
+import { logAnalyticsEvent } from "@/lib/queries";
+import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import {
+  HowCalculatedSection,
+  EstimateDisclaimer,
+  ReportCalculationIssue,
+} from "@/components/calculators";
+import CalculatorNearMe from "@/components/calculators/CalculatorNearMe";
+import { useSeo } from "@/lib/seo";
+import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
+import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 
 // Unified measurement system
-import { MeasurementInput, CalculationBreakdown } from '@/components/measurement/MeasurementInput';
+import {
+  MeasurementInput,
+  CalculationBreakdown,
+} from "@/components/measurement/MeasurementInput";
 import {
   useMeasurementProject,
   useEngineFeatures,
   type ProjectMode,
-} from '@/lib/measurement';
+} from "@/lib/measurement";
 
 // Engine UI components
 import {
@@ -27,37 +35,57 @@ import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
   EngineWasteSelector,
-} from '@/components/engine';
+} from "@/components/engine";
 
-export default function ScreedingCalculator({ embedded = false }: { embedded?: boolean } = {}) {
-  useCalcDefaults('screeding');
-  useSeo(!embedded ? {
-    title: 'Wall Screeding Calculator — How Much Screeding Do I Need?',
-    description:
-      'Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.',
-    canonicalPath: '/screeding-calculator',
-    ogType: 'website',
-    structuredDataArray: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: 'FRELUX Wall Screeding Calculator',
-        applicationCategory: 'BusinessApplication',
-        operatingSystem: 'Web',
-        offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' },
-      },
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': [
-          { '@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', 'position': 2, 'name': 'Calculators', 'item': 'https://freluxtools.netlify.app/calculators' },
-          { '@type': 'ListItem', 'position': 3, 'name': 'Screeding Calculator', 'item': 'https://freluxtools.netlify.app/screeding-calculator' }
-        ]
-      }
-    ],
-  } : null);
-
+export default function ScreedingCalculator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
+  useCalcDefaults("screeding");
+  useSeo(
+    !embedded
+      ? {
+          title: "Wall Screeding Calculator — How Much Screeding Do I Need?",
+          description:
+            "Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.",
+          canonicalPath: "/screeding-calculator",
+          ogType: "website",
+          structuredDataArray: [
+            {
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "FRELUX Wall Screeding Calculator",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://freluxtools.netlify.app",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Calculators",
+                  item: "https://freluxtools.netlify.app/calculators",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: "Screeding Calculator",
+                  item: "https://freluxtools.netlify.app/screeding-calculator",
+                },
+              ],
+            },
+          ],
+        }
+      : null,
+  );
 
   const {
     project,
@@ -68,13 +96,13 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
     resetWithMode,
     calculate,
   } = useMeasurementProject({
-    calculatorContext: 'screeding',
-    preferredUnit: 'meters',
-    projectMode: 'single_room',
+    calculatorContext: "screeding",
+    preferredUnit: "meters",
+    projectMode: "single_room",
   });
 
   // Engine features
-  const engine = useEngineFeatures({ calculatorType: 'screeding' });
+  const engine = useEngineFeatures({ calculatorType: "screeding" });
 
   const [screedingResult, setScreedingResult] = useState<{
     totalAreaM2: number;
@@ -82,8 +110,8 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
   } | null>(null);
 
   useEffect(() => {
-    track('screeding_calculator_opened', {});
-    logAnalyticsEvent('screeding_calculator_opened', {});
+    track("screeding_calculator_opened", {});
+    logAnalyticsEvent("screeding_calculator_opened", {});
   }, []);
 
   function handleCalculate() {
@@ -93,11 +121,11 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
       totalAreaM2: projectResult.totalAreaM2,
       steps: projectResult.steps,
     });
-    track('screeding_calculation_completed', {
+    track("screeding_calculation_completed", {
       totalArea: projectResult.totalAreaM2,
       mode: project.projectMode,
     });
-    logAnalyticsEvent('screeding_calculation_completed', {
+    logAnalyticsEvent("screeding_calculation_completed", {
       totalArea: projectResult.totalAreaM2,
       mode: project.projectMode,
     });
@@ -116,15 +144,15 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
   // Build engine explanation from result
   const engineExplanation = screedingResult
     ? engine.buildExplanation({
-        subject: 'Screeding Area Calculation',
+        subject: "Screeding Area Calculation",
         resultSummary: `${screedingResult.totalAreaM2.toFixed(2)} m² total screeding area`,
         steps: screedingResult.steps.map((s) => ({
           description: `${s.label}: ${s.formula}`,
           value: s.value,
         })),
         notes: [
-          'All measurements are normalized to metres internally.',
-          'Area is always expressed in square metres (m²).',
+          "All measurements are normalized to metres internally.",
+          "Area is always expressed in square metres (m²).",
         ],
       })
     : null;
@@ -136,7 +164,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
         inputComplete: validation.valid,
         materialSpecComplete: false, // Screeding calc is area-only, no material spec yet
         marketPriceAvailable: false,
-        sourceReliability: 'verified',
+        sourceReliability: "verified",
         productMatched: false,
       })
     : null;
@@ -147,10 +175,19 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
         eyebrow="Tool"
         title="Wall Screeding Calculator"
         subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres — we handle the conversion."
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calculators', path: '/calculators' }, { label: 'Screeding Calculator' }] }
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Calculators", path: "/calculators" },
+          { label: "Screeding Calculator" },
+        ]}
       />
+      <WorkWeatherBanner workType="screeding" />
 
-      <div role="region" aria-label="Screeding calculator" className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
+      <div
+        role="region"
+        aria-label="Screeding calculator"
+        className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
+      >
         {!screedingResult && (
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
             <MeasurementInput
@@ -162,18 +199,24 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
               onUpdateMeasurement={updateMeasurement}
               onRemoveMeasurement={removeMeasurement}
             >
-              {project.projectMode === 'fence' && (
+              {project.projectMode === "fence" && (
                 <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">Fence Screeding</p>
-                  Each fence dimension has its own partition count. The area is calculated as:
-                  partition length × height × number of partitions. All results are in m².
+                  <p className="font-medium text-foreground mb-1">
+                    Fence Screeding
+                  </p>
+                  Each fence dimension has its own partition count. The area is
+                  calculated as: partition length × height × number of
+                  partitions. All results are in m².
                 </div>
               )}
-              {project.projectMode === 'house_building' && (
+              {project.projectMode === "house_building" && (
                 <div className="rounded-lg bg-muted/30 border border-border p-3 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">House / Building</p>
-                  Add each space type separately. Use quantity for identical rooms
-                  (e.g., 12×12 ft bedroom × 2). Different dimensions stay as separate measurements.
+                  <p className="font-medium text-foreground mb-1">
+                    House / Building
+                  </p>
+                  Add each space type separately. Use quantity for identical
+                  rooms (e.g., 12×12 ft bedroom × 2). Different dimensions stay
+                  as separate measurements.
                 </div>
               )}
             </MeasurementInput>
@@ -193,7 +236,9 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              <h2 className="text-lg font-bold text-brand-navy dark:text-white">Screeding Area Result</h2>
+              <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+                Screeding Area Result
+              </h2>
               {confidence && (
                 <div className="ml-auto">
                   <EngineConfidenceBadge result={confidence} />
@@ -202,7 +247,9 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
             </div>
 
             <div className="rounded-lg bg-primary/5 border border-primary/20 p-6 text-center">
-              <p className="text-sm font-medium text-muted-foreground">Total Screeding Area</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Total Screeding Area
+              </p>
               <p className="mt-2 text-4xl font-bold text-primary">
                 {formatNumber(screedingResult.totalAreaM2, 2)} m²
               </p>
@@ -219,9 +266,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
             )}
 
             {/* Engine-powered confidence detail */}
-            {confidence && (
-              <EngineConfidenceDetail result={confidence} />
-            )}
+            {confidence && <EngineConfidenceDetail result={confidence} />}
 
             {/* Waste selector (for future material calculation) */}
             <EngineWasteSelector
@@ -232,9 +277,10 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
 
             <div className="rounded-lg bg-muted/30 border border-border p-4 text-sm text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Next Step</p>
-              This area feeds into the FRELUX screeding material calculation rules,
-              which determine material quantity based on coverage rate and package configuration.
-              The waste allowance above will apply when material quantity is calculated.
+              This area feeds into the FRELUX screeding material calculation
+              rules, which determine material quantity based on coverage rate
+              and package configuration. The waste allowance above will apply
+              when material quantity is calculated.
             </div>
 
             <div className="flex items-center gap-3">
@@ -261,7 +307,10 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
                 calculatorType="screeding"
                 calculatorSlug="screeding-calculator"
                 calcTitle={`Screeding: ${formatNumber(screedingResult.totalAreaM2, 2)} m²`}
-                calcData={{ totalAreaM2: screedingResult.totalAreaM2, steps: screedingResult.steps }}
+                calcData={{
+                  totalAreaM2: screedingResult.totalAreaM2,
+                  steps: screedingResult.steps,
+                }}
                 resultSummary={{
                   totalAreaM2: screedingResult.totalAreaM2,
                   stepCount: screedingResult.steps.length,
@@ -274,9 +323,7 @@ export default function ScreedingCalculator({ embedded = false }: { embedded?: b
       </div>
 
       <div className="mx-auto max-w-3xl px-4 pb-10 sm:px-6">
-        <HowCalculatedSection
-          methodologyText="Screeding area is calculated by measuring the room length, width, and wall height, normalising to metres using exact conversion factors (1 ft = 0.3048 m), computing wall area as perimeter × height (where perimeter = 2 × (length + width)), and subtracting door and window openings. The final result is in m²."
-        />
+        <HowCalculatedSection methodologyText="Screeding area is calculated by measuring the room length, width, and wall height, normalising to metres using exact conversion factors (1 ft = 0.3048 m), computing wall area as perimeter × height (where perimeter = 2 × (length + width)), and subtracting door and window openings. The final result is in m²." />
         <EstimateDisclaimer />
         <ReportCalculationIssue calculatorType="screeding-calculator" />
         <CalculatorNearMe tradeSlug="screeding" />

@@ -9,6 +9,7 @@ import {
   Grid3x3,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { calculateTile } from "@/lib/pop-tile-calc";
 import { track } from "@/lib/analytics";
 import {
@@ -339,6 +340,7 @@ export default function TileCalculator({
             { label: "Tile Calculator" },
           ]}
         />
+        <WorkWeatherBanner workType="tiling" />
         <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…

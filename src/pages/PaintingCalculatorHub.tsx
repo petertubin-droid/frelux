@@ -3,6 +3,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { useSearchParams } from "react-router-dom";
 import CalculatorTabs from "@/components/ui/CalculatorTabs";
 import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useSeo } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import {
@@ -142,6 +143,7 @@ export default function PaintingCalculatorHub() {
           { label: "Painting Calculator" },
         ]}
       />
+      <WorkWeatherBanner workType="painting" />
       <CalculatorTabs
         tabs={TABS}
         activeTab={activeTab}

@@ -31,6 +31,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
 import { useSeo } from "@/lib/seo";
@@ -707,6 +708,7 @@ export default function PaintingEstimator({
             { label: "Painting Estimator" },
           ]}
         />
+        <WorkWeatherBanner workType="painting" />
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
           <div className="flex items-center justify-center gap-3 text-neutral-500">
             <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" />

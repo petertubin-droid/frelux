@@ -30,6 +30,7 @@ import {
   Box,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import Container from "@/components/ui/Container";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
@@ -602,6 +603,7 @@ export default function TyroleneEstimator({
           { label: "Tyrolene Estimator" },
         ]}
       />
+      <WorkWeatherBanner workType="tyrolene" />
 
       <Container className="py-8 space-y-6 max-w-4xl">
         {/* Product Info Banner */}

@@ -12,6 +12,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import MultiStepProgress from "@/components/ui/MultiStepProgress";
 import TemplatePicker from "@/components/ui/TemplatePicker";
 import CountUp from "@/components/ui/CountUp";
@@ -834,6 +835,7 @@ export default function PaintCalculator({
           { label: "Paint Calculator" },
         ]}
       />
+      <WorkWeatherBanner workType="painting" />
 
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {typesError && (
