@@ -8,7 +8,7 @@ import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
 
 // Lazy-loaded below-the-fold components — not visible on first paint
@@ -85,6 +85,7 @@ export default function Layout() {
     };
 
     async function checkMaintenance() {
+      const supabase = await getSupabase();
       // Always check admin status first (independent of maintenance state)
       const { data: session } = await supabase.auth.getSession();
       let admin = false;
@@ -119,18 +120,22 @@ export default function Layout() {
     ric(() => checkMaintenance());
 
     // Real-time subscription: detect maintenance_mode changes immediately
-    channel = supabase
-      .channel("site_settings_maintenance")
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "site_settings" },
-        (payload) => {
-          const newMode = (payload.new as Record<string, unknown>)
-            ?.maintenance_mode;
-          setMaintenance(!!newMode);
-        },
-      )
-      .subscribe();
+    // Get supabase for the real-time subscription (reuses cached client from checkMaintenance)
+    getSupabase().then((sb) => {
+      if (!mounted) return;
+      channel = sb
+        .channel("site_settings_maintenance")
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "site_settings" },
+          (payload) => {
+            const newMode = (payload.new as Record<string, unknown>)
+              ?.maintenance_mode;
+            setMaintenance(!!newMode);
+          },
+        )
+        .subscribe();
+    });
 
     // Polling fallback: check every 30 seconds in case real-time misses
     pollTimer = setInterval(checkMaintenance, 30_000);

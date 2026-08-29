@@ -11,7 +11,7 @@
  * All credit operations are fire-and-forget with idempotency protection.
  */
 
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import { awardCredits, recordActivity, REWARD_EVENTS } from "@/lib/credits";
 
 type CalcType =
@@ -56,13 +56,13 @@ function saveCalcCount(n: number) {
 }
 
 async function getSessionToken(): Promise<string | null> {
-  if (!supabase) return null;
+  const supabase = await getSupabase();
   const { data } = await supabase.auth.getSession();
   return data.session?.access_token ?? null;
 }
 
 async function getUserId(): Promise<string | null> {
-  if (!supabase) return null;
+  const supabase = await getSupabase();
   const { data } = await supabase.auth.getUser();
   return data.user?.id ?? null;
 }

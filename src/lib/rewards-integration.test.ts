@@ -19,23 +19,25 @@ function createChainable() {
   return proxy;
 }
 
-vi.mock("@/lib/supabase", () => ({
-  supabase: {
-    from: vi.fn().mockReturnValue(createChainable()),
-    functions: {
-      invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
-    },
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-    },
-    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
-    channel: vi.fn().mockReturnValue({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
-    }),
+const mockSupabase = {
+  from: vi.fn().mockReturnValue(createChainable()),
+  functions: {
+    invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
   },
+  auth: {
+    getSession: vi
+      .fn()
+      .mockResolvedValue({ data: { session: null }, error: null }),
+  },
+  rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+  channel: vi.fn().mockReturnValue({
+    on: vi.fn().mockReturnThis(),
+    subscribe: vi.fn().mockReturnValue({ unsubscribe: vi.fn() }),
+  }),
+};
+
+vi.mock("@/lib/supabase-lazy", () => ({
+  getSupabase: vi.fn().mockResolvedValue(mockSupabase),
   isSupabaseConfigured: false,
 }));
 
