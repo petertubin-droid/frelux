@@ -10,6 +10,12 @@
   # Without this, Netlify's secret scanner flags them as "exposed secrets"
   # in the build output, which fails the build.
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_ANON_KEY,VITE_SUPABASE_URL,VITE_OPENWEATHER_API_KEY,VITE_SITE_URL,VITE_PAYSTACK_PUBLIC_KEY"
+  # supabase/migrations and supabase/functions are Deno/SQL files deployed
+  # separately via the Supabase CLI — Netlify never builds or ships them.
+  # They only reference secrets via Deno.env.get()/env vars (never hardcoded),
+  # but Netlify's secret scanner checks the whole repo checkout, not just
+  # the publish dir, so it flags false positives there. Skip them.
+  SECRETS_SCAN_OMIT_PATHS = "supabase/migrations,supabase/functions"
 
 
 # Staging environment — deploy previews and branch deploys
