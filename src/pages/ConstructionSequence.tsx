@@ -147,6 +147,16 @@ export default function ConstructionSequence() {
             ))}
           </div>
 
+          {/* Related calculators — shown once for the whole sequence, not per step */}
+          <RelatedTools
+            links={[
+              CALC_LINKS.buildToRoof,
+              CALC_LINKS.structuralCalc,
+              CALC_LINKS.foundationCalc,
+              CALC_LINKS.imageEstimator,
+            ]}
+          />
+
           {/* Disclaimer */}
           <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
             <div className="flex items-start gap-3">
@@ -275,15 +285,6 @@ function StepCard({
           )}
         </div>
       )}
-      <RelatedTools
-        links={[
-          CALC_LINKS.buildToRoof,
-          CALC_LINKS.structuralCalc,
-          CALC_LINKS.foundationCalc,
-          CALC_LINKS.imageEstimator,
-          CALC_LINKS.buildToRoof,
-        ]}
-      />
     </div>
   );
 }
