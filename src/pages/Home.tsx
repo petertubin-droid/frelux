@@ -27,6 +27,19 @@ import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
 
+// Reserves approximate vertical space for a below-the-fold lazy section
+// while its chunk loads, so it doesn't shove later content down when it
+// pops in (prevents Cumulative Layout Shift from Suspense fallback={null}).
+function SectionSkeleton({ minHeight }: { minHeight: number }) {
+  return (
+    <div
+      style={{ minHeight }}
+      className="animate-pulse bg-neutral-50 dark:bg-brand-navy-mid"
+      aria-hidden="true"
+    />
+  );
+}
+
 export default function Home() {
   const [featuredSlugs, setFeaturedSlugs] = useState<
     { name: string; slug: string; type: string }[]
@@ -37,13 +50,11 @@ export default function Home() {
       try {
         const data = await getPublicTemplates({ featuredOnly: true });
         setFeaturedSlugs(
-          data
-            .slice(0, 8)
-            .map((t) => ({
-              name: t.name,
-              slug: t.slug ?? "",
-              type: t.calculator_type,
-            })),
+          data.slice(0, 8).map((t) => ({
+            name: t.name,
+            slug: t.slug ?? "",
+            type: t.calculator_type,
+          })),
         );
       } catch {
         // silently fail — structured data is enhancement, not critical
@@ -123,7 +134,7 @@ export default function Home() {
       </div>
 
       {/* Interactive estimate preview — product demo with real calc engine */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />
       </Suspense>
 
@@ -131,12 +142,12 @@ export default function Home() {
       <HowItWorks />
 
       {/* Commercial readiness — more than calculators */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <CommercialReadiness />
       </Suspense>
 
       {/* All calculators organized by trade — premium product cards */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={700} />}>
         <ToolsSection />
       </Suspense>
 
@@ -181,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* Trust signals + why FRELUX */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={420} />}>
         <FeaturesSection />
       </Suspense>
 
@@ -192,26 +203,28 @@ export default function Home() {
       />
 
       {/* Saved calculations & templates showcase */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <TemplatesShowcase />
       </Suspense>
 
       {/* Color inspiration */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <TrendingColors />
       </Suspense>
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={450} />}>
         <ColorPreview />
       </Suspense>
 
       {/* PWA / mobile experience */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={450} />}>
         <PWASection />
       </Suspense>
 
       {/* Weather-aware painting scheduler */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-md">
+        {/* min-height reserves space across the widget's loading/error/success
+            states so its own internal transitions don't shift page content */}
+        <div className="mx-auto min-h-[300px] max-w-md">
           <WeatherWidget />
         </div>
       </div>
@@ -222,7 +235,7 @@ export default function Home() {
       </div>
 
       {/* Final CTA — strong closing */}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SectionSkeleton minHeight={320} />}>
         <FinalCTA />
       </Suspense>
     </>
