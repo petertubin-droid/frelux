@@ -13,6 +13,7 @@ import {
   TrendingUp,
   Package,
   DollarSign,
+  TrendingDown,
   CheckCircle2,
   Sparkles,
 } from "lucide-react";
@@ -238,6 +239,13 @@ export default function ProjectWorkspace() {
             <option value="completed">Completed</option>
             <option value="archived">Archived</option>
           </select>
+          <Link
+            to="/material-prices"
+            className="group inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all duration-300"
+          >
+            <TrendingDown className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
+            Material Prices
+          </Link>
           <button
             onClick={() => setShowCreate(true)}
             className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
