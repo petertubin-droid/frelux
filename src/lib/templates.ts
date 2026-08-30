@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import { isSupabaseConfigured, getSupabase } from './supabase-lazy';
 import { FALLBACK_TEMPLATES } from './template-data';
 import type {
   DbCalculatorTemplate,
@@ -17,6 +17,7 @@ export async function getUserTemplates(
   options?: { calculatorType?: CalculatorType; search?: string; sort?: 'recent' | 'name' | 'favorites' }
 ): Promise<DbCalculatorTemplate[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   let q = supabase
     .from('calculator_templates')
     .select('*')
@@ -40,6 +41,7 @@ export async function createUserTemplate(
   input: TemplateCreateInput
 ): Promise<DbCalculatorTemplate> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .insert({
@@ -63,6 +65,7 @@ export async function updateUserTemplate(
   updates: TemplateUpdateInput
 ): Promise<DbCalculatorTemplate> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .update(updates)
@@ -76,6 +79,7 @@ export async function updateUserTemplate(
 
 export async function deleteUserTemplate(templateId: string, userId: string): Promise<void> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('calculator_templates')
     .delete()
@@ -104,6 +108,7 @@ export async function getUserTemplateById(
   userId: string
 ): Promise<DbCalculatorTemplate> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
@@ -131,6 +136,7 @@ export async function getPublicTemplates(
     if (options?.featuredOnly) result = result.filter((t) => t.is_featured);
     return result.sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.display_order - b.display_order);
   }
+  const supabase = await getSupabase();
   let q = supabase
     .from('calculator_templates')
     .select('*')
@@ -150,6 +156,7 @@ export async function getPublicTemplates(
 
 export async function getPublicTemplateBySlug(slug: string): Promise<DbCalculatorTemplate | null> {
   if (!isSupabaseConfigured) return FALLBACK_TEMPLATES.find((t) => t.slug === slug) ?? null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
@@ -175,6 +182,7 @@ export async function getRelatedPublicTemplates(
       .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.display_order - b.display_order)
       .slice(0, limit);
   }
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
@@ -195,6 +203,7 @@ export async function getRelatedPublicTemplates(
 
 export async function adminGetAllTemplates(): Promise<DbCalculatorTemplate[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')
@@ -214,6 +223,7 @@ export async function adminCreateTemplate(
   }
 ): Promise<DbCalculatorTemplate> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .insert({
@@ -240,6 +250,7 @@ export async function adminUpdateTemplate(
   updates: Partial<DbCalculatorTemplate>
 ): Promise<DbCalculatorTemplate> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .update(updates)
@@ -252,6 +263,7 @@ export async function adminUpdateTemplate(
 
 export async function adminDeleteTemplate(templateId: string): Promise<void> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('calculator_templates')
     .delete()
@@ -384,6 +396,7 @@ export async function getTemplatesByCategory(
   options?: { calculatorType?: CalculatorType }
 ): Promise<DbCalculatorTemplate[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   let q = supabase
     .from('calculator_templates')
     .select('*')
@@ -404,6 +417,7 @@ export async function getTemplatesByBuildingType(
   options?: { calculatorType?: CalculatorType }
 ): Promise<DbCalculatorTemplate[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   let q = supabase
     .from('calculator_templates')
     .select('*')
@@ -429,6 +443,7 @@ export async function setDefaultTemplate(
   calculatorType: CalculatorType
 ): Promise<void> {
   if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
+  const supabase = await getSupabase();
 
   // Unset any existing default for this calculator type
   await supabase
@@ -453,6 +468,7 @@ export async function getDefaultTemplate(
   calculatorType: CalculatorType
 ): Promise<DbCalculatorTemplate | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('calculator_templates')
     .select('*')

@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase-lazy';
 import type { DbAdProvider, DbAdPlacement } from '@/types/database';
 
 // Module-level cache for ad config
@@ -21,6 +21,7 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
     return { providers: providersCache, placements: placementsCache };
   }
 
+  const supabase = await getSupabase();
   const [provRes, placeRes] = await Promise.all([
     supabase.from('ad_providers_public').select('*').eq('is_active', true).order('priority'),
     supabase.from('ad_placements').select('*').eq('is_active', true),
@@ -101,7 +102,8 @@ export async function logAdEvent(event: {
       revenue_estimated: event.revenue_estimated ?? 0,
       metadata: event.metadata ?? {},
     };
-    await supabase.from('ad_analytics_events').insert(payload);
+    const sb = await getSupabase();
+    await sb.from('ad_analytics_events').insert(payload);
   } catch {
     // Silently fail — analytics logging should never break the user experience
   }

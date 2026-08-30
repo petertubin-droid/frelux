@@ -11,8 +11,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
-import { isSupabaseConfigured } from './supabase';
+import { isSupabaseConfigured, getSupabase } from './supabase-lazy';
 import { DEFAULT_TYPOGRAPHY } from './font-library';
 import type { TypographyConfig } from '@/types/database';
 import { loadTypographyFonts } from './font-loader';
@@ -48,12 +47,13 @@ export function useTypography() {
       return;
     }
 
-    supabase
+    getSupabase().then((supabase) =>
+      supabase
       .from('site_settings')
       .select('typography_config')
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => {
+    ).then(({ data }) => {
         const tc = data?.typography_config as TypographyConfig | null;
         const resolved = tc && typeof tc === 'object' && tc.body
           ? { ...DEFAULT_TYPOGRAPHY, ...tc }

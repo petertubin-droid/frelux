@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { supabase, isSupabaseConfigured } from './supabase';
+import { isSupabaseConfigured, getSupabase } from './supabase-lazy';
 
 export interface HeroContent {
   headline: string;
@@ -51,14 +51,15 @@ export function useHeroContent() {
       return;
     }
 
-    supabase
+    getSupabase().then((supabase) =>
+      supabase
       .from('site_settings')
       .select(
         'hero_headline, hero_subheadline, hero_cta_primary_label, hero_cta_primary_href, hero_cta_secondary_label, hero_cta_secondary_href'
       )
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => {
+    ).then(({ data }) => {
         if (!data) {
           setLoaded(true);
           return;

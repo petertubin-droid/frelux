@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { fetchAdConfig, getProvidersForPlacement, getAdUnitId, shouldDisplayPlacement, logAdEvent } from '@/lib/ad-config';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase-lazy';
 import type { DbAdProvider, DbAdPlacement } from '@/types/database';
 
 declare global {
@@ -526,6 +526,7 @@ export default function AdSlot({
 
 // Legacy AdSense config fallback (reads from site_settings)
 async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
+  const supabase = await getSupabase();
   const { data } = await supabase
     .from('site_settings')
     .select('ads_enabled, adsense_publisher_id, ad_slots')
@@ -537,7 +538,8 @@ async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
   if (!slotId) return null;
 
   // Find the AdSense provider from ad_providers, or create a synthetic one
-  const { data: provData } = await supabase
+  const sb = await getSupabase();
+  const { data: provData } = await sb
     .from('ad_providers_public')
     .select('*')
     .eq('slug', 'google_adsense')

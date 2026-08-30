@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { siteConfig } from '@/config/site';
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase-lazy';
 
 /**
  * Injects third-party analytics and ad scripts into <head> when configured.
@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase';
 export default function AnalyticsScripts() {
   useEffect(() => {
     async function loadAndInject() {
+      const supabase = await getSupabase();
       // Fetch from integration_settings (admin Integration Center)
       let gaId = '';
       let publisherId = '';

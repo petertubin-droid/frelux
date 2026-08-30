@@ -6,7 +6,7 @@
  * All award/deduct operations are server-side with idempotency protection.
  */
 
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { isSupabaseConfigured, getSupabase } from '@/lib/supabase-lazy';
 
 // =========================================================
 // Types
@@ -129,6 +129,7 @@ export type RewardEventKey = keyof typeof REWARD_EVENTS;
 /** Get the user's credit wallet */
 export async function getCreditWallet(userId: string): Promise<CreditWallet | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('credit_wallets')
     .select('*')
@@ -147,6 +148,7 @@ export async function getCreditTransactions(
   const offset = options.offset ?? 0;
 
   if (!isSupabaseConfigured) return { transactions: [], hasMore: false };
+  const supabase = await getSupabase();
 
   const { data, error } = await supabase
     .from('credit_transactions')
@@ -162,6 +164,7 @@ export async function getCreditTransactions(
 /** Get reward catalogue */
 export async function getRewardCatalogue(): Promise<RewardItem[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('reward_catalogue')
     .select('*')
@@ -174,6 +177,7 @@ export async function getRewardCatalogue(): Promise<RewardItem[]> {
 /** Get reward redemptions */
 export async function getRewardRedemptions(userId: string): Promise<RewardRedemption[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('reward_redemptions')
     .select('*')
@@ -186,6 +190,7 @@ export async function getRewardRedemptions(userId: string): Promise<RewardRedemp
 /** Get activity streak */
 export async function getActivityStreak(userId: string): Promise<ActivityStreak | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('activity_streaks')
     .select('*')
@@ -198,6 +203,7 @@ export async function getActivityStreak(userId: string): Promise<ActivityStreak 
 /** Get current weekly mission */
 export async function getCurrentWeeklyMission(): Promise<WeeklyMission | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('weekly_missions')
     .select('*')
@@ -212,6 +218,7 @@ export async function getCurrentWeeklyMission(): Promise<WeeklyMission | null> {
 /** Get user mission progress for current mission */
 export async function getMissionProgress(userId: string, missionId: string): Promise<MissionProgress[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('user_mission_progress')
     .select('*')
@@ -224,6 +231,7 @@ export async function getMissionProgress(userId: string, missionId: string): Pro
 /** Get reward settings */
 export async function getRewardSettings(): Promise<RewardSettings | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('reward_settings')
     .select('*')
@@ -320,6 +328,7 @@ export async function getUnusedRewardGrantCount(
   rewardType: string
 ): Promise<number> {
   if (!isSupabaseConfigured) return 0;
+  const supabase = await getSupabase();
   const { count, error } = await supabase
     .from('reward_redemptions')
     .select('id', { count: 'exact', head: true })
@@ -375,6 +384,7 @@ export async function adminAdjustCredits(
   reason: string
 ): Promise<{ success: boolean; newBalance?: number; error?: string }> {
   if (!isSupabaseConfigured) return { success: false, error: 'Not configured' };
+  const supabase = await getSupabase();
   const { data, error } = await supabase.rpc('admin_adjust_credits', {
     p_admin_id: adminId,
     p_target_user_id: targetUserId,
@@ -392,6 +402,7 @@ export async function adminUpdateReward(
   updates: { name?: string; description?: string; credit_cost?: number; is_enabled?: boolean }
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('reward_catalogue')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -402,6 +413,7 @@ export async function adminUpdateReward(
 /** Seed the 4 core rewards into the database (admin only, via Edge Function) */
 export async function adminSeedRewards(): Promise<{ success: boolean; message?: string; error?: string }> {
   if (!isSupabaseConfigured || !EDGE_FUNCTION_URL) return { success: false, error: 'Supabase not configured' };
+  const supabase = await getSupabase();
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return { success: false, error: 'Not authenticated' };
@@ -422,6 +434,7 @@ export async function adminSeedRewards(): Promise<{ success: boolean; message?: 
 
 export async function adminGetAllWallets(limit = 50): Promise<CreditWallet[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('credit_wallets')
     .select('*')
@@ -434,6 +447,7 @@ export async function adminGetAllWallets(limit = 50): Promise<CreditWallet[]> {
 /** Admin: get all transactions (for overview) */
 export async function adminGetAllTransactions(limit = 50): Promise<CreditTransaction[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('credit_transactions')
     .select('*')
@@ -448,6 +462,7 @@ export async function adminUpdateSettings(
   updates: { rewards_enabled?: boolean; weekly_mission_credits?: number; streak_7_day_credits?: number; streak_grace_days?: number }
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('reward_settings')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -544,6 +559,7 @@ export interface EarnResult {
 
 export async function getAiFeatureCosts(): Promise<AiFeatureCost[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('ai_feature_costs')
     .select('*')
@@ -555,6 +571,7 @@ export async function getAiFeatureCosts(): Promise<AiFeatureCost[]> {
 
 export async function getAiFeatureCost(featureKey: string): Promise<AiFeatureCost | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('ai_feature_costs')
     .select('*')
@@ -570,6 +587,7 @@ export async function getAiFeatureCost(featureKey: string): Promise<AiFeatureCos
 
 export async function getRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('rewarded_ad_credit_config')
     .select('*')
@@ -585,6 +603,7 @@ export async function getRewardedAdConfig(): Promise<RewardedAdCreditConfig | nu
 
 export async function getRewardedAdHistory(limit = 20): Promise<RewardedAdCreditEvent[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('rewarded_ad_credit_events')
     .select('*')
@@ -600,6 +619,7 @@ export async function getRewardedAdHistory(limit = 20): Promise<RewardedAdCredit
 
 export async function getAiFeatureUsageToday(featureKey: string): Promise<number> {
   if (!isSupabaseConfigured) return 0;
+  const supabase = await getSupabase();
   const today = new Date().toISOString().split('T')[0];
   const { count, error } = await supabase
     .from('ai_feature_usage')
@@ -620,6 +640,7 @@ export async function spendAiCredits(
   metadata?: Record<string, unknown>
 ): Promise<SpendResult> {
   if (!isSupabaseConfigured) return { success: false, error: 'Not configured', code: 'CONFIG_ERROR' };
+  const supabase = await getSupabase();
   try {
     const { data, error } = await supabase.functions.invoke('spend-ai-credits', {
       body: { featureKey, idempotencyKey, metadata },
@@ -642,6 +663,7 @@ export async function verifyRewardedAd(
   metadata?: Record<string, unknown>
 ): Promise<EarnResult> {
   if (!isSupabaseConfigured) return { success: false, error: 'Not configured', code: 'CONFIG_ERROR' };
+  const supabase = await getSupabase();
   try {
     const { data, error } = await supabase.functions.invoke('verify-rewarded-ad', {
       body: { adProvider, adEventId, mode, metadata },
@@ -664,6 +686,7 @@ export async function unlockFeatureViaAd(
   metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; error?: string; message?: string }> {
   if (!isSupabaseConfigured) return { success: false, error: 'Not configured' };
+  const supabase = await getSupabase();
   try {
     const { data, error } = await supabase.functions.invoke('verify-rewarded-ad', {
       body: { adProvider, adEventId, mode: 'unlock_feature', featureKey, metadata },
@@ -681,6 +704,7 @@ export async function unlockFeatureViaAd(
 
 export async function adminGetAllFeatureCosts(): Promise<AiFeatureCost[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('ai_feature_costs')
     .select('*')
@@ -694,6 +718,7 @@ export async function adminUpdateFeatureCost(
   updates: Partial<Pick<AiFeatureCost, 'feature_name' | 'description' | 'credit_cost' | 'requires_credits' | 'ad_unlock_enabled' | 'ad_unlock_credits' | 'daily_usage_limit' | 'is_enabled' | 'sort_order'>>
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('ai_feature_costs')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -705,6 +730,7 @@ export async function adminCreateFeatureCost(
   feature: Omit<AiFeatureCost, 'id' | 'created_at' | 'updated_at'>
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const supabase = await getSupabase();
   const { error } = await supabase.from('ai_feature_costs').insert(feature);
   return !error;
 }
@@ -713,6 +739,7 @@ export async function adminUpdateAdConfig(
   updates: Partial<Pick<RewardedAdCreditConfig, 'credits_per_ad' | 'daily_earn_limit' | 'cooldown_seconds' | 'min_interval_seconds' | 'is_enabled'>>
 ): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
+  const supabase = await getSupabase();
   const { error } = await supabase
     .from('rewarded_ad_credit_config')
     .update({ ...updates, updated_at: new Date().toISOString() })
@@ -722,6 +749,7 @@ export async function adminUpdateAdConfig(
 
 export async function adminGetRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
   if (!isSupabaseConfigured) return null;
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('rewarded_ad_credit_config')
     .select('*')
@@ -733,6 +761,7 @@ export async function adminGetRewardedAdConfig(): Promise<RewardedAdCreditConfig
 
 export async function adminGetAllAdCreditEvents(limit = 50): Promise<RewardedAdCreditEvent[]> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('rewarded_ad_credit_events')
     .select('*')
@@ -744,6 +773,7 @@ export async function adminGetAllAdCreditEvents(limit = 50): Promise<RewardedAdC
 
 export async function adminGetAllAiFeatureUsage(limit = 50): Promise<Array<{ id: string; user_id: string; feature_key: string; credits_spent: number; unlocked_via_ad: boolean; created_at: string }>> {
   if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from('ai_feature_usage')
     .select('*')
@@ -763,6 +793,7 @@ export async function adminAdjustCreditsV2(
   reason: string
 ): Promise<{ success: boolean; newBalance?: number; error?: string }> {
   if (!isSupabaseConfigured) return { success: false, error: 'Not configured' };
+  const supabase = await getSupabase();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { success: false, error: 'Not authenticated' };
   try {

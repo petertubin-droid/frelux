@@ -3,7 +3,7 @@
 // Supabase analytics_events table for the admin dashboard.
 
 import { siteConfig } from '@/config/site';
-import { logAnalyticsEvent } from '@/lib/queries';
+import { isSupabaseConfigured, getSupabase } from '@/lib/supabase-lazy';
 declare global {
   interface Window {
     fbq?: (action: string, event: string, params?: Record<string, unknown>) => void;
@@ -80,7 +80,13 @@ export function track(event: TrackEvent, params?: Record<string, unknown>): void
   }
 
   // Log to Supabase for the admin analytics dashboard (fire-and-forget).
-  logAnalyticsEvent(event, params, typeof window !== 'undefined' ? window.location.pathname : undefined);
+  if (isSupabaseConfigured) {
+      getSupabase().then(supabase => supabase.from('analytics_events').insert({
+        event,
+        params: params ?? null,
+        page_path: typeof window !== 'undefined' ? window.location.pathname : null,
+      })).catch(() => {});
+    }
 
   // Always log in dev for visibility; safe no-op in production when unconfigured.
   if (import.meta.env.DEV) {

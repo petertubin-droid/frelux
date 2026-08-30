@@ -21,7 +21,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
 import type {
   MarketProfile,
@@ -104,13 +104,14 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
   // Load available markets (visible ones for the selector)
   useEffect(() => {
-    supabase
+    getSupabase().then((supabase) =>
+      supabase
       .from("market_profiles")
       .select("*")
       .in("status", ["active", "coming_soon"])
       .eq("is_visible", true)
       .order("sort_order", { ascending: true })
-      .then(({ data }) => {
+    ).then(({ data }) => {
         if (data) setAvailableMarkets(data as unknown as MarketProfile[]);
       });
   }, []);
@@ -125,7 +126,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
       // Check user preferences if logged in
       if (user) {
-        const { data: pref } = await supabase
+        const sb = await getSupabase();
+        const { data: pref } = await sb
           .from("user_market_preferences")
           .select("*")
           .eq("user_id", user.id)
@@ -139,7 +141,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
       }
 
       // Load market profile
-      const { data: profile } = await supabase
+      const sb2 = await getSupabase();
+      const { data: profile } = await sb2
         .from("market_profiles")
         .select("*")
         .eq("country_code", marketCode)
@@ -188,7 +191,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
     async (marketCode: string) => {
       if (!user) return;
       try {
-        await supabase
+        const sb3 = await getSupabase();
+        await sb3
           .from("user_market_preferences")
           .upsert(
             { user_id: user.id, market_code: marketCode },
@@ -207,7 +211,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
       setPreferredLengthUnitState(unit);
       if (!user) return;
       try {
-        await supabase
+        const sb4 = await getSupabase();
+        await sb4
           .from("user_market_preferences")
           .upsert(
             { user_id: user.id, preferred_length_unit: unit },
@@ -225,7 +230,8 @@ export function MarketProvider({ children }: { children: ReactNode }) {
       setPreferredAreaUnitState(unit);
       if (!user) return;
       try {
-        await supabase
+        const sb5 = await getSupabase();
+        await sb5
           .from("user_market_preferences")
           .upsert(
             { user_id: user.id, preferred_area_unit: unit },

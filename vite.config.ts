@@ -56,10 +56,16 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // Vendor chunk splitting for better caching
-        manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
-          "supabase-vendor": ["@supabase/supabase-js"],
-          "icon-vendor": ["lucide-react"],
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("react-router-dom") || id.includes("/react-dom/") || id.includes("/react/")) {
+            return "react-vendor";
+          }
+          if (id.includes("@supabase")) {
+            return "supabase-vendor";
+          }
+          // Don't force lucide-react into one chunk — let Vite tree-shake
+          // icons so only the ~20 used on the critical path land in the main bundle.
         },
         // Use content-based hashing for long-term caching
         chunkFileNames: "assets/js/[name]-[hash].js",

@@ -13,7 +13,7 @@
  * - App version tracking via build-time injection
  */
 
-import { supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase-lazy';
 
 // ── Types ──
 
@@ -264,7 +264,7 @@ function saveOfflineQueue(queue: ErrorReport[]): void {
 let isFlushing = false;
 
 async function sendToServer(report: ErrorReport): Promise<boolean> {
-  // supabase is statically imported at top of file
+  const supabase = await getSupabase();
 
   const payload = {
     ...report,

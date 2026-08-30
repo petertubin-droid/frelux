@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { isSupabaseConfigured, getSupabase } from '@/lib/supabase-lazy';
 import type { DbProfile, DbUserPaidStatus } from '@/types/database';
 
 export type AccountType = 'client' | 'pro_worker';
@@ -52,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   async function loadProfile(userId: string): Promise<DbProfile | null> {
+    const supabase = await getSupabase();
     const { data, error } = await supabase
       .from('profiles')
       .select('id, email, role, account_type, full_name, phone, avatar_url, marketplace_id, created_at, updated_at')
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * RLS allows users to read only their own row.
    */
   async function loadPaidStatus(userId: string): Promise<{ status: DbUserPaidStatus | null; isPaid: boolean }> {
+    const supabase = await getSupabase();
     const { data, error } = await supabase
       .from('user_paid_status')
       .select('user_id, is_paid, plan, paid_until, payment_provider, provider_customer_id, updated_at')
@@ -109,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Falls back to upsert if the profile row doesn't exist yet (trigger may not have fired).
    */
   async function setAccountType(userId: string, email: string, accountType: AccountType) {
+    const supabase = await getSupabase();
     // First try to update existing row
     const { error: updateError } = await supabase
       .from('profiles')
@@ -133,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let mounted = true;
 
+    getSupabase().then((supabase) => {
     supabase.auth.getSession().then(async ({ data, error }) => {
       if (!mounted) return;
       if (error) {
@@ -165,12 +169,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       mounted = false;
       sub.subscription.unsubscribe();
     };
+    }); // close getSupabase().then()
   }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       ...state,
       signIn: async (email, password) => {
+        const supabase = await getSupabase();
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) return { error: error.message, isAdmin: false };
         const user = data.user;
@@ -190,6 +196,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: null, isAdmin };
       },
       signUp: async (email, password, accountType = 'client') => {
+        const supabase = await getSupabase();
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return { error: error.message, needsConfirmation: false };
         const needsConfirmation = !data.session;
@@ -205,6 +212,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signInWithGoogle: async (accountType = 'client') => {
         // Store selected account type in localStorage so we can set it after OAuth redirect
         if (accountType) localStorage.setItem('frelux_pending_account_type', accountType);
+        const supabase = await getSupabase();
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
@@ -214,6 +222,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: error ? error.message : null };
       },
       signInWithOtp: async (email) => {
+        const supabase = await getSupabase();
         const { error } = await supabase.auth.signInWithOtp({
           email,
           options: {
@@ -223,10 +232,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: error ? error.message : null };
       },
       signOut: async () => {
+        const supabase = await getSupabase();
         await supabase.auth.signOut();
         setState((s) => ({ ...s, session: null, user: null, profile: null, paidStatus: null, isPaid: false, isAdmin: false }));
       },
       resetPassword: async (email) => {
+        const supabase = await getSupabase();
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/login`,
         });
