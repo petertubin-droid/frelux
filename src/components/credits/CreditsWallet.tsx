@@ -14,7 +14,7 @@ import {
   AlertCircle,
   Film,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase-lazy";
 import {
   getCreditWallet,
   getCreditTransactions,
@@ -31,7 +31,7 @@ import {
   spendAiCredits,
   unlockFeatureViaAd,
 } from "@/lib/credits";
-import { logAdEvent } from "@/lib/ad-config";
+import { logAdEvent, hasRewardedAdProvider } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 
 // ───────────────────────────────────────────────────────
@@ -46,6 +46,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "history" | "ads">("overview");
   const [showEarnModal, setShowEarnModal] = useState(false);
+  const [adProviderReady, setAdProviderReady] = useState(false);
   const [todayEarned, setTodayEarned] = useState(0);
 
   const load = useCallback(async () => {
@@ -85,7 +86,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
   const dailyLimit = config?.daily_earn_limit ?? 10;
   const creditsPerAd = config?.credits_per_ad ?? 5;
-  const canEarn = config?.is_enabled && todayEarned < dailyLimit;
+  const canEarn = config?.is_enabled && todayEarned < dailyLimit && adProviderReady;
 
   return (
     <div className="space-y-4">
@@ -128,7 +129,9 @@ export function CreditsWallet({ userId }: { userId: string }) {
           <PlayCircle className="h-5 w-5" />
           {canEarn
             ? `Watch Ad — +${creditsPerAd} Credits`
-            : "Daily limit reached"}
+            : adProviderReady
+              ? "Daily limit reached"
+              : "Coming soon"}
         </button>
       )}
 
@@ -357,6 +360,14 @@ function EarnCreditsModal({
   async function handleWatchAd() {
     if (!config?.is_enabled) {
       setErrorMsg("Rewarded ads are currently disabled.");
+      setPhase("error");
+      return;
+    }
+
+    // Check if a real ad provider is configured
+    const providerReady = await hasRewardedAdProvider();
+    if (!providerReady) {
+      setErrorMsg("No ad provider is configured yet. Please check back later!");
       setPhase("error");
       return;
     }
@@ -620,12 +631,17 @@ export function AiFeatureGate({
   const [mode, setMode] = useState<"choice" | "ad_watching" | "success">(
     "choice",
   );
+  const [adProviderReady, setAdProviderReady] = useState(false);
+
+  useEffect(() => {
+    hasRewardedAdProvider().then(setAdProviderReady);
+  }, []);
 
   useEffect(() => {
     (async () => {
       const {
         data: { user },
-      } = await supabase.auth.getUser();
+      } = await (await getSupabase()).auth.getUser();
       if (!user) {
         setError("Authentication required");
         setLoading(false);
@@ -673,6 +689,10 @@ export function AiFeatureGate({
 
   async function handleWatchAd() {
     if (!featureCost) return;
+    if (!adProviderReady) {
+      setError("No ad provider is configured yet. Please check back later!");
+      return;
+    }
     setAdUnlocking(true);
     setError("");
     setMode("ad_watching");
@@ -753,6 +773,7 @@ export function AiFeatureGate({
   const balance = wallet?.balance ?? 0;
   const canAfford = balance >= (featureCost?.credit_cost ?? 0);
   const adAvailable = featureCost?.ad_unlock_enabled ?? false;
+  const canWatchAd = adAvailable && adProviderReady;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -834,7 +855,7 @@ export function AiFeatureGate({
               </button>
 
               {/* Watch Ad to Unlock button */}
-              {adAvailable && (
+              {canWatchAd && (
                 <>
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
@@ -859,7 +880,7 @@ export function AiFeatureGate({
                 </>
               )}
 
-              {!canAfford && !adAvailable && (
+              {!canAfford && !canWatchAd && (
                 <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
                   Not enough credits. Watch ads from the Credits page to earn
                   more.

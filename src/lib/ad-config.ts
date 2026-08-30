@@ -117,6 +117,24 @@ export function getAdUnitId(placement: DbAdPlacement, providerId: string): strin
 }
 
 /**
+ * Check if at least one active rewarded ad provider is configured.
+ * Used to gate the "Watch Ad" UI — if no real provider exists, we show
+ * "Coming soon" instead of letting users click a button that can't work.
+ */
+export async function hasRewardedAdProvider(): Promise<boolean> {
+  try {
+    const { providers } = await fetchAdConfig();
+    return providers.some(
+      (p) =>
+        (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+        p.is_active,
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Clear the ad config cache. Call after admin changes.
  */
 export function clearAdConfigCache(): void {

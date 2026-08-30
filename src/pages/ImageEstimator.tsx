@@ -25,6 +25,9 @@ import {
   getEstimationUsageStatus,
   checkEstimationAccess,
 } from "@/lib/estimation-access";
+import { unlockFeatureViaAd } from "@/lib/credits";
+import { hasRewardedAdProvider } from "@/lib/ad-config";
+import { logAdEvent } from "@/lib/ad-config";
 import type {
   EstimationAccessConfig,
   EstimationUsageStatus,
@@ -279,7 +282,23 @@ export default function ImageEstimator() {
   // ── Locked state ──
   if (phase === "locked" && accessDecision && !accessDecision.allowed) {
     return (
-      <LockedView decision={accessDecision} config={config} usage={usage} />
+      <LockedView
+        decision={accessDecision}
+        config={config}
+        usage={usage}
+        onUnlocked={async () => {
+          // Re-check access after ad unlock
+          if (config) {
+            const u = await getEstimationUsageStatus(config, user?.id);
+            setUsage(u);
+            const decision = checkEstimationAccess(config, u, isAdmin, isPaid);
+            setAccessDecision(decision);
+            if (decision.allowed) {
+              setPhase("upload");
+            }
+          }
+        }}
+      />
     );
   }
 
@@ -788,11 +807,78 @@ function LockedView({
   decision,
   config,
   usage,
+  onUnlocked,
 }: {
   decision: EstimationAccessDecision;
   config: EstimationAccessConfig | null;
   usage: EstimationUsageStatus | null;
+  onUnlocked: () => Promise<void>;
 }) {
+  const [adState, setAdState] = useState<
+    "idle" | "checking" | "watching" | "verifying" | "success" | "error"
+  >("idle");
+  const [adError, setAdError] = useState("");
+  const [adProviderReady, setAdProviderReady] = useState(false);
+
+  useEffect(() => {
+    hasRewardedAdProvider().then(setAdProviderReady);
+  }, []);
+
+  async function handleWatchAd() {
+    if (adState === "watching" || adState === "verifying") return;
+
+    setAdState("checking");
+    setAdError("");
+
+    const providerReady = await hasRewardedAdProvider();
+    if (!providerReady) {
+      setAdError("No ad provider is configured yet. Please check back later!");
+      setAdState("error");
+      return;
+    }
+
+    setAdState("watching");
+
+    // Log impression
+    const adEventId = `est_ad_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    await logAdEvent({
+      event_type: "impression",
+      tool_key: "image_estimator",
+      metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
+    });
+
+    // In production, this is where the ad SDK renders and plays the ad.
+    // The SDK fires a completion callback with a verification token.
+    // For now, we show a brief watching state then verify server-side.
+    setAdState("verifying");
+
+    const result = await unlockFeatureViaAd(
+      "image_estimator",
+      "adsense",
+      adEventId,
+      { source: "locked_view" },
+    );
+
+    if (result.success) {
+      setAdState("success");
+      await logAdEvent({
+        event_type: "reward",
+        tool_key: "image_estimator",
+        metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
+      });
+      // Give user feedback before re-checking access
+      setTimeout(() => {
+        onUnlocked();
+      }, 1000);
+    } else {
+      setAdError(
+        result.error ??
+          "Ad verification failed. No reward was granted. Please try again.",
+      );
+      setAdState("error");
+    }
+  }
+
   return (
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full rounded-2xl border border-neutral-200 bg-white shadow-card p-8 text-center">
@@ -824,10 +910,67 @@ function LockedView({
         )}
 
         {"nextAction" in decision && decision.nextAction === "rewarded" && (
-          <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">
-            <Zap className="w-4 h-4" />
-            Watch Ad to Unlock
-          </button>
+          <>
+            {adState === "success" ? (
+              <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 text-sm font-medium text-white">
+                <CheckCircle2 className="w-4 h-4" />
+                Unlocked! Loading...
+              </div>
+            ) : adState === "error" ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {adError}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdState("idle");
+                    setAdError("");
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark"
+                >
+                  <Zap className="w-4 h-4" />
+                  Try Again
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleWatchAd}
+                disabled={
+                  adState === "watching" ||
+                  adState === "verifying" ||
+                  adState === "checking" ||
+                  !adProviderReady
+                }
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {adState === "watching" || adState === "verifying" || adState === "checking" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {adState === "watching"
+                      ? "Watching ad..."
+                      : adState === "checking"
+                        ? "Checking..."
+                        : "Verifying..."}
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4" />
+                    {adProviderReady
+                      ? "Watch Ad to Unlock"
+                      : "Coming Soon"}
+                  </>
+                )}
+              </button>
+            )}
+            {adState === "idle" && !adProviderReady && (
+              <p className="mt-2 text-xs text-neutral-500">
+                Ad provider not yet configured. Check back soon!
+              </p>
+            )}
+          </>
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
           <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">

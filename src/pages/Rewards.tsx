@@ -22,6 +22,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
+import { hasRewardedAdProvider } from "@/lib/ad-config";
 import {
   getRewardCatalogue,
   getCreditTransactions,
@@ -75,6 +76,7 @@ export default function Rewards() {
   const [adConfig, setAdConfig] = useState<RewardedAdCreditConfig | null>(null);
   const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
   const [watchingAd, setWatchingAd] = useState(false);
+  const [adProviderReady, setAdProviderReady] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -94,6 +96,8 @@ export default function Rewards() {
       setUnusedAiTokens(tokens);
       setAdConfig(adCfg);
       setAdHistory(adHist);
+      // Check if a real rewarded ad provider is configured
+      setAdProviderReady(await hasRewardedAdProvider());
       if (mis) {
         const prog = await getMissionProgress(user.id, mis.id);
         setMissionProgress(prog);
@@ -173,6 +177,11 @@ export default function Rewards() {
     if (!user || watchingAd) return;
     if (!adConfig?.is_enabled) {
       toast({ type: "warning", title: "Ads unavailable", message: "Rewarded ads are currently disabled." });
+      return;
+    }
+
+    if (!adProviderReady) {
+      toast({ type: "info", title: "Coming soon", message: "Ad provider is not yet configured. Check back later!" });
       return;
     }
 
@@ -333,7 +342,7 @@ export default function Rewards() {
         ).length;
         const dailyLimit = adConfig?.daily_earn_limit ?? 10;
         const creditsPerAd = adConfig?.credits_per_ad ?? 5;
-        const canEarn = todayEarned < dailyLimit;
+        const canEarn = todayEarned < dailyLimit && adProviderReady;
 
         return (
           <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
@@ -370,7 +379,11 @@ export default function Rewards() {
                 ) : (
                   <>
                     <PlayCircle className="h-4 w-4" />
-                    {canEarn ? `Watch Ad (+${creditsPerAd})` : "Daily limit reached"}
+                    {canEarn
+                      ? `Watch Ad (+${creditsPerAd})`
+                      : adProviderReady
+                        ? "Daily limit reached"
+                        : "Coming soon"}
                   </>
                 )}
               </button>

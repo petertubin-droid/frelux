@@ -65,7 +65,7 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           <button
             type="button"
             onClick={access.requestUnlock}
-            disabled={!access.config?.is_enabled}
+            disabled={!access.config?.is_enabled || (!access.primaryProvider && !access.fallbackProvider)}
             className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
           >
             <Lock aria-hidden="true" className="h-4 w-4" />
@@ -73,6 +73,9 @@ export function RewardedFeatureGate({ toolKey, featureName, features, children }
           </button>
           {!access.config?.is_enabled && (
             <p className="mt-2 text-xs text-neutral-500">This feature is temporarily disabled.</p>
+          )}
+          {access.config?.is_enabled && !access.primaryProvider && !access.fallbackProvider && (
+            <p className="mt-2 text-xs text-neutral-500">No ad provider is configured yet. Coming soon!</p>
           )}
         </div>
       </div>
