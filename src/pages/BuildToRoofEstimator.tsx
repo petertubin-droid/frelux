@@ -1,4 +1,4 @@
-import {} from "@/components/calculators";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "@/lib/seo";
@@ -2716,6 +2716,26 @@ function EstimateResult({
             current market prices before procurement.
           </p>
         )}
+
+        {/* Save to Project Workspace */}
+        <div className="flex justify-center pt-2">
+          <SaveToProjectButton
+            calculatorType="build_to_roof"
+            calculatorSlug="build-to-roof-estimator"
+            calcTitle={`Build-to-Roof: ${result.project_name} (${result.total_floor_area} m²)`}
+            calcData={result}
+            resultSummary={{
+              grand_total: result.grand_total,
+              materials_total: result.materials_total,
+              labour_total: result.labour_total,
+              total_floor_area: result.total_floor_area,
+              construction_stage: result.construction_stage,
+              confidence: result.confidence,
+            }}
+            compact
+            label="Save to Project Workspace"
+          />
+        </div>
       </div>
 
       {/* Premium Actions */}

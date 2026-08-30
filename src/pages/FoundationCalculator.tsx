@@ -1,4 +1,4 @@
-import {} from "@/components/calculators";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import {
@@ -163,13 +163,11 @@ export default function FoundationCalculator() {
                 onChange={(e) => setSoilType(e.target.value as SoilType)}
                 className="input-field"
               >
-                {(Object.keys(SOIL_BEARING_CAPACITY) as SoilType[]).map(
-                  (s) => (
-                    <option key={s} value={s}>
-                      {s.replace(/_/g, " ")}
-                    </option>
-                  ),
-                )}
+                {(Object.keys(SOIL_BEARING_CAPACITY) as SoilType[]).map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, " ")}
+                  </option>
+                ))}
               </select>
             </div>
             {soilType === "custom" && (
@@ -286,7 +284,9 @@ export default function FoundationCalculator() {
                     {result.shape === "pad"
                       ? `${result.recommended_width} × ${result.recommended_length}`
                       : `${result.recommended_width}`}
-                    <span className="text-sm font-normal text-neutral-400 ml-1">mm</span>
+                    <span className="text-sm font-normal text-neutral-400 ml-1">
+                      mm
+                    </span>
                   </p>
                 </div>
               )}
@@ -296,7 +296,9 @@ export default function FoundationCalculator() {
                 </p>
                 <p className="text-2xl font-bold text-brand-navy dark:text-white">
                   {result.bearing_capacity}
-                  <span className="text-sm font-normal text-neutral-400 ml-1">kN/m²</span>
+                  <span className="text-sm font-normal text-neutral-400 ml-1">
+                    kN/m²
+                  </span>
                 </p>
               </div>
               <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/50 p-5 dark:border-white/10 dark:bg-white/5">
@@ -310,9 +312,14 @@ export default function FoundationCalculator() {
             </div>
 
             {/* Bearing check */}
-            <div className={`flex items-center gap-3 rounded-xl p-4 mb-6 ${result.bearing_check_pass ? "bg-emerald-50 dark:bg-emerald-500/5" : "bg-red-50 dark:bg-red-500/5"}`}>
+            <div
+              className={`flex items-center gap-3 rounded-xl p-4 mb-6 ${result.bearing_check_pass ? "bg-emerald-50 dark:bg-emerald-500/5" : "bg-red-50 dark:bg-red-500/5"}`}
+            >
               {result.bearing_check_pass ? (
-                <CheckCircle2 aria-hidden="true" className="w-5 h-5 text-emerald-500 shrink-0" />
+                <CheckCircle2
+                  aria-hidden="true"
+                  className="w-5 h-5 text-emerald-500 shrink-0"
+                />
               ) : (
                 <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
               )}
@@ -330,14 +337,24 @@ export default function FoundationCalculator() {
             {/* Volumes */}
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
               {[
-                { label: "Excavation", value: `${result.excavation_volume} m³` },
+                {
+                  label: "Excavation",
+                  value: `${result.excavation_volume} m³`,
+                },
                 { label: "Concrete", value: `${result.concrete_volume} m³` },
                 { label: "Blinding", value: `${result.blinding_volume} m³` },
                 { label: "Hardcore", value: `${result.hardcore_volume} m³` },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl border border-neutral-200/80 bg-white p-4 dark:border-white/10 dark:bg-brand-navy-mid">
-                  <p className="text-xs font-medium text-neutral-400 mb-1">{item.label}</p>
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">{item.value}</p>
+                <div
+                  key={item.label}
+                  className="rounded-xl border border-neutral-200/80 bg-white p-4 dark:border-white/10 dark:bg-brand-navy-mid"
+                >
+                  <p className="text-xs font-medium text-neutral-400 mb-1">
+                    {item.label}
+                  </p>
+                  <p className="text-sm font-bold text-brand-navy dark:text-white">
+                    {item.value}
+                  </p>
                 </div>
               ))}
             </div>
@@ -349,7 +366,10 @@ export default function FoundationCalculator() {
                 </p>
                 <ul className="space-y-1.5">
                   {result.warnings.map((w, i) => (
-                    <li key={i} className="text-xs leading-relaxed text-amber-600 dark:text-amber-400">
+                    <li
+                      key={i}
+                      className="text-xs leading-relaxed text-amber-600 dark:text-amber-400"
+                    >
                       • {w}
                     </li>
                   ))}
@@ -373,7 +393,10 @@ export default function FoundationCalculator() {
               {showFormulas && (
                 <div className="mt-3 overflow-hidden rounded-xl bg-neutral-900 p-5 dark:bg-black/40">
                   {result.formula_transparency.map((f, i) => (
-                    <p key={i} className="text-xs font-mono text-emerald-400 leading-relaxed">
+                    <p
+                      key={i}
+                      className="text-xs font-mono text-emerald-400 leading-relaxed"
+                    >
                       {f}
                     </p>
                   ))}
@@ -410,6 +433,27 @@ export default function FoundationCalculator() {
               </p>
             </div>
           </div>
+        </div>
+        <div className="mt-6 flex justify-center">
+          <SaveToProjectButton
+            calculatorType="foundation"
+            calculatorSlug="foundation-calculator"
+            calcTitle={`Foundation: ${result.shape} (${result.recommended_width}mm)`}
+            calcData={result}
+            resultSummary={{
+              shape: result.shape,
+              recommended_width: result.recommended_width,
+              bearing_capacity: result.bearing_capacity,
+              factor_of_safety: result.factor_of_safety,
+              concrete_volume: result.concrete_volume,
+              excavation_volume: result.excavation_volume,
+              blinding_volume: result.blinding_volume,
+              hardcore_volume: result.hardcore_volume,
+              bearing_check_pass: result.bearing_check_pass,
+            }}
+            compact
+            label="Save to Project Workspace"
+          />
         </div>
       </div>
       <RelatedTools

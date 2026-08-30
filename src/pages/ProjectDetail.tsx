@@ -6,7 +6,8 @@ import {
   ClipboardList,
   FileText,
   Brain,
-  Image as CheckCircle2,
+  CheckCircle2,
+  Images,
   Circle,
   Loader2,
   Plus,
@@ -29,6 +30,12 @@ import {
   updateProgressStage,
   calculateProgressPercentage,
 } from "@/lib/project-intelligence";
+import {
+  fetchAttachments,
+  deleteAttachment,
+  uploadProjectAttachment,
+} from "@/lib/contractor";
+import type { DbProjectAttachment } from "@/types/database";
 import type {
   DbContractorProject,
   DbProjectCalculation,
@@ -50,6 +57,7 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "progress", label: "Progress", icon: CheckCircle2 },
   { key: "client", label: "Client", icon: FileText },
+  { key: "gallery", label: "Gallery", icon: Images },
   { key: "ai", label: "AI Assistant", icon: Brain },
 ];
 
@@ -76,6 +84,8 @@ export default function ProjectDetail() {
   const [stageTemplates, setStageTemplates] = useState<
     DbProjectStageTemplate[]
   >([]);
+  const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -92,16 +102,18 @@ export default function ProjectDetail() {
         return;
       }
 
-      const [calcs, shopping, progress, templates] = await Promise.all([
+      const [calcs, shopping, progress, templates, attach] = await Promise.all([
         fetchProjectCalculations(id),
         fetchShoppingListWithActual(id),
         fetchProjectProgressStages(id),
         fetchStageTemplates(),
+        fetchAttachments(id),
       ]);
       setCalculations(calcs);
       setShoppingItems(shopping);
       setStages(progress);
       setStageTemplates(templates);
+      setAttachments(attach);
     } catch (e) {
       toast({ title: (e as Error).message, variant: "error" });
     } finally {
@@ -644,6 +656,173 @@ export default function ProjectDetail() {
         )}
 
         {/* AI Assistant tab */}
+        {tab === "gallery" && (
+          <div className="space-y-4">
+            <div className="rounded-xl border bg-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Images className="h-5 w-5 text-primary" />
+                  <h3 className="font-semibold text-lg">Project Gallery</h3>
+                </div>
+                <label className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 cursor-pointer transition-all">
+                  <Plus className="h-4 w-4" />
+                  {uploading ? "Uploading..." : "Upload Photo"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploading}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file || !id) return;
+                      setUploading(true);
+                      try {
+                        const {
+                          data: { user },
+                        } = await supabase.auth.getUser();
+                        if (!user) {
+                          toast({
+                            title: "Please sign in to upload",
+                            variant: "error",
+                          });
+                          return;
+                        }
+                        const { data, error } = await uploadProjectAttachment(
+                          id,
+                          file,
+                          user.id,
+                        );
+                        if (error) throw new Error(error);
+                        if (data) setAttachments((prev) => [data, ...prev]);
+                        toast({ title: "Photo uploaded", variant: "success" });
+                      } catch (e) {
+                        toast({
+                          title: (e as Error).message,
+                          variant: "error",
+                        });
+                      } finally {
+                        setUploading(false);
+                        e.target.value = "";
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              {attachments.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                  <Images className="h-12 w-12 mb-3 opacity-40" />
+                  <p className="text-sm">
+                    No photos yet. Upload progress photos, before/after shots,
+                    or project documents.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {attachments
+                    .filter((a) => a.mime_type.startsWith("image/"))
+                    .map((att) => (
+                      <div
+                        key={att.id}
+                        className="group relative overflow-hidden rounded-lg border bg-muted"
+                      >
+                        <img
+                          src={att.public_url}
+                          alt={att.description || att.file_name}
+                          className="aspect-square w-full object-cover transition-transform group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-2">
+                          <span className="text-xs text-white truncate max-w-[70%]">
+                            {att.file_name}
+                          </span>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await deleteAttachment(att.id);
+                                setAttachments((prev) =>
+                                  prev.filter((a) => a.id !== att.id),
+                                );
+                                toast({
+                                  title: "Photo deleted",
+                                  variant: "success",
+                                });
+                              } catch (e) {
+                                toast({
+                                  title: (e as Error).message,
+                                  variant: "error",
+                                });
+                              }
+                            }}
+                            className="rounded-md bg-destructive/80 p-1.5 text-white hover:bg-destructive transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              {/* Non-image attachments */}
+              {attachments.some((a) => !a.mime_type.startsWith("image/")) && (
+                <div className="mt-4 space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">
+                    Other Files
+                  </h4>
+                  {attachments
+                    .filter((a) => !a.mime_type.startsWith("image/"))
+                    .map((att) => (
+                      <div
+                        key={att.id}
+                        className="flex items-center justify-between rounded-lg border px-4 py-3"
+                      >
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{att.file_name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {(att.file_size / 1024).toFixed(0)} KB
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={att.public_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline"
+                          >
+                            View
+                          </a>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await deleteAttachment(att.id);
+                                setAttachments((prev) =>
+                                  prev.filter((a) => a.id !== att.id),
+                                );
+                                toast({
+                                  title: "File deleted",
+                                  variant: "success",
+                                });
+                              } catch (e) {
+                                toast({
+                                  title: (e as Error).message,
+                                  variant: "error",
+                                });
+                              }
+                            }}
+                            className="rounded-md p-1 text-destructive hover:bg-destructive/10 transition-colors"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {tab === "ai" && (
           <div className="space-y-4">
             <div className="rounded-xl border bg-card p-6">

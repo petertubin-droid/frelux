@@ -1,4 +1,4 @@
-import {} from "@/components/calculators";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import {
@@ -97,11 +97,11 @@ export default function StructuralCalculator() {
                 Professional Disclaimer
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
-                These calculations provide preliminary member sizing based on
-                BS 8110 simplified methods. They are for budgetary planning
-                and initial design only. A qualified structural engineer must
-                verify and approve all structural designs before construction.
-                FRELUX is not liable for designs based solely on this tool.
+                These calculations provide preliminary member sizing based on BS
+                8110 simplified methods. They are for budgetary planning and
+                initial design only. A qualified structural engineer must verify
+                and approve all structural designs before construction. FRELUX
+                is not liable for designs based solely on this tool.
               </p>
             </div>
           </div>
@@ -161,81 +161,86 @@ function BeamCalculator() {
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
         <InputGrid>
-        <NumInput label="Span (m)" value={span} onChange={setSpan} step="0.1" />
-        <SelectInput
-          label="Beam type"
-          value={beamType}
-          onChange={(v) => setBeamType(v as BeamType)}
-          options={[
-            { v: "ground_beam", l: "Ground Beam" },
-            { v: "suspended_beam", l: "Suspended Beam" },
-            { v: "ring_beam", l: "Ring Beam" },
-            { v: "lintel", l: "Lintel" },
-          ]}
-        />
-        <SelectInput
-          label="Support condition"
-          value={support}
-          onChange={(v) => setSupport(v as SupportCondition)}
-          options={[
-            { v: "simply_supported", l: "Simply Supported" },
-            { v: "fixed", l: "Fixed Ends" },
-            { v: "continuous", l: "Continuous" },
-            { v: "cantilever", l: "Cantilever" },
-          ]}
-        />
-        <NumInput
-          label="Live load (kN/m²)"
-          value={liveLoad}
-          onChange={setLiveLoad}
-          step="0.5"
-        />
-        <NumInput
-          label="Dead load (kN/m²)"
-          value={deadLoad}
-          onChange={setDeadLoad}
-          step="0.5"
-        />
-        <NumInput
-          label="Tributary width (m)"
-          value={tribWidth}
-          onChange={setTribWidth}
-          step="0.5"
-        />
-        <SelectInput
-          label="Concrete grade"
-          value={concreteGrade}
-          onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-          options={[
-            { v: "C20", l: "C20 (20 MPa)" },
-            { v: "C25", l: "C25 (25 MPa)" },
-            { v: "C30", l: "C30 (30 MPa)" },
-            { v: "C35", l: "C35 (35 MPa)" },
-          ]}
-        />
-        <SelectInput
-          label="Steel grade"
-          value={steelGrade}
-          onChange={(v) => setSteelGrade(v as SteelGrade)}
-          options={[
-            { v: "Fe410", l: "Fe410 (410 MPa)" },
-            { v: "Fe500", l: "Fe500 (500 MPa)" },
-          ]}
-        />
-        <NumInput
-          label="Cover (mm)"
-          value={cover}
-          onChange={setCover}
-          step="5"
-        />
-      </InputGrid>
+          <NumInput
+            label="Span (m)"
+            value={span}
+            onChange={setSpan}
+            step="0.1"
+          />
+          <SelectInput
+            label="Beam type"
+            value={beamType}
+            onChange={(v) => setBeamType(v as BeamType)}
+            options={[
+              { v: "ground_beam", l: "Ground Beam" },
+              { v: "suspended_beam", l: "Suspended Beam" },
+              { v: "ring_beam", l: "Ring Beam" },
+              { v: "lintel", l: "Lintel" },
+            ]}
+          />
+          <SelectInput
+            label="Support condition"
+            value={support}
+            onChange={(v) => setSupport(v as SupportCondition)}
+            options={[
+              { v: "simply_supported", l: "Simply Supported" },
+              { v: "fixed", l: "Fixed Ends" },
+              { v: "continuous", l: "Continuous" },
+              { v: "cantilever", l: "Cantilever" },
+            ]}
+          />
+          <NumInput
+            label="Live load (kN/m²)"
+            value={liveLoad}
+            onChange={setLiveLoad}
+            step="0.5"
+          />
+          <NumInput
+            label="Dead load (kN/m²)"
+            value={deadLoad}
+            onChange={setDeadLoad}
+            step="0.5"
+          />
+          <NumInput
+            label="Tributary width (m)"
+            value={tribWidth}
+            onChange={setTribWidth}
+            step="0.5"
+          />
+          <SelectInput
+            label="Concrete grade"
+            value={concreteGrade}
+            onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
+            options={[
+              { v: "C20", l: "C20 (20 MPa)" },
+              { v: "C25", l: "C25 (25 MPa)" },
+              { v: "C30", l: "C30 (30 MPa)" },
+              { v: "C35", l: "C35 (35 MPa)" },
+            ]}
+          />
+          <SelectInput
+            label="Steel grade"
+            value={steelGrade}
+            onChange={(v) => setSteelGrade(v as SteelGrade)}
+            options={[
+              { v: "Fe410", l: "Fe410 (410 MPa)" },
+              { v: "Fe500", l: "Fe500 (500 MPa)" },
+            ]}
+          />
+          <NumInput
+            label="Cover (mm)"
+            value={cover}
+            onChange={setCover}
+            step="5"
+          />
+        </InputGrid>
 
-      <button
-        onClick={calculate}
-        className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
-      >
-        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Beam
-      </button>
+        <button
+          onClick={calculate}
+          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+        >
+          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Beam
+        </button>
       </div>
 
       {result && (
@@ -307,6 +312,26 @@ function BeamCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
+          <div className="mt-4 flex justify-center">
+            <SaveToProjectButton
+              calculatorType="structural"
+              calculatorSlug="beam-design-calculator"
+              calcTitle={`Beam: ${result.recommended_width}×${result.recommended_depth}mm`}
+              calcData={result}
+              resultSummary={{
+                type: "beam",
+                recommended_width: result.recommended_width,
+                recommended_depth: result.recommended_depth,
+                shear_check_pass: result.shear_check_pass,
+                deflection_check_pass: result.deflection_check_pass,
+                factored_load: result.factored_load,
+                max_moment: result.max_moment,
+                area_steel_required: result.area_steel_required,
+              }}
+              compact
+              label="Save to Project Workspace"
+            />
+          </div>
         </ResultCard>
       )}
       <RelatedTools
@@ -358,61 +383,61 @@ function ColumnCalculator() {
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
         <InputGrid>
-        <NumInput
-          label="Axial load (kN)"
-          value={axialLoad}
-          onChange={setAxialLoad}
-          step="10"
-        />
-        <NumInput
-          label="Height (m)"
-          value={height}
-          onChange={setHeight}
-          step="0.1"
-        />
-        <SelectInput
-          label="Concrete grade"
-          value={concreteGrade}
-          onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-          options={[
-            { v: "C20", l: "C20 (20 MPa)" },
-            { v: "C25", l: "C25 (25 MPa)" },
-            { v: "C30", l: "C30 (30 MPa)" },
-            { v: "C35", l: "C35 (35 MPa)" },
-          ]}
-        />
-        <SelectInput
-          label="Steel grade"
-          value={steelGrade}
-          onChange={(v) => setSteelGrade(v as SteelGrade)}
-          options={[
-            { v: "Fe410", l: "Fe410 (410 MPa)" },
-            { v: "Fe500", l: "Fe500 (500 MPa)" },
-          ]}
-        />
-        <NumInput
-          label="Cover (mm)"
-          value={cover}
-          onChange={setCover}
-          step="5"
-        />
-        <SelectInput
-          label="Section shape"
-          value={isRect ? "rect" : "circular"}
-          onChange={(v) => setIsRect(v === "rect")}
-          options={[
-            { v: "rect", l: "Rectangular" },
-            { v: "circular", l: "Circular" },
-          ]}
-        />
-      </InputGrid>
+          <NumInput
+            label="Axial load (kN)"
+            value={axialLoad}
+            onChange={setAxialLoad}
+            step="10"
+          />
+          <NumInput
+            label="Height (m)"
+            value={height}
+            onChange={setHeight}
+            step="0.1"
+          />
+          <SelectInput
+            label="Concrete grade"
+            value={concreteGrade}
+            onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
+            options={[
+              { v: "C20", l: "C20 (20 MPa)" },
+              { v: "C25", l: "C25 (25 MPa)" },
+              { v: "C30", l: "C30 (30 MPa)" },
+              { v: "C35", l: "C35 (35 MPa)" },
+            ]}
+          />
+          <SelectInput
+            label="Steel grade"
+            value={steelGrade}
+            onChange={(v) => setSteelGrade(v as SteelGrade)}
+            options={[
+              { v: "Fe410", l: "Fe410 (410 MPa)" },
+              { v: "Fe500", l: "Fe500 (500 MPa)" },
+            ]}
+          />
+          <NumInput
+            label="Cover (mm)"
+            value={cover}
+            onChange={setCover}
+            step="5"
+          />
+          <SelectInput
+            label="Section shape"
+            value={isRect ? "rect" : "circular"}
+            onChange={(v) => setIsRect(v === "rect")}
+            options={[
+              { v: "rect", l: "Rectangular" },
+              { v: "circular", l: "Circular" },
+            ]}
+          />
+        </InputGrid>
 
-      <button
-        onClick={calculate}
-        className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
-      >
-        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Column
-      </button>
+        <button
+          onClick={calculate}
+          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+        >
+          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Column
+        </button>
       </div>
 
       {result && (
@@ -484,6 +509,23 @@ function ColumnCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
+          <div className="mt-4 flex justify-center">
+            <SaveToProjectButton
+              calculatorType="structural"
+              calculatorSlug="column-design-calculator"
+              calcTitle={`Column: ${result.required_area}mm² area`}
+              calcData={result}
+              resultSummary={{
+                type: "column",
+                required_area: result.required_area,
+                steel_ratio: result.steel_ratio,
+                load_capacity: result.load_capacity,
+                factored_load: result.factored_load,
+              }}
+              compact
+              label="Save to Project Workspace"
+            />
+          </div>
         </ResultCard>
       )}
     </div>
@@ -538,84 +580,84 @@ function SlabCalculator() {
     <div className="space-y-6">
       <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
         <InputGrid>
-        <NumInput
-          label="Short span (m)"
-          value={spanX}
-          onChange={setSpanX}
-          step="0.1"
-        />
-        <NumInput
-          label="Long span (m)"
-          value={spanY}
-          onChange={setSpanY}
-          step="0.1"
-        />
-        <SelectInput
-          label="Slab type"
-          value={slabType}
-          onChange={(v) => setSlabType(v as SlabType)}
-          options={[
-            { v: "one_way", l: "One-way" },
-            { v: "two_way", l: "Two-way" },
-            { v: "cantilever_slab", l: "Cantilever" },
-          ]}
-        />
-        <SelectInput
-          label="Support condition"
-          value={support}
-          onChange={(v) => setSupport(v as SupportCondition)}
-          options={[
-            { v: "simply_supported", l: "Simply Supported" },
-            { v: "fixed", l: "Fixed" },
-            { v: "continuous", l: "Continuous" },
-            { v: "cantilever", l: "Cantilever" },
-          ]}
-        />
-        <NumInput
-          label="Live load (kN/m²)"
-          value={liveLoad}
-          onChange={setLiveLoad}
-          step="0.5"
-        />
-        <NumInput
-          label="Dead load (kN/m²)"
-          value={deadLoad}
-          onChange={setDeadLoad}
-          step="0.5"
-        />
-        <SelectInput
-          label="Concrete grade"
-          value={concreteGrade}
-          onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
-          options={[
-            { v: "C20", l: "C20 (20 MPa)" },
-            { v: "C25", l: "C25 (25 MPa)" },
-            { v: "C30", l: "C30 (30 MPa)" },
-          ]}
-        />
-        <SelectInput
-          label="Steel grade"
-          value={steelGrade}
-          onChange={(v) => setSteelGrade(v as SteelGrade)}
-          options={[
-            { v: "Fe410", l: "Fe410" },
-            { v: "Fe500", l: "Fe500" },
-          ]}
-        />
-        <NumInput
-          label="Cover (mm)"
-          value={cover}
-          onChange={setCover}
-          step="5"
-        />
-      </InputGrid>
+          <NumInput
+            label="Short span (m)"
+            value={spanX}
+            onChange={setSpanX}
+            step="0.1"
+          />
+          <NumInput
+            label="Long span (m)"
+            value={spanY}
+            onChange={setSpanY}
+            step="0.1"
+          />
+          <SelectInput
+            label="Slab type"
+            value={slabType}
+            onChange={(v) => setSlabType(v as SlabType)}
+            options={[
+              { v: "one_way", l: "One-way" },
+              { v: "two_way", l: "Two-way" },
+              { v: "cantilever_slab", l: "Cantilever" },
+            ]}
+          />
+          <SelectInput
+            label="Support condition"
+            value={support}
+            onChange={(v) => setSupport(v as SupportCondition)}
+            options={[
+              { v: "simply_supported", l: "Simply Supported" },
+              { v: "fixed", l: "Fixed" },
+              { v: "continuous", l: "Continuous" },
+              { v: "cantilever", l: "Cantilever" },
+            ]}
+          />
+          <NumInput
+            label="Live load (kN/m²)"
+            value={liveLoad}
+            onChange={setLiveLoad}
+            step="0.5"
+          />
+          <NumInput
+            label="Dead load (kN/m²)"
+            value={deadLoad}
+            onChange={setDeadLoad}
+            step="0.5"
+          />
+          <SelectInput
+            label="Concrete grade"
+            value={concreteGrade}
+            onChange={(v) => setConcreteGrade(v as ConcreteGrade)}
+            options={[
+              { v: "C20", l: "C20 (20 MPa)" },
+              { v: "C25", l: "C25 (25 MPa)" },
+              { v: "C30", l: "C30 (30 MPa)" },
+            ]}
+          />
+          <SelectInput
+            label="Steel grade"
+            value={steelGrade}
+            onChange={(v) => setSteelGrade(v as SteelGrade)}
+            options={[
+              { v: "Fe410", l: "Fe410" },
+              { v: "Fe500", l: "Fe500" },
+            ]}
+          />
+          <NumInput
+            label="Cover (mm)"
+            value={cover}
+            onChange={setCover}
+            step="5"
+          />
+        </InputGrid>
 
-      <button
-        onClick={calculate}
-        className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
-      >
-        <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Slab
-      </button>
+        <button
+          onClick={calculate}
+          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+        >
+          <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Slab
+        </button>
       </div>
 
       {result && (
@@ -683,6 +725,24 @@ function SlabCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
+          <div className="mt-4 flex justify-center">
+            <SaveToProjectButton
+              calculatorType="structural"
+              calculatorSlug="slab-design-calculator"
+              calcTitle={`Slab: ${result.required_thickness}mm (${result.slab_type.replace(/_/g, " ")})`}
+              calcData={result}
+              resultSummary={{
+                type: "slab",
+                required_thickness: result.required_thickness,
+                steel_area_required: result.steel_area_required,
+                slab_type: result.slab_type,
+                max_moment: result.max_moment,
+                max_shear: result.max_shear,
+              }}
+              compact
+              label="Save to Project Workspace"
+            />
+          </div>
         </ResultCard>
       )}
     </div>
@@ -756,11 +816,7 @@ function SelectInput({
 }
 
 function ResultCard({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="card-elevated p-6 sm:p-8">
-      {children}
-    </div>
-  );
+  return <div className="card-elevated p-6 sm:p-8">{children}</div>;
 }
 
 function StatBox({
@@ -775,9 +831,14 @@ function StatBox({
   return (
     <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-5 dark:border-brand-purple/30">
       <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-purple/10 blur-2xl" />
-      <p className="relative text-xs font-medium text-neutral-500 mb-1.5">{label}</p>
+      <p className="relative text-xs font-medium text-neutral-500 mb-1.5">
+        {label}
+      </p>
       <p className="relative text-xl font-bold text-brand-navy dark:text-white">
-        {value} {unit && <span className="text-sm font-normal text-neutral-400">{unit}</span>}
+        {value}{" "}
+        {unit && (
+          <span className="text-sm font-normal text-neutral-400">{unit}</span>
+        )}
       </p>
     </div>
   );
@@ -793,9 +854,14 @@ function CheckRow({
   value: string;
 }) {
   return (
-    <div className={`flex items-center gap-3 rounded-xl p-4 ${pass ? "bg-emerald-50 dark:bg-emerald-500/5" : "bg-red-50 dark:bg-red-500/5"}`}>
+    <div
+      className={`flex items-center gap-3 rounded-xl p-4 ${pass ? "bg-emerald-50 dark:bg-emerald-500/5" : "bg-red-50 dark:bg-red-500/5"}`}
+    >
       {pass ? (
-        <CheckCircle2 aria-hidden="true" className="w-5 h-5 text-emerald-500 shrink-0" />
+        <CheckCircle2
+          aria-hidden="true"
+          className="w-5 h-5 text-emerald-500 shrink-0"
+        />
       ) : (
         <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
       )}
@@ -811,7 +877,9 @@ function DetailItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between border-b border-neutral-100 py-2 dark:border-white/5">
       <span className="text-neutral-500">{label}</span>
-      <span className="font-medium text-neutral-900 dark:text-white">{value}</span>
+      <span className="font-medium text-neutral-900 dark:text-white">
+        {value}
+      </span>
     </div>
   );
 }
@@ -819,10 +887,15 @@ function DetailItem({ label, value }: { label: string; value: string }) {
 function WarningList({ warnings }: { warnings: string[] }) {
   return (
     <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/50 p-4 dark:border-amber-500/20 dark:bg-amber-500/5">
-      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2">⚠️ Warnings</p>
+      <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 mb-2">
+        ⚠️ Warnings
+      </p>
       <ul className="space-y-1.5">
         {warnings.map((w, i) => (
-          <li key={i} className="text-xs leading-relaxed text-amber-600 dark:text-amber-400">
+          <li
+            key={i}
+            className="text-xs leading-relaxed text-amber-600 dark:text-amber-400"
+          >
             • {w}
           </li>
         ))}
@@ -856,7 +929,10 @@ function FormulaToggle({
       {show && (
         <div className="mt-3 overflow-hidden rounded-xl bg-neutral-900 p-5 dark:bg-black/40 space-y-1">
           {formulas.map((f, i) => (
-            <p key={i} className="text-xs font-mono text-emerald-400 leading-relaxed">
+            <p
+              key={i}
+              className="text-xs font-mono text-emerald-400 leading-relaxed"
+            >
               {f}
             </p>
           ))}

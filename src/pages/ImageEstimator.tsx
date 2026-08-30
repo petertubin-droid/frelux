@@ -1,4 +1,4 @@
-import {} from "@/components/calculators";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
@@ -946,7 +946,9 @@ function LockedView({
                 }
                 className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {adState === "watching" || adState === "verifying" || adState === "checking" ? (
+                {adState === "watching" ||
+                adState === "verifying" ||
+                adState === "checking" ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
                     {adState === "watching"
@@ -958,9 +960,7 @@ function LockedView({
                 ) : (
                   <>
                     <Zap className="w-4 h-4" />
-                    {adProviderReady
-                      ? "Watch Ad to Unlock"
-                      : "Coming Soon"}
+                    {adProviderReady ? "Watch Ad to Unlock" : "Coming Soon"}
                   </>
                 )}
               </button>
@@ -1160,6 +1160,25 @@ function EstimateResultView({
         >
           ← Edit AI Parameters
         </button>
+        <div className="flex justify-center pb-3">
+          <SaveToProjectButton
+            calculatorType="build_to_roof"
+            calculatorSlug="ai-photo-estimator"
+            calcTitle={`AI Photo: ${estimate.project_name} (${estimate.total_floor_area} m²)`}
+            calcData={estimate}
+            resultSummary={{
+              grand_total: estimate.grand_total,
+              materials_total: estimate.materials_total,
+              labour_total: estimate.labour_total,
+              total_floor_area: estimate.total_floor_area,
+              construction_stage: estimate.construction_stage,
+              confidence: estimate.confidence,
+              building_type: estimate.building_type,
+            }}
+            compact
+            label="Save to Project Workspace"
+          />
+        </div>
         <div className="flex items-center gap-2">
           {savedId && (
             <span className="text-xs text-green-600 flex items-center gap-1">

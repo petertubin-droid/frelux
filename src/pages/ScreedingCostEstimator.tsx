@@ -1,4 +1,4 @@
-import {} from "@/components/calculators";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
@@ -588,6 +588,38 @@ export default function ScreedingCostEstimator({
                             },
                           ])}
                         />
+                        <div className="mt-3 flex justify-center">
+                          <SaveToProjectButton
+                            calculatorType="screeding"
+                            calculatorSlug="screeding-cost-estimator"
+                            calcTitle={`Screeding Cost: ${formatNumber(netArea)} m²`}
+                            calcData={{ netArea, ...config, ...result }}
+                            resultSummary={{
+                              grandTotal: result.grandTotal,
+                              materialCost: result.materialCost,
+                              paintRequiredLiters: result.paintRequiredLiters,
+                              paintBucketsNeeded: result.paintBucketsNeeded,
+                              cementRequiredKg: result.cementRequiredKg,
+                              cementBagsNeeded: result.cementBagsNeeded,
+                            }}
+                            materials={[
+                              {
+                                name: "Screeding Paint",
+                                category: "paint",
+                                quantity: result.paintBucketsNeeded,
+                                unit: "buckets",
+                              },
+                              {
+                                name: "White Cement",
+                                category: "cement",
+                                quantity: result.cementBagsNeeded,
+                                unit: "bags",
+                              },
+                            ]}
+                            compact
+                            label="Save to Project Workspace"
+                          />
+                        </div>
                       </div>
                     </>
                   ) : (
