@@ -337,11 +337,18 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({ error: "Missing signature" }, 401);
       }
 
-      // Read the raw body for HMAC computation
-      // For GET requests the body is empty; for POST it's the JSON payload
-      const rawBody = await req.text();
+      // Read the raw body for HMAC computation.
+      // Offerwall.ad signs the raw request body for form-POST / JSON
+      // callbacks. GET callbacks carry no body, so for those they sign
+      // the full request URL (including query string) instead — this
+      // is confirmed by their own Publisher Postback Tester, which
+      // reports "Signature source: url" for GET-configured endpoints.
+      // See: https://offerwall.ad/help/verify-publisher-webhook-signatures
+      //      https://offerwall.ad/help/publisher-s2s-postbacks
+      const rawBody = req.method === "GET" ? "" : await req.text();
+      const signaturePayload = req.method === "GET" ? req.url : rawBody;
 
-      // Compute HMAC-SHA256(raw_body, secret)
+      // Compute HMAC-SHA256(signature_payload, secret)
       const key = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(signingSecret),
@@ -352,7 +359,7 @@ Deno.serve(async (req: Request) => {
       const sigBuf = await crypto.subtle.sign(
         "HMAC",
         key,
-        new TextEncoder().encode(rawBody),
+        new TextEncoder().encode(signaturePayload),
       );
       const computedSigHex = Array.from(new Uint8Array(sigBuf))
         .map((b) => b.toString(16).padStart(2, "0"))
