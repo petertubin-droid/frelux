@@ -28,6 +28,24 @@ function jsonResponse(body: unknown, status = 200): Response {
  * 5. The client polls checkRewardedUnlock and detects the unlock
  */
 
+/**
+ * Constant-time string comparison to prevent timing attacks.
+ * Returns true if both strings are equal in length and content.
+ */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+// Offerwall.ad event context (set during parsing, used in processing)
+let owEventType = "";
+let owOriginalTxId = "";
+let owIsReversal = false;
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
@@ -55,6 +73,11 @@ Deno.serve(async (req: Request) => {
   let rewardAmount = 0;
   let providerName = "";
   let isValid = false;
+
+  // Reset Offerwall.ad event context
+  owEventType = "";
+  owOriginalTxId = "";
+  owIsReversal = false;
 
   try {
     if (providerSlug === "adgate_media" || url.searchParams.has("af")) {
@@ -253,61 +276,144 @@ Deno.serve(async (req: Request) => {
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
     } else if (providerSlug === "offerwall_ad") {
-      // Offerwall.ad postback — variable-amount credit rewards
-      // Expected params: uid, amount, tx_id (with optional hash for validation)
-      clientHash =
-        url.searchParams.get("uid") ??
-        url.searchParams.get("user_id") ??
-        url.searchParams.get("user") ??
-        "";
-      rewardAmount = parseFloat(
-        url.searchParams.get("amount") ??
-          url.searchParams.get("payout") ??
-          url.searchParams.get("credits") ??
-          url.searchParams.get("reward") ??
-          "0",
-      );
+      // ── Offerwall.ad HMAC-signed postback ──
+      // The signing secret is stored as OFFERWALL_AD_SIGNING_SECRET
+      // env var. It is NEVER read from the database or frontend.
       providerName = "Offerwall Ad";
-      const txId =
+
+      // Read query params
+      const owUid = url.searchParams.get("uid") ?? "";
+      const owAmountRaw = url.searchParams.get("amount") ?? "";
+      const owTxId =
         url.searchParams.get("tx_id") ??
         url.searchParams.get("transaction_id") ??
-        url.searchParams.get("txid") ??
-        url.searchParams.get("event_id") ??
         "";
 
-      // Validate against postback secret if configured
-      const { data: owProvider } = await supabase
-        .from("ad_providers")
-        .select("credentials, settings")
-        .eq("slug", "offerwall_ad")
-        .eq("is_active", true)
-        .maybeSingle();
+      // Read HMAC + event headers
+      const signatureHeader = req.headers.get("X-Offerwall-Ad-Signature") ?? "";
+      const eventHeader = req.headers.get("X-Offerwall-Ad-Event") ?? "";
+      const eventIdHeader = req.headers.get("X-Offerwall-Ad-Event-Id") ?? "";
 
-      if (!owProvider) {
-        return jsonResponse(
-          { error: "Offerwall provider not configured" },
-          403,
+      // Read shared password from query (if configured)
+      const sharedPassword =
+        url.searchParams.get("password") ??
+        url.searchParams.get("secret") ??
+        url.searchParams.get("token") ??
+        url.searchParams.get("api_key") ??
+        "";
+
+      // ── Parameter validation ──
+      if (!owUid) {
+        console.error("Offerwall postback: missing uid");
+        return jsonResponse({ error: "Missing uid" }, 400);
+      }
+      if (!owAmountRaw) {
+        console.error("Offerwall postback: missing amount");
+        return jsonResponse({ error: "Missing amount" }, 400);
+      }
+      if (!owTxId && !eventIdHeader) {
+        console.error("Offerwall postback: missing transaction/event ID");
+        return jsonResponse({ error: "Missing tx_id" }, 400);
+      }
+
+      const owAmount = parseFloat(owAmountRaw);
+      if (isNaN(owAmount) || owAmount <= 0) {
+        console.error("Offerwall postback: invalid amount", owAmountRaw);
+        return jsonResponse({ error: "Invalid amount" }, 400);
+      }
+
+      // ── HMAC signature verification ──
+      const signingSecret = Deno.env.get("OFFERWALL_AD_SIGNING_SECRET") ?? "";
+
+      if (!signingSecret) {
+        console.error(
+          "Offerwall postback: OFFERWALL_AD_SIGNING_SECRET not configured",
         );
+        return jsonResponse({ error: "Server configuration error" }, 500);
       }
 
-      const postbackSecret = owProvider.credentials?.postback_secret ?? "";
-      if (postbackSecret) {
-        const receivedHash =
-          url.searchParams.get("hash") ??
-          url.searchParams.get("signature") ??
-          "";
-        if (receivedHash !== postbackSecret) {
-          isValid = false;
-        } else {
-          isValid = true;
-        }
-      } else {
-        // No secret configured — accept the postback (admin hasn't set up the secret yet)
-        isValid = true;
+      if (!signatureHeader) {
+        console.error("Offerwall postback: missing X-Offerwall-Ad-Signature");
+        return jsonResponse({ error: "Missing signature" }, 401);
       }
 
-      // Store the transaction ID for later use
-      toolKey = txId || `ow_${Date.now()}`;
+      // Read the raw body for HMAC computation
+      // For GET requests the body is empty; for POST it's the JSON payload
+      const rawBody = await req.text();
+
+      // Compute HMAC-SHA256(raw_body, secret)
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(signingSecret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"],
+      );
+      const sigBuf = await crypto.subtle.sign(
+        "HMAC",
+        key,
+        new TextEncoder().encode(rawBody),
+      );
+      const computedSigHex = Array.from(new Uint8Array(sigBuf))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("");
+
+      // Extract signature from header: "sha256=<hex>"
+      const receivedSig = signatureHeader.startsWith("sha256=")
+        ? signatureHeader.slice(7)
+        : signatureHeader;
+
+      // Constant-time comparison
+      const sigValid = timingSafeEqual(computedSigHex, receivedSig);
+
+      if (!sigValid) {
+        console.error(
+          "Offerwall postback: HMAC signature verification failed",
+          { tx_id: owTxId, event_id: eventIdHeader, uid: owUid },
+        );
+        return jsonResponse({ error: "Invalid signature" }, 403);
+      }
+
+      // ── Shared password verification (if configured) ──
+      const expectedPassword =
+        Deno.env.get("OFFERWALL_AD_SHARED_PASSWORD") ?? "";
+      if (expectedPassword && sharedPassword !== expectedPassword) {
+        console.error("Offerwall postback: shared password mismatch");
+        return jsonResponse({ error: "Invalid credentials" }, 403);
+      }
+
+      // ── Event type handling ──
+      const eventType = eventHeader || "conversion.approved";
+      const eventId = eventIdHeader || owTxId;
+
+      // Determine if this event should award, reverse, or ignore
+      const isAwardable =
+        eventType === "conversion.approved" ||
+        eventType === "conversion.released";
+      const isReversal = eventType === "conversion.reversed";
+      const isIgnorable =
+        eventType === "conversion.held" || eventType === "conversion.rejected";
+
+      if (isIgnorable) {
+        console.log(
+          `Offerwall event ${eventType} for tx ${owTxId}, uid ${owUid} — not awarding`,
+        );
+        return jsonResponse({
+          success: true,
+          message: `Event ${eventType} acknowledged — no credits awarded`,
+        });
+      }
+
+      // Store values for the processing section
+      clientHash = owUid;
+      rewardAmount = owAmount;
+      isValid = true;
+      toolKey = eventId; // Use event ID for idempotency
+
+      // Store event type in a way the processing section can read
+      owEventType = eventType;
+      owOriginalTxId = isReversal ? owTxId : "";
+      owIsReversal = isReversal;
     } else {
       return jsonResponse(
         { error: "Unknown provider", slug: providerSlug },
@@ -331,75 +437,145 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Missing user identifier" }, 400);
   }
 
-  // ── Offerwall.ad: Award variable credits via RPC ──
+  // ── Offerwall.ad: HMAC-verified credit processing ──
   if (providerSlug === "offerwall_ad") {
-    // The uid is the Supabase Auth user UUID
     const userId = clientHash;
-    const creditsToAward = Math.max(1, Math.round(rewardAmount));
-    const eventId = toolKey; // tx_id stored in toolKey
+    const credits = Math.max(1, Math.round(rewardAmount));
+    const eventId = toolKey;
 
     try {
-      const { data: result, error: rpcError } = await supabase.rpc(
-        "award_offerwall_credits",
-        {
-          p_user_id: userId,
-          p_provider: "offerwall_ad",
-          p_event_id: eventId,
-          p_amount: creditsToAward,
-          p_metadata: {
-            postback: true,
-            provider_slug: providerSlug,
-            raw_amount: rewardAmount,
+      if (owIsReversal) {
+        // ── Reversal: deduct previously awarded credits ──
+        const { data: revResult, error: revError } = await supabase.rpc(
+          "reverse_offerwall_credits",
+          {
+            p_user_id: userId,
+            p_provider: "offerwall_ad",
+            p_event_id: eventId,
+            p_original_tx_id: owOriginalTxId,
+            p_amount: credits,
+            p_metadata: {
+              postback: true,
+              event_type: owEventType,
+              raw_amount: rewardAmount,
+            },
           },
-        },
-      );
+        );
 
-      if (rpcError) {
-        console.error("Offerwall credit award RPC error:", rpcError);
-        return jsonResponse({ error: "Failed to award credits" }, 500);
-      }
+        if (revError) {
+          console.error("Offerwall reversal RPC error:", revError);
+          return jsonResponse({ error: "Failed to process reversal" }, 500);
+        }
 
-      const row = result?.[0];
-      if (!row?.success) {
-        if (row?.error === "already_awarded") {
+        const revRow = revResult?.[0];
+        if (!revRow?.success) {
+          // Idempotent — reversal already processed or original not found
           return jsonResponse({
             success: true,
-            message: "Already awarded",
-            already_awarded: true,
+            message: "Reversal already processed or original not found",
+            already_reversed: true,
           });
         }
-        return jsonResponse({ error: row?.error ?? "Award failed" }, 400);
+
+        // Log analytics
+        const { data: owProviderData } = await supabase
+          .from("ad_providers")
+          .select("id")
+          .eq("slug", "offerwall_ad")
+          .maybeSingle();
+
+        await supabase.from("ad_analytics_events").insert({
+          event_type: "reversal",
+          provider_id: owProviderData?.id ?? null,
+          tool_key: "earn_credits",
+          client_hash: userId,
+          revenue_estimated: -rewardAmount,
+          metadata: {
+            provider_slug: providerSlug,
+            event_type: owEventType,
+            event_id: eventId,
+            original_tx_id: owOriginalTxId,
+            credits_reversed: credits,
+          },
+        });
+
+        console.log(
+          `Offerwall reversal processed: -${credits} from user ${userId}, event ${eventId}`,
+        );
+        return jsonResponse({
+          success: true,
+          message: "Reversal processed",
+          credits_reversed: credits,
+          new_balance: revRow.new_balance,
+        });
+      } else {
+        // ── Award: credit approved/released conversion ──
+        const { data: result, error: rpcError } = await supabase.rpc(
+          "award_offerwall_credits",
+          {
+            p_user_id: userId,
+            p_provider: "offerwall_ad",
+            p_event_id: eventId,
+            p_amount: credits,
+            p_event_type: owEventType,
+            p_metadata: {
+              postback: true,
+              provider_slug: providerSlug,
+              raw_amount: rewardAmount,
+            },
+          },
+        );
+
+        if (rpcError) {
+          console.error("Offerwall credit award RPC error:", rpcError);
+          return jsonResponse({ error: "Failed to award credits" }, 500);
+        }
+
+        const row = result?.[0];
+        if (!row?.success) {
+          if (row?.error === "already_awarded") {
+            // Idempotent — return 200 so Offerwall.ad doesn't retry
+            return jsonResponse({
+              success: true,
+              message: "Already awarded",
+              already_awarded: true,
+            });
+          }
+          console.error("Offerwall award failed:", row?.error);
+          return jsonResponse({ error: row?.error ?? "Award failed" }, 400);
+        }
+
+        // Log analytics
+        const { data: owProviderData } = await supabase
+          .from("ad_providers")
+          .select("id")
+          .eq("slug", "offerwall_ad")
+          .maybeSingle();
+
+        await supabase.from("ad_analytics_events").insert({
+          event_type: "reward",
+          provider_id: owProviderData?.id ?? null,
+          tool_key: "earn_credits",
+          client_hash: userId,
+          revenue_estimated: rewardAmount,
+          metadata: {
+            provider_slug: providerSlug,
+            event_type: owEventType,
+            event_id: eventId,
+            credits_awarded: credits,
+          },
+        });
+
+        console.log(
+          `Offerwall credits awarded: ${credits} to user ${userId}, event ${eventId}, type ${owEventType}`,
+        );
+        return jsonResponse({
+          success: true,
+          message: "Credits awarded",
+          credits: credits,
+          new_balance: row.new_balance,
+        });
       }
-
-      // Log the ad analytics event
-      const { data: owProviderData } = await supabase
-        .from("ad_providers")
-        .select("id")
-        .eq("slug", "offerwall_ad")
-        .maybeSingle();
-
-      await supabase.from("ad_analytics_events").insert({
-        event_type: "reward",
-        provider_id: owProviderData?.id ?? null,
-        tool_key: "earn_credits",
-        client_hash: userId,
-        revenue_estimated: rewardAmount,
-        metadata: {
-          provider_slug: providerSlug,
-          postback: true,
-          credits_awarded: creditsToAward,
-        },
-      });
-
-      console.log(
-        `Offerwall credits awarded: ${creditsToAward} to user ${userId}, event ${eventId}`,
-      );
-      return jsonResponse({
-        success: true,
-        message: "Credits awarded",
-        credits: creditsToAward,
-        new_balance: row.new_balance,
-      });
     } catch (e) {
       console.error("Offerwall postback processing error:", e);
       return jsonResponse({ error: "Internal server error" }, 500);
