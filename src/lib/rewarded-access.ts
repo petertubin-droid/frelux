@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { fetchRewardedToolConfig, checkRewardedUnlock } from "@/lib/queries";
-import { supabase } from "@/lib/supabase";
+import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { logAdEvent } from "@/lib/ad-config";
 import type {
   DbRewardedToolConfig,
@@ -440,10 +440,15 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       );
 
       if (fnError || !data?.success) {
-        const errorMsg =
-          data?.error ??
-          fnError?.message ??
-          "Failed to unlock. Please try again.";
+        // supabase.functions.invoke() throws a FunctionsHttpError with a
+        // generic "non-2xx status code" message on failure — the real
+        // reason (e.g. "No rewarded ad provider is configured", daily
+        // limit, cooldown, disabled feature) is in the response body and
+        // must be read via getFunctionErrorMessage(). Falling back to
+        // fnError.message directly hid the real error from users.
+        const errorMsg = fnError
+          ? await getFunctionErrorMessage(fnError)
+          : data?.error ?? "Failed to unlock. Please try again.";
 
         // Log error event
         await logAdEvent({
@@ -489,8 +494,15 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
         setCooldownExpiry(toolKey, cooldownMinutes);
         setIsCooldownActive(true);
       }
-    } catch {
-      setError("Unable to reach the unlock service. Please try again.");
+    } catch (e) {
+      // Surface the real error when available instead of always showing
+      // the same generic network message — network failures, thrown
+      // exceptions, and edge cases all land here.
+      const message =
+        e instanceof Error && e.message
+          ? e.message
+          : "Unable to reach the unlock service. Please try again.";
+      setError(message);
       setAdLoading(false);
     }
   }, [

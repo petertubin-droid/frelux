@@ -337,18 +337,27 @@ Deno.serve(async (req: Request) => {
         return jsonResponse({ error: "Missing signature" }, 401);
       }
 
-      // Read the raw body for HMAC computation.
-      // Offerwall.ad signs the raw request body for form-POST / JSON
-      // callbacks. GET callbacks carry no body, so for those they sign
-      // the full request URL (including query string) instead — this
-      // is confirmed by their own Publisher Postback Tester, which
-      // reports "Signature source: url" for GET-configured endpoints.
+      // Read the raw body once — needed regardless of method since
+      // Offerwall Ad's current published spec signs the raw request
+      // body: X-Offerwall-Ad-Signature: sha256=HMAC_SHA256(raw_body, secret)
       // See: https://offerwall.ad/help/verify-publisher-webhook-signatures
-      //      https://offerwall.ad/help/publisher-s2s-postbacks
-      const rawBody = req.method === "GET" ? "" : await req.text();
-      const signaturePayload = req.method === "GET" ? req.url : rawBody;
+      // For GET-configured callbacks the body is typically empty, so we
+      // also try the URL / query-string as fallback candidates — this
+      // keeps compatibility with GET deliveries that sign the request
+      // line instead of an (empty) body, without weakening security
+      // (every candidate still requires the correct shared secret to
+      // produce a matching signature).
+      let rawBody = "";
+      try {
+        rawBody = await req.text();
+      } catch {
+        rawBody = "";
+      }
 
-      // Compute HMAC-SHA256(signature_payload, secret)
+      const receivedSig = signatureHeader.startsWith("sha256=")
+        ? signatureHeader.slice(7)
+        : signatureHeader;
+
       const key = await crypto.subtle.importKey(
         "raw",
         new TextEncoder().encode(signingSecret),
@@ -356,30 +365,51 @@ Deno.serve(async (req: Request) => {
         false,
         ["sign"],
       );
-      const sigBuf = await crypto.subtle.sign(
-        "HMAC",
-        key,
-        new TextEncoder().encode(signaturePayload),
-      );
-      const computedSigHex = Array.from(new Uint8Array(sigBuf))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
 
-      // Extract signature from header: "sha256=<hex>"
-      const receivedSig = signatureHeader.startsWith("sha256=")
-        ? signatureHeader.slice(7)
-        : signatureHeader;
+      async function computeHmacHex(payload: string): Promise<string> {
+        const sigBuf = await crypto.subtle.sign(
+          "HMAC",
+          key,
+          new TextEncoder().encode(payload),
+        );
+        return Array.from(new Uint8Array(sigBuf))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
 
-      // Constant-time comparison
-      const sigValid = timingSafeEqual(computedSigHex, receivedSig);
+      // Candidate payloads, tried in order of likelihood per current docs.
+      const candidates: Array<{ label: string; payload: string }> = [
+        { label: "raw_body", payload: rawBody },
+        { label: "full_url", payload: req.url },
+        { label: "query_string_with_qmark", payload: url.search },
+        { label: "query_string_no_qmark", payload: url.search.slice(1) },
+      ];
+
+      let sigValid = false;
+      let matchedCandidate = "";
+      for (const candidate of candidates) {
+        // Skip empty payloads except raw_body (an empty body is a
+        // legitimate case for GET requests with no body at all).
+        if (candidate.payload === "" && candidate.label !== "raw_body") continue;
+        const computedHex = await computeHmacHex(candidate.payload);
+        if (timingSafeEqual(computedHex, receivedSig)) {
+          sigValid = true;
+          matchedCandidate = candidate.label;
+          break;
+        }
+      }
 
       if (!sigValid) {
         console.error(
           "Offerwall postback: HMAC signature verification failed",
-          { tx_id: owTxId, event_id: eventIdHeader, uid: owUid },
+          { tx_id: owTxId, event_id: eventIdHeader, uid: owUid, method: req.method },
         );
         return jsonResponse({ error: "Invalid signature" }, 403);
       }
+
+      console.log(
+        `Offerwall postback: signature verified via "${matchedCandidate}"`,
+      );
 
       // ── Shared password verification (if configured) ──
       const expectedPassword =
