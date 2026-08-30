@@ -24,6 +24,8 @@ import {
   fetchProjectCalculations,
   fetchShoppingListWithActual,
   calculateShoppingTotals,
+  fetchClientEstimates,
+  shareClientEstimate,
   fetchProjectProgressStages,
   fetchStageTemplates,
   initProjectProgress,
@@ -41,6 +43,7 @@ import type {
   DbProjectCalculation,
   DbProjectProgressStage,
   DbProjectStageTemplate,
+  DbClientEstimate,
 } from "@/types/database";
 
 type Tab =
@@ -85,6 +88,7 @@ export default function ProjectDetail() {
     DbProjectStageTemplate[]
   >([]);
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
+  const [estimates, setEstimates] = useState<DbClientEstimate[]>([]);
   const [uploading, setUploading] = useState(false);
 
   const loadData = useCallback(async () => {
@@ -102,18 +106,21 @@ export default function ProjectDetail() {
         return;
       }
 
-      const [calcs, shopping, progress, templates, attach] = await Promise.all([
-        fetchProjectCalculations(id),
-        fetchShoppingListWithActual(id),
-        fetchProjectProgressStages(id),
-        fetchStageTemplates(),
-        fetchAttachments(id),
-      ]);
+      const [calcs, shopping, progress, templates, attach, ests] =
+        await Promise.all([
+          fetchProjectCalculations(id),
+          fetchShoppingListWithActual(id),
+          fetchProjectProgressStages(id),
+          fetchStageTemplates(),
+          fetchAttachments(id),
+          fetchClientEstimates(id),
+        ]);
       setCalculations(calcs);
       setShoppingItems(shopping);
       setStages(progress);
       setStageTemplates(templates);
       setAttachments(attach);
+      setEstimates(ests);
     } catch (e) {
       toast({ title: (e as Error).message, variant: "error" });
     } finally {
@@ -648,10 +655,106 @@ export default function ProjectDetail() {
                 Create Estimate
               </Link>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Create professional estimates and share them securely with your
-              clients for approval.
-            </p>
+
+            {estimates.length === 0 ? (
+              <div className="rounded-xl border border-dashed bg-card p-8 text-center">
+                <FileText className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">
+                  No estimates yet. Create your first estimate to share with
+                  your client.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {estimates.map((est) => (
+                  <div
+                    key={est.id}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border bg-card p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium">{est.title}</p>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full border ${
+                            est.status === "approved"
+                              ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                              : est.status === "sent" || est.status === "viewed"
+                                ? "bg-blue-500/10 text-blue-600 border-blue-500/20"
+                                : est.status === "changes_requested"
+                                  ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                  : "bg-muted text-muted-foreground border-muted"
+                          }`}
+                        >
+                          {est.status.replace("_", " ")}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {est.estimate_number} · {fmt(est.grand_total)}
+                        {est.client_name && " · " + est.client_name}
+                        {est.shared_at &&
+                          " · Sent " +
+                            new Date(est.shared_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {est.share_token ? (
+                        <>
+                          <Link
+                            to={`/estimate/${est.share_token}`}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            View
+                          </Link>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const url = `${window.location.origin}/estimate/${est.share_token}`;
+                                await navigator.clipboard.writeText(url);
+                                toast({
+                                  title: "Share link copied!",
+                                  variant: "success",
+                                });
+                              } catch {
+                                toast({
+                                  title: "Failed to copy link",
+                                  variant: "error",
+                                });
+                              }
+                            }}
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            Copy Link
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = await shareClientEstimate(est.id);
+                              const url = `${window.location.origin}/estimate/${token}`;
+                              await navigator.clipboard.writeText(url);
+                              toast({
+                                title: "Share link copied!",
+                                variant: "success",
+                              });
+                              loadData();
+                            } catch (e) {
+                              toast({
+                                title: (e as Error).message,
+                                variant: "error",
+                              });
+                            }
+                          }}
+                          className="text-xs text-primary hover:underline"
+                        >
+                          Share
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

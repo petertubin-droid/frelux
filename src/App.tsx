@@ -269,6 +269,7 @@ const SurfaceAssessment = lazy(() => import("@/pages/SurfaceAssessment"));
 const ProjectWorkspace = lazy(() => import("@/pages/ProjectWorkspace"));
 const ProjectDetail = lazy(() => import("@/pages/ProjectDetail"));
 const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
+const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1204,6 +1205,10 @@ export default function App() {
                   <Route
                     path="/project-workspace/:id"
                     element={<ProjectDetail />}
+                  />
+                  <Route
+                    path="/project-workspace/:id/client-estimate/new"
+                    element={<ClientEstimateEditor />}
                   />
                   <Route
                     path="/estimate/:token"
