@@ -419,14 +419,16 @@ export default function Rewards() {
       {activeTab === "rewards" && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {unusedAiTokens > 0 && (
-            <div className="col-span-full flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300">
+            <div className="col-span-full flex items-start gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300">
               <CheckCircle2
                 aria-hidden="true"
-                className="h-4 w-4 shrink-0 text-accent-green"
+                className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
               />
-              You have <strong>{unusedAiTokens}</strong> unused AI Estimate
-              Token{unusedAiTokens > 1 ? "s" : ""} — it&apos;ll be used
-              automatically next time you hit your daily AI limit.
+              <span>
+                You have <strong>{unusedAiTokens}</strong> unused AI Estimate
+                Token{unusedAiTokens > 1 ? "s" : ""} — it&apos;ll be used
+                automatically next time you hit your daily AI limit.
+              </span>
             </div>
           )}
           {rewardsLoading && (
