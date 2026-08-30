@@ -1,24 +1,25 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-vi.mock("@/lib/supabase", () => {
+vi.mock("@/lib/supabase-lazy", () => {
   const mockData = { current: { providers: [], placements: [] } };
-  return {
-    supabase: {
-      from: vi.fn((_table: string) => ({
-        select: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            order: vi.fn(() =>
-              Promise.resolve({
-                data: mockData.current.providers,
-                error: null,
-              }),
-            ),
-          })),
-        })),
-        insert: vi.fn(() => Promise.resolve({ error: null })),
+  const mockFrom = vi.fn((_table: string) => ({
+    select: vi.fn(() => ({
+      eq: vi.fn(() => ({
+        order: vi.fn(() =>
+          Promise.resolve({
+            data: mockData.current.providers,
+            error: null,
+          }),
+        ),
       })),
-    },
+    })),
+    insert: vi.fn(() => Promise.resolve({ error: null })),
+  }));
+  return {
+    getSupabase: vi.fn(() => Promise.resolve({ from: mockFrom })),
+    isSupabaseConfigured: true,
     _mockData: mockData,
+    _mockFrom: mockFrom,
   };
 });
 
