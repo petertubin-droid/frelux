@@ -39,7 +39,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
             <button
               type="button"
               onClick={() => onChange('')}
-              className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500 hover:text-red-500"
+              className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500 hover:text-red-500"
             >
               <X className="h-3 w-3" /> Remove
             </button>
@@ -51,7 +51,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
           type="text"
           value={value}
           readOnly
-          className="mt-2 w-full rounded-lg border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500"
+          className="mt-2 w-full rounded-lg border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-500"
         />
       )}
       <MediaPicker

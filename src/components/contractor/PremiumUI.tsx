@@ -101,7 +101,7 @@ export function StatCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
             {label}
           </p>
           <p className="mt-2 text-2xl font-bold text-brand-navy dark:text-white tabular-nums">
@@ -207,7 +207,7 @@ export function EmptyState({
         <Icon className="h-10 w-10" />
       </div>
       <h3 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h3>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
         {description}
       </p>
       {actionLabel && onAction && (
@@ -252,7 +252,7 @@ export function SuccessScreen({
       <h3 className="text-2xl font-bold text-brand-navy dark:text-white animate-fade-in-up">
         {title}
       </h3>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 dark:text-neutral-500 animate-fade-in-up">
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 animate-fade-in-up">
         {message}
       </p>
 
@@ -299,7 +299,7 @@ export function ProgressTracker({
       {(label || showValue) && (
         <div className="mb-1.5 flex items-center justify-between">
           {label && (
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
               {label}
             </span>
           )}

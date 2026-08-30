@@ -303,7 +303,7 @@ export default function Colors() {
 
             {/* Color grid — premium cards */}
             {colors.length > 0 ? (
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {colors.map((c) => (
                   <ColorCard key={c.id} color={c} isFavorited={favIds.includes(c.id)} onToggleFavorite={user ? handleToggleFav : undefined} />
                 ))}

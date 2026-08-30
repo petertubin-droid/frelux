@@ -188,7 +188,7 @@ function Select<T extends string>({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
         {label}
       </label>
       <select
@@ -276,7 +276,7 @@ function RoomForm({
       {/* Basic info */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
             Room Name
           </label>
           <input
@@ -304,7 +304,7 @@ function RoomForm({
       {/* Dimensions */}
       <div className="grid gap-3 sm:grid-cols-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
             Length ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -317,7 +317,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
             Width ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -330,7 +330,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
             Height ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -399,7 +399,7 @@ function RoomForm({
             {wasteFactor <= 10 ? 'Low' : wasteFactor <= 20 ? 'Moderate' : 'High'}
           </Badge>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
           Auto-calculated from surface condition, surface type, wall smoothness,
           and porosity. Higher waste factors mean more material will be needed
           to complete the job.
@@ -508,7 +508,7 @@ function RoomCard({
               </Badge>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
             {dimensions && <span>{dimensions}</span>}
             <span>Waste: {wasteFactor}%</span>
             {room.material_cost > 0 && (
@@ -626,7 +626,7 @@ function RoomCard({
                       : 'High Waste'}
                 </Badge>
               </div>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                 Calculated from the surface assessment above. Surface condition,
                 type, smoothness, and porosity each contribute, rougher or more
                 porous surfaces with damage require extra material to account for
@@ -656,7 +656,7 @@ function RoomCard({
                         <p className="text-sm font-medium text-brand-navy dark:text-white">
                           {step.action}
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">{step.reason}</p>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-500">{step.reason}</p>
                         {step.product && (
                           <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
                             <span className="font-semibold">Product:</span>{' '}
@@ -968,7 +968,7 @@ export function RoomBuilder({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-brand-navy dark:text-white">Rooms</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+          <p className="text-sm text-neutral-500 dark:text-neutral-500">
             {rooms.length} room{rooms.length !== 1 ? 's' : ''} in this project
           </p>
         </div>

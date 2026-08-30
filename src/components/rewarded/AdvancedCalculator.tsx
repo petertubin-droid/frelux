@@ -201,14 +201,14 @@ Also flag any unrealistic values or potential issues.`;
 
   return (
     <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-white to-brand-purple/[0.02] p-1">
-      <div className="rounded-xl bg-white p-4 sm:p-6 dark:bg-brand-navy-mid dark:bg-brand-navy-mid">
+      <div className="rounded-xl bg-white p-4 sm:p-6 dark:bg-brand-navy-mid">
         {/* Header */}
         <div className="flex items-center gap-2 border-b border-neutral-100 pb-4">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
             <Bot aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-brand-navy dark:text-white dark:text-white">Advanced Calculator</h3>
+            <h3 className="text-base font-bold text-brand-navy dark:text-white">Advanced Calculator</h3>
             <p className="text-xs text-neutral-500">Detailed breakdown, AI recommendations, PDF export & more</p>
           </div>
         </div>
@@ -283,10 +283,10 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
           <tbody className="divide-y divide-neutral-100">
             {estimate.lineItems.map((item) => (
               <tr key={item.label}>
-                <td className="px-3 py-2.5 font-medium text-brand-navy dark:text-white dark:text-white">{item.label}</td>
+                <td className="px-3 py-2.5 font-medium text-brand-navy dark:text-white">{item.label}</td>
                 <td className="px-3 py-2.5 text-right text-neutral-600">{formatNumber(item.quantity)} {item.unit}</td>
                 <td className="px-3 py-2.5 text-right text-neutral-600">{formatCurrency(item.unitPrice, estimate.currencySymbol)}</td>
-                <td className="px-3 py-2.5 text-right font-semibold text-brand-navy dark:text-white dark:text-white">{formatCurrency(item.total, estimate.currencySymbol)}</td>
+                <td className="px-3 py-2.5 text-right font-semibold text-brand-navy dark:text-white">{formatCurrency(item.total, estimate.currencySymbol)}</td>
               </tr>
             ))}
           </tbody>
@@ -309,10 +309,10 @@ function BreakdownTab({ estimate, input, update, onSave, onDuplicate, onExport, 
       </div>
 
       {/* Shopping list */}
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4 dark:border-white/5 dark:bg-white/5">
+      <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4">
         <div className="flex items-center gap-2">
           <ShoppingBag aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Material Shopping List</h4>
+          <h4 className="text-sm font-bold text-brand-navy dark:text-white">Material Shopping List</h4>
         </div>
         <ul className="mt-2 space-y-1 text-sm text-neutral-600">
           <li>{estimate.paintBuckets} × Screeding Paint (20 L bucket): {formatCurrency(estimate.paintBuckets * input.paintPricePerBucket, estimate.currencySymbol)}</li>
@@ -358,7 +358,7 @@ function MixTab({ input, update, config }: {
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Custom Mix Ratio Editor</h4>
+        <h4 className="text-sm font-bold text-brand-navy dark:text-white">Custom Mix Ratio Editor</h4>
         <p className="mt-0.5 text-xs text-neutral-500">Adjust the paint to cement mix ratio for your wall condition.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {ratios.map((r) => (
@@ -416,7 +416,7 @@ function CostsTab({ input, update, estimate }: {
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Waste Percentage Scenarios</h4>
+        <h4 className="text-sm font-bold text-brand-navy dark:text-white">Waste Percentage Scenarios</h4>
         <p className="mt-0.5 text-xs text-neutral-500">Compare different waste allowances.</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
@@ -442,7 +442,7 @@ function CostsTab({ input, update, estimate }: {
       </div>
 
       <div className="rounded-lg border border-neutral-200 p-4 dark:border-white/5">
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Cost Summary</h4>
+        <h4 className="text-sm font-bold text-brand-navy dark:text-white">Cost Summary</h4>
         <div className="mt-3 space-y-2 text-sm">
           <SummaryRow label="Materials" value={formatCurrency(estimate.materialCost, estimate.currencySymbol)} />
           <SummaryRow label="Labour" value={formatCurrency(estimate.labourCost, estimate.currencySymbol)} />
@@ -471,7 +471,7 @@ function CompareTab({ current, saved, onSelect, selected }: {
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Cost Comparison</h4>
+        <h4 className="text-sm font-bold text-brand-navy dark:text-white">Cost Comparison</h4>
         <p className="mt-0.5 text-xs text-neutral-500">Compare your current estimate with saved estimates or different material brands.</p>
       </div>
 
@@ -518,7 +518,7 @@ function CompareTab({ current, saved, onSelect, selected }: {
                 const diff = row.cur - row.sav;
                 return (
                   <tr key={row.label}>
-                    <td className="px-3 py-2 font-medium text-brand-navy dark:text-white dark:text-white">{row.label}</td>
+                    <td className="px-3 py-2 font-medium text-brand-navy dark:text-white">{row.label}</td>
                     <td className="px-3 py-2 text-right text-neutral-600">{formatNumber(row.cur)}</td>
                     <td className="px-3 py-2 text-right text-neutral-600">{formatNumber(row.sav)}</td>
                     <td className={'px-3 py-2 text-right font-semibold ' + (diff > 0 ? 'text-red-600' : diff < 0 ? 'text-accent-green' : 'text-neutral-500')}>
@@ -555,7 +555,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
       <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
         <div className="flex items-center gap-2">
           <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">AI Powered Recommendations</h4>
+          <h4 className="text-sm font-bold text-brand-navy dark:text-white">AI Powered Recommendations</h4>
         </div>
         <p className="mt-1 text-xs text-neutral-500">Get smart suggestions to reduce waste and lower costs.</p>
         <button
@@ -570,7 +570,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white dark:text-white">Ask the AI Assistant</h4>
+        <h4 className="text-sm font-bold text-brand-navy dark:text-white">Ask the AI Assistant</h4>
         <p className="mt-0.5 text-xs text-neutral-500">Ask about calculations, materials, or cost saving tips.</p>
         <div className="mt-3 flex gap-2">
           <input
@@ -595,7 +595,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response }:
       )}
 
       {response && (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4 dark:border-white/5 dark:bg-white/5">
+        <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4">
           <div className="flex items-start gap-2">
             <Bot aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
             <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm text-neutral-700">{response}</div>
@@ -624,7 +624,7 @@ function SavedTab({ estimates, onDelete, onExport }: {
       {estimates.map((e) => (
         <div key={e.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-4">
           <div>
-            <p className="text-sm font-semibold text-brand-navy dark:text-white dark:text-white">{e.title}</p>
+            <p className="text-sm font-semibold text-brand-navy dark:text-white">{e.title}</p>
             <p className="text-xs text-neutral-500">
               {new Date(e.createdAt).toLocaleDateString()} · {formatCurrency(e.totalCost, e.estimateData.currencySymbol)}
             </p>
@@ -664,7 +664,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-2.5">
       <span className="text-sm text-neutral-500">{label}</span>
-      <span className="text-sm font-semibold text-brand-navy dark:text-white dark:text-white">{value}</span>
+      <span className="text-sm font-semibold text-brand-navy dark:text-white">{value}</span>
     </div>
   );
 }

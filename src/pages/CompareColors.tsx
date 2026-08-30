@@ -145,7 +145,7 @@ export default function CompareColors() {
 
         {/* Search results */}
         {results.length > 0 && (
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {results.map((c) => (
               <button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white text-left dark:border-white/5 dark:bg-brand-navy-mid transition-all hover:border-brand-purple hover:shadow-md">
                 <div className="aspect-square" style={{ background: c.hex_code }} />

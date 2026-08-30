@@ -378,11 +378,19 @@ Deno.serve(async (req: Request) => {
       }
 
       // Candidate payloads, tried in order of likelihood per current docs.
+      // Offerwall Ad docs: "HMAC_SHA256(raw_body, secret)"
+      // For GET callbacks raw_body is empty. But some implementations
+      // sign the query string, the path+query, or other variants.
+      const pathAndQuery = url.pathname + url.search;
+      const pathOnly = url.pathname;
       const candidates: Array<{ label: string; payload: string }> = [
         { label: "raw_body", payload: rawBody },
         { label: "full_url", payload: req.url },
         { label: "query_string_with_qmark", payload: url.search },
         { label: "query_string_no_qmark", payload: url.search.slice(1) },
+        { label: "path_plus_query", payload: pathAndQuery },
+        { label: "path_only", payload: pathOnly },
+        { label: "path_plus_query_no_provider", payload: url.pathname.replace("/offerwall_ad", "") + url.search },
       ];
 
       let sigValid = false;
@@ -400,11 +408,43 @@ Deno.serve(async (req: Request) => {
       }
 
       if (!sigValid) {
-        console.error(
-          "Offerwall postback: HMAC signature verification failed",
-          { tx_id: owTxId, event_id: eventIdHeader, uid: owUid, method: req.method },
+        // Store debug info to ad_analytics_events so we can read it back
+        const debugCandidates = await Promise.all(
+          candidates.map(async (c) => ({
+            label: c.label,
+            payloadPreview: c.payload.slice(0, 300),
+            payloadLength: c.payload.length,
+            computedHex: c.payload === "" && c.label !== "raw_body" ? null : await computeHmacHex(c.payload),
+          })),
         );
-        return jsonResponse({ error: "Invalid signature" }, 403);
+        const allHeaders: Record<string, string> = {};
+        req.headers.forEach((value, key) => {
+          allHeaders[key] = key.toLowerCase().includes("secret") ? "[REDACTED]" : value;
+        });
+        const debugData = {
+          method: req.method,
+          receivedSig,
+          receivedSigLen: receivedSig.length,
+          secretByteLength: new TextEncoder().encode(signingSecret).length,
+          reqUrl: req.url,
+          reqPath: url.pathname,
+          reqSearch: url.search,
+          rawBodyLen: rawBody.length,
+          rawBodyPreview: rawBody.slice(0, 300),
+          allHeaders,
+          candidates: debugCandidates,
+        };
+        // Write to ad_analytics_events for later retrieval
+        await supabase.from("ad_analytics_events").insert({
+          event_type: "sig_debug",
+          tool_key: "offerwall_ad",
+          client_hash: owUid || "unknown",
+          metadata: debugData,
+        });
+        return jsonResponse({
+          error: "Invalid signature",
+          debug: debugData,
+        }, 403);
       }
 
       console.log(

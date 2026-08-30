@@ -176,7 +176,7 @@ export default function TemplatePicker({
                                     onKeyDown={(e) => e.key === 'Enter' && handleRename(t.id)}
                                   />
                                   <button onClick={() => handleRename(t.id)} className="rounded bg-brand-purple p-1 text-white"><Check aria-hidden="true" className="h-3.5 w-3.5" /></button>
-                                  <button onClick={() => setEditingId(null)} className="rounded border border-neutral-200 dark:border-white/5 p-1 text-neutral-500 dark:text-neutral-500 dark:text-neutral-500"><X className="h-3.5 w-3.5" /></button>
+                                  <button onClick={() => setEditingId(null)} className="rounded border border-neutral-200 dark:border-white/5 p-1 text-neutral-500 dark:text-neutral-500"><X className="h-3.5 w-3.5" /></button>
                                 </div>
                               ) : (
                                 <>

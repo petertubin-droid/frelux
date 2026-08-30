@@ -915,7 +915,7 @@ export default function CostEstimator({
               {/* Smart action buttons */}
               {result && (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-4 sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">
                     <button
                       type="button"
                       onClick={handleWhatsAppShare}

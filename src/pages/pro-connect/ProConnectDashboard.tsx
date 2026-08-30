@@ -550,7 +550,7 @@ export default function ProConnectDashboard() {
             No portfolio items yet. Add your first project to showcase your work.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {portfolio.map((item) => (
               <div key={item.id} className="group relative overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5">
                 {item.image_urls[0] && (

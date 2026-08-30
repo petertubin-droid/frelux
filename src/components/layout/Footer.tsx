@@ -59,7 +59,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
               Practical tools to plan paint, estimate cost, and discover the
               right colors for your space.
             </p>

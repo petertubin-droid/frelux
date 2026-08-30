@@ -1085,7 +1085,7 @@ function RoomCard({
             icon={<Square className="h-4 w-4" />}
             title="Room Dimensions"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
               <NumberField
                 label="Length"
                 value={room.length}
@@ -1495,7 +1495,7 @@ function EstimateResult({
           <div className="p-5">
             {/* Customer-facing summary — painter language */}
             <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
                 <div>
                   <span className="text-neutral-500 dark:text-neutral-500">
                     Room Size:
@@ -1592,7 +1592,7 @@ function EstimateResult({
             )}
 
             {/* Professional detail stats (supplementary, not primary) */}
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
               <StatBox
                 label="Paint Buckets Required"
                 value={`${room.practical_total_buckets} bucket(s)`}
@@ -1695,7 +1695,7 @@ function EstimateResult({
         </div>
         <div className="p-5 space-y-4">
           {/* Combined quantities */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
             <StatBox
               label="Total Paint Buckets"
               value={`${result.combined_practical_buckets} bucket(s)`}

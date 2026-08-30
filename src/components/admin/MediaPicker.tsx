@@ -75,7 +75,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 px-5 py-3">
           <h2 className="text-base font-bold text-brand-navy dark:text-white">Media Library</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 dark:text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
+          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 hover:bg-neutral-100"><X className="h-5 w-5" /></button>
         </div>
 
         {error && <div className="border-b border-red-200 bg-red-50 px-5 py-2 text-sm text-red-700">{error}</div>}
@@ -119,7 +119,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                   <p className="mt-2">No images yet. Upload one to get started.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {items.map((item) => (
                     <div key={item.id} className={classNames('group relative overflow-hidden rounded-lg border-2 transition-all', selected?.id === item.id ? 'border-brand-purple ring-2 ring-brand-purple/20' : 'border-transparent hover:border-neutral-200 dark:border-white/5')}>
                       <button type="button" onClick={() => setSelected(item)} className="block w-full">
@@ -131,7 +131,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                       {selected?.id === item.id && (
                         <div className="absolute right-1 top-1 rounded-full bg-brand-purple p-1 text-white"><Check aria-hidden="true" className="h-3 w-3" /></div>
                       )}
-                      <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="absolute left-1 top-1 rounded-full bg-white dark:bg-brand-navy-mid/80 p-1 text-neutral-500 dark:text-neutral-500 dark:text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="absolute left-1 top-1 rounded-full bg-white dark:bg-brand-navy-mid/80 p-1 text-neutral-500 dark:text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
                         <Trash2 aria-hidden="true" className="h-3 w-3" />
                       </button>
                     </div>

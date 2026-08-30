@@ -72,7 +72,7 @@ const mountedRef = useRef(true);
 
         {/* Category cards */}
         {categories.length > 0 && (
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {categories.map((cat) => (
               <Link
                 key={cat.id}

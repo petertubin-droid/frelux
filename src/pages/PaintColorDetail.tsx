@@ -195,7 +195,7 @@ export default function PaintColorDetail() {
       {related.length > 0 && (
         <div className="mt-12">
           <h2 className="text-xl font-bold text-brand-navy dark:text-white">Similar colors</h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8">
             {related.map((c) => (
               <Link key={c.id} to={`/colors/paint/${c.slug}`} className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md">
                 <div className="aspect-square" style={{ background: c.hex_code }} />

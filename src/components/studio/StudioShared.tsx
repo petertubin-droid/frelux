@@ -104,7 +104,7 @@ export function AiResponseDisplay({ content, loading, error }: { content: string
     return (
       <div className="flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 p-6">
         <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
-        <span className="text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">AI is generating your response…</span>
+        <span className="text-sm text-neutral-500 dark:text-neutral-500">AI is generating your response…</span>
       </div>
     );
   }
@@ -259,7 +259,7 @@ export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cp
       </div>
       <div>
         <h1 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h1>
-        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500 dark:text-neutral-500">{description}</p>
+        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">{description}</p>
       </div>
     </div>
   );

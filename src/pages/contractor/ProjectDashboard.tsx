@@ -938,7 +938,7 @@ function OverviewTab(props: OverviewTabProps) {
       </div>
 
       {/* Quick stats grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {[
           { label: 'Rooms', value: props.roomCount, icon: Package },
           { label: 'Labour Roles', value: props.labourCount, icon: Users },
@@ -1652,7 +1652,7 @@ function QuotationTab(props: QuotationTabProps) {
         <h3 className="text-base font-semibold text-gray-900">Generate New Quotation</h3>
         <p className="mt-1 text-sm text-gray-500">Adjust markup, profit, tax, and additional costs to generate a quotation.</p>
 
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <div>
             <label className="block text-xs font-medium text-gray-600">Markup %</label>
             <input
@@ -1758,7 +1758,7 @@ function QuotationTab(props: QuotationTabProps) {
               </div>
 
               {/* Cost breakdown */}
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:grid-cols-4">
+              <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
                 <div className="rounded-lg bg-gray-50 p-3">
                   <p className="text-xs text-gray-500">Materials</p>
                   <p className="text-sm font-semibold text-gray-900">{currencySymbol}{quot.material_cost.toLocaleString('en-NG')}</p>
