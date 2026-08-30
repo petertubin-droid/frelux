@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Gem,
@@ -41,7 +41,8 @@ import {
   type RewardedAdCreditEvent,
 } from "@/lib/credits";
 import { getClientHash } from "@/lib/rewarded-access";
-import { PlayCircle, Film } from "lucide-react";
+import { PlayCircle, Film, ExternalLink } from "lucide-react";
+import { OfferwallAd } from "@/components/rewarded/OfferwallAd";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Sparkles> = {
@@ -77,6 +78,15 @@ export default function Rewards() {
   const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProviderReady, setAdProviderReady] = useState(false);
+  const [showOfferwall, setShowOfferwall] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // Auto-open offerwall when arriving via ?tab=offerwall
+  useEffect(() => {
+    if (searchParams.get("tab") === "offerwall") {
+      setShowOfferwall(true);
+    }
+  }, [searchParams]);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -176,12 +186,20 @@ export default function Rewards() {
   async function handleWatchAd() {
     if (!user || watchingAd) return;
     if (!adConfig?.is_enabled) {
-      toast({ type: "warning", title: "Ads unavailable", message: "Rewarded ads are currently disabled." });
+      toast({
+        type: "warning",
+        title: "Ads unavailable",
+        message: "Rewarded ads are currently disabled.",
+      });
       return;
     }
 
     if (!adProviderReady) {
-      toast({ type: "info", title: "Coming soon", message: "Ad provider is not yet configured. Check back later!" });
+      toast({
+        type: "info",
+        title: "Coming soon",
+        message: "Ad provider is not yet configured. Check back later!",
+      });
       return;
     }
 
@@ -206,7 +224,11 @@ export default function Rewards() {
       const adEventId = `ad_${user.id}_${Date.now()}`;
       const adProvider = "frelux_rewarded";
 
-      const result = await verifyRewardedAd(adProvider, adEventId, "earn_credits");
+      const result = await verifyRewardedAd(
+        adProvider,
+        adEventId,
+        "earn_credits",
+      );
       if (result.success) {
         toast({
           type: "success",
@@ -217,15 +239,31 @@ export default function Rewards() {
         await loadData();
       } else {
         if (result.code === "ALREADY_AWARDED") {
-          toast({ type: "info", title: "Already rewarded", message: "This ad has already been counted." });
+          toast({
+            type: "info",
+            title: "Already rewarded",
+            message: "This ad has already been counted.",
+          });
         } else if (result.code === "DAILY_LIMIT") {
-          toast({ type: "info", title: "Daily limit reached", message: result.error ?? "Come back tomorrow!" });
+          toast({
+            type: "info",
+            title: "Daily limit reached",
+            message: result.error ?? "Come back tomorrow!",
+          });
         } else {
-          toast({ type: "error", title: "Ad not verified", message: result.error ?? "Please try again." });
+          toast({
+            type: "error",
+            title: "Ad not verified",
+            message: result.error ?? "Please try again.",
+          });
         }
       }
     } catch {
-      toast({ type: "error", title: "Ad failed", message: "Unable to verify ad. Please try again." });
+      toast({
+        type: "error",
+        title: "Ad failed",
+        message: "Unable to verify ad. Please try again.",
+      });
     } finally {
       setWatchingAd(false);
     }
@@ -236,17 +274,32 @@ export default function Rewards() {
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <Gem className="mx-auto h-12 w-12 text-brand-purple/40" />
         <h1 className="mt-4 text-2xl font-bold text-brand-navy dark:text-white">
-          FRELUX Rewards
+          Sign in to earn FRELUX Credits
         </h1>
         <p className="mt-2 text-sm text-neutral-500">
-          Sign in to start earning credits and unlocking rewards.
+          Create a free FRELUX account or sign in to securely earn, save, and
+          use your FRELUX Credits.
         </p>
-        <Link
-          to="/login?redirect=/rewards"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
-        >
-          Sign In
-        </Link>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Link
+            to="/login?redirect=/rewards"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+          >
+            Sign In
+          </Link>
+          <Link
+            to="/register?redirect=/rewards"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-brand-purple/5"
+          >
+            Create Free Account
+          </Link>
+          <Link
+            to="/"
+            className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+          >
+            Continue browsing FRELUX
+          </Link>
+        </div>
       </div>
     );
   }
@@ -335,68 +388,111 @@ export default function Rewards() {
       </div>
 
       {/* Watch Ad to Earn Credits */}
-      {adConfig?.is_enabled && (() => {
-        const today = new Date().toISOString().split("T")[0];
-        const todayEarned = adHistory.filter(
-          (e) => e.created_at.startsWith(today) && e.status === "completed",
-        ).length;
-        const dailyLimit = adConfig?.daily_earn_limit ?? 10;
-        const creditsPerAd = adConfig?.credits_per_ad ?? 5;
-        const canEarn = todayEarned < dailyLimit && adProviderReady;
+      {adConfig?.is_enabled &&
+        (() => {
+          const today = new Date().toISOString().split("T")[0];
+          const todayEarned = adHistory.filter(
+            (e) => e.created_at.startsWith(today) && e.status === "completed",
+          ).length;
+          const dailyLimit = adConfig?.daily_earn_limit ?? 10;
+          const creditsPerAd = adConfig?.credits_per_ad ?? 5;
+          const canEarn = todayEarned < dailyLimit && adProviderReady;
 
-        return (
-          <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
-                  <Film className="h-6 w-6 text-brand-purple" />
+          return (
+            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
+                    <Film className="h-6 w-6 text-brand-purple" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-brand-navy dark:text-white">
+                      Watch Ad — Earn {creditsPerAd} Credits
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      Today: {todayEarned} / {dailyLimit} ads watched
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">
-                    Watch Ad — Earn {creditsPerAd} Credits
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    Today: {todayEarned} / {dailyLimit} ads watched
-                  </p>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleWatchAd}
+                  disabled={!canEarn || watchingAd}
+                  className={classNames(
+                    "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                    canEarn && !watchingAd
+                      ? "bg-brand-purple text-white hover:bg-brand-purple/90"
+                      : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
+                  )}
+                >
+                  {watchingAd ? (
+                    <>
+                      <Loader2
+                        aria-hidden="true"
+                        className="h-4 w-4 animate-spin"
+                      />
+                      Verifying...
+                    </>
+                  ) : (
+                    <>
+                      <PlayCircle className="h-4 w-4" />
+                      {canEarn
+                        ? `Watch Ad (+${creditsPerAd})`
+                        : adProviderReady
+                          ? "Daily limit reached"
+                          : "Coming soon"}
+                    </>
+                  )}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={handleWatchAd}
-                disabled={!canEarn || watchingAd}
-                className={classNames(
-                  "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
-                  canEarn && !watchingAd
-                    ? "bg-brand-purple text-white hover:bg-brand-purple/90"
-                    : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
-                )}
-              >
-                {watchingAd ? (
-                  <>
-                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  <>
-                    <PlayCircle className="h-4 w-4" />
-                    {canEarn
-                      ? `Watch Ad (+${creditsPerAd})`
-                      : adProviderReady
-                        ? "Daily limit reached"
-                        : "Coming soon"}
-                  </>
-                )}
-              </button>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+                <div
+                  className="h-full rounded-full bg-brand-purple transition-all duration-500"
+                  style={{
+                    width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%`,
+                  }}
+                />
+              </div>
             </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
-              <div
-                className="h-full rounded-full bg-brand-purple transition-all duration-500"
-                style={{ width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%` }}
-              />
+          );
+        })()}
+
+      {/* Complete Offers — Offerwall.ad */}
+      {!showOfferwall ? (
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
+                <ExternalLink className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  Complete Offers — Earn FRELUX Credits
+                </p>
+                <p className="text-xs text-neutral-500">
+                  Surveys, app installs, and other offers. Rewards vary by
+                  offer.
+                </p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setShowOfferwall(true)}
+              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-600"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Browse Offers
+            </button>
           </div>
-        );
-      })()}
+        </div>
+      ) : (
+        <div className="mb-6">
+          <OfferwallAd
+            userId={user.id}
+            onBack={() => setShowOfferwall(false)}
+          />
+        </div>
+      )}
 
       {/* Weekly Mission */}
       {mission && (

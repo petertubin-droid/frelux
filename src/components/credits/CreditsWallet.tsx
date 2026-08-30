@@ -13,7 +13,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Film,
+  ExternalLink,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { getSupabase } from "@/lib/supabase-lazy";
 import {
   getCreditWallet,
@@ -79,14 +81,18 @@ export function CreditsWallet({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
 
   const dailyLimit = config?.daily_earn_limit ?? 10;
   const creditsPerAd = config?.credits_per_ad ?? 5;
-  const canEarn = config?.is_enabled && todayEarned < dailyLimit && adProviderReady;
+  const canEarn =
+    config?.is_enabled && todayEarned < dailyLimit && adProviderReady;
 
   return (
     <div className="space-y-4">
@@ -193,7 +199,10 @@ export function CreditsWallet({ userId }: { userId: string }) {
                 Spend credits on AI features (cost varies per feature)
               </div>
               <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
-                <Clock aria-hidden="true" className="h-3.5 w-3.5 text-neutral-500" />
+                <Clock
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 text-neutral-500"
+                />
                 Up to {dailyLimit} ad rewards per day
               </div>
             </div>
@@ -281,9 +290,15 @@ export function CreditsWallet({ userId }: { userId: string }) {
                 </div>
                 <div className="flex items-center gap-2">
                   {evt.status === "completed" ? (
-                    <CheckCircle2 aria-hidden="true" className="h-4 w-4 text-accent-green" />
+                    <CheckCircle2
+                      aria-hidden="true"
+                      className="h-4 w-4 text-accent-green"
+                    />
                   ) : (
-                    <AlertCircle aria-hidden="true" className="h-4 w-4 text-red-400" />
+                    <AlertCircle
+                      aria-hidden="true"
+                      className="h-4 w-4 text-red-400"
+                    />
                   )}
                   <span className="text-xs font-bold text-accent-green">
                     +{evt.credits_awarded}
@@ -496,12 +511,37 @@ function EarnCreditsModal({
                 Credits are only awarded after the ad is fully watched and
                 verified.
               </p>
+
+              {/* Divider */}
+              <div className="my-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                <span className="text-xs font-medium text-neutral-400 dark:text-neutral-600">
+                  or
+                </span>
+                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+              </div>
+
+              {/* Complete Offers — separate from Watch Ad */}
+              <Link
+                to="/rewards?tab=offerwall"
+                onClick={onClose}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+              >
+                <ExternalLink className="h-5 w-5" />
+                Complete Offers — Earn More Credits
+              </Link>
+              <p className="mt-2 text-center text-xs text-neutral-500 dark:text-neutral-500">
+                Surveys, app installs, and other offers. Rewards vary by offer.
+              </p>
             </>
           )}
 
           {phase === "loading" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2
+                aria-hidden="true"
+                className="h-8 w-8 animate-spin text-brand-purple"
+              />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Loading ad…
               </p>
@@ -524,7 +564,10 @@ function EarnCreditsModal({
 
           {phase === "verifying" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2
+                aria-hidden="true"
+                className="h-8 w-8 animate-spin text-brand-purple"
+              />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Verifying ad completion…
               </p>
@@ -537,7 +580,10 @@ function EarnCreditsModal({
           {phase === "success" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/10">
-                <CheckCircle2 aria-hidden="true" className="h-8 w-8 text-accent-green" />
+                <CheckCircle2
+                  aria-hidden="true"
+                  className="h-8 w-8 text-accent-green"
+                />
               </div>
               <p className="text-lg font-bold text-neutral-900 dark:text-white">
                 +{earnedAmount} Credits!
@@ -558,7 +604,10 @@ function EarnCreditsModal({
           {phase === "error" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 dark:bg-red-500/10">
-                <AlertCircle aria-hidden="true" className="h-8 w-8 text-red-400" />
+                <AlertCircle
+                  aria-hidden="true"
+                  className="h-8 w-8 text-red-400"
+                />
               </div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Ad unavailable
@@ -582,7 +631,10 @@ function EarnCreditsModal({
           {phase === "limit" && (
             <div className="flex flex-col items-center gap-3 py-8">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-white/5">
-                <Clock aria-hidden="true" className="h-8 w-8 text-neutral-500" />
+                <Clock
+                  aria-hidden="true"
+                  className="h-8 w-8 text-neutral-500"
+                />
               </div>
               <p className="text-sm font-semibold text-neutral-900 dark:text-white">
                 Daily limit reached
@@ -740,7 +792,10 @@ export function AiFeatureGate({
           onClick={onClose}
         />
         <div className="relative rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
-          <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+          <Loader2
+            aria-hidden="true"
+            className="h-8 w-8 animate-spin text-brand-purple"
+          />
         </div>
       </div>
     );
@@ -756,7 +811,10 @@ export function AiFeatureGate({
         <div className="relative w-full max-w-md rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
           <div className="flex flex-col items-center gap-3">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/10">
-              <CheckCircle2 aria-hidden="true" className="h-8 w-8 text-accent-green" />
+              <CheckCircle2
+                aria-hidden="true"
+                className="h-8 w-8 text-accent-green"
+              />
             </div>
             <p className="text-lg font-bold text-neutral-900 dark:text-white">
               ✓ Unlocked
@@ -822,7 +880,10 @@ export function AiFeatureGate({
 
           {mode === "ad_watching" ? (
             <div className="flex flex-col items-center gap-3 py-8">
-              <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+              <Loader2
+                aria-hidden="true"
+                className="h-8 w-8 animate-spin text-brand-purple"
+              />
               <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
                 Playing ad…
               </p>
@@ -845,7 +906,10 @@ export function AiFeatureGate({
                 )}
               >
                 {spending ? (
-                  <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-5 w-5 animate-spin"
+                  />
                 ) : (
                   <Coins className="h-5 w-5" />
                 )}
@@ -871,7 +935,10 @@ export function AiFeatureGate({
                     className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-brand-purple/10 disabled:opacity-50 dark:text-brand-purple"
                   >
                     {adUnlocking ? (
-                      <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
+                      <Loader2
+                        aria-hidden="true"
+                        className="h-5 w-5 animate-spin"
+                      />
                     ) : (
                       <PlayCircle className="h-5 w-5" />
                     )}
