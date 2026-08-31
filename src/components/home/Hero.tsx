@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Gem, Building2 } from 'lucide-react';
+import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Gem, Building2, Sparkles } from 'lucide-react';
 import Container from '@/components/ui/Container';
 import { useHeroContent } from '@/lib/useHeroContent';
 import { useBranding } from '@/lib/branding';
@@ -45,25 +45,31 @@ export default function Hero() {
 
   return (
     <section data-tour="hero" className={`relative overflow-hidden bg-mesh text-white transition-opacity duration-300 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      {/* Grid pattern */}
-      <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
+      {/* Animated mesh gradient — premium aurora */}
+      <div className="pointer-events-none absolute inset-0 bg-mesh-purple animate-mesh-shift opacity-60" aria-hidden="true" />
 
-      {/* Ambient glows */}
+      {/* Refined grid pattern */}
+      <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" aria-hidden="true" />
+
+      {/* Ambient glows — layered for depth */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-brand-purple/20 blur-[140px]" />
-        <div className="absolute -right-32 top-1/4 h-72 w-72 rounded-full bg-accent-cyan/8 blur-[120px]" />
-        <div className="absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-brand-purple-deep/15 blur-[120px]" />
+        <div className="absolute left-1/2 top-0 h-[520px] w-[820px] -translate-x-1/2 rounded-full bg-brand-purple/25 blur-[150px]" />
+        <div className="absolute -right-32 top-1/4 h-72 w-72 rounded-full bg-accent-cyan/10 blur-[120px]" />
+        <div className="absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-brand-purple-deep/20 blur-[120px]" />
       </div>
 
-      {/* Top border line */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden="true" />
+      {/* Top hairline accent */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple-light/40 to-transparent" aria-hidden="true" />
 
       <Container className="relative grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-2 lg:gap-20 lg:py-36">
         {/* Left: Content */}
         <div className="animate-fade-in-up">
-          {/* Eyebrow badge */}
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md transition-colors hover:border-white/20 hover:text-white/90">
-            <Gem className="h-3 w-3 text-brand-purple-light" />
+          {/* Eyebrow badge — glassmorphic with gradient ring */}
+          <span className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-xl transition-colors hover:border-brand-purple-light/30 hover:text-white/90">
+            <span className="relative flex h-3.5 w-3.5 items-center justify-center">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-brand-purple-light/40" />
+              <Gem className="relative h-3 w-3 text-brand-purple-light" />
+            </span>
             Plan. Estimate. Discover.
           </span>
 
@@ -98,7 +104,7 @@ export default function Hero() {
             {hero.ctaPrimaryHref.startsWith('#') ? (
               <a
                 href={hero.ctaPrimaryHref}
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/30 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/40 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
@@ -107,7 +113,7 @@ export default function Hero() {
             ) : (
               <Link
                 to={hero.ctaPrimaryHref}
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/30 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/40 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
@@ -117,7 +123,7 @@ export default function Hero() {
             {hero.ctaSecondaryHref.startsWith('#') ? (
               <a
                 href={hero.ctaSecondaryHref}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-xl transition-all hover:bg-white/[0.12] active:scale-[0.98] border border-white/10 hover:border-white/20"
               >
                 <Calculator className="h-4 w-4" />
                 {hero.ctaSecondaryLabel}
@@ -125,7 +131,7 @@ export default function Hero() {
             ) : (
               <Link
                 to={hero.ctaSecondaryHref}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/[0.06] px-6 py-3.5 text-sm font-semibold text-white backdrop-blur-xl transition-all hover:bg-white/[0.12] active:scale-[0.98] border border-white/10 hover:border-white/20"
               >
                 <Calculator className="h-4 w-4" />
                 {hero.ctaSecondaryLabel}
@@ -144,7 +150,7 @@ export default function Hero() {
           {/* Trust points */}
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
             {trustPoints.map((point) => (
-              <span key={point} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/40">
+              <span key={point} className="inline-flex items-center gap-1.5 text-xs font-medium text-white/45">
                 <Check className="h-3.5 w-3.5 text-accent-green" />
                 {point}
               </span>
@@ -161,9 +167,9 @@ export default function Hero() {
                   <div key={step.label} className="flex items-center gap-2">
                     <Link
                       to={step.to}
-                      className="group inline-flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/[0.03] px-3.5 py-2 text-xs font-medium text-white/60 transition-all hover:border-white/15 hover:text-white hover:bg-white/5"
+                      className="group inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] px-3.5 py-2 text-xs font-medium text-white/60 backdrop-blur-sm transition-all hover:border-brand-purple-light/30 hover:text-white hover:bg-white/[0.06]"
                     >
-                      <span className="text-white/20 transition-colors group-hover:text-white/40">{i + 1}</span>
+                      <span className="text-white/20 transition-colors group-hover:text-brand-purple-light">{i + 1}</span>
                       <Icon className="h-3.5 w-3.5" />
                       {step.label}
                     </Link>
@@ -177,10 +183,13 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right: Visual composition */}
+        {/* Right: Premium bento visual composition */}
         <div className="relative hidden lg:block animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           <div className="relative mx-auto max-w-md">
-            {/* Main image */}
+            {/* Decorative gradient ring behind image */}
+            <div className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-brand-purple/30 via-transparent to-accent-cyan/20 opacity-60 blur-2xl" aria-hidden="true" />
+
+            {/* Main image — premium framed card */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
               <img
                 src={heroImageUrl}
@@ -196,7 +205,7 @@ export default function Hero() {
                 }}
               />
               {/* Gradient overlay for depth */}
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/50 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-navy/60 via-transparent to-transparent" />
               {/* Image caption overlay */}
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
                 <p className="text-xs font-medium text-white/80">{heroImageAlt}</p>
@@ -205,7 +214,7 @@ export default function Hero() {
             </div>
 
             {/* Floating swatch card — derived from branding config */}
-            <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white dark:bg-brand-navy-mid p-4 shadow-premium-lg animate-float">
+            <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-white dark:bg-brand-navy-mid p-4 shadow-premium-lg ring-1 ring-black/5 dark:ring-white/5 animate-float">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
                 {branding?.hero_image_label || 'FRELUX Tools'}
               </p>
@@ -220,7 +229,7 @@ export default function Hero() {
             </div>
 
             {/* Floating estimate chip — uses hero content */}
-            <div className="absolute -right-5 top-8 rounded-xl bg-white dark:bg-brand-navy-mid px-4 py-3.5 shadow-premium-lg animate-float-delayed">
+            <div className="absolute -right-5 top-8 rounded-xl bg-white dark:bg-brand-navy-mid px-4 py-3.5 shadow-premium-lg ring-1 ring-black/5 dark:ring-white/5 animate-float-delayed">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
                 {branding?.hero_chip_label || 'Plan & Estimate'}
               </p>
@@ -233,13 +242,19 @@ export default function Hero() {
             </div>
 
             {/* Floating badge — uses branding config */}
-            <div className="absolute -top-4 right-12 rounded-xl bg-brand-purple px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
+            <div className="absolute -top-4 right-12 rounded-xl bg-brand-purple px-3.5 py-2.5 shadow-lg shadow-brand-purple/40 ring-1 ring-white/10 transition-transform duration-300 hover:scale-105">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/60">
                 {branding?.hero_badge_label || 'Platform'}
               </p>
               <p className="font-display text-sm font-bold text-white">
                 {branding?.hero_badge_value || 'FRELUX'}
               </p>
+            </div>
+
+            {/* Premium sparkle accent */}
+            <div className="absolute -right-2 bottom-16 flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 backdrop-blur-xl animate-float-smooth" aria-hidden="true">
+              <Sparkles className="h-3 w-3 text-accent-yellow" />
+              <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50">AI-powered</span>
             </div>
           </div>
         </div>
