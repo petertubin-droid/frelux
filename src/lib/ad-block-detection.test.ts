@@ -44,8 +44,8 @@ describe("ad-block-detection", () => {
   });
 
   it("does not flag ad blocker merely because window.adsbygoogle is not yet set (no false positive from async timing)", async () => {
-    // Simulate the AdSense script tag being present (as it always is via index.html)
-    // but window.adsbygoogle not yet initialized — this used to cause a false positive.
+    // Simulate the AdSense script tag being present but window.adsbygoogle
+    // not yet initialized — this used to cause a false positive.
     const script = document.createElement("script");
     script.type = "text/plain";
     script.src =
@@ -60,7 +60,9 @@ describe("ad-block-detection", () => {
     expect(typeof result).toBe("boolean");
   });
 
-  it("treats an actual script load failure as a blocked signal", async () => {
+  it("does not flag ad blocker when AdSense script load fails (no false positive from dynamic loading)", async () => {
+    // AdSense is loaded dynamically after hydration, so a failed/missing
+    // script must NOT be treated as an ad blocker signal.
     const script = document.createElement("script");
     script.type = "text/plain";
     script.src =
@@ -70,6 +72,8 @@ describe("ad-block-detection", () => {
     const detectionPromise = detectAdBlocker();
     script.dispatchEvent(new Event("error"));
     const result = await detectionPromise;
-    expect(result).toBe(true);
+    // The bait element is not blocked in the test environment, so result
+    // should be false — the script error alone must NOT trigger a positive.
+    expect(result).toBe(false);
   });
 });

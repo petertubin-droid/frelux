@@ -5,11 +5,6 @@
  * an ad to common ad blockers. If the element is hidden or removed by an
  * ad blocker, we detect it.
  *
- * The AdSense script-load check is intentionally conservative: it only
- * counts as a "blocked" signal when the script tag is missing outright or
- * its network request actually failed (onerror) — never from
- * `window.adsbygoogle` being merely "not yet initialized".
- *
  * Mobile fix: The old code checked `offsetParent === null` and
  * `offsetHeight === 0` on a `position:absolute;left:-9999px` element.
  * On mobile browsers, elements positioned off-screen can have
@@ -21,25 +16,9 @@
 
 let detected = false;
 let checked = false;
-let adsenseScriptFailed = false;
-let adsenseListenerAttached = false;
-
-function attachAdsenseFailureListener(): void {
-  if (adsenseListenerAttached) return;
-  const script = document.querySelector<HTMLScriptElement>(
-    'script[src*="adsbygoogle.js"]',
-  );
-  if (!script) return;
-  adsenseListenerAttached = true;
-  script.addEventListener("error", () => {
-    adsenseScriptFailed = true;
-  });
-}
 
 export async function detectAdBlocker(): Promise<boolean> {
   if (checked) return detected;
-
-  attachAdsenseFailureListener();
 
   // Create a bait element that ad blockers typically target.
   // Use position:fixed (not absolute) with visible coordinates so the
@@ -63,18 +42,18 @@ export async function detectAdBlocker(): Promise<boolean> {
   // for off-screen or fixed-position elements.
   const computedStyle = window.getComputedStyle(bait);
   const baitBlocked =
-    computedStyle.display === "none" ||
-    computedStyle.visibility === "hidden";
+    computedStyle.display === "none" || computedStyle.visibility === "hidden";
 
   document.body.removeChild(bait);
 
-  const adsenseScript = document.querySelector('script[src*="adsbygoogle.js"]');
-  // Only treat AdSense as "blocked" when the script tag is missing entirely
-  // or its request actually failed — not from a timing race on an async
-  // network load.
-  const adsenseBlocked = !adsenseScript || adsenseScriptFailed;
+  // NOTE: We intentionally do NOT check for the AdSense script here.
+  // AdSense is loaded dynamically by AnalyticsScripts AFTER hydration
+  // (it fetches the publisher ID from Supabase first), so the script tag
+  // is almost never in the DOM when this detection runs. Treating a missing
+  // AdSense script as "ad blocker" would cause false-positive banners for
+  // every user. The bait element check above is the reliable signal.
 
-  detected = baitBlocked || adsenseBlocked;
+  detected = baitBlocked;
   checked = true;
   return detected;
 }
@@ -86,6 +65,4 @@ export function isAdBlockerDetected(): boolean {
 export function resetAdBlockDetection(): void {
   detected = false;
   checked = false;
-  adsenseScriptFailed = false;
-  adsenseListenerAttached = false;
 }
