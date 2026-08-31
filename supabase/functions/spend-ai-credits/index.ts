@@ -21,12 +21,11 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 /**
- * Flat AI credit pricing.
+ * Tiered AI credit pricing — costs are read from the ai_feature_costs table.
  * Each rewarded video ad grants 5 credits.
- * Every AI feature costs 10 credits per use — flat, no tiering.
+ * AI features are tiered: 5 / 8 / 12 credits per use.
  * Credits are the gate, not daily access caps.
  */
-const AI_CREDIT_COST = 10;
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS")
@@ -103,7 +102,7 @@ Deno.serve(async (req: Request) => {
       400,
     );
 
-  // Get the server-side feature config
+  // Get the server-side feature config (includes credit_cost from DB)
   const { data: feature, error: featError } = await admin
     .from("ai_feature_costs")
     .select("*")
@@ -128,8 +127,8 @@ Deno.serve(async (req: Request) => {
       cost: 0,
     });
 
-  // Flat cost: 10 credits per AI tool use
-  const cost = AI_CREDIT_COST;
+  // Tiered cost: read credit_cost from the database (5/8/12 per feature tier)
+  const cost = feature.credit_cost;
 
   // Call the atomic spend function
   const { data: result, error: fnError } = await admin.rpc("spend_credits", {
@@ -137,7 +136,7 @@ Deno.serve(async (req: Request) => {
     p_feature_key: featureKey,
     p_amount: cost,
     p_idempotency_key: idempotencyKey,
-    p_metadata: { ...metadata, flat_cost: cost },
+    p_metadata: { ...metadata, tiered_cost: cost },
   });
 
   if (fnError)
