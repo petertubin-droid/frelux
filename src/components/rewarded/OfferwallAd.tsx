@@ -27,17 +27,47 @@ interface OfferwallAdProps {
   onBack?: () => void;
 }
 
-// The Offerwall.ad wall URL — the uid parameter is replaced dynamically
-const OFFERWALL_WALL_URL =
+// Fallback wall URL — used when no offerwall_ad provider is configured in the DB
+const FALLBACK_WALL_URL =
   "https://offerwall.ad/wall/1b50ede6cf94ed6dbeedb6274efc2b6d";
 
 export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [offerwallUrl, setOfferwallUrl] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Build the offerwall URL with the authenticated user's stable ID
-  const offerwallUrl = `${OFFERWALL_WALL_URL}?uid=${encodeURIComponent(userId)}`;
+  // Fetch the offerwall URL from the ad_providers table (offerwall_ad slug).
+  // Falls back to the hardcoded URL if no DB config exists.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { getSupabase } = await import("@/lib/supabase-lazy");
+        const supabase = await getSupabase();
+        const { data } = await supabase
+          .from("ad_providers_public")
+          .select("credentials")
+          .eq("slug", "offerwall_ad")
+          .eq("is_active", true)
+          .maybeSingle();
+
+        const wallUrl = data?.credentials?.wall_url || FALLBACK_WALL_URL;
+        if (!cancelled) {
+          setOfferwallUrl(`${wallUrl}?uid=${encodeURIComponent(userId)}`);
+        }
+      } catch {
+        if (!cancelled) {
+          setOfferwallUrl(
+            `${FALLBACK_WALL_URL}?uid=${encodeURIComponent(userId)}`,
+          );
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const handleLoad = useCallback(() => {
     setLoading(false);
@@ -129,8 +159,8 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
         )}
 
-        {/* The actual Offerwall iframe — only rendered when not in error state */}
-        {!error && (
+        {/* The actual Offerwall iframe — only rendered when URL is resolved and no error */}
+        {!error && offerwallUrl && (
           <iframe
             ref={iframeRef}
             src={offerwallUrl}

@@ -1,7 +1,13 @@
-import { useEffect, useState, useRef, type ReactNode } from 'react';
-import { fetchAdConfig, getProvidersForPlacement, getAdUnitId, shouldDisplayPlacement, logAdEvent } from '@/lib/ad-config';
-import { getSupabase } from '@/lib/supabase-lazy';
-import type { DbAdProvider, DbAdPlacement } from '@/types/database';
+import { useEffect, useState, useRef, type ReactNode } from "react";
+import {
+  fetchAdConfig,
+  getProvidersForPlacement,
+  getAdUnitId,
+  shouldDisplayPlacement,
+  logAdEvent,
+} from "@/lib/ad-config";
+import { getSupabase } from "@/lib/supabase-lazy";
+import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
 declare global {
   interface Window {
@@ -9,7 +15,6 @@ declare global {
     _bsa?: { reload: (el: HTMLElement | null) => void };
   }
 }
-
 
 /**
  * Provider-agnostic ad slot. Reads placement + provider config from the database.
@@ -43,7 +48,7 @@ interface ResolvedAd {
 export default function AdSlot({
   slotKey,
   className,
-  format = 'auto',
+  format = "auto",
   hideLabel = false,
 }: {
   slotKey: string;
@@ -52,7 +57,7 @@ export default function AdSlot({
   /** Skip the built-in "Advertisement" label (caller provides their own). */
   hideLabel?: boolean;
 }) {
-  const [resolved, setResolved] = useState<ResolvedAd | null | 'none'>(null);
+  const [resolved, setResolved] = useState<ResolvedAd | null | "none">(null);
   const loggedRef = useRef(false);
   const pushRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,9 +66,9 @@ export default function AdSlot({
   // re-mount double-counting when navigating between pages
   function hasLoggedImpressionThisSession(key: string): boolean {
     try {
-      const seen = sessionStorage.getItem('frelux_ad_impression_' + key);
+      const seen = sessionStorage.getItem("frelux_ad_impression_" + key);
       if (seen) return true;
-      sessionStorage.setItem('frelux_ad_impression_' + key, '1');
+      sessionStorage.setItem("frelux_ad_impression_" + key, "1");
       return false;
     } catch {
       return false; // sessionStorage may be unavailable (private mode)
@@ -76,11 +81,11 @@ export default function AdSlot({
       if (cancelled) return;
       const placement = placements.find((p) => p.placement_key === slotKey);
       if (!placement || !placement.is_active) {
-        setResolved('none');
+        setResolved("none");
         return;
       }
       if (!shouldDisplayPlacement(placement)) {
-        setResolved('none');
+        setResolved("none");
         return;
       }
 
@@ -92,7 +97,7 @@ export default function AdSlot({
           if (!loggedRef.current && !hasLoggedImpressionThisSession(slotKey)) {
             loggedRef.current = true;
             logAdEvent({
-              event_type: 'impression',
+              event_type: "impression",
               provider_id: provider.id,
               placement_key: slotKey,
               revenue_estimated: 0,
@@ -103,28 +108,33 @@ export default function AdSlot({
       }
 
       // Fallback: check legacy site_settings config for AdSense
-      if (chain.length === 0 || chain.some((p) => p.slug === 'google_adsense')) {
+      if (
+        chain.length === 0 ||
+        chain.some((p) => p.slug === "google_adsense")
+      ) {
         fetchLegacyAdSense(slotKey).then((legacy) => {
           if (cancelled) return;
           if (legacy) {
             setResolved(legacy);
           } else {
-            setResolved('none');
+            setResolved("none");
           }
         });
       } else {
-        setResolved('none');
+        setResolved("none");
       }
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [slotKey]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {
-    if (resolved && resolved !== 'none' && !pushRef.current) {
+    if (resolved && resolved !== "none" && !pushRef.current) {
       const slug = resolved.provider.slug;
       // Google AdSense and Media.net both use the adsbygoogle push mechanism
-      if (slug === 'google_adsense' || slug === 'media_net') {
+      if (slug === "google_adsense" || slug === "media_net") {
         pushRef.current = true;
         try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
@@ -133,7 +143,7 @@ export default function AdSlot({
         }
       }
       // BuySellAds uses _bsa object
-      if (slug === 'buysellads') {
+      if (slug === "buysellads") {
         pushRef.current = true;
         try {
           if (window._bsa) {
@@ -148,147 +158,171 @@ export default function AdSlot({
 
   // Inject provider-specific scripts when provider is resolved
   useEffect(() => {
-    if (!resolved || resolved === 'none') return;
+    if (!resolved || resolved === "none") return;
     const { provider } = resolved;
     const creds = provider.credentials ?? {};
 
     switch (provider.slug) {
-      case 'media_net': {
+      case "media_net": {
         if (!creds.cid) break;
         if (!document.querySelector('script[src*="contextual.media.net"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.src = `https://contextual.media.net/dmedianet.js?cid=${encodeURIComponent(creds.cid)}&https=1`;
           s.async = true;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'adsterra': {
+      case "adsterra": {
         if (!creds.key) break;
-        if (!document.querySelector(`script[data-adsterra-key="${creds.key}"]`)) {
-          const s = document.createElement('script');
+        if (
+          !document.querySelector(`script[data-adsterra-key="${creds.key}"]`)
+        ) {
+          const s = document.createElement("script");
           s.async = true;
-          s.setAttribute('data-adsterra-key', creds.key);
+          s.setAttribute("data-adsterra-key", creds.key);
           s.src = `https://pl1234567.profitabledisplaynetwork.com/${encodeURIComponent(creds.key)}/invoke.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'buysellads': {
+      case "buysellads": {
         if (!creds.site_key) break;
-        if (!document.querySelector('script[src*="m.servedby-buysellads.com"]')) {
-          const s = document.createElement('script');
+        if (
+          !document.querySelector('script[src*="m.servedby-buysellads.com"]')
+        ) {
+          const s = document.createElement("script");
           s.src = `https://m.servedby-buysellads.com/monetization.js`;
           s.async = true;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'taboola': {
+      case "taboola": {
         if (!document.querySelector('script[src*="cdn.taboola.com"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.src = `https://cdn.taboola.com/libtrc/${encodeURIComponent(creds.publisher_id || 'frelux')}/loader.js`;
-          s.id = 'tb_loader_script';
+          s.src = `https://cdn.taboola.com/libtrc/${encodeURIComponent(creds.publisher_id || "frelux")}/loader.js`;
+          s.id = "tb_loader_script";
           document.head.appendChild(s);
         }
         break;
       }
-      case 'outbrain': {
+      case "outbrain": {
         if (!document.querySelector('script[src*="widgets.outbrain.com"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.src = 'https://widgets.outbrain.com/outbrain.js';
+          s.src = "https://widgets.outbrain.com/outbrain.js";
           document.head.appendChild(s);
         }
         break;
       }
-      case 'propellerads': {
+      case "propellerads": {
         if (!creds.zone_id) break;
-        if (!document.querySelector(`script[data-propeller-zone="${creds.zone_id}"]`)) {
-          const s = document.createElement('script');
+        if (
+          !document.querySelector(
+            `script[data-propeller-zone="${creds.zone_id}"]`,
+          )
+        ) {
+          const s = document.createElement("script");
           s.async = true;
-          s.setAttribute('data-propeller-zone', creds.zone_id);
+          s.setAttribute("data-propeller-zone", creds.zone_id);
           s.src = `https://propropsl.com/${encodeURIComponent(creds.zone_id)}/`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'ezoic': {
+      case "ezoic": {
         if (!creds.site_id) break;
         if (!document.querySelector('script[src*="ezoic"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.setAttribute('data-cfasync', 'false');
+          s.setAttribute("data-cfasync", "false");
           s.src = `https://www.ezoic.com/ezoic.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'snigel': {
+      case "snigel": {
         if (!creds.site_id) break;
         if (!document.querySelector('script[src*="snigelweb"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
           s.src = `https://cdn.snigelweb.com/spc/${encodeURIComponent(creds.site_id)}.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'monumetric': {
+      case "monumetric": {
         if (!creds.client_id) break;
         if (!document.querySelector('script[src*="monu"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.setAttribute('data-cfasync', 'false');
+          s.setAttribute("data-cfasync", "false");
           s.src = `https://serve.monumetric.com/pt/${encodeURIComponent(creds.client_id)}/inview.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'carbon_ads': {
+      case "carbon_ads": {
         if (!document.querySelector('script[src*="srv.carbonads"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.id = '_carbonads_js';
-          s.src = `https://srv.carbonads.net/ads/${encodeURIComponent(creds.serve || '')}.js`;
+          s.id = "_carbonads_js";
+          s.src = `https://srv.carbonads.net/ads/${encodeURIComponent(creds.serve || "")}.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'ethical_ads': {
+      case "ethical_ads": {
         if (!document.querySelector('script[src*="ethicalads"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.src = 'https://media.ethicalads.io/media/client/ethicalads.min.js';
+          s.src = "https://media.ethicalads.io/media/client/ethicalads.min.js";
           document.head.appendChild(s);
         }
         break;
       }
-      case 'amazon_publisher': {
+      case "amazon_publisher": {
         if (!document.querySelector('script[src*="c.amazon-adsystem"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
           s.src = `https://c.amazon-adsystem.com/aax2/apstag.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'yllix': {
+      case "yllix": {
         if (!creds.publisher_id) break;
         if (!document.querySelector('script[src*="yllix"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
           s.src = `https://cdn.yllix.net/ads/ads.js`;
           document.head.appendChild(s);
         }
         break;
       }
-      case 'revcontent': {
+      case "revcontent": {
         if (!document.querySelector('script[src*="revcontent"]')) {
-          const s = document.createElement('script');
+          const s = document.createElement("script");
           s.async = true;
-          s.src = 'https://assets.revcontent.com/revcontent/js/deliver.js';
+          s.src = "https://assets.revcontent.com/revcontent/js/deliver.js";
+          document.head.appendChild(s);
+        }
+        break;
+      }
+      case "monetag": {
+        if (!creds.zone_id) break;
+        if (
+          !document.querySelector(
+            'script[data-monetag-zone="' + creds.zone_id + '"]',
+          )
+        ) {
+          const s = document.createElement("script");
+          s.async = true;
+          s.setAttribute("data-monetag-zone", creds.zone_id);
+          s.src =
+            "https://example.com/" + encodeURIComponent(creds.zone_id) + "/";
           document.head.appendChild(s);
         }
         break;
@@ -297,10 +331,10 @@ export default function AdSlot({
   }, [resolved]);
 
   if (resolved === null) return null;
-  if (resolved === 'none') {
+  if (resolved === "none") {
     return (
       <div
-        className={`hidden rounded-lg border border-dashed border-neutral-200 bg-neutral-50 px-4 py-6 text-center text-xs text-neutral-500 ${className ?? ''}`}
+        className={`hidden rounded-lg border border-dashed border-neutral-200 bg-neutral-50 px-4 py-6 text-center text-xs text-neutral-500 ${className ?? ""}`}
         aria-hidden="true"
         data-ad-reserved={slotKey}
       >
@@ -318,12 +352,12 @@ export default function AdSlot({
   let adInner: ReactNode = null;
 
   // Google AdSense rendering
-  if (provider.slug === 'google_adsense') {
+  if (provider.slug === "google_adsense") {
     if (!creds.publisher_id) return null;
     adInner = (
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: "block" }}
         data-ad-client={creds.publisher_id}
         data-ad-slot={adUnitId}
         data-ad-format={format}
@@ -333,12 +367,12 @@ export default function AdSlot({
   }
 
   // Media.net rendering (uses same adsbygoogle mechanism)
-  else if (provider.slug === 'media_net') {
+  else if (provider.slug === "media_net") {
     if (!creds.cid) return null;
     adInner = (
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: "block" }}
         data-ad-client={creds.cid}
         data-ad-slot={adUnitId}
         data-ad-format={format}
@@ -348,128 +382,200 @@ export default function AdSlot({
   }
 
   // Google Ad Manager rendering
-  else if (provider.slug === 'google_ad_manager') {
+  else if (provider.slug === "google_ad_manager") {
     if (!creds.network_code) return null;
     adInner = (
-      <div data-ad-provider="gam" data-network-code={creds.network_code} data-ad-unit={adUnitId} />
+      <div
+        data-ad-provider="gam"
+        data-network-code={creds.network_code}
+        data-ad-unit={adUnitId}
+      />
     );
   }
 
   // Adsterra rendering
-  else if (provider.slug === 'adsterra') {
+  else if (provider.slug === "adsterra") {
     if (!creds.key) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="adsterra" data-ad-zone={creds.key} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="adsterra"
+        data-ad-zone={creds.key}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // BuySellAds rendering
-  else if (provider.slug === 'buysellads') {
+  else if (provider.slug === "buysellads") {
     if (!creds.site_key) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="buysellads" data-bsa-site={creds.site_key} data-bsa-zone={adUnitId} />
+      <div
+        ref={containerRef}
+        data-ad-provider="buysellads"
+        data-bsa-site={creds.site_key}
+        data-bsa-zone={adUnitId}
+      />
     );
   }
 
   // Taboola rendering
-  else if (provider.slug === 'taboola') {
+  else if (provider.slug === "taboola") {
     if (!creds.publisher_id) return null;
     adInner = (
-      <div id={`taboola-${slotKey}`} data-ad-provider="taboola" data-placement={creds.placement || slotKey} />
+      <div
+        id={`taboola-${slotKey}`}
+        data-ad-provider="taboola"
+        data-placement={creds.placement || slotKey}
+      />
     );
   }
 
   // Outbrain rendering
-  else if (provider.slug === 'outbrain') {
+  else if (provider.slug === "outbrain") {
     if (!creds.widget_id) return null;
     adInner = (
       <div
         className="OUTBRAIN"
         data-widget-id={creds.widget_id}
-        data-ob-template={creds.publisher_key || 'FRELUX'}
+        data-ob-template={creds.publisher_key || "FRELUX"}
         data-ob-installation-key={slotKey}
       />
     );
   }
 
   // PropellerAds rendering
-  else if (provider.slug === 'propellerads') {
+  else if (provider.slug === "propellerads") {
     if (!creds.zone_id) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="propellerads" data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="propellerads"
+        data-zone-id={creds.zone_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // Ezoic rendering
-  else if (provider.slug === 'ezoic') {
+  else if (provider.slug === "ezoic") {
     if (!creds.site_id) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="ezoic" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="ezoic"
+        data-site-id={creds.site_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // Snigel rendering
-  else if (provider.slug === 'snigel') {
+  else if (provider.slug === "snigel") {
     if (!creds.site_id) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="snigel" data-site-id={creds.site_id} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="snigel"
+        data-site-id={creds.site_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // Monumetric rendering
-  else if (provider.slug === 'monumetric') {
+  else if (provider.slug === "monumetric") {
     if (!creds.client_id) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="monumetric" data-client-id={creds.client_id} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="monumetric"
+        data-client-id={creds.client_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // Carbon Ads rendering
-  else if (provider.slug === 'carbon_ads') {
+  else if (provider.slug === "carbon_ads") {
     if (!creds.serve) return null;
     adInner = (
-      <div data-ad-provider="carbon-ads" data-serve={creds.serve} data-placement={creds.placement || slotKey} />
+      <div
+        data-ad-provider="carbon-ads"
+        data-serve={creds.serve}
+        data-placement={creds.placement || slotKey}
+      />
     );
   }
 
   // EthicalAds rendering
-  else if (provider.slug === 'ethical_ads') {
+  else if (provider.slug === "ethical_ads") {
     if (!creds.publisher_id) return null;
     adInner = (
       <div
         data-ad-provider="ethical-ads"
         data-ea-publisher={creds.publisher_id}
-        data-ea-type={creds.placement || 'image-text'}
+        data-ea-type={creds.placement || "image-text"}
       />
     );
   }
 
   // Amazon Publisher (APS) rendering
-  else if (provider.slug === 'amazon_publisher') {
+  else if (provider.slug === "amazon_publisher") {
     if (!creds.publisher_id) return null;
     adInner = (
-      <div data-ad-provider="amazon" data-publisher-id={creds.publisher_id} data-slot-id={creds.slot_id} data-ad-placement={slotKey} />
+      <div
+        data-ad-provider="amazon"
+        data-publisher-id={creds.publisher_id}
+        data-slot-id={creds.slot_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // YlliX rendering
-  else if (provider.slug === 'yllix') {
+  else if (provider.slug === "yllix") {
     if (!creds.publisher_id) return null;
     adInner = (
-      <div ref={containerRef} data-ad-provider="yllix" data-publisher-id={creds.publisher_id} data-zone-id={creds.zone_id} data-ad-placement={slotKey} />
+      <div
+        ref={containerRef}
+        data-ad-provider="yllix"
+        data-publisher-id={creds.publisher_id}
+        data-zone-id={creds.zone_id}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // RevContent rendering
-  else if (provider.slug === 'revcontent') {
+  else if (provider.slug === "revcontent") {
     if (!creds.widget_id) return null;
     adInner = (
-      <div data-ad-provider="revcontent" data-widget-id={creds.widget_id} data-sub-id={creds.sub_id || ''} />
+      <div
+        data-ad-provider="revcontent"
+        data-widget-id={creds.widget_id}
+        data-sub-id={creds.sub_id || ""}
+      />
+    );
+  }
+
+  // Monetag rendering
+  else if (provider.slug === "monetag") {
+    if (!creds.zone_id) return null;
+    adInner = (
+      <div
+        ref={containerRef}
+        data-ad-provider="monetag"
+        data-zone-id={creds.zone_id}
+        data-ad-format={creds.format || "banner"}
+        data-sub-id={creds.sub_id || ""}
+        data-ad-placement={slotKey}
+      />
     );
   }
 
   // Rewarded ad providers (offerwall iframe based) — not rendered as regular ad slots
-  else if (provider.provider_type === 'rewarded') {
+  else if (provider.provider_type === "rewarded") {
     return null;
   }
 
@@ -495,13 +601,13 @@ export default function AdSlot({
 
   return (
     <div
-      className={`frelux-ad-unit ${className ?? ''}`}
+      className={`frelux-ad-unit ${className ?? ""}`}
       style={{
         /* Clear visual separation from content */
-        borderTop: '1px solid rgba(0,0,0,0.04)',
-        borderBottom: '1px solid rgba(0,0,0,0.04)',
-        padding: '8px 0',
-        margin: '0 auto',
+        borderTop: "1px solid rgba(0,0,0,0.04)",
+        borderBottom: "1px solid rgba(0,0,0,0.04)",
+        padding: "8px 0",
+        margin: "0 auto",
       }}
       data-ad-slot-key={slotKey}
     >
@@ -509,12 +615,12 @@ export default function AdSlot({
         className="ad-label-subtle mb-0.5 text-center"
         aria-label="Advertisement"
         style={{
-          fontSize: '8px',
-          opacity: '0.35',
-          color: 'inherit',
-          letterSpacing: '0.02em',
+          fontSize: "8px",
+          opacity: "0.35",
+          color: "inherit",
+          letterSpacing: "0.02em",
           fontWeight: 400,
-          textTransform: 'none',
+          textTransform: "none",
         }}
       >
         Advertisement
@@ -528,8 +634,8 @@ export default function AdSlot({
 async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
   const supabase = await getSupabase();
   const { data } = await supabase
-    .from('site_settings')
-    .select('ads_enabled, adsense_publisher_id, ad_slots')
+    .from("site_settings")
+    .select("ads_enabled, adsense_publisher_id, ad_slots")
     .limit(1)
     .maybeSingle();
   if (!data || !data.ads_enabled || !data.adsense_publisher_id) return null;
@@ -540,38 +646,46 @@ async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
   // Find the AdSense provider from ad_providers, or create a synthetic one
   const sb = await getSupabase();
   const { data: provData } = await sb
-    .from('ad_providers_public')
-    .select('*')
-    .eq('slug', 'google_adsense')
+    .from("ad_providers_public")
+    .select("*")
+    .eq("slug", "google_adsense")
     .maybeSingle();
 
   const provider: DbAdProvider = provData ?? {
-    id: 'legacy-adsense',
-    name: 'Google AdSense (Legacy)',
-    slug: 'google_adsense',
-    provider_type: 'display',
+    id: "legacy-adsense",
+    name: "Google AdSense (Legacy)",
+    slug: "google_adsense",
+    provider_type: "display",
     is_active: true,
     priority: 0,
     credentials: { publisher_id: data.adsense_publisher_id },
     settings: {},
     is_system: true,
-    created_at: '',
-    updated_at: '',
+    created_at: "",
+    updated_at: "",
   };
-  provider.credentials = { ...provider.credentials, publisher_id: data.adsense_publisher_id };
+  provider.credentials = {
+    ...provider.credentials,
+    publisher_id: data.adsense_publisher_id,
+  };
 
   const placement: DbAdPlacement = {
-    id: '',
+    id: "",
     placement_key: slotKey,
     placement_name: slotKey,
-    placement_type: 'banner',
-    page_target: 'global',
+    placement_type: "banner",
+    page_target: "global",
     is_active: true,
     provider_ids: [],
     ad_unit_ids: {},
-    display_rules: { mobile: true, desktop: true, refresh_seconds: 0, min_height: 100 },
-    created_at: '',
-    updated_at: '',
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      refresh_seconds: 0,
+      min_height: 100,
+    },
+    created_at: "",
+    updated_at: "",
   };
 
   return { provider, adUnitId: slotId, placement };
