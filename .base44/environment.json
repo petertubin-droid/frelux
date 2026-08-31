@@ -1,0 +1,37 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "VITE_SUPABASE_URL",
+      "description": "Supabase project URL (https://<project>.supabase.co) — backend for auth, DB, storage, edge functions. Found in Supabase dashboard → Project Settings → API.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "VITE_SUPABASE_ANON_KEY",
+      "description": "Supabase anon/public API key. Found in Supabase dashboard → Project Settings → API → Project API keys (anon/public).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "VITE_PAYSTACK_PUBLIC_KEY",
+      "description": "Paystack public key for the credits/payments integration. Found in Paystack dashboard → Settings → API Keys → Public Key.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "VITE_OPENWEATHER_API_KEY",
+      "description": "OpenWeather API key for weather features. From https://openweathermap.org/api — sign up and copy your API key.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "VITE_VAPID_PUBLIC_KEY",
+      "description": "VAPID public key for web push notifications. Generate via the Supabase push notification setup or web-push CLI.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "VITE_SENTRY_DSN",
+      "description": "Sentry DSN for error monitoring. From Sentry → Project Settings → Client Keys. Optional.",
+      "requiredAtBoot": false
+    }
+  ]
+}

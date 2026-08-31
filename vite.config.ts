@@ -75,6 +75,8 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,
+    allowedHosts: true,
     headers: {
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
