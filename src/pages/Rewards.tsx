@@ -317,7 +317,7 @@ export default function Rewards() {
       {/* Credit balance + streak overview */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Credits */}
-        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
+        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-brand-navy-mid dark:from-brand-purple/5">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
               <Gem className="h-6 w-6 text-brand-purple" />
@@ -345,7 +345,7 @@ export default function Rewards() {
         </div>
 
         {/* Streak */}
-        <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:from-amber-500/5">
+        <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:bg-brand-navy-mid dark:from-amber-500/5">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-500/10">
               <Flame className="h-6 w-6 text-amber-500" />
@@ -388,7 +388,7 @@ export default function Rewards() {
           const canEarn = todayEarned < dailyLimit && adProviderReady;
 
           return (
-            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6">
+            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-brand-navy-mid dark:from-brand-purple/5">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
@@ -447,19 +447,22 @@ export default function Rewards() {
         })()}
 
       {/* Complete Offers — Offerwall.ad */}
-      <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
-              <ExternalLink className="h-6 w-6 text-emerald-500" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-brand-navy dark:text-white">
-                Complete Offers — Earn FRELUX Credits
-              </p>
-              <p className="text-xs text-neutral-500">
-                Surveys, app installs, and other offers.
-              </p>
+      {!showOfferwall ? (
+        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:bg-brand-navy-mid dark:from-emerald-500/5">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
+                <ExternalLink className="h-6 w-6 text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  Complete Offers — Earn FRELUX Credits
+                </p>
+                <p className="text-xs text-neutral-500">
+                  Surveys, app installs, and other offers. Rewards vary by
+                  offer.
+                </p>
+              </div>
             </div>
           </div>
           <span className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-bold text-neutral-400 dark:bg-white/5 dark:text-neutral-500">
@@ -649,7 +652,7 @@ function WeeklyMissionCard({
     totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   return (
-    <div className="mb-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-6 dark:border-blue-500/20 dark:from-blue-500/5">
+    <div className="mb-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-6 dark:border-blue-500/20 dark:bg-brand-navy-mid dark:from-blue-500/5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-500" />

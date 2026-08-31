@@ -109,7 +109,7 @@ export default function SupportChatWidget() {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Open support chat"
         >
           <MessageCircle className="h-7 w-7" strokeWidth={1.8} />
@@ -124,8 +124,8 @@ export default function SupportChatWidget() {
         <div
           className={
             minimized
-              ? 'fixed bottom-20 right-4 z-40 sm:bottom-4 sm:right-4'
-              : 'fixed bottom-20 left-1/2 z-40 flex h-[min(72vh,560px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/5 dark:bg-brand-navy-mid sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0'
+              ? 'fixed bottom-20 right-4 z-50 sm:bottom-4 sm:right-4'
+              : 'fixed bottom-20 left-1/2 z-50 flex h-[min(72vh,560px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/5 dark:bg-brand-navy-mid sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0'
           }
         >
           {minimized ? (
