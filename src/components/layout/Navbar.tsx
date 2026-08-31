@@ -689,7 +689,7 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "absolute left-0 top-0 h-full w-[190px] max-w-[190px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy",
+            "absolute left-0 top-0 h-full w-[300px] max-w-[300px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
