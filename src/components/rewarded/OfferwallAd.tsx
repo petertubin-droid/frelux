@@ -93,9 +93,9 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
 
       {/* Iframe container — responsive, no horizontal scroll */}
       <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-brand-navy-mid">
-        {/* Loading state */}
+        {/* Loading state — absolute overlay so it doesn't stack on top of the iframe */}
         {loading && !error && (
-          <div className="flex min-h-[500px] flex-col items-center justify-center gap-3 p-8">
+          <div className="absolute inset-0 z-10 flex min-h-[500px] flex-col items-center justify-center gap-3 bg-white p-8 dark:bg-brand-navy-mid">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
             <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
               Loading offerwall…
@@ -136,7 +136,12 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
             src={offerwallUrl}
             title="Frelux Offerwall — Earn Credits"
             className="block w-full border-0"
-            style={{ height: "900px", maxWidth: "100%" }}
+            style={{
+              height: "70vh",
+              minHeight: "500px",
+              maxHeight: "900px",
+              maxWidth: "100%",
+            }}
             loading="lazy"
             allow="clipboard-write"
             onLoad={handleLoad}
