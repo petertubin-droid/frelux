@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
-  Star,
   Eye,
   EyeOff,
   Trash2,
@@ -172,7 +171,10 @@ function ListingsTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -181,7 +183,10 @@ function ListingsTab() {
     <div>
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1 max-w-xs">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+          />
           <AdminInput
             type="text"
             value={search}
@@ -223,15 +228,18 @@ function ListingsTab() {
             </Link>
             {l.location_state && (
               <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-neutral-500">
-                <MapPin aria-hidden="true" className="h-2.5 w-2.5" /> {l.location_state}
+                <MapPin aria-hidden="true" className="h-2.5 w-2.5" />{" "}
+                {l.location_state}
               </p>
             )}
             <div className="mt-1 flex items-center gap-3 text-[10px] text-neutral-500">
               <span className="inline-flex items-center gap-0.5">
-                <Users aria-hidden="true" className="h-2.5 w-2.5" /> {l.bid_count}
+                <Users aria-hidden="true" className="h-2.5 w-2.5" />{" "}
+                {l.bid_count}
               </span>
               <span className="inline-flex items-center gap-0.5">
-                <Eye aria-hidden="true" className="h-2.5 w-2.5" /> {l.view_count}
+                <Eye aria-hidden="true" className="h-2.5 w-2.5" />{" "}
+                {l.view_count}
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
@@ -245,7 +253,7 @@ function ListingsTab() {
                     : "text-neutral-500 hover:text-amber-500",
                 )}
               >
-                <Star
+                <Crown
                   className={classNames(
                     "h-3 w-3",
                     l.is_featured && "fill-amber-400",
@@ -361,7 +369,10 @@ function ProductsTab() {
 
       {loading ? (
         <div className="flex items-center justify-center py-8">
-          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
+          <Loader2
+            aria-hidden="true"
+            className="h-5 w-5 animate-spin text-brand-purple"
+          />
         </div>
       ) : products.length === 0 ? (
         <p className="py-8 text-center text-sm text-neutral-500">
@@ -465,7 +476,10 @@ function OrdersTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -517,7 +531,7 @@ function OrdersTab() {
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>
                 {o.client_rating && (
                   <span className="inline-flex items-center gap-0.5">
-                    <Star aria-hidden="true" className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />{" "}
+                    <span className="text-amber-400 text-xs">★</span>{" "}
                     {o.client_rating}
                   </span>
                 )}
@@ -568,7 +582,10 @@ function DisputesTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -625,7 +642,10 @@ function DisputesTab() {
               className="mt-2 text-xs py-1.5"
             >
               {resolving === d.id ? (
-                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 animate-spin"
+                />
               ) : (
                 <Check aria-hidden="true" className="h-3.5 w-3.5" />
               )}
@@ -691,7 +711,10 @@ function ReportsTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -757,7 +780,8 @@ function ReportsTab() {
                       onClick={() => handleStatusUpdate(r.id, "resolved")}
                       className="text-xs py-1.5"
                     >
-                      <Check aria-hidden="true" className="h-3.5 w-3.5" /> Resolve
+                      <Check aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      Resolve
                     </AdminButton>
                     <AdminButton
                       variant="danger"
@@ -823,7 +847,10 @@ function ReviewsTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -865,15 +892,17 @@ function ReviewsTab() {
                   <div className="flex items-center gap-2">
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
+                        <span
                           key={i}
                           className={classNames(
-                            "h-3.5 w-3.5",
+                            "text-sm",
                             i <= r.rating
-                              ? "text-amber-400 fill-amber-400"
+                              ? "text-amber-400"
                               : "text-neutral-300",
                           )}
-                        />
+                        >
+                          ★
+                        </span>
                       ))}
                     </div>
                     <span className="text-xs text-neutral-500">
@@ -925,7 +954,8 @@ function ReviewsTab() {
                       onClick={() => handleStatusUpdate(r.id, "removed")}
                       className="text-xs py-1.5"
                     >
-                      <Trash2 aria-hidden="true" className="h-3.5 w-3.5" /> Remove
+                      <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                      Remove
                     </AdminButton>
                   )}
                 </div>
@@ -1021,7 +1051,10 @@ function SellersTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -1103,7 +1136,8 @@ function SellersTab() {
                         onClick={() => handleVerify(s.id)}
                         className="text-xs py-1.5"
                       >
-                        <Check aria-hidden="true" className="h-3.5 w-3.5" /> Verify
+                        <Check aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                        Verify
                       </AdminButton>
                       <AdminButton
                         variant="danger"

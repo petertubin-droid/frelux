@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Check, X, Star, Loader2, Trash2 } from "lucide-react";
+import { Check, X, Crown, Loader2, Trash2 } from "lucide-react";
 import {
   fetchGalleryEntries,
   fetchGalleryImages,
@@ -168,7 +168,7 @@ export default function AdminGallery() {
                     onClick={() => handleFeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-purple-500/10 px-3 py-2 text-xs font-medium text-purple-600 hover:bg-purple-500/20 transition-all hover:scale-105"
                   >
-                    <Star className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />{" "}
+                    <Crown className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />{" "}
                     Feature
                   </button>
                 )}
@@ -177,7 +177,7 @@ export default function AdminGallery() {
                     onClick={() => handleUnfeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-zinc-500/10 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-500/20 transition-all hover:scale-105"
                   >
-                    <Star className="h-3.5 w-3.5" /> Unfeature
+                    <Crown className="h-3.5 w-3.5" /> Unfeature
                   </button>
                 )}
                 <button

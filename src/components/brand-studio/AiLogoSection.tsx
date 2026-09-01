@@ -5,7 +5,7 @@
  * The edge function calls the AI image generation API securely.
  */
 import { useState, useCallback } from "react";
-import { Sparkles, Loader2, Check, Trash2 } from "lucide-react";
+import { Crown, Loader2, Check, Trash2 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { VoiceInput } from "./VoiceInput";
 import { supabase } from "@/lib/supabase";
@@ -137,7 +137,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
           {/* Generation form */}
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
             <div className="mb-4 flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-brand-purple" />
+              <Crown className="h-5 w-5 text-brand-purple" />
               <h2 className="text-base font-bold text-brand-navy dark:text-white">
                 AI Logo Generator
               </h2>
@@ -204,7 +204,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                 {generating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Sparkles className="h-4 w-4" />
+                  <Crown className="h-4 w-4" />
                 )}
                 {generating ? "Generating…" : "Generate Logo"}
               </button>

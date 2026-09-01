@@ -42,7 +42,7 @@ import {
   Gem,
   TrendingUp,
   Coins,
-  Sparkles,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -150,7 +150,7 @@ const navModules: NavModule[] = [
   {
     heading: "AI",
     items: [
-      { label: "AI Control Center", to: "/admin/ai-settings", icon: Sparkles },
+      { label: "AI Control Center", to: "/admin/ai-settings", icon: Crown },
       {
         label: "AI Monetization",
         to: "/admin/ai-monetization",
@@ -247,7 +247,7 @@ const navModules: NavModule[] = [
   {
     heading: "System",
     items: [
-      { label: "AI Assistant", to: "/admin/ai-assistant", icon: Sparkles },
+      { label: "AI Assistant", to: "/admin/ai-assistant", icon: Crown },
       { label: "Site Branding", to: "/admin/branding", icon: Palette },
       {
         label: "PDF Branding & Templates",

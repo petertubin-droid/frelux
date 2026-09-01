@@ -4,7 +4,7 @@
  * Works with any calculator result shape — just needs a title, type, and the raw data.
  */
 import { useState, useEffect, useCallback } from "react";
-import { FolderPlus, Loader2, Check, X, Folder, Sparkles } from "lucide-react";
+import { FolderPlus, Loader2, Check, X, Folder } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -237,7 +237,7 @@ export default function SaveToProjectButton({
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Save className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-bold">Save to Project</h2>
               </div>
               <button

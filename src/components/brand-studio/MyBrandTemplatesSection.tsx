@@ -2,7 +2,7 @@
  * My Brand Templates Section — list, select, manage saved branding profiles
  */
 import { useState } from "react";
-import { Trash2, Edit3, Star } from "lucide-react";
+import { Trash2, Edit3, Crown } from "lucide-react";
 import { updateBrandProfile, deleteBrandProfile } from "@/lib/brand-studio";
 import type {
   BrandStudioAccess as BSAccess,
@@ -86,7 +86,7 @@ export function MyBrandTemplatesSection({
                   </h3>
                   {profile.is_default && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                      <Star className="h-3 w-3" /> Default
+                      <Crown className="h-3 w-3" /> Default
                     </span>
                   )}
                 </div>
@@ -124,7 +124,7 @@ export function MyBrandTemplatesSection({
                   className="rounded-lg p-2 text-amber-600 hover:bg-amber-50 disabled:opacity-50 dark:hover:bg-amber-950"
                   title="Set as default"
                 >
-                  <Star className="h-4 w-4" />
+                  <Crown className="h-4 w-4" />
                 </button>
               )}
               <button

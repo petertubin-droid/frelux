@@ -74,6 +74,8 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
+import { useAuth } from "@/lib/auth";
 
 export default function CostEstimator({
   embedded = false,
@@ -183,6 +185,9 @@ export default function CostEstimator({
   });
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
+  const [pdfGateOpen, setPdfGateOpen] = useState(false);
+  const [pdfUnlocked, setPdfUnlocked] = useState(false);
+  const { isPaid } = useAuth();
   const [shoppingListItems, setShoppingListItems] = useState<
     ShoppingListItem[]
   >([]);
@@ -303,19 +308,27 @@ export default function CostEstimator({
 
   function handlePdfExport() {
     if (!result) return;
-    exportPdfQuote({
-      result,
-      input,
-      paintTypeName: passed.paintTypeName ?? input.paintProductName ?? "Paint",
-      company: settings
-        ? {
-            name: settings.site_name,
-            phone: settings.whatsapp_number,
-            email: settings.contact_email,
-            address: undefined,
-          }
-        : undefined,
-    });
+    // Paid subscribers bypass the gate
+    if (isPaid || pdfUnlocked) {
+      exportPdfQuote({
+        result,
+        input,
+        paintTypeName:
+          passed.paintTypeName ?? input.paintProductName ?? "Paint",
+        company: settings
+          ? {
+              name: settings.site_name,
+              phone: settings.whatsapp_number,
+              email: settings.contact_email,
+              address: undefined,
+            }
+          : undefined,
+      });
+      // Session-scoped: reset unlock after use
+      setPdfUnlocked(false);
+    } else {
+      setPdfGateOpen(true);
+    }
   }
 
   function handleShoppingList() {
@@ -1016,6 +1029,19 @@ export default function CostEstimator({
             CALC_LINKS.buildToRoof,
             CALC_LINKS.imageEstimator,
           ]}
+        />
+      )}
+      {pdfGateOpen && (
+        <PremiumFeatureGate
+          featureKey="pdf_export"
+          featureName="PDF Export"
+          description="Export professional PDF quotations. One-time use — unlock each export."
+          onUnlock={() => {
+            setPdfUnlocked(true);
+            setPdfGateOpen(false);
+            handlePdfExport();
+          }}
+          onClose={() => setPdfGateOpen(false)}
         />
       )}
     </>

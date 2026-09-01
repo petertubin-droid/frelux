@@ -20,6 +20,7 @@ import {
   Info,
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
+import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
@@ -113,6 +114,8 @@ export default function ImageEstimator() {
   const [estimate, setEstimate] = useState<BuildToRoofResult | null>(null);
   const [error, setError] = useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [pdfGateOpen, setPdfGateOpen] = useState(false);
+  const [pdfUnlocked, setPdfUnlocked] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // ── Load access config on mount ──
@@ -1188,7 +1191,14 @@ function EstimateResultView({
             </span>
           )}
           <button
-            onClick={() => window.print()}
+            onClick={() => {
+              if (isPaid || pdfUnlocked) {
+                window.print();
+                setPdfUnlocked(false);
+              } else {
+                setPdfGateOpen(true);
+              }
+            }}
             className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
           >
             <FileText className="w-4 h-4" /> Print
@@ -1199,6 +1209,20 @@ function EstimateResultView({
           >
             Full Manual Estimator →
           </a>
+          {pdfGateOpen && (
+            <PremiumFeatureGate
+              featureKey="pdf_export"
+              featureName="PDF Export"
+              description="Print or export your estimate as PDF. One-time use — unlock each export."
+              onUnlock={() => {
+                setPdfUnlocked(true);
+                setPdfGateOpen(false);
+                window.print();
+                setPdfUnlocked(false);
+              }}
+              onClose={() => setPdfGateOpen(false)}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import {
   Check,
   Loader2,
   ArrowRight,
-  Sparkles,
+  Eye,
   Palette,
   Shield,
   Droplets,
@@ -86,7 +86,7 @@ export default function PaintComparison() {
     { label: "Recommended Use", key: "recommended_use", icon: Info },
     { label: "Durability", key: "durability", icon: Shield },
     { label: "Washability", key: "washability", icon: Droplets },
-    { label: "Appearance", key: "appearance", icon: Sparkles },
+    { label: "Appearance", key: "appearance", icon: Eye },
     { label: "Characteristics", key: "product_characteristics" },
     { label: "Suitable Areas", key: "suitable_areas" },
     { label: "Price Range", key: "price_range", icon: TrendingUp },
@@ -294,7 +294,7 @@ export default function PaintComparison() {
                   to="/ai-color-assistant"
                   className="group inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-semibold text-brand-navy transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-white"
                 >
-                  <Sparkles className="h-4 w-4 text-brand-purple transition-transform duration-300 group-hover:rotate-12" />
+                  <Eye className="h-4 w-4 text-brand-purple transition-transform duration-300 group-hover:rotate-12" />
                   AI Color Assistant
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>

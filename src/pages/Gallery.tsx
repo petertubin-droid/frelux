@@ -7,9 +7,8 @@ import {
   MapPin,
   Calendar,
   Filter,
-  Sparkles,
+  Crown,
   ArrowRight,
-  Heart,
   Share2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
@@ -206,14 +205,14 @@ export default function Gallery() {
                     {/* Featured badge */}
                     {entry.is_featured && (
                       <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-xs font-semibold text-white shadow-lg">
-                        <Sparkles className="h-3 w-3" /> Featured
+                        <Crown className="h-3 w-3" /> Featured
                       </span>
                     )}
 
                     {/* Hover actions */}
                     <div className="absolute bottom-3 left-3 flex gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
                       <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
-                        <Heart className="h-4 w-4" />
+                        <Crown className="h-4 w-4" />
                       </button>
                       <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-neutral-700 backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
                         <Share2 className="h-4 w-4" />

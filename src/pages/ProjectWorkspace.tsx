@@ -15,7 +15,7 @@ import {
   DollarSign,
   TrendingDown,
   CheckCircle2,
-  Sparkles,
+  Crown,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -363,7 +363,7 @@ export default function ProjectWorkspace() {
               style={{ animation: "fadeInScale 0.3s ease-out" }}
             >
               <div className="mb-4 flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-primary" />
+                <Crown className="h-5 w-5 text-primary" />
                 <h2 className="text-xl font-bold">Create New Project</h2>
               </div>
               <div className="space-y-4">

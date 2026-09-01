@@ -13,8 +13,8 @@ import {
   Plus,
   Trash2,
   DollarSign,
-  Sparkles,
   Calculator,
+  Crown,
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
@@ -305,7 +305,7 @@ export default function ProjectDetail() {
                   to="/paint-comparison"
                   className="group inline-flex items-center gap-2 rounded-lg bg-purple-500/10 px-4 py-2.5 text-sm font-medium text-purple-600 hover:bg-purple-500/20 transition-all hover:scale-105"
                 >
-                  <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
+                  <Crown className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                   Compare Paints
                 </Link>
               </div>
@@ -942,7 +942,7 @@ export default function ProjectDetail() {
                 to="/ai-color-assistant"
                 className="group inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
               >
-                <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
+                <Crown className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                 Open AI Assistant
               </Link>
             </div>

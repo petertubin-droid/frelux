@@ -1,22 +1,51 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { MessageSquare, ThumbsUp, Eye, Plus, Trash2, Briefcase, MapPin, Settings, Hash, ShoppingBag, Clock, ArrowRight } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
-  getMyProProfile, getProProfileServices, getProProfileLocations,
-  getProPortfolio, getProReviews, addPortfolioItem, deletePortfolioItem,
-  getMyConversations, getUnreadCount, getMyVerificationRequests,
+  MessageSquare,
+  Award,
+  Eye,
+  Plus,
+  Trash2,
+  Briefcase,
+  MapPin,
+  Settings,
+  Hash,
+  ShoppingBag,
+  Clock,
+  ArrowRight,
+} from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import {
+  getMyProProfile,
+  getProProfileServices,
+  getProProfileLocations,
+  getProPortfolio,
+  getProReviews,
+  addPortfolioItem,
+  deletePortfolioItem,
+  getMyConversations,
+  getUnreadCount,
+  getMyVerificationRequests,
   createVerificationRequest,
-} from '@/lib/pro-connect';
-import type { DbProProfile, DbProService, DbProLocation, DbProPortfolioItem, DbProReview, DbProConversation } from '@/types/pro-connect';
-import { supabase } from '@/lib/supabase';
-import { fetchMyBids, fetchMyOrders } from '@/lib/marketplace';
-import type { DbMarketplaceBid, DbMarketplaceListing, DbMarketplaceOrder } from '@/types/marketplace';
-import { classNames } from '@/lib/utils';
-import {
-  checkProLevelEligibility,
-} from '@/lib/pro-connect';
-import type { DbProVerificationRequest } from '@/types/pro-connect';
+} from "@/lib/pro-connect";
+import type {
+  DbProProfile,
+  DbProService,
+  DbProLocation,
+  DbProPortfolioItem,
+  DbProReview,
+  DbProConversation,
+} from "@/types/pro-connect";
+import { supabase } from "@/lib/supabase";
+import { fetchMyBids, fetchMyOrders } from "@/lib/marketplace";
+import type {
+  DbMarketplaceBid,
+  DbMarketplaceListing,
+  DbMarketplaceOrder,
+} from "@/types/marketplace";
+import { classNames } from "@/lib/utils";
+import { checkProLevelEligibility } from "@/lib/pro-connect";
+import type { DbProVerificationRequest } from "@/types/pro-connect";
 
 export default function ProConnectDashboard() {
   const { user } = useAuth();
@@ -29,20 +58,24 @@ export default function ProConnectDashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showPortfolioForm, setShowPortfolioForm] = useState(false);
-  const [verificationRequests, setVerificationRequests] = useState<DbProVerificationRequest[]>([]);
+  const [verificationRequests, setVerificationRequests] = useState<
+    DbProVerificationRequest[]
+  >([]);
   const [proLevelEligible, setProLevelEligible] = useState(false);
   const [showVerificationForm, setShowVerificationForm] = useState(false);
   // Verification form state
-  const [verifType, setVerifType] = useState<'contact' | 'identity'>('contact');
-  const [verifName, setVerifName] = useState('');
-  const [verifBusiness, setVerifBusiness] = useState('');
-  const [verifYears, setVerifYears] = useState('');
-  const [verifIdType, setVerifIdType] = useState('national_id');
-  const [verifIdNumber, setVerifIdNumber] = useState('');
+  const [verifType, setVerifType] = useState<"contact" | "identity">("contact");
+  const [verifName, setVerifName] = useState("");
+  const [verifBusiness, setVerifBusiness] = useState("");
+  const [verifYears, setVerifYears] = useState("");
+  const [verifIdType, setVerifIdType] = useState("national_id");
+  const [verifIdNumber, setVerifIdNumber] = useState("");
   const [verifSubmitting, setVerifSubmitting] = useState(false);
-  const [verifError, setVerifError] = useState('');
+  const [verifError, setVerifError] = useState("");
   const [verifSuccess, setVerifSuccess] = useState(false);
-  const [myBids, setMyBids] = useState<(DbMarketplaceBid & { listing: DbMarketplaceListing })[]>([]);
+  const [myBids, setMyBids] = useState<
+    (DbMarketplaceBid & { listing: DbMarketplaceListing })[]
+  >([]);
   const [myOrders, setMyOrders] = useState<DbMarketplaceOrder[]>([]);
 
   useEffect(() => {
@@ -64,7 +97,9 @@ export default function ProConnectDashboard() {
         getUnreadCount(),
       ]);
       setServices(svc.map((s) => s.service).filter(Boolean) as DbProService[]);
-      setLocations(loc.map((l) => l.location).filter(Boolean) as DbProLocation[]);
+      setLocations(
+        loc.map((l) => l.location).filter(Boolean) as DbProLocation[],
+      );
       setPortfolio(port);
       setReviews(rev);
       setConversations(convos);
@@ -79,11 +114,13 @@ export default function ProConnectDashboard() {
       try {
         const [bids, orders] = await Promise.all([
           fetchMyBids(p.id).catch(() => []),
-          fetchMyOrders(user.id, 'pro').catch(() => []),
+          fetchMyOrders(user.id, "pro").catch(() => []),
         ]);
         setMyBids(bids);
         setMyOrders(orders);
-      } catch { /* marketplace not yet set up */ }
+      } catch {
+        /* marketplace not yet set up */
+      }
       setProLevelEligible(eligible);
       setLoading(false);
     })();
@@ -92,8 +129,15 @@ export default function ProConnectDashboard() {
   if (!user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Sign in to access your dashboard</h1>
-        <Link to="/login?redirect=/pro-connect/dashboard" className="mt-4 inline-block text-brand-purple dark:text-brand-purple-lighter">Sign in</Link>
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          Sign in to access your dashboard
+        </h1>
+        <Link
+          to="/login?redirect=/pro-connect/dashboard"
+          className="mt-4 inline-block text-brand-purple dark:text-brand-purple-lighter"
+        >
+          Sign in
+        </Link>
       </div>
     );
   }
@@ -109,9 +153,16 @@ export default function ProConnectDashboard() {
   if (!profile) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">No professional profile found</h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">Create your professional profile to get started.</p>
-        <Link to="/pro-connect/register" className="mt-6 inline-block rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white">
+        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          No professional profile found
+        </h1>
+        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+          Create your professional profile to get started.
+        </p>
+        <Link
+          to="/pro-connect/register"
+          className="mt-6 inline-block rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white"
+        >
           Create Professional Profile
         </Link>
       </div>
@@ -122,15 +173,24 @@ export default function ProConnectDashboard() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Quick Links */}
       <div className="mb-6 flex flex-wrap gap-2">
-        <Link to="/worker-channels" className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-brand-purple/10">
+        <Link
+          to="/worker-channels"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-brand-purple/10"
+        >
           <Hash className="h-4 w-4" />
           Worker Channels
         </Link>
-        <Link to="/messages" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
+        <Link
+          to="/messages"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+        >
           <MessageSquare aria-hidden="true" className="h-4 w-4" />
           Messages
         </Link>
-        <Link to="/profile" className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
+        <Link
+          to="/profile"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+        >
           <Settings aria-hidden="true" className="h-4 w-4" />
           My Profile
         </Link>
@@ -139,8 +199,12 @@ export default function ProConnectDashboard() {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">Professional Dashboard</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">Manage your profile, portfolio, and conversations</p>
+          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+            Professional Dashboard
+          </h1>
+          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+            Manage your profile, portfolio, and conversations
+          </p>
         </div>
         <Link
           to={`/pro-connect/${profile.slug}`}
@@ -155,13 +219,15 @@ export default function ProConnectDashboard() {
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
-            <ThumbsUp className="h-4 w-4" />
+            <Award className="h-4 w-4" />
             <span className="text-xs">Rating</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {profile.rating_avg.toFixed(1)}
           </p>
-          <p className="text-xs text-neutral-500">{profile.rating_count} reviews</p>
+          <p className="text-xs text-neutral-500">
+            {profile.rating_count} reviews
+          </p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
@@ -171,7 +237,9 @@ export default function ProConnectDashboard() {
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {unreadCount > 0 ? unreadCount : conversations.length}
           </p>
-          <p className="text-xs text-neutral-500">{unreadCount > 0 ? 'unread' : 'conversations'}</p>
+          <p className="text-xs text-neutral-500">
+            {unreadCount > 0 ? "unread" : "conversations"}
+          </p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
@@ -179,9 +247,11 @@ export default function ProConnectDashboard() {
             <span className="text-xs">Listed</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
-            {profile.is_listed ? 'Yes' : 'No'}
+            {profile.is_listed ? "Yes" : "No"}
           </p>
-          <p className="text-xs text-neutral-500 capitalize">{profile.verification_status}</p>
+          <p className="text-xs text-neutral-500 capitalize">
+            {profile.verification_status}
+          </p>
         </div>
         <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
           <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
@@ -191,7 +261,9 @@ export default function ProConnectDashboard() {
           <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
             {profile.years_experience || 0} yrs
           </p>
-          <p className="text-xs text-neutral-500">{portfolio.length} portfolio items</p>
+          <p className="text-xs text-neutral-500">
+            {portfolio.length} portfolio items
+          </p>
         </div>
       </div>
 
@@ -199,20 +271,26 @@ export default function ProConnectDashboard() {
       <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">{profile.display_name}</h2>
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">{profile.business_name || 'No business name set'}</p>
+            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+              {profile.display_name}
+            </h2>
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+              {profile.business_name || "No business name set"}
+            </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className={classNames(
-                'rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
-                profile.availability === 'available'
-                  ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400'
-                  : profile.availability === 'busy'
-                    ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'
-                    : 'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
-              )}>
+              <span
+                className={classNames(
+                  "rounded-full px-2.5 py-0.5 text-xs font-medium capitalize",
+                  profile.availability === "available"
+                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                    : profile.availability === "busy"
+                      ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                )}
+              >
                 {profile.availability}
               </span>
-              {profile.verification_status === 'verified' && (
+              {profile.verification_status === "verified" && (
                 <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
                   Verified
                 </span>
@@ -231,10 +309,15 @@ export default function ProConnectDashboard() {
         {/* Services */}
         {services.length > 0 && (
           <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">Services</p>
+            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              Services
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {services.map((s) => (
-                <span key={s.id} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+                <span
+                  key={s.id}
+                  className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300"
+                >
                   {s.name}
                 </span>
               ))}
@@ -245,12 +328,17 @@ export default function ProConnectDashboard() {
         {/* Locations */}
         {locations.length > 0 && (
           <div className="mt-3">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">Service Areas</p>
+            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              Service Areas
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {locations.map((l, i) => (
-                <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+                <span
+                  key={i}
+                  className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300"
+                >
                   <MapPin aria-hidden="true" className="mr-1 inline h-3 w-3" />
-                  {[l.area, l.city, l.state].filter(Boolean).join(', ')}
+                  {[l.area, l.city, l.state].filter(Boolean).join(", ")}
                 </span>
               ))}
             </div>
@@ -258,76 +346,133 @@ export default function ProConnectDashboard() {
         )}
       </div>
 
-
       {/* Verification Status */}
       <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h2 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Verification Status</h2>
+        <h2 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">
+          Verification Status
+        </h2>
         <div className="flex flex-wrap items-start gap-4">
           {/* Contact Verified */}
-          <div className={classNames(
-            'flex items-center gap-2 rounded-lg px-3 py-2',
-            profile.contact_verified_at
-              ? 'bg-emerald-50 dark:bg-emerald-500/10'
-              : 'bg-neutral-50 dark:bg-white/5'
-          )}>
-            <div className={classNames(
-              'flex h-8 w-8 items-center justify-center rounded-full',
-              profile.contact_verified_at ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
-            )}>
-              <span className="text-xs font-bold">{profile.contact_verified_at ? '✓' : '1'}</span>
+          <div
+            className={classNames(
+              "flex items-center gap-2 rounded-lg px-3 py-2",
+              profile.contact_verified_at
+                ? "bg-emerald-50 dark:bg-emerald-500/10"
+                : "bg-neutral-50 dark:bg-white/5",
+            )}
+          >
+            <div
+              className={classNames(
+                "flex h-8 w-8 items-center justify-center rounded-full",
+                profile.contact_verified_at
+                  ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
+                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+              )}
+            >
+              <span className="text-xs font-bold">
+                {profile.contact_verified_at ? "✓" : "1"}
+              </span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.contact_verified_at ? 'text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-500')}>
+              <p
+                className={classNames(
+                  "text-sm font-medium",
+                  profile.contact_verified_at
+                    ? "text-emerald-700 dark:text-emerald-400"
+                    : "text-neutral-500 dark:text-neutral-500",
+                )}
+              >
                 Contact Verified
               </p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                {profile.contact_verified_at ? 'Verified ' + new Date(profile.contact_verified_at).toLocaleDateString('en-GB') : 'Email & phone confirmation'}
+                {profile.contact_verified_at
+                  ? "Verified " +
+                    new Date(profile.contact_verified_at).toLocaleDateString(
+                      "en-GB",
+                    )
+                  : "Email & phone confirmation"}
               </p>
             </div>
           </div>
 
           {/* FRELUX Verified */}
-          <div className={classNames(
-            'flex items-center gap-2 rounded-lg px-3 py-2',
-            profile.identity_verified_at
-              ? 'bg-blue-50 dark:bg-blue-500/10'
-              : 'bg-neutral-50 dark:bg-white/5'
-          )}>
-            <div className={classNames(
-              'flex h-8 w-8 items-center justify-center rounded-full',
-              profile.identity_verified_at ? 'bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
-            )}>
-              <span className="text-xs font-bold">{profile.identity_verified_at ? '✓' : '2'}</span>
+          <div
+            className={classNames(
+              "flex items-center gap-2 rounded-lg px-3 py-2",
+              profile.identity_verified_at
+                ? "bg-blue-50 dark:bg-blue-500/10"
+                : "bg-neutral-50 dark:bg-white/5",
+            )}
+          >
+            <div
+              className={classNames(
+                "flex h-8 w-8 items-center justify-center rounded-full",
+                profile.identity_verified_at
+                  ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
+                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+              )}
+            >
+              <span className="text-xs font-bold">
+                {profile.identity_verified_at ? "✓" : "2"}
+              </span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.identity_verified_at ? 'text-blue-700 dark:text-blue-400' : 'text-neutral-500 dark:text-neutral-500')}>
+              <p
+                className={classNames(
+                  "text-sm font-medium",
+                  profile.identity_verified_at
+                    ? "text-blue-700 dark:text-blue-400"
+                    : "text-neutral-500 dark:text-neutral-500",
+                )}
+              >
                 FRELUX Verified
               </p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                {profile.identity_verified_at ? 'Identity verified' : 'Identity & profile review'}
+                {profile.identity_verified_at
+                  ? "Identity verified"
+                  : "Identity & profile review"}
               </p>
             </div>
           </div>
 
           {/* FRELUX Pro */}
-          <div className={classNames(
-            'flex items-center gap-2 rounded-lg px-3 py-2',
-            profile.pro_level
-              ? 'bg-amber-50 dark:bg-amber-500/10'
-              : 'bg-neutral-50 dark:bg-white/5'
-          )}>
-            <div className={classNames(
-              'flex h-8 w-8 items-center justify-center rounded-full',
-              profile.pro_level ? 'bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-neutral-200 text-neutral-400 dark:bg-white/5'
-            )}>
-              <span className="text-xs font-bold">{profile.pro_level ? '✓' : '3'}</span>
+          <div
+            className={classNames(
+              "flex items-center gap-2 rounded-lg px-3 py-2",
+              profile.pro_level
+                ? "bg-amber-50 dark:bg-amber-500/10"
+                : "bg-neutral-50 dark:bg-white/5",
+            )}
+          >
+            <div
+              className={classNames(
+                "flex h-8 w-8 items-center justify-center rounded-full",
+                profile.pro_level
+                  ? "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
+                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+              )}
+            >
+              <span className="text-xs font-bold">
+                {profile.pro_level ? "✓" : "3"}
+              </span>
             </div>
             <div>
-              <p className={classNames('text-sm font-medium', profile.pro_level ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500 dark:text-neutral-500')}>
+              <p
+                className={classNames(
+                  "text-sm font-medium",
+                  profile.pro_level
+                    ? "text-amber-700 dark:text-amber-400"
+                    : "text-neutral-500 dark:text-neutral-500",
+                )}
+              >
                 FRELUX Pro
               </p>
               <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                {profile.pro_level ? 'Top professional' : proLevelEligible ? 'Eligible — contact admin' : 'Build your reputation'}
+                {profile.pro_level
+                  ? "Top professional"
+                  : proLevelEligible
+                    ? "Eligible — contact admin"
+                    : "Build your reputation"}
               </p>
             </div>
           </div>
@@ -336,70 +481,96 @@ export default function ProConnectDashboard() {
         {/* Verification status message */}
         <div className="mt-4">
           <p className="text-sm text-neutral-500 dark:text-neutral-500">
-            Status: <span className={classNames(
-              'font-medium capitalize',
-              profile.verification_status === 'verified' ? 'text-emerald-600 dark:text-emerald-400' :
-              profile.verification_status === 'pending' ? 'text-amber-600 dark:text-amber-400' :
-              profile.verification_status === 'rejected' ? 'text-red-600 dark:text-red-400' :
-              profile.verification_status === 'more_info' ? 'text-blue-600 dark:text-blue-400' :
-              profile.verification_status === 'suspended' ? 'text-red-600 dark:text-red-400' :
-              'text-neutral-500'
-            )}>{profile.verification_status.replace('_', ' ')}</span>
+            Status:{" "}
+            <span
+              className={classNames(
+                "font-medium capitalize",
+                profile.verification_status === "verified"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : profile.verification_status === "pending"
+                    ? "text-amber-600 dark:text-amber-400"
+                    : profile.verification_status === "rejected"
+                      ? "text-red-600 dark:text-red-400"
+                      : profile.verification_status === "more_info"
+                        ? "text-blue-600 dark:text-blue-400"
+                        : profile.verification_status === "suspended"
+                          ? "text-red-600 dark:text-red-400"
+                          : "text-neutral-500",
+              )}
+            >
+              {profile.verification_status.replace("_", " ")}
+            </span>
           </p>
-          {profile.verification_status === 'more_info' && verificationRequests[0]?.more_info_request && (
-            <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
-              <p className="text-sm text-blue-700 dark:text-blue-400">
-                <strong>Action needed:</strong> {verificationRequests[0].more_info_request}
-              </p>
-            </div>
-          )}
-          {profile.verification_status === 'rejected' && verificationRequests[0]?.rejection_reason && (
-            <div className="mt-2 rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
-              <p className="text-sm text-red-700 dark:text-red-400">
-                <strong>Reason:</strong> {verificationRequests[0].rejection_reason}
-              </p>
-            </div>
-          )}
+          {profile.verification_status === "more_info" &&
+            verificationRequests[0]?.more_info_request && (
+              <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-500/10">
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  <strong>Action needed:</strong>{" "}
+                  {verificationRequests[0].more_info_request}
+                </p>
+              </div>
+            )}
+          {profile.verification_status === "rejected" &&
+            verificationRequests[0]?.rejection_reason && (
+              <div className="mt-2 rounded-lg bg-red-50 p-3 dark:bg-red-500/10">
+                <p className="text-sm text-red-700 dark:text-red-400">
+                  <strong>Reason:</strong>{" "}
+                  {verificationRequests[0].rejection_reason}
+                </p>
+              </div>
+            )}
         </div>
 
         {/* Request verification button */}
-        {(profile.verification_status === 'unverified' || profile.verification_status === 'rejected' || profile.verification_status === 'more_info') && (
+        {(profile.verification_status === "unverified" ||
+          profile.verification_status === "rejected" ||
+          profile.verification_status === "more_info") && (
           <button
-            onClick={() => { setShowVerificationForm(!showVerificationForm); setVerifSuccess(false); setVerifError(''); }}
+            onClick={() => {
+              setShowVerificationForm(!showVerificationForm);
+              setVerifSuccess(false);
+              setVerifError("");
+            }}
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white"
           >
-            {showVerificationForm ? 'Cancel' : 'Request Verification'}
+            {showVerificationForm ? "Cancel" : "Request Verification"}
           </button>
         )}
 
         {/* Verification submission form */}
         {showVerificationForm && !verifSuccess && (
           <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">Request Verification</h3>
+            <h3 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">
+              Request Verification
+            </h3>
 
             {/* Verification type selector */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-200">Verification Type</label>
+              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                Verification Type
+              </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setVerifType('contact')}
+                  onClick={() => setVerifType("contact")}
                   className={classNames(
-                    'rounded-lg border p-3 text-left text-sm transition-colors',
-                    verifType === 'contact'
-                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500'
+                    "rounded-lg border p-3 text-left text-sm transition-colors",
+                    verifType === "contact"
+                      ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
+                      : "border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500",
                   )}
                 >
                   <span className="block font-semibold">Level 1: Contact</span>
-                  <span className="text-xs">Verify your contact info &amp; profile</span>
+                  <span className="text-xs">
+                    Verify your contact info &amp; profile
+                  </span>
                 </button>
                 <button
-                  onClick={() => setVerifType('identity')}
+                  onClick={() => setVerifType("identity")}
                   className={classNames(
-                    'rounded-lg border p-3 text-left text-sm transition-colors',
-                    verifType === 'identity'
-                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500'
+                    "rounded-lg border p-3 text-left text-sm transition-colors",
+                    verifType === "identity"
+                      ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
+                      : "border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500",
                   )}
                 >
                   <span className="block font-semibold">Level 2: Identity</span>
@@ -411,18 +582,24 @@ export default function ProConnectDashboard() {
             {/* Common fields */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Professional Name *</label>
+                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                  Professional Name *
+                </label>
                 <input
-                  type="text" value={verifName}
+                  type="text"
+                  value={verifName}
                   onChange={(e) => setVerifName(e.target.value)}
                   placeholder="Your full name"
                   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Business Name</label>
+                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                  Business Name
+                </label>
                 <input
-                  type="text" value={verifBusiness}
+                  type="text"
+                  value={verifBusiness}
                   onChange={(e) => setVerifBusiness(e.target.value)}
                   placeholder="Optional"
                   className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
@@ -431,9 +608,14 @@ export default function ProConnectDashboard() {
             </div>
 
             <div className="mt-3">
-              <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">Years of Experience</label>
+              <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                Years of Experience
+              </label>
               <input
-                type="number" value={verifYears} min="0" max="50"
+                type="number"
+                value={verifYears}
+                min="0"
+                max="50"
                 onChange={(e) => setVerifYears(e.target.value)}
                 placeholder="e.g. 5"
                 className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
@@ -441,10 +623,12 @@ export default function ProConnectDashboard() {
             </div>
 
             {/* Identity verification fields */}
-            {verifType === 'identity' && (
+            {verifType === "identity" && (
               <div className="mt-3 space-y-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">ID Document Type *</label>
+                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                    ID Document Type *
+                  </label>
                   <select
                     value={verifIdType}
                     onChange={(e) => setVerifIdType(e.target.value)}
@@ -452,41 +636,60 @@ export default function ProConnectDashboard() {
                   >
                     <option value="national_id">National ID</option>
                     <option value="drivers_license">Driver's License</option>
-                    <option value="international_passport">International Passport</option>
+                    <option value="international_passport">
+                      International Passport
+                    </option>
                     <option value="voters_card">Voter's Card</option>
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">ID Document Number *</label>
+                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                    ID Document Number *
+                  </label>
                   <input
-                    type="text" value={verifIdNumber}
+                    type="text"
+                    value={verifIdNumber}
                     onChange={(e) => setVerifIdNumber(e.target.value)}
                     placeholder="Enter your ID number"
                     className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
                   />
                   <p className="mt-1 text-xs text-neutral-500">
-                    Your ID number is stored securely and only visible to FRELUX administrators.
+                    Your ID number is stored securely and only visible to FRELUX
+                    administrators.
                   </p>
                 </div>
               </div>
             )}
 
             {verifError && (
-              <p className="mt-3 flex items-center gap-1.5 text-sm text-red-500">{verifError}</p>
+              <p className="mt-3 flex items-center gap-1.5 text-sm text-red-500">
+                {verifError}
+              </p>
             )}
 
             <button
               onClick={async () => {
-                if (!verifName.trim()) { setVerifError('Please enter your professional name.'); return; }
-                if (verifType === 'identity' && !verifIdNumber.trim()) { setVerifError('Please enter your ID document number.'); return; }
-                setVerifSubmitting(true); setVerifError('');
+                if (!verifName.trim()) {
+                  setVerifError("Please enter your professional name.");
+                  return;
+                }
+                if (verifType === "identity" && !verifIdNumber.trim()) {
+                  setVerifError("Please enter your ID document number.");
+                  return;
+                }
+                setVerifSubmitting(true);
+                setVerifError("");
                 const req = await createVerificationRequest(profile.id, {
                   request_type: verifType,
                   professional_name: verifName,
                   business_name: verifBusiness || undefined,
-                  years_experience: verifYears ? parseInt(verifYears) : undefined,
-                  identity_document_type: verifType === 'identity' ? verifIdType : undefined,
-                  identity_document_number: verifType === 'identity' ? verifIdNumber : undefined,
+                  years_experience: verifYears
+                    ? parseInt(verifYears)
+                    : undefined,
+                  identity_document_type:
+                    verifType === "identity" ? verifIdType : undefined,
+                  identity_document_number:
+                    verifType === "identity" ? verifIdNumber : undefined,
                   category_id: profile.category_id || undefined,
                 });
                 setVerifSubmitting(false);
@@ -498,13 +701,15 @@ export default function ProConnectDashboard() {
                   const p = await getMyProProfile(user!.id);
                   if (p) setProfile(p);
                 } else {
-                  setVerifError('Failed to submit verification request. Please try again.');
+                  setVerifError(
+                    "Failed to submit verification request. Please try again.",
+                  );
                 }
               }}
               disabled={verifSubmitting}
               className="mt-4 w-full rounded-lg bg-brand-purple py-2.5 text-sm font-semibold text-white disabled:opacity-50"
             >
-              {verifSubmitting ? 'Submitting…' : 'Submit Verification Request'}
+              {verifSubmitting ? "Submitting…" : "Submit Verification Request"}
             </button>
           </div>
         )}
@@ -513,7 +718,8 @@ export default function ProConnectDashboard() {
         {verifSuccess && (
           <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-500/20 dark:bg-emerald-500/10">
             <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-              ✓ Verification request submitted! An admin will review your request shortly.
+              ✓ Verification request submitted! An admin will review your
+              request shortly.
             </p>
           </div>
         )}
@@ -522,7 +728,9 @@ export default function ProConnectDashboard() {
       {/* Portfolio management */}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">Portfolio</h2>
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+            Portfolio
+          </h2>
           <button
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
             className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-sm font-medium text-white"
@@ -547,18 +755,30 @@ export default function ProConnectDashboard() {
 
         {portfolio.length === 0 ? (
           <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
-            No portfolio items yet. Add your first project to showcase your work.
+            No portfolio items yet. Add your first project to showcase your
+            work.
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {portfolio.map((item) => (
-              <div key={item.id} className="group relative overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5">
+              <div
+                key={item.id}
+                className="group relative overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5"
+              >
                 {item.image_urls[0] && (
-                  <img src={item.image_urls[0]} alt={item.title} className="aspect-square w-full object-cover" />
+                  <img
+                    src={item.image_urls[0]}
+                    alt={item.title}
+                    className="aspect-square w-full object-cover"
+                  />
                 )}
                 <div className="p-3">
-                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{item.title}</p>
-                  <p className="truncate text-xs text-neutral-500">{item.category}</p>
+                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                    {item.title}
+                  </p>
+                  <p className="truncate text-xs text-neutral-500">
+                    {item.category}
+                  </p>
                 </div>
                 <button
                   onClick={async () => {
@@ -578,10 +798,13 @@ export default function ProConnectDashboard() {
 
       {/* Recent conversations */}
       <div className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Recent Conversations</h2>
+        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+          Recent Conversations
+        </h2>
         {conversations.length === 0 ? (
           <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
-            No conversations yet. When customers message you, they'll appear here.
+            No conversations yet. When customers message you, they'll appear
+            here.
           </p>
         ) : (
           <div className="space-y-2">
@@ -593,13 +816,21 @@ export default function ProConnectDashboard() {
               >
                 <div>
                   <p className="text-sm font-medium text-neutral-900 dark:text-white">
-                    {convo.professional?.display_name || 'Customer'}
+                    {convo.professional?.display_name || "Customer"}
                   </p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                    {convo.last_message_at ? new Date(convo.last_message_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'No messages yet'}
+                    {convo.last_message_at
+                      ? new Date(convo.last_message_at).toLocaleDateString(
+                          "en-GB",
+                          { day: "numeric", month: "short" },
+                        )
+                      : "No messages yet"}
                   </p>
                 </div>
-                <MessageSquare aria-hidden="true" className="h-5 w-5 text-neutral-500" />
+                <MessageSquare
+                  aria-hidden="true"
+                  className="h-5 w-5 text-neutral-500"
+                />
               </Link>
             ))}
           </div>
@@ -608,7 +839,9 @@ export default function ProConnectDashboard() {
 
       {/* Reviews */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">Reviews About You</h2>
+        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+          Reviews About You
+        </h2>
         {reviews.length === 0 ? (
           <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
             No reviews yet. Reviews appear after customers work with you.
@@ -616,21 +849,40 @@ export default function ProConnectDashboard() {
         ) : (
           <div className="space-y-3">
             {reviews.map((review) => (
-              <div key={review.id} className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+              <div
+                key={review.id}
+                className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+              >
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((s: number) => (
-                    <span key={s} className={s <= review.rating ? 'text-amber-400' : 'text-neutral-200 dark:text-neutral-700'}>●</span>
+                    <span
+                      key={s}
+                      className={
+                        s <= review.rating
+                          ? "text-amber-400"
+                          : "text-neutral-200 dark:text-neutral-700"
+                      }
+                    >
+                      ●
+                    </span>
                   ))}
-                  <span className="text-xs text-neutral-500">{new Date(review.created_at).toLocaleDateString('en-GB')}</span>
+                  <span className="text-xs text-neutral-500">
+                    {new Date(review.created_at).toLocaleDateString("en-GB")}
+                  </span>
                 </div>
-                {review.review_text && <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">{review.review_text}</p>}
+                {review.review_text && (
+                  <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    {review.review_text}
+                  </p>
+                )}
                 {!review.professional_response && (
                   <button
                     onClick={() => {
-                      const response = prompt('Type your response:');
+                      const response = prompt("Type your response:");
                       if (response) {
                         (async () => {
-                          const { respondToReview } = await import('@/lib/pro-connect');
+                          const { respondToReview } =
+                            await import("@/lib/pro-connect");
                           await respondToReview(review.id, response);
                           const rev = await getProReviews(profile.id);
                           setReviews(rev);
@@ -645,7 +897,9 @@ export default function ProConnectDashboard() {
                 {review.professional_response && (
                   <div className="mt-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
                     <p className="text-xs text-neutral-500">Your response:</p>
-                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{review.professional_response}</p>
+                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                      {review.professional_response}
+                    </p>
                   </div>
                 )}
               </div>
@@ -658,18 +912,31 @@ export default function ProConnectDashboard() {
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
-            <ShoppingBag aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+            <ShoppingBag
+              aria-hidden="true"
+              className="h-5 w-5 text-brand-purple"
+            />
             Marketplace Bids
           </h2>
-          <Link to="/marketplace" className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
-            Browse Jobs <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
+          <Link
+            to="/marketplace"
+            className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
+          >
+            Browse Jobs{" "}
+            <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />
           </Link>
         </div>
         {myBids.length === 0 ? (
           <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">You haven't placed any bids yet.</p>
-            <Link to="/marketplace" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark">
-              <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open jobs
+            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+              You haven't placed any bids yet.
+            </p>
+            <Link
+              to="/marketplace"
+              className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
+            >
+              <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open
+              jobs
             </Link>
           </div>
         ) : (
@@ -681,17 +948,24 @@ export default function ProConnectDashboard() {
                 className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{bid.listing?.title || 'Untitled job'}</p>
+                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                    {bid.listing?.title || "Untitled job"}
+                  </p>
                   <p className="text-xs text-neutral-500">
-                    Bid: ₦{bid.proposed_price.toLocaleString()} · {new Date(bid.created_at).toLocaleDateString()}
+                    Bid: ₦{bid.proposed_price.toLocaleString()} ·{" "}
+                    {new Date(bid.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <span className={classNames(
-                  'ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold',
-                  bid.status === 'accepted' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                  bid.status === 'rejected' ? 'bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400' :
-                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
-                )}>
+                <span
+                  className={classNames(
+                    "ml-2 shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold",
+                    bid.status === "accepted"
+                      ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
+                      : bid.status === "rejected"
+                        ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"
+                        : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                  )}
+                >
                   {bid.status}
                 </span>
               </Link>
@@ -704,35 +978,50 @@ export default function ProConnectDashboard() {
       {myOrders.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
-            <Briefcase aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+            <Briefcase
+              aria-hidden="true"
+              className="h-5 w-5 text-brand-purple"
+            />
             Active Orders
           </h2>
           <div className="space-y-2">
-            {myOrders.filter(o => o.status !== 'completed' && o.status !== 'cancelled').slice(0, 5).map((order) => (
-              <Link
-                key={order.id}
-                to={`/marketplace/orders/${order.id}`}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
-                    {order.listing?.title || 'Untitled job'}
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    {order.order_number} · ₦{order.agreed_price.toLocaleString()}
-                  </p>
-                </div>
-                <span className={classNames(
-                  'ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold',
-                  order.status === 'in_progress' ? 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' :
-                  order.status === 'pending_start' ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400' :
-                  'bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500'
-                )}>
-                  {order.status === 'in_progress' && <Clock className="h-3 w-3" />}
-                  {order.status.replace('_', ' ')}
-                </span>
-              </Link>
-            ))}
+            {myOrders
+              .filter(
+                (o) => o.status !== "completed" && o.status !== "cancelled",
+              )
+              .slice(0, 5)
+              .map((order) => (
+                <Link
+                  key={order.id}
+                  to={`/marketplace/orders/${order.id}`}
+                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                      {order.listing?.title || "Untitled job"}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {order.order_number} · ₦
+                      {order.agreed_price.toLocaleString()}
+                    </p>
+                  </div>
+                  <span
+                    className={classNames(
+                      "ml-2 shrink-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold",
+                      order.status === "in_progress"
+                        ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                        : order.status === "pending_start"
+                          ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+                          : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                    )}
+                  >
+                    {order.status === "in_progress" && (
+                      <Clock className="h-3 w-3" />
+                    )}
+                    {order.status.replace("_", " ")}
+                  </span>
+                </Link>
+              ))}
           </div>
         </div>
       )}
@@ -741,10 +1030,16 @@ export default function ProConnectDashboard() {
 }
 
 // -- Portfolio form --
-function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () => void }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState('');
+function PortfolioForm({
+  profileId,
+  onAdded,
+}: {
+  profileId: string;
+  onAdded: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -752,19 +1047,21 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
   async function handleUpload(file: File) {
     if (!file) return;
     setUploading(true);
-    const fileExt = file.name.split('.').pop();
+    const fileExt = file.name.split(".").pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${fileExt}`;
     const filePath = `${profileId}/${fileName}`;
 
     const { error } = await supabase.storage
-      .from('pro-portfolio')
+      .from("pro-portfolio")
       .upload(filePath, file);
 
     if (!error) {
-      const { data } = supabase.storage.from('pro-portfolio').getPublicUrl(filePath);
+      const { data } = supabase.storage
+        .from("pro-portfolio")
+        .getPublicUrl(filePath);
       setImageUrls([...imageUrls, data.publicUrl]);
     } else {
-      if (import.meta.env.DEV) console.error('Upload error:', error.message);
+      if (import.meta.env.DEV) console.error("Upload error:", error.message);
     }
     setUploading(false);
   }
@@ -779,9 +1076,9 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
       image_urls: imageUrls,
     });
     setSaving(false);
-    setTitle('');
-    setDescription('');
-    setCategory('');
+    setTitle("");
+    setDescription("");
+    setCategory("");
     setImageUrls([]);
     onAdded();
   }
@@ -825,13 +1122,18 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
             />
             <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-500">
               <Plus aria-hidden="true" className="h-4 w-4" />
-              {uploading ? 'Uploading...' : 'Upload images'}
+              {uploading ? "Uploading..." : "Upload images"}
             </span>
           </label>
           {imageUrls.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {imageUrls.map((url, i) => (
-                <img key={i} src={url} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+                <img
+                  key={i}
+                  src={url}
+                  alt="Preview"
+                  className="h-16 w-16 rounded-lg object-cover"
+                />
               ))}
             </div>
           )}
@@ -841,7 +1143,7 @@ function PortfolioForm({ profileId, onAdded }: { profileId: string; onAdded: () 
           disabled={!title.trim() || imageUrls.length === 0 || saving}
           className="w-full rounded-lg bg-brand-purple py-2.5 text-sm font-semibold text-white disabled:opacity-50"
         >
-          {saving ? 'Saving...' : 'Add to portfolio'}
+          {saving ? "Saving..." : "Add to portfolio"}
         </button>
       </div>
     </div>

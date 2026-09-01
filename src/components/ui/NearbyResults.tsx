@@ -1,11 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, Star, Shield, Loader2, Briefcase, ArrowRight, Navigation } from 'lucide-react';
-import { findNearbyProfessionals, findNearbyListings, type NearbyProfessional, type NearbyListing } from '@/lib/location-discovery';
-import { formatDistance } from '@/lib/location';
-import { classNames } from '@/lib/utils';
-import type { UserLocation } from '@/lib/location';
-import LocationPicker from '@/components/ui/LocationPicker';
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import {
+  MapPin,
+  Shield,
+  Loader2,
+  Briefcase,
+  ArrowRight,
+  Navigation,
+} from "lucide-react";
+import {
+  findNearbyProfessionals,
+  findNearbyListings,
+  type NearbyProfessional,
+  type NearbyListing,
+} from "@/lib/location-discovery";
+import { formatDistance } from "@/lib/location";
+import { classNames } from "@/lib/utils";
+import type { UserLocation } from "@/lib/location";
+import LocationPicker from "@/components/ui/LocationPicker";
 
 // ============================================================
 // NearbyResults — shows ranked nearby professionals + listings
@@ -13,7 +25,7 @@ import LocationPicker from '@/components/ui/LocationPicker';
 
 interface NearbyResultsProps {
   // What to show
-  mode: 'professionals' | 'listings' | 'both';
+  mode: "professionals" | "listings" | "both";
   // Optional filters
   categorySlug?: string;
   projectType?: string;
@@ -41,24 +53,30 @@ export default function NearbyResults({
   const [hasSearched, setHasSearched] = useState(false);
 
   const search = useCallback(async () => {
-    if (!userLocation || (userLocation.latitude === 0 && userLocation.longitude === 0)) return;
+    if (
+      !userLocation ||
+      (userLocation.latitude === 0 && userLocation.longitude === 0)
+    )
+      return;
     setLoading(true);
     setHasSearched(true);
 
     const tasks: Promise<void>[] = [];
 
-    if (mode === 'professionals' || mode === 'both') {
+    if (mode === "professionals" || mode === "both") {
       tasks.push(
         findNearbyProfessionals({
           latitude: userLocation.latitude,
           longitude: userLocation.longitude,
           radiusKm: radius,
           categorySlug,
-        }).then((data) => { setPros(data); })
+        }).then((data) => {
+          setPros(data);
+        }),
       );
     }
 
-    if (mode === 'listings' || mode === 'both') {
+    if (mode === "listings" || mode === "both") {
       tasks.push(
         findNearbyListings({
           latitude: userLocation.latitude,
@@ -66,7 +84,9 @@ export default function NearbyResults({
           radiusKm: radius,
           projectType,
           categorySlug,
-        }).then((data) => { setListings(data); })
+        }).then((data) => {
+          setListings(data);
+        }),
       );
     }
 
@@ -75,25 +95,45 @@ export default function NearbyResults({
   }, [userLocation, radius, mode, categorySlug, projectType]);
 
   useEffect(() => {
-    if (userLocation && (userLocation.latitude !== 0 || userLocation.longitude !== 0)) {
+    if (
+      userLocation &&
+      (userLocation.latitude !== 0 || userLocation.longitude !== 0)
+    ) {
       search();
     }
   }, [userLocation, radius, search]);
 
-  const showPros = mode === 'professionals' || mode === 'both';
-  const showListings = mode === 'listings' || mode === 'both';
-  const hasResults = (showPros && pros.length > 0) || (showListings && listings.length > 0);
+  const showPros = mode === "professionals" || mode === "both";
+  const showListings = mode === "listings" || mode === "both";
+  const hasResults =
+    (showPros && pros.length > 0) || (showListings && listings.length > 0);
 
   return (
-    <div className={classNames('rounded-2xl border border-neutral-200/60 bg-white dark:border-white/10 dark:bg-brand-navy-mid', compact ? 'p-4' : 'p-6')}>
+    <div
+      className={classNames(
+        "rounded-2xl border border-neutral-200/60 bg-white dark:border-white/10 dark:bg-brand-navy-mid",
+        compact ? "p-4" : "p-6",
+      )}
+    >
       {/* Header */}
       <div className="mb-4">
         <h3 className="text-base font-bold text-neutral-900 dark:text-white">
-          {title || (mode === 'professionals' ? 'Professionals Near You' : mode === 'listings' ? 'Jobs Near You' : 'Near You')}
+          {title ||
+            (mode === "professionals"
+              ? "Professionals Near You"
+              : mode === "listings"
+                ? "Jobs Near You"
+                : "Near You")}
         </h3>
         {!userLocation && (
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
-            Set your location to discover nearby {mode === 'professionals' ? 'professionals' : mode === 'listings' ? 'job listings' : 'professionals and listings'}.
+            Set your location to discover nearby{" "}
+            {mode === "professionals"
+              ? "professionals"
+              : mode === "listings"
+                ? "job listings"
+                : "professionals and listings"}
+            .
           </p>
         )}
       </div>
@@ -113,13 +153,25 @@ export default function NearbyResults({
         <>
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
+              <Loader2
+                aria-hidden="true"
+                className="h-5 w-5 animate-spin text-brand-purple"
+              />
             </div>
           ) : !hasResults ? (
             <div className="py-8 text-center">
-              <MapPin aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
+              <MapPin
+                aria-hidden="true"
+                className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600"
+              />
               <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
-                No {mode === 'professionals' ? 'professionals' : mode === 'listings' ? 'listings' : 'results'} found within {radius} km of your location.
+                No{" "}
+                {mode === "professionals"
+                  ? "professionals"
+                  : mode === "listings"
+                    ? "listings"
+                    : "results"}{" "}
+                found within {radius} km of your location.
               </p>
               <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
                 Try increasing the distance filter or check back later.
@@ -130,7 +182,11 @@ export default function NearbyResults({
               {/* Professionals */}
               {showPros && pros.length > 0 && (
                 <div className="space-y-2">
-                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Professionals ({pros.length})</p>}
+                  {!compact && (
+                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                      Professionals ({pros.length})
+                    </p>
+                  )}
                   {pros.slice(0, compact ? 3 : 10).map((pro) => (
                     <Link
                       key={pro.id}
@@ -139,7 +195,11 @@ export default function NearbyResults({
                     >
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
                         {pro.profile_image_url ? (
-                          <img src={pro.profile_image_url} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={pro.profile_image_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
                             {pro.display_name?.charAt(0).toUpperCase()}
@@ -151,25 +211,33 @@ export default function NearbyResults({
                           <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
                             {pro.business_name || pro.display_name}
                           </p>
-                          {pro.verification_status === 'verified' && (
-                            <Shield aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                          {pro.verification_status === "verified" && (
+                            <Shield
+                              aria-hidden="true"
+                              className="h-3.5 w-3.5 shrink-0 text-emerald-500"
+                            />
                           )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
                           {pro.rating_avg > 0 && (
                             <span className="inline-flex items-center gap-0.5">
-                              <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
+                              <span className="text-amber-400 text-xs">★</span>
                               {pro.rating_avg.toFixed(1)}
                             </span>
                           )}
-                          {pro.project_count > 0 && <span>· {pro.project_count} projects</span>}
+                          {pro.project_count > 0 && (
+                            <span>· {pro.project_count} projects</span>
+                          )}
                           <span className="inline-flex items-center gap-0.5">
                             · <Navigation className="h-3 w-3" />
                             {formatDistance(pro.distance_km)}
                           </span>
                         </div>
                       </div>
-                      <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600"
+                      />
                     </Link>
                   ))}
                 </div>
@@ -178,7 +246,11 @@ export default function NearbyResults({
               {/* Listings */}
               {showListings && listings.length > 0 && (
                 <div className="space-y-2">
-                  {!compact && <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Job Listings ({listings.length})</p>}
+                  {!compact && (
+                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                      Job Listings ({listings.length})
+                    </p>
+                  )}
                   {listings.slice(0, compact ? 3 : 10).map((listing) => (
                     <Link
                       key={listing.id}
@@ -189,17 +261,26 @@ export default function NearbyResults({
                         <Briefcase className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">{listing.title}</p>
+                        <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                          {listing.title}
+                        </p>
                         <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
-                          <span className="capitalize">{listing.project_type.replace('_', ' ')}</span>
-                          {listing.location_city && <span>· {listing.location_city}</span>}
+                          <span className="capitalize">
+                            {listing.project_type.replace("_", " ")}
+                          </span>
+                          {listing.location_city && (
+                            <span>· {listing.location_city}</span>
+                          )}
                           <span className="inline-flex items-center gap-0.5">
                             · <Navigation className="h-3 w-3" />
                             {formatDistance(listing.distance_km)}
                           </span>
                         </div>
                       </div>
-                      <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600" />
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600"
+                      />
                     </Link>
                   ))}
                 </div>

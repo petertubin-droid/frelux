@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Upload, Loader2, X, ArrowLeft, Sparkles } from "lucide-react";
+import { Upload, Loader2, X, ArrowLeft } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/auth";
@@ -327,7 +327,7 @@ export default function GalleryUpload() {
               </>
             ) : (
               <>
-                <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
+                <Upload className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                 Share Project
               </>
             )}

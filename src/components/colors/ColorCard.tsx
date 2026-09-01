@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom';
-import { Heart } from 'lucide-react';
-import type { DbPaintColor } from '@/types/database';
-import { readableTextColor } from '@/lib/colors';
-import { classNames } from '@/lib/utils';
+import { Link } from "react-router-dom";
+import { Bookmark } from "lucide-react";
+import type { DbPaintColor } from "@/types/database";
+import { readableTextColor } from "@/lib/colors";
+import { classNames } from "@/lib/utils";
 
 interface Props {
   color: DbPaintColor;
@@ -10,7 +10,11 @@ interface Props {
   onToggleFavorite?: (id: string) => void;
 }
 
-export default function ColorCard({ color, isFavorited, onToggleFavorite }: Props) {
+export default function ColorCard({
+  color,
+  isFavorited,
+  onToggleFavorite,
+}: Props) {
   const textColor = readableTextColor(color.hex_code);
 
   return (
@@ -44,7 +48,9 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
           {/* Bottom gradient for depth */}
           <div
             className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 opacity-20"
-            style={{ background: `linear-gradient(to top, ${textColor === '#FFFFFF' ? 'rgba(0,0,0,0.3)' : 'rgba(255,255,255,0.2)'}, transparent)` }}
+            style={{
+              background: `linear-gradient(to top, ${textColor === "#FFFFFF" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)"}, transparent)`,
+            }}
           />
         </div>
       </Link>
@@ -58,24 +64,39 @@ export default function ColorCard({ color, isFavorited, onToggleFavorite }: Prop
             onToggleFavorite(color.id);
           }}
           className={classNames(
-            'absolute right-3 bottom-16 rounded-full p-2 backdrop-blur-md transition-all duration-200',
-            isFavorited ? 'bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500' : 'bg-white/60 text-neutral-500 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400'
+            "absolute right-3 bottom-16 rounded-full p-2 backdrop-blur-md transition-all duration-200",
+            isFavorited
+              ? "bg-white text-red-500 shadow-sm dark:bg-white dark:text-red-500"
+              : "bg-white/60 text-neutral-500 hover:bg-white hover:text-red-500 dark:bg-white/10 dark:text-neutral-500 dark:hover:bg-white/20 dark:hover:text-red-400",
           )}
-          aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={
+            isFavorited ? "Remove from favorites" : "Add to favorites"
+          }
           aria-pressed={isFavorited}
         >
-          <Heart className={classNames('h-4 w-4 transition-transform', isFavorited && 'fill-current scale-110')} />
+          <Bookmark
+            className={classNames(
+              "h-4 w-4 transition-transform",
+              isFavorited && "fill-current scale-110",
+            )}
+          />
         </button>
       )}
 
       {/* Info bar */}
       <div className="px-3.5 py-3">
         <Link to={`/colors/paint/${color.slug}`}>
-          <h3 className="truncate text-sm font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{color.name}</h3>
+          <h3 className="truncate text-sm font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">
+            {color.name}
+          </h3>
         </Link>
         <div className="mt-1 flex items-center gap-2">
           <p className="text-[11px] text-neutral-500 dark:text-neutral-500">
-            {color.is_interior && color.is_exterior ? 'Interior / Exterior' : color.is_interior ? 'Interior' : 'Exterior'}
+            {color.is_interior && color.is_exterior
+              ? "Interior / Exterior"
+              : color.is_interior
+                ? "Interior"
+                : "Exterior"}
           </p>
         </div>
       </div>

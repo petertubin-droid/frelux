@@ -4,7 +4,6 @@ import { supabase } from "@/lib/supabase";
 import {
   Ban,
   Eye,
-  ThumbsUp,
   Search,
   Check,
   X,
@@ -1397,7 +1396,7 @@ function AdminReviewsTab() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <ThumbsUp
+                  <Award
                     key={s}
                     className={
                       s <= r.rating

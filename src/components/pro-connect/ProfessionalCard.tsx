@@ -1,9 +1,13 @@
-import { Link } from 'react-router-dom';
-import { ThumbsUp, Briefcase } from 'lucide-react';
-import type { DbProProfile, DbProCategory, DbProService } from '@/types/pro-connect';
-import { ProAvailability } from '@/types/pro-connect';
-import { VerificationBadgeInline } from '@/components/pro-connect/VerificationBadge';
-import { classNames } from '@/lib/utils';
+import { Link } from "react-router-dom";
+import { Award, Briefcase } from "lucide-react";
+import type {
+  DbProProfile,
+  DbProCategory,
+  DbProService,
+} from "@/types/pro-connect";
+import { ProAvailability } from "@/types/pro-connect";
+import { VerificationBadgeInline } from "@/components/pro-connect/VerificationBadge";
+import { classNames } from "@/lib/utils";
 
 interface ProfessionalCardProps {
   profile: DbProProfile;
@@ -11,13 +15,32 @@ interface ProfessionalCardProps {
   services: DbProService[];
 }
 
-const availabilityConfig: Record<ProAvailability, { label: string; color: string; dot: string }> = {
-  available: { label: 'Available', color: 'text-emerald-600 dark:text-emerald-400', dot: 'bg-emerald-500' },
-  busy: { label: 'Busy', color: 'text-amber-600 dark:text-amber-400', dot: 'bg-amber-500' },
-  unavailable: { label: 'Unavailable', color: 'text-neutral-500 dark:text-neutral-500', dot: 'bg-neutral-400' },
+const availabilityConfig: Record<
+  ProAvailability,
+  { label: string; color: string; dot: string }
+> = {
+  available: {
+    label: "Available",
+    color: "text-emerald-600 dark:text-emerald-400",
+    dot: "bg-emerald-500",
+  },
+  busy: {
+    label: "Busy",
+    color: "text-amber-600 dark:text-amber-400",
+    dot: "bg-amber-500",
+  },
+  unavailable: {
+    label: "Unavailable",
+    color: "text-neutral-500 dark:text-neutral-500",
+    dot: "bg-neutral-400",
+  },
 };
 
-export default function ProfessionalCard({ profile, category, services }: ProfessionalCardProps) {
+export default function ProfessionalCard({
+  profile,
+  category,
+  services,
+}: ProfessionalCardProps) {
   const avail = availabilityConfig[profile.availability];
 
   return (
@@ -67,7 +90,10 @@ export default function ProfessionalCard({ profile, category, services }: Profes
       <div className="mt-4 flex items-center gap-4 text-sm">
         {profile.rating_count > 0 ? (
           <div className="flex items-center gap-1">
-            <ThumbsUp aria-hidden="true" className="h-4 w-4 fill-amber-400 text-amber-400" />
+            <Award
+              aria-hidden="true"
+              className="h-4 w-4 fill-amber-400 text-amber-400"
+            />
             <span className="font-medium text-neutral-700 dark:text-neutral-200">
               {profile.rating_avg.toFixed(1)}
             </span>
@@ -76,11 +102,13 @@ export default function ProfessionalCard({ profile, category, services }: Profes
             </span>
           </div>
         ) : (
-          <span className="text-xs text-neutral-500 dark:text-neutral-500">No reviews yet</span>
+          <span className="text-xs text-neutral-500 dark:text-neutral-500">
+            No reviews yet
+          </span>
         )}
 
-        <div className={classNames('flex items-center gap-1.5', avail.color)}>
-          <span className={classNames('h-1.5 w-1.5 rounded-full', avail.dot)} />
+        <div className={classNames("flex items-center gap-1.5", avail.color)}>
+          <span className={classNames("h-1.5 w-1.5 rounded-full", avail.dot)} />
           <span className="text-xs font-medium">{avail.label}</span>
         </div>
       </div>

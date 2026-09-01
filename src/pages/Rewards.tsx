@@ -10,10 +10,9 @@ import {
   CheckCircle2,
   Lock,
   Clock,
-  Sparkles,
+  Crown,
   FileDown,
   Calculator,
-  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
@@ -44,8 +43,8 @@ import { PlayCircle, Film, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
 // Icon mapping for reward types
-const rewardIcon: Record<string, typeof Sparkles> = {
-  ai_token: Sparkles,
+const rewardIcon: Record<string, typeof Crown> = {
+  ai_token: Crown,
   pdf_export: FileDown,
   calc_unlock: Calculator,
   premium_week: Crown,
@@ -464,7 +463,7 @@ export default function Rewards() {
             </div>
           </div>
           <span className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-bold text-neutral-400 dark:bg-white/5 dark:text-neutral-500">
-            <Sparkles className="h-4 w-4" />
+            <Crown className="h-4 w-4" />
             Coming Soon
           </span>
         </div>

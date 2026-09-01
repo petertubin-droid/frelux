@@ -1,38 +1,46 @@
-import { Link } from 'react-router-dom';
-import { Save, Copy, Heart, Share2, FileText, ArrowRight, Bookmark, FolderOpen } from 'lucide-react';
-import Container from '@/components/ui/Container';
-import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { Link } from "react-router-dom";
+import {
+  Save,
+  Copy,
+  Bookmark,
+  Share2,
+  FileText,
+  ArrowRight,
+  FolderOpen,
+} from "lucide-react";
+import Container from "@/components/ui/Container";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 const templateActions = [
   {
     icon: Save,
-    title: 'Save',
-    description: 'Store your calculation for later',
+    title: "Save",
+    description: "Store your calculation for later",
   },
   {
     icon: FileText,
-    title: 'Rename',
-    description: 'Organize with descriptive names',
+    title: "Rename",
+    description: "Organize with descriptive names",
   },
   {
     icon: Copy,
-    title: 'Duplicate',
-    description: 'Clone and adjust for new projects',
+    title: "Duplicate",
+    description: "Clone and adjust for new projects",
   },
   {
-    icon: Heart,
-    title: 'Favorite',
-    description: 'Bookmark your most-used estimates',
+    icon: Bookmark,
+    title: "Favorite",
+    description: "Bookmark your most-used estimates",
   },
   {
     icon: Share2,
-    title: 'Share',
-    description: 'Send a link to your contractor',
+    title: "Share",
+    description: "Send a link to your contractor",
   },
   {
     icon: FolderOpen,
-    title: 'Reuse',
-    description: 'Start from a previous estimate',
+    title: "Reuse",
+    description: "Start from a previous estimate",
   },
 ];
 
@@ -41,21 +49,30 @@ export default function TemplatesShowcase() {
 
   return (
     <section className="relative overflow-hidden bg-white py-20 sm:py-24 dark:bg-brand-navy bg-noise">
-      <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-0 bg-dots opacity-30"
+        aria-hidden="true"
+      />
 
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">Saved calculations</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
+            Saved calculations
+          </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
             Save, reuse & share your estimates
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-500">
-            Every calculation is a reusable template. Organize your projects, duplicate past estimates, and share with your team.
+            Every calculation is a reusable template. Organize your projects,
+            duplicate past estimates, and share with your team.
           </p>
         </div>
 
         {/* Template action cards */}
-        <div ref={ref} className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          ref={ref}
+          className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        >
           {templateActions.map((action, i) => {
             const Icon = action.icon;
             return (
@@ -64,18 +81,22 @@ export default function TemplatesShowcase() {
                 className="group flex items-start gap-4 rounded-2xl border border-neutral-200/60 bg-white p-5 transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-brand-navy-mid dark:hover:border-brand-purple/30"
                 style={{
                   opacity: isVisible ? 1 : 0,
-                  transform: isVisible ? 'translateY(0)' : 'translateY(16px)',
+                  transform: isVisible ? "translateY(0)" : "translateY(16px)",
                   transitionDelay: `${i * 60}ms`,
-                  transitionDuration: '500ms',
-                  transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                  transitionDuration: "500ms",
+                  transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
                 <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-purple/8 text-brand-purple transition-all duration-300 group-hover:bg-brand-purple group-hover:text-white group-hover:scale-105 dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
                   <Icon className="h-5 w-5" />
                 </span>
                 <div>
-                  <h3 className="font-display text-sm font-bold text-neutral-900 dark:text-white">{action.title}</h3>
-                  <p className="mt-0.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">{action.description}</p>
+                  <h3 className="font-display text-sm font-bold text-neutral-900 dark:text-white">
+                    {action.title}
+                  </h3>
+                  <p className="mt-0.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">
+                    {action.description}
+                  </p>
                 </div>
               </div>
             );
@@ -98,8 +119,12 @@ export default function TemplatesShowcase() {
               <span className="text-xs text-neutral-500">3 months ago</span>
             </div>
             <div className="px-5 py-4">
-              <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white">Living Room, 2 Coats</h3>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">12 × 12 ft · 2 coats · Premium emulsion</p>
+              <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white">
+                Living Room, 2 Coats
+              </h3>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                12 × 12 ft · 2 coats · Premium emulsion
+              </p>
               <div className="mt-3 flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-500">
                 <span>14 L paint</span>
                 <span>·</span>

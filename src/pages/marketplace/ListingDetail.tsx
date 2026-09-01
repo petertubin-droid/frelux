@@ -10,7 +10,6 @@ import {
   Send,
   Check,
   X,
-  Star,
   ShieldCheck,
   Briefcase,
   Calendar,
@@ -201,7 +200,10 @@ export default function ListingDetail() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -216,7 +218,8 @@ export default function ListingDetail() {
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
         >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
+          Marketplace
         </button>
 
         {/* Header card */}
@@ -318,7 +321,8 @@ export default function ListingDetail() {
                 Bids
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                <Users aria-hidden="true" className="h-3 w-3" /> {listing.bid_count}
+                <Users aria-hidden="true" className="h-3 w-3" />{" "}
+                {listing.bid_count}
               </p>
             </div>
             <div>
@@ -326,7 +330,8 @@ export default function ListingDetail() {
                 Views
               </p>
               <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                <Eye aria-hidden="true" className="h-3 w-3" /> {listing.view_count}
+                <Eye aria-hidden="true" className="h-3 w-3" />{" "}
+                {listing.view_count}
               </p>
             </div>
           </div>
@@ -440,7 +445,10 @@ export default function ListingDetail() {
                   className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
                 >
                   {submitting ? (
-                    <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-4 w-4 animate-spin"
+                    />
                   ) : (
                     <Send aria-hidden="true" className="h-4 w-4" />
                   )}
@@ -459,7 +467,10 @@ export default function ListingDetail() {
           {/* Bids list */}
           {bids.length === 0 ? (
             <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-              <Users aria-hidden="true" className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
+              <Users
+                aria-hidden="true"
+                className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600"
+              />
               <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
                 No bids yet. Be the first to bid!
               </p>
@@ -503,14 +514,19 @@ export default function ListingDetail() {
                           </Link>
                           {bid.pro_profile?.verification_status ===
                             "verified" && (
-                            <ShieldCheck aria-hidden="true" className="h-4 w-4 text-emerald-500" />
+                            <ShieldCheck
+                              aria-hidden="true"
+                              className="h-4 w-4 text-emerald-500"
+                            />
                           )}
                         </div>
                         {bid.pro_profile && (
                           <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-500">
                             {bid.pro_profile.rating_avg > 0 && (
                               <span className="inline-flex items-center gap-0.5">
-                                <Star aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-400" />
+                                <span className="text-amber-400 text-xs">
+                                  ★
+                                </span>
                                 {bid.pro_profile.rating_avg.toFixed(1)} (
                                 {bid.pro_profile.rating_count})
                               </span>
@@ -531,7 +547,10 @@ export default function ListingDetail() {
                       </p>
                       {bid.proposed_timeline_days && (
                         <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                          <Calendar aria-hidden="true" className="mr-0.5 inline h-3 w-3" />{" "}
+                          <Calendar
+                            aria-hidden="true"
+                            className="mr-0.5 inline h-3 w-3"
+                          />{" "}
                           {bid.proposed_timeline_days} days
                         </p>
                       )}
@@ -549,7 +568,8 @@ export default function ListingDetail() {
                   <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-white/5">
                     {bid.status === "accepted" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                        <Check aria-hidden="true" className="h-4 w-4" /> Accepted
+                        <Check aria-hidden="true" className="h-4 w-4" />{" "}
+                        Accepted
                       </span>
                     ) : bid.status === "rejected" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-500">
@@ -579,7 +599,8 @@ export default function ListingDetail() {
                           disabled={submitting}
                           className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
                         >
-                          <Check aria-hidden="true" className="h-3.5 w-3.5" /> Accept
+                          <Check aria-hidden="true" className="h-3.5 w-3.5" />{" "}
+                          Accept
                         </button>
                       </div>
                     )}

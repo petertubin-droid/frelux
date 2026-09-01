@@ -7,8 +7,8 @@ import {
   Loader2,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
   Info,
+  Save,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -222,7 +222,7 @@ export default function SurfaceAssessment() {
                   {saving ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Sparkles className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+                    <Save className="h-4 w-4 group-hover:rotate-12 transition-transform" />
                   )}{" "}
                   Save Assessment
                 </button>

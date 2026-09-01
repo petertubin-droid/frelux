@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Sparkles,
+  Crown,
   Send,
   Loader2,
   AlertCircle,
@@ -266,7 +266,7 @@ export default function AdminAIAssistant() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-white">
-            <Sparkles className="h-7 w-7 text-brand-purple" />
+            <Crown className="h-7 w-7 text-brand-purple" />
             AI Assistant
           </h1>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
@@ -375,7 +375,7 @@ export default function AdminAIAssistant() {
                   >
                     {msg.role === "assistant" && (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
-                        <Sparkles className="h-4 w-4" />
+                        <Crown className="h-4 w-4" />
                       </div>
                     )}
                     <div
@@ -400,7 +400,7 @@ export default function AdminAIAssistant() {
                 {sending && (
                   <div className="flex gap-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
-                      <Sparkles className="h-4 w-4" />
+                      <Crown className="h-4 w-4" />
                     </div>
                     <div className="rounded-2xl bg-neutral-100 px-4 py-3 dark:bg-white/5">
                       <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
@@ -638,7 +638,7 @@ export default function AdminAIAssistant() {
                 className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4 transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
-                  <Sparkles className="h-5 w-5" />
+                  <Crown className="h-5 w-5" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-neutral-900 dark:text-white">

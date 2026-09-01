@@ -11,7 +11,6 @@ import {
   Award,
   ImageOff,
   Search,
-  Sparkles,
 } from "lucide-react";
 import { getIcon } from "@/lib/icon-map";
 import PageHeader from "@/components/ui/PageHeader";
@@ -192,14 +191,22 @@ export default function Learn() {
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
         <div className="relative overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-white/10 bg-gradient-to-br from-white via-brand-purple/[0.03] to-brand-purple/[0.06] dark:from-brand-navy-mid dark:via-brand-navy-mid/50 dark:to-brand-navy p-8 sm:p-14">
           {/* Decorative orbs */}
-          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple/8 blur-3xl" aria-hidden="true" />
-          <div className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-brand-purple/5 blur-3xl" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple/8 blur-3xl"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-brand-purple/5 blur-3xl"
+            aria-hidden="true"
+          />
           {/* Top accent line */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/30 to-transparent" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/30 to-transparent"
+            aria-hidden="true"
+          />
 
           <div className="relative mx-auto max-w-2xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
-              <Sparkles className="h-3.5 w-3.5" />
               {recent.length + featured.length}+ Expert Articles
             </div>
             <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-brand-navy dark:text-white sm:text-4xl">
@@ -549,8 +556,8 @@ export default function Learn() {
               Articles coming soon
             </p>
             <p className="mt-2 text-sm text-neutral-500">
-              We're preparing in-depth guides, tutorials, and expert tips.
-              Check back shortly.
+              We're preparing in-depth guides, tutorials, and expert tips. Check
+              back shortly.
             </p>
           </div>
         )}
