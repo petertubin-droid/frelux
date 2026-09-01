@@ -124,14 +124,14 @@ async function callOpenAI(
   });
 
   if (!res.ok) {
-    const _errText = await res.text();
+    const errText = await res.text();
     if (res.status === 401 || res.status === 403) {
-      throw new Error(`OPENAI_AUTH_ERROR: ${res.status}`);
+      throw new Error(`OPENAI_AUTH_ERROR: ${res.status} ${errText.slice(0, 300)}`);
     }
     if (res.status === 429) {
-      throw new Error(`OPENAI_QUOTA_ERROR: ${res.status}`);
+      throw new Error(`OPENAI_QUOTA_ERROR: ${res.status} ${errText.slice(0, 300)}`);
     }
-    throw new Error(`OPENAI_API_ERROR: ${res.status}`);
+    throw new Error(`OPENAI_API_ERROR: ${res.status} ${errText.slice(0, 300)}`);
   }
 
   const json = await res.json();
