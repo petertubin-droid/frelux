@@ -1,6 +1,10 @@
+import { useState, useEffect, useCallback } from 'react';
 import { X, PlayCircle, Loader2, Gift, CheckCircle2, Lock, Clock, ExternalLink } from 'lucide-react';
 import { formatExpiry } from '@/lib/rewarded-access';
 import type { RewardedAccess } from '@/lib/rewarded-access';
+import AdSlot from '@/components/ui/AdSlot';
+import { fetchAdConfig } from '@/lib/ad-config';
+import type { DbAdProvider } from '@/types/database';
 
 interface Props {
   access: RewardedAccess;
@@ -20,6 +24,41 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
     offerwallProviderName,
     adProviderUsed,
   } = access;
+
+  const [displayProviders, setDisplayProviders] = useState<DbAdProvider[]>([]);
+  const [adWatchSeconds, setAdWatchSeconds] = useState(0);
+  const [showAds, setShowAds] = useState(false);
+
+  // Fetch all active display ad providers
+  useEffect(() => {
+    fetchAdConfig()
+      .then(({ providers }) => {
+        const display = providers.filter(
+          (p) => p.provider_type === 'display' || p.provider_type === 'mixed',
+        );
+        setDisplayProviders(display);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Count up viewing seconds while ads are showing
+  useEffect(() => {
+    if (!showAds) return;
+    const interval = setInterval(() => {
+      setAdWatchSeconds((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showAds]);
+
+  // After 5 seconds of viewing, auto-trigger the unlock
+  const minWatchTime = 5;
+  const canProceed = adWatchSeconds >= minWatchTime;
+
+  const handleWatchAd = useCallback(async () => {
+    setShowAds(true);
+    setAdWatchSeconds(0);
+    await watchAd();
+  }, [watchAd]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -72,7 +111,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           </div>
         </div>
       ) : (
-        /* Standard rewarded ad modal (SDK / dev mode) */
+        /* Standard rewarded ad modal — now showing real display ads from all providers */
         <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-brand-navy-mid">
           {/* Header */}
           <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
@@ -109,18 +148,56 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               </div>
             )}
 
-            {/* Ad watching state */}
+            {/* Ad watching state — show real ads from all display providers */}
             {adLoading && (
-              <div className="mt-6 flex flex-col items-center gap-3 py-4">
-                <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
-                <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
-                  {offerwallProviderName ? 'Opening offerwall…' : 'Playing ad…'}
-                </p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
-                  {offerwallProviderName
-                    ? 'Complete offers in the offerwall to earn your unlock.'
-                    : 'Please keep this tab open while the ad plays.'}
-                </p>
+              <div className="mt-6">
+                {showAds && displayProviders.length > 0 && (
+                  <>
+                    <div className="mb-3 flex items-center justify-between">
+                      <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                        Sponsored content from our partners:
+                      </p>
+                      <div className="flex items-center gap-1.5 text-xs">
+                        {canProceed ? (
+                          <span className="text-accent-green font-semibold">✓ Ad viewed</span>
+                        ) : (
+                          <span className="text-neutral-500">
+                            <Loader2 aria-hidden="true" className="inline h-3 w-3 animate-spin mr-1" />
+                            {minWatchTime - adWatchSeconds}s remaining…
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {/* Render AdSlot for each active display provider */}
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto rounded-lg border border-neutral-200 p-3 dark:border-white/5">
+                      {displayProviders.map((provider) => (
+                        <div key={provider.id} className="rounded-lg overflow-hidden">
+                          <p className="mb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-wide">
+                            {provider.name}
+                          </p>
+                          <AdSlot
+                            slotKey="rewarded_unlock"
+                            className="block"
+                            hideLabel
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {(!showAds || displayProviders.length === 0) && (
+                  <div className="flex flex-col items-center gap-3 py-4">
+                    <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+                    <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+                      {offerwallProviderName ? 'Opening offerwall…' : 'Loading ads…'}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      {offerwallProviderName
+                        ? 'Complete offers in the offerwall to earn your unlock.'
+                        : 'Please keep this tab open while the ad loads.'}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
@@ -128,7 +205,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             {!adLoading && !isUnlocked && (
               <button
                 type="button"
-                onClick={watchAd}
+                onClick={handleWatchAd}
                 className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
               >
                 <PlayCircle aria-hidden="true" className="h-5 w-5" />

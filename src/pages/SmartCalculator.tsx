@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Wand2, Sparkles, Loader2 } from "lucide-react";
+import { ArrowLeft, Brain, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { fetchScreedingMixConfig } from "@/lib/queries";
@@ -93,13 +93,13 @@ export default function SmartCalculator() {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple/70 shadow-lg shadow-brand-purple/20">
-            <Wand2 className="h-7 w-7 text-white" />
+            <Brain className="h-7 w-7 text-white" />
           </div>
           <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">
             Smart Calculator
           </h1>
           <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-neutral-500">
-            <Sparkles
+            <Brain
               className="h-4 w-4 text-brand-purple"
               aria-hidden="true"
             />
@@ -110,7 +110,7 @@ export default function SmartCalculator() {
         {/* AI-powered badge banner */}
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10">
-            <Sparkles className="h-5 w-5 text-brand-purple" />
+            <Brain className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
             <p className="text-sm font-bold text-brand-navy dark:text-white">

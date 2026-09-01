@@ -12,8 +12,7 @@ import {
   ListChecks,
   Palette,
   ArrowRight,
-  Sparkles,
-  Wand2,
+  Brain,
   type LucideIcon,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -98,7 +97,7 @@ const calculators: Tool[] = [
     featured: true,
   },
   {
-    icon: Wand2,
+    icon: Brain,
     title: "Smart Calculator",
     description:
       "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings tips.",
@@ -209,7 +208,7 @@ export default function Calculators() {
         </div>
         <Container className="relative py-16 sm:py-24">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md">
-            <Sparkles
+            <Brain
               aria-hidden="true"
               className="h-3.5 w-3.5 text-brand-purple-light"
             />

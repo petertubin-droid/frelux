@@ -41,6 +41,7 @@ import {
 } from "@/lib/credits";
 import { getClientHash } from "@/lib/rewarded-access";
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Sparkles> = {

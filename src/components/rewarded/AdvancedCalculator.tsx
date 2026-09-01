@@ -3,7 +3,7 @@ import {
   Bot, Save, Copy, Download, Trash2,
   TrendingUp, ShoppingBag, Loader2,
   Layers, Percent, DollarSign, Calculator,
-  Sparkles, AlertTriangle,
+  Brain, AlertTriangle,
 } from 'lucide-react';
 import { calculateAdvancedEstimate, type AdvancedCalcInput } from '@/lib/calc';
 import { formatCurrency, formatNumber } from '@/lib/utils';
@@ -303,7 +303,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
         { key: 'saved', label: 'Saved', icon: Save },
       ]
     : [
-        { key: 'ai', label: 'AI Analysis', icon: Sparkles },
+        { key: 'ai', label: 'AI Analysis', icon: Brain },
         { key: 'costs', label: 'Cost Adjuster', icon: DollarSign },
         { key: 'ai', label: 'AI Assistant', icon: Bot }, // This won't render duplicate since we filter by key
         { key: 'saved', label: 'Saved', icon: Save },
@@ -311,7 +311,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
 
   // Remove duplicate AI tab for non-screeding
   const uniqueTabs = isScreeding ? tabs : [
-    { key: 'breakdown' as Tab, label: 'AI Analysis', icon: Sparkles },
+    { key: 'breakdown' as Tab, label: 'AI Analysis', icon: Brain },
     { key: 'costs' as Tab, label: 'Cost Adjuster', icon: DollarSign },
     { key: 'ai' as Tab, label: 'AI Assistant', icon: Bot },
     { key: 'saved' as Tab, label: 'Saved', icon: Save },
@@ -330,7 +330,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
             <p className="text-xs text-neutral-500">AI-powered breakdown, smart recommendations, cost optimization & PDF export</p>
           </div>
           <span className="flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
-            <Sparkles className="h-3 w-3" /> AI
+            <Brain className="h-3 w-3" /> AI
           </span>
         </div>
 
@@ -448,7 +448,7 @@ function AiBreakdownTab({ contextSummary, aiBreakdown, loading, onRefresh, onSav
       <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/[0.02] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Sparkles aria-hidden="true" className="h-4 w-4 text-brand-purple" />
+            <Brain aria-hidden="true" className="h-4 w-4 text-brand-purple" />
             <h4 className="text-sm font-bold text-brand-navy dark:text-white">AI-Powered Analysis</h4>
           </div>
           <button
@@ -864,7 +864,7 @@ function AiTab({ question, setQuestion, onAsk, onRecommend, loading, response, t
           disabled={loading}
           className="mt-3 flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple/90 disabled:opacity-50"
         >
-          {loading ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Sparkles aria-hidden="true" className="h-3.5 w-3.5" />}
+          {loading ? <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" /> : <Brain aria-hidden="true" className="h-3.5 w-3.5" />}
           Analyze Project & Recommend
         </button>
       </div>
