@@ -299,13 +299,14 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       role="switch"
       onClick={() => onChange(!checked)}
       className={classNames(
-        'relative h-6 w-11 shrink-0 rounded-full transition-all duration-300',
+        'relative inline-flex appearance-none h-6 w-11 shrink-0 rounded-full transition-all duration-300 border-0 p-0',
         checked
           ? 'bg-accent-green shadow-sm shadow-accent-green/30'
           : 'bg-neutral-200 dark:bg-neutral-700',
       )}
       aria-pressed={checked}
       aria-label="Include labour cost"
+      style={{"width":"2.75rem","height":"1.5rem","minWidth":"2.75rem"}}
     >
       <span
         className={classNames(

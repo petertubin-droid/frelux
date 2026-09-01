@@ -520,8 +520,9 @@ export function Toggle({
         aria-label={label}
         disabled={disabled}
         onClick={handleToggle}
+        style={{"width":"2.75rem","height":"1.5rem","minWidth":"2.75rem"}}
         className={classNames(
-          'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2',
+          'relative inline-flex appearance-none h-6 w-11 shrink-0 items-center rounded-full border-0 p-0 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2',
           checked ? 'bg-brand-purple' : 'bg-neutral-300',
         )}
       >

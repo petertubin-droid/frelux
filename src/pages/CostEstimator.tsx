@@ -1110,10 +1110,11 @@ function Toggle({
       type="button"
       onClick={() => onChange(!checked)}
       className={
-        "relative h-5 w-9 shrink-0 rounded-full transition-colors " +
+        "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
         (checked ? "bg-accent-green" : "bg-neutral-300")
       }
       aria-pressed={checked}
+      style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
     >
       <span
         className={
