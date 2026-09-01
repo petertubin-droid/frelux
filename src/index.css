@@ -638,3 +638,128 @@
 .frelux-ad-unit + .frelux-ad-unit {
   margin-top: 2rem;
 }
+
+/* =========================================================
+   PREMIUM TEMPLATE ENHANCEMENTS — Base44
+   Visual polish layered on top of the existing design system.
+   No component structure or business logic is changed — these
+   rules only refine typography, depth, motion, and hover states.
+   ========================================================= */
+
+@layer base {
+  /* Premium font rendering — crisper, smoother text */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: -0.011em;
+  }
+  /* Refined heading tracking for a tighter, premium feel */
+  h1, h2, h3, h4, h5, h6 {
+    letter-spacing: -0.022em;
+  }
+  /* Crisp image rendering */
+  img {
+    -webkit-font-smoothing: auto;
+  }
+}
+
+@layer components {
+  /* Premium card — subtle hover lift with layered shadow */
+  .card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.35s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04), 0 20px 48px rgba(0, 0, 0, 0.07);
+    border-color: rgb(var(--brand-primary) / 0.18);
+  }
+  /* Elevated card — stronger lift */
+  .card-elevated {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.35s ease;
+  }
+  .card-elevated:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06), 0 32px 72px rgba(0, 0, 0, 0.10);
+    border-color: rgb(var(--brand-primary) / 0.22);
+  }
+  /* Premium stat cards */
+  .stat-card,
+  .stat-card-highlight {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .stat-card:hover,
+  .stat-card-highlight:hover {
+    transform: translateY(-2px);
+  }
+  /* Premium section label — gradient accent dot */
+  .section-label {
+    transition: color 0.2s ease;
+  }
+  /* Premium buttons — refined active press */
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost {
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                background-color 0.2s ease, box-shadow 0.2s ease,
+                border-color 0.2s ease, color 0.2s ease;
+  }
+  /* Premium input focus — smoother ring */
+  .input-field {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+}
+
+@layer utilities {
+  /* Premium smooth scrolling with momentum on supported browsers */
+  html {
+    scroll-behavior: smooth;
+  }
+  /* Premium gradient text — brand accent */
+  .text-gradient-brand {
+    @apply bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple-light bg-clip-text text-transparent;
+  }
+  /* Premium soft elevation utility */
+  .elevate-hover {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  }
+  .elevate-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* Premium dark-mode card hover — deeper, richer shadow */
+.dark .card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(167, 139, 250, 0.22);
+}
+.dark .card-elevated:hover {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5), 0 4px 12px rgba(0, 0, 0, 0.35);
+  border-color: rgba(167, 139, 250, 0.28);
+}
+
+/* Premium scrollbar — light mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 170, 0.35);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(113, 113, 122, 0.5);
+  background-clip: content-box;
+}
