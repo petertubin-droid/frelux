@@ -153,7 +153,7 @@ ALTER TABLE pdf_branding_templates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY pdf_templates_select_all ON pdf_branding_templates
   FOR SELECT USING (is_active = TRUE);
 CREATE POLICY pdf_templates_insert_admin ON pdf_branding_templates
-  FOR WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+  WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 CREATE POLICY pdf_templates_update_admin ON pdf_branding_templates
   FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
 CREATE POLICY pdf_templates_delete_admin ON pdf_branding_templates
@@ -169,7 +169,7 @@ ALTER TABLE pdf_export_unlocks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY pdf_unlocks_select_own ON pdf_export_unlocks
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY pdf_unlocks_insert_service ON pdf_export_unlocks
-  FOR WITH CHECK (auth.role() = 'service_role');
+  WITH CHECK (auth.role() = 'service_role');
 CREATE POLICY pdf_unlocks_update_service ON pdf_export_unlocks
   FOR UPDATE USING (auth.role() = 'service_role');
 
