@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Lock, Crown, Clock, CheckCircle2, Gem } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { formatSubscriptionStatus } from '@/lib/subscription';
-import type { PaidFeature } from '@/lib/subscription';
-import { FEATURE_LABELS, getFeatureMinPlan } from '@/lib/subscription';
-import { isPremiumEnabled } from '@/lib/premium-access';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Lock, Clock, CheckCircle2, Gem } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
+import { useAuth } from "@/lib/auth";
+import { formatSubscriptionStatus } from "@/lib/subscription";
+import type { PaidFeature } from "@/lib/subscription";
+import { FEATURE_LABELS, getFeatureMinPlan } from "@/lib/subscription";
+import { isPremiumEnabled } from "@/lib/premium-access";
 
 interface SubscriptionGateProps {
   feature: PaidFeature;
@@ -25,7 +26,11 @@ interface SubscriptionGateProps {
  *
  * For rewarded-ad gating (daily free uses + ad unlock), use RewardedFeatureGate instead.
  */
-export function SubscriptionGate({ feature, children, fallback }: SubscriptionGateProps) {
+export function SubscriptionGate({
+  feature,
+  children,
+  fallback,
+}: SubscriptionGateProps) {
   const { isAdmin, isPaid, paidStatus, user } = useAuth();
   const [premiumLive, setPremiumLive] = useState<boolean | null>(null);
 
@@ -35,14 +40,17 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
 
   // Check tiered access: admin always passes, paid users must have sufficient plan tier
   const minPlan = getFeatureMinPlan(feature);
-  const hasAccess = isAdmin || (isPaid && (() => {
-    // Free features always accessible
-    if (minPlan === 'free') return true;
-    // Check if user's plan meets the feature's minimum tier
-    const userPlan = paidStatus?.plan || 'free';
-    const hierarchy = ['free', 'basic', 'pro', 'premium', 'enterprise'];
-    return hierarchy.indexOf(userPlan) >= hierarchy.indexOf(minPlan);
-  })());
+  const hasAccess =
+    isAdmin ||
+    (isPaid &&
+      (() => {
+        // Free features always accessible
+        if (minPlan === "free") return true;
+        // Check if user's plan meets the feature's minimum tier
+        const userPlan = paidStatus?.plan || "free";
+        const hierarchy = ["free", "basic", "pro", "premium", "enterprise"];
+        return hierarchy.indexOf(userPlan) >= hierarchy.indexOf(minPlan);
+      })());
 
   if (hasAccess) {
     return (
@@ -50,8 +58,25 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
         {children}
         {isPaid && paidStatus?.paid_until && (
           <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-neutral-600">
-            <Clock aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
-            {formatSubscriptionStatus({ isActive: true, plan: (paidStatus.plan as 'free' | 'basic' | 'pro' | 'premium' | 'enterprise') || 'pro', paidUntil: new Date(paidStatus.paid_until), daysRemaining: Math.ceil((new Date(paidStatus.paid_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24)), paidStatus, loading: false, error: null, refresh: async () => {} })}
+            <Clock
+              aria-hidden="true"
+              className="h-3.5 w-3.5 text-accent-green"
+            />
+            {formatSubscriptionStatus({
+              isActive: true,
+              plan:
+                (paidStatus.plan as
+                  "free" | "basic" | "pro" | "premium" | "enterprise") || "pro",
+              paidUntil: new Date(paidStatus.paid_until),
+              daysRemaining: Math.ceil(
+                (new Date(paidStatus.paid_until).getTime() - Date.now()) /
+                  (1000 * 60 * 60 * 24),
+              ),
+              paidStatus,
+              loading: false,
+              error: null,
+              refresh: async () => {},
+            })}
           </div>
         )}
       </>
@@ -74,20 +99,27 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
             {featureLabel}
           </h2>
           <p className="mt-2 text-sm text-neutral-500">
-            This premium feature is coming soon. We're putting the finishing touches on FRELUX Premium subscriptions.
+            This premium feature is coming soon. We're putting the finishing
+            touches on FRELUX Premium subscriptions.
           </p>
 
           <div className="mx-auto mt-5 max-w-sm space-y-1.5 text-left">
             {[
-              'All engineering calculators & estimators',
-              'AI Photo Estimator with vision analysis',
-              'Construction Sequence Planner',
-              'Structural & Foundation calculators',
-              'Unlimited saves & export to PDF',
-              'Priority Pro Connect messaging',
+              "All engineering calculators & estimators",
+              "AI Photo Estimator with vision analysis",
+              "Construction Sequence Planner",
+              "Structural & Foundation calculators",
+              "Unlimited saves & export to PDF",
+              "Priority Pro Connect messaging",
             ].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-                <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+              <div
+                key={f}
+                className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+              >
+                <CheckCircle2
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 shrink-0 text-brand-purple"
+                />
                 {f}
               </div>
             ))}
@@ -128,20 +160,31 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
           {featureLabel}
         </h2>
         <p className="mt-2 text-sm text-neutral-500">
-          This feature requires the <span className="font-semibold capitalize text-brand-purple">{minPlan}</span> plan or higher. Subscribe to unlock all FRELUX engineering tools, calculators, and AI assistants.
+          This feature requires the{" "}
+          <span className="font-semibold capitalize text-brand-purple">
+            {minPlan}
+          </span>{" "}
+          plan or higher. Subscribe to unlock all FRELUX engineering tools,
+          calculators, and AI assistants.
         </p>
 
         <div className="mx-auto mt-5 max-w-sm space-y-1.5 text-left">
           {[
-            'All engineering calculators & estimators',
-            'AI Photo Estimator with vision analysis',
-            'Construction Sequence Planner',
-            'Structural & Foundation calculators',
-            'Unlimited saves & export to PDF',
-            'Priority Pro Connect messaging',
+            "All engineering calculators & estimators",
+            "AI Photo Estimator with vision analysis",
+            "Construction Sequence Planner",
+            "Structural & Foundation calculators",
+            "Unlimited saves & export to PDF",
+            "Priority Pro Connect messaging",
           ].map((f) => (
-            <div key={f} className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
-              <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-brand-purple" />
+            <div
+              key={f}
+              className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+            >
+              <CheckCircle2
+                aria-hidden="true"
+                className="h-3.5 w-3.5 shrink-0 text-brand-purple"
+              />
               {f}
             </div>
           ))}
@@ -152,15 +195,15 @@ export function SubscriptionGate({ feature, children, fallback }: SubscriptionGa
             to="/pricing"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
           >
-            <Crown className="h-4 w-4" />
-            Upgrade to {minPlan === 'free' ? 'Premium' : minPlan.charAt(0).toUpperCase() + minPlan.slice(1)}
+            <PremiumBadge size="xs" />
+            Upgrade
           </Link>
         ) : (
           <Link
             to="/login?redirect=/pricing"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
           >
-            <Crown className="h-4 w-4" />
+            <PremiumBadge size="xs" />
             Sign in to Subscribe
           </Link>
         )}

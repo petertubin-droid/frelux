@@ -9,7 +9,6 @@ import {
   Zap,
   BadgeCheck,
   Lock,
-  Crown,
   Loader2,
   AlertCircle,
   Building2,
@@ -20,6 +19,7 @@ import {
   Camera,
   Info,
 } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
@@ -330,12 +330,12 @@ export default function ImageEstimator() {
           </div>
           {config && config.enabled && accessDecision?.allowed && (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-accent-green/20 px-3 py-1 text-xs text-accent-green">
-              <Crown className="w-3.5 h-3.5" />
+              <PremiumBadge size="xs" />
               {accessDecision.reason === "admin_override"
                 ? "Admin Access"
                 : accessDecision.reason === "free"
                   ? `${usage?.remaining ?? 0} free uses remaining today`
-                  : "Premium Feature Active"}
+                  : "Active"}
             </div>
           )}
         </div>
@@ -885,9 +885,9 @@ function LockedView({
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-purple/10 mb-4">
           <Lock className="w-8 h-8 text-brand-purple" />
         </div>
-        <h2 className="text-xl font-bold text-neutral-900 mb-2">
-          Premium Feature
-        </h2>
+        <div className="mb-4 flex justify-center">
+          <PremiumBadge size="lg" glow />
+        </div>
         <p className="text-sm text-neutral-500 mb-6">
           {decision.reason === "disabled" &&
             "AI Building Photo Estimation is currently disabled."}
@@ -901,7 +901,9 @@ function LockedView({
 
         {config?.paidEnabled && config.paidPrice > 0 && (
           <div className="rounded-xl bg-brand-navy p-6 text-white mb-6">
-            <Crown className="w-8 h-8 text-yellow-300 mx-auto mb-2" />
+            <div className="flex justify-center mb-2">
+              <PremiumBadge size="md" glow />
+            </div>
             <p className="text-2xl font-bold">
               {formatCurrency(config.paidPrice)}
             </p>
@@ -974,8 +976,8 @@ function LockedView({
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
           <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">
-            <Crown className="w-4 h-4" />
-            Upgrade to Premium
+            <PremiumBadge size="xs" />
+            Upgrade
           </button>
         )}
         {"nextAction" in decision && decision.nextAction === "login" && (

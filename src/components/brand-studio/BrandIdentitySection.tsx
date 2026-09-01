@@ -2,7 +2,8 @@
  * Brand Identity Section — create/edit branding profile
  */
 import { useState, useEffect } from "react";
-import { Save, Trash2, Plus, Crown } from "lucide-react";
+import { Save, Trash2, Plus } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { VoiceInput } from "./VoiceInput";
 import {
   createBrandProfile,
@@ -180,12 +181,9 @@ export function BrandIdentitySection({
 
   if (!canEdit) {
     return (
-      <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
-        <Crown className="mx-auto h-10 w-10 text-brand-purple" />
-        <h3 className="mt-3 text-lg font-bold text-brand-navy dark:text-white">
-          Premium Feature
-        </h3>
-        <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500">
+      <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent p-8 text-center">
+        <PremiumBadge size="lg" glow className="mx-auto" />
+        <p className="mx-auto mt-4 max-w-md text-sm text-neutral-500">
           Brand Studio is a premium feature. Upgrade to create your own branded
           PDF profiles with custom colours, logos, and contact details.
         </p>

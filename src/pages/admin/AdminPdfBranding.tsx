@@ -12,10 +12,10 @@ import {
   AlertCircle,
   Plus,
   Trash2,
-  Crown,
   FileText,
   Settings2,
 } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import {
   AdminHeader,
@@ -423,7 +423,7 @@ export default function AdminPdfBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-brand-purple" />
+            <PremiumBadge size="sm" />
             <h2 className="text-sm font-bold text-brand-navy dark:text-white">
               PDF Templates
             </h2>
@@ -510,11 +510,7 @@ export default function AdminPdfBranding() {
                         Default
                       </span>
                     )}
-                    {tpl.is_premium && (
-                      <span className="rounded bg-brand-purple/10 px-1.5 py-0.5 text-xs text-brand-purple">
-                        Premium
-                      </span>
-                    )}
+                    {tpl.is_premium && <PremiumBadge size="xs" glow />}
                     {tpl.rewarded_unlock_enabled && (
                       <span className="rounded bg-accent-green/10 px-1.5 py-0.5 text-xs text-accent-green">
                         Ad unlock

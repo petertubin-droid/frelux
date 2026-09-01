@@ -2,7 +2,8 @@
  * PDF Template Section — select templates and branding preferences
  */
 import { useState, useEffect } from "react";
-import { Crown, Lock, FileText } from "lucide-react";
+import { Lock, FileText } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { fetchPdfTemplates, updateBrandProfile } from "@/lib/brand-studio";
 import type {
   BrandStudioAccess as BSAccess,
@@ -105,11 +106,7 @@ export function PdfTemplateSection({
                       <h3 className="text-sm font-bold text-brand-navy dark:text-white">
                         {tpl.name}
                       </h3>
-                      {tpl.is_premium && (
-                        <span className="inline-flex items-center gap-1 text-xs text-amber-600">
-                          <Crown className="h-3 w-3" /> Premium
-                        </span>
-                      )}
+                      {tpl.is_premium && <PremiumBadge size="xs" glow />}
                     </div>
                   </div>
                   {isLocked ? (

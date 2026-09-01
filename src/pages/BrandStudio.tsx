@@ -12,7 +12,7 @@
  * Access control: Premium (SubscriptionGate) or rewarded-ad unlock
  */
 import { useState, useEffect, useCallback, Suspense } from "react";
-import { Crown } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useAuth } from "@/lib/auth";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { BrandIdentitySection } from "@/components/brand-studio/BrandIdentitySection";
@@ -94,8 +94,8 @@ export default function BrandStudio() {
         <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
           {/* Header */}
           <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
-              <Crown className="h-6 w-6 text-brand-purple" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10">
+              <PremiumBadge size="md" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-brand-navy dark:text-white">

@@ -26,6 +26,7 @@ import {
   Crown,
   MessageCircle,
 } from "lucide-react";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import Logo from "@/components/brand/Logo";
 import { navWorkspaces, type NavChild } from "@/config/site";
 import { classNames } from "@/lib/utils";
@@ -477,14 +478,7 @@ export default function Navbar() {
                               {user.email}
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                              {isPaid && (
-                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-brand-purple/15 to-brand-purple-deep/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-purple dark:from-brand-purple/25 dark:to-brand-purple-deep/25 dark:text-brand-purple-lighter">
-                                  <Crown className="h-2.5 w-2.5" />
-                                  {paidStatus?.plan
-                                    ? paidStatus.plan.toUpperCase()
-                                    : "PREMIUM"}
-                                </span>
-                              )}
+                              {isPaid && <PremiumBadge size="xs" glow />}
                             </div>
                           </div>
                         </div>
@@ -538,8 +532,12 @@ export default function Navbar() {
                           onClick={() => setOpenDropdown(null)}
                           className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
                         >
-                          <span className="text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
-                            {isPaid ? (paidStatus?.plan ?? "Premium") : "Free"}
+                          <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
+                            {isPaid ? (
+                              <PremiumBadge size="xs" minimal />
+                            ) : (
+                              "Free"
+                            )}
                           </span>
                           <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
                             Plan
@@ -886,8 +884,8 @@ export default function Navbar() {
                     <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
                       Plan
                     </span>
-                    <span className="text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
-                      {isPaid ? "Premium" : "Free"}
+                    <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
+                      {isPaid ? <PremiumBadge size="xs" minimal /> : "Free"}
                     </span>
                   </Link>
                 </div>
