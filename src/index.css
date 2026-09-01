@@ -638,3 +638,88 @@
 .frelux-ad-unit + .frelux-ad-unit {
   margin-top: 2rem;
 }
+
+/* =========================================================
+   ACCESSIBILITY MODES — triggered by AccessibilityToggle
+   Classes are toggled on <html> by the AccessibilityProvider.
+   ========================================================= */
+
+/* ── High Contrast ── */
+.accessibility-mode {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 0%;
+  --primary: 258 100% 30%;
+  --primary-foreground: 0 0% 100%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 20%;
+  --border: 0 0% 0%;
+  --input: 0 0% 0%;
+  --ring: 258 100% 30%;
+}
+
+.dark.accessibility-mode {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 258 100% 65%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --border: 0 0% 100%;
+  --input: 0 0% 100%;
+  --ring: 258 100% 65%;
+}
+
+.accessibility-mode * {
+  border-color: hsl(var(--border)) !important;
+}
+
+.accessibility-mode a,
+.accessibility-mode button {
+  outline: 1px solid transparent;
+}
+
+.accessibility-mode a:focus-visible,
+.accessibility-mode button:focus-visible {
+  outline: 2px solid hsl(var(--primary)) !important;
+  outline-offset: 2px;
+}
+
+/* ── Larger Text ── */
+.large-text {
+  font-size: 118%;
+}
+
+.large-text h1 { font-size: 2.5rem; }
+.large-text h2 { font-size: 2rem; }
+.large-text h3 { font-size: 1.625rem; }
+.large-text h4 { font-size: 1.375rem; }
+.large-text p,
+.large-text li,
+.large-text span,
+.large-text label,
+.large-text button,
+.large-text input,
+.large-text select,
+.large-text textarea,
+.large-text td,
+.large-text th {
+  font-size: 1.0625rem;
+}
+
+/* ── Reduced Motion ── */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
