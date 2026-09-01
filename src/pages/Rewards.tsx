@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { Link, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Gem,
@@ -77,10 +76,6 @@ export default function Rewards() {
   const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProviderReady, setAdProviderReady] = useState(false);
-  const [searchParams] = useSearchParams();
-
-  useEffect(() => {
-    }
 
   const loadData = useCallback(async () => {
     if (!user) return;
