@@ -1953,15 +1953,17 @@ function Toggle({
     <button
       type="button"
       onClick={() => onChange(!checked)}
+      style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       className={
-        "relative h-5 w-9 shrink-0 rounded-full transition-colors " +
+        "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full border-0 p-0 transition-colors " +
         (checked ? "bg-accent-green" : "bg-neutral-300")
       }
       aria-pressed={checked}
     >
       <span
+        style={{ width: "1rem", height: "1rem" }}
         className={
-          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+          "absolute top-0.5 left-0 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
           (checked ? "translate-x-4" : "translate-x-0.5")
         }
       />
