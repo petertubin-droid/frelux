@@ -210,6 +210,11 @@ const CALC_LINKS = {
     path: "/image-estimator",
     description: "AI-assisted photo-based estimate",
   },
+  smartCalc: {
+    label: "Smart Calculator",
+    path: "/smart-calculator",
+    description: "AI-powered estimation for any project",
+  },
   structuralCalc: {
     label: "Structural Calculator",
     path: "/structural-calculator",

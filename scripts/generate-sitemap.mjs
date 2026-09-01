@@ -76,6 +76,7 @@ const routes = [
   { path: '/project-timeline', priority: '0.7', changefreq: 'monthly' },
   { path: '/construction-sequence', priority: '0.7', changefreq: 'monthly' },
   { path: '/image-estimator', priority: '0.7', changefreq: 'monthly' },
+  { path: '/smart-calculator', priority: '0.8', changefreq: 'monthly' },
   { path: '/marketplace', priority: '0.8', changefreq: 'daily' },
   { path: '/pro-connect', priority: '0.8', changefreq: 'weekly' },
   { path: '/pricing', priority: '0.6', changefreq: 'monthly' },

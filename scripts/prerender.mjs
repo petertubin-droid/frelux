@@ -375,6 +375,21 @@ const routes = [
     ],
   },
   {
+    path: '/smart-calculator',
+    title: 'Smart Calculator: AI-Powered Construction Estimator | FRELUX',
+    description: 'Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Smart Calculator', applicationCategory: 'BusinessApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
+        { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' },
+        { '@type': 'ListItem', position: 3, name: 'Smart Calculator', item: 'https://freluxtools.netlify.app/smart-calculator' },
+      ]},
+    ],
+  },
+  {
     path: '/structural-calculator',
     title: 'Structural Calculator: Beams, Columns & Slabs | FRELUX',
     description: 'Calculate structural member sizes for Nigerian building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.',

@@ -70,6 +70,7 @@ const Pricing = lazy(() => import("@/pages/Pricing"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
+const SmartCalculator = lazy(() => import("@/pages/SmartCalculator"));
 const FoundationCalculator = lazy(() => import("@/pages/FoundationCalculator"));
 const ProjectTimeline = lazy(() => import("@/pages/ProjectTimeline"));
 const ConstructionSequence = lazy(() => import("@/pages/ConstructionSequence"));
@@ -470,6 +471,14 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ImageEstimator />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/smart-calculator"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <SmartCalculator />
                         </Suspense>
                       }
                     />

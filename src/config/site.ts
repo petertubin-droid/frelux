@@ -154,6 +154,12 @@ export const navWorkspaces: NavWorkspace[] = [
         section: "Estimation",
         description: "AI-assisted photo-based estimate (Premium)",
       },
+      {
+        label: "Smart Calculator",
+        path: "/smart-calculator",
+        section: "AI Tools",
+        description: "AI-powered estimation for any project type",
+      },
       // Section: Planning
       {
         label: "Project Timeline",

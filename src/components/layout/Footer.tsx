@@ -16,6 +16,7 @@ const calculateLinks = [
 const estimateLinks = [
   { label: "Build-to-Roof Estimator", path: "/build-to-roof-estimator" },
   { label: "AI Photo Estimator", path: "/image-estimator" },
+  { label: "Smart Calculator", path: "/smart-calculator" },
   { label: "Structural Calculator", path: "/structural-calculator" },
   { label: "Foundation Calculator", path: "/foundation-calculator" },
 ];

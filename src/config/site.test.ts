@@ -38,3 +38,27 @@ describe("config/site", () => {
     }
   });
 });
+describe("navWorkspaces — Smart Calculator entry", () => {
+  // Smart Calculator lives inside the Construction workspace's children
+  const construction = navWorkspaces.find((w) => w.label === "Construction");
+  const allChildren = (construction?.children ?? []) as {
+    label: string;
+    path: string;
+    section?: string;
+  }[];
+
+  it("Construction workspace exists", () => {
+    expect(construction).toBeTruthy();
+  });
+
+  it("includes a Smart Calculator entry in Construction children", () => {
+    const smart = allChildren.find((c) => c.label === "Smart Calculator");
+    expect(smart).toBeTruthy();
+    expect(smart!.path).toBe("/smart-calculator");
+  });
+
+  it("Smart Calculator is in the AI Tools section", () => {
+    const smart = allChildren.find((c) => c.label === "Smart Calculator");
+    expect(smart!.section).toBe("AI Tools");
+  });
+});
