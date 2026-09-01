@@ -12,6 +12,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
+import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
 import {
   PRICING_PLANS,
