@@ -1764,3 +1764,128 @@ export interface DbMaterialPriceHistory {
   change_reason: string | null;
   created_at: string;
 }
+
+// =========================================================
+// FRELUX Brand Studio — Phase 60 Types
+// =========================================================
+
+/** Watermark configuration for PDF templates and brand profiles. */
+export interface PdfWatermarkConfig {
+  enabled: boolean;
+  /** 0.0–1.0 opacity for the background watermark */
+  opacity: number;
+  /** Scale factor relative to page width (0.1–1.0) */
+  scale: number;
+  position:
+    "center" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  diagonal: boolean;
+}
+
+/** Template layout configuration stored in pdf_branding_templates.template_config. */
+export interface PdfTemplateConfig {
+  headerLayout: "logo-right" | "logo-left" | "logo-center" | "text-only";
+  footerLayout: "default" | "minimal" | "detailed";
+  contactPlacement: "header" | "footer" | "both";
+  accentBar: boolean;
+  accentBarColor?: string;
+}
+
+export interface DbPdfBrandingTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  template_config: PdfTemplateConfig;
+  watermark_config: PdfWatermarkConfig | null;
+  is_premium: boolean;
+  is_system: boolean;
+  is_active: boolean;
+  is_default: boolean;
+  rewarded_unlock_enabled: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export type LogoPlacement =
+  | "top-left"
+  | "top-right"
+  | "top-center"
+  | "bottom-left"
+  | "bottom-right"
+  | "bottom-center";
+
+export interface DbBrandProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  phone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  address: string | null;
+  website: string | null;
+  primary_color: string;
+  secondary_color: string;
+  accent_color: string;
+  logo_url: string | null;
+  template_id: string | null;
+  watermark_config: PdfWatermarkConfig | null;
+  logo_placement: LogoPlacement;
+  is_default: boolean;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbAiLogoGeneration {
+  id: string;
+  user_id: string;
+  brand_profile_id: string | null;
+  prompt: string;
+  industry: string | null;
+  style: string | null;
+  color_prefs: string | null;
+  image_url: string;
+  is_selected: boolean;
+  created_at: string;
+}
+
+export type PdfExportUnlockType =
+  "single_export" | "session" | "template_access";
+
+export interface DbPdfExportUnlock {
+  id: string;
+  user_id: string | null;
+  client_hash: string | null;
+  tool_key: string;
+  unlock_type: PdfExportUnlockType;
+  template_id: string | null;
+  brand_profile_id: string | null;
+  unlocked_at: string;
+  expires_at: string;
+  is_consumed: boolean;
+  consumed_at: string | null;
+  ad_provider: string | null;
+  created_at: string;
+}
+
+/** Extended site_settings fields for PDF branding. */
+export interface PdfDefaultBrandingConfig {
+  pdf_default_logo_url: string | null;
+  pdf_default_brand_name: string;
+  pdf_default_tagline: string;
+  pdf_default_contact_email: string | null;
+  pdf_default_contact_phone: string | null;
+  pdf_default_address: string | null;
+  pdf_default_primary_color: string;
+  pdf_default_secondary_color: string;
+  pdf_template_id: string | null;
+  pdf_watermark_enabled: boolean;
+  pdf_watermark_opacity: number;
+  pdf_watermark_scale: number;
+  pdf_watermark_position: string;
+  pdf_watermark_diagonal: boolean;
+  brand_studio_enabled: boolean;
+  ai_logo_daily_limit: number;
+}

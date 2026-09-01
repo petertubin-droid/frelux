@@ -67,6 +67,7 @@ const SharedProject = lazy(() => import("@/pages/SharedProject"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
 const StructuralCalculator = lazy(() => import("@/pages/StructuralCalculator"));
@@ -154,6 +155,7 @@ const AdminRewardedAccess = lazy(
   () => import("@/pages/admin/AdminRewardedAccess"),
 );
 const AdminBranding = lazy(() => import("@/pages/admin/AdminBranding"));
+const AdminPdfBranding = lazy(() => import("@/pages/admin/AdminPdfBranding"));
 const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
 );
@@ -646,6 +648,10 @@ export default function App() {
                       path="/pricing"
                       element={
                         <Suspense fallback={<PageLoader />}>
+                          <Route
+                            path="/brand-studio"
+                            element={<BrandStudio />}
+                          />
                           <Pricing />
                         </Suspense>
                       }
@@ -1058,6 +1064,7 @@ export default function App() {
                       element={<AdminRewardedAccess />}
                     />
                     <Route path="branding" element={<AdminBranding />} />
+                    <Route path="pdf-branding" element={<AdminPdfBranding />} />
 
                     {/* Users */}
                     <Route path="users" element={<AdminUsers />} />

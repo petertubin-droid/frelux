@@ -126,6 +126,7 @@ export default function Navbar() {
       section: "Plan",
       items: [
         { label: "Pricing", to: "/pricing", icon: Crown },
+        { label: "Brand Studio", to: "/brand-studio", icon: Crown },
         { label: "Rewards", to: "/rewards", icon: Gem },
       ],
     },

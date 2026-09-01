@@ -11,8 +11,8 @@ import {
 import type { DbUserPaidStatus } from "@/types/database";
 
 describe("subscription", () => {
-  it("PAID_FEATURES has 12 features", () => {
-    expect(PAID_FEATURES.length).toBe(12);
+  it("PAID_FEATURES has 13 features", () => {
+    expect(PAID_FEATURES.length).toBe(13);
   });
 
   it("FEATURE_LABELS has all features", () => {
