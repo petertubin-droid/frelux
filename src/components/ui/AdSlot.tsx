@@ -304,6 +304,18 @@ export default function AdSlot({
         }
         break;
       }
+      case 'monetag': {
+        if (!creds.zone_id) break;
+        if (!document.querySelector('script[src*="quge5.com"]')) {
+          const s = document.createElement('script');
+          s.async = true;
+          s.setAttribute('data-cfasync', 'false');
+          s.setAttribute('data-zone', creds.zone_id);
+          s.src = 'https://quge5.com/88/tag.min.js';
+          document.head.appendChild(s);
+        }
+        break;
+      }
     }
   }, [resolved]);
 
@@ -476,6 +488,14 @@ export default function AdSlot({
     if (!creds.widget_id) return null;
     adInner = (
       <div data-ad-provider="revcontent" data-widget-id={creds.widget_id} data-sub-id={creds.sub_id || ''} />
+    );
+  }
+
+  // Monetag rendering — multi-tag container, tag.min.js fills it
+  else if (provider.slug === 'monetag') {
+    if (!creds.zone_id) return null;
+    adInner = (
+      <div ref={containerRef} data-ad-provider="monetag" data-zone={creds.zone_id} data-ad-placement={slotKey} />
     );
   }
 
