@@ -42,7 +42,6 @@ import {
 } from "@/lib/credits";
 import { getClientHash } from "@/lib/rewarded-access";
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
-import { OfferwallAd } from "@/components/rewarded/OfferwallAd";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Sparkles> = {
@@ -78,15 +77,10 @@ export default function Rewards() {
   const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProviderReady, setAdProviderReady] = useState(false);
-  const [showOfferwall, setShowOfferwall] = useState(false);
   const [searchParams] = useSearchParams();
 
-  // Auto-open offerwall when arriving via ?tab=offerwall
   useEffect(() => {
-    if (searchParams.get("tab") === "offerwall") {
-      setShowOfferwall(true);
     }
-  }, [searchParams]);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -458,41 +452,27 @@ export default function Rewards() {
         })()}
 
       {/* Complete Offers — Offerwall.ad */}
-      {!showOfferwall ? (
-        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
-                <ExternalLink className="h-6 w-6 text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-brand-navy dark:text-white">
-                  Complete Offers — Earn FRELUX Credits
-                </p>
-                <p className="text-xs text-neutral-500">
-                  Surveys, app installs, and other offers. Rewards vary by
-                  offer.
-                </p>
-              </div>
+      <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
+              <ExternalLink className="h-6 w-6 text-emerald-500" />
             </div>
-            <button
-              type="button"
-              onClick={() => setShowOfferwall(true)}
-              className="flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-white transition-all hover:bg-emerald-600"
-            >
-              <ExternalLink className="h-4 w-4" />
-              Browse Offers
-            </button>
+            <div>
+              <p className="text-sm font-bold text-brand-navy dark:text-white">
+                Complete Offers — Earn FRELUX Credits
+              </p>
+              <p className="text-xs text-neutral-500">
+                Surveys, app installs, and other offers.
+              </p>
+            </div>
           </div>
+          <span className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-bold text-neutral-400 dark:bg-white/5 dark:text-neutral-500">
+            <Sparkles className="h-4 w-4" />
+            Coming Soon
+          </span>
         </div>
-      ) : (
-        <div className="mb-6">
-          <OfferwallAd
-            userId={user.id}
-            onBack={() => setShowOfferwall(false)}
-          />
-        </div>
-      )}
+      </div>
 
       {/* Weekly Mission */}
       {mission && (
