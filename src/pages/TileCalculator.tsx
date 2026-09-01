@@ -24,6 +24,8 @@ import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
+import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -853,6 +855,39 @@ export default function TileCalculator({
             alreadyHave={alreadyHave}
             onAlreadyHaveChange={setAlreadyHave}
           />
+        )}
+
+        {result && (
+          <RewardedFeatureGate
+            toolKey="advanced_calculator"
+            featureName="AI Advanced Calculator"
+            features={ADVANCED_FEATURES}
+          >
+            {(access) => (
+              <AdvancedCalculator
+                toolKey="tile"
+                toolLabel="Tile Calculator"
+                contextSummary={`Tile Calculator Results:
+- Surface type: ${input.surfaceType}
+- Method: ${input.method}
+- Surface area: ${formatNumber(result.surfaceArea)} m²
+- Tile size: ${input.tileWidthMm}×${input.tileHeightMm}mm
+- Tiles needed: ${result.tilesNeeded}
+- Boxes needed: ${result.boxesNeeded}
+- Tile cost: ${result.currencySymbol}${formatNumber(result.tileCost)}
+- Adhesive: ${formatNumber(result.adhesiveNeeded)} bags @ ${result.currencySymbol}${formatNumber(result.adhesiveCost)}
+- Cement: ${formatNumber(result.cementNeeded)} bags @ ${result.currencySymbol}${formatNumber(result.cementCost)}
+- Sand: ${formatNumber(result.sandNeeded)} m³ @ ${result.currencySymbol}${formatNumber(result.sandCost)}
+- Grout: ${formatNumber(result.groutNeeded)} kg @ ${result.currencySymbol}${formatNumber(result.groutCost)}
+- Spacers: ${result.spacerNeeded} packs @ ${result.currencySymbol}${formatNumber(result.spacerCost)}
+- Material cost: ${result.currencySymbol}${formatNumber(result.materialCost)}
+- Labour: ${result.currencySymbol}${formatNumber(result.labourCost)}
+- Grand total: ${result.currencySymbol}${formatNumber(result.grandTotal)}
+- Waste margin: ${input.wasteMargin}%`}
+                clientHash={access.clientHash}
+              />
+            )}
+          </RewardedFeatureGate>
         )}
       </div>
 

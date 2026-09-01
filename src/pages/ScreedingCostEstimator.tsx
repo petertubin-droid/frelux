@@ -664,6 +664,17 @@ export default function ScreedingCostEstimator({
           >
             {(access) => (
               <AdvancedCalculator
+                toolKey="screeding"
+                toolLabel="Screeding Calculator"
+                contextSummary={`Screeding Calculator Results:
+- Net screeding area: ${netArea} m²
+- Mix ratio: ${config.defaultMixRatio || '2:1'}
+- Paint coverage: ${config.paintCoverageRateM2PerL} m²/L
+- Paint bucket: ${config.paintBucketSizeL}L @ ${config.currencySymbol}${config.paintPricePerBucket}
+- Cement: ${config.cementBagSizeKg}kg bags @ ${config.currencySymbol}${config.cementPricePerBag}
+- Labour rate: ${config.currencySymbol}${config.labourRatePerSqm}/m²
+- Waste: ${config.wastePercentage}%
+- Tax/VAT: ${config.taxVatPercentage}%`}
                 netArea={netArea}
                 config={config}
                 clientHash={access.clientHash}

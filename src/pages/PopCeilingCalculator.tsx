@@ -24,6 +24,8 @@ import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
+import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -484,6 +486,29 @@ export default function PopCeilingCalculator({
             alreadyHave={alreadyHave}
             onAlreadyHaveChange={setAlreadyHave}
           />
+        )}
+
+        {result && (
+          <RewardedFeatureGate
+            toolKey="advanced_calculator"
+            featureName="AI Advanced Calculator"
+            features={ADVANCED_FEATURES}
+          >
+            {(access) => (
+              <AdvancedCalculator
+                toolKey="pop"
+                toolLabel="POP Ceiling Calculator"
+                contextSummary={`POP Ceiling Calculator Results:
+- Ceiling area: ${formatNumber(result.ceilingArea)} m²
+- Materials: ${result.materials.map(m => `${m.name}: ${m.quantity}${m.unit} (${m.packagesNeeded} packs) = ${result.currencySymbol}${formatNumber(m.cost)}`).join('\n- ')}
+- Material cost: ${result.currencySymbol}${formatNumber(result.materialCost)}
+- Labour: ${result.currencySymbol}${formatNumber(result.labourCost)}
+- Waste: ${result.currencySymbol}${formatNumber(result.wasteAmount)}
+- Grand total: ${result.currencySymbol}${formatNumber(result.grandTotal)}`}
+                clientHash={access.clientHash}
+              />
+            )}
+          </RewardedFeatureGate>
         )}
       </div>
 

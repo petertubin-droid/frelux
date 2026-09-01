@@ -45,7 +45,6 @@ import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
   fetchPaintTypes,
-  fetchScreedingMixConfig,
   saveUserProject,
 } from "@/lib/queries";
 import {
@@ -68,7 +67,6 @@ import type {
   ProjectType,
   Unit,
   OpeningDimensions,
-  ScreedingMixConfig,
   SurfaceCondition,
   ColorCondition,
 } from "@/types";
@@ -116,18 +114,14 @@ const projectTypes: {
 // WASTE_OPTIONS and defaultDoorDims/defaultWindowDims are set dynamically in the component
 
 const ADVANCED_FEATURES = [
-  "Advanced material breakdown with line items",
-  "Custom mix ratio editor",
-  "Labour cost customization",
+  "AI-powered project analysis & breakdown",
+  "Smart cost optimization recommendations",
+  "Labour, transport & markup cost adjuster",
   "Multiple waste percentage scenarios",
-  "Thickness and multiple coat calculations",
-  "Profit and markup calculator",
-  "Transport and logistics cost estimator",
-  "Tax/VAT calculator",
-  "Save, duplicate and compare estimates",
-  "Export professional PDF quotations",
-  "Material shopping list",
-  "Cost comparison between brands",
+  "Profit and tax/VAT calculator",
+  "Ask AI: get expert answers about your project",
+  "Save estimates and export professional PDF quotations",
+  "AI risk assessment & quality checks",
   "AI recommendations for reducing waste",
   "AI assistant for calculation questions",
 ];
@@ -226,8 +220,6 @@ export default function PaintCalculator({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [paintTypes, setPaintTypes] = useState<DbPaintType[]>([]);
-  const [screedingConfig, setScreedingConfig] =
-    useState<ScreedingMixConfig | null>(null);
   const [typesLoading, setTypesLoading] = useState(true);
   const [typesError, setTypesError] = useState<string | null>(null);
   const [dbSurfaceConditions, setDbSurfaceConditions] = useState<
@@ -262,27 +254,6 @@ export default function PaintCalculator({
       }
       if (!isMounted.current) return;
       setTypesLoading(false);
-    }
-    async function loadScreedingConfig() {
-      const { data } = await fetchScreedingMixConfig();
-      if (data) {
-        setScreedingConfig({
-          paintCoverageRateM2PerL: Number(data.paint_coverage_rate_m2_per_l),
-          paintBucketSizeL: Number(data.paint_bucket_size_l),
-          paintPricePerBucket: Number(data.paint_price_per_bucket),
-          cementConsumptionRatioKgPerL: Number(
-            data.cement_consumption_ratio_kg_per_l,
-          ),
-          cementBagSizeKg: Number(data.cement_bag_size_kg),
-          cementPricePerBag: Number(data.cement_price_per_bag),
-          defaultMixRatio: data.default_mix_ratio,
-          labourRatePerSqm: Number(data.labour_rate_per_sqm),
-          wastePercentage: Number(data.waste_percentage),
-          taxVatPercentage: Number(data.tax_vat_percentage),
-          currency: data.currency,
-          currencySymbol: data.currency_symbol,
-        });
-      }
     }
     async function loadConditions() {
       const [surfRes, colourRes] = await Promise.all([
@@ -325,8 +296,7 @@ export default function PaintCalculator({
       }
     }
     loadTypes();
-    loadScreedingConfig();
-    loadConditions();
+        loadConditions();
     loadEstimationEngine();
     return () => {
       mountedRef.current = false;
@@ -995,16 +965,29 @@ export default function PaintCalculator({
 
         {result && <StickyActionBar onRecalculate={() => setResult(null)} />}
 
-        {result && screedingConfig && (
+        {result && (
           <RewardedFeatureGate
             toolKey="advanced_calculator"
-            featureName="Advanced Calculator"
+            featureName="AI Advanced Calculator"
             features={ADVANCED_FEATURES}
           >
             {(access) => (
               <AdvancedCalculator
-                netArea={result.paintableArea}
-                config={screedingConfig}
+                toolKey="paint"
+                toolLabel="Paint Calculator"
+                contextSummary={`Paint Calculator Results:
+- Project type: ${input.projectType}
+- Paintable area: ${formatNumber(result.paintableArea)} m²
+- Coats: ${result.coats}
+- Paint type: ${selectedPaintType?.name ?? input.paintType}
+- Surface condition: ${result.surfaceCondition}
+- Coverage rate: ${formatNumber(result.coverageRate, 1)} m²/L per coat
+- Paint required: ${formatNumber(result.adjustedLiters)}L (adjusted for ${input.wasteMargin}% waste)
+- Recommended containers: ${result.recommendedContainers.map(c => `${c.count} × ${c.size}L`).join(', ')}
+- Total recommended: ${formatNumber(result.totalRecommendedLiters)}L
+- Leftover: ${formatNumber(result.leftoverLiters)}L
+${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(c => `${c.count} × ${c.size}L`).join(', ')} (${formatNumber(result.primerTotalLiters)}L)` : '- Primer: none needed'}
+- Waste margin: ${input.wasteMargin}%`}
                 clientHash={access.clientHash}
               />
             )}

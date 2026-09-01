@@ -447,22 +447,19 @@ export default function Rewards() {
         })()}
 
       {/* Complete Offers — Offerwall.ad */}
-      {!showOfferwall ? (
-        <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:bg-brand-navy-mid dark:from-emerald-500/5">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
-                <ExternalLink className="h-6 w-6 text-emerald-500" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-brand-navy dark:text-white">
-                  Complete Offers — Earn FRELUX Credits
-                </p>
-                <p className="text-xs text-neutral-500">
-                  Surveys, app installs, and other offers. Rewards vary by
-                  offer.
-                </p>
-              </div>
+      <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
+              <ExternalLink className="h-6 w-6 text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-brand-navy dark:text-white">
+                Complete Offers — Earn FRELUX Credits
+              </p>
+              <p className="text-xs text-neutral-500">
+                Surveys, app installs, and other offers.
+              </p>
             </div>
           </div>
           <span className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-bold text-neutral-400 dark:bg-white/5 dark:text-neutral-500">
