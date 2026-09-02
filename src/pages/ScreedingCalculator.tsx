@@ -17,6 +17,7 @@ import CalculatorNearMe from "@/components/calculators/CalculatorNearMe";
 import { useSeo } from "@/lib/seo";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
+import { SITE_URL } from "@/lib/seo";
 
 // Unified measurement system
 import {
@@ -66,19 +67,19 @@ export default function ScreedingCalculator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Calculators",
-                  item: "https://freluxtools.netlify.app/calculators",
+                  item: `${SITE_URL}/calculators`,
                 },
                 {
                   "@type": "ListItem",
                   position: 3,
                   name: "Screeding Calculator",
-                  item: "https://freluxtools.netlify.app/screeding-calculator",
+                  item: `${SITE_URL}/screeding-calculator`,
                 },
               ],
             },

@@ -18,6 +18,7 @@ import {
 import Container from "@/components/ui/Container";
 import { useSeo } from "@/lib/seo";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { SITE_URL } from "@/lib/seo";
 
 interface Tool {
   icon: LucideIcon;
@@ -165,7 +166,7 @@ export default function Calculators() {
           "@type": "ListItem",
           position: i + 1,
           name: c.title,
-          url: `https://freluxtools.netlify.app${c.to}`,
+          url: `${SITE_URL}${c.to}`,
         })),
       },
       {
@@ -176,13 +177,13 @@ export default function Calculators() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
         ],
       },

@@ -18,6 +18,7 @@ import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import AskAiWidget from "@/components/learn/AskAiWidget";
+import { SITE_URL } from "@/lib/seo";
 
 type Status = "loading" | "ready" | "error";
 
@@ -44,13 +45,13 @@ export default function Learn() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app/",
+            item: `${SITE_URL}/`,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Learn",
-            item: "https://freluxtools.netlify.app/learn",
+            item: `${SITE_URL}/learn`,
           },
         ],
       },

@@ -26,6 +26,7 @@ import {
 } from "@/lib/paystack";
 import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
+import { SITE_URL } from "@/lib/seo";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -49,7 +50,7 @@ export default function Pricing() {
             name: "Pro Monthly",
             price: "5000",
             priceCurrency: "NGN",
-            url: "https://freluxtools.netlify.app/pricing",
+            url: `${SITE_URL}/pricing`,
             availability: "https://schema.org/PreOrder",
           },
           {
@@ -57,7 +58,7 @@ export default function Pricing() {
             name: "Premium Monthly",
             price: "10000",
             priceCurrency: "NGN",
-            url: "https://freluxtools.netlify.app/pricing",
+            url: `${SITE_URL}/pricing`,
             availability: "https://schema.org/PreOrder",
           },
         ],

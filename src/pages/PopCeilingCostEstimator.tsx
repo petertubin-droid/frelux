@@ -41,6 +41,7 @@ import { calculateLabourCost } from "@/lib/labour";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { SITE_URL } from "@/lib/seo";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -66,7 +67,7 @@ export default function PopCeilingCostEstimator({
             name: "FRELUX POP Ceiling Cost Estimator",
             description:
               "Estimate the full cost of your POP ceiling project including materials and waste. Labour not included.",
-            url: "https://freluxtools.netlify.app/pop-ceiling-cost-estimator",
+            url: `${SITE_URL}/pop-ceiling-cost-estimator`,
             applicationCategory: "CalculatorApplication",
             operatingSystem: "Web",
             offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },

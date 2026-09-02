@@ -87,6 +87,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 // Engine integration
 import { useEngineFeatures } from "@/lib/measurement";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { SITE_URL } from "@/lib/seo";
 import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
@@ -166,13 +167,13 @@ export default function PaintingEstimator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Painting Estimator",
-                  item: "https://freluxtools.netlify.app/painting-estimator",
+                  item: `${SITE_URL}/painting-estimator`,
                 },
               ],
             },

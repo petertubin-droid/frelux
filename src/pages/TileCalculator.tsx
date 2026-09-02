@@ -66,6 +66,7 @@ import { TileCalculatorSeo } from "@/components/seo/SeoContent";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
 export default function TileCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -97,13 +98,13 @@ export default function TileCalculator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Tile Calculator",
-                  item: "https://freluxtools.netlify.app/tile-calculator",
+                  item: `${SITE_URL}/tile-calculator`,
                 },
               ],
             },

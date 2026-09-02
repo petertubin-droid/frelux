@@ -257,7 +257,7 @@ export default function ImageEstimator() {
       setSavedId(data.savedId ?? null);
       setPhase("review");
     } catch (err) {
-      console.error("[ImageEstimator] Error:", err);
+      if (import.meta.env.DEV) console.error("[ImageEstimator] Error:", err);
       setError("Failed to analyze image. Please try again.");
       setPhase("error");
     }

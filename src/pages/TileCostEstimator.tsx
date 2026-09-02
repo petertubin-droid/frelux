@@ -40,6 +40,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { SITE_URL } from "@/lib/seo";
 
 interface PassedState {
   surfaceArea?: number;
@@ -65,7 +66,7 @@ export default function TileCostEstimator({
             name: "FRELUX Tile Cost Estimator",
             description:
               "Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.",
-            url: "https://freluxtools.netlify.app/tile-cost-estimator",
+            url: `${SITE_URL}/tile-cost-estimator`,
             applicationCategory: "CalculatorApplication",
             operatingSystem: "Web",
             offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },

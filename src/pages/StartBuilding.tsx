@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   Building2,
   Paintbrush,
@@ -12,78 +12,119 @@ import {
   HelpCircle,
   CheckCircle2,
   ChevronRight,
-} from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import Container from '@/components/ui/Container';
-import { useSeo } from '@/lib/seo';
-import { track } from '@/lib/analytics';
+} from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import Container from "@/components/ui/Container";
+import { useSeo } from "@/lib/seo";
+import { track } from "@/lib/analytics";
+import { SITE_URL } from "@/lib/seo";
 
 export default function StartBuilding() {
   useSeo({
-    title: 'Start Building: What Are You Building Today? | FRELUX',
+    title: "Start Building: What Are You Building Today? | FRELUX",
     description:
-      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing — paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.',
-    canonicalPath: '/start-building',
-    ogType: 'website',
+      "Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing — paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.",
+    canonicalPath: "/start-building",
+    ogType: "website",
     keywords:
-      'start building, construction estimator Nigeria, build to roof estimator, paint calculator, screeding calculator, POP ceiling calculator, tile calculator, tyrolene estimator, construction cost calculator Nigeria',
+      "start building, construction estimator Nigeria, build to roof estimator, paint calculator, screeding calculator, POP ceiling calculator, tile calculator, tyrolene estimator, construction cost calculator Nigeria",
     structuredDataArray: [
       {
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: 'Start Building — FRELUX',
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "Start Building — FRELUX",
         description:
-          'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.',
-        url: 'https://freluxtools.netlify.app/start-building',
+          "Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.",
+        url: `${SITE_URL}/start-building`,
       },
       {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
-          { '@type': 'ListItem', position: 2, name: 'Start Building', item: 'https://freluxtools.netlify.app/start-building' },
+          { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Start Building",
+            item: `${SITE_URL}/start-building`,
+          },
         ],
       },
       {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: 'FRELUX Building Categories',
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "FRELUX Building Categories",
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Build to Roof', url: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
-          { '@type': 'ListItem', position: 2, name: 'Painting', url: 'https://freluxtools.netlify.app/paint-calculator' },
-          { '@type': 'ListItem', position: 3, name: 'Screeding', url: 'https://freluxtools.netlify.app/screeding-calculator' },
-          { '@type': 'ListItem', position: 4, name: 'POP Ceiling', url: 'https://freluxtools.netlify.app/pop-ceiling-calculator' },
-          { '@type': 'ListItem', position: 5, name: 'Tiles & Flooring', url: 'https://freluxtools.netlify.app/tile-calculator' },
-          { '@type': 'ListItem', position: 6, name: 'Exterior Finishing', url: 'https://freluxtools.netlify.app/tyrolene-estimator' },
-          { '@type': 'ListItem', position: 7, name: 'Colour & Design', url: 'https://freluxtools.netlify.app/colors' },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Build to Roof",
+            url: `${SITE_URL}/build-to-roof-estimator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Painting",
+            url: `${SITE_URL}/paint-calculator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: "Screeding",
+            url: `${SITE_URL}/screeding-calculator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: "POP Ceiling",
+            url: `${SITE_URL}/pop-ceiling-calculator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 5,
+            name: "Tiles & Flooring",
+            url: `${SITE_URL}/tile-calculator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 6,
+            name: "Exterior Finishing",
+            url: `${SITE_URL}/tyrolene-estimator`,
+          },
+          {
+            "@type": "ListItem",
+            position: 7,
+            name: "Colour & Design",
+            url: `${SITE_URL}/colors`,
+          },
         ],
       },
       {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
         mainEntity: [
           {
-            '@type': 'Question',
-            name: 'What is the Build-to-Roof Estimator?',
+            "@type": "Question",
+            name: "What is the Build-to-Roof Estimator?",
             acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.',
+              "@type": "Answer",
+              text: "The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.",
             },
           },
           {
-            '@type': 'Question',
-            name: 'Can I estimate finishing costs after the build?',
+            "@type": "Question",
+            name: "Can I estimate finishing costs after the build?",
             acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Yes. After your structure is built, use FRELUX finishing calculators for paint, screeding, POP ceiling, tiles, and exterior finishes to estimate materials and costs for each stage.',
+              "@type": "Answer",
+              text: "Yes. After your structure is built, use FRELUX finishing calculators for paint, screeding, POP ceiling, tiles, and exterior finishes to estimate materials and costs for each stage.",
             },
           },
           {
-            '@type': 'Question',
-            name: 'Are FRELUX calculators free to use?',
+            "@type": "Question",
+            name: "Are FRELUX calculators free to use?",
             acceptedAnswer: {
-              '@type': 'Answer',
-              text: 'Yes. All calculators and estimators are free to use with no sign-up required. Pro features like saved estimates and PDF exports are available with a Pro account.',
+              "@type": "Answer",
+              text: "Yes. All calculators and estimators are free to use with no sign-up required. Pro features like saved estimates and PDF exports are available with a Pro account.",
             },
           },
         ],
@@ -94,7 +135,10 @@ export default function StartBuilding() {
   return (
     <>
       <PageHeader
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Start Building' }]}
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Start Building" },
+        ]}
         eyebrow="Construction Planning"
         title="What Are You Building Today?"
         subtitle="Choose what you're working on and FRELUX will help you calculate materials, quantities and estimated project costs."
@@ -116,13 +160,19 @@ export default function StartBuilding() {
             <ChevronRight className="h-3 w-3 text-white/20" />
             <span className="whitespace-nowrap text-white/40">POP CEILING</span>
             <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">TILES / FLOORING</span>
+            <span className="whitespace-nowrap text-white/40">
+              TILES / FLOORING
+            </span>
             <ChevronRight className="h-3 w-3 text-white/20" />
             <span className="whitespace-nowrap text-white/40">PAINTING</span>
             <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">EXTERIOR FINISHING</span>
+            <span className="whitespace-nowrap text-white/40">
+              EXTERIOR FINISHING
+            </span>
             <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">COLOUR / DESIGN</span>
+            <span className="whitespace-nowrap text-white/40">
+              COLOUR / DESIGN
+            </span>
           </div>
         </Container>
       </div>
@@ -131,7 +181,9 @@ export default function StartBuilding() {
       <Container className="py-10 sm:py-12">
         <Link
           to="/build-to-roof-estimator"
-          onClick={() => track('start_building_clicked', { category: 'build_to_roof' })}
+          onClick={() =>
+            track("start_building_clicked", { category: "build_to_roof" })
+          }
           className="group block overflow-hidden rounded-2xl border border-neutral-200 bg-gradient-to-br from-brand-navy to-brand-navy-mid shadow-premium-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10"
         >
           <div className="grid items-center gap-0 md:grid-cols-2">
@@ -145,26 +197,39 @@ export default function StartBuilding() {
                 Build to Roof
               </h2>
               <p className="mt-4 max-w-md text-base leading-relaxed text-white/60">
-                Your starting point for estimating a building project. Estimate your project from
-                building to roof, then move into the finishing stages with FRELUX.
+                Your starting point for estimating a building project. Estimate
+                your project from building to roof, then move into the finishing
+                stages with FRELUX.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 text-accent-green"
+                  />
                   Foundation to roofing
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 text-accent-green"
+                  />
                   Blocks, cement, sand & granite
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
-                  <CheckCircle2 aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="h-3.5 w-3.5 text-accent-green"
+                  />
                   Nigerian construction standards
                 </span>
               </div>
               <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-brand-purple-dark group-hover:shadow-xl">
                 Start Build-to-Roof Estimate
-                <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <ArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                />
               </div>
             </div>
             {/* Right: Visual */}
@@ -188,7 +253,8 @@ export default function StartBuilding() {
             Finishing & Specialised Calculators
           </h2>
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
-            After your structure is built, estimate materials and costs for each finishing stage.
+            After your structure is built, estimate materials and costs for each
+            finishing stage.
           </p>
         </div>
 
@@ -199,11 +265,19 @@ export default function StartBuilding() {
             title="Painting"
             description="Estimate paint quantities, finishes and material requirements for rooms, homes and projects."
             tools={[
-              { label: 'Paint Calculator', to: '/paint-calculator' },
-              { label: 'Painting Estimator', to: '/paint-calculator?mode=room-estimate' },
-              { label: 'Paint Cost Estimator', to: '/paint-calculator?mode=cost' },
+              { label: "Paint Calculator", to: "/paint-calculator" },
+              {
+                label: "Painting Estimator",
+                to: "/paint-calculator?mode=room-estimate",
+              },
+              {
+                label: "Paint Cost Estimator",
+                to: "/paint-calculator?mode=cost",
+              },
             ]}
-            onClick={() => track('painting_category_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("painting_category_clicked", { source: "start_building" })
+            }
           />
 
           {/* Screeding */}
@@ -212,10 +286,15 @@ export default function StartBuilding() {
             title="Screeding"
             description="Calculate screeding materials and estimate the requirements for your project."
             tools={[
-              { label: 'Screeding Calculator', to: '/screeding-calculator' },
-              { label: 'Screeding Cost Estimator', to: '/screeding-calculator?mode=cost' },
+              { label: "Screeding Calculator", to: "/screeding-calculator" },
+              {
+                label: "Screeding Cost Estimator",
+                to: "/screeding-calculator?mode=cost",
+              },
             ]}
-            onClick={() => track('screeding_category_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("screeding_category_clicked", { source: "start_building" })
+            }
           />
 
           {/* POP Ceiling */}
@@ -224,10 +303,18 @@ export default function StartBuilding() {
             title="POP Ceiling"
             description="Estimate POP ceiling materials and project requirements."
             tools={[
-              { label: 'POP Ceiling Calculator', to: '/pop-ceiling-calculator' },
-              { label: 'POP Ceiling Cost Estimator', to: '/pop-ceiling-calculator?mode=cost' },
+              {
+                label: "POP Ceiling Calculator",
+                to: "/pop-ceiling-calculator",
+              },
+              {
+                label: "POP Ceiling Cost Estimator",
+                to: "/pop-ceiling-calculator?mode=cost",
+              },
             ]}
-            onClick={() => track('pop_category_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("pop_category_clicked", { source: "start_building" })
+            }
           />
 
           {/* Tiles & Flooring */}
@@ -236,10 +323,15 @@ export default function StartBuilding() {
             title="Tiles & Flooring"
             description="Calculate tile quantities, cartons, wastage and project requirements."
             tools={[
-              { label: 'Tile Calculator', to: '/tile-calculator' },
-              { label: 'Tile Cost Estimator', to: '/tile-calculator?mode=cost' },
+              { label: "Tile Calculator", to: "/tile-calculator" },
+              {
+                label: "Tile Cost Estimator",
+                to: "/tile-calculator?mode=cost",
+              },
             ]}
-            onClick={() => track('tiles_category_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("tiles_category_clicked", { source: "start_building" })
+            }
           />
 
           {/* Exterior Finishing */}
@@ -248,10 +340,15 @@ export default function StartBuilding() {
             title="Exterior Finishing"
             description="Estimate exterior wall finishes including Tyrolene and other coatings."
             tools={[
-              { label: 'Tyrolene Estimator', to: '/finish-estimator?mode=tyrolene' },
-              { label: 'Finish Estimator', to: '/finish-estimator' },
+              {
+                label: "Tyrolene Estimator",
+                to: "/finish-estimator?mode=tyrolene",
+              },
+              { label: "Finish Estimator", to: "/finish-estimator" },
             ]}
-            onClick={() => track('exterior_finishing_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("exterior_finishing_clicked", { source: "start_building" })
+            }
           />
 
           {/* Colour & Design */}
@@ -260,11 +357,13 @@ export default function StartBuilding() {
             title="Colour & Design"
             description="Browse paint colours, compare options, and get AI-powered colour recommendations."
             tools={[
-              { label: 'Colour Gallery', to: '/colors' },
-              { label: 'Compare Colours', to: '/colors/compare' },
-              { label: 'Smart Colour Assistant', to: '/ai-color-assistant' },
+              { label: "Colour Gallery", to: "/colors" },
+              { label: "Compare Colours", to: "/colors/compare" },
+              { label: "Smart Colour Assistant", to: "/ai-color-assistant" },
             ]}
-            onClick={() => track('colour_design_clicked', { source: 'start_building' })}
+            onClick={() =>
+              track("colour_design_clicked", { source: "start_building" })
+            }
           />
         </div>
       </Container>
@@ -273,21 +372,29 @@ export default function StartBuilding() {
       <Container className="pb-12">
         <Link
           to="/image-estimator"
-          onClick={() => track('start_building_clicked', { category: 'ai_photo_estimator' })}
+          onClick={() =>
+            track("start_building_clicked", { category: "ai_photo_estimator" })
+          }
           className="group flex flex-col items-center gap-4 rounded-2xl border border-neutral-200 bg-gradient-to-r from-brand-navy-mid to-brand-navy p-6 text-center shadow-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10 sm:flex-row sm:text-left"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-green/20">
             <Camera aria-hidden="true" className="h-6 w-6 text-accent-green" />
           </div>
           <div className="flex-1">
-            <h3 className="font-display text-lg font-bold text-white">Not sure where to start? Try the AI Photo Estimator</h3>
+            <h3 className="font-display text-lg font-bold text-white">
+              Not sure where to start? Try the AI Photo Estimator
+            </h3>
             <p className="mt-1 text-sm text-white/60">
-              Upload a photo of your site or room and get an AI-powered material and cost estimate in seconds.
+              Upload a photo of your site or room and get an AI-powered material
+              and cost estimate in seconds.
             </p>
           </div>
           <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-all group-hover:bg-white/15">
             Try it now
-            <ArrowRight aria-hidden="true" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight
+              aria-hidden="true"
+              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+            />
           </div>
         </Link>
       </Container>
@@ -302,7 +409,8 @@ export default function StartBuilding() {
             Not sure where to start?
           </h3>
           <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500 dark:text-neutral-500">
-            Tell FRELUX what you're working on and we'll guide you to the right calculator.
+            Tell FRELUX what you're working on and we'll guide you to the right
+            calculator.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link

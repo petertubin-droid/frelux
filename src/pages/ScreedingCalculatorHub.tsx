@@ -13,6 +13,7 @@ import {
 } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { SITE_URL } from "@/lib/seo";
 
 const ScreedingCalculator = lazy(() => import("@/pages/ScreedingCalculator"));
 const ScreedingCostEstimator = lazy(
@@ -79,7 +80,7 @@ export default function ScreedingCalculatorHub() {
         name: "FRELUX Screeding Calculator",
         description:
           "Calculate wall screeding surface area in m², material requirements, and cost estimates with real Nigerian market prices.",
-        url: "https://freluxtools.netlify.app/screeding-calculator",
+        url: `${SITE_URL}/screeding-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -92,19 +93,19 @@ export default function ScreedingCalculatorHub() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "Screeding Calculator",
-            item: "https://freluxtools.netlify.app/screeding-calculator",
+            item: `${SITE_URL}/screeding-calculator`,
           },
         ],
       },

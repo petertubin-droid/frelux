@@ -54,6 +54,7 @@ import { createDefaultRoofGeometry } from "@/lib/roof/geometry-engine";
 import type { RoofGeometry } from "@/lib/roof/geometry-types";
 import { trackBuildToRoofRewards } from "@/lib/rewards-integration";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { SITE_URL } from "@/lib/seo";
 
 const STEPS = [
   { id: "project", label: "Project", icon: Home },
@@ -291,7 +292,7 @@ export default function BuildToRoofEstimator() {
         "@context": "https://schema.org",
         "@type": "WebApplication",
         name: "Build-to-Roof Construction Cost Estimator",
-        url: "https://freluxtools.netlify.app/build-to-roof-estimator",
+        url: `${SITE_URL}/build-to-roof-estimator`,
         description:
           "Calculate materials, quantities, and costs for your building from foundation to roof with Nigerian-market pricing.",
         applicationCategory: "BusinessApplication",
@@ -311,19 +312,19 @@ export default function BuildToRoofEstimator() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "Build-to-Roof Estimator",
-            item: "https://freluxtools.netlify.app/build-to-roof-estimator",
+            item: `${SITE_URL}/build-to-roof-estimator`,
           },
         ],
       },

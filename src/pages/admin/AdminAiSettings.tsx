@@ -36,6 +36,13 @@ import {
 } from "@/components/admin/AdminUi";
 import { classNames } from "@/lib/utils";
 
+// Derive Supabase project ref from the env URL for dashboard links
+const SUPABASE_PROJECT_REF =
+  (import.meta.env.VITE_SUPABASE_URL ?? "").match(
+    /https:\/\/(\w+)\.supabase\.co/,
+  )?.[1] ?? "";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "";
+
 // =========================================================
 // AI Feature Registry — every AI feature in the app
 // =========================================================
@@ -222,14 +229,11 @@ export default function AdminAiSettings() {
     setHealthChecking(fnKey);
     setHealthResults((prev) => ({ ...prev, [fnKey]: "checking" }));
     try {
-      const res = await fetch(
-        `https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1/${edgeFunction}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: "{}",
-        },
-      );
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/${edgeFunction}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
       setHealthResults((prev) => ({
         ...prev,
         [fnKey]: res.status === 404 ? "error" : "ok",
@@ -543,7 +547,7 @@ export default function AdminAiSettings() {
                         Health Check
                       </AdminButton>
                       <a
-                        href={`https://supabase.com/dashboard/project/hqhvlkunkdrxyuvziorm/functions/${feature.edgeFunction}/details`}
+                        href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/functions/${feature.edgeFunction}/details`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-semibold text-brand-purple hover:underline"
@@ -740,7 +744,7 @@ export default function AdminAiSettings() {
         <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
           API keys are stored in Supabase Edge Function secrets.{" "}
           <a
-            href="https://supabase.com/dashboard/project/hqhvlkunkdrxyuvziorm/settings/functions"
+            href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/settings/functions`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-brand-purple hover:underline"

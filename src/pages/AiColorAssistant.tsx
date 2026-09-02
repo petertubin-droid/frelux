@@ -49,6 +49,7 @@ import {
   CALC_LINKS,
 } from "@/components/seo/SeoSections";
 import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
+import { SITE_URL } from "@/lib/seo";
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -67,7 +68,7 @@ export default function AiColorAssistant() {
       name: "FRELUX Smart Color Assistant",
       description:
         "Describe your room or upload a photo and get AI color recommendations tailored to your space, lighting, and furniture.",
-      url: "https://freluxtools.netlify.app/ai-color-assistant",
+      url: `${SITE_URL}/ai-color-assistant`,
       applicationCategory: "DesignApplication",
       operatingSystem: "Web",
       offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },

@@ -77,6 +77,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
 
 export default function CostEstimator({
   embedded = false,
@@ -98,7 +99,7 @@ export default function CostEstimator({
               name: "FRELUX Paint Cost Estimator",
               description:
                 "Estimate the cost of your paint materials. Enter your paint bucket count, select products, and get a material cost breakdown. Labour not included.",
-              url: "https://freluxtools.netlify.app/cost-estimator",
+              url: `${SITE_URL}/cost-estimator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -111,19 +112,19 @@ export default function CostEstimator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Calculators",
-                  item: "https://freluxtools.netlify.app/calculators",
+                  item: `${SITE_URL}/calculators`,
                 },
                 {
                   "@type": "ListItem",
                   position: 3,
                   name: "Cost Estimator",
-                  item: "https://freluxtools.netlify.app/cost-estimator",
+                  item: `${SITE_URL}/cost-estimator`,
                 },
               ],
             },

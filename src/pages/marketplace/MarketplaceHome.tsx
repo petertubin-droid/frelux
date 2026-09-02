@@ -34,6 +34,7 @@ import {
 } from "@/lib/location-discovery";
 import { formatDistance } from "@/lib/location";
 import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -112,11 +113,11 @@ export default function MarketplaceHome() {
       name: "FRELUX Marketplace",
       description:
         "Post construction jobs and get bids from verified pros, or buy and sell building materials, painting supplies, and interior design products across Nigeria.",
-      url: "https://freluxtools.netlify.app/marketplace",
+      url: `${SITE_URL}/marketplace`,
       provider: {
         "@type": "Organization",
         name: "FRELUX PAINT CALC",
-        url: "https://freluxtools.netlify.app",
+        url: SITE_URL,
       },
       areaServed: {
         "@type": "Country",

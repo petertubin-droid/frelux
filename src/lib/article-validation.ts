@@ -1,3 +1,5 @@
+import { SITE_URL } from "./seo";
+
 /**
  * FRELUX Article Validation Engine
  *
@@ -356,7 +358,7 @@ export function validateArticle(
   const internalLinks = links.filter(
     (l) =>
       l.url.startsWith("/") ||
-      l.url.includes("freluxtools.netlify.app") ||
+      l.url.includes(SITE_URL.replace("https://", "")) ||
       l.url.includes("frelux.com"),
   );
   rules.push({

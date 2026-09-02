@@ -131,6 +131,7 @@ import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
 
 export default function PaintCalculator({
   embedded = false,
@@ -165,7 +166,7 @@ export default function PaintCalculator({
               name: "FRELUX Paint Calculator",
               description:
                 "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
-              url: "https://freluxtools.netlify.app/paint-calculator",
+              url: `${SITE_URL}/paint-calculator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
               offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -178,19 +179,19 @@ export default function PaintCalculator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Calculators",
-                  item: "https://freluxtools.netlify.app/calculators",
+                  item: `${SITE_URL}/calculators`,
                 },
                 {
                   "@type": "ListItem",
                   position: 3,
                   name: "Paint Calculator",
-                  item: "https://freluxtools.netlify.app/paint-calculator",
+                  item: `${SITE_URL}/paint-calculator`,
                 },
               ],
             },
@@ -293,7 +294,8 @@ export default function PaintCalculator({
         setEstQualities(qualMap);
         setEstPrices(priceMap);
       } catch (e) {
-        console.error("Failed to load estimation engine config:", e);
+        if (import.meta.env.DEV)
+          console.error("Failed to load estimation engine config:", e);
       }
     }
     loadTypes();

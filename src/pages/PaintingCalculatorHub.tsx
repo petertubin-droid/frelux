@@ -13,6 +13,7 @@ import {
 } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { SITE_URL } from "@/lib/seo";
 
 const PaintCalculator = lazy(() => import("@/pages/PaintCalculator"));
 const CostEstimator = lazy(() => import("@/pages/CostEstimator"));
@@ -85,7 +86,7 @@ export default function PaintingCalculatorHub() {
         name: "FRELUX Painting Calculator",
         description:
           "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with real Nigerian material prices.",
-        url: "https://freluxtools.netlify.app/paint-calculator",
+        url: `${SITE_URL}/paint-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -98,19 +99,19 @@ export default function PaintingCalculatorHub() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "Painting Calculator",
-            item: "https://freluxtools.netlify.app/paint-calculator",
+            item: `${SITE_URL}/paint-calculator`,
           },
         ],
       },

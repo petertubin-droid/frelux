@@ -102,7 +102,8 @@ export default function Rewards() {
         setMissionProgress(prog);
       }
     } catch (err) {
-      console.error("[Rewards] Failed to load data:", err);
+      if (import.meta.env.DEV)
+        console.error("[Rewards] Failed to load data:", err);
     } finally {
       setRewardsLoading(false);
     }

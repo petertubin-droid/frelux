@@ -1,36 +1,53 @@
-import { useEffect, useState } from 'react';
-import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { fetchCategories, fetchServices, fetchLocations, searchProfessionals, getProProfileServices } from '@/lib/pro-connect';
-import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
-import ProfessionalCard from '@/components/pro-connect/ProfessionalCard';
-import { classNames } from '@/lib/utils';
-import { useSeo } from '@/lib/seo';
-import _LocationPicker from '@/components/ui/LocationPicker';
-import { useLocation } from '@/lib/location';
-import { findNearbyProfessionals, type NearbyProfessional } from '@/lib/location-discovery';
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams, Link } from "react-router-dom";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import {
+  fetchCategories,
+  fetchServices,
+  fetchLocations,
+  searchProfessionals,
+  getProProfileServices,
+} from "@/lib/pro-connect";
+import type {
+  DbProCategory,
+  DbProService,
+  DbProLocation,
+  DbProProfile,
+} from "@/types/pro-connect";
+import ProfessionalCard from "@/components/pro-connect/ProfessionalCard";
+import { classNames } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
+import _LocationPicker from "@/components/ui/LocationPicker";
+import { useLocation } from "@/lib/location";
+import {
+  findNearbyProfessionals,
+  type NearbyProfessional,
+} from "@/lib/location-discovery";
+import { SITE_URL } from "@/lib/seo";
 
 export default function ProConnectDirectory() {
   useSeo({
-    title: 'FRELUX Pro Connect: Find Construction Professionals in Nigeria',
-    description: 'Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.',
-    canonicalPath: '/pro-connect',
-    ogType: 'website',
+    title: "FRELUX Pro Connect: Find Construction Professionals in Nigeria",
+    description:
+      "Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.",
+    canonicalPath: "/pro-connect",
+    ogType: "website",
     structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'Directory',
-      'name': 'FRELUX Pro Connect',
-      'description': 'Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.',
-      'url': 'https://freluxtools.netlify.app/pro-connect',
-      'provider': {
-        '@type': 'Organization',
-        'name': 'FRELUX PAINT CALC',
-        'url': 'https://freluxtools.netlify.app'
+      "@context": "https://schema.org",
+      "@type": "Directory",
+      name: "FRELUX Pro Connect",
+      description:
+        "Find verified painters, tilers, screeders, POP installers, contractors, engineers, and other construction professionals across Nigeria.",
+      url: `${SITE_URL}/pro-connect`,
+      provider: {
+        "@type": "Organization",
+        name: "FRELUX PAINT CALC",
+        url: SITE_URL,
       },
-      'areaServed': {
-        '@type': 'Country',
-        'name': 'Nigeria'
-      }
+      areaServed: {
+        "@type": "Country",
+        name: "Nigeria",
+      },
     },
   });
   const { categorySlug } = useParams();
@@ -45,24 +62,31 @@ export default function ProConnectDirectory() {
   const [_page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [userLocation, _setUserLocation] = useState<ReturnType<typeof useLocation>['location']>(null);
+  const [userLocation, _setUserLocation] =
+    useState<ReturnType<typeof useLocation>["location"]>(null);
   const [radius, _setRadius] = useState(25);
   const [_nearbyPros, setNearbyPros] = useState<NearbyProfessional[]>([]);
   const [_nearbyLoading, setNearbyLoading] = useState(false);
 
   // Profile enrichment data
-  const [profileServices, setProfileServices] = useState<Record<string, DbProService[]>>({});
-  const [profileCategories, setProfileCategories] = useState<Record<string, DbProCategory>>({});
+  const [profileServices, setProfileServices] = useState<
+    Record<string, DbProService[]>
+  >({});
+  const [profileCategories, setProfileCategories] = useState<
+    Record<string, DbProCategory>
+  >({});
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [minRating, setMinRating] = useState<number | null>(null);
-  const [availabilityFilter, setAvailabilityFilter] = useState<string | null>(null);
+  const [availabilityFilter, setAvailabilityFilter] = useState<string | null>(
+    null,
+  );
 
   // Resolve category from URL slug
   useEffect(() => {
@@ -98,7 +122,8 @@ export default function ProConnectDirectory() {
         city: selectedCity || undefined,
         verifiedOnly: verifiedOnly || undefined,
         minRating: minRating || undefined,
-        availability: (availabilityFilter as 'available' | 'busy' | undefined) || undefined,
+        availability:
+          (availabilityFilter as "available" | "busy" | undefined) || undefined,
         searchQuery: searchQuery || undefined,
         page: 1,
         pageSize: 12,
@@ -113,7 +138,9 @@ export default function ProConnectDirectory() {
       const catMap: Record<string, DbProCategory> = {};
       for (const p of result.profiles) {
         const ps = await getProProfileServices(p.id);
-        svcMap[p.id] = ps.map((s) => s.service).filter(Boolean) as DbProService[];
+        svcMap[p.id] = ps
+          .map((s) => s.service)
+          .filter(Boolean) as DbProService[];
         if (p.category_id) {
           const cat = categories.find((c) => c.id === p.category_id);
           if (cat) catMap[p.id] = cat;
@@ -122,11 +149,24 @@ export default function ProConnectDirectory() {
       setProfileServices(svcMap);
       setProfileCategories(catMap);
     })();
-  }, [selectedCategory, selectedService, selectedState, selectedCity, verifiedOnly, minRating, availabilityFilter, searchQuery, categories]);
+  }, [
+    selectedCategory,
+    selectedService,
+    selectedState,
+    selectedCity,
+    verifiedOnly,
+    minRating,
+    availabilityFilter,
+    searchQuery,
+    categories,
+  ]);
 
   // Nearby professionals when location is set
   useEffect(() => {
-    if (!userLocation || (userLocation.latitude === 0 && userLocation.longitude === 0)) {
+    if (
+      !userLocation ||
+      (userLocation.latitude === 0 && userLocation.longitude === 0)
+    ) {
       setNearbyPros([]);
       return;
     }
@@ -139,15 +179,28 @@ export default function ProConnectDirectory() {
       categorySlug: cat?.slug,
       verifiedOnly,
       minRating: minRating ?? undefined,
-    }).then((data) => {
-      setNearbyPros(data);
-      setNearbyLoading(false);
-    }).catch(() => setNearbyLoading(false));
-  }, [userLocation, radius, selectedCategory, categories, verifiedOnly, minRating]);
+    })
+      .then((data) => {
+        setNearbyPros(data);
+        setNearbyLoading(false);
+      })
+      .catch(() => setNearbyLoading(false));
+  }, [
+    userLocation,
+    radius,
+    selectedCategory,
+    categories,
+    verifiedOnly,
+    minRating,
+  ]);
 
   const states = [...new Set(locations.map((l) => l.state))].sort();
   const cities = selectedState
-    ? [...new Set(locations.filter((l) => l.state === selectedState).map((l) => l.city))].sort()
+    ? [
+        ...new Set(
+          locations.filter((l) => l.state === selectedState).map((l) => l.city),
+        ),
+      ].sort()
     : [];
 
   const filteredServices = selectedCategory
@@ -162,10 +215,18 @@ export default function ProConnectDirectory() {
     setVerifiedOnly(false);
     setMinRating(null);
     setAvailabilityFilter(null);
-    setSearchQuery('');
+    setSearchQuery("");
   }
 
-  const hasActiveFilters = selectedCategory || selectedService || selectedState || selectedCity || verifiedOnly || minRating || availabilityFilter || searchQuery;
+  const hasActiveFilters =
+    selectedCategory ||
+    selectedService ||
+    selectedState ||
+    selectedCity ||
+    verifiedOnly ||
+    minRating ||
+    availabilityFilter ||
+    searchQuery;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -175,14 +236,18 @@ export default function ProConnectDirectory() {
           Find Construction Professionals
         </h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-500">
-          Connect with verified painters, tilers, screeders, POP installers, and more across Nigeria
+          Connect with verified painters, tilers, screeders, POP installers, and
+          more across Nigeria
         </p>
       </div>
 
       {/* Search bar */}
       <div className="mb-6 flex gap-3">
         <div className="relative flex-1">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500" />
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500"
+          />
           <input
             type="text"
             value={searchQuery}
@@ -194,17 +259,25 @@ export default function ProConnectDirectory() {
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={classNames(
-            'flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors',
+            "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
             showFilters || hasActiveFilters
-              ? 'border-brand-purple bg-brand-purple text-white'
-              : 'border-neutral-200 bg-white text-neutral-700 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200'
+              ? "border-brand-purple bg-brand-purple text-white"
+              : "border-neutral-200 bg-white text-neutral-700 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200",
           )}
         >
           <SlidersHorizontal className="h-4 w-4" />
           <span className="hidden sm:inline">Filters</span>
           {hasActiveFilters && (
             <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">
-              {[selectedCategory, selectedService, selectedState, selectedCity, verifiedOnly].filter(Boolean).length}
+              {
+                [
+                  selectedCategory,
+                  selectedService,
+                  selectedState,
+                  selectedCity,
+                  verifiedOnly,
+                ].filter(Boolean).length
+              }
             </span>
           )}
         </button>
@@ -216,61 +289,80 @@ export default function ProConnectDirectory() {
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Category */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Category</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                Category
+              </label>
               <select
-                value={selectedCategory || ''}
+                value={selectedCategory || ""}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">All categories</option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Service */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Service</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                Service
+              </label>
               <select
-                value={selectedService || ''}
+                value={selectedService || ""}
                 onChange={(e) => setSelectedService(e.target.value || null)}
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">All services</option>
                 {filteredServices.map((s) => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* State */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">State</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                State
+              </label>
               <select
-                value={selectedState || ''}
-                onChange={(e) => { setSelectedState(e.target.value || null); setSelectedCity(null); }}
+                value={selectedState || ""}
+                onChange={(e) => {
+                  setSelectedState(e.target.value || null);
+                  setSelectedCity(null);
+                }}
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">All states</option>
                 {states.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* City */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">City</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                City
+              </label>
               <select
-                value={selectedCity || ''}
+                value={selectedCity || ""}
                 onChange={(e) => setSelectedCity(e.target.value || null)}
                 disabled={!selectedState}
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">All cities</option>
                 {cities.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
@@ -279,9 +371,11 @@ export default function ProConnectDirectory() {
           {/* Availability + Rating filters */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Availability</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                Availability
+              </label>
               <select
-                value={availabilityFilter || ''}
+                value={availabilityFilter || ""}
                 onChange={(e) => setAvailabilityFilter(e.target.value || null)}
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
@@ -291,10 +385,16 @@ export default function ProConnectDirectory() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">Minimum Rating</label>
+              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                Minimum Rating
+              </label>
               <select
-                value={minRating?.toString() || ''}
-                onChange={(e) => setMinRating(e.target.value ? parseFloat(e.target.value) : null)}
+                value={minRating?.toString() || ""}
+                onChange={(e) =>
+                  setMinRating(
+                    e.target.value ? parseFloat(e.target.value) : null,
+                  )
+                }
                 className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
               >
                 <option value="">Any rating</option>
@@ -335,12 +435,14 @@ export default function ProConnectDirectory() {
           <Link
             key={cat.id}
             to={`/pro-connect?category=${cat.slug}`}
-            onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+            onClick={() =>
+              setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
+            }
             className={classNames(
-              'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+              "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
               selectedCategory === cat.id
-                ? 'border-brand-purple bg-brand-purple text-white'
-                : 'border-neutral-200 bg-white text-neutral-600 hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-300'
+                ? "border-brand-purple bg-brand-purple text-white"
+                : "border-neutral-200 bg-white text-neutral-600 hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-300",
             )}
           >
             {cat.name}
@@ -351,10 +453,15 @@ export default function ProConnectDirectory() {
       {/* Results count */}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-neutral-500 dark:text-neutral-500">
-          {loading ? 'Searching...' : `${total} professional${total !== 1 ? 's' : ''} found`}
+          {loading
+            ? "Searching..."
+            : `${total} professional${total !== 1 ? "s" : ""} found`}
         </p>
         {hasActiveFilters && (
-          <button onClick={clearFilters} className="text-sm text-brand-purple dark:text-brand-purple-lighter">
+          <button
+            onClick={clearFilters}
+            className="text-sm text-brand-purple dark:text-brand-purple-lighter"
+          >
             Clear filters
           </button>
         )}
@@ -364,17 +471,25 @@ export default function ProConnectDirectory() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-brand-navy-mid" />
+            <div
+              key={i}
+              className="h-64 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-brand-navy-mid"
+            />
           ))}
         </div>
       ) : profiles.length === 0 ? (
         <div className="rounded-xl border border-neutral-200 bg-white py-16 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-          <p className="text-neutral-500 dark:text-neutral-500">No professionals found matching your criteria.</p>
+          <p className="text-neutral-500 dark:text-neutral-500">
+            No professionals found matching your criteria.
+          </p>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
             Try expanding your search area or removing some filters.
           </p>
           {hasActiveFilters && (
-            <button onClick={clearFilters} className="mt-4 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
+            <button
+              onClick={clearFilters}
+              className="mt-4 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
+            >
               Clear all filters
             </button>
           )}

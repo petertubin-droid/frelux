@@ -13,6 +13,7 @@ import {
 } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { SITE_URL } from "@/lib/seo";
 
 const TileCalculator = lazy(() => import("@/pages/TileCalculator"));
 const TileCostEstimator = lazy(() => import("@/pages/TileCostEstimator"));
@@ -76,7 +77,7 @@ export default function TileCalculatorHub() {
         name: "FRELUX Tile Calculator",
         description:
           "Calculate tile quantity, boxes, adhesive, grout, and full installation cost with real Nigerian market prices.",
-        url: "https://freluxtools.netlify.app/tile-calculator",
+        url: `${SITE_URL}/tile-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -89,19 +90,19 @@ export default function TileCalculatorHub() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "Tile Calculator",
-            item: "https://freluxtools.netlify.app/tile-calculator",
+            item: `${SITE_URL}/tile-calculator`,
           },
         ],
       },

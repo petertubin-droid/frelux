@@ -86,6 +86,7 @@ import { TyroleneEstimatorSeo } from "@/components/seo/SeoContent";
 import { useEngineFeatures } from "@/lib/measurement";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { SITE_URL } from "@/lib/seo";
 import {
   EngineConfidenceBadge,
   EngineConfidenceDetail,
@@ -136,13 +137,13 @@ export default function TyroleneEstimator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "Tyrolene Estimator",
-                  item: "https://freluxtools.netlify.app/tyrolene-estimator",
+                  item: `${SITE_URL}/tyrolene-estimator`,
                 },
               ],
             },

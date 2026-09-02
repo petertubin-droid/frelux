@@ -13,6 +13,7 @@ import {
 } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { EstimateDisclaimer } from "@/components/calculators";
+import { SITE_URL } from "@/lib/seo";
 
 const PopCeilingCalculator = lazy(() => import("@/pages/PopCeilingCalculator"));
 const PopCeilingCostEstimator = lazy(
@@ -79,7 +80,7 @@ export default function PopCeilingCalculatorHub() {
         name: "FRELUX POP Ceiling Calculator",
         description:
           "Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with real Nigerian market prices.",
-        url: "https://freluxtools.netlify.app/pop-ceiling-calculator",
+        url: `${SITE_URL}/pop-ceiling-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -92,19 +93,19 @@ export default function PopCeilingCalculatorHub() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://freluxtools.netlify.app",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Calculators",
-            item: "https://freluxtools.netlify.app/calculators",
+            item: `${SITE_URL}/calculators`,
           },
           {
             "@type": "ListItem",
             position: 3,
             name: "POP Ceiling Calculator",
-            item: "https://freluxtools.netlify.app/pop-ceiling-calculator",
+            item: `${SITE_URL}/pop-ceiling-calculator`,
           },
         ],
       },

@@ -66,6 +66,7 @@ import { PopCeilingCalculatorSeo } from "@/components/seo/SeoContent";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
+import { SITE_URL } from "@/lib/seo";
 export default function PopCeilingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -97,13 +98,13 @@ export default function PopCeilingCalculator({
                   "@type": "ListItem",
                   position: 1,
                   name: "Home",
-                  item: "https://freluxtools.netlify.app",
+                  item: SITE_URL,
                 },
                 {
                   "@type": "ListItem",
                   position: 2,
                   name: "POP Ceiling Calculator",
-                  item: "https://freluxtools.netlify.app/pop-ceiling-calculator",
+                  item: `${SITE_URL}/pop-ceiling-calculator`,
                 },
               ],
             },

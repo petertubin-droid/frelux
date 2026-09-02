@@ -26,6 +26,7 @@ import { useSeo } from "@/lib/seo";
 import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
+import { SITE_URL } from "@/lib/seo";
 
 // Reserves approximate vertical space for a below-the-fold lazy section
 // while its chunk loads, so it doesn't shove later content down when it
@@ -78,7 +79,7 @@ export default function Home() {
                 "@type": "ListItem",
                 position: i + 1,
                 name: t.name,
-                url: `https://freluxtools.netlify.app/templates/${t.slug}`,
+                url: `${SITE_URL}/templates/${t.slug}`,
               })),
             }
           : {}),
@@ -87,13 +88,12 @@ export default function Home() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         name: "FRELUX PAINT CALC",
-        url: "https://freluxtools.netlify.app",
+        url: SITE_URL,
         potentialAction: {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate:
-              "https://freluxtools.netlify.app/calculators?q={search_term_string}",
+            urlTemplate: `${SITE_URL}/calculators?q={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },
