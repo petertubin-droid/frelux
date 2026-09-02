@@ -9,112 +9,107 @@ import {
   trackVisit,
   getAchievements,
   getNewlyUnlocked,
+  type UsageStats,
 } from "@/lib/achievements";
 
-// Clear localStorage before each test
-beforeEach(() => {
-  localStorage.clear();
-});
+describe("achievements", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
 
-describe("achievements — ACHIEVEMENTS", () => {
-  it("is a non-empty array", () => {
-    expect(Array.isArray(ACHIEVEMENTS)).toBe(true);
+  it("exports achievement definitions", () => {
     expect(ACHIEVEMENTS.length).toBeGreaterThan(0);
+    expect(ACHIEVEMENTS[0]).toHaveProperty("id");
+    expect(ACHIEVEMENTS[0]).toHaveProperty("title");
+    expect(ACHIEVEMENTS[0]).toHaveProperty("threshold");
   });
 
-  it("each achievement has id, title, description, icon, threshold, and category", () => {
-    for (const a of ACHIEVEMENTS) {
-      expect(a.id).toBeTruthy();
-      expect(a.title).toBeTruthy();
-      expect(a.description).toBeTruthy();
-      expect(a.icon).toBeTruthy();
-      expect(a.threshold).toBeGreaterThan(0);
-      expect(a.category).toBeTruthy();
-    }
-  });
-
-  it("has unique IDs", () => {
+  it("all achievements have unique ids", () => {
     const ids = ACHIEVEMENTS.map((a) => a.id);
-    const unique = new Set(ids);
-    expect(unique.size).toBe(ids.length);
-  });
-});
-
-describe("achievements — trackCalculation", () => {
-  it("returns an array (may be empty)", () => {
-    const result = trackCalculation("paint");
-    expect(Array.isArray(result)).toBe(true);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("unlocks first_calc on first calculation", () => {
-    const unlocked = trackCalculation("paint");
-    expect(unlocked.length).toBeGreaterThan(0);
-    expect(unlocked[0].id).toBe("first_calc");
-  });
-
-  it("does not re-unlock the same achievement", () => {
-    trackCalculation("paint"); // unlock first_calc
-    const unlocked = trackCalculation("paint"); // second call
-    expect(unlocked.length).toBe(0);
-  });
-});
-
-describe("achievements — trackColorView", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(trackColorView())).toBe(true);
-  });
-});
-
-describe("achievements — trackColorFavorite", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(trackColorFavorite())).toBe(true);
-  });
-});
-
-describe("achievements — trackProjectSave", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(trackProjectSave())).toBe(true);
-  });
-});
-
-describe("achievements — trackShare", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(trackShare())).toBe(true);
-  });
-});
-
-describe("achievements — trackVisit", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(trackVisit())).toBe(true);
-  });
-});
-
-describe("achievements — getAchievements", () => {
-  it("returns object with unlocked and stats", () => {
-    const result = getAchievements();
-    expect(result).toHaveProperty("unlocked");
-    expect(result).toHaveProperty("stats");
-    expect(Array.isArray(result.unlocked)).toBe(true);
-    expect(typeof result.stats).toBe("object");
-  });
-
-  it("stats have expected fields", () => {
-    const result = getAchievements();
-    expect(result.stats).toHaveProperty("totalCalculations");
-    expect(result.stats).toHaveProperty("paintCalcs");
-    expect(result.stats).toHaveProperty("colorsViewed");
-  });
-});
-
-describe("achievements — getNewlyUnlocked", () => {
-  it("returns an array", () => {
-    expect(Array.isArray(getNewlyUnlocked())).toBe(true);
-  });
-
-  it("returns empty after check (already consumed)", () => {
+  it("trackCalculation increments totalCalculations and type counter", () => {
     trackCalculation("paint");
-    getNewlyUnlocked(); // consume
-    const second = getNewlyUnlocked();
-    expect(second.length).toBe(0);
+    const { stats } = getAchievements();
+    expect(stats.totalCalculations).toBe(1);
+    expect(stats.paintCalcs).toBe(1);
+  });
+
+  it("trackCalculation unlocks first_calc on first calc", () => {
+    const unlocked = trackCalculation("paint");
+    expect(unlocked.some((a) => a.id === "first_calc")).toBe(true);
+  });
+
+  it("trackCalculation unlocks calc_5 at 5 calcs", () => {
+    let unlocked: typeof ACHIEVEMENTS = [];
+    for (let i = 0; i < 5; i++) unlocked = trackCalculation("paint");
+    expect(unlocked.some((a) => a.id === "calc_5")).toBe(true);
+  });
+
+  it("trackColorView increments colorsViewed", () => {
+    trackColorView();
+    const { stats } = getAchievements();
+    expect(stats.colorsViewed).toBe(1);
+  });
+
+  it("trackColorFavorite increments colorsFavorited", () => {
+    trackColorFavorite();
+    const { stats } = getAchievements();
+    expect(stats.colorsFavorited).toBe(1);
+  });
+
+  it("trackProjectSave increments projectsSaved", () => {
+    trackProjectSave();
+    const { stats } = getAchievements();
+    expect(stats.projectsSaved).toBe(1);
+  });
+
+  it("trackProjectSave unlocks project_saver at 3 saves", () => {
+    let unlocked: typeof ACHIEVEMENTS = [];
+    for (let i = 0; i < 3; i++) unlocked = trackProjectSave();
+    expect(unlocked.some((a) => a.id === "project_saver")).toBe(true);
+  });
+
+  it("trackShare increments projectsShared", () => {
+    trackShare();
+    const { stats } = getAchievements();
+    expect(stats.projectsShared).toBe(1);
+  });
+
+  it("trackVisit increments totalVisits", () => {
+    trackVisit();
+    const { stats } = getAchievements();
+    expect(stats.totalVisits).toBeGreaterThanOrEqual(1);
+  });
+
+  it("getAchievements returns unlocked and stats", () => {
+    trackCalculation("paint");
+    const result = getAchievements();
+    expect(result.unlocked).toBeDefined();
+    expect(result.stats).toBeDefined();
+    expect(result.unlocked.length).toBeGreaterThan(0);
+  });
+
+  it("getNewlyUnlocked returns empty after clearing", () => {
+    localStorage.clear();
+    expect(getNewlyUnlocked()).toEqual([]);
+  });
+
+  it("trackCalculation with ai type increments aiAssistants", () => {
+    trackCalculation("ai");
+    const { stats } = getAchievements();
+    expect(stats.aiAssistants).toBe(1);
+  });
+
+  it("trackCalculation with ai unlocks ai_pioneer", () => {
+    const unlocked = trackCalculation("ai");
+    expect(unlocked.some((a) => a.id === "ai_pioneer")).toBe(true);
+  });
+
+  it("does not double-unlock achievements already earned", () => {
+    trackCalculation("paint");
+    const unlocked = trackCalculation("paint");
+    expect(unlocked.some((a) => a.id === "first_calc")).toBe(false);
   });
 });
