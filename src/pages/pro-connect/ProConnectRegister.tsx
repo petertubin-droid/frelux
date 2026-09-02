@@ -407,7 +407,7 @@ export default function ProConnectRegister() {
             ))}
           </div>
           <div className="flex gap-3">
-            <Button onClick={() => setStep(1)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button variant="ghost" onClick={() => setStep(1)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
               Back
             </Button>
             <Button variant="default" onClick={handleStep2Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
@@ -435,7 +435,7 @@ export default function ProConnectRegister() {
                 <h3 className="mb-2 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">{state}</h3>
                 <div className="flex flex-wrap gap-2">
                   {stateLocations.map((l) => (
-                    <Button
+                    <Button variant="ghost"
                       key={l.id}
                       onClick={() => {
                         if (selectedLocations.includes(l.id)) {
@@ -463,7 +463,7 @@ export default function ProConnectRegister() {
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Availability Status</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(['available', 'busy', 'unavailable'] as const).map((a) => (
-                <Button
+                <Button variant="ghost"
                   key={a}
                   onClick={() => setAvailability(a)}
                   className={classNames(
@@ -480,7 +480,7 @@ export default function ProConnectRegister() {
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={() => setStep(2)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button variant="ghost" onClick={() => setStep(2)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
               Back
             </Button>
             <Button variant="default" onClick={handleStep3Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
@@ -546,7 +546,7 @@ export default function ProConnectRegister() {
                   {otpError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
                   {otpSuccess && <p className="text-sm text-emerald-500">{otpSuccess}</p>}
                   <div className="flex gap-3">
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => { setOtpSent(false); setOtpCode(''); setOtpError(''); }}
                       className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                     >
@@ -560,7 +560,7 @@ export default function ProConnectRegister() {
                       {otpSending ? 'Verifying...' : 'Verify OTP'}
                     </Button>
                   </div>
-                  <Button
+                  <Button variant="ghost"
                     onClick={handleSendOTP}
                     disabled={otpSending || resendCooldown > 0}
                     className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-muted-foreground' : 'text-brand-purple hover:underline'}`}
@@ -576,7 +576,7 @@ export default function ProConnectRegister() {
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(5)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
@@ -644,7 +644,7 @@ export default function ProConnectRegister() {
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(6)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >

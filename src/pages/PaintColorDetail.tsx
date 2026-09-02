@@ -213,7 +213,7 @@ export default function PaintColorDetail() {
             </span>
           </div>
           {user && (
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={handleFav}
               className={classNames(
@@ -285,7 +285,7 @@ export default function PaintColorDetail() {
                     {f.value}
                   </p>
                 </div>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => copy(f.value)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"

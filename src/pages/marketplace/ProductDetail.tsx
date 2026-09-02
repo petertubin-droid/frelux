@@ -229,7 +229,7 @@ export default function ProductDetail() {
           {product.images.length > 1 && (
             <div className="mt-3 grid grid-cols-5 gap-2">
               {product.images.map((img, idx) => (
-                <Button
+                <Button variant="ghost"
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
                   className={classNames(
@@ -392,14 +392,14 @@ export default function ProductDetail() {
 
           {/* Actions */}
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <Button
+            <Button variant="ghost"
               onClick={() => setShowInquiry(!showInquiry)}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <MessageCircle aria-hidden="true" className="h-4 w-4" />
               Contact Seller
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({

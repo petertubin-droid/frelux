@@ -437,7 +437,7 @@ export default function AdminAiSettings() {
                   aiDisabled && "opacity-40",
                 )}
               >
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() =>
                     setExpandedFeature(isExpanded ? null : feature.key)

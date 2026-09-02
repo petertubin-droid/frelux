@@ -81,7 +81,7 @@ export default class ErrorBoundary extends Component<
             <pre className="mt-4 overflow-auto rounded bg-red-100 p-4 text-sm text-red-800">
               {this.state.error?.stack}
             </pre>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={this.handleReset}
               className="mt-4 rounded bg-red-600 px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-red-700"

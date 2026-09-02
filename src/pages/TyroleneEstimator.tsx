@@ -737,7 +737,7 @@ export default function TyroleneEstimator({
                 { value: "outside_owerri", label: "Outside Owerri" },
                 { value: "unknown", label: "Unknown" },
               ].map((opt) => (
-                <Button
+                <Button variant="ghost"
                   key={opt.value}
                   onClick={() =>
                     setCustomerLocation(
@@ -767,7 +767,7 @@ export default function TyroleneEstimator({
               Partition Input
             </h3>
             <div className="flex gap-2">
-              <Button
+              <Button variant="ghost"
                 onClick={() => setInputMode("standard")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -778,7 +778,7 @@ export default function TyroleneEstimator({
               >
                 Standard Count
               </Button>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setInputMode("actual")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -799,7 +799,7 @@ export default function TyroleneEstimator({
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
-                <Button
+                <Button variant="ghost"
                   onClick={() =>
                     setStandardCount(Math.max(0, standardCount - 1))
                   }
@@ -816,7 +816,7 @@ export default function TyroleneEstimator({
                   }
                   className="w-24 text-center rounded-lg border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-lg font-semibold text-foreground dark:text-primary-foreground focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
                 />
-                <Button
+                <Button variant="ghost"
                   onClick={() => setStandardCount(standardCount + 1)}
                   className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
@@ -870,7 +870,7 @@ export default function TyroleneEstimator({
                       {pt.label}
                     </span>
                     {partitionTypes.length > 1 && (
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => removePartitionType(pt.id)}
                         className="text-muted-foreground hover:text-red-500"
                       >
@@ -942,7 +942,7 @@ export default function TyroleneEstimator({
                 </div>
               ))}
 
-              <Button
+              <Button variant="ghost"
                 onClick={addPartitionType}
                 className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
               >
@@ -977,7 +977,7 @@ export default function TyroleneEstimator({
             )}
           </Button>
           {result && (
-            <Button
+            <Button variant="ghost"
               onClick={handleReset}
               className="flex items-center justify-center gap-2 rounded-lg border border-border dark:border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-border"
             >
@@ -1256,7 +1256,7 @@ export default function TyroleneEstimator({
                     </div>
 
                     {/* Calculation Steps Toggle */}
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => setShowSteps(!showSteps)}
                       className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
                     >
@@ -1436,7 +1436,7 @@ export default function TyroleneEstimator({
 
                     {/* Save Button */}
                     <div className="flex gap-3 pt-2">
-                      <Button
+                      <Button variant="ghost"
                         onClick={handleSave}
                         disabled={calculating || saved}
                         className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-green-700 transition-colors disabled:opacity-50"

@@ -443,7 +443,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
           {uniqueTabs.map((t) => {
             const Icon = t.icon;
             return (
-              <Button
+              <Button variant="ghost"
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
@@ -587,7 +587,7 @@ function AiBreakdownTab({
               AI-Powered Analysis
             </h4>
           </div>
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={onRefresh}
             disabled={loading}
@@ -905,7 +905,7 @@ function MixTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {ratios.map((r) => (
-            <Button
+            <Button variant="ghost"
               key={r}
               type="button"
               onClick={() => update("mixRatio", r)}
@@ -1040,7 +1040,7 @@ function CostsTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
-            <Button
+            <Button variant="ghost"
               key={w}
               type="button"
               onClick={() => update("wastePercentage", w)}
@@ -1223,7 +1223,7 @@ function CompareTab({
           </p>
           <div className="flex flex-wrap gap-2">
             {saved.map((s) => (
-              <Button
+              <Button variant="ghost"
                 key={s.id}
                 type="button"
                 onClick={() =>
@@ -1487,7 +1487,7 @@ function SavedTab({
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onExport}
               className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
@@ -1495,7 +1495,7 @@ function SavedTab({
             >
               <Download className="h-4 w-4" />
             </Button>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => onDelete(e.id)}
               className="rounded p-1.5 text-muted-foreground hover:text-red-500"

@@ -58,7 +58,7 @@ export default function ColorCard({
 
       {/* Favorite button */}
       {onToggleFavorite && (
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={(e) => {
             e.preventDefault();

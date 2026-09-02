@@ -122,7 +122,7 @@ export function AchievementToast({ achievements, onDismiss }: { achievements: { 
             <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">{ach.title}</p>
             <p className="text-[11px] text-muted-foreground">{ach.description}</p>
           </div>
-          <Button onClick={onDismiss} className="ml-2 text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
+          <Button variant="ghost" onClick={onDismiss} className="ml-2 text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
             <span className="text-lg leading-none">×</span>
           </Button>
         </div>

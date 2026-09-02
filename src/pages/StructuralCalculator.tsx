@@ -70,7 +70,7 @@ export default function StructuralCalculator() {
               { id: "slab", label: "Slab Design", icon: TrendingUp },
             ] as const
           ).map((t) => (
-            <Button
+            <Button variant="ghost"
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
@@ -916,7 +916,7 @@ function FormulaToggle({
 }) {
   return (
     <div className="mt-4">
-      <Button
+      <Button variant="ghost"
         onClick={() => setShow(!show)}
         className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
       >

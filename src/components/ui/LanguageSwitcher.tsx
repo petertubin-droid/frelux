@@ -31,7 +31,7 @@ export function LanguageSwitcher({
   if (inline) {
     return (
       <div ref={ref} className="w-full">
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => setOpen(!open)}
           className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
@@ -52,7 +52,7 @@ export function LanguageSwitcher({
         {open && (
           <div className="mt-1 space-y-0.5 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
             {LANGUAGES.map((lang) => (
-              <Button
+              <Button variant="ghost"
                 key={lang.value}
                 type="button"
                 onClick={() => {
@@ -82,7 +82,7 @@ export function LanguageSwitcher({
   // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setOpen(!open)}
         className={classNames(
@@ -111,7 +111,7 @@ export function LanguageSwitcher({
             Language
           </p>
           {LANGUAGES.map((lang) => (
-            <Button
+            <Button variant="ghost"
               key={lang.value}
               type="button"
               onClick={() => {

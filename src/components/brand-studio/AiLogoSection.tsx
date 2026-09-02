@@ -237,7 +237,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                       className="mb-2 h-24 w-full rounded-lg object-contain"
                     />
                     <div className="flex items-center justify-between">
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => handleSelect(logo.id)}
                         className={`rounded-lg p-1.5 text-xs font-medium ${
                           logo.is_selected
@@ -248,7 +248,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                         <Check className="inline h-3 w-3" />{" "}
                         {logo.is_selected ? "Selected" : "Select"}
                       </Button>
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => handleDelete(logo.id)}
                         className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                       >

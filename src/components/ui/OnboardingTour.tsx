@@ -169,7 +169,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
                   <p className="text-[11px] text-primary-foreground/70">Step {step + 1} of {TOUR_STEPS.length}</p>
                 </div>
               </div>
-              <Button onClick={skip} className="rounded-lg p-1 text-primary-foreground/70 transition-colors hover:bg-white/10 hover:text-primary-foreground" aria-label="Skip tour">
+              <Button variant="ghost" onClick={skip} className="rounded-lg p-1 text-primary-foreground/70 transition-colors hover:bg-white/10 hover:text-primary-foreground" aria-label="Skip tour">
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -186,7 +186,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
 
           {/* Actions */}
           <div className="flex items-center justify-between border-t border-border/50 px-5 py-3 dark:border-white/5">
-            <Button
+            <Button variant="ghost"
               onClick={prev}
               disabled={step === 0}
               className={classNames(

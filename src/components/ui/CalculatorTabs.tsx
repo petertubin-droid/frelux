@@ -26,7 +26,7 @@ export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
-              <Button
+              <Button variant="ghost"
                 key={tab.id}
                 role="tab"
                 aria-selected={isActive}

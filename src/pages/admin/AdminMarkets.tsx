@@ -76,7 +76,7 @@ export default function AdminMarkets() {
             ["calculators", "Calculator Availability", CalcIcon],
           ] as const
         ).map(([key, label, Icon]) => (
-          <Button
+          <Button variant="ghost"
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -178,7 +178,7 @@ function ProfilesTab() {
         <p className="text-sm text-muted-foreground">
           {profiles.length} market profiles
         </p>
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -225,14 +225,14 @@ function ProfilesTab() {
             </div>
 
             <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <Button
+              <Button variant="ghost"
                 onClick={() => setEditing(p)}
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
               >
                 <Edit2 className="h-3 w-3" /> Edit
               </Button>
               {p.country_code !== "NG" && (
-                <Button
+                <Button variant="ghost"
                   onClick={async () => {
                     if (
                       confirm(
@@ -451,7 +451,7 @@ function ProfileEditModal({
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
@@ -512,7 +512,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
         <p className="text-sm text-muted-foreground">
           {rules.length} material rules for {marketCode}
         </p>
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -557,7 +557,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   {JSON.stringify(r.rule_value, null, 2)}
                 </pre>
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={async () => {
                   await deleteMaterialRule(r.id);
                   load();
@@ -702,7 +702,7 @@ function RuleEditModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
@@ -787,7 +787,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                   {config ? `v${config.config_version}` : "No config"}
                 </p>
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={async () => {
                   await toggleCalculatorAvailability(
                     marketCode,

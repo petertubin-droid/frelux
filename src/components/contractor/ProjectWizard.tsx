@@ -224,7 +224,7 @@ function OptionButton<T extends string>({
   onSelect,
 }: OptionButtonProps<T>) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       onClick={() => onSelect(value)}
       className={classNames(
@@ -648,7 +648,7 @@ export default function ProjectWizard() {
 
         {/* Navigation */}
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={handleBack}
             disabled={step === 0 || submitting}
@@ -664,7 +664,7 @@ export default function ProjectWizard() {
           </Button>
 
           {step < TOTAL_STEPS - 1 ? (
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={handleNext}
               disabled={!canAdvance}
@@ -679,7 +679,7 @@ export default function ProjectWizard() {
               <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={handleSubmit}
               disabled={submitting || !state.name.trim()}

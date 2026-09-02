@@ -71,7 +71,7 @@ export default function AdminPriceUpdater() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Scan button */}
         <div className="mb-6 flex items-center gap-4">
-          <Button
+          <Button variant="ghost"
             onClick={handleScan}
             disabled={scanning}
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-blue-700 disabled:opacity-50 transition-colors"
@@ -80,7 +80,7 @@ export default function AdminPriceUpdater() {
             {scanning ? 'Scanning markets...' : 'Scan Material Prices'}
           </Button>
           {report && !scanning && (
-            <Button
+            <Button variant="ghost"
               onClick={handleApply}
               className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-green-700 transition-colors"
             >

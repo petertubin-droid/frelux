@@ -429,7 +429,7 @@ export default function AdminPdfBranding() {
               PDF Templates
             </h2>
           </div>
-          <Button
+          <Button variant="ghost"
             onClick={() => setShowNewTpl(!showNewTpl)}
             className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20"
           >
@@ -479,7 +479,7 @@ export default function AdminPdfBranding() {
               <AdminButton onClick={handleCreateTemplate}>
                 Create Template
               </AdminButton>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowNewTpl(false)}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs dark:border-white/10"
               >
@@ -554,7 +554,7 @@ export default function AdminPdfBranding() {
                     Default
                   </label>
                   {!tpl.is_system && (
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => handleDeleteTemplate(tpl.id)}
                       className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                     >

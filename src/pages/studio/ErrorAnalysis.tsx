@@ -251,7 +251,7 @@ export default function ErrorAnalysis() {
       {/* ── Tabs ── */}
       <div className="mb-4 flex gap-1 border-b border-border dark:border-white/10">
         {(["errors", "history"] as const).map((tab) => (
-          <Button
+          <Button variant="ghost"
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={classNames(
@@ -281,7 +281,7 @@ export default function ErrorAnalysis() {
             ) : (
               <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
                 {recentErrors.map((e) => (
-                  <Button
+                  <Button variant="ghost"
                     key={e.id}
                     onClick={() => handleAnalyze(e)}
                     className={classNames(
@@ -362,7 +362,7 @@ export default function ErrorAnalysis() {
 
                 {/* Analyze button (initial) */}
                 {!diagnosis && !analyzing && !error && (
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => handleAnalyze(selectedError)}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
@@ -401,7 +401,7 @@ export default function ErrorAnalysis() {
                 {error && (
                   <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
                     {error}
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => setError(null)}
                       className="ml-2 text-xs underline"
                     >
@@ -599,7 +599,7 @@ export default function ErrorAnalysis() {
 
                           {/* Approve & Apply */}
                           <div className="mt-4 flex items-center gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-                            <Button
+                            <Button variant="ghost"
                               onClick={handleApprove}
                               disabled={approving}
                               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"

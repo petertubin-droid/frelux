@@ -392,7 +392,7 @@ export default function ClientEstimateEditor() {
                       min={0}
                       className="col-span-3 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => removeMaterialRow(idx)}
                       className="col-span-1 flex items-center justify-center rounded-lg p-2 text-destructive hover:bg-destructive/10 transition-colors"
                     >
@@ -494,7 +494,7 @@ export default function ClientEstimateEditor() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={() => handleSave(true)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
@@ -506,7 +506,7 @@ export default function ClientEstimateEditor() {
               )}
               Save as Draft
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => handleSave(false)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"

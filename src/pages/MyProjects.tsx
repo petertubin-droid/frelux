@@ -367,7 +367,7 @@ export default function MyProjects() {
           {tabs.map((t) => {
             const Icon = t.icon;
             return (
-              <Button
+              <Button variant="ghost"
                 key={t.id}
                 type="button"
                 onClick={() => {
@@ -430,7 +430,7 @@ export default function MyProjects() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => handleOpenProject(p)}
                       className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
@@ -439,7 +439,7 @@ export default function MyProjects() {
                       <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                       Open
                     </Button>
-                    <Button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => handleShare("project", p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
@@ -447,7 +447,7 @@ export default function MyProjects() {
                     >
                       <Share2 className="h-4 w-4" />
                     </Button>
-                    <Button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => handleDuplicate(p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
@@ -455,7 +455,7 @@ export default function MyProjects() {
                     >
                       <Copy aria-hidden="true" className="h-4 w-4" />
                     </Button>
-                    <Button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => handleDeleteProject(p.id)}
                       className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
@@ -605,14 +605,14 @@ export default function MyProjects() {
                                 e.key === "Enter" && handleRename(c.id)
                               }
                             />
-                            <Button
+                            <Button variant="ghost"
                               type="button"
                               onClick={() => handleRename(c.id)}
                               className="rounded-md bg-primary p-1.5 text-primary-foreground"
                             >
                               <Check aria-hidden="true" className="h-4 w-4" />
                             </Button>
-                            <Button
+                            <Button variant="ghost"
                               type="button"
                               onClick={() => setRenamingId(null)}
                               className="rounded-md border border-border p-1.5 text-muted-foreground dark:border-white/5 dark:text-muted-foreground"
@@ -638,7 +638,7 @@ export default function MyProjects() {
                       </div>
                       {renamingId !== c.id && (
                         <div className="flex shrink-0 items-center gap-2">
-                          <Button
+                          <Button variant="ghost"
                             type="button"
                             onClick={() => {
                               setRenamingId(c.id);
@@ -649,7 +649,7 @@ export default function MyProjects() {
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button
+                          <Button variant="ghost"
                             type="button"
                             onClick={() => handleDeleteCollection(c.id)}
                             className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
@@ -681,7 +681,7 @@ export default function MyProjects() {
                             </Link>
                             {collections.length > 1 && (
                               <div className="relative">
-                                <Button
+                                <Button variant="ghost"
                                   type="button"
                                   onClick={() =>
                                     setMoveState({
@@ -705,7 +705,7 @@ export default function MyProjects() {
                                     {collections
                                       .filter((oc) => oc.id !== c.id)
                                       .map((oc) => (
-                                        <Button
+                                        <Button variant="ghost"
                                           key={oc.id}
                                           type="button"
                                           onClick={() => handleMoveColor(oc.id)}
@@ -741,7 +741,7 @@ export default function MyProjects() {
             {recentlyViewed.length > 0 ? (
               <>
                 <div className="mb-4 flex justify-end">
-                  <Button
+                  <Button variant="ghost"
                     type="button"
                     onClick={handleClearRecent}
                     className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-red-500 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-red-400"
@@ -756,7 +756,7 @@ export default function MyProjects() {
                       key={c.id}
                       className="group relative overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                     >
-                      <Button
+                      <Button variant="ghost"
                         type="button"
                         onClick={() => handlePinRecent(c.id)}
                         className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-muted-foreground dark:bg-background/80 dark:text-muted-foreground hover:text-brand-purple"

@@ -62,7 +62,7 @@ export default function AskAiWidget() {
 
   if (!open) {
     return (
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:bg-primary/90 hover:shadow-xl"
@@ -81,7 +81,7 @@ export default function AskAiWidget() {
           <MessageSquare className="h-4 w-4 text-accent-green" />
           <span className="text-sm font-semibold">Ask AI Assistant</span>
         </div>
-        <Button type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground" aria-label="Close">
+        <Button variant="ghost" type="button" onClick={() => setOpen(false)} className="rounded-md p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground" aria-label="Close">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -95,7 +95,7 @@ export default function AskAiWidget() {
             <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">POP ceiling, tiles, colors, and more</p>
             <div className="mt-4 w-full space-y-2">
               {SUGGESTED_QUESTIONS.map((q) => (
-                <Button key={q} type="button" onClick={() => handleAsk(q)}
+                <Button variant="ghost" key={q} type="button" onClick={() => handleAsk(q)}
                   className="w-full rounded-lg border border-border dark:border-white/5 px-3 py-2 text-left text-xs text-muted-foreground dark:text-muted-foreground/80 transition-colors hover:border-brand-purple/30 hover:text-brand-purple">
                   {q}
                 </Button>
@@ -143,7 +143,7 @@ export default function AskAiWidget() {
             className="input-field flex-1 text-sm"
             disabled={loading}
           />
-          <Button type="button" onClick={() => handleAsk()} disabled={loading || !input.trim()}
+          <Button variant="ghost" type="button" onClick={() => handleAsk()} disabled={loading || !input.trim()}
             className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50">
             <Send className="h-4 w-4" />
           </Button>

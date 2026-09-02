@@ -35,7 +35,7 @@ export default function SaveTemplateButton({
 
   return (
     <>
-      <Button
+      <Button variant="ghost"
         onClick={() => setModalOpen(true)}
         className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/30 dark:hover:bg-primary/10"
       >

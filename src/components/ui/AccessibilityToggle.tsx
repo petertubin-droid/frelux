@@ -47,7 +47,7 @@ export function AccessibilityToggle({
   if (inline) {
     return (
       <div ref={ref} className="w-full">
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => setOpen(!open)}
           className={classNames(
@@ -75,7 +75,7 @@ export function AccessibilityToggle({
         </Button>
         {open && (
           <div className="mt-1 space-y-1 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={toggleHighContrast}
               className={classNames(
@@ -89,7 +89,7 @@ export function AccessibilityToggle({
               <span className="flex-1 text-left">High contrast</span>
               {highContrast && <Check className="h-4 w-4" />}
             </Button>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={toggleLargeText}
               className={classNames(
@@ -103,7 +103,7 @@ export function AccessibilityToggle({
               <span className="flex-1 text-left">Larger text</span>
               {largeText && <Check className="h-4 w-4" />}
             </Button>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={toggleReducedMotion}
               className={classNames(
@@ -126,7 +126,7 @@ export function AccessibilityToggle({
   // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setOpen(!open)}
         className={classNames(
@@ -150,7 +150,7 @@ export function AccessibilityToggle({
             Accessibility
           </p>
 
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={toggleHighContrast}
             className={classNames(
@@ -165,7 +165,7 @@ export function AccessibilityToggle({
             {highContrast && <Check className="h-4 w-4" />}
           </Button>
 
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={toggleLargeText}
             className={classNames(
@@ -180,7 +180,7 @@ export function AccessibilityToggle({
             {largeText && <Check className="h-4 w-4" />}
           </Button>
 
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={toggleReducedMotion}
             className={classNames(

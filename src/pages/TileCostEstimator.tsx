@@ -294,7 +294,7 @@ export default function TileCostEstimator({
               </Field>
               <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
+                  <Button variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}

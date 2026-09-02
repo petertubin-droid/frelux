@@ -146,7 +146,7 @@ export default function Onboarding() {
 
           <div className="space-y-3">
             {/* Client option */}
-            <Button
+            <Button variant="ghost"
               onClick={() => {
                 setAccountType("client");
                 setStep(2);
@@ -178,7 +178,7 @@ export default function Onboarding() {
             </Button>
 
             {/* Pro Worker option */}
-            <Button
+            <Button variant="ghost"
               onClick={() => {
                 setAccountType("pro_worker");
                 setStep(2);
@@ -242,7 +242,7 @@ export default function Onboarding() {
               const Icon = goal.icon;
               const selected = goals.includes(goal.id);
               return (
-                <Button
+                <Button variant="ghost"
                   key={goal.id}
                   onClick={() => toggleGoal(goal.id)}
                   className={classNames(
@@ -287,13 +287,13 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-6 flex gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(1)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(3)}
               className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
             >
@@ -340,14 +340,14 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(2)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
             </Button>
             {accountType === "pro_worker" ? (
-              <Button
+              <Button variant="ghost"
                 onClick={() => setStep(4)}
                 className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
               >
@@ -370,7 +370,7 @@ export default function Onboarding() {
           </div>
 
           {accountType !== "pro_worker" && (
-            <Button
+            <Button variant="ghost"
               onClick={finish}
               className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
@@ -442,7 +442,7 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={() => setStep(3)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >

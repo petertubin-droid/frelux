@@ -225,7 +225,7 @@ export default function AdminCreditsAds() {
       {/* Tabs */}
       <div className="flex flex-wrap gap-1 rounded-xl border border-border p-1 dark:border-white/10">
         {tabs.map(([key, label]) => (
-          <Button
+          <Button variant="ghost"
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -458,7 +458,7 @@ export default function AdminCreditsAds() {
                     Enabled
                   </label>
                 </div>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => handleSaveFeature(f.id)}
                   disabled={savingFeature === f.id}

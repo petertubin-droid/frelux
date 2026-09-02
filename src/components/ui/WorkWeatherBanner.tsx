@@ -137,7 +137,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
         </div>
 
         {/* Expand toggle */}
-        <Button
+        <Button variant="ghost"
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/50 hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
         >

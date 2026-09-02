@@ -482,7 +482,7 @@ export default function LearnArticle() {
                         key={faq.id}
                         className="overflow-hidden rounded-xl border border-border/80 bg-card transition-all dark:border-white/10 dark:bg-background"
                       >
-                        <Button
+                        <Button variant="ghost"
                           onClick={() =>
                             setOpenFaq(openFaq === idx ? null : idx)
                           }

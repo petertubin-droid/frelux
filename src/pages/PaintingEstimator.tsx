@@ -871,7 +871,7 @@ export default function PaintingEstimator({
         ))}
 
         {/* Add room button */}
-        <Button
+        <Button variant="ghost"
           onClick={addRoom}
           className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
@@ -894,7 +894,7 @@ export default function PaintingEstimator({
             {calculating ? "Calculating…" : "Calculate Estimate"}
           </Button>
           {result && (
-            <Button
+            <Button variant="ghost"
               onClick={() => {
                 setRooms([createDefaultRoom()]);
                 setResult(null);
@@ -1056,7 +1056,7 @@ function RoomCard({
         </div>
         <div className="flex items-center gap-2">
           {canRemove && (
-            <Button
+            <Button variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();
@@ -1156,7 +1156,7 @@ function RoomCard({
                     value={door.height}
                     onChange={(v) => onUpdateDoor(di, { height: v })}
                   />
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => onRemoveDoor(di)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
@@ -1165,7 +1165,7 @@ function RoomCard({
                 </div>
               ))}
             {!room.doors_unknown && (
-              <Button
+              <Button variant="ghost"
                 onClick={onAddDoor}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
@@ -1207,7 +1207,7 @@ function RoomCard({
                     value={win.height}
                     onChange={(v) => onUpdateWindow(wi, { height: v })}
                   />
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => onRemoveWindow(wi)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
@@ -1216,7 +1216,7 @@ function RoomCard({
                 </div>
               ))}
             {!room.windows_unknown && (
-              <Button
+              <Button variant="ghost"
                 onClick={onAddWindow}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
@@ -1942,7 +1942,7 @@ function EstimateResult({
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-2">
-            <Button
+            <Button variant="ghost"
               onClick={onSave}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
@@ -1987,7 +1987,7 @@ function EstimateResult({
               compact
               label="Save to Project"
             />
-            <Button
+            <Button variant="ghost"
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >

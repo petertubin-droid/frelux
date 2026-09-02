@@ -1137,7 +1137,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       onClick={() => onChange(!checked)}
       className={

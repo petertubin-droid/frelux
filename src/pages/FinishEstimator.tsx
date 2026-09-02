@@ -291,7 +291,7 @@ export default function FinishEstimator({
                   const Icon = meta.icon;
                   const selected = selectedFinish === ft;
                   return (
-                    <Button
+                    <Button variant="ghost"
                       key={ft}
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
@@ -338,7 +338,7 @@ export default function FinishEstimator({
               <div className="mt-6 space-y-5">
                 {/* Method toggle */}
                 <div className="flex gap-2">
-                  <Button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => updateArea("method", "full_room")}
                     className={
@@ -350,7 +350,7 @@ export default function FinishEstimator({
                   >
                     Full Room
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => updateArea("method", "individual_wall")}
                     className={
@@ -367,7 +367,7 @@ export default function FinishEstimator({
                 {/* Unit toggle */}
                 <div className="flex gap-2">
                   {(["meters", "feet"] as Unit[]).map((u) => (
-                    <Button
+                    <Button variant="ghost"
                       key={u}
                       type="button"
                       onClick={() => updateArea("unit", u)}

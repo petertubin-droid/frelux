@@ -57,7 +57,7 @@ export default function UniversalSearch({
           className="w-full rounded-xl border border-border dark:border-white/5 bg-card dark:bg-card py-2.5 pl-10 pr-9 text-sm text-card-foreground dark:text-muted-foreground/60 placeholder:text-muted-foreground dark:text-muted-foreground transition-colors focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
         />
         {query && (
-          <Button
+          <Button variant="ghost"
             onClick={() => {
               setQuery('');
               onQueryChange?.('');
@@ -72,7 +72,7 @@ export default function UniversalSearch({
       {open && filtered.length > 0 && (
         <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-72 overflow-y-auto rounded-xl border border-border dark:border-white/5 bg-card dark:bg-card py-1 shadow-xl animate-tooltip-in">
           {filtered.map((item) => (
-            <Button
+            <Button variant="ghost"
               key={item.id}
               onClick={() => {
                 onSelect(item);

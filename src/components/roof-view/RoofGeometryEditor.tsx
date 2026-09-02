@@ -173,7 +173,7 @@ export function RoofGeometryEditor({
       {/* Section tabs */}
       <div className="flex items-center gap-2 flex-wrap">
         {geometry.sections.map((section, _i) => (
-          <Button
+          <Button variant="ghost"
             key={section.id}
             onClick={() =>
               onChange({ ...geometry, activeSectionId: section.id })
@@ -192,7 +192,7 @@ export function RoofGeometryEditor({
             )}
           </Button>
         ))}
-        <Button
+        <Button variant="ghost"
           onClick={handleAddSection}
           disabled={disabled}
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
@@ -218,7 +218,7 @@ export function RoofGeometryEditor({
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
-            <Button
+            <Button variant="ghost"
               onClick={() =>
                 onChange(removeSection(geometry, activeSection.id))
               }
@@ -241,7 +241,7 @@ export function RoofGeometryEditor({
             { id: "delete", label: "Delete Points", icon: Eraser },
           ] as const
         ).map((t) => (
-          <Button
+          <Button variant="ghost"
             key={t.id}
             onClick={() => setTool(t.id)}
             disabled={disabled}

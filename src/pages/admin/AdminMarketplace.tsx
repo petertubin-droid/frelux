@@ -244,7 +244,7 @@ function ListingsTab() {
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
                 className={classNames(

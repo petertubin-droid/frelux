@@ -438,7 +438,7 @@ export default function AdminPaintEngineTest() {
                 <h3 className="text-sm font-semibold text-card-foreground">
                   Calculation Results
                 </h3>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setExpandedSteps(!expandedSteps)}
                   className="text-xs text-brand-purple hover:underline"
                 >

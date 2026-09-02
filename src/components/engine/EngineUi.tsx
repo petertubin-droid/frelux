@@ -80,7 +80,7 @@ export function EngineWasteSelector({
             ["none", "No Waste"],
           ] as const
         ).map(([key, label]) => (
-          <Button
+          <Button variant="ghost"
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
@@ -252,7 +252,7 @@ export function EngineConfidenceDetail({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button
+      <Button variant="ghost"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
@@ -318,7 +318,7 @@ export function EngineExplanationPanel({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button
+      <Button variant="ghost"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >

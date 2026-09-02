@@ -526,7 +526,7 @@ export default function ProConnectDashboard() {
         {(profile.verification_status === "unverified" ||
           profile.verification_status === "rejected" ||
           profile.verification_status === "more_info") && (
-          <Button
+          <Button variant="ghost"
             onClick={() => {
               setShowVerificationForm(!showVerificationForm);
               setVerifSuccess(false);
@@ -551,7 +551,7 @@ export default function ProConnectDashboard() {
                 Verification Type
               </label>
               <div className="grid grid-cols-2 gap-2">
-                <Button
+                <Button variant="ghost"
                   onClick={() => setVerifType("contact")}
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
@@ -565,7 +565,7 @@ export default function ProConnectDashboard() {
                     Verify your contact info &amp; profile
                   </span>
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setVerifType("identity")}
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
@@ -668,7 +668,7 @@ export default function ProConnectDashboard() {
               </p>
             )}
 
-            <Button
+            <Button variant="ghost"
               onClick={async () => {
                 if (!verifName.trim()) {
                   setVerifError("Please enter your professional name.");
@@ -732,7 +732,7 @@ export default function ProConnectDashboard() {
           <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
             Portfolio
           </h2>
-          <Button
+          <Button variant="ghost"
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
@@ -781,7 +781,7 @@ export default function ProConnectDashboard() {
                     {item.category}
                   </p>
                 </div>
-                <Button
+                <Button variant="ghost"
                   onClick={async () => {
                     await deletePortfolioItem(item.id);
                     const port = await getProPortfolio(profile.id);
@@ -877,7 +877,7 @@ export default function ProConnectDashboard() {
                   </p>
                 )}
                 {!review.professional_response && (
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => {
                       const response = prompt("Type your response:");
                       if (response) {

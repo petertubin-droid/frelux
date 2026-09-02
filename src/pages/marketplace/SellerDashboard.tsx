@@ -237,7 +237,7 @@ export default function SellerDashboard() {
             </div>
           </div>
           {!editing && (
-            <Button
+            <Button variant="ghost"
               onClick={() => setEditing(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >

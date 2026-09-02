@@ -63,7 +63,7 @@ export default function AdminMaterialPrices() {
             automatically.
           </p>
         </div>
-        <Button
+        <Button variant="ghost"
           onClick={loadHistory}
           className="group inline-flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium hover:bg-muted/80 transition-all hover:scale-105"
         >
@@ -136,13 +136,13 @@ export default function AdminMaterialPrices() {
                           onChange={(e) => setNewPrice(e.target.value)}
                           autoFocus
                         />
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => handleUpdatePrice(m)}
                           className="rounded p-1.5 hover:bg-emerald-500/10 transition-all hover:scale-110"
                         >
                           <Save className="h-4 w-4 text-emerald-600" />
                         </Button>
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => setEditingId(null)}
                           className="rounded p-1.5 hover:bg-muted transition-all"
                         >
@@ -150,7 +150,7 @@ export default function AdminMaterialPrices() {
                         </Button>
                       </div>
                     ) : (
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => {
                           setEditingId(m.id);
                           setNewPrice(String(m.current_price));
@@ -181,7 +181,7 @@ export default function AdminMaterialPrices() {
           >
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-lg">Price History</h3>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowHistory(false)}
                 className="rounded-lg p-1.5 hover:bg-muted"
               >

@@ -95,7 +95,7 @@ export default function AdminMarketIntelligence() {
             ["logs", "Activity Logs", Activity],
           ] as const
         ).map(([key, label, Icon]) => (
-          <Button
+          <Button variant="ghost"
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -181,7 +181,7 @@ function ObservationsTab() {
             {observations.length} observations
           </span>
         </div>
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowManual(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -250,7 +250,7 @@ function ObservationsTab() {
                     {obs.validation_status === "review_required" ||
                     obs.validation_status === "collected" ? (
                       <div className="flex gap-1">
-                        <Button
+                        <Button variant="ghost"
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -265,7 +265,7 @@ function ObservationsTab() {
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </Button>
-                        <Button
+                        <Button variant="ghost"
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -389,7 +389,7 @@ function ApprovedTab() {
                 <span className="text-xs text-muted-foreground">
                   Updated {new Date(p.last_updated).toLocaleDateString()}
                 </span>
-                <Button
+                <Button variant="ghost"
                   onClick={async () => {
                     await deactivateApprovedPrice(p.id);
                     setPrices(prices.filter((x) => x.id !== p.id));
@@ -470,7 +470,7 @@ function SourcesTab() {
         <p className="text-sm text-muted-foreground">
           {sources.length} sources registered
         </p>
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -548,14 +548,14 @@ function SourcesTab() {
                     </span>
                   ) : (
                     <>
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => handleCrawl(s, "test")}
                         className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
                         title="Fetch and extract without publishing prices"
                       >
                         <Eye aria-hidden="true" className="h-3 w-3" /> Test Crawl
                       </Button>
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => handleCrawl(s, "production")}
                         className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                         title="Full crawl with price observation creation"
@@ -564,7 +564,7 @@ function SourcesTab() {
                       </Button>
                     </>
                   )}
-                  <Button
+                  <Button variant="ghost"
                     onClick={async () => {
                       await deleteSource(s.id);
                       load();
@@ -625,7 +625,7 @@ function CrawlReportModal({
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Crawl Report
           </h2>
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="text-muted-foreground hover:text-muted-foreground"
           >
@@ -714,7 +714,7 @@ function CrawlReportModal({
           </div>
         )}
         <div className="mt-4 flex justify-end">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
@@ -883,7 +883,7 @@ function SourceEditModal({
           Active source
         </label>
         <div className="mt-4 flex justify-end gap-2">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
@@ -972,7 +972,7 @@ function ProvidersTab() {
                 </div>
               </div>
             </div>
-            <Button
+            <Button variant="ghost"
               onClick={async () => {
                 await toggleProvider(p.id, !p.is_enabled);
                 setProviders(
@@ -1075,7 +1075,7 @@ function AnomaliesTab() {
               )}
               {a.resolution === "open" && (
                 <div className="mt-2 flex gap-2">
-                  <Button
+                  <Button variant="ghost"
                     onClick={async () => {
                       await resolveAnomaly(a.id, "resolved", user?.id ?? "");
                       load();
@@ -1084,7 +1084,7 @@ function AnomaliesTab() {
                   >
                     Resolve
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     onClick={async () => {
                       await resolveAnomaly(a.id, "dismissed", user?.id ?? "");
                       load();
@@ -1319,7 +1319,7 @@ function ManualEntryModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >

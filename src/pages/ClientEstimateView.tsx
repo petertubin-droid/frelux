@@ -312,13 +312,13 @@ export default function ClientEstimateView() {
                   autoFocus
                 />
                 <div className="flex gap-3">
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setShowFeedback(false)}
                     className="flex-1 rounded-lg border px-4 py-3 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     onClick={handleRequestChanges}
                     disabled={actionLoading || !feedback.trim()}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -335,7 +335,7 @@ export default function ClientEstimateView() {
               </div>
             ) : (
               <div className="flex flex-wrap gap-3">
-                <Button
+                <Button variant="ghost"
                   onClick={handleApprove}
                   disabled={actionLoading}
                   className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -349,7 +349,7 @@ export default function ClientEstimateView() {
                     </>
                   )}
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowFeedback(true)}
                   className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-amber-500/30 px-6 py-3.5 text-sm font-semibold text-amber-600 hover:bg-amber-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >

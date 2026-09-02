@@ -52,7 +52,7 @@ export function GuidedTip({ tip, className }: { tip: TipConfig; className?: stri
         <p className="text-xs font-bold text-amber-700 dark:text-amber-400">{tip.title}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-amber-600/90 dark:text-amber-400/80">{tip.content}</p>
       </div>
-      <Button
+      <Button variant="ghost"
         onClick={() => { dismiss(tip.id); setVisible(false); }}
         className="shrink-0 rounded p-0.5 text-amber-400 transition-colors hover:bg-amber-100 hover:text-amber-600 dark:hover:bg-amber-500/20"
         aria-label="Dismiss tip"
@@ -88,7 +88,7 @@ export function FloatingTip({ tip, children }: { tip: TipConfig; children: React
               <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
               <p className="text-xs font-bold text-amber-700 dark:text-amber-400">{tip.title}</p>
             </div>
-            <Button onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
+            <Button variant="ghost" onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
               <X className="h-3 w-3" />
             </Button>
           </div>

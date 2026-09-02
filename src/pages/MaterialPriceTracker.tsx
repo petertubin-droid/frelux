@@ -287,7 +287,7 @@ export default function MaterialPriceTracker() {
                             placeholder="Source"
                             className="w-24 rounded-lg border bg-background px-2 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                           />
-                          <Button
+                          <Button variant="ghost"
                             onClick={() => handleSavePrice(m)}
                             disabled={saving}
                             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
@@ -298,7 +298,7 @@ export default function MaterialPriceTracker() {
                               "Save"
                             )}
                           </Button>
-                          <Button
+                          <Button variant="ghost"
                             onClick={() => {
                               setEditId(null);
                               setEditPrice("");
@@ -358,7 +358,7 @@ export default function MaterialPriceTracker() {
                     {/* Actions */}
                     {!isEditing && (
                       <div className="flex items-center gap-1 shrink-0">
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => {
                             setEditId(m.id);
                             setEditPrice(String(m.current_price));
@@ -369,7 +369,7 @@ export default function MaterialPriceTracker() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => loadHistory(m)}
                           className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           title="Price history"
@@ -404,7 +404,7 @@ export default function MaterialPriceTracker() {
                   {historyFor.brand && ` · ${historyFor.brand}`}
                 </p>
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setHistoryFor(null)}
                 className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
               >

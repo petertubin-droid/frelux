@@ -122,7 +122,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
       {/* Earn Credits Button */}
       {config?.is_enabled && (
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => setShowEarnModal(true)}
           disabled={!canEarn}
@@ -161,7 +161,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
             ["ads", "Ad History"],
           ] as const
         ).map(([key, label]) => (
-          <Button
+          <Button variant="ghost"
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -472,7 +472,7 @@ function EarnCreditsModal({
               <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">Earn FRELUX Credits</h2>
             </div>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -619,7 +619,7 @@ function EarnCreditsModal({
               <p className="text-center text-xs text-muted-foreground">
                 No credits were added.
               </p>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => setPhase("idle")}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
@@ -644,7 +644,7 @@ function EarnCreditsModal({
                 You've earned the maximum {dailyLimit} credits from ads today.
                 Come back tomorrow!
               </p>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={onClose}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
@@ -847,7 +847,7 @@ export function AiFeatureGate({
               <Coins className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -895,7 +895,7 @@ export function AiFeatureGate({
           ) : (
             <div className="space-y-3">
               {/* Use Credits button */}
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={handleUseCredits}
                 disabled={spending || !canAfford}

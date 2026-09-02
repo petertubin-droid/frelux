@@ -76,7 +76,7 @@ export default function ReportCalculationIssue({
           Report submitted. Our team will review this calculation. Thank you for
           helping improve FRELUX.
         </p>
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => {
             setSubmitted(false);
@@ -93,7 +93,7 @@ export default function ReportCalculationIssue({
 
   return (
     <div className="mt-2">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"

@@ -410,7 +410,7 @@ export default function TileCalculator({
               ).map((s) => {
                 const selected = input.surfaceType === s.value;
                 return (
-                  <Button
+                  <Button variant="ghost"
                     key={s.value}
                     type="button"
                     onClick={() => update("surfaceType", s.value)}
@@ -448,7 +448,7 @@ export default function TileCalculator({
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
+                  <Button variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -616,7 +616,7 @@ export default function TileCalculator({
                 ).map((m) => {
                   const selected = input.method === m.value;
                   return (
-                    <Button
+                    <Button variant="ghost"
                       key={m.value}
                       type="button"
                       onClick={() => update("method", m.value)}
@@ -801,7 +801,7 @@ export default function TileCalculator({
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button
+                  <Button variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}

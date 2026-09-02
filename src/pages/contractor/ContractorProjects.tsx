@@ -272,7 +272,7 @@ export default function ContractorProjects() {
               Manage your contractor estimation projects
             </p>
           </div>
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={() => navigate('/contractor/wizard')}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -286,7 +286,7 @@ export default function ContractorProjects() {
         {error && (
           <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4">
             <p className="text-sm text-red-700">{error}</p>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setError(null)}
               className="text-sm font-medium text-red-700 hover:text-red-800"
@@ -399,14 +399,14 @@ export default function ContractorProjects() {
               and associated data will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => setConfirmDeleteId(null)}
                 className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => handleDelete(confirmDeleteId)}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-red-700"
@@ -493,7 +493,7 @@ function ProjectCard({
 
           {menuOpen && (
             <div className="absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg">
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={onOpen}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -501,7 +501,7 @@ function ProjectCard({
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 Open
               </Button>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={onDuplicate}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -510,7 +510,7 @@ function ProjectCard({
                 Duplicate
               </Button>
               {isArchived ? (
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={onRestore}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -519,7 +519,7 @@ function ProjectCard({
                   Restore
                 </Button>
               ) : (
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={onArchive}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -529,7 +529,7 @@ function ProjectCard({
                 </Button>
               )}
               <div className="my-1 border-t border-border/50" />
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={onRequestDelete}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -543,7 +543,7 @@ function ProjectCard({
       </div>
 
       {/* Body: clickable to open */}
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={onOpen}
         className="flex flex-1 flex-col items-start px-5 pb-5 pt-3 text-left"
@@ -603,14 +603,14 @@ function ProjectCard({
             This cannot be undone. Delete this project?
           </p>
           <div className="flex justify-end gap-2">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onCancelDelete}
               className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
             </Button>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onConfirmDelete}
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-red-700"
@@ -657,7 +657,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         {hasActiveFilters ? (
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={onReset}
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-card-foreground hover:bg-muted/50"
@@ -665,7 +665,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
             Clear filters
           </Button>
         ) : null}
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={onCreate}
           className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90"

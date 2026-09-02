@@ -24,7 +24,7 @@ export default function HelpTip({
   return (
     <span className="relative inline-flex items-center">
       {children}
-      <Button
+      <Button variant="ghost"
         type="button"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}

@@ -100,7 +100,7 @@ export default function NotificationSettings() {
         </div>
 
         {pushSupported && user && (
-          <Button
+          <Button variant="ghost"
             onClick={handleToggle}
             disabled={actionLoading}
             className={classNames(

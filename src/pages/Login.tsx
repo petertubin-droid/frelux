@@ -262,7 +262,7 @@ export default function Login() {
                 Account type
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => setAccountType("client")}
                   className={classNames(
@@ -296,7 +296,7 @@ export default function Login() {
                     </p>
                   </div>
                 </Button>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => setAccountType("pro_worker")}
                   className={classNames(
@@ -335,7 +335,7 @@ export default function Login() {
           )}
           {mode !== "reset" && (
             <div>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
@@ -422,7 +422,7 @@ export default function Login() {
             <div className="flex flex-col items-center gap-2 text-xs">
               {mode === "signin" && (
                 <div className="flex flex-col items-center gap-2">
-                  <Button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => {
                       setMode("signup");
@@ -433,7 +433,7 @@ export default function Login() {
                   >
                     Need an account? Sign up
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     type="button"
                     onClick={() => {
                       setMode("reset");
@@ -447,7 +447,7 @@ export default function Login() {
                 </div>
               )}
               {mode === "signup" && (
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     setMode("signin");
@@ -460,7 +460,7 @@ export default function Login() {
                 </Button>
               )}
               {mode === "reset" && (
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     setMode("signin");

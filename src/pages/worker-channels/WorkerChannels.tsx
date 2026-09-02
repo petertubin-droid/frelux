@@ -439,7 +439,7 @@ export default function WorkerChannels() {
             </span>
           </div>
           {channels.map((ch) => (
-            <Button
+            <Button variant="ghost"
               key={ch.id}
               onClick={() => navigate(`/worker-channels/${ch.slug}`)}
               className={classNames(
@@ -530,7 +530,7 @@ export default function WorkerChannels() {
                   <span className="text-xs text-muted-foreground">
                     Replying to a message
                   </span>
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setReplyingTo(null)}
                     className="text-xs text-brand-purple"
                   >
@@ -589,7 +589,7 @@ export default function WorkerChannels() {
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => setShowPriceUpdate(false)}
                         className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
                       >
@@ -608,7 +608,7 @@ export default function WorkerChannels() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => setShowPriceUpdate(true)}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-brand-purple transition-colors hover:bg-primary/5 dark:border-white/10"
                       title="Share price update"
@@ -690,7 +690,7 @@ export default function WorkerChannels() {
                   )}
                 </div>
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setViewingProfile(null)}
                 className="text-muted-foreground hover:text-muted-foreground"
               >
@@ -765,7 +765,7 @@ export default function WorkerChannels() {
               View Full Profile
             </Link>
             {viewingProfile.id && (
-              <Button
+              <Button variant="ghost"
                 onClick={() =>
                   viewingProfile && openReportModal(viewingProfile.id)
                 }
@@ -837,13 +837,13 @@ export default function WorkerChannels() {
               )}
 
               <div className="flex gap-2">
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowReportModal(false)}
                   className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={handleSubmitReport}
                   disabled={reportSubmitting || !reportReason}
                   className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -913,7 +913,7 @@ function MessageBubble({
         )}
       >
         {!isOwn && (
-          <Button
+          <Button variant="ghost"
             onClick={onProfileView}
             className="mb-0.5 text-xs font-semibold text-brand-purple hover:underline"
           >
@@ -975,14 +975,14 @@ function MessageBubble({
 
       {/* Actions (hover) */}
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowReactions(!showReactions)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="React"
         >
           <span className="text-xs">😊</span>
         </Button>
-        <Button
+        <Button variant="ghost"
           onClick={() => onReply(message.id)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="Reply"
@@ -990,7 +990,7 @@ function MessageBubble({
           <MessageSquare className="h-3.5 w-3.5" />
         </Button>
         {isOwn && (
-          <Button
+          <Button variant="ghost"
             onClick={() => onDelete(message.id)}
             className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
             title="Delete"
@@ -1004,7 +1004,7 @@ function MessageBubble({
       {showReactions && (
         <div className="absolute z-10 flex gap-1 rounded-lg border border-border bg-card p-1.5 shadow-lg dark:border-white/10 dark:bg-card">
           {QUICK_EMOJIS.map((emoji) => (
-            <Button
+            <Button variant="ghost"
               key={emoji}
               onClick={() => {
                 onReact(message.id, emoji);
@@ -1027,7 +1027,7 @@ function MessageBubble({
               return acc;
             }, {}),
           ).map(([emoji, count]) => (
-            <Button
+            <Button variant="ghost"
               key={emoji}
               onClick={() => onReact(message.id, emoji)}
               className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs dark:bg-white/5"

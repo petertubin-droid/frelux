@@ -50,7 +50,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
 
   return (
     <div className="relative" ref={ref}>
-      <Button
+      <Button variant="ghost"
         onClick={() => setOpen(!open)}
         className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/30 dark:hover:bg-primary/10"
       >
@@ -74,7 +74,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
                   <p className="px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">Built-in Templates</p>
                   <div className="space-y-0.5">
                     {publicTemplates.map((t) => (
-                      <Button
+                      <Button variant="ghost"
                         key={t.id}
                         onClick={() => {
                           onLoad(t);
@@ -112,7 +112,7 @@ export default function LoadTemplateButton({ calculatorType, onLoad }: LoadTempl
                   ) : (
                     <div className="space-y-0.5">
                       {templates.map((t) => (
-                        <Button
+                        <Button variant="ghost"
                           key={t.id}
                           onClick={() => {
                             onLoad(t);

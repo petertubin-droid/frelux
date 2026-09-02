@@ -122,7 +122,7 @@ export function CookieBanner() {
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
                         </div>
                         {/* Toggle */}
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => toggleCategory(key)}
                           disabled={required}
                           className={`flex-shrink-0 relative h-6 w-11 rounded-full transition-colors duration-200 ${
@@ -150,7 +150,7 @@ export function CookieBanner() {
               <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-2.5">
                 {customizing ? (
                   <>
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => setCustomizing(false)}
                       className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl hover:bg-muted dark:hover:bg-white/5 transition-colors"
                     >
@@ -172,7 +172,7 @@ export function CookieBanner() {
                     >
                       Reject Non-Essential
                     </Button>
-                    <Button
+                    <Button variant="ghost"
                       onClick={handleCustomize}
                       className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-card-foreground dark:text-muted-foreground/60 rounded-xl border border-border dark:border-white/10 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors"
                     >

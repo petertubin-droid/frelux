@@ -21,7 +21,7 @@ export default function HowCalculatedSection({
 
   return (
     <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"

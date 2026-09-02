@@ -378,7 +378,7 @@ export default function Learn() {
                     key={cat.id}
                     className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => toggleParent(cat.slug)}
                       className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-primary/[0.03]"
                     >

@@ -204,7 +204,7 @@ export default function Colors() {
         {/* Tab switcher */}
         <div className="mb-6 inline-flex rounded-xl border border-border/60 bg-card p-1 shadow-card dark:border-white/5 dark:bg-card">
           {(["colors", "palettes"] as Tab[]).map((t) => (
-            <Button
+            <Button variant="ghost"
               key={t}
               type="button"
               onClick={() => {
@@ -245,7 +245,7 @@ export default function Colors() {
               Couldn't load colors
             </p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => window.location.reload()}
               className="mt-4 text-sm font-semibold text-brand-purple hover:underline"
@@ -283,7 +283,7 @@ export default function Colors() {
                       const segmentWidth = `${100 / families.length}%`;
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <Button
+                        <Button variant="ghost"
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -308,7 +308,7 @@ export default function Colors() {
                     {families.map((f) => {
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <Button
+                        <Button variant="ghost"
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -519,7 +519,7 @@ export default function Colors() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-10 flex items-center justify-center gap-2">
-                <Button
+                <Button variant="ghost"
                   type="button"
                   disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
@@ -530,7 +530,7 @@ export default function Colors() {
                 <span className="px-3 text-sm text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => p + 1)}
@@ -706,7 +706,7 @@ function Chip({
   children: ReactNode;
 }) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       onClick={onClick}
       className={classNames(

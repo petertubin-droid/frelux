@@ -89,7 +89,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 unlock
               </h2>
             </div>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -119,7 +119,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               Checking for completion… This will close automatically when you
               earn your reward.
             </p>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -144,7 +144,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 />
                 <h2 className="text-lg font-bold">{featureName}</h2>
               </div>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={cancelUnlock}
                 className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"

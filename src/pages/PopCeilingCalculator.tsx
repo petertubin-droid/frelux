@@ -315,7 +315,7 @@ export default function PopCeilingCalculator({
                 const selected = input.workflow === wf.workflow_type;
                 const Icon = wf.workflow_type === "nigeria" ? MapPin : Globe;
                 return (
-                  <Button
+                  <Button variant="ghost"
                     key={wf.id}
                     type="button"
                     onClick={() => update("workflow", wf.workflow_type)}
@@ -353,7 +353,7 @@ export default function PopCeilingCalculator({
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
+                  <Button variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -431,7 +431,7 @@ export default function PopCeilingCalculator({
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button
+                  <Button variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -909,7 +909,7 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => onChange(!checked)}
         className={

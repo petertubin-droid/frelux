@@ -103,7 +103,7 @@ export default function Templates() {
 
         <div className="flex flex-wrap gap-2">
           {CATEGORY_TABS.map((tab) => (
-            <Button
+            <Button variant="ghost"
               key={tab.key}
               onClick={() => setActiveCategory(tab.key)}
               className={classNames(

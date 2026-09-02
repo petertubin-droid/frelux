@@ -193,7 +193,7 @@ function StepCard({
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
-      <Button
+      <Button variant="ghost"
         onClick={onToggle}
         className="flex w-full items-center justify-between p-4 text-left"
       >

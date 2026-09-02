@@ -202,7 +202,7 @@ export function RoofViewPanel() {
               alt="Aerial roof view"
               className="w-full h-auto"
             />
-            <Button
+            <Button variant="ghost"
               onClick={resetImagery}
               className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur px-2 py-1 text-xs text-primary-foreground hover:bg-black/70"
             >

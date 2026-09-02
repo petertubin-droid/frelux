@@ -125,7 +125,7 @@ export default function CalculatorNearMe({
           </span>
           <div className="flex items-center gap-1">
             {DISTANCE_FILTERS.map((f) => (
-              <Button
+              <Button variant="ghost"
                 key={f.value}
                 onClick={() => setRadius(f.value)}
                 className={classNames(
@@ -153,7 +153,7 @@ export default function CalculatorNearMe({
         <div className="mt-4 space-y-3 border-t border-brand-purple/10 pt-3">
           {/* Tab switcher */}
           <div className="flex gap-1">
-            <Button
+            <Button variant="ghost"
               onClick={() => setActiveTab("professionals")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
@@ -165,7 +165,7 @@ export default function CalculatorNearMe({
               <Briefcase className="h-3 w-3" />
               Professionals ({pros.length})
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => setActiveTab("listings")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",

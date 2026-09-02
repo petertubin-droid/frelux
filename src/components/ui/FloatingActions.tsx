@@ -37,7 +37,7 @@ export default function FloatingActions() {
           ))}
         </div>
       )}
-      <Button
+      <Button variant="ghost"
         data-tour="floating"
         onClick={() => setOpen((v) => !v)}
         className={classNames(

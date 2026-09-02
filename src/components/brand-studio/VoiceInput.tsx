@@ -217,7 +217,7 @@ export function VoiceInput({
           />
         )}
         {isSupported && (
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={handleButtonClick}
             className={`shrink-0 rounded-lg p-2 transition-colors ${

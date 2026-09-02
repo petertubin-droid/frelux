@@ -136,7 +136,7 @@ export default function ColorDetail() {
                   <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{s.label}</p>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{s.name}</p>
                 </div>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => copy(s.hex)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"

@@ -1039,7 +1039,7 @@ function Step1({
           const Icon = p.icon;
           const selected = input.projectType === p.value;
           return (
-            <Button
+            <Button variant="ghost"
               key={p.value}
               type="button"
               onClick={() => update("projectType", p.value)}
@@ -1103,7 +1103,7 @@ function Step2({
 
       <div className="mt-5 inline-flex rounded-lg border border-border p-1">
         {(["meters", "feet"] as Unit[]).map((u) => (
-          <Button
+          <Button variant="ghost"
             key={u}
             type="button"
             onClick={() => update("unit", u)}
@@ -1291,7 +1291,7 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setShowDoorDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1344,7 +1344,7 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setShowWindowDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1498,7 +1498,7 @@ function Step3({
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {wasteOptions.map((w: number) => (
-            <Button
+            <Button variant="ghost"
               key={w}
               type="button"
               onClick={() => update("wasteMargin", w)}
@@ -1956,7 +1956,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       onClick={() => onChange(!checked)}
       style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}

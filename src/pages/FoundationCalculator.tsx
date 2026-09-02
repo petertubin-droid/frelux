@@ -104,7 +104,7 @@ export default function FoundationCalculator() {
               Measurement unit:
             </span>
             <div className="inline-flex rounded-lg border border-border overflow-hidden dark:border-white/10">
-              <Button
+              <Button variant="ghost"
                 onClick={() => {
                   if (measurementUnit === "ft") {
                     setMeasurementUnit("m");
@@ -121,7 +121,7 @@ export default function FoundationCalculator() {
               >
                 m
               </Button>
-              <Button
+              <Button variant="ghost"
                 onClick={() => {
                   if (measurementUnit === "m") {
                     setMeasurementUnit("ft");
@@ -380,7 +380,7 @@ export default function FoundationCalculator() {
 
             {/* Formula transparency */}
             <div className="mt-2">
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowFormulas(!showFormulas)}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
               >
@@ -407,7 +407,7 @@ export default function FoundationCalculator() {
 
             {/* Reset */}
             <div className="mt-6 flex items-center gap-3 border-t border-border/50 pt-5 dark:border-white/5">
-              <Button
+              <Button variant="ghost"
                 onClick={() => setResult(null)}
                 className="btn-secondary inline-flex items-center gap-2"
               >

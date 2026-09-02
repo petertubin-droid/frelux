@@ -443,7 +443,7 @@ export default function MarketplaceHome() {
 
           {/* Tab switcher */}
           <div className="mt-5 flex gap-1">
-            <Button
+            <Button variant="ghost"
               onClick={() => switchTab("jobs")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -466,7 +466,7 @@ export default function MarketplaceHome() {
                 </span>
               )}
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => switchTab("products")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -589,7 +589,7 @@ function JobsTab(props: {
             className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
-        <Button
+        <Button variant="ghost"
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -629,7 +629,7 @@ function JobsTab(props: {
               </option>
             ))}
           </select>
-          <Button
+          <Button variant="ghost"
             onClick={() => {
               props.setProjectType("");
               props.setState("");
@@ -769,7 +769,7 @@ function JobsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <Button
+              <Button variant="ghost"
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
@@ -833,7 +833,7 @@ function ProductsTab(props: {
             </option>
           ))}
         </select>
-        <Button
+        <Button variant="ghost"
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -848,7 +848,7 @@ function ProductsTab(props: {
 
       {/* Category pills */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <Button
+        <Button variant="ghost"
           onClick={() => props.setCategory("")}
           className={classNames(
             "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
@@ -860,7 +860,7 @@ function ProductsTab(props: {
           All
         </Button>
         {props.categories.map((c) => (
-          <Button
+          <Button variant="ghost"
             key={c.id}
             onClick={() => props.setCategory(c.slug)}
             className={classNames(
@@ -902,7 +902,7 @@ function ProductsTab(props: {
               </option>
             ))}
           </select>
-          <Button
+          <Button variant="ghost"
             onClick={() => {
               props.setCondition("");
               props.setState("");
@@ -1022,7 +1022,7 @@ function ProductsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <Button
+              <Button variant="ghost"
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >

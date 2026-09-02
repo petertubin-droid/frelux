@@ -281,7 +281,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       {/* Action tabs */}
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
-          <Button
+          <Button variant="ghost"
             key={action.key}
             onClick={() => { setActiveAction(action.key); setResult(null); setError(null); }}
             className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
@@ -306,7 +306,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           <label className="text-sm font-medium text-foreground">Optimization Goal</label>
           <div className="flex flex-wrap gap-2">
             {optimizePresets.map((preset) => (
-              <Button
+              <Button variant="ghost"
                 key={preset}
                 onClick={() => setOptimizeTarget(preset)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${

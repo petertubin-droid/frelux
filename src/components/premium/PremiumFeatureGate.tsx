@@ -188,7 +188,7 @@ export function PremiumFeatureGate({
               <PremiumBadge size="md" glow />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"

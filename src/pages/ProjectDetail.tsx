@@ -211,7 +211,7 @@ export default function ProjectDetail() {
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto pb-px">
             {TABS.map((t) => (
-              <Button
+              <Button variant="ghost"
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
@@ -288,14 +288,14 @@ export default function ProjectDetail() {
                   <Calculator className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   Add Calculation
                 </Link>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setTab("shopping")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-500/20 transition-all hover:scale-105"
                 >
                   <ClipboardList className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   View Shopping List
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setTab("progress")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500/20 transition-all hover:scale-105"
                 >
@@ -502,7 +502,7 @@ export default function ProjectDetail() {
                           />
                         </td>
                         <td className="p-3">
-                          <Button
+                          <Button variant="ghost"
                             onClick={async () => {
                               const newVal = !item.is_purchased;
                               await supabase
@@ -550,7 +550,7 @@ export default function ProjectDetail() {
                 </p>
               </div>
               {stages.length === 0 && stageTemplates.length > 0 && (
-                <Button
+                <Button variant="ghost"
                   onClick={handleInitProgress}
                   className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
                 >
@@ -583,7 +583,7 @@ export default function ProjectDetail() {
                     className={`group flex items-start gap-4 rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-md ${stage.is_completed ? "border-emerald-500/30 bg-emerald-500/5" : ""}`}
                     style={{ opacity: stage.is_completed ? 0.8 : 1 }}
                   >
-                    <Button
+                    <Button variant="ghost"
                       onClick={() =>
                         handleToggleStage(stage.id, stage.is_completed)
                       }

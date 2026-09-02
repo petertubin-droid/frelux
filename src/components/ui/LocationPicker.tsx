@@ -87,7 +87,7 @@ export default function LocationPicker({
         {showRadius && (
           <div className="flex items-center gap-1">
             {DISTANCE_FILTERS.map((f) => (
-              <Button
+              <Button variant="ghost"
                 key={f.value}
                 onClick={() => handleRadiusChange(f.value)}
                 className={classNames(
@@ -102,7 +102,7 @@ export default function LocationPicker({
             ))}
           </div>
         )}
-        <Button
+        <Button variant="ghost"
           onClick={clear}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
         >
@@ -120,7 +120,7 @@ export default function LocationPicker({
           <MapPin className="h-3 w-3 text-brand-purple" />
           {location.label || 'Location set'}
         </span>
-        <Button
+        <Button variant="ghost"
           onClick={clear}
           className="text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground"
         >
@@ -145,7 +145,7 @@ export default function LocationPicker({
           )}
           {loading ? 'Detecting...' : 'Use My Location'}
         </Button>
-        <Button
+        <Button variant="ghost"
           onClick={() => setShowManual(!showManual)}
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >

@@ -107,7 +107,7 @@ export default function SupportChatWidget() {
     <>
       {/* Floating button — uses a proper icon, not an image */}
       {!open && (
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
@@ -130,7 +130,7 @@ export default function SupportChatWidget() {
           }
         >
           {minimized ? (
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setMinimized(false)}
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-3 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
@@ -159,10 +159,10 @@ export default function SupportChatWidget() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button type="button" onClick={() => setMinimized(true)} className="rounded p-1.5 hover:bg-white/10" aria-label="Minimize chat">
+                  <Button variant="ghost" type="button" onClick={() => setMinimized(true)} className="rounded p-1.5 hover:bg-white/10" aria-label="Minimize chat">
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <Button type="button" onClick={() => setOpen(false)} className="rounded p-1.5 hover:bg-white/10" aria-label="Close chat">
+                  <Button variant="ghost" type="button" onClick={() => setOpen(false)} className="rounded p-1.5 hover:bg-white/10" aria-label="Close chat">
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -215,7 +215,7 @@ export default function SupportChatWidget() {
                     </p>
                     <div className="space-y-1.5">
                       {SUGGESTED_QUESTIONS.map((q) => (
-                        <Button
+                        <Button variant="ghost"
                           key={q}
                           type="button"
                           onClick={() => handleSend(q)}

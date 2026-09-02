@@ -145,7 +145,7 @@ export default function Messages() {
           ) : (
             <div className="divide-y divide-border/50 dark:divide-white/5">
               {conversations.map((convo) => (
-                <Button
+                <Button variant="ghost"
                   key={convo.id}
                   onClick={() => navigate(`/messages/${convo.id}`)}
                   className={classNames(
@@ -179,7 +179,7 @@ export default function Messages() {
             <>
               {/* Header */}
               <div className="flex items-center gap-3 border-b border-border/50 p-4 dark:border-white/5">
-                <Button onClick={() => navigate('/messages')} className="lg:hidden">
+                <Button variant="ghost" onClick={() => navigate('/messages')} className="lg:hidden">
                   <ArrowLeft aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
                 </Button>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">

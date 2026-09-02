@@ -214,7 +214,7 @@ export default function Profile() {
                   </div>
                 )}
               </div>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
@@ -280,7 +280,7 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={copyMarketplaceId}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5"

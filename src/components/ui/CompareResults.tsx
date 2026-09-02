@@ -113,7 +113,7 @@ export function CompareResults({
           </div>
           <div className="flex items-center gap-2">
             {entries.length > 0 && (
-              <Button
+              <Button variant="ghost"
                 onClick={() => {
                   clearComparison();
                   setEntries([]);
@@ -154,7 +154,7 @@ export function CompareResults({
               </p>
               <div className="flex flex-wrap gap-2">
                 {entries.map((e) => (
-                  <Button
+                  <Button variant="ghost"
                     key={e.id}
                     onClick={() => toggle(e.id)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${

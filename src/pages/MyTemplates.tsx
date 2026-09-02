@@ -138,7 +138,7 @@ export default function MyTemplates() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
+          <Button variant="ghost"
             onClick={() => fileRef.current?.click()}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
             title="Import a template from JSON file"
@@ -153,7 +153,7 @@ export default function MyTemplates() {
             className="hidden"
           />
           {filtered.length > 0 && (
-            <Button
+            <Button variant="ghost"
               onClick={handleExportAll}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
               title="Export all templates as JSON files"
@@ -197,7 +197,7 @@ export default function MyTemplates() {
           </div>
           <div className="flex gap-2">
             {SORT_OPTIONS.map((opt) => (
-              <Button
+              <Button variant="ghost"
                 key={opt.key}
                 onClick={() => setSort(opt.key)}
                 className={classNames(
@@ -215,7 +215,7 @@ export default function MyTemplates() {
 
         <div className="flex flex-wrap gap-2">
           {CATEGORY_TABS.map((tab) => (
-            <Button
+            <Button variant="ghost"
               key={tab.key}
               onClick={() => setActiveCategory(tab.key)}
               className={classNames(

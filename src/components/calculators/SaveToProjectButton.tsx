@@ -208,7 +208,7 @@ export default function SaveToProjectButton({
 
   return (
     <>
-      <Button
+      <Button variant="ghost"
         onClick={() => setShowModal(true)}
         className={
           compact
@@ -241,7 +241,7 @@ export default function SaveToProjectButton({
                 <Save className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-bold">Save to Project</h2>
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowModal(false)}
                 className="rounded-lg p-1.5 hover:bg-muted transition-all hover:scale-110"
               >
@@ -266,13 +266,13 @@ export default function SaveToProjectButton({
                   autoFocus
                 />
                 <div className="flex gap-3">
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setShowNewProject(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     onClick={handleCreateAndSave}
                     disabled={saving || !newProjectName.trim()}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -295,7 +295,7 @@ export default function SaveToProjectButton({
                   <p className="text-muted-foreground mb-4">
                     You don't have any projects yet.
                   </p>
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setShowNewProject(true)}
                     className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
                   >
@@ -311,7 +311,7 @@ export default function SaveToProjectButton({
                 </p>
                 <div className="max-h-64 space-y-2 overflow-y-auto">
                   {projects.map((proj) => (
-                    <Button
+                    <Button variant="ghost"
                       key={proj.id}
                       onClick={() => setSelectedProject(proj.id)}
                       className={`group flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 hover:shadow-md ${
@@ -333,7 +333,7 @@ export default function SaveToProjectButton({
                   ))}
                 </div>
 
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowNewProject(true)}
                   className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                 >
@@ -342,13 +342,13 @@ export default function SaveToProjectButton({
                 </Button>
 
                 <div className="flex gap-3 pt-2">
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setShowModal(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     onClick={handleSave}
                     disabled={saving || !selectedProject}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"

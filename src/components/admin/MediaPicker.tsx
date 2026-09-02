@@ -277,7 +277,7 @@ export function MediaPicker({
             </p>
           )}
           <div className="flex gap-3">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg border border-border dark:border-white/5 px-4 py-2 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/50 dark:bg-white/5"

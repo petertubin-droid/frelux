@@ -271,7 +271,7 @@ export default function PopCeilingCostEstimator({
             <Section title="Dimensions">
               <div className="inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
+                  <Button variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -342,7 +342,7 @@ export default function PopCeilingCostEstimator({
             <Section title="Waste margin">
               <div className="flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button
+                  <Button variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -712,7 +712,7 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border dark:border-white/5 p-3">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => onChange(!checked)}
         className={

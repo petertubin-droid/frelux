@@ -111,7 +111,7 @@ export default function BrandStudio() {
           {/* Section tabs */}
           <div className="mb-6 flex flex-wrap gap-2 border-b border-border dark:border-white/10 pb-2">
             {sections.map((s) => (
-              <Button
+              <Button variant="ghost"
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${

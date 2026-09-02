@@ -490,7 +490,7 @@ export default function AdminLearn() {
               const isExpanded = expandedArticles.has(article.id);
               return (
                 <div key={article.id} className="card overflow-hidden">
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => toggleArticleExpanded(article.id)}
                     className="flex w-full items-center gap-3 p-3 text-left"
                   >

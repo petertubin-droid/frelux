@@ -86,7 +86,7 @@ export default function AdminPaintComparison() {
             Manage paint comparison data shown on the comparison page.
           </p>
         </div>
-        <Button
+        <Button variant="ghost"
           onClick={() => {
             setForm(empty);
             setEditing(null);
@@ -108,7 +108,7 @@ export default function AdminPaintComparison() {
             <h3 className="font-semibold">
               {editing ? "Edit" : "Add"} Paint Type
             </h3>
-            <Button
+            <Button variant="ghost"
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted transition-all"
             >
@@ -240,13 +240,13 @@ export default function AdminPaintComparison() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button
+            <Button variant="ghost"
               onClick={() => setShowForm(false)}
               className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
             >
               Cancel
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={handleSave}
               className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
@@ -294,13 +294,13 @@ export default function AdminPaintComparison() {
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
+                <Button variant="ghost"
                   onClick={() => startEdit(item)}
                   className="rounded-lg p-2 hover:bg-muted transition-all hover:scale-110"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => handleDelete(item.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >

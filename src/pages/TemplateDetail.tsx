@@ -243,7 +243,7 @@ export default function TemplateDetail() {
 
       {/* CTA */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button
+        <Button variant="ghost"
           onClick={() => navigate(`${calcPath}?template=${template.id}`)}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >

@@ -131,7 +131,7 @@ export default function LabourCostSection({
             <label className="mb-2 block text-sm font-semibold text-card-foreground">Pricing Method</label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {methods.map((method) => (
-                <Button
+                <Button variant="ghost"
                   key={method}
                   type="button"
                   onClick={() => update({ pricingMethod: method })}
@@ -295,7 +295,7 @@ export default function LabourCostSection({
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       role="switch"
       onClick={() => onChange(!checked)}

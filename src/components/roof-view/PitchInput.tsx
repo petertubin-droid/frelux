@@ -120,7 +120,7 @@ export function PitchInput({
         </label>
         <div className="flex items-center gap-1">
           {(["degrees", "ratio", "unknown"] as const).map((mode) => (
-            <Button
+            <Button variant="ghost"
               key={mode}
               type="button"
               onClick={() => {
@@ -223,7 +223,7 @@ export function PitchInput({
             </div>
           )}
           <div className="flex items-center gap-2">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setInputMode("degrees")}
               disabled={disabled}
@@ -231,7 +231,7 @@ export function PitchInput({
             >
               Enter Pitch
             </Button>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setInputMode("ratio")}
               disabled={disabled}

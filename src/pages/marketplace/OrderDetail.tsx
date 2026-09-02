@@ -173,7 +173,7 @@ export default function OrderDetail() {
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <Button
+        <Button variant="ghost"
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
@@ -310,7 +310,7 @@ export default function OrderDetail() {
               Milestones ({milestones.length})
             </h2>
             {isPro && canAdvance && (
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowMilestoneForm(!showMilestoneForm)}
                 className="inline-flex items-center gap-1 text-xs font-medium text-brand-purple"
               >
@@ -379,7 +379,7 @@ export default function OrderDetail() {
                     {m.status !== "approved" && m.status !== "rejected" && (
                       <div className="flex items-center gap-1">
                         {isPro && m.status === "pending" && (
-                          <Button
+                          <Button variant="ghost"
                             onClick={() =>
                               handleUpdateMilestone(m.id, "in_progress")
                             }
@@ -389,7 +389,7 @@ export default function OrderDetail() {
                           </Button>
                         )}
                         {isClient && m.status === "in_progress" && (
-                          <Button
+                          <Button variant="ghost"
                             onClick={() => handleApproveMilestone(m.id)}
                             className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-primary-foreground hover:bg-emerald-700"
                           >
@@ -455,7 +455,7 @@ export default function OrderDetail() {
                   )}
                 </div>
               ) : isClient && !showReviewForm ? (
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowReviewForm(true)}
                   className="w-full rounded-lg border border-dashed border-border p-4 text-sm font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
@@ -501,7 +501,7 @@ export default function OrderDetail() {
                 </h3>
                 <div className="mt-2 flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Button
+                    <Button variant="ghost"
                       key={i}
                       onClick={() => setReviewRating(i + 1)}
                       className={`text-lg font-bold transition-colors ${
@@ -537,7 +537,7 @@ export default function OrderDetail() {
                     )}
                     Submit Review
                   </Button>
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => setShowReviewForm(false)}
                     className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                   >
@@ -553,7 +553,7 @@ export default function OrderDetail() {
         {(order.status === "in_progress" ||
           order.status === "client_review") && (
           <div className="mt-6">
-            <Button className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
+            <Button variant="ghost" className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
               <AlertTriangle className="h-4 w-4" /> Report a Problem
             </Button>
           </div>

@@ -407,7 +407,7 @@ function CommandRow({
   onSelect: () => void;
 }) {
   return (
-    <Button
+    <Button variant="ghost"
       onClick={onSelect}
       onMouseEnter={() => {}}
       className={classNames(

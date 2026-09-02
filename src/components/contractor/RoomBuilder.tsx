@@ -527,7 +527,7 @@ function RoomCard({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1">
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={() => setExpanded((p) => !p)}
             className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
@@ -548,7 +548,7 @@ function RoomCard({
           >
             <Edit3 className="h-4 w-4" />
           </Button>
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={() => setConfirmDelete(true)}
             className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
@@ -736,14 +736,14 @@ function RoomCard({
               </p>
             </div>
             <div className="flex shrink-0 gap-2">
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 className="btn-secondary"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => {
                   setConfirmDelete(false);
@@ -973,7 +973,7 @@ export function RoomBuilder({
             {rooms.length} room{rooms.length !== 1 ? 's' : ''} in this project
           </p>
         </div>
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={() => setShowAddForm((p) => !p)}
           className="btn-primary"
@@ -999,7 +999,7 @@ export function RoomBuilder({
         <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
           <p className="flex-1 text-sm text-red-700">{error}</p>
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={() => setError(null)}
             className="text-xs font-semibold text-red-600 hover:text-red-700"
@@ -1045,7 +1045,7 @@ export function RoomBuilder({
                   title={`Edit: ${room.name}`}
                   icon={Edit3}
                   action={
-                    <Button
+                    <Button variant="ghost"
                       type="button"
                       onClick={() => setEditingId(null)}
                       className="rounded-lg p-1.5 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"

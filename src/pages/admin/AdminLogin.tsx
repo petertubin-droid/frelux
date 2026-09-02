@@ -87,7 +87,7 @@ export default function AdminLogin() {
           ) : (
             <>
               {/* Google Sign-In */}
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}

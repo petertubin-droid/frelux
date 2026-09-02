@@ -45,7 +45,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
       {/* Progress dots */}
       <div className="mb-6 flex items-center justify-center gap-2">
         {steps.map((_, i) => (
-          <Button
+          <Button variant="ghost"
             key={i}
             type="button"
             onClick={() => setCurrentStep(i)}
@@ -76,7 +76,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
 
         {/* Navigation */}
         <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-5 dark:border-border border-border">
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={prev}
             className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-brand-purple"
@@ -87,7 +87,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
           <span className="text-xs text-muted-foreground dark:text-muted-foreground">
             Step {currentStep + 1} of {steps.length}
           </span>
-          <Button
+          <Button variant="ghost"
             type="button"
             onClick={next}
             disabled={!canProceed}

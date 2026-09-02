@@ -230,7 +230,7 @@ export default function AdminRewards() {
             },
           ] as const
         ).map((t) => (
-          <Button
+          <Button variant="ghost"
             key={t.key}
             onClick={() => setTab(t.key)}
             className={classNames(
@@ -539,7 +539,7 @@ export default function AdminRewards() {
                         Enabled
                       </span>
                     </label>
-                    <Button
+                    <Button variant="ghost"
                       onClick={() => handleSaveReward(reward.id)}
                       disabled={savingReward === reward.id}
                       className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"

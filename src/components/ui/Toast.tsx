@@ -125,7 +125,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   <p className="mt-0.5 text-xs opacity-80">{t.message}</p>
                 )}
               </div>
-              <Button
+              <Button variant="ghost"
                 onClick={() => remove(t.id)}
                 className="shrink-0 rounded-md p-0.5 opacity-60 transition-opacity hover:opacity-100"
                 aria-label="Dismiss notification"

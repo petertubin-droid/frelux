@@ -33,7 +33,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
 
   return (
     <div className="rounded-lg border border-border dark:border-border border-border">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50 dark:hover:bg-card-foreground/50"
@@ -57,7 +57,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <label className="block text-xs font-semibold text-muted-foreground">Surface condition</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['smooth', 'textured', 'rough'] as SurfaceCondition[]).map((s) => (
-                <Button
+                <Button variant="ghost"
                   key={s}
                   type="button"
                   onClick={() => setSurface(s)}
@@ -79,7 +79,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <label className="block text-xs font-semibold text-muted-foreground">Application method</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['brush', 'roller', 'spray'] as ApplicationMethod[]).map((m) => (
-                <Button
+                <Button variant="ghost"
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
@@ -99,7 +99,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
           {/* Repair work */}
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Repair / patch work?</span>
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={() => setIsRepair(!isRepair)}
               className={classNames(
@@ -122,7 +122,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                 <span className="text-xs text-muted-foreground">Current: {currentWaste}%</span>
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground dark:text-muted-foreground">{result.reason}</p>
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={() => onWasteChange(result.wasteMargin)}
                 className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"

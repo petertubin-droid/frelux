@@ -101,7 +101,7 @@ export default function Footer() {
               or quantity.
             </p>
           </div>
-          <Button
+          <Button variant="ghost"
             onClick={() => withdrawConsent()}
             aria-label="Withdraw cookie consent"
             className="text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter transition-colors"

@@ -75,7 +75,7 @@ export default function AdminProjectStages() {
             Manage configurable project progress stage templates.
           </p>
         </div>
-        <Button
+        <Button variant="ghost"
           onClick={() => {
             setForm({
               stage_key: "",
@@ -101,7 +101,7 @@ export default function AdminProjectStages() {
         >
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing ? "Edit" : "Add"} Stage</h3>
-            <Button
+            <Button variant="ghost"
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted"
             >
@@ -153,7 +153,7 @@ export default function AdminProjectStages() {
               />
             </div>
           </div>
-          <Button
+          <Button variant="ghost"
             onClick={handleSave}
             className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
@@ -191,7 +191,7 @@ export default function AdminProjectStages() {
                 )}
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
+                <Button variant="ghost"
                   onClick={() => {
                     setEditing(stage);
                     setForm({
@@ -207,7 +207,7 @@ export default function AdminProjectStages() {
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => handleDelete(stage.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >

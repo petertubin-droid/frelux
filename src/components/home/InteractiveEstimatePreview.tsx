@@ -153,7 +153,7 @@ export default function InteractiveEstimatePreview() {
         {/* Preset selector */}
         <div className="mt-8 flex justify-center gap-2">
           {presets.map((p, i) => (
-            <Button
+            <Button variant="ghost"
               key={p.label}
               onClick={() => setActivePreset(i)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${

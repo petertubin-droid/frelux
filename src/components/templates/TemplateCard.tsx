@@ -43,7 +43,7 @@ export default function TemplateCard({
         </span>
 
         {onToggleFavorite && (
-          <Button
+          <Button variant="ghost"
             onClick={onToggleFavorite}
             className={classNames(
               'rounded-md p-1 transition-colors',
@@ -124,14 +124,14 @@ export default function TemplateCard({
             )}
             {onDelete && (
               confirmDelete ? (
-                <Button
+                <Button variant="ghost"
                   onClick={() => { onDelete(); setConfirmDelete(false); }}
                   className="rounded-md bg-red-50 px-2 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                 >
                   Confirm?
                 </Button>
               ) : (
-                <Button
+                <Button variant="ghost"
                   onClick={() => setConfirmDelete(true)}
                   className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                   aria-label="Delete template"

@@ -80,7 +80,7 @@ export default function MyProducts() {
       {/* Filter tabs */}
       <div className="mb-4 flex gap-1">
         {(['all', 'active', 'paused', 'sold'] as const).map((f) => (
-          <Button
+          <Button variant="ghost"
             key={f}
             onClick={() => setFilter(f)}
             className={classNames(
@@ -138,13 +138,13 @@ export default function MyProducts() {
 
               {/* Actions */}
               <div className="flex items-center gap-1">
-                <Button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
+                <Button variant="ghost" onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
                   {product.status === 'active' ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
                 </Button>
                 <Link to={`/marketplace/products/${product.id}`} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title="View">
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </Link>
-                <Button onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">
+                <Button variant="ghost" onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </Button>
               </div>

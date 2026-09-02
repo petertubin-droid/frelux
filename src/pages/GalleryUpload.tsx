@@ -179,7 +179,7 @@ export default function GalleryUpload() {
                           alt={type}
                           className="h-full w-full object-cover"
                         />
-                        <Button
+                        <Button variant="ghost"
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -317,7 +317,7 @@ export default function GalleryUpload() {
             </span>
           </label>
 
-          <Button
+          <Button variant="ghost"
             type="submit"
             disabled={submitting}
             className="group relative w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"

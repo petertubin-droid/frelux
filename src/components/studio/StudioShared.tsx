@@ -302,7 +302,7 @@ export function ArtifactCard({
   };
   return (
     <div className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary hover:shadow-sm">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={onClick}
         className="flex min-w-0 items-center gap-3 text-left"
@@ -332,7 +332,7 @@ export function ArtifactCard({
         </div>
       </Button>
       {onDelete && (
-        <Button
+        <Button variant="ghost"
           type="button"
           onClick={onDelete}
           className="rounded-md p-2 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
@@ -359,7 +359,7 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="rounded-lg border border-border bg-card">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4"

@@ -254,7 +254,7 @@ export default function ProConnectProfile() {
                 </div>
               </div>
               {!isOwner && (
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowReportModal(true)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
                   title="Report this profile"
@@ -474,7 +474,7 @@ export default function ProConnectProfile() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {portfolio.map((item) =>
               item.image_urls.map((url, i) => (
-                <Button
+                <Button variant="ghost"
                   key={item.id + "-" + i}
                   onClick={() => setActiveImage(url)}
                   className="group relative aspect-square overflow-hidden rounded-xl border border-border dark:border-white/5"
@@ -504,7 +504,7 @@ export default function ProConnectProfile() {
             Reviews {profile.rating_count > 0 && `(${profile.rating_count})`}
           </h2>
           {user && !isOwner && (
-            <Button
+            <Button variant="ghost"
               onClick={() => setShowReviewModal(true)}
               className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
             >
@@ -694,13 +694,13 @@ function ReportModal({
               />
             </div>
             <div className="mt-6 flex gap-3">
-              <Button
+              <Button variant="ghost"
                 onClick={onClose}
                 className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Cancel
               </Button>
-              <Button
+              <Button variant="ghost"
                 onClick={handleSubmit}
                 disabled={!reason || submitting}
                 className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -764,7 +764,7 @@ function ReviewModal({
           <div>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
-                <Button key={s} onClick={() => setRating(s)} className="p-1">
+                <Button variant="ghost" key={s} onClick={() => setRating(s)} className="p-1">
                   <Award
                     className={classNames(
                       "h-7 w-7 transition-colors",
@@ -787,7 +787,7 @@ function ReviewModal({
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
         <div className="mt-6 flex gap-3">
-          <Button
+          <Button variant="ghost"
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >

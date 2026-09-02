@@ -54,7 +54,7 @@ export function VerificationBadge({ profile, size = 'sm', showLabel = true, clas
 
   return (
     <div className={classNames('relative inline-block', className)} ref={tooltipRef}>
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowTooltip(!showTooltip); }}
         className={classNames(

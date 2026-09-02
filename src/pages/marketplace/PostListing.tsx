@@ -130,7 +130,7 @@ export default function PostListing() {
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
-        <Button
+        <Button variant="ghost"
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
@@ -318,7 +318,7 @@ export default function PostListing() {
               )}
               Post Job
             </Button>
-            <Button
+            <Button variant="ghost"
               onClick={() => navigate("/marketplace")}
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >

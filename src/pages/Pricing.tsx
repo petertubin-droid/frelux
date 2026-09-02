@@ -284,7 +284,7 @@ export default function Pricing() {
             aria-label="Billing cycle"
             className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
           >
-            <Button
+            <Button variant="ghost"
               role="tab"
               aria-selected={billingCycle === "monthly"}
               onClick={() => setBillingCycle("monthly")}
@@ -297,7 +297,7 @@ export default function Pricing() {
             >
               Monthly
             </Button>
-            <Button
+            <Button variant="ghost"
               role="tab"
               aria-selected={billingCycle === "yearly"}
               onClick={() => setBillingCycle("yearly")}
@@ -411,7 +411,7 @@ export default function Pricing() {
                   </span>
                 </div>
 
-                <Button
+                <Button variant="ghost"
                   onClick={() => handleSubscribe(plan)}
                   disabled={
                     isLoading ||
@@ -546,7 +546,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border border-border/60 bg-card dark:border-white/10 dark:bg-card">
-      <Button
+      <Button variant="ghost"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4 text-left"
       >

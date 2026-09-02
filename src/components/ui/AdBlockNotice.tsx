@@ -30,7 +30,7 @@ export function AdBlockNotice() {
 
   return (
     <div className="fixed bottom-36 right-4 z-[45] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-4 shadow-lg dark:border-border border-border dark:bg-background sm:bottom-20 sm:max-w-sm">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => setDismissed(true)}
         className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"

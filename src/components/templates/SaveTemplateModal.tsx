@@ -97,7 +97,7 @@ export default function SaveTemplateModal({
           )}
 
           <div className="flex items-center gap-2 pt-1">
-            <Button
+            <Button variant="ghost"
               type="button"
               onClick={onClose}
               className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"

@@ -514,7 +514,7 @@ export function Toggle({
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
-      <Button
+      <Button variant="ghost"
         type="button"
         role="switch"
         aria-checked={checked}

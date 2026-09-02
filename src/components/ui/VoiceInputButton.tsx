@@ -28,7 +28,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={isListening ? stopListening : startListening}
         className={classNames(

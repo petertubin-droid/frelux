@@ -405,7 +405,7 @@ export default function Rewards() {
                     </p>
                   </div>
                 </div>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={handleWatchAd}
                   disabled={!canEarn || watchingAd}
@@ -485,7 +485,7 @@ export default function Rewards() {
             { key: "history", label: "History", icon: Clock },
           ] as const
         ).map((tab) => (
-          <Button
+          <Button variant="ghost"
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={classNames(
@@ -588,7 +588,7 @@ export default function Rewards() {
                       </span>
                     </div>
                   </div>
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => handleRedeem(reward)}
                     disabled={!canAfford || isRedeeming}
                     className={classNames(

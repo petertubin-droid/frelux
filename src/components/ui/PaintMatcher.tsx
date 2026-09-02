@@ -133,7 +133,7 @@ const mountedRef = useRef(true);
           <div className="flex flex-col items-center justify-center py-10">
             <X aria-hidden="true" className="h-10 w-10 text-red-500" />
             <p className="mt-3 text-sm text-red-600">{errorMsg}</p>
-            <Button type="button" onClick={reset} className="mt-3 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80">
+            <Button variant="ghost" type="button" onClick={reset} className="mt-3 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80">
               Try again
             </Button>
           </div>
@@ -204,7 +204,7 @@ const mountedRef = useRef(true);
               ))}
             </div>
 
-            <Button type="button" onClick={reset} className="mt-4 w-full rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
+            <Button variant="ghost" type="button" onClick={reset} className="mt-4 w-full rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
               Match another photo
             </Button>
           </div>

@@ -283,7 +283,7 @@ function ChooseView({
     config && (!config.aiEnabled || config.accessMode === "disabled");
   return (
     <div className="grid gap-6 sm:grid-cols-2">
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => onSelect("text")}
         disabled={!!disabled}
@@ -306,7 +306,7 @@ function ChooseView({
         </span>
       </Button>
 
-      <Button
+      <Button variant="ghost"
         type="button"
         onClick={() => onSelect("image")}
         disabled={!!disabled}
@@ -344,7 +344,7 @@ function ViewTab({
   label: string;
 }) {
   return (
-    <Button
+    <Button variant="ghost"
       type="button"
       onClick={onClick}
       className={classNames(
@@ -858,7 +858,7 @@ function ImageConsultation({
                 alt="Room preview"
                 className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
               />
-              <Button
+              <Button variant="ghost"
                 type="button"
                 onClick={clearFile}
                 className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted-foreground shadow hover:bg-card dark:bg-background/90 dark:text-muted-foreground/80 dark:hover:bg-card"

@@ -366,7 +366,7 @@ export default function ImageEstimator() {
                     alt="Building"
                     className="max-h-80 mx-auto rounded-lg shadow-md"
                   />
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => fileRef.current?.click()}
                     className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
                   >
@@ -383,7 +383,7 @@ export default function ImageEstimator() {
                     JPG or PNG, max 10MB. The clearer the photo, the better the
                     estimate.
                   </p>
-                  <Button
+                  <Button variant="ghost"
                     onClick={() => fileRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
@@ -780,7 +780,7 @@ export default function ImageEstimator() {
             <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">
               {error}
             </p>
-            <Button
+            <Button variant="ghost"
               onClick={() => {
                 setPhase("upload");
                 setError("");
@@ -928,7 +928,7 @@ function LockedView({
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {adError}
                 </div>
-                <Button
+                <Button variant="ghost"
                   type="button"
                   onClick={() => {
                     setAdState("idle");
@@ -1191,7 +1191,7 @@ function EstimateResultView({
               <CheckCircle2 className="w-3.5 h-3.5" /> Saved to your projects
             </span>
           )}
-          <Button
+          <Button variant="ghost"
             onClick={() => {
               if (isPaid || pdfUnlocked) {
                 window.print();

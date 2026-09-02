@@ -217,7 +217,7 @@ export default function ListingDetail() {
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Back */}
-        <Button
+        <Button variant="ghost"
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
@@ -379,7 +379,7 @@ export default function ListingDetail() {
               Bids ({bids.length})
             </h2>
             {!isOwner && isOpen && user && (
-              <Button
+              <Button variant="ghost"
                 onClick={() => setShowBidForm(!showBidForm)}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
@@ -457,7 +457,7 @@ export default function ListingDetail() {
                   )}
                   Submit Bid
                 </Button>
-                <Button
+                <Button variant="ghost"
                   onClick={() => setShowBidForm(false)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
@@ -591,13 +591,13 @@ export default function ListingDetail() {
 
                     {isOwner && isOpen && bid.status === "pending" && (
                       <div className="flex gap-2">
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => handleRejectBid(bid.id)}
                           className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                         >
                           Decline
                         </Button>
-                        <Button
+                        <Button variant="ghost"
                           onClick={() => handleAcceptBid(bid.id)}
                           disabled={submitting}
                           className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"

@@ -138,7 +138,7 @@ export default function MyListings() {
                   </span>
                   <div className="flex gap-2">
                     {listing.status === 'open' && (
-                      <Button
+                      <Button variant="ghost"
                         onClick={() => handleCancel(listing.id)}
                         disabled={cancellingId === listing.id}
                         className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
