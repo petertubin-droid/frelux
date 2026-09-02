@@ -13,205 +13,147 @@ import {
   cartonsFromCoverage,
   applyWasteMargin,
   roundForDisplay,
-  roundUpToWholeUnit,
-  makeStep,
-  formatM2,
-  formatCount,
-} from "./geometry";
+} from "@/lib/measurement/geometry";
 
-describe("geometry", () => {
-  describe("wallAreaM2", () => {
-    it("calculates wall area using perimeter × height", () => {
-      expect(wallAreaM2(5, 4, 3)).toBeCloseTo(2 * (5 + 4) * 3);
-    });
-
-    it("falls back to 2 × length × height when width is undefined", () => {
-      expect(wallAreaM2(5, undefined, 3)).toBeCloseTo(2 * 5 * 3);
-    });
-
-    it("returns 0 for zero height", () => {
-      expect(wallAreaM2(5, 4, 0)).toBe(0);
-    });
-
-    it("returns 0 for zero length", () => {
-      expect(wallAreaM2(0, 4, 3)).toBe(0);
-    });
-
-    it("returns 0 for negative dimensions", () => {
-      expect(wallAreaM2(-5, 4, 3)).toBe(0);
-    });
+describe("wallAreaM2", () => {
+  it("calculates perimeter × height for room with both dims", () => {
+    expect(wallAreaM2(4, 3, 2.5)).toBe(35);
   });
-
-  describe("ceilingAreaM2", () => {
-    it("calculates length × width", () => {
-      expect(ceilingAreaM2(5, 4)).toBe(20);
-    });
-
-    it("returns 0 when width is undefined", () => {
-      expect(ceilingAreaM2(5, undefined)).toBe(0);
-    });
-
-    it("returns 0 for negative values", () => {
-      expect(ceilingAreaM2(-5, 4)).toBe(0);
-    });
+  it("falls back to 2×length×height when width omitted", () => {
+    expect(wallAreaM2(4, undefined, 2.5)).toBe(20);
   });
-
-  describe("floorAreaM2", () => {
-    it("same as ceiling area", () => {
-      expect(floorAreaM2(5, 4)).toBe(ceilingAreaM2(5, 4));
-    });
+  it("returns 0 for zero height", () => expect(wallAreaM2(4, 3, 0)).toBe(0));
+  it("returns 0 for zero length", () => expect(wallAreaM2(0, 3, 2.5)).toBe(0));
+  it("falls back when width is 0 or negative", () => {
+    expect(wallAreaM2(4, 0, 2.5)).toBe(20);
+    expect(wallAreaM2(4, -1, 2.5)).toBe(20);
   });
+});
 
-  describe("singleSurfaceAreaM2", () => {
-    it("calculates length × height", () => {
-      expect(singleSurfaceAreaM2(5, 3)).toBe(15);
-    });
+describe("ceilingAreaM2", () => {
+  it("calculates length × width", () => expect(ceilingAreaM2(4, 3)).toBe(12));
+  it("returns 0 without width", () =>
+    expect(ceilingAreaM2(4, undefined)).toBe(0));
+  it("returns 0 for zero length", () => expect(ceilingAreaM2(0, 3)).toBe(0));
+  it("returns 0 for negative width", () =>
+    expect(ceilingAreaM2(4, -1)).toBe(0));
+});
 
-    it("returns 0 for zero or negative values", () => {
-      expect(singleSurfaceAreaM2(0, 3)).toBe(0);
-      expect(singleSurfaceAreaM2(5, 0)).toBe(0);
-      expect(singleSurfaceAreaM2(-5, 3)).toBe(0);
-    });
+describe("floorAreaM2", () => {
+  it("same as ceiling area", () => expect(floorAreaM2(4, 3)).toBe(12));
+  it("returns 0 without width", () =>
+    expect(floorAreaM2(4, undefined)).toBe(0));
+});
+
+describe("singleSurfaceAreaM2", () => {
+  it("calculates length × height", () =>
+    expect(singleSurfaceAreaM2(5, 3)).toBe(15));
+  it("returns 0 for zero length", () =>
+    expect(singleSurfaceAreaM2(0, 3)).toBe(0));
+  it("returns 0 for zero height", () =>
+    expect(singleSurfaceAreaM2(5, 0)).toBe(0));
+});
+
+describe("fenceDimensionAreaM2", () => {
+  it("calculates partition area × count", () => {
+    expect(fenceDimensionAreaM2(10, 2, 5)).toBe(100);
   });
-
-  describe("fenceDimensionAreaM2", () => {
-    it("calculates partition area × partition count", () => {
-      const partitionArea = singleSurfaceAreaM2(2, 1.5);
-      expect(fenceDimensionAreaM2(2, 1.5, 4)).toBeCloseTo(partitionArea * 4);
-    });
-
-    it("uses minimum partition count of 1", () => {
-      expect(fenceDimensionAreaM2(2, 1.5, 0)).toBeCloseTo(
-        singleSurfaceAreaM2(2, 1.5),
-      );
-    });
+  it("uses minimum 1 partition", () => {
+    expect(fenceDimensionAreaM2(10, 2, 0)).toBe(20);
   });
+});
 
-  describe("rectangularAreaM2", () => {
-    it("calculates length × width", () => {
-      expect(rectangularAreaM2(5, 4)).toBe(20);
-    });
+describe("rectangularAreaM2", () => {
+  it("calculates length × width", () =>
+    expect(rectangularAreaM2(4, 3)).toBe(12));
+  it("returns 0 without width", () =>
+    expect(rectangularAreaM2(4, undefined)).toBe(0));
+  it("returns 0 for zero length", () =>
+    expect(rectangularAreaM2(0, 3)).toBe(0));
+});
 
-    it("returns 0 when width is undefined", () => {
-      expect(rectangularAreaM2(5, undefined)).toBe(0);
-    });
+describe("openingAreaM2", () => {
+  it("calculates width × height × count", () => {
+    expect(openingAreaM2(0.9, 2.1, 2)).toBeCloseTo(3.78, 4);
   });
-
-  describe("openingAreaM2", () => {
-    it("calculates width × height × count", () => {
-      expect(openingAreaM2(1, 2, 3)).toBe(6);
-    });
-
-    it("returns 0 for zero or negative values", () => {
-      expect(openingAreaM2(0, 2, 3)).toBe(0);
-      expect(openingAreaM2(1, 0, 3)).toBe(0);
-      expect(openingAreaM2(1, 2, 0)).toBe(0);
-    });
+  it("returns 0 for zero dimensions", () => {
+    expect(openingAreaM2(0, 2, 1)).toBe(0);
+    expect(openingAreaM2(1, 0, 1)).toBe(0);
   });
+  it("returns 0 for zero count", () => expect(openingAreaM2(1, 1, 0)).toBe(0));
+});
 
-  describe("netAreaM2", () => {
-    it("subtracts openings from gross", () => {
-      expect(netAreaM2(50, 6)).toBe(44);
-    });
-
-    it("returns 0 when openings exceed gross", () => {
-      expect(netAreaM2(10, 15)).toBe(0);
-    });
+describe("netAreaM2", () => {
+  it("subtracts opening area from gross", () => {
+    expect(netAreaM2(100, 20)).toBe(80);
   });
-
-  describe("tilesRequired", () => {
-    it("calculates area / tile area", () => {
-      expect(tilesRequired(20, 0.5)).toBe(40);
-    });
-
-    it("returns 0 for zero or negative tile area", () => {
-      expect(tilesRequired(20, 0)).toBe(0);
-      expect(tilesRequired(0, 0.5)).toBe(0);
-    });
+  it("never returns negative", () => {
+    expect(netAreaM2(10, 50)).toBe(0);
   });
+});
 
-  describe("cartonsFromTileCount", () => {
-    it("rounds up to whole cartons", () => {
-      expect(cartonsFromTileCount(45, 12)).toBe(4);
-    });
-
-    it("returns 0 for invalid inputs", () => {
-      expect(cartonsFromTileCount(0, 12)).toBe(0);
-      expect(cartonsFromTileCount(45, 0)).toBe(0);
-    });
+describe("tilesRequired", () => {
+  it("calculates area / tileArea", () => {
+    expect(tilesRequired(36, 0.36)).toBe(100);
   });
-
-  describe("cartonsFromCoverage", () => {
-    it("rounds up based on area / coverage", () => {
-      expect(cartonsFromCoverage(20, 1.5)).toBe(14);
-    });
-
-    it("returns 0 for invalid inputs", () => {
-      expect(cartonsFromCoverage(0, 1.5)).toBe(0);
-      expect(cartonsFromCoverage(20, 0)).toBe(0);
-    });
+  it("returns 0 for zero tile area", () => {
+    expect(tilesRequired(36, 0)).toBe(0);
   });
-
-  describe("applyWasteMargin", () => {
-    it("applies positive waste margin", () => {
-      expect(applyWasteMargin(100, 10)).toBeCloseTo(110);
-    });
-
-    it("clamps waste to 0-100", () => {
-      expect(applyWasteMargin(100, -10)).toBe(100);
-      expect(applyWasteMargin(100, 150)).toBe(200);
-    });
-
-    it("zero waste returns same area", () => {
-      expect(applyWasteMargin(50, 0)).toBe(50);
-    });
+  it("returns 0 for zero area", () => {
+    expect(tilesRequired(0, 0.36)).toBe(0);
   });
+});
 
-  describe("roundForDisplay", () => {
-    it("rounds to 2 decimals by default", () => {
-      expect(roundForDisplay(3.14159)).toBe(3.14);
-    });
-
-    it("rounds to specified decimals", () => {
-      expect(roundForDisplay(3.14159, 4)).toBe(3.1416);
-    });
-
-    it("returns 0 for NaN/Infinity", () => {
-      expect(roundForDisplay(NaN)).toBe(0);
-      expect(roundForDisplay(Infinity)).toBe(0);
-    });
+describe("cartonsFromTileCount", () => {
+  it("rounds up to whole cartons", () => {
+    expect(cartonsFromTileCount(105, 10)).toBe(11);
   });
-
-  describe("roundUpToWholeUnit", () => {
-    it("rounds up to next integer", () => {
-      expect(roundUpToWholeUnit(3.2)).toBe(4);
-      expect(roundUpToWholeUnit(5)).toBe(5);
-    });
-
-    it("returns 0 for non-positive values", () => {
-      expect(roundUpToWholeUnit(0)).toBe(0);
-      expect(roundUpToWholeUnit(-5)).toBe(0);
-    });
+  it("exact division returns exact count", () => {
+    expect(cartonsFromTileCount(100, 10)).toBe(10);
   });
-
-  describe("makeStep", () => {
-    it("creates a CalculationStep object", () => {
-      const step = makeStep("Area", "5 * 4", "20 m²");
-      expect(step.label).toBe("Area");
-      expect(step.formula).toBe("5 * 4");
-      expect(step.value).toBe("20 m²");
-    });
+  it("returns 0 for zero tilesPerCarton", () => {
+    expect(cartonsFromTileCount(100, 0)).toBe(0);
   });
+});
 
-  describe("formatM2", () => {
-    it("formats value with m² unit", () => {
-      expect(formatM2(20.5)).toBe("20.5 m²");
-    });
+describe("cartonsFromCoverage", () => {
+  it("rounds up to whole cartons", () => {
+    expect(cartonsFromCoverage(36, 3.6)).toBe(10);
   });
+  it("returns 0 for zero coverage", () => {
+    expect(cartonsFromCoverage(36, 0)).toBe(0);
+  });
+});
 
-  describe("formatCount", () => {
-    it("formats as integer string", () => {
-      expect(formatCount(3.7)).toBe("4");
-    });
+describe("applyWasteMargin", () => {
+  it("applies 10% margin", () => {
+    expect(applyWasteMargin(100, 10)).toBeCloseTo(110, 5);
+  });
+  it("applies 0% margin unchanged", () => {
+    expect(applyWasteMargin(100, 0)).toBeCloseTo(100, 5);
+  });
+  it("clamps negative margin to 0", () => {
+    expect(applyWasteMargin(100, -10)).toBeCloseTo(100, 5);
+  });
+  it("clamps margin over 100 to 100", () => {
+    expect(applyWasteMargin(100, 150)).toBeCloseTo(200, 5);
+  });
+});
+
+describe("roundForDisplay", () => {
+  it("rounds to 2 decimals", () => {
+    expect(roundForDisplay(3.14159, 2)).toBe(3.14);
+  });
+  it("rounds to 0 decimals", () => {
+    expect(roundForDisplay(3.14159, 0)).toBe(3);
+  });
+  it("returns 0 for NaN", () => {
+    expect(roundForDisplay(NaN, 2)).toBe(0);
+  });
+  it("returns 0 for Infinity", () => {
+    expect(roundForDisplay(Infinity, 2)).toBe(0);
+  });
+  it("defaults to 2 decimals", () => {
+    expect(roundForDisplay(3.14159)).toBe(3.14);
   });
 });

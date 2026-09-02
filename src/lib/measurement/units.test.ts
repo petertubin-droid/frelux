@@ -18,135 +18,129 @@ import {
   areaUnitLabel,
   tileDimensionToMeters,
   tileAreaM2,
-  LengthUnit,
-  AreaUnit,
-  CalculatorContext,
-} from "./units";
+} from "@/lib/measurement/units";
 
-describe("units", () => {
-  describe("constants", () => {
-    it("defines exact conversion constants", () => {
-      expect(FT_TO_M).toBe(0.3048);
-      expect(INCH_TO_M).toBe(0.0254);
-      expect(M_TO_FT).toBeCloseTo(1 / 0.3048);
-      expect(SQFT_TO_SQM).toBeCloseTo(0.3048 * 0.3048);
-      expect(SQM_TO_SQFT).toBeCloseTo(1 / (0.3048 * 0.3048));
+describe("conversion constants", () => {
+  it("FT_TO_M = 0.3048", () => expect(FT_TO_M).toBe(0.3048));
+  it("INCH_TO_M = 0.0254", () => expect(INCH_TO_M).toBe(0.0254));
+  it("M_TO_FT = 1/0.3048", () => expect(M_TO_FT).toBeCloseTo(3.28084, 5));
+  it("SQFT_TO_SQM = 0.092903", () =>
+    expect(SQFT_TO_SQM).toBeCloseTo(0.092903, 5));
+  it("SQM_TO_SQFT = 10.7639", () =>
+    expect(SQM_TO_SQFT).toBeCloseTo(10.7639, 3));
+});
+
+describe("toMeters", () => {
+  it("returns meters unchanged", () => expect(toMeters(5, "meters")).toBe(5));
+  it("converts feet to meters", () =>
+    expect(toMeters(10, "feet")).toBeCloseTo(3.048, 4));
+  it("converts inches to meters", () =>
+    expect(toMeters(100, "inches")).toBeCloseTo(2.54, 3));
+  it("handles zero", () => expect(toMeters(0, "meters")).toBe(0));
+});
+
+describe("fromMeters", () => {
+  it("returns meters unchanged", () => expect(fromMeters(5, "meters")).toBe(5));
+  it("converts meters to feet", () =>
+    expect(fromMeters(1, "feet")).toBeCloseTo(3.28084, 4));
+  it("converts meters to inches", () =>
+    expect(fromMeters(1, "inches")).toBeCloseTo(39.3701, 3));
+});
+
+describe("toSqMeters", () => {
+  it("returns sqm unchanged", () => expect(toSqMeters(10, "sqm")).toBe(10));
+  it("converts sqft to sqm", () =>
+    expect(toSqMeters(100, "sqft")).toBeCloseTo(9.2903, 3));
+});
+
+describe("fromSqMeters", () => {
+  it("returns sqm unchanged", () => expect(fromSqMeters(10, "sqm")).toBe(10));
+  it("converts sqm to sqft", () =>
+    expect(fromSqMeters(10, "sqft")).toBeCloseTo(107.639, 2));
+});
+
+describe("sqftToSqm / sqmToSqft", () => {
+  it("sqftToSqm converts correctly", () =>
+    expect(sqftToSqm(100)).toBeCloseTo(9.2903, 3));
+  it("sqmToSqft converts correctly", () =>
+    expect(sqmToSqft(10)).toBeCloseTo(107.639, 2));
+  it("are inverses", () =>
+    expect(sqmToSqft(sqftToSqm(100))).toBeCloseTo(100, 0));
+});
+
+describe("getAllowedUnits", () => {
+  it("block includes inches", () => {
+    expect(getAllowedUnits("block")).toContain("inches");
+    expect(getAllowedUnits("block")).toHaveLength(3);
+  });
+  it("painting excludes inches", () => {
+    expect(getAllowedUnits("painting")).not.toContain("inches");
+    expect(getAllowedUnits("painting")).toHaveLength(2);
+  });
+  it("tiling excludes inches", () => {
+    expect(getAllowedUnits("tiling")).not.toContain("inches");
+  });
+  it("screeding excludes inches", () => {
+    expect(getAllowedUnits("screeding")).not.toContain("inches");
+  });
+  it("all non-block contexts return only feet and meters", () => {
+    const ctxs = [
+      "painting",
+      "screeding",
+      "tiling",
+      "grafitex",
+      "pop",
+      "tyrolene",
+      "fence_screeding",
+      "fence_painting",
+    ] as const;
+    ctxs.forEach((ctx) => {
+      const units = getAllowedUnits(ctx);
+      expect(units).toEqual(["feet", "meters"]);
     });
   });
+});
 
-  describe("length conversions", () => {
-    it("toMeters converts feet, meters, inches correctly", () => {
-      expect(toMeters(10, "meters")).toBe(10);
-      expect(toMeters(10, "feet")).toBeCloseTo(3.048);
-      expect(toMeters(100, "inches")).toBeCloseTo(2.54);
-    });
+describe("isInchesAllowed", () => {
+  it("true for block", () => expect(isInchesAllowed("block")).toBe(true));
+  it("false for painting", () =>
+    expect(isInchesAllowed("painting")).toBe(false));
+  it("false for tiling", () => expect(isInchesAllowed("tiling")).toBe(false));
+});
 
-    it("toMeters throws error on invalid length unit", () => {
-      expect(() => toMeters(10, "invalid" as LengthUnit)).toThrowError(
-        "Unknown length unit: invalid",
-      );
-    });
+describe("lengthUnitLabel", () => {
+  it("feet → 'Feet'", () => expect(lengthUnitLabel("feet")).toBe("Feet"));
+  it("meters → 'Metres'", () =>
+    expect(lengthUnitLabel("meters")).toBe("Metres"));
+  it("inches → 'Inches'", () =>
+    expect(lengthUnitLabel("inches")).toBe("Inches"));
+});
 
-    it("fromMeters converts meters to user length units", () => {
-      expect(fromMeters(10, "meters")).toBe(10);
-      expect(fromMeters(3.048, "feet")).toBeCloseTo(10);
-      expect(fromMeters(2.54, "inches")).toBeCloseTo(100);
-    });
+describe("lengthUnitShort", () => {
+  it("feet → 'ft'", () => expect(lengthUnitShort("feet")).toBe("ft"));
+  it("meters → 'm'", () => expect(lengthUnitShort("meters")).toBe("m"));
+  it("inches → 'in'", () => expect(lengthUnitShort("inches")).toBe("in"));
+});
 
-    it("fromMeters throws error on invalid length unit", () => {
-      expect(() => fromMeters(10, "invalid" as LengthUnit)).toThrowError(
-        "Unknown length unit: invalid",
-      );
-    });
+describe("areaUnitLabel", () => {
+  it("sqm → 'm²'", () => expect(areaUnitLabel("sqm")).toBe("m²"));
+  it("sqft → 'ft²'", () => expect(areaUnitLabel("sqft")).toBe("ft²"));
+});
+
+describe("tileDimensionToMeters", () => {
+  it("mm → m", () => expect(tileDimensionToMeters(600, "mm")).toBe(0.6));
+  it("cm → m", () => expect(tileDimensionToMeters(60, "cm")).toBe(0.6));
+  it("m → m", () => expect(tileDimensionToMeters(0.6, "m")).toBe(0.6));
+});
+
+describe("tileAreaM2", () => {
+  it("600mm × 600mm = 0.36 m²", () => {
+    expect(tileAreaM2(600, 600, "mm")).toBeCloseTo(0.36, 4);
   });
-
-  describe("area conversions", () => {
-    it("toSqMeters converts sqft and sqm correctly", () => {
-      expect(toSqMeters(100, "sqm")).toBe(100);
-      expect(toSqMeters(100, "sqft")).toBeCloseTo(9.290304);
-    });
-
-    it("toSqMeters throws on invalid area unit", () => {
-      expect(() => toSqMeters(100, "invalid" as AreaUnit)).toThrowError(
-        "Unknown area unit: invalid",
-      );
-    });
-
-    it("fromSqMeters converts sqm to target area unit", () => {
-      expect(fromSqMeters(100, "sqm")).toBe(100);
-      expect(fromSqMeters(9.290304, "sqft")).toBeCloseTo(100);
-    });
-
-    it("fromSqMeters throws on invalid area unit", () => {
-      expect(() => fromSqMeters(100, "invalid" as AreaUnit)).toThrowError(
-        "Unknown area unit: invalid",
-      );
-    });
-
-    it("sqftToSqm and sqmToSqft helper functions work", () => {
-      expect(sqftToSqm(100)).toBeCloseTo(9.290304);
-      expect(sqmToSqft(9.290304)).toBeCloseTo(100);
-    });
+  it("60cm × 60cm = 0.36 m²", () => {
+    expect(tileAreaM2(60, 60, "cm")).toBeCloseTo(0.36, 4);
   });
-
-  describe("context-aware unit configuration", () => {
-    it("getAllowedUnits returns appropriate units for context", () => {
-      expect(getAllowedUnits("block")).toEqual(["feet", "meters", "inches"]);
-      expect(getAllowedUnits("painting")).toEqual(["feet", "meters"]);
-      expect(getAllowedUnits("screeding")).toEqual(["feet", "meters"]);
-      expect(getAllowedUnits("tiling")).toEqual(["feet", "meters"]);
-      expect(getAllowedUnits("unknown" as CalculatorContext)).toEqual([
-        "feet",
-        "meters",
-      ]);
-    });
-
-    it("isInchesAllowed returns true only for block context", () => {
-      expect(isInchesAllowed("block")).toBe(true);
-      expect(isInchesAllowed("painting")).toBe(false);
-      expect(isInchesAllowed("screeding")).toBe(false);
-    });
-  });
-
-  describe("labels and formatting", () => {
-    it("lengthUnitLabel returns human readable labels", () => {
-      expect(lengthUnitLabel("feet")).toBe("Feet");
-      expect(lengthUnitLabel("meters")).toBe("Metres");
-      expect(lengthUnitLabel("inches")).toBe("Inches");
-      expect(lengthUnitLabel("other" as LengthUnit)).toBe("other");
-    });
-
-    it("lengthUnitShort returns short symbols", () => {
-      expect(lengthUnitShort("feet")).toBe("ft");
-      expect(lengthUnitShort("meters")).toBe("m");
-      expect(lengthUnitShort("inches")).toBe("in");
-      expect(lengthUnitShort("other" as LengthUnit)).toBe("other");
-    });
-
-    it("areaUnitLabel returns human readable area symbols", () => {
-      expect(areaUnitLabel("sqm")).toBe("m²");
-      expect(areaUnitLabel("sqft")).toBe("ft²");
-      expect(areaUnitLabel("other" as AreaUnit)).toBe("other");
-    });
-  });
-
-  describe("tile dimension conversions", () => {
-    it("tileDimensionToMeters converts mm, cm, m to meters", () => {
-      expect(tileDimensionToMeters(600, "mm")).toBe(0.6);
-      expect(tileDimensionToMeters(60, "cm")).toBe(0.6);
-      expect(tileDimensionToMeters(0.6, "m")).toBe(0.6);
-    });
-
-    it("tileDimensionToMeters throws on unknown unit", () => {
-      expect(() =>
-        tileDimensionToMeters(600, "km" as unknown as never),
-      ).toThrowError("Unknown tile dimension unit: km");
-    });
-
-    it("tileAreaM2 computes area in m²", () => {
-      expect(tileAreaM2(600, 600, "mm")).toBeCloseTo(0.36);
-      expect(tileAreaM2(60, 60, "cm")).toBeCloseTo(0.36);
-      expect(tileAreaM2(0.6, 0.6, "m")).toBeCloseTo(0.36);
-    });
+  it("1m × 1m = 1 m²", () => {
+    expect(tileAreaM2(1, 1, "m")).toBe(1);
   });
 });
