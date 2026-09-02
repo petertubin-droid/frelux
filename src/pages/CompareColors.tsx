@@ -1,25 +1,39 @@
-import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, X, Loader2, Copy, Check } from 'lucide-react';
-import PageHeader from '@/components/ui/PageHeader';
-import { fetchPaintColors, fetchColorFamilies, fetchColorCombinations } from '@/lib/queries';
-import { useSeo } from '@/lib/seo';
-import { readableTextColor, complementaryColor, colorDistanceHex, normalizeHex } from '@/lib/colors';
-import type { DbPaintColor, DbColorFamily, DbColorCombination } from '@/types/database';
+import { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { Search, X, Loader2, Copy, Check } from "lucide-react";
+import PageHeader from "@/components/ui/PageHeader";
+import {
+  fetchPaintColors,
+  fetchColorFamilies,
+  fetchColorCombinations,
+} from "@/lib/queries";
+import { useSeo } from "@/lib/seo";
+import {
+  readableTextColor,
+  complementaryColor,
+  colorDistanceHex,
+  normalizeHex,
+} from "@/lib/colors";
+import type {
+  DbPaintColor,
+  DbColorFamily,
+  DbColorCombination,
+} from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 const MAX_COMPARE = 4;
 
 export default function CompareColors() {
   useSeo({
-    title: 'Compare Paint Colors: Side by Side',
-    description: 'Compare up to 4 paint colors side by side. View HEX, RGB, HSL values, recommended rooms, and compatible finishes.',
-    canonicalPath: '/colors/compare',
-    ogType: 'website',
+    title: "Compare Paint Colors: Side by Side",
+    description:
+      "Compare up to 4 paint colors side by side. View HEX, RGB, HSL values, recommended rooms, and compatible finishes.",
+    canonicalPath: "/colors/compare",
+    ogType: "website",
   });
 
   const [selected, setSelected] = useState<DbPaintColor[]>([]);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [results, setResults] = useState<DbPaintColor[]>([]);
   const [families, setFamilies] = useState<DbColorFamily[]>([]);
   const [allColors, setAllColors] = useState<DbPaintColor[]>([]);
@@ -48,9 +62,10 @@ export default function CompareColors() {
   }, [search]);
 
   function addColor(c: DbPaintColor) {
-    if (selected.length >= MAX_COMPARE || selected.some((s) => s.id === c.id)) return;
+    if (selected.length >= MAX_COMPARE || selected.some((s) => s.id === c.id))
+      return;
     setSelected((prev) => [...prev, c]);
-    setSearch('');
+    setSearch("");
     setResults([]);
   }
 
@@ -72,7 +87,10 @@ export default function CompareColors() {
     for (const c of selected) {
       map[c.id] = allColors
         .filter((a) => a.id !== c.id)
-        .map((a) => ({ color: a, dist: colorDistanceHex(c.hex_code, a.hex_code) }))
+        .map((a) => ({
+          color: a,
+          dist: colorDistanceHex(c.hex_code, a.hex_code),
+        }))
         .sort((a, b) => a.dist - b.dist)
         .slice(0, 3)
         .map((x) => x.color);
@@ -92,11 +110,19 @@ export default function CompareColors() {
   // Find coordinated palettes containing any selected color's hex
   const coordinatedPalettes = useMemo(() => {
     if (selected.length === 0) return [];
-    const selectedHexes = selected.map((c) => normalizeHex(c.hex_code).toUpperCase());
-    return palettes.filter((p) => {
-      const paletteHexes = [p.main_color_code, p.secondary_color_code, p.accent_color_code].map((h) => normalizeHex(h).toUpperCase());
-      return selectedHexes.some((h) => paletteHexes.includes(h));
-    }).slice(0, 4);
+    const selectedHexes = selected.map((c) =>
+      normalizeHex(c.hex_code).toUpperCase(),
+    );
+    return palettes
+      .filter((p) => {
+        const paletteHexes = [
+          p.main_color_code,
+          p.secondary_color_code,
+          p.accent_color_code,
+        ].map((h) => normalizeHex(h).toUpperCase());
+        return selectedHexes.some((h) => paletteHexes.includes(h));
+      })
+      .slice(0, 4);
   }, [selected, palettes]);
 
   // Compute key differences
@@ -105,27 +131,27 @@ export default function CompareColors() {
     const diffs: { label: string; values: string[] }[] = [];
     // Lightness
     diffs.push({
-      label: 'Lightness',
+      label: "Lightness",
       values: selected.map((c) => `${Math.round(c.hsl_l)}%`),
     });
     // Saturation
     diffs.push({
-      label: 'Saturation',
+      label: "Saturation",
       values: selected.map((c) => `${Math.round(c.hsl_s)}%`),
     });
     // Hue
     diffs.push({
-      label: 'Hue',
+      label: "Hue",
       values: selected.map((c) => `${Math.round(c.hsl_h)}°`),
     });
     // Warm vs Cool
     diffs.push({
-      label: 'Temperature',
+      label: "Temperature",
       values: selected.map((c) => {
         const h = c.hsl_h;
-        if (h >= 0 && h < 60 || h >= 300) return 'Warm';
-        if (h >= 60 && h < 180) return 'Warm';
-        return 'Cool';
+        if ((h >= 0 && h < 60) || h >= 300) return "Warm";
+        if (h >= 60 && h < 180) return "Warm";
+        return "Cool";
       }),
     });
     return diffs;
@@ -133,26 +159,61 @@ export default function CompareColors() {
 
   return (
     <>
-      <PageHeader eyebrow="Tools" title="Compare Colors" subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations." breadcrumbs={[{ label: 'Color Library', path: '/colors' }, { label: 'Compare Colors' }]} />
+      <PageHeader
+        eyebrow="Tools"
+        title="Compare Colors"
+        subtitle="Compare up to 4 paint colors side by side with HEX, RGB, HSL, and recommendations."
+        breadcrumbs={[
+          { label: "Color Library", path: "/colors" },
+          { label: "Compare Colors" },
+        ]}
+      />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         {/* Search */}
         <div className="relative w-full sm:max-w-md">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search colors to add…" className="input-field pl-9" />
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search colors to add…"
+            className="input-field pl-9"
+          />
         </div>
 
-        {loading && <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Searching…</div>}
+        {loading && (
+          <div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />{" "}
+            Searching…
+          </div>
+        )}
 
         {/* Search results */}
         {results.length > 0 && (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {results.map((c) => (
-              <Button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-border bg-card text-left dark:border-white/5 dark:bg-card transition-all hover:border-brand-purple hover:shadow-md">
-                <div className="aspect-square" style={{ background: c.hex_code }} />
+              <Button
+                variant="ghost"
+                key={c.id}
+                type="button"
+                onClick={() => addColor(c)}
+                className="group overflow-hidden rounded-lg border border-border bg-card text-left dark:border-white/5 dark:bg-card transition-all hover:border-brand-purple hover:shadow-md"
+              >
+                <div
+                  className="aspect-square"
+                  style={{ background: c.hex_code }}
+                />
                 <div className="p-2">
-                  <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">{c.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{c.hex_code}</p>
+                  <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
+                    {c.name}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {c.hex_code}
+                  </p>
                 </div>
               </Button>
             ))}
@@ -160,13 +221,17 @@ export default function CompareColors() {
         )}
 
         {search && !loading && results.length === 0 && (
-          <p className="mt-3 text-sm text-muted-foreground">No colors found. Try a different search term.</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            No colors found. Try a different search term.
+          </p>
         )}
 
         {/* Comparison area */}
         {selected.length === 0 ? (
           <div className="mt-8 rounded-xl border border-dashed border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-12 text-center">
-            <p className="text-sm font-medium text-muted-foreground">Search and select colors above to compare them here.</p>
+            <p className="text-sm font-medium text-muted-foreground">
+              Search and select colors above to compare them here.
+            </p>
           </div>
         ) : (
           <div className="mt-8 space-y-8">
@@ -176,49 +241,140 @@ export default function CompareColors() {
                   {/* Color preview row */}
                   <tr>
                     {selected.map((c) => (
-                      <td key={c.id} className="border-b border-border p-2 align-top" style={{ minWidth: 200 }}>
+                      <td
+                        key={c.id}
+                        className="border-b border-border p-2 align-top"
+                        style={{ minWidth: 200 }}
+                      >
                         <div className="relative">
-                          <div className="flex aspect-video items-center justify-center rounded-lg" style={{ background: c.hex_code }}>
-                            <span className="text-sm font-bold uppercase tracking-widest" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
+                          <div
+                            className="flex aspect-video items-center justify-center rounded-lg"
+                            style={{ background: c.hex_code }}
+                          >
+                            <span
+                              className="text-sm font-bold uppercase tracking-widest"
+                              style={{ color: readableTextColor(c.hex_code) }}
+                            >
+                              {c.hex_code}
+                            </span>
                           </div>
-                          <Button type="button" onClick={() => removeColor(c.id)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-muted-foreground hover:text-red-500"><X aria-hidden="true" className="h-4 w-4" /></Button>
+                          <Button
+                            variant="ghost"
+                            type="button"
+                            onClick={() => removeColor(c.id)}
+                            className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-muted-foreground hover:text-red-500"
+                          >
+                            <X aria-hidden="true" className="h-4 w-4" />
+                          </Button>
                         </div>
                       </td>
                     ))}
                   </tr>
                   {/* Name row */}
                   <CompareRow label="Name">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2"><Link to={`/colors/paint/${c.slug}`} className="text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground dark:hover:text-brand-purple-lighter">{c.name}</Link></td>)}
+                    {selected.map((c) => (
+                      <td key={c.id} className="border-b border-border/50 p-2">
+                        <Link
+                          to={`/colors/paint/${c.slug}`}
+                          className="text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground dark:hover:text-brand-purple-lighter"
+                        >
+                          {c.name}
+                        </Link>
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* HEX row */}
                   <CompareRow label="HEX">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2"><CopyBtn value={c.hex_code} copied={copied === c.hex_code} onCopy={copy} /></td>)}
+                    {selected.map((c) => (
+                      <td key={c.id} className="border-b border-border/50 p-2">
+                        <CopyBtn
+                          value={c.hex_code}
+                          copied={copied === c.hex_code}
+                          onCopy={copy}
+                        />
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* RGB row */}
                   <CompareRow label="RGB">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2"><CopyBtn value={`rgb(${c.rgb_r}, ${c.rgb_g}, ${c.rgb_b})`} copied={copied === `rgb(${c.rgb_r}, ${c.rgb_g}, ${c.rgb_b})`} onCopy={copy} /></td>)}
+                    {selected.map((c) => (
+                      <td key={c.id} className="border-b border-border/50 p-2">
+                        <CopyBtn
+                          value={`rgb(${c.rgb_r}, ${c.rgb_g}, ${c.rgb_b})`}
+                          copied={
+                            copied === `rgb(${c.rgb_r}, ${c.rgb_g}, ${c.rgb_b})`
+                          }
+                          onCopy={copy}
+                        />
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* HSL row */}
                   <CompareRow label="HSL">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2"><CopyBtn value={`hsl(${Math.round(c.hsl_h)}, ${Math.round(c.hsl_s)}%, ${Math.round(c.hsl_l)}%)`} copied={copied === `hsl(${Math.round(c.hsl_h)}, ${Math.round(c.hsl_s)}%, ${Math.round(c.hsl_l)}%)`} onCopy={copy} /></td>)}
+                    {selected.map((c) => (
+                      <td key={c.id} className="border-b border-border/50 p-2">
+                        <CopyBtn
+                          value={`hsl(${Math.round(c.hsl_h)}, ${Math.round(c.hsl_s)}%, ${Math.round(c.hsl_l)}%)`}
+                          copied={
+                            copied ===
+                            `hsl(${Math.round(c.hsl_h)}, ${Math.round(c.hsl_s)}%, ${Math.round(c.hsl_l)}%)`
+                          }
+                          onCopy={copy}
+                        />
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* Interior/Exterior */}
                   <CompareRow label="Location">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2 text-sm text-card-foreground">{c.is_interior && c.is_exterior ? 'Interior / Exterior' : c.is_interior ? 'Interior' : 'Exterior'}</td>)}
+                    {selected.map((c) => (
+                      <td
+                        key={c.id}
+                        className="border-b border-border/50 p-2 text-sm text-card-foreground"
+                      >
+                        {c.is_interior && c.is_exterior
+                          ? "Interior / Exterior"
+                          : c.is_interior
+                            ? "Interior"
+                            : "Exterior"}
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* Recommended usage */}
                   <CompareRow label="Rooms">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2 text-sm text-card-foreground">{c.recommended_usage.join(', ') || 'N/A'}</td>)}
+                    {selected.map((c) => (
+                      <td
+                        key={c.id}
+                        className="border-b border-border/50 p-2 text-sm text-card-foreground"
+                      >
+                        {c.recommended_usage.join(", ") || "N/A"}
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* Finishes */}
                   <CompareRow label="Finishes">
-                    {selected.map((c) => <td key={c.id} className="border-b border-border/50 p-2 text-sm text-card-foreground">{c.finish_compatibility.join(', ') || 'N/A'}</td>)}
+                    {selected.map((c) => (
+                      <td
+                        key={c.id}
+                        className="border-b border-border/50 p-2 text-sm text-card-foreground"
+                      >
+                        {c.finish_compatibility.join(", ") || "N/A"}
+                      </td>
+                    ))}
                   </CompareRow>
                   {/* Family */}
                   <CompareRow label="Family">
                     {selected.map((c) => {
-                      const fam = families.find((f) => f.id === c.color_family_id);
-                      return <td key={c.id} className="border-b border-border/50 p-2 text-sm text-card-foreground">{fam?.name ?? 'N/A'}</td>;
+                      const fam = families.find(
+                        (f) => f.id === c.color_family_id,
+                      );
+                      return (
+                        <td
+                          key={c.id}
+                          className="border-b border-border/50 p-2 text-sm text-card-foreground"
+                        >
+                          {fam?.name ?? "N/A"}
+                        </td>
+                      );
                     })}
                   </CompareRow>
                   {/* Complementary */}
@@ -226,8 +382,13 @@ export default function CompareColors() {
                     {selected.map((c) => (
                       <td key={c.id} className="border-b border-border/50 p-2">
                         <div className="flex items-center gap-2">
-                          <div className="h-6 w-6 rounded ring-1 ring-black/10" style={{ background: complementaryMap[c.id] }} />
-                          <span className="text-xs font-mono text-muted-foreground">{complementaryMap[c.id]}</span>
+                          <div
+                            className="h-6 w-6 rounded ring-1 ring-black/10"
+                            style={{ background: complementaryMap[c.id] }}
+                          />
+                          <span className="text-xs font-mono text-muted-foreground">
+                            {complementaryMap[c.id]}
+                          </span>
                         </div>
                       </td>
                     ))}
@@ -238,7 +399,13 @@ export default function CompareColors() {
                       <td key={c.id} className="border-b border-border/50 p-2">
                         <div className="flex flex-wrap gap-1">
                           {(similarMap[c.id] ?? []).map((s) => (
-                            <Link key={s.id} to={`/colors/paint/${s.slug}`} className="h-6 w-6 rounded ring-1 ring-black/10 transition-transform hover:scale-110" style={{ background: s.hex_code }} title={s.name} />
+                            <Link
+                              key={s.id}
+                              to={`/colors/paint/${s.slug}`}
+                              className="h-6 w-6 rounded ring-1 ring-black/10 transition-transform hover:scale-110"
+                              style={{ background: s.hex_code }}
+                              title={s.name}
+                            />
                           ))}
                         </div>
                       </td>
@@ -251,15 +418,28 @@ export default function CompareColors() {
             {/* Key Differences */}
             {keyDifferences.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">Key Differences</h3>
+                <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+                  Key Differences
+                </h3>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full border-collapse">
                     <tbody>
                       {keyDifferences.map((diff) => (
                         <tr key={diff.label}>
-                          <td className="border-b border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground" style={{ minWidth: 100 }}>{diff.label}</td>
+                          <td
+                            className="border-b border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+                            style={{ minWidth: 100 }}
+                          >
+                            {diff.label}
+                          </td>
                           {diff.values.map((v, i) => (
-                            <td key={i} className="border-b border-border/50 p-2 text-sm text-card-foreground" style={{ minWidth: 150 }}>{v}</td>
+                            <td
+                              key={i}
+                              className="border-b border-border/50 p-2 text-sm text-card-foreground"
+                              style={{ minWidth: 150 }}
+                            >
+                              {v}
+                            </td>
                           ))}
                         </tr>
                       ))}
@@ -272,20 +452,45 @@ export default function CompareColors() {
             {/* Coordinated Palettes */}
             {coordinatedPalettes.length > 0 && (
               <div>
-                <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">Coordinated Palettes</h3>
-                <p className="mt-1 text-sm text-muted-foreground">Color combinations featuring your selected colors.</p>
+                <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
+                  Coordinated Palettes
+                </h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Color combinations featuring your selected colors.
+                </p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {coordinatedPalettes.map((p) => (
-                    <Link key={p.id} to={`/colors/${p.slug}`} className="group overflow-hidden rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg">
+                    <Link
+                      key={p.id}
+                      to={`/colors/${p.slug}`}
+                      className="group overflow-hidden rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
+                    >
                       <div className="relative aspect-[4/3] overflow-hidden">
-                        <img src={p.image_url} alt={p.title} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                        <img
+                          src={p.image_url}
+                          alt={p.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
                         <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur">
-                          {[p.main_color_code, p.secondary_color_code, p.accent_color_code].map((hex) => (
-                            <div key={hex} className="h-5 flex-1 rounded ring-1 ring-black/5" style={{ background: hex }} />
+                          {[
+                            p.main_color_code,
+                            p.secondary_color_code,
+                            p.accent_color_code,
+                          ].map((hex) => (
+                            <div
+                              key={hex}
+                              className="h-5 flex-1 rounded ring-1 ring-black/5"
+                              style={{ background: hex }}
+                            />
                           ))}
                         </div>
                       </div>
-                      <div className="p-3"><p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">{p.title}</p></div>
+                      <div className="p-3">
+                        <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
+                          {p.title}
+                        </p>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -295,27 +500,58 @@ export default function CompareColors() {
         )}
 
         {selected.length > 0 && selected.length < MAX_COMPARE && (
-          <p className="mt-4 text-sm text-muted-foreground">You can add {MAX_COMPARE - selected.length} more color{MAX_COMPARE - selected.length > 1 ? 's' : ''}.</p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            You can add {MAX_COMPARE - selected.length} more color
+            {MAX_COMPARE - selected.length > 1 ? "s" : ""}.
+          </p>
         )}
       </div>
     </>
   );
 }
 
-function CompareRow({ label, children }: { label: string; children: React.ReactNode }) {
+function CompareRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <tr>
-      <td className="border-b border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground" style={{ minWidth: 80 }}>{label}</td>
+      <td
+        className="border-b border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground"
+        style={{ minWidth: 80 }}
+      >
+        {label}
+      </td>
       {children}
     </tr>
   );
 }
 
-function CopyBtn({ value, copied, onCopy }: { value: string; copied: boolean; onCopy: (v: string) => void }) {
+function CopyBtn({
+  value,
+  copied,
+  onCopy,
+}: {
+  value: string;
+  copied: boolean;
+  onCopy: (v: string) => void;
+}) {
   return (
-    <Button type="button" onClick={() => onCopy(value)} className="inline-flex items-center gap-1.5 text-sm font-medium text-card-foreground hover:text-brand-purple">
-      {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
-      {copied ? 'Copied' : value}
+    <Button
+      variant="ghost"
+      type="button"
+      onClick={() => onCopy(value)}
+      className="inline-flex items-center gap-1.5 text-sm font-medium text-card-foreground hover:text-brand-purple"
+    >
+      {copied ? (
+        <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" />
+      ) : (
+        <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+      )}
+      {copied ? "Copied" : value}
     </Button>
   );
 }

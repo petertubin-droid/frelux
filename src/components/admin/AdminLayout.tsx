@@ -298,7 +298,8 @@ export default function AdminLayout() {
           FRELUX Admin
         </span>
         <div className="flex items-center gap-1">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={toggle}
             aria-label="Toggle dark mode"
@@ -311,6 +312,7 @@ export default function AdminLayout() {
             )}
           </Button>
           <Button
+            variant="ghost"
             type="button"
             onClick={() => setMobileOpen(true)}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
@@ -345,6 +347,7 @@ export default function AdminLayout() {
                   FRELUX Admin
                 </span>
                 <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => setMobileOpen(false)}
                   className="rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
@@ -438,7 +441,8 @@ function SidebarContent({
           >
             <ExternalLink className="h-4 w-4" /> View website
           </Link>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onToggleTheme}
             aria-label="Toggle dark mode"
@@ -455,6 +459,7 @@ function SidebarContent({
           {user}
         </div>
         <Button
+          variant="ghost"
           type="button"
           onClick={onSignOut}
           className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"

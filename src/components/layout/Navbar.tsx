@@ -176,6 +176,7 @@ export default function Navbar() {
           {/* Logo — left */}
           <div className="flex items-center gap-3">
             <Button
+              variant="ghost"
               type="button"
               onClick={() => setMobileOpen(true)}
               className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-card-foreground transition-all hover:bg-muted active:scale-95 lg:hidden dark:text-muted-foreground/60 dark:hover:bg-white/5"
@@ -200,6 +201,7 @@ export default function Navbar() {
                 {workspace.children ? (
                   <>
                     <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => setOpenDropdown(workspace.label)}
                       onMouseEnter={() => setOpenDropdown(workspace.label)}
@@ -361,6 +363,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Search (desktop only) */}
             <Button
+              variant="ghost"
               onClick={() => {
                 const e = new KeyboardEvent("keydown", {
                   key: "k",
@@ -382,7 +385,8 @@ export default function Navbar() {
             <div className="hidden items-center gap-1 lg:flex">
               <AccessibilityToggle />
               <LanguageSwitcher />
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
@@ -410,6 +414,7 @@ export default function Navbar() {
             {/* Language switcher — Nigerian languages */}
             <div className="relative">
               <Button
+                variant="ghost"
                 type="button"
                 onClick={() =>
                   setOpenDropdown(openDropdown === "account" ? null : "account")
@@ -612,6 +617,7 @@ export default function Navbar() {
                       {/* Sign out footer */}
                       <div className="border-t border-border/50 px-2 py-2.5 dark:border-white/5">
                         <Button
+                          variant="ghost"
                           type="button"
                           onClick={() => {
                             signOut();
@@ -699,6 +705,7 @@ export default function Navbar() {
               <Logo />
             </Link>
             <Button
+              variant="ghost"
               type="button"
               onClick={() => setMobileOpen(false)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
@@ -715,6 +722,7 @@ export default function Navbar() {
                 {workspace.children ? (
                   <>
                     <Button
+                      variant="ghost"
                       onClick={() =>
                         setMobileExpanded(
                           mobileExpanded === workspace.label
@@ -799,6 +807,7 @@ export default function Navbar() {
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />
               <Button
+                variant="ghost"
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
