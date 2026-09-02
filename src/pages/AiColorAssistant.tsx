@@ -50,6 +50,7 @@ import {
 } from "@/components/seo/SeoSections";
 import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
 import { SITE_URL } from "@/lib/seo";
+import AdSlot from "@/components/ui/AdSlot";
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 

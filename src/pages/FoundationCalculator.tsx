@@ -434,6 +434,7 @@ export default function FoundationCalculator() {
             </div>
           </div>
         </div>
+      {result && (
         <div className="mt-6 flex justify-center">
           <SaveToProjectButton
             calculatorType="foundation"
@@ -455,6 +456,7 @@ export default function FoundationCalculator() {
             label="Save to Project Workspace"
           />
         </div>
+      )}
       </div>
       <RelatedTools
         links={[
