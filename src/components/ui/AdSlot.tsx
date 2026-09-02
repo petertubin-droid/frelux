@@ -51,12 +51,15 @@ export default function AdSlot({
   className,
   format = "auto",
   hideLabel = false,
+  providerId,
 }: {
   slotKey: string;
   className?: string;
   format?: string;
   /** Skip the built-in "Advertisement" label (caller provides their own). */
   hideLabel?: boolean;
+  /** Optional: filter to a specific provider by ID. If omitted, uses the full fallback chain. */
+  providerId?: string;
 }) {
   const { isPaid } = useAuth();
 
