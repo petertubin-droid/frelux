@@ -957,7 +957,9 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
   {
     slug: "monetag",
     name: "Monetag",
-    provider_type: "display",
+    // "mixed" — serves display formats via the website tag AND rewarded
+    // ads through the rewarded unlock flow (src/lib/monetag-rewarded.ts)
+    provider_type: "mixed",
     icon: "monetag",
     credential_fields: [
       {
@@ -966,6 +968,14 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         type: "text",
         required: true,
         placeholder: "1234567",
+      },
+      {
+        key: "sdk_url",
+        label: "SDK Script URL (for Rewarded/SDK zones)",
+        type: "text",
+        required: false,
+        placeholder:
+          "https://<your-cdn-domain>/sdk.js (from Monetag dashboard → Get SDK)",
       },
       {
         key: "format",

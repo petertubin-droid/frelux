@@ -8,6 +8,11 @@ import type {
   DbRewardedFeatureConfig,
 } from "@/types/database";
 import { generateOfferwallUrl, supportsOfferwall } from "@/lib/offerwall";
+import {
+  getMonetagZone,
+  getMonetagSdkUrl,
+  showMonetagRewardedAd,
+} from "@/lib/monetag-rewarded";
 
 export interface RewardedAccessState {
   toolKey: string;
@@ -413,98 +418,147 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     }
 
     // ──────────────────────────────────────────────────────
-    // Issue #1 fix: Call the server-side edge function to verify
-    // the ad and grant the unlock. No more dead code or client-side
-    // unlock insertion.
-    //
-    // When a real rewarded ad SDK is integrated:
-    // 1. Show the ad via the provider's SDK
-    // 2. On ad completion, get the verification token from the SDK
-    // 3. Pass the token as adToken to the edge function
-    // 4. The edge function verifies the token with the provider
-    //
-    // For now, the edge function checks for REWARDED_DEV_MODE env var.
+    // Server-side grant: call the edge function to verify the ad
+    // and grant the unlock. No client-side unlock insertion.
+    // Shared by every non-offerwall provider path below.
     // ──────────────────────────────────────────────────────
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke(
-        "grant-rewarded-unlock",
-        {
-          body: {
-            toolKey,
-            clientHash,
-            adProvider: providerName,
-            // adToken will be provided by the ad SDK when integrated
-            adToken: null,
+    const grantUnlock = async (
+      provider: string,
+      adToken: string | null,
+      extraMetadata?: Record<string, unknown>,
+    ): Promise<void> => {
+      try {
+        const { data, error: fnError } = await supabase.functions.invoke(
+          "grant-rewarded-unlock",
+          {
+            body: {
+              toolKey,
+              clientHash,
+              adProvider: provider,
+              adToken,
+            },
           },
-        },
-      );
+        );
 
-      if (fnError || !data?.success) {
-        // supabase.functions.invoke() throws a FunctionsHttpError with a
-        // generic "non-2xx status code" message on failure — the real
-        // reason (e.g. "No rewarded ad provider is configured", daily
-        // limit, cooldown, disabled feature) is in the response body and
-        // must be read via getFunctionErrorMessage(). Falling back to
-        // fnError.message directly hid the real error from users.
-        const errorMsg = fnError
-          ? await getFunctionErrorMessage(fnError)
-          : data?.error ?? "Failed to unlock. Please try again.";
+        if (fnError || !data?.success) {
+          // supabase.functions.invoke() throws a FunctionsHttpError with a
+          // generic "non-2xx status code" message on failure — the real
+          // reason (e.g. "No rewarded ad provider is configured", daily
+          // limit, cooldown, disabled feature) is in the response body and
+          // must be read via getFunctionErrorMessage(). Falling back to
+          // fnError.message directly hid the real error from users.
+          const errorMsg = fnError
+            ? await getFunctionErrorMessage(fnError)
+            : (data?.error ?? "Failed to unlock. Please try again.");
 
-        // Log error event
+          // Log error event
+          await logAdEvent({
+            event_type: "error",
+            provider_id: providerId,
+            tool_key: toolKey,
+            client_hash: clientHash,
+            metadata: { error: data?.code ?? "edge_function_error" },
+          });
+
+          setError(errorMsg);
+          setAdLoading(false);
+          return;
+        }
+
+        // Unlock granted successfully
+        const expiry = data.expiresAt as string;
+        const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
+
+        // Log reward event to unified analytics only (issue #7 fix)
         await logAdEvent({
-          event_type: "error",
+          event_type: "reward",
           provider_id: providerId,
           tool_key: toolKey,
           client_hash: clientHash,
-          metadata: { error: data?.code ?? "edge_function_error" },
+          revenue_estimated: revenueEstimate,
+          metadata: {
+            ad_unit_id: adUnitId,
+            expires_at: expiry,
+            ...(extraMetadata ?? {}),
+          },
         });
 
-        setError(errorMsg);
+        setLocalExpiry(toolKey, expiry);
+        setIsUnlocked(true);
+        setExpiresAt(expiry);
+        setShowAdModal(false);
+        setAdLoading(false);
+        setAdProviderUsed(provider);
+
+        // Update client-side hints
+        const newCount = incrementDailyUnlockCount(toolKey);
+        setDailyUnlockCount(newCount);
+        const cooldownMinutes =
+          featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
+        if (cooldownMinutes > 0) {
+          setCooldownExpiry(toolKey, cooldownMinutes);
+          setIsCooldownActive(true);
+        }
+      } catch (e) {
+        // Surface the real error when available instead of always showing
+        // the same generic network message — network failures, thrown
+        // exceptions, and edge cases all land here.
+        const message =
+          e instanceof Error && e.message
+            ? e.message
+            : "Unable to reach the unlock service. Please try again.";
+        setError(message);
+        setAdLoading(false);
+      }
+    };
+
+    // ──────────────────────────────────────────────────────
+    // Monetag: show the rewarded ad from this user gesture, then
+    // grant the unlock server-side. Must run inside the tap handler —
+    // mobile browsers only allow window-opening ad formats from a
+    // direct user gesture (which is why Monetag ads never fired for
+    // mobile visitors while the tag ran passively in <head>).
+    // ──────────────────────────────────────────────────────
+    if (activeProvider && activeProvider.slug === "monetag") {
+      const zone = getMonetagZone(activeProvider);
+      if (!zone) {
+        setError("The ad service is not configured. Please try again later.");
         setAdLoading(false);
         return;
       }
-
-      // Unlock granted successfully
-      const expiry = data.expiresAt as string;
-      const revenueEstimate = featureConfig?.revenue_per_unlock ?? 0;
-
-      // Log reward event to unified analytics only (issue #7 fix)
-      await logAdEvent({
-        event_type: "reward",
-        provider_id: providerId,
-        tool_key: toolKey,
-        client_hash: clientHash,
-        revenue_estimated: revenueEstimate,
-        metadata: { ad_unit_id: adUnitId, expires_at: expiry },
-      });
-
-      setLocalExpiry(toolKey, expiry);
-      setIsUnlocked(true);
-      setExpiresAt(expiry);
-      setShowAdModal(false);
-      setAdLoading(false);
-      setAdProviderUsed(providerName);
-
-      // Update client-side hints
-      const newCount = incrementDailyUnlockCount(toolKey);
-      setDailyUnlockCount(newCount);
-      const cooldownMinutes =
-        featureConfig?.cooldown_minutes ?? config.cooldown_minutes ?? 0;
-      if (cooldownMinutes > 0) {
-        setCooldownExpiry(toolKey, cooldownMinutes);
-        setIsCooldownActive(true);
+      try {
+        const adResult = await showMonetagRewardedAd({
+          zone,
+          ymid: clientHash,
+          requestVar: toolKey,
+          sdkUrl: getMonetagSdkUrl(activeProvider),
+        });
+        await grantUnlock(
+          activeProvider.name,
+          `monetag_${adResult.mode}_${Date.now()}`,
+          {
+            monetag_mode: adResult.mode,
+            ...(adResult.estimatedPrice != null
+              ? { estimated_price: adResult.estimatedPrice }
+              : {}),
+          },
+        );
+      } catch (e) {
+        const message =
+          e instanceof Error && e.message
+            ? e.message
+            : "The ad could not be loaded. Please try again.";
+        setError(message);
+        setAdLoading(false);
       }
-    } catch (e) {
-      // Surface the real error when available instead of always showing
-      // the same generic network message — network failures, thrown
-      // exceptions, and edge cases all land here.
-      const message =
-        e instanceof Error && e.message
-          ? e.message
-          : "Unable to reach the unlock service. Please try again.";
-      setError(message);
-      setAdLoading(false);
+      return;
     }
+
+    // ──────────────────────────────────────────────────────
+    // Other providers: grant via the edge function. adToken is
+    // provided by the provider SDK when one is integrated.
+    // ──────────────────────────────────────────────────────
+    await grantUnlock(providerName, null);
   }, [
     config,
     featureConfig,

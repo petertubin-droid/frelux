@@ -107,6 +107,21 @@ Deno.serve(async (req: Request) => {
   // In dev mode, a simple token is accepted without provider verification.
   const devMode = Deno.env.get("REWARDED_DEV_MODE") === "true";
 
+  // ──────────────────────────────────────────────────────────
+  // Ad verification
+  // ──────────────────────────────────────────────────────────
+  // Monetag: web zones complete client-side. The SDK resolves a
+  // completion promise (and fires a S2S postback when configured in
+  // the Monetag dashboard), but provides no server-verifiable token
+  // for regular web zones. We accept the client attestation for
+  // Monetag only; the daily limit, cooldown, and unlock duration
+  // below constrain abuse. The attestation token format is
+  // `monetag_<mode>_<timestamp>` (see src/lib/monetag-rewarded.ts).
+  const isMonetagAttestation =
+    (adProvider ?? "").trim().toLowerCase() === "monetag" &&
+    typeof adToken === "string" &&
+    adToken.startsWith("monetag_");
+
   if (!devMode) {
     if (!adToken) {
       return jsonResponse(
@@ -118,19 +133,21 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // When a real SDK is integrated, verify the adToken against the provider's
-    // server-side verification API here. Example for AdMob:
-    //   GET https://www.gstatic.com/rewardedads/verify/<token>
-    //
-    // For now, reject all tokens since no provider is configured.
-    return jsonResponse(
-      {
-        error:
-          "No rewarded ad provider is configured for server-side verification.",
-        code: "NO_PROVIDER",
-      },
-      503,
-    );
+    if (isMonetagAttestation) {
+      // Accepted — client-attested Monetag completion (see note above).
+    } else {
+      // When a real SDK is integrated, verify the adToken against the
+      // provider's server-side verification API here. Example for AdMob:
+      //   GET https://www.gstatic.com/rewardedads/verify/<token>
+      return jsonResponse(
+        {
+          error:
+            "No rewarded ad provider is configured for server-side verification.",
+          code: "NO_PROVIDER",
+        },
+        503,
+      );
+    }
   }
 
   // 3. Server-side daily limit enforcement
