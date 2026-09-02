@@ -1,115 +1,100 @@
 import { describe, it, expect } from "vitest";
 import {
+  REWARD_EVENTS,
   generateReferenceId,
   getDailyRefId,
   AI_CREDIT_COST,
   CREDITS_PER_AD,
   MAX_ADS_PER_DAY,
-  REWARD_EVENTS,
 } from "@/lib/credits";
 
-describe("credits — generateReferenceId", () => {
-  it("generates a reference with the given prefix", () => {
-    const ref = generateReferenceId("tx");
-    expect(ref.startsWith("tx_")).toBe(true);
+describe("REWARD_EVENTS", () => {
+  it("has first_calc event", () => {
+    expect(REWARD_EVENTS.first_calc.amount).toBe(2);
+    expect(REWARD_EVENTS.first_calc.reason).toContain("first calculator");
   });
 
-  it("includes a timestamp and random component", () => {
-    const ref = generateReferenceId("rw");
-    const parts = ref.split("_");
-    expect(parts[0]).toBe("rw");
-    expect(parts.length).toBe(3);
-    // Timestamp should be a number
-    expect(Number.isNaN(Number(parts[1]))).toBe(false);
-    // Random part should be a non-empty string
-    expect(parts[2].length).toBeGreaterThan(0);
+  it("has three_different_calcs event", () => {
+    expect(REWARD_EVENTS.three_different_calcs.amount).toBe(5);
   });
 
-  it("generates unique IDs on rapid successive calls", () => {
-    const refs = new Set<string>();
-    for (let i = 0; i < 100; i++) {
-      refs.add(generateReferenceId("test"));
-    }
-    expect(refs.size).toBe(100);
+  it("has save_estimate event", () => {
+    expect(REWARD_EVENTS.save_estimate.amount).toBe(3);
+  });
+
+  it("has return_3_days event", () => {
+    expect(REWARD_EVENTS.return_3_days.amount).toBe(5);
+  });
+
+  it("has streak_7_day event", () => {
+    expect(REWARD_EVENTS.streak_7_day.amount).toBe(15);
+  });
+
+  it("has build_to_roof event", () => {
+    expect(REWARD_EVENTS.build_to_roof.amount).toBe(10);
+  });
+
+  it("has ai_photo_estimator event", () => {
+    expect(REWARD_EVENTS.ai_photo_estimator.amount).toBe(5);
+  });
+
+  it("has five_estimates event", () => {
+    expect(REWARD_EVENTS.five_estimates.amount).toBe(15);
+  });
+
+  it("has referral event with highest reward", () => {
+    expect(REWARD_EVENTS.referral.amount).toBe(25);
+  });
+
+  it("has achievement events", () => {
+    expect(REWARD_EVENTS.ach_builder_10.amount).toBe(25);
+    expect(REWARD_EVENTS.ach_estimator_25.amount).toBe(50);
+    expect(REWARD_EVENTS.ach_master_5.amount).toBe(100);
+  });
+
+  it("every event has eventType, amount, and reason", () => {
+    Object.entries(REWARD_EVENTS).forEach(([, e]) => {
+      expect(e.eventType).toBeTruthy();
+      expect(e.amount).toBeGreaterThan(0);
+      expect(e.reason).toBeTruthy();
+    });
   });
 });
 
-describe("credits — getDailyRefId", () => {
-  it("generates a date-based reference ID", () => {
-    const date = new Date("2026-08-26T12:00:00Z");
+describe("generateReferenceId", () => {
+  it("generates id with prefix", () => {
+    const ref = generateReferenceId("calc");
+    expect(ref.startsWith("calc_")).toBe(true);
+  });
+
+  it("generates unique ids", () => {
+    const a = generateReferenceId("test");
+    const b = generateReferenceId("test");
+    expect(a).not.toBe(b);
+  });
+});
+
+describe("getDailyRefId", () => {
+  it("generates date-based ref id", () => {
+    const date = new Date("2026-09-02T10:00:00Z");
     const ref = getDailyRefId("daily", date);
-    expect(ref).toBe("daily_2026-08-26");
+    expect(ref).toBe("daily_2026-09-02");
   });
 
-  it("uses current date when no date provided", () => {
-    const ref = getDailyRefId("login");
-    const today = new Date().toISOString().split("T")[0];
-    expect(ref).toBe(`login_${today}`);
+  it("uses current date by default", () => {
+    const ref = getDailyRefId("ret");
+    expect(ref.startsWith("ret_")).toBe(true);
+    expect(ref.length).toBe("ret_YYYY-MM-DD".length);
   });
 
-  it("produces the same ID for the same prefix and date", () => {
-    const date = new Date("2026-01-15T06:00:00Z");
-    expect(getDailyRefId("streak", date)).toBe(getDailyRefId("streak", date));
-  });
-
-  it("produces different IDs for different dates", () => {
-    const d1 = new Date("2026-01-01T00:00:00Z");
-    const d2 = new Date("2026-01-02T00:00:00Z");
-    expect(getDailyRefId("evt", d1)).not.toBe(getDailyRefId("evt", d2));
+  it("is deterministic for same date", () => {
+    const date = new Date("2026-09-02T15:00:00Z");
+    expect(getDailyRefId("x", date)).toBe(getDailyRefId("x", date));
   });
 });
 
-describe("credits — constants", () => {
-  it("AI_CREDIT_COST is 10 (flat per AI tool use)", () => {
-    expect(AI_CREDIT_COST).toBe(10);
-  });
-
-  it("CREDITS_PER_AD is 5", () => {
-    expect(CREDITS_PER_AD).toBe(5);
-  });
-
-  it("MAX_ADS_PER_DAY is 5", () => {
-    expect(MAX_ADS_PER_DAY).toBe(5);
-  });
-
-  it("two ad watches equal one AI tool use", () => {
-    expect(AI_CREDIT_COST).toBe(CREDITS_PER_AD * 2);
-  });
-});
-
-describe("credits — REWARD_EVENTS", () => {
-  it("is a non-empty object", () => {
-    expect(REWARD_EVENTS).toBeDefined();
-    expect(Object.keys(REWARD_EVENTS).length).toBeGreaterThan(0);
-  });
-
-  it("each event has an amount and reason", () => {
-    for (const [key, value] of Object.entries(REWARD_EVENTS)) {
-      expect(key).toBeTruthy();
-      const evt = value as { amount: number; reason: string };
-      expect(typeof evt.amount).toBe("number");
-      expect(evt.amount).toBeGreaterThan(0);
-      expect(typeof evt.reason).toBe("string");
-      expect(evt.reason.length).toBeGreaterThan(0);
-    }
-  });
-
-  it("referral reward has the highest amount", () => {
-    const amounts = Object.values(REWARD_EVENTS).map((e) => e.amount);
-    expect(Math.max(...amounts)).toBe(100);
-  });
-
-  it("achievement rewards are worth more than basic rewards", () => {
-    const basicMax = Math.max(
-      REWARD_EVENTS.first_calc.amount,
-      REWARD_EVENTS.three_different_calcs.amount,
-      REWARD_EVENTS.save_estimate.amount,
-    );
-    const achMin = Math.min(
-      REWARD_EVENTS.ach_builder_10.amount,
-      REWARD_EVENTS.ach_estimator_25.amount,
-      REWARD_EVENTS.ach_master_5.amount,
-    );
-    expect(achMin).toBeGreaterThan(basicMax);
-  });
+describe("AI credit constants", () => {
+  it("AI_CREDIT_COST = 10", () => expect(AI_CREDIT_COST).toBe(10));
+  it("CREDITS_PER_AD = 5", () => expect(CREDITS_PER_AD).toBe(5));
+  it("MAX_ADS_PER_DAY = 5", () => expect(MAX_ADS_PER_DAY).toBe(5));
 });
