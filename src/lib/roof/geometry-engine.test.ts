@@ -1,15 +1,14 @@
 import { describe, it, expect } from "vitest";
 import {
   generateGeometryId,
-  distanceBetween,
   createPoint,
+  distanceBetween,
   polygonArea,
   polygonPerimeter,
   pixelAreaToM2,
   pixelLengthToM,
   createRoofSection,
   createDefaultRoofGeometry,
-  isValidSection,
   addVertex,
   moveVertex,
   deleteVertex,
@@ -17,137 +16,234 @@ import {
   removeSection,
   renameSection,
   confirmGeometry,
-} from "./geometry-engine";
+  isValidSection,
+} from "@/lib/roof/geometry-engine";
 
-describe("roof/geometry-engine", () => {
-  it("generateGeometryId produces unique ids", () => {
+describe("generateGeometryId", () => {
+  it("generates unique ids", () => {
     const a = generateGeometryId();
     const b = generateGeometryId();
     expect(a).not.toBe(b);
-    expect(a.startsWith("g")).toBe(true);
   });
-
-  it("distanceBetween calculates euclidean distance", () => {
-    const a = createPoint(0, 0);
-    const b = createPoint(3, 4);
-    expect(distanceBetween(a, b)).toBe(5);
+  it("uses prefix", () => {
+    const id = generateGeometryId("test");
+    expect(id.startsWith("test_")).toBe(true);
   });
+});
 
-  it("createPoint creates point with id", () => {
-    const p = createPoint(5, 10);
-    expect(p.x).toBe(5);
-    expect(p.y).toBe(10);
+describe("createPoint", () => {
+  it("creates a point with x, y, and id", () => {
+    const p = createPoint(10, 20);
+    expect(p.x).toBe(10);
+    expect(p.y).toBe(20);
     expect(p.id).toBeTruthy();
   });
-
-  it("polygonArea calculates area of square", () => {
-    const vertices = [
-      createPoint(0, 0),
-      createPoint(4, 0),
-      createPoint(4, 4),
-      createPoint(0, 4),
-    ];
-    expect(polygonArea(vertices)).toBe(16);
+  it("accepts custom id", () => {
+    const p = createPoint(0, 0, "custom-id");
+    expect(p.id).toBe("custom-id");
   });
+});
 
-  it("polygonArea returns 0 for < 3 vertices", () => {
+describe("distanceBetween", () => {
+  it("calculates distance between two points", () => {
+    const a = createPoint(0, 0, "a");
+    const b = createPoint(3, 4, "b");
+    expect(distanceBetween(a, b)).toBeCloseTo(5, 5);
+  });
+  it("returns 0 for same point", () => {
+    const a = createPoint(5, 5, "a");
+    expect(distanceBetween(a, a)).toBe(0);
+  });
+});
+
+describe("polygonArea", () => {
+  it("returns 0 for fewer than 3 vertices", () => {
+    expect(polygonArea([])).toBe(0);
+    expect(polygonArea([createPoint(0, 0)])).toBe(0);
     expect(polygonArea([createPoint(0, 0), createPoint(1, 1)])).toBe(0);
   });
-
-  it("polygonPerimeter calculates perimeter of square", () => {
-    const vertices = [
-      createPoint(0, 0),
-      createPoint(4, 0),
-      createPoint(4, 4),
-      createPoint(0, 4),
+  it("calculates area of a unit square", () => {
+    const pts = [
+      createPoint(0, 0, "p1"),
+      createPoint(100, 0, "p2"),
+      createPoint(100, 100, "p3"),
+      createPoint(0, 100, "p4"),
     ];
-    expect(polygonPerimeter(vertices)).toBe(16);
+    expect(polygonArea(pts)).toBe(10000);
+  });
+  it("calculates area of a triangle", () => {
+    const pts = [
+      createPoint(0, 0, "p1"),
+      createPoint(100, 0, "p2"),
+      createPoint(0, 100, "p3"),
+    ];
+    expect(polygonArea(pts)).toBe(5000);
+  });
+  it("returns absolute value regardless of winding order", () => {
+    const cw = [
+      createPoint(0, 0, "p1"),
+      createPoint(0, 100, "p2"),
+      createPoint(100, 100, "p3"),
+      createPoint(100, 0, "p4"),
+    ];
+    expect(polygonArea(cw)).toBe(10000);
+  });
+});
+
+describe("polygonPerimeter", () => {
+  it("returns 0 for fewer than 2 vertices", () => {
+    expect(polygonPerimeter([])).toBe(0);
+    expect(polygonPerimeter([createPoint(0, 0)])).toBe(0);
+  });
+  it("calculates perimeter of a unit square", () => {
+    const pts = [
+      createPoint(0, 0, "p1"),
+      createPoint(100, 0, "p2"),
+      createPoint(100, 100, "p3"),
+      createPoint(0, 100, "p4"),
+    ];
+    expect(polygonPerimeter(pts)).toBe(400);
+  });
+  it("calculates perimeter of a triangle", () => {
+    const pts = [
+      createPoint(0, 0, "p1"),
+      createPoint(100, 0, "p2"),
+      createPoint(0, 100, "p3"),
+    ];
+    expect(polygonPerimeter(pts)).toBeCloseTo(341.42, 1);
+  });
+});
+
+describe("pixelAreaToM2 / pixelLengthToM", () => {
+  it("converts pixel area to square meters", () => {
+    expect(pixelAreaToM2(10000, 100)).toBe(1);
+  });
+  it("converts pixel length to meters", () => {
+    expect(pixelLengthToM(100, 100)).toBe(1);
+  });
+  it("handles zero", () => {
+    expect(pixelAreaToM2(0, 100)).toBe(0);
+    expect(pixelLengthToM(0, 100)).toBe(0);
+  });
+});
+
+describe("createRoofSection", () => {
+  it("creates a section with a name and id", () => {
+    const section = createRoofSection("Main Roof");
+    expect(section.name).toBe("Main Roof");
+    expect(section.id).toBeTruthy();
+    expect(section.vertices).toEqual([]);
+    expect(section.confirmed).toBe(false);
+  });
+});
+
+describe("createDefaultRoofGeometry", () => {
+  it("creates geometry with one initial section", () => {
+    const geo = createDefaultRoofGeometry();
+    expect(geo.sections.length).toBe(1);
+    expect(geo.activeSectionId).toBeTruthy();
+    expect(geo.confirmed).toBe(false);
+  });
+});
+
+describe("vertex operations", () => {
+  it("addVertex adds a point to the active section", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.activeSectionId!;
+    const updated = addVertex(geo, sectionId, { x: 10, y: 10 });
+    const active = updated.sections.find((s) => s.id === sectionId)!;
+    expect(active.vertices.length).toBe(1);
+    expect(active.vertices[0].x).toBe(10);
+    expect(active.vertices[0].y).toBe(10);
   });
 
-  it("pixelAreaToM2 converts correctly", () => {
-    expect(pixelAreaToM2(10000, 100)).toBeCloseTo(1, 2);
+  it("addVertex un-confirms the geometry", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.activeSectionId!;
+    const updated = addVertex(geo, sectionId, { x: 0, y: 0 });
+    expect(updated.confirmed).toBe(false);
   });
 
-  it("pixelLengthToM converts correctly", () => {
-    expect(pixelLengthToM(100, 100)).toBeCloseTo(1, 2);
+  it("moveVertex updates the position", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.activeSectionId!;
+    const added = addVertex(geo, sectionId, { x: 10, y: 10 });
+    const vertexId = added.sections.find((s) => s.id === sectionId)!.vertices[0]
+      .id;
+    const moved = moveVertex(added, sectionId, vertexId, 50, 60);
+    const active = moved.sections.find((s) => s.id === sectionId)!;
+    expect(active.vertices[0].x).toBe(50);
+    expect(active.vertices[0].y).toBe(60);
   });
 
-  it("createRoofSection creates with defaults", () => {
-    const s = createRoofSection();
-    expect(s.name).toBe("New Section");
-    expect(s.vertices).toEqual([]);
-    expect(s.confirmed).toBe(false);
-    expect(s.source).toBe("manual");
-    expect(s.id).toBeTruthy();
+  it("deleteVertex removes a vertex", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.activeSectionId!;
+    let g = addVertex(geo, sectionId, { x: 10, y: 10 });
+    g = addVertex(g, sectionId, { x: 20, y: 20 });
+    const firstVertexId = g.sections.find((s) => s.id === sectionId)!
+      .vertices[0].id;
+    g = deleteVertex(g, sectionId, firstVertexId);
+    const active = g.sections.find((s) => s.id === sectionId)!;
+    expect(active.vertices.length).toBe(1);
   });
 
-  it("createDefaultRoofGeometry has at least one section", () => {
-    const g = createDefaultRoofGeometry();
-    expect(g.sections.length).toBeGreaterThanOrEqual(1);
+  it("deleteVertex un-confirms the geometry", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.activeSectionId!;
+    const g = addVertex(geo, sectionId, { x: 10, y: 10 });
+    const vid = g.sections.find((s) => s.id === sectionId)!.vertices[0].id;
+    const deleted = deleteVertex(g, sectionId, vid);
+    expect(deleted.confirmed).toBe(false);
+  });
+});
+
+describe("section operations", () => {
+  it("addSection adds a new section and sets it active", () => {
+    const geo = createDefaultRoofGeometry();
+    const updated = addSection(geo, "Garage");
+    expect(updated.sections.length).toBe(2);
+    expect(updated.activeSectionId).not.toBe(geo.activeSectionId);
   });
 
-  it("isValidSection requires 3+ vertices", () => {
-    const s = createRoofSection();
-    expect(isValidSection(s)).toBe(false);
-    const s2 = {
-      ...s,
-      vertices: [createPoint(0, 0), createPoint(1, 0), createPoint(0, 1)],
+  it("removeSection removes a section", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.sections[0].id;
+    const updated = removeSection(geo, sectionId);
+    expect(updated.sections.length).toBe(0);
+  });
+
+  it("renameSection updates the name", () => {
+    const geo = createDefaultRoofGeometry();
+    const sectionId = geo.sections[0].id;
+    const updated = renameSection(geo, sectionId, "Porch");
+    expect(updated.sections[0].name).toBe("Porch");
+  });
+});
+
+describe("confirmGeometry", () => {
+  it("sets confirmed to true", () => {
+    const geo = createDefaultRoofGeometry();
+    const confirmed = confirmGeometry(geo);
+    expect(confirmed.confirmed).toBe(true);
+  });
+});
+
+describe("isValidSection", () => {
+  it("returns false for fewer than 3 vertices", () => {
+    const section = createRoofSection("Test");
+    expect(isValidSection(section)).toBe(false);
+  });
+  it("returns true for 3 or more vertices", () => {
+    let section = createRoofSection("Test");
+    section = {
+      ...section,
+      vertices: [
+        createPoint(0, 0, "v1"),
+        createPoint(100, 0, "v2"),
+        createPoint(50, 100, "v3"),
+      ],
     };
-    expect(isValidSection(s2)).toBe(true);
-  });
-
-  it("addVertex adds vertex to section in geometry", () => {
-    const g = createDefaultRoofGeometry();
-    const sectionId = g.sections[0].id;
-    const updated = addVertex(g, sectionId, { x: 5, y: 10 });
-    expect(updated.sections[0].vertices.length).toBe(1);
-    expect(updated.sections[0].vertices[0].x).toBe(5);
-  });
-
-  it("moveVertex updates vertex position", () => {
-    const g = createDefaultRoofGeometry();
-    const sectionId = g.sections[0].id;
-    const withVertex = addVertex(g, sectionId, { x: 5, y: 10 });
-    const pointId = withVertex.sections[0].vertices[0].id;
-    const moved = moveVertex(withVertex, sectionId, pointId, 20, 30);
-    expect(moved.sections[0].vertices[0].x).toBe(20);
-    expect(moved.sections[0].vertices[0].y).toBe(30);
-  });
-
-  it("deleteVertex removes vertex by id", () => {
-    const g = createDefaultRoofGeometry();
-    const sectionId = g.sections[0].id;
-    const withV1 = addVertex(g, sectionId, { x: 1, y: 1 });
-    const withV2 = addVertex(withV1, sectionId, { x: 2, y: 2 });
-    const pointId = withV2.sections[0].vertices[0].id;
-    const deleted = deleteVertex(withV2, sectionId, pointId);
-    expect(deleted.sections[0].vertices.length).toBe(1);
-  });
-
-  it("addSection adds to geometry", () => {
-    const g = createDefaultRoofGeometry();
-    const _newSec = createRoofSection("Garage");
-    const updated = addSection(g, "Garage");
-    expect(updated.sections.length).toBe(g.sections.length + 1);
-  });
-
-  it("removeSection removes by id", () => {
-    const g = createDefaultRoofGeometry();
-    const id = g.sections[0].id;
-    const updated = removeSection(g, id);
-    expect(updated.sections.length).toBe(g.sections.length - 1);
-  });
-
-  it("renameSection updates name", () => {
-    const g = createDefaultRoofGeometry();
-    const id = g.sections[0].id;
-    const updated = renameSection(g, id, "Main");
-    expect(updated.sections[0].name).toBe("Main");
-  });
-
-  it("confirmGeometry sets confirmed on all sections", () => {
-    const g = createDefaultRoofGeometry();
-    const confirmed = confirmGeometry(g);
-    expect(confirmed.sections.every((s) => s.confirmed)).toBe(true);
+    expect(isValidSection(section)).toBe(true);
   });
 });
