@@ -64,6 +64,7 @@ Allow: /cookie-policy
 Allow: /disclaimer
 Allow: /ai-disclaimer
 Allow: /ai-color-assistant
+Allow: /rewards
 
 # Disallow private/auth/admin routes
 Disallow: /admin
@@ -89,6 +90,7 @@ Disallow: /messages
 Disallow: /contractor
 Disallow: /worker-channels
 Disallow: /clients
+Disallow: /onboarding
 Disallow: /analytics
 
 # Sitemap
