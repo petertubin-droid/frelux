@@ -15,7 +15,7 @@ interface CalculatorTabsProps {
 
 export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel = 'Calculator mode' }: CalculatorTabsProps) {
   return (
-    <div className="sticky top-[72px] z-30 border-b border-neutral-200/80 bg-white/95 backdrop-blur-md dark:border-white/5 dark:bg-brand-navy-mid/95">
+    <div className="sticky top-[72px] z-30 border-b border-border/80 bg-white/95 backdrop-blur-md dark:border-white/5 dark:bg-background-mid/95">
       <div className="mx-auto max-w-5xl px-4">
         <div
           role="tablist"
@@ -35,8 +35,8 @@ export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel
                 className={classNames(
                   'shrink-0 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-300',
                   isActive
-                    ? 'calc-tab-active bg-brand-purple text-white'
-                    : 'text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200',
+                    ? 'calc-tab-active bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-muted hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60',
                 )}
               >
                 {tab.label}

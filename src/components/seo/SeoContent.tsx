@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 export function PaintCalculatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Calculate Paint Quantity for Any Room
       </h2>
       <p>
@@ -22,7 +22,7 @@ export function PaintCalculatorSeo(): ReactNode {
         paint type and quality, accounts for the number of coats, and rounds up
         to whole paint buckets so you know exactly what to buy.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Factors That Affect Paint Quantity
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -64,7 +64,7 @@ export function PaintCalculatorSeo(): ReactNode {
 export function ScreedingCalculatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Calculate Wall Screeding Area and Materials
       </h2>
       <p>
@@ -79,7 +79,7 @@ export function ScreedingCalculatorSeo(): ReactNode {
         mix ratio is typically 1:3 (cement to sand), applied at 6–12mm thickness
         depending on the wall condition.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Materials Needed for Wall Screeding
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -114,7 +114,7 @@ export function ScreedingCalculatorSeo(): ReactNode {
 export function PopCeilingCalculatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Calculate POP Ceiling Materials
       </h2>
       <p>
@@ -128,7 +128,7 @@ export function PopCeilingCalculatorSeo(): ReactNode {
         get the ceiling area. The calculator then estimates POP cement quantity,
         fibreglass mesh, and other materials based on standard coverage rates.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         POP Ceiling Material Guide
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -164,7 +164,7 @@ export function PopCeilingCalculatorSeo(): ReactNode {
 export function TileCalculatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Calculate Tile Quantity for Floors and Walls
       </h2>
       <p>
@@ -183,7 +183,7 @@ export function TileCalculatorSeo(): ReactNode {
         per box. Always add 10–15% extra for cuts, breakages, and future
         repairs.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Tile Calculation Tips
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -220,7 +220,7 @@ export function TileCalculatorSeo(): ReactNode {
 export function CostEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Estimate the Cost of a Painting Project
       </h2>
       <p>
@@ -235,7 +235,7 @@ export function CostEstimatorSeo(): ReactNode {
         (from the Paint Calculator), choose your paint type and quality, and the
         estimator calculates the total paint material cost.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         What's Included in a Paint Project Cost
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -276,7 +276,7 @@ export function CostEstimatorSeo(): ReactNode {
 export function ScreedingCostEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Estimate Wall Screeding Cost
       </h2>
       <p>
@@ -290,7 +290,7 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
         determine your total wall area, then enter that area into the Cost
         Estimator along with your preferred mix ratio and material prices.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Screeding Cost Breakdown
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -324,7 +324,7 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
 export function PopCeilingCostEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Estimate POP Ceiling Cost
       </h2>
       <p>
@@ -338,7 +338,7 @@ export function PopCeilingCostEstimatorSeo(): ReactNode {
         cornices, medallions, or recessed sections require more material and
         skilled labour, increasing the total cost.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Factors Affecting POP Ceiling Cost
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -374,7 +374,7 @@ export function PopCeilingCostEstimatorSeo(): ReactNode {
 export function TileCostEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Estimate Tiling Project Cost
       </h2>
       <p>
@@ -388,7 +388,7 @@ export function TileCostEstimatorSeo(): ReactNode {
         and tiles per box to get an accurate cost based on your specific product
         choice.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Tiling Cost Components
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -424,7 +424,7 @@ export function TileCostEstimatorSeo(): ReactNode {
 export function FinishEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Estimating Wall Finish Materials and Costs
       </h2>
       <p>
@@ -438,7 +438,7 @@ export function FinishEstimatorSeo(): ReactNode {
         and price points. The estimator uses real product package sizes and
         current prices to give you accurate quantities and costs.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Wall Finish Types Compared
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -469,7 +469,7 @@ export function FinishEstimatorSeo(): ReactNode {
 export function PaintingEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Room-Based Painting Estimation with the FRELUX Method
       </h2>
       <p>
@@ -484,7 +484,7 @@ export function PaintingEstimatorSeo(): ReactNode {
         approach that combines wall area calculation, paint coverage rates, and
         real product prices.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Why Room-Based Estimation Is More Accurate
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -519,7 +519,7 @@ export function PaintingEstimatorSeo(): ReactNode {
 export function TyroleneEstimatorSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How to Estimate Tyrolene Materials for Exterior Walls
       </h2>
       <p>
@@ -534,7 +534,7 @@ export function TyroleneEstimatorSeo(): ReactNode {
         surface conditions. It then calculates cement, sand, acrylic bond, water
         seal, anti-fungal additive, and Tyrolene machine coverage.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Tyrolene Material Components
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -572,7 +572,7 @@ export function TyroleneEstimatorSeo(): ReactNode {
 export function AiColorAssistantSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         AI-Powered Paint Color Recommendations
       </h2>
       <p>
@@ -586,7 +586,7 @@ export function AiColorAssistantSeo(): ReactNode {
         furniture and warm lighting" · and the assistant suggests complementary
         colour palettes with specific paint codes you can buy.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         How AI Color Selection Works
       </h2>
       <ul className="list-disc pl-5 space-y-1">
@@ -624,7 +624,7 @@ export function AiColorAssistantSeo(): ReactNode {
 export function ColorsPageSeo(): ReactNode {
   return (
     <SeoContent>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Browse Paint Colors for Every Project
       </h2>
       <p>
@@ -637,7 +637,7 @@ export function ColorsPageSeo(): ReactNode {
         beige for your living room, or a bold accent colour for a feature wall,
         the colour library makes it easy to find and compare options.
       </p>
-      <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Tips for Choosing Paint Colors
       </h2>
       <ul className="list-disc pl-5 space-y-1">

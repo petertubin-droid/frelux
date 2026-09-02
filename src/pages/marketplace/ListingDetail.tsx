@@ -213,23 +213,23 @@ export default function ListingDetail() {
   if (!listing) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
+    <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Back */}
         <button
           onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
           Marketplace
         </button>
 
         {/* Header card */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
+                <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-brand-purple">
                   {PROJECT_TYPE_LABELS[listing.project_type]}
                 </span>
                 <span
@@ -237,7 +237,7 @@ export default function ListingDetail() {
                     "rounded-md px-2 py-1 text-xs font-semibold",
                     isOpen
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                      : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                   )}
                 >
                   {LISTING_STATUS_LABELS[listing.status]}
@@ -248,11 +248,11 @@ export default function ListingDetail() {
                   </span>
                 )}
               </div>
-              <h1 className="mt-3 text-xl font-bold text-neutral-900 dark:text-white sm:text-2xl">
+              <h1 className="mt-3 text-xl font-bold text-foreground dark:text-primary-foreground sm:text-2xl">
                 {listing.title}
               </h1>
               {listing.description && (
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                   {listing.description}
                 </p>
               )}
@@ -261,8 +261,8 @@ export default function ListingDetail() {
 
           {/* Posted by */}
           {listing.client && (
-            <div className="mt-4 flex items-center gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
-              <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+            <div className="mt-4 flex items-center gap-3 border-t border-border/50 pt-4 dark:border-white/5">
+              <div className="h-10 w-10 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                 {listing.client.avatar_url ? (
                   <img
                     src={listing.client.avatar_url}
@@ -276,14 +276,14 @@ export default function ListingDetail() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   Posted by
                 </p>
-                <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                   {listing.client.full_name || "Anonymous"}
                 </p>
                 {listing.client.marketplace_id && (
-                  <p className="text-[10px] tracking-wider text-neutral-500">
+                  <p className="text-[10px] tracking-wider text-muted-foreground">
                     {listing.client.marketplace_id}
                   </p>
                 )}
@@ -294,10 +294,10 @@ export default function ListingDetail() {
           {/* Meta grid */}
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Budget
               </p>
-              <p className="text-sm font-bold text-brand-navy dark:text-white">
+              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 {formatBudget(
                   listing.budget_min,
                   listing.budget_max,
@@ -307,10 +307,10 @@ export default function ListingDetail() {
             </div>
             {listing.location_state && (
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-neutral-500">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   Location
                 </p>
-                <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                   <MapPin aria-hidden="true" className="h-3 w-3" />
                   {[listing.location_city, listing.location_state]
                     .filter(Boolean)
@@ -319,19 +319,19 @@ export default function ListingDetail() {
               </div>
             )}
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Bids
               </p>
-              <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 <Users aria-hidden="true" className="h-3 w-3" />{" "}
                 {listing.bid_count}
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-500">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Views
               </p>
-              <p className="inline-flex items-center gap-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <p className="inline-flex items-center gap-1 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 <Eye aria-hidden="true" className="h-3 w-3" />{" "}
                 {listing.view_count}
               </p>
@@ -341,15 +341,15 @@ export default function ListingDetail() {
           {/* Scope summary if available */}
           {listing.scope_summary &&
             Object.keys(listing.scope_summary).length > 0 && (
-              <div className="mt-4 rounded-lg bg-neutral-50 p-4 dark:bg-white/5">
-                <p className="text-[10px] uppercase tracking-wider text-neutral-500">
+              <div className="mt-4 rounded-lg bg-muted/50 p-4 dark:bg-white/5">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   Project Scope
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {Object.entries(listing.scope_summary).map(([key, val]) => (
                     <span
                       key={key}
-                      className="rounded-md bg-white px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-brand-navy dark:text-neutral-300"
+                      className="rounded-md bg-card px-2 py-1 text-xs font-medium text-muted-foreground dark:bg-background dark:text-muted-foreground/80"
                     >
                       {key}: {String(val)}
                     </span>
@@ -360,7 +360,7 @@ export default function ListingDetail() {
 
           {/* Owner actions */}
           {isOwner && isOpen && (
-            <div className="mt-4 flex gap-2 border-t border-neutral-100 pt-4 dark:border-white/5">
+            <div className="mt-4 flex gap-2 border-t border-border/50 pt-4 dark:border-white/5">
               <Link
                 to={`/marketplace/my-listings`}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
@@ -374,13 +374,13 @@ export default function ListingDetail() {
         {/* Bids section */}
         <div className="mt-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Bids ({bids.length})
             </h2>
             {!isOwner && isOpen && user && (
               <button
                 onClick={() => setShowBidForm(!showBidForm)}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 <Send aria-hidden="true" className="h-4 w-4" /> Place a Bid
               </button>
@@ -388,7 +388,7 @@ export default function ListingDetail() {
             {!user && isOpen && (
               <Link
                 to="/auth"
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 Sign in to bid
               </Link>
@@ -397,13 +397,13 @@ export default function ListingDetail() {
 
           {/* Bid form */}
           {showBidForm && (
-            <div className="mb-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-              <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+            <div className="mb-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 Submit Your Bid
               </h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                  <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                     Your Price (₦)
                   </label>
                   <input
@@ -411,11 +411,11 @@ export default function ListingDetail() {
                     value={bidPrice}
                     onChange={(e) => setBidPrice(e.target.value)}
                     placeholder="e.g. 150000"
-                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                  <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                     Timeline (days)
                   </label>
                   <input
@@ -423,12 +423,12 @@ export default function ListingDetail() {
                     value={bidTimeline}
                     onChange={(e) => setBidTimeline(e.target.value)}
                     placeholder="e.g. 7"
-                    className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   />
                 </div>
               </div>
               <div className="mt-3">
-                <label className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <label className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Cover Message
                 </label>
                 <textarea
@@ -436,7 +436,7 @@ export default function ListingDetail() {
                   onChange={(e) => setBidMessage(e.target.value)}
                   placeholder="Tell the client why you're the right fit for this job..."
                   rows={3}
-                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
@@ -444,7 +444,7 @@ export default function ListingDetail() {
                 <button
                   onClick={handleBidSubmit}
                   disabled={submitting || !bidPrice || !bidMessage}
-                  className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                   {submitting ? (
                     <Loader2
@@ -458,7 +458,7 @@ export default function ListingDetail() {
                 </button>
                 <button
                   onClick={() => setShowBidForm(false)}
-                  className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
                 </button>
@@ -468,12 +468,12 @@ export default function ListingDetail() {
 
           {/* Bids list */}
           {bids.length === 0 ? (
-            <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
+            <div className="rounded-xl border border-border bg-card p-8 text-center dark:border-white/5 dark:bg-card">
               <Users
                 aria-hidden="true"
-                className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600"
+                className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground"
               />
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+              <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
                 No bids yet. Be the first to bid!
               </p>
             </div>
@@ -483,16 +483,16 @@ export default function ListingDetail() {
                 <div
                   key={bid.id}
                   className={classNames(
-                    "rounded-xl border bg-white p-4 dark:bg-brand-navy-mid",
+                    "rounded-xl border bg-card p-4 dark:bg-card",
                     bid.status === "accepted"
                       ? "border-emerald-300 dark:border-emerald-500/30"
-                      : "border-neutral-200 dark:border-white/5",
+                      : "border-border dark:border-white/5",
                   )}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     {/* Pro info */}
                     <div className="flex items-start gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-purple/10">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
                         {bid.pro_profile?.profile_image_url ? (
                           <img
                             src={bid.pro_profile.profile_image_url}
@@ -509,7 +509,7 @@ export default function ListingDetail() {
                         <div className="flex items-center gap-2">
                           <Link
                             to={`/pro-connect/${bid.pro_profile?.slug}`}
-                            className="text-sm font-bold text-neutral-900 hover:text-brand-purple dark:text-white"
+                            className="text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
                           >
                             {bid.pro_profile?.business_name ||
                               bid.pro_profile?.display_name}
@@ -523,7 +523,7 @@ export default function ListingDetail() {
                           )}
                         </div>
                         {bid.pro_profile && (
-                          <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-500">
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground dark:text-muted-foreground">
                             {bid.pro_profile.rating_avg > 0 && (
                               <span className="inline-flex items-center gap-0.5">
                                 <span className="text-amber-400 text-xs">
@@ -544,11 +544,11 @@ export default function ListingDetail() {
 
                     {/* Price */}
                     <div className="text-left sm:text-right">
-                      <p className="text-lg font-extrabold text-brand-navy dark:text-white">
+                      <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
                         ₦{bid.proposed_price.toLocaleString()}
                       </p>
                       {bid.proposed_timeline_days && (
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           <Calendar
                             aria-hidden="true"
                             className="mr-0.5 inline h-3 w-3"
@@ -561,28 +561,28 @@ export default function ListingDetail() {
 
                   {/* Cover message */}
                   {bid.cover_message && (
-                    <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {bid.cover_message}
                     </p>
                   )}
 
                   {/* Status / actions */}
-                  <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3 dark:border-white/5">
+                  <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3 dark:border-white/5">
                     {bid.status === "accepted" ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                         <Check aria-hidden="true" className="h-4 w-4" />{" "}
                         Accepted
                       </span>
                     ) : bid.status === "rejected" ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-500">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                         <X aria-hidden="true" className="h-4 w-4" /> Rejected
                       </span>
                     ) : bid.status === "withdrawn" ? (
-                      <span className="text-xs font-semibold text-neutral-500">
+                      <span className="text-xs font-semibold text-muted-foreground">
                         Withdrawn
                       </span>
                     ) : (
-                      <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                      <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                         Pending ·{" "}
                         {new Date(bid.created_at).toLocaleDateString()}
                       </span>
@@ -592,14 +592,14 @@ export default function ListingDetail() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleRejectBid(bid.id)}
-                          className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-neutral-300"
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                         >
                           Decline
                         </button>
                         <button
                           onClick={() => handleAcceptBid(bid.id)}
                           disabled={submitting}
-                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                           Accept

@@ -263,29 +263,29 @@ export default function Rewards() {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <Gem className="mx-auto h-12 w-12 text-brand-purple/40" />
-        <h1 className="mt-4 text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="mt-4 text-2xl font-bold text-foreground dark:text-primary-foreground">
           Sign in to earn FRELUX Credits
         </h1>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           Create a free FRELUX account or sign in to securely earn, save, and
           use your FRELUX Credits.
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <Link
             to="/login?redirect=/rewards"
-            className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Sign In
           </Link>
           <Link
             to="/register?redirect=/rewards"
-            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-brand-purple/5"
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
           >
             Create Free Account
           </Link>
           <Link
             to="/"
-            className="text-xs font-medium text-neutral-400 transition-colors hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+            className="text-xs font-medium text-muted-foreground transition-colors hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
             Continue browsing FRELUX
           </Link>
@@ -300,17 +300,17 @@ export default function Rewards() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       <Link
         to="/"
-        className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
       </Link>
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">
+        <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
           FRELUX Rewards
         </h1>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
           Earn credits, complete missions, and unlock premium features.
         </p>
       </div>
@@ -318,16 +318,16 @@ export default function Rewards() {
       {/* Credit balance + streak overview */}
       <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {/* Credits */}
-        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-brand-navy-mid dark:from-brand-purple/5">
+        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
               <Gem className="h-6 w-6 text-brand-purple" />
             </div>
             <div>
-              <p className="text-xs font-medium text-neutral-500">
+              <p className="text-xs font-medium text-muted-foreground">
                 FRELUX Credits
               </p>
-              <p className="text-3xl font-bold text-brand-navy dark:text-white">
+              <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
                 {loading ? (
                   <Loader2
                     aria-hidden="true"
@@ -339,23 +339,23 @@ export default function Rewards() {
               </p>
             </div>
           </div>
-          <div className="mt-3 flex gap-4 text-xs text-neutral-500">
+          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
             <span>Earned: {wallet?.total_earned ?? 0}</span>
             <span>Spent: {wallet?.total_spent ?? 0}</span>
           </div>
         </div>
 
         {/* Streak */}
-        <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:bg-brand-navy-mid dark:from-amber-500/5">
+        <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-transparent p-6 dark:border-amber-500/20 dark:bg-card dark:from-amber-500/5">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-500/10">
               <Flame className="h-6 w-6 text-amber-500" />
             </div>
             <div>
-              <p className="text-xs font-medium text-neutral-500">
+              <p className="text-xs font-medium text-muted-foreground">
                 Activity Streak
               </p>
-              <p className="text-3xl font-bold text-brand-navy dark:text-white">
+              <p className="text-3xl font-bold text-foreground dark:text-primary-foreground">
                 {loading ? (
                   <Loader2
                     aria-hidden="true"
@@ -364,13 +364,13 @@ export default function Rewards() {
                 ) : (
                   (streak?.current_streak ?? 0)
                 )}
-                <span className="ml-1 text-base font-normal text-neutral-500">
+                <span className="ml-1 text-base font-normal text-muted-foreground">
                   day{(streak?.current_streak ?? 0) === 1 ? "" : "s"}
                 </span>
               </p>
             </div>
           </div>
-          <div className="mt-3 flex gap-4 text-xs text-neutral-500">
+          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
             <span>Best: {streak?.longest_streak ?? 0} days</span>
             <span>7-day streak → +50 credits</span>
           </div>
@@ -389,17 +389,17 @@ export default function Rewards() {
           const canEarn = todayEarned < dailyLimit && adProviderReady;
 
           return (
-            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-brand-navy-mid dark:from-brand-purple/5">
+            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                     <Film className="h-6 w-6 text-brand-purple" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-brand-navy dark:text-white">
+                    <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                       Watch Ad — Earn {creditsPerAd} Credits
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       Today: {todayEarned} / {dailyLimit} ads watched
                     </p>
                   </div>
@@ -411,8 +411,8 @@ export default function Rewards() {
                   className={classNames(
                     "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
                     canEarn && !watchingAd
-                      ? "bg-brand-purple text-white hover:bg-brand-purple/90"
-                      : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                   )}
                 >
                   {watchingAd ? (
@@ -435,9 +435,9 @@ export default function Rewards() {
                   )}
                 </button>
               </div>
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                 <div
-                  className="h-full rounded-full bg-brand-purple transition-all duration-500"
+                  className="h-full rounded-full bg-primary transition-all duration-500"
                   style={{
                     width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%`,
                   }}
@@ -455,15 +455,15 @@ export default function Rewards() {
               <ExternalLink className="h-6 w-6 text-emerald-500" />
             </div>
             <div>
-              <p className="text-sm font-bold text-brand-navy dark:text-white">
+              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 Complete Offers — Earn FRELUX Credits
               </p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 Surveys, app installs, and other offers.
               </p>
             </div>
           </div>
-          <span className="flex items-center gap-1.5 rounded-xl bg-neutral-100 px-4 py-2.5 text-sm font-bold text-neutral-400 dark:bg-white/5 dark:text-neutral-500">
+          <span className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2.5 text-sm font-bold text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
             <Crown className="h-4 w-4" />
             Coming Soon
           </span>
@@ -476,7 +476,7 @@ export default function Rewards() {
       )}
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-neutral-200 dark:border-white/5">
+      <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
         {(
           [
             { key: "rewards", label: "Rewards", icon: Gift },
@@ -491,7 +491,7 @@ export default function Rewards() {
               "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
               activeTab === tab.key
                 ? "border-brand-purple text-brand-purple"
-                : "border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
             )}
           >
             <tab.icon className="h-4 w-4" />
@@ -504,7 +504,7 @@ export default function Rewards() {
       {activeTab === "rewards" && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {unusedAiTokens > 0 && (
-            <div className="col-span-full flex items-start gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-neutral-700 dark:text-neutral-300">
+            <div className="col-span-full flex items-start gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-4 py-3 text-sm text-card-foreground dark:text-muted-foreground/80">
               <CheckCircle2
                 aria-hidden="true"
                 className="mt-0.5 h-4 w-4 shrink-0 text-accent-green"
@@ -521,22 +521,22 @@ export default function Rewards() {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="animate-pulse rounded-2xl border border-neutral-200 bg-neutral-50 p-5 dark:border-white/5 dark:bg-white/5"
+                  className="animate-pulse rounded-2xl border border-border bg-muted/50 p-5 dark:border-white/5 dark:bg-white/5"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
-                      <div className="h-4 w-32 rounded bg-neutral-200 dark:bg-white/10" />
-                      <div className="mt-2 h-3 w-48 rounded bg-neutral-100 dark:bg-white/5" />
+                      <div className="h-4 w-32 rounded bg-muted dark:bg-white/10" />
+                      <div className="mt-2 h-3 w-48 rounded bg-muted dark:bg-white/5" />
                     </div>
-                    <div className="h-8 w-14 rounded-lg bg-neutral-200 dark:bg-white/10" />
+                    <div className="h-8 w-14 rounded-lg bg-muted dark:bg-white/10" />
                   </div>
-                  <div className="mt-4 h-10 rounded-xl bg-neutral-200 dark:bg-white/10" />
+                  <div className="mt-4 h-10 rounded-xl bg-muted dark:bg-white/10" />
                 </div>
               ))}
             </>
           )}
           {!rewardsLoading && rewards.length === 0 && (
-            <p className="col-span-full text-center text-sm text-neutral-500 py-8">
+            <p className="col-span-full text-center text-sm text-muted-foreground py-8">
               No rewards available.
             </p>
           )}
@@ -551,8 +551,8 @@ export default function Rewards() {
                   className={classNames(
                     "rounded-2xl border p-5 transition-all",
                     canAfford
-                      ? "border-brand-purple/20 bg-white dark:border-brand-purple/20 dark:bg-brand-navy-mid"
-                      : "border-neutral-200 bg-neutral-50 opacity-70 dark:border-white/5 dark:bg-white/5",
+                      ? "border-brand-purple/20 bg-card dark:border-brand-purple/20 dark:bg-card"
+                      : "border-border bg-muted/50 opacity-70 dark:border-white/5 dark:bg-white/5",
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -572,15 +572,15 @@ export default function Rewards() {
                         <Icon className="h-5 w-5" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-base font-bold text-brand-navy dark:text-white">
+                        <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
                           {reward.name}
                         </h3>
-                        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                           {reward.description}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 rounded-lg bg-brand-purple/10 px-2.5 py-1.5">
+                    <div className="flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1.5">
                       <Gem className="h-3.5 w-3.5 text-brand-purple" />
                       <span className="text-sm font-bold text-brand-purple">
                         {reward.credit_cost}
@@ -593,8 +593,8 @@ export default function Rewards() {
                     className={classNames(
                       "mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
                       canAfford && !isRedeeming
-                        ? "bg-brand-purple text-white hover:bg-brand-purple/90 press-scale"
-                        : "bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-500 cursor-not-allowed",
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 press-scale"
+                        : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground cursor-not-allowed",
                     )}
                   >
                     {isRedeeming ? (
@@ -650,11 +650,11 @@ function WeeklyMissionCard({
     totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
   return (
-    <div className="mb-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-6 dark:border-blue-500/20 dark:bg-brand-navy-mid dark:from-blue-500/5">
+    <div className="mb-6 rounded-2xl border border-blue-200 bg-gradient-to-br from-blue-50 to-transparent p-6 dark:border-blue-500/20 dark:bg-card dark:from-blue-500/5">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-blue-500" />
-          <h3 className="text-base font-bold text-brand-navy dark:text-white">
+          <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
             This Week's Mission
           </h3>
         </div>
@@ -668,7 +668,7 @@ function WeeklyMissionCard({
 
       {/* Overall progress bar */}
       <div className="mb-4">
-        <div className="flex items-center justify-between text-xs text-neutral-500 mb-1.5">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
           <span>
             {completedCount}/{totalTasks} completed
           </span>
@@ -691,13 +691,13 @@ function WeeklyMissionCard({
           return (
             <div
               key={task.key}
-              className="flex items-center gap-3 rounded-lg border border-blue-100 bg-white p-3 dark:border-blue-500/10 dark:bg-white/5"
+              className="flex items-center gap-3 rounded-lg border border-blue-100 bg-card p-3 dark:border-blue-500/10 dark:bg-white/5"
             >
               <div
                 className={classNames(
                   "flex h-6 w-6 items-center justify-center rounded-full",
                   done
-                    ? "bg-blue-500 text-white"
+                    ? "bg-blue-500 text-primary-foreground"
                     : "bg-blue-50 text-blue-400 dark:bg-blue-500/10",
                 )}
               >
@@ -711,13 +711,13 @@ function WeeklyMissionCard({
                 className={classNames(
                   "flex-1 text-sm",
                   done
-                    ? "text-neutral-500 line-through"
-                    : "text-neutral-700 dark:text-neutral-300",
+                    ? "text-muted-foreground line-through"
+                    : "text-card-foreground dark:text-muted-foreground/80",
                 )}
               >
                 {task.label}
               </span>
-              <span className="text-xs text-neutral-500">
+              <span className="text-xs text-muted-foreground">
                 {current}/{task.target}
               </span>
             </div>
@@ -738,9 +738,9 @@ function TransactionHistory({
 }) {
   if (transactions.length === 0) {
     return (
-      <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-        <Clock className="mx-auto h-8 w-8 text-neutral-300" />
-        <p className="mt-3 text-sm text-neutral-500">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center dark:border-white/5 dark:bg-card">
+        <Clock className="mx-auto h-8 w-8 text-muted-foreground/80" />
+        <p className="mt-3 text-sm text-muted-foreground">
           No transactions yet. Start earning credits!
         </p>
       </div>
@@ -748,12 +748,12 @@ function TransactionHistory({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-200 dark:border-white/5">
-      <div className="divide-y divide-neutral-100 dark:divide-white/5">
+    <div className="overflow-hidden rounded-2xl border border-border dark:border-white/5">
+      <div className="divide-y divide-border/50 dark:divide-white/5">
         {transactions.map((tx) => (
           <div
             key={tx.id}
-            className="flex items-center gap-3 bg-white px-4 py-3 dark:bg-brand-navy-mid"
+            className="flex items-center gap-3 bg-card px-4 py-3 dark:bg-card"
           >
             <div
               className={classNames(
@@ -766,10 +766,10 @@ function TransactionHistory({
               {tx.amount > 0 ? "↓" : "↑"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">
+              <p className="text-sm font-medium text-foreground dark:text-muted-foreground/60 truncate">
                 {tx.reason}
               </p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 {new Date(tx.created_at).toLocaleDateString("en-NG", {
                   day: "numeric",
                   month: "short",
@@ -787,7 +787,7 @@ function TransactionHistory({
                 {tx.amount > 0 ? "+" : ""}
                 {tx.amount}
               </p>
-              <p className="text-[10px] text-neutral-500">
+              <p className="text-[10px] text-muted-foreground">
                 Bal: {tx.balance_after}
               </p>
             </div>

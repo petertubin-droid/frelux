@@ -38,7 +38,7 @@ const calculators: Tool[] = [
       "Calculate paint quantities, painting requirements and estimated cost — all in one tool.",
     benefit: "Quantity · Cost · Estimate",
     to: "/paint-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
     featured: true,
   },
   {
@@ -57,7 +57,7 @@ const calculators: Tool[] = [
       "Calculate POP cement, fibreglass mesh, material breakdown and cost estimate.",
     benefit: "Material & cost",
     to: "/pop-ceiling-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: Grid3x3,
@@ -84,7 +84,7 @@ const calculators: Tool[] = [
       "Calculate materials, quantities, and costs from foundation through roof — structural concrete, blockwork, roofing, and more.",
     benefit: "Foundation to roof",
     to: "/build-to-roof-estimator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
     featured: true,
   },
   {
@@ -104,7 +104,7 @@ const calculators: Tool[] = [
       "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings tips.",
     benefit: "AI-powered · Free",
     to: "/smart-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
     featured: true,
   },
   {
@@ -114,7 +114,7 @@ const calculators: Tool[] = [
       "Engineer-grade beam, column, and slab sizing with full BS 8110 formula transparency.",
     benefit: "BS 8110 · Engineer-grade",
     to: "/structural-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
     featured: true,
   },
   {
@@ -124,7 +124,7 @@ const calculators: Tool[] = [
       "Strip, pad, and raft foundation sizing based on soil bearing capacity. Nigerian soil types.",
     benefit: "Soil-aware · BS 8004",
     to: "/foundation-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: Calendar,
@@ -133,7 +133,7 @@ const calculators: Tool[] = [
       "How long will your build take? Stage-by-stage duration with milestones and risk analysis.",
     benefit: "Schedule · Milestones",
     to: "/project-timeline",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: ListChecks,
@@ -142,7 +142,7 @@ const calculators: Tool[] = [
       "The correct build order from site clearing to weathertight. Quality gates, safety, common mistakes.",
     benefit: "Quality gates · Safety",
     to: "/construction-sequence",
-    accent: "text-brand-purple bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
   },
 ];
 
@@ -195,7 +195,7 @@ export default function Calculators() {
       {/* Hero strip — premium */}
       <section
         aria-label="All FRELUX calculators"
-        className="relative overflow-hidden bg-mesh text-white"
+        className="relative overflow-hidden bg-mesh text-primary-foreground"
       >
         <div
           className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50"
@@ -205,10 +205,10 @@ export default function Calculators() {
           className="pointer-events-none absolute inset-0"
           aria-hidden="true"
         >
-          <div className="absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-brand-purple/20 blur-[140px]" />
+          <div className="absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-primary/20 blur-[140px]" />
         </div>
         <Container className="relative py-16 sm:py-24">
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/70 backdrop-blur-md">
+          <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-primary-foreground/70 backdrop-blur-md">
             <Brain
               aria-hidden="true"
               className="h-3.5 w-3.5 text-brand-purple-light"
@@ -218,7 +218,7 @@ export default function Calculators() {
           <h1 className="mt-6 font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl text-balance">
             Every FRELUX calculator in one place
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-white/55">
+          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-primary-foreground/55">
             Pick a tool below to start estimating materials and costs. Every
             calculator uses Nigerian coverage rates and real product prices.
           </p>
@@ -228,7 +228,7 @@ export default function Calculators() {
       {/* Calculator grid */}
       <section
         aria-label="Calculator tools"
-        className="bg-white py-16 dark:bg-brand-navy sm:py-20"
+        className="bg-card py-16 dark:bg-background sm:py-20"
       >
         <Container>
           <div ref={ref} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -239,7 +239,7 @@ export default function Calculators() {
                 <Link
                   key={tool.to}
                   to={tool.to}
-                  className={`calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-brand-navy-mid ${
+                  className={`calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-card ${
                     isFeatured ? "lg:col-span-2" : ""
                   }`}
                   style={{
@@ -251,8 +251,8 @@ export default function Calculators() {
                     transitionDelay: `${i * 50}ms`,
                   }}
                 >
-                  <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
-                  <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
+                  <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
+                  <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all duration-500 group-hover:via-primary/30" />
 
                   <div className="flex items-center gap-3">
                     <span
@@ -261,21 +261,21 @@ export default function Calculators() {
                       <Icon className="h-5 w-5" />
                     </span>
                     {isFeatured && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                         Recommended
                       </span>
                     )}
                   </div>
 
-                  <h3 className="mt-5 font-display text-base font-bold text-neutral-900 dark:text-white">
+                  <h3 className="mt-5 font-display text-base font-bold text-foreground dark:text-primary-foreground">
                     {tool.title}
                   </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                     {tool.description}
                   </p>
 
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+                    <span className="inline-flex items-center gap-1 rounded-lg bg-muted/50 px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                       {tool.benefit}
                     </span>
                   </div>
@@ -291,7 +291,7 @@ export default function Calculators() {
             {/* Color & AI card */}
             <Link
               to="/colors"
-              className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-card"
               style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? "translateY(0)" : "translateY(20px)",
@@ -301,16 +301,16 @@ export default function Calculators() {
                 transitionDelay: `${calculators.length * 50}ms`,
               }}
             >
-              <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+              <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-brand-purple/10 transition-transform duration-300 group-hover:scale-110">
+                <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-primary/10 transition-transform duration-300 group-hover:scale-110">
                   <Palette aria-hidden="true" className="h-5 w-5" />
                 </span>
               </div>
-              <h3 className="mt-5 font-display text-base font-bold text-neutral-900 dark:text-white">
+              <h3 className="mt-5 font-display text-base font-bold text-foreground dark:text-primary-foreground">
                 Color Library & AI
               </h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                 Browse paint colors, compare combinations, and get AI-powered
                 color suggestions.
               </p>

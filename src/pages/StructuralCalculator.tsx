@@ -61,7 +61,7 @@ export default function StructuralCalculator() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         {/* Tabs */}
-        <div className="mb-6 inline-flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-white/10 dark:bg-brand-navy-mid">
+        <div className="mb-6 inline-flex rounded-xl border border-border bg-card p-1 dark:border-white/10 dark:bg-card">
           {(
             [
               { id: "beam", label: "Beam Design", icon: Ruler },
@@ -74,8 +74,8 @@ export default function StructuralCalculator() {
               onClick={() => setTab(t.id)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                 tab === t.id
-                  ? "bg-brand-purple text-white shadow-sm"
-                  : "text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-white/5 dark:hover:text-white"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
               }`}
             >
               <t.icon className="w-4 h-4" />
@@ -159,7 +159,7 @@ function BeamCalculator() {
 
   return (
     <div className="space-y-6">
-      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
           <NumInput
             label="Span (m)"
@@ -381,7 +381,7 @@ function ColumnCalculator() {
 
   return (
     <div className="space-y-6">
-      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
           <NumInput
             label="Axial load (kN)"
@@ -578,7 +578,7 @@ function SlabCalculator() {
 
   return (
     <div className="space-y-6">
-      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
         <InputGrid>
           <NumInput
             label="Short span (m)"
@@ -770,7 +770,7 @@ function NumInput({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <input
@@ -797,7 +797,7 @@ function SelectInput({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <select
@@ -829,15 +829,15 @@ function StatBox({
   unit: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-5 dark:border-brand-purple/30">
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-purple/10 blur-2xl" />
-      <p className="relative text-xs font-medium text-neutral-500 mb-1.5">
+    <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5 dark:border-brand-purple/30">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+      <p className="relative text-xs font-medium text-muted-foreground mb-1.5">
         {label}
       </p>
-      <p className="relative text-xl font-bold text-brand-navy dark:text-white">
+      <p className="relative text-xl font-bold text-foreground dark:text-primary-foreground">
         {value}{" "}
         {unit && (
-          <span className="text-sm font-normal text-neutral-400">{unit}</span>
+          <span className="text-sm font-normal text-muted-foreground">{unit}</span>
         )}
       </p>
     </div>
@@ -866,8 +866,8 @@ function CheckRow({
         <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
       )}
       <div>
-        <p className="text-xs font-medium text-neutral-500">{label}</p>
-        <p className="text-sm text-neutral-900 dark:text-white">{value}</p>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-sm text-foreground dark:text-primary-foreground">{value}</p>
       </div>
     </div>
   );
@@ -875,9 +875,9 @@ function CheckRow({
 
 function DetailItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between border-b border-neutral-100 py-2 dark:border-white/5">
-      <span className="text-neutral-500">{label}</span>
-      <span className="font-medium text-neutral-900 dark:text-white">
+    <div className="flex justify-between border-b border-border/50 py-2 dark:border-white/5">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium text-foreground dark:text-primary-foreground">
         {value}
       </span>
     </div>
@@ -927,7 +927,7 @@ function FormulaToggle({
         {show ? "Hide" : "Show"} calculation formulas
       </button>
       {show && (
-        <div className="mt-3 overflow-hidden rounded-xl bg-neutral-900 p-5 dark:bg-black/40 space-y-1">
+        <div className="mt-3 overflow-hidden rounded-xl bg-background p-5 dark:bg-black/40 space-y-1">
           {formulas.map((f, i) => (
             <p
               key={i}

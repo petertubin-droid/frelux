@@ -146,7 +146,7 @@ export default function FinishingCalculatorHub() {
       >
         <Suspense
           fallback={
-            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-500">
+            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
               Loading…
             </div>
           }
@@ -158,16 +158,16 @@ export default function FinishingCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             About the FRELUX Finishing Calculator
           </h2>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Finishing Calculator is a comprehensive tool for wall
             finishing calculations. It combines side-by-side finish comparison
             with a detailed Tyrolene estimator, supporting Painting, Tyrolene,
             and Grafitex finishes.
           </p>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Calculation Modes
           </h3>
           <ul>
@@ -182,10 +182,10 @@ export default function FinishingCalculatorHub() {
               production rules, material breakdowns, and saveable estimates.
             </li>
           </ul>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             FRELUX Tyrolene Methodology
           </h3>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The established FRELUX Tyrolene rule is:
           </p>
           <ul>
@@ -195,7 +195,7 @@ export default function FinishingCalculatorHub() {
             <li>3 kg acrylic bond</li>
             <li>Anti-fungal material where already supported</li>
           </ul>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             This methodology is preserved exactly in the Tyrolene Estimator mode
             and has not been replaced with generic formulas.
           </p>

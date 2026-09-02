@@ -171,7 +171,7 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Type className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Site Identity</h2>
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Site Identity</h2>
         </div>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <AdminField label="Website Name">
@@ -190,9 +190,9 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Logos & Icons</h2>
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Logos & Icons</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Upload from your device or select from the Media Library. Images are optimized and stored securely.</p>
         <div className="mt-4 grid gap-6 sm:grid-cols-2">
           <MediaUploader label="Light Mode Logo" value={lightLogo} onChange={setLightLogo} folder="branding" />
           <MediaUploader label="Dark Mode Logo" value={darkLogo} onChange={setDarkLogo} folder="branding" />
@@ -205,9 +205,9 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <ImageIcon className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Hero Image</h2>
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Hero Image</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">The main image shown on the homepage hero section. Recommended aspect ratio: 4:5 (portrait). Leave empty to use the default.</p>
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">The main image shown on the homepage hero section. Recommended aspect ratio: 4:5 (portrait). Leave empty to use the default.</p>
         <div className="mt-4">
           <MediaUploader label="Hero Image" value={heroImage} onChange={setHeroImage} folder="branding" />
         </div>
@@ -217,25 +217,25 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Palette aria-hidden="true" className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Brand Colors</h2>
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Brand Colors</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">These colors are applied as CSS variables across the site. Use hex codes (e.g. #7C3AED).</p>
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <AdminField label="Primary Color">
             <div className="flex items-center gap-2">
-              <AdminInput type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-border" />
               <AdminInput type="text" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Secondary Color">
             <div className="flex items-center gap-2">
-              <AdminInput type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-border" />
               <AdminInput type="text" value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} />
             </div>
           </AdminField>
           <AdminField label="Accent Color">
             <div className="flex items-center gap-2">
-              <AdminInput type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-neutral-200" />
+              <AdminInput type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} className="h-10 w-12 shrink-0 cursor-pointer rounded border border-border" />
               <AdminInput type="text" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} />
             </div>
           </AdminField>
@@ -246,20 +246,20 @@ export default function AdminBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Highlighter className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">Hero Text Highlighting</h2>
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Hero Text Highlighting</h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
           Click any word in the hero headline below to highlight it with a custom color. Click again to remove. The headline text is managed in <span className="font-semibold">Admin → Settings → Homepage Hero</span>.
         </p>
 
         {/* Pending color picker */}
-        <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-white/10 dark:bg-brand-navy-mid">
-          <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Color for next selection:</span>
+        <div className="mt-4 flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-3 dark:border-white/10 dark:bg-card">
+          <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">Color for next selection:</span>
           <AdminInput
  type="color"
  value={pendingColor}
  onChange={(e) => setPendingColor(e.target.value)}
-            className="h-8 w-10 shrink-0 cursor-pointer rounded border border-neutral-200 dark:border-white/10"
+            className="h-8 w-10 shrink-0 cursor-pointer rounded border border-border dark:border-white/10"
           />
           <AdminInput
  type="text"
@@ -271,9 +271,9 @@ export default function AdminBranding() {
         </div>
 
         {/* Live preview — clickable headline */}
-        <div className="mt-4 rounded-xl border border-neutral-200 bg-gradient-to-br from-brand-navy to-brand-navy-mid p-6 dark:border-white/10">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/30">Live preview — click words to toggle highlight</p>
-          <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-white sm:text-3xl">
+        <div className="mt-4 rounded-xl border border-border bg-gradient-to-br from-background to-card p-6 dark:border-white/10">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/30">Live preview — click words to toggle highlight</p>
+          <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-3xl">
             {words.map((word, i) => {
               const hl = highlightConfig?.highlights.find((h) => h.wordIndex === i);
               const isHighlighted = !!hl;
@@ -295,19 +295,19 @@ export default function AdminBranding() {
         {/* Active highlights list */}
         {highlightConfig && highlightConfig.highlights.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Active highlights ({highlightConfig.highlights.length}):</p>
+            <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">Active highlights ({highlightConfig.highlights.length}):</p>
             {highlightConfig.highlights
               .sort((a, b) => a.wordIndex - b.wordIndex)
               .map((hl) => (
-                <div key={hl.wordIndex} className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 p-2.5 dark:border-white/10 dark:bg-brand-navy-mid">
-                  <span className="text-xs font-mono text-neutral-500">#{hl.wordIndex}</span>
-                  <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{hl.word}</span>
+                <div key={hl.wordIndex} className="flex items-center gap-3 rounded-lg border border-border bg-muted/50 p-2.5 dark:border-white/10 dark:bg-card">
+                  <span className="text-xs font-mono text-muted-foreground">#{hl.wordIndex}</span>
+                  <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{hl.word}</span>
                   <div className="ml-auto flex items-center gap-2">
                     <AdminInput
  type="color"
  value={hl.color}
  onChange={(e) => updateHighlightColor(hl.wordIndex, e.target.value)}
-                      className="h-7 w-9 cursor-pointer rounded border border-neutral-200 dark:border-white/10"
+                      className="h-7 w-9 cursor-pointer rounded border border-border dark:border-white/10"
                     />
                     <AdminInput
  type="text"
@@ -329,7 +329,7 @@ export default function AdminBranding() {
         )}
 
         {(!highlightConfig || highlightConfig.highlights.length === 0) && (
-          <p className="mt-4 text-xs text-neutral-500 dark:text-neutral-500">
+          <p className="mt-4 text-xs text-muted-foreground dark:text-muted-foreground">
             No highlights yet. Click on any word in the preview above to start highlighting.
           </p>
         )}
@@ -346,7 +346,7 @@ export default function AdminBranding() {
           {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
           {saving ? 'Saving…' : 'Save Branding'}
         </AdminButton>
-        <span className="text-xs text-neutral-500 dark:text-neutral-500">Changes apply instantly across the website.</span>
+        <span className="text-xs text-muted-foreground dark:text-muted-foreground">Changes apply instantly across the website.</span>
       </div>
     </>
   );

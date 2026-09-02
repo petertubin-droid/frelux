@@ -29,7 +29,7 @@ const mountedRef = useRef(true);
   }
 
   return (
-    <section data-tour="colors" className="relative bg-white py-24 sm:py-28 dark:bg-brand-navy">
+    <section data-tour="colors" className="relative bg-card py-24 sm:py-28 dark:bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
@@ -45,12 +45,12 @@ const mountedRef = useRef(true);
 
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {loading && (
-            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-neutral-500 dark:text-neutral-500">
+            <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground dark:text-muted-foreground">
               <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading color palettes…
             </div>
           )}
           {!loading && combinations.length === 0 && (
-            <div className="col-span-full py-16 text-center text-sm text-neutral-500 dark:text-neutral-500">
+            <div className="col-span-full py-16 text-center text-sm text-muted-foreground dark:text-muted-foreground">
               No color combinations published yet.
             </div>
           )}
@@ -58,7 +58,7 @@ const mountedRef = useRef(true);
             <Link
               key={c.id}
               to={`/colors/${c.slug}`}
-              className="card-hover group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white dark:border-white/5 dark:bg-brand-navy-mid"
+              className="card-hover group overflow-hidden rounded-2xl border border-border/60 bg-card dark:border-white/5 dark:bg-card"
             >
               <div className="relative aspect-[4/3] overflow-hidden">
                 <img
@@ -84,8 +84,8 @@ const mountedRef = useRef(true);
                     {catName(c.category_ids[0])}
                   </p>
                 )}
-                <h3 className="mt-1.5 font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">{c.description}</p>
+                <h3 className="mt-1.5 font-display text-lg font-bold text-foreground dark:text-primary-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground line-clamp-2">{c.description}</p>
               </div>
             </Link>
           ))}

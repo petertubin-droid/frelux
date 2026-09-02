@@ -129,7 +129,7 @@ export default function ProConnectDashboard() {
   if (!user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Sign in to access your dashboard
         </h1>
         <Link
@@ -145,7 +145,7 @@ export default function ProConnectDashboard() {
   if (loading) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-8">
-        <div className="h-32 animate-pulse rounded-xl bg-neutral-100 dark:bg-brand-navy-mid" />
+        <div className="h-32 animate-pulse rounded-xl bg-muted dark:bg-card" />
       </div>
     );
   }
@@ -153,15 +153,15 @@ export default function ProConnectDashboard() {
   if (!profile) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           No professional profile found
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           Create your professional profile to get started.
         </p>
         <Link
           to="/pro-connect/register"
-          className="mt-6 inline-block rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white"
+          className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
           Create Professional Profile
         </Link>
@@ -175,21 +175,21 @@ export default function ProConnectDashboard() {
       <div className="mb-6 flex flex-wrap gap-2">
         <Link
           to="/worker-channels"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-brand-purple/10"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-primary/10"
         >
           <Hash className="h-4 w-4" />
           Worker Channels
         </Link>
         <Link
           to="/messages"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <MessageSquare aria-hidden="true" className="h-4 w-4" />
           Messages
         </Link>
         <Link
           to="/profile"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <Settings aria-hidden="true" className="h-4 w-4" />
           My Profile
@@ -199,16 +199,16 @@ export default function ProConnectDashboard() {
       {/* Header */}
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
             Professional Dashboard
           </h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             Manage your profile, portfolio, and conversations
           </p>
         </div>
         <Link
           to={`/pro-connect/${profile.slug}`}
-          className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:border-white/10 dark:text-neutral-200"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground dark:border-white/10 dark:text-muted-foreground/60"
         >
           <Eye aria-hidden="true" className="h-4 w-4" />
           View public profile
@@ -217,64 +217,64 @@ export default function ProConnectDashboard() {
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-4 lg:grid-cols-4">
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Award className="h-4 w-4" />
             <span className="text-xs">Rating</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
+          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.rating_avg.toFixed(1)}
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-muted-foreground">
             {profile.rating_count} reviews
           </p>
         </div>
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <MessageSquare aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Messages</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
+          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {unreadCount > 0 ? unreadCount : conversations.length}
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-muted-foreground">
             {unreadCount > 0 ? "unread" : "conversations"}
           </p>
         </div>
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Eye aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Listed</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
+          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.is_listed ? "Yes" : "No"}
           </p>
-          <p className="text-xs text-neutral-500 capitalize">
+          <p className="text-xs text-muted-foreground capitalize">
             {profile.verification_status}
           </p>
         </div>
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-          <div className="flex items-center gap-2 text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+          <div className="flex items-center gap-2 text-muted-foreground dark:text-muted-foreground">
             <Briefcase aria-hidden="true" className="h-4 w-4" />
             <span className="text-xs">Experience</span>
           </div>
-          <p className="mt-2 text-2xl font-bold text-neutral-900 dark:text-white">
+          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             {profile.years_experience || 0} yrs
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-muted-foreground">
             {portfolio.length} portfolio items
           </p>
         </div>
       </div>
 
       {/* Profile status */}
-      <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-base font-semibold text-neutral-900 dark:text-white">
+            <h2 className="text-base font-semibold text-foreground dark:text-primary-foreground">
               {profile.display_name}
             </h2>
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               {profile.business_name || "No business name set"}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -285,7 +285,7 @@ export default function ProConnectDashboard() {
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                     : profile.availability === "busy"
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                      : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                 )}
               >
                 {profile.availability}
@@ -299,7 +299,7 @@ export default function ProConnectDashboard() {
           </div>
           <Link
             to="/pro-connect/register"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-300"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
           >
             <Settings aria-hidden="true" className="h-4 w-4" />
             Edit Profile
@@ -309,14 +309,14 @@ export default function ProConnectDashboard() {
         {/* Services */}
         {services.length > 0 && (
           <div className="mt-4">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Services
             </p>
             <div className="flex flex-wrap gap-1.5">
               {services.map((s) => (
                 <span
                   key={s.id}
-                  className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300"
+                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
                 >
                   {s.name}
                 </span>
@@ -328,14 +328,14 @@ export default function ProConnectDashboard() {
         {/* Locations */}
         {locations.length > 0 && (
           <div className="mt-3">
-            <p className="mb-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <p className="mb-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Service Areas
             </p>
             <div className="flex flex-wrap gap-1.5">
               {locations.map((l, i) => (
                 <span
                   key={i}
-                  className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300"
+                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80"
                 >
                   <MapPin aria-hidden="true" className="mr-1 inline h-3 w-3" />
                   {[l.area, l.city, l.state].filter(Boolean).join(", ")}
@@ -347,8 +347,8 @@ export default function ProConnectDashboard() {
       </div>
 
       {/* Verification Status */}
-      <div className="mb-8 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h2 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">
+      <div className="mb-8 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h2 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
           Verification Status
         </h2>
         <div className="flex flex-wrap items-start gap-4">
@@ -358,7 +358,7 @@ export default function ProConnectDashboard() {
               "flex items-center gap-2 rounded-lg px-3 py-2",
               profile.contact_verified_at
                 ? "bg-emerald-50 dark:bg-emerald-500/10"
-                : "bg-neutral-50 dark:bg-white/5",
+                : "bg-muted/50 dark:bg-white/5",
             )}
           >
             <div
@@ -366,7 +366,7 @@ export default function ProConnectDashboard() {
                 "flex h-8 w-8 items-center justify-center rounded-full",
                 profile.contact_verified_at
                   ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400"
-                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+                  : "bg-muted text-muted-foreground dark:bg-white/5",
               )}
             >
               <span className="text-xs font-bold">
@@ -379,12 +379,12 @@ export default function ProConnectDashboard() {
                   "text-sm font-medium",
                   profile.contact_verified_at
                     ? "text-emerald-700 dark:text-emerald-400"
-                    : "text-neutral-500 dark:text-neutral-500",
+                    : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
                 Contact Verified
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.contact_verified_at
                   ? "Verified " +
                     new Date(profile.contact_verified_at).toLocaleDateString(
@@ -401,7 +401,7 @@ export default function ProConnectDashboard() {
               "flex items-center gap-2 rounded-lg px-3 py-2",
               profile.identity_verified_at
                 ? "bg-blue-50 dark:bg-blue-500/10"
-                : "bg-neutral-50 dark:bg-white/5",
+                : "bg-muted/50 dark:bg-white/5",
             )}
           >
             <div
@@ -409,7 +409,7 @@ export default function ProConnectDashboard() {
                 "flex h-8 w-8 items-center justify-center rounded-full",
                 profile.identity_verified_at
                   ? "bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
-                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+                  : "bg-muted text-muted-foreground dark:bg-white/5",
               )}
             >
               <span className="text-xs font-bold">
@@ -422,12 +422,12 @@ export default function ProConnectDashboard() {
                   "text-sm font-medium",
                   profile.identity_verified_at
                     ? "text-blue-700 dark:text-blue-400"
-                    : "text-neutral-500 dark:text-neutral-500",
+                    : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
                 FRELUX Verified
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.identity_verified_at
                   ? "Identity verified"
                   : "Identity & profile review"}
@@ -441,7 +441,7 @@ export default function ProConnectDashboard() {
               "flex items-center gap-2 rounded-lg px-3 py-2",
               profile.pro_level
                 ? "bg-amber-50 dark:bg-amber-500/10"
-                : "bg-neutral-50 dark:bg-white/5",
+                : "bg-muted/50 dark:bg-white/5",
             )}
           >
             <div
@@ -449,7 +449,7 @@ export default function ProConnectDashboard() {
                 "flex h-8 w-8 items-center justify-center rounded-full",
                 profile.pro_level
                   ? "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400"
-                  : "bg-neutral-200 text-neutral-400 dark:bg-white/5",
+                  : "bg-muted text-muted-foreground dark:bg-white/5",
               )}
             >
               <span className="text-xs font-bold">
@@ -462,12 +462,12 @@ export default function ProConnectDashboard() {
                   "text-sm font-medium",
                   profile.pro_level
                     ? "text-amber-700 dark:text-amber-400"
-                    : "text-neutral-500 dark:text-neutral-500",
+                    : "text-muted-foreground dark:text-muted-foreground",
                 )}
               >
                 FRELUX Pro
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {profile.pro_level
                   ? "Top professional"
                   : proLevelEligible
@@ -480,7 +480,7 @@ export default function ProConnectDashboard() {
 
         {/* Verification status message */}
         <div className="mt-4">
-          <p className="text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             Status:{" "}
             <span
               className={classNames(
@@ -495,7 +495,7 @@ export default function ProConnectDashboard() {
                         ? "text-blue-600 dark:text-blue-400"
                         : profile.verification_status === "suspended"
                           ? "text-red-600 dark:text-red-400"
-                          : "text-neutral-500",
+                          : "text-muted-foreground",
               )}
             >
               {profile.verification_status.replace("_", " ")}
@@ -531,7 +531,7 @@ export default function ProConnectDashboard() {
               setVerifSuccess(false);
               setVerifError("");
             }}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
           >
             {showVerificationForm ? "Cancel" : "Request Verification"}
           </button>
@@ -539,14 +539,14 @@ export default function ProConnectDashboard() {
 
         {/* Verification submission form */}
         {showVerificationForm && !verifSuccess && (
-          <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="mb-4 text-base font-semibold text-neutral-900 dark:text-white">
+          <div className="mt-4 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <h3 className="mb-4 text-base font-semibold text-foreground dark:text-primary-foreground">
               Request Verification
             </h3>
 
             {/* Verification type selector */}
             <div className="mb-4">
-              <label className="mb-2 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="mb-2 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Verification Type
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -555,8 +555,8 @@ export default function ProConnectDashboard() {
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
                     verifType === "contact"
-                      ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-                      : "border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500",
+                      ? "border-brand-purple bg-primary/5 text-brand-purple"
+                      : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
                   <span className="block font-semibold">Level 1: Contact</span>
@@ -569,8 +569,8 @@ export default function ProConnectDashboard() {
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
                     verifType === "identity"
-                      ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-                      : "border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-500",
+                      ? "border-brand-purple bg-primary/5 text-brand-purple"
+                      : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
                   <span className="block font-semibold">Level 2: Identity</span>
@@ -582,7 +582,7 @@ export default function ProConnectDashboard() {
             {/* Common fields */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                   Professional Name *
                 </label>
                 <input
@@ -590,11 +590,11 @@ export default function ProConnectDashboard() {
                   value={verifName}
                   onChange={(e) => setVerifName(e.target.value)}
                   placeholder="Your full name"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                   Business Name
                 </label>
                 <input
@@ -602,13 +602,13 @@ export default function ProConnectDashboard() {
                   value={verifBusiness}
                   onChange={(e) => setVerifBusiness(e.target.value)}
                   placeholder="Optional"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </div>
             </div>
 
             <div className="mt-3">
-              <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+              <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                 Years of Experience
               </label>
               <input
@@ -618,21 +618,21 @@ export default function ProConnectDashboard() {
                 max="50"
                 onChange={(e) => setVerifYears(e.target.value)}
                 placeholder="e.g. 5"
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </div>
 
             {/* Identity verification fields */}
             {verifType === "identity" && (
-              <div className="mt-3 space-y-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
+              <div className="mt-3 space-y-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                     ID Document Type *
                   </label>
                   <select
                     value={verifIdType}
                     onChange={(e) => setVerifIdType(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                   >
                     <option value="national_id">National ID</option>
                     <option value="drivers_license">Driver's License</option>
@@ -643,7 +643,7 @@ export default function ProConnectDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">
                     ID Document Number *
                   </label>
                   <input
@@ -651,9 +651,9 @@ export default function ProConnectDashboard() {
                     value={verifIdNumber}
                     onChange={(e) => setVerifIdNumber(e.target.value)}
                     placeholder="Enter your ID number"
-                    className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                    className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                   />
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Your ID number is stored securely and only visible to FRELUX
                     administrators.
                   </p>
@@ -707,7 +707,7 @@ export default function ProConnectDashboard() {
                 }
               }}
               disabled={verifSubmitting}
-              className="mt-4 w-full rounded-lg bg-brand-purple py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+              className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {verifSubmitting ? "Submitting…" : "Submit Verification Request"}
             </button>
@@ -728,12 +728,12 @@ export default function ProConnectDashboard() {
       {/* Portfolio management */}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+          <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
             Portfolio
           </h2>
           <button
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-sm font-medium text-white"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Add Item
@@ -754,7 +754,7 @@ export default function ProConnectDashboard() {
         )}
 
         {portfolio.length === 0 ? (
-          <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
+          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
             No portfolio items yet. Add your first project to showcase your
             work.
           </p>
@@ -763,7 +763,7 @@ export default function ProConnectDashboard() {
             {portfolio.map((item) => (
               <div
                 key={item.id}
-                className="group relative overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5"
+                className="group relative overflow-hidden rounded-xl border border-border dark:border-white/5"
               >
                 {item.image_urls[0] && (
                   <img
@@ -773,10 +773,10 @@ export default function ProConnectDashboard() {
                   />
                 )}
                 <div className="p-3">
-                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                  <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
                     {item.title}
                   </p>
-                  <p className="truncate text-xs text-neutral-500">
+                  <p className="truncate text-xs text-muted-foreground">
                     {item.category}
                   </p>
                 </div>
@@ -786,7 +786,7 @@ export default function ProConnectDashboard() {
                     const port = await getProPortfolio(profile.id);
                     setPortfolio(port);
                   }}
-                  className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-brand-navy/80"
+                  className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-background/80"
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </button>
@@ -798,11 +798,11 @@ export default function ProConnectDashboard() {
 
       {/* Recent conversations */}
       <div className="mb-8">
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
           Recent Conversations
         </h2>
         {conversations.length === 0 ? (
-          <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
+          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
             No conversations yet. When customers message you, they'll appear
             here.
           </p>
@@ -812,13 +812,13 @@ export default function ProConnectDashboard() {
               <Link
                 key={convo.id}
                 to={`/messages/${convo.id}`}
-                className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
               >
                 <div>
-                  <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                     {convo.professional?.display_name || "Customer"}
                   </p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     {convo.last_message_at
                       ? new Date(convo.last_message_at).toLocaleDateString(
                           "en-GB",
@@ -829,7 +829,7 @@ export default function ProConnectDashboard() {
                 </div>
                 <MessageSquare
                   aria-hidden="true"
-                  className="h-5 w-5 text-neutral-500"
+                  className="h-5 w-5 text-muted-foreground"
                 />
               </Link>
             ))}
@@ -839,11 +839,11 @@ export default function ProConnectDashboard() {
 
       {/* Reviews */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
           Reviews About You
         </h2>
         {reviews.length === 0 ? (
-          <p className="rounded-xl border border-neutral-200 bg-white py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-500">
+          <p className="rounded-xl border border-border bg-card py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card dark:text-muted-foreground">
             No reviews yet. Reviews appear after customers work with you.
           </p>
         ) : (
@@ -851,7 +851,7 @@ export default function ProConnectDashboard() {
             {reviews.map((review) => (
               <div
                 key={review.id}
-                className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
               >
                 <div className="flex items-center gap-2">
                   {[1, 2, 3, 4, 5].map((s: number) => (
@@ -860,18 +860,18 @@ export default function ProConnectDashboard() {
                       className={
                         s <= review.rating
                           ? "text-amber-400"
-                          : "text-neutral-200 dark:text-neutral-700"
+                          : "text-muted-foreground/60 dark:text-card-foreground"
                       }
                     >
                       ●
                     </span>
                   ))}
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     {new Date(review.created_at).toLocaleDateString("en-GB")}
                   </span>
                 </div>
                 {review.review_text && (
-                  <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                  <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                     {review.review_text}
                   </p>
                 )}
@@ -895,9 +895,9 @@ export default function ProConnectDashboard() {
                   </button>
                 )}
                 {review.professional_response && (
-                  <div className="mt-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
-                    <p className="text-xs text-neutral-500">Your response:</p>
-                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                  <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
+                    <p className="text-xs text-muted-foreground">Your response:</p>
+                    <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {review.professional_response}
                     </p>
                   </div>
@@ -911,7 +911,7 @@ export default function ProConnectDashboard() {
       {/* Marketplace — My Bids */}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
             <ShoppingBag
               aria-hidden="true"
               className="h-5 w-5 text-brand-purple"
@@ -927,8 +927,8 @@ export default function ProConnectDashboard() {
           </Link>
         </div>
         {myBids.length === 0 ? (
-          <div className="rounded-xl border border-neutral-200 bg-white p-6 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+          <div className="rounded-xl border border-border bg-card p-6 text-center dark:border-white/5 dark:bg-card">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               You haven't placed any bids yet.
             </p>
             <Link
@@ -945,13 +945,13 @@ export default function ProConnectDashboard() {
               <Link
                 key={bid.id}
                 to={`/marketplace/${bid.listing_id}`}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                     {bid.listing?.title || "Untitled job"}
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Bid: ₦{bid.proposed_price.toLocaleString()} ·{" "}
                     {new Date(bid.created_at).toLocaleDateString()}
                   </p>
@@ -963,7 +963,7 @@ export default function ProConnectDashboard() {
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                       : bid.status === "rejected"
                         ? "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"
-                        : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                        : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                   )}
                 >
                   {bid.status}
@@ -977,7 +977,7 @@ export default function ProConnectDashboard() {
       {/* Marketplace — Active Orders */}
       {myOrders.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-neutral-900 dark:text-white">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
             <Briefcase
               aria-hidden="true"
               className="h-5 w-5 text-brand-purple"
@@ -994,13 +994,13 @@ export default function ProConnectDashboard() {
                 <Link
                   key={order.id}
                   to={`/marketplace/orders/${order.id}`}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                    <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                       {order.listing?.title || "Untitled job"}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {order.order_number} · ₦
                       {order.agreed_price.toLocaleString()}
                     </p>
@@ -1012,7 +1012,7 @@ export default function ProConnectDashboard() {
                         ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                         : order.status === "pending_start"
                           ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
-                          : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                          : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                     )}
                   >
                     {order.status === "in_progress" && (
@@ -1084,28 +1084,28 @@ function PortfolioForm({
   }
 
   return (
-    <div className="mb-4 rounded-xl border border-neutral-200 bg-neutral-50 p-4 dark:border-white/5 dark:bg-white/5">
+    <div className="mb-4 rounded-xl border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">
       <div className="space-y-3">
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Project title *"
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Project description"
           rows={2}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <input
           type="text"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Category (e.g. Painting, Tiling)"
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
         <div>
           <label className="block">
@@ -1120,7 +1120,7 @@ function PortfolioForm({
               }}
               className="hidden"
             />
-            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-neutral-300 px-4 py-3 text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-500">
+            <span className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground dark:border-white/10 dark:text-muted-foreground">
               <Plus aria-hidden="true" className="h-4 w-4" />
               {uploading ? "Uploading..." : "Upload images"}
             </span>
@@ -1141,7 +1141,7 @@ function PortfolioForm({
         <button
           onClick={handleSubmit}
           disabled={!title.trim() || imageUrls.length === 0 || saving}
-          className="w-full rounded-lg bg-brand-purple py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
         >
           {saving ? "Saving..." : "Add to portfolio"}
         </button>

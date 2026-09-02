@@ -50,7 +50,7 @@ export default function StudioDispatcher() {
   const isGeneration = toolSlug ? GENERATION_TOOLS.has(toolSlug) : false;
 
   if (!tool) {
-    return <div className="py-20 text-center text-sm text-neutral-500">Tool not found.</div>;
+    return <div className="py-20 text-center text-sm text-muted-foreground">Tool not found.</div>;
   }
 
   if (isChat) {
@@ -61,7 +61,7 @@ export default function StudioDispatcher() {
     return <GenerationTool toolSlug={getToolType(toolSlug!)} tool={tool} />;
   }
 
-  return <div className="py-20 text-center text-sm text-neutral-500">This tool is available in the sidebar.</div>;
+  return <div className="py-20 text-center text-sm text-muted-foreground">This tool is available in the sidebar.</div>;
 }
 
 // =========================================================
@@ -118,7 +118,7 @@ function GenerationTool({ toolSlug, tool }: { toolSlug: string; tool: ReturnType
       <ToolHeader icon={Icon} title={tool.label} description={tool.description} />
 
       <div className="space-y-6">
-        <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-5">
+        <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card p-5">
           <PromptInput
             placeholder={PLACEHOLDERS[toolSlug] ?? 'Describe what you want to generate…'}
             loading={loading}
@@ -249,21 +249,21 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
           <button
             type="button"
             onClick={() => { setActiveSession(null); setMessages([]); }}
-            className="w-full rounded-lg bg-brand-purple px-3 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+            className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             New Chat
           </button>
           <div className="max-h-96 space-y-1 overflow-y-auto">
             {sessions.map((s) => (
-              <div key={s.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid px-3 py-2 hover:border-brand-purple">
+              <div key={s.id} className="group flex items-center justify-between rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card px-3 py-2 hover:border-brand-purple">
                 <button
                   type="button"
                   onClick={() => setActiveSession(s.id)}
-                  className={`flex-1 truncate text-left text-xs font-medium ${activeSession === s.id ? 'text-brand-purple' : 'text-neutral-600'}`}
+                  className={`flex-1 truncate text-left text-xs font-medium ${activeSession === s.id ? 'text-brand-purple' : 'text-muted-foreground'}`}
                 >
                   {s.title}
                 </button>
-                <button type="button" onClick={() => handleDeleteSession(s.id)} className="ml-2 text-neutral-300 opacity-0 hover:text-red-500 group-hover:opacity-100">
+                <button type="button" onClick={() => handleDeleteSession(s.id)} className="ml-2 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100">
                   <X className="h-3 w-3" />
                 </button>
               </div>
@@ -272,13 +272,13 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
         </div>
 
         {/* Chat area */}
-        <div className="flex flex-col rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="flex flex-col rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card">
           <div ref={scrollRef} className="max-h-[55vh] flex-1 space-y-4 overflow-y-auto p-4">
             {messages.length === 0 && !loading && (
               <div className="flex h-full items-center justify-center text-center">
                 <div>
-                  <Icon className="mx-auto h-8 w-8 text-neutral-300" />
-                  <p className="mt-2 text-sm text-neutral-500">Ask the AI assistant anything about your project.</p>
+                  <Icon className="mx-auto h-8 w-8 text-muted-foreground/80" />
+                  <p className="mt-2 text-sm text-muted-foreground">Ask the AI assistant anything about your project.</p>
                 </div>
               </div>
             )}
@@ -286,8 +286,8 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
               <ChatMessage key={m.id ?? i} role={m.role} content={m.content} />
             ))}
             {loading && (
-              <div className="flex items-center gap-2 text-sm text-neutral-500">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-brand-purple" />
                 AI is thinking…
               </div>
             )}
@@ -295,7 +295,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
 
           {error && <div className="border-t border-red-200 bg-red-50 px-4 py-2 text-xs text-red-600">{error}</div>}
 
-          <div className="flex gap-2 border-t border-neutral-200 p-3">
+          <div className="flex gap-2 border-t border-border p-3">
             <input
               type="text"
               value={input}
@@ -309,7 +309,7 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
               type="button"
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="inline-flex items-center justify-center rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               Send
             </button>

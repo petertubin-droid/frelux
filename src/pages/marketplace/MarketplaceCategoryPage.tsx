@@ -86,12 +86,12 @@ export default function MarketplaceCategoryPage() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <Package
           aria-hidden="true"
-          className="mx-auto h-12 w-12 text-neutral-300"
+          className="mx-auto h-12 w-12 text-muted-foreground/80"
         />
-        <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
           Category Not Found
         </h1>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           This category doesn't exist or is no longer active.
         </p>
         <Link
@@ -106,11 +106,11 @@ export default function MarketplaceCategoryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
+    <div className="min-h-screen bg-muted/50 dark:bg-background">
       {/* Breadcrumb */}
-      <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
               Home
             </Link>
@@ -119,7 +119,7 @@ export default function MarketplaceCategoryPage() {
               Marketplace
             </Link>
             <span>/</span>
-            <span className="text-neutral-900 dark:text-white">
+            <span className="text-foreground dark:text-primary-foreground">
               {category?.name || "..."}
             </span>
           </nav>
@@ -127,12 +127,12 @@ export default function MarketplaceCategoryPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
             {category?.name || "Loading..."}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
             {category?.description ||
               `Find ${category?.name || "construction"} professionals and job listings on FRELUX.`}
           </p>
@@ -157,27 +157,27 @@ export default function MarketplaceCategoryPage() {
           <div className="py-20 text-center">
             <Package
               aria-hidden="true"
-              className="mx-auto h-12 w-12 text-neutral-300"
+              className="mx-auto h-12 w-12 text-muted-foreground/80"
             />
-            <h2 className="mt-4 text-lg font-semibold text-neutral-700 dark:text-neutral-200">
+            <h2 className="mt-4 text-lg font-semibold text-card-foreground dark:text-muted-foreground/60">
               No Active Listings
             </h2>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               There are currently no active job listings in this category.
             </p>
-            <p className="mt-2 text-sm text-neutral-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               Be the first to post a job in {category?.name}.
             </p>
             <Link
               to="/marketplace/post"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
             >
               Post a Job
             </Link>
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               {listings.length} active{" "}
               {listings.length === 1 ? "listing" : "listings"} in{" "}
               {category?.name}
@@ -187,10 +187,10 @@ export default function MarketplaceCategoryPage() {
                 <Link
                   key={listing.id}
                   to={`/marketplace/${listing.id}`}
-                  className="group rounded-xl border border-neutral-200/60 bg-white p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
+                    <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-brand-purple">
                       {PROJECT_TYPE_LABELS[listing.project_type] ||
                         listing.project_type}
                     </span>
@@ -200,16 +200,16 @@ export default function MarketplaceCategoryPage() {
                       </span>
                     )}
                   </div>
-                  <h3 className="mt-3 text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                  <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                     {listing.title}
                   </h3>
                   {listing.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
                       {listing.description}
                     </p>
                   )}
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                    <span className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
                       {formatBudget(
                         listing.budget_min,
                         listing.budget_max,
@@ -217,7 +217,7 @@ export default function MarketplaceCategoryPage() {
                       )}
                     </span>
                     {listing.location_city && (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-neutral-500">
+                      <span className="inline-flex items-center gap-0.5 text-xs text-muted-foreground">
                         <MapPin aria-hidden="true" className="h-3 w-3" />
                         {listing.location_city}
                       </span>

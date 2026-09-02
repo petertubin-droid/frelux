@@ -262,14 +262,14 @@ export default function MyProjects() {
       <div className="mx-auto max-w-md py-20 text-center">
         <AlertCircle
           aria-hidden="true"
-          className="mx-auto h-8 w-8 text-neutral-300"
+          className="mx-auto h-8 w-8 text-muted-foreground/80"
         />
-        <p className="mt-3 text-sm font-semibold text-neutral-600">
+        <p className="mt-3 text-sm font-semibold text-muted-foreground">
           Sign in to view your saved projects and favorites.
         </p>
         <Link
           to="/login?redirect=/my-projects"
-          className="mt-4 inline-block rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+          className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           Sign in
         </Link>
@@ -313,7 +313,7 @@ export default function MyProjects() {
       case "ai_recommendation":
         return <PaletteIcon className="h-5 w-5 text-brand-purple" />;
       default:
-        return <Folder className="h-5 w-5 text-neutral-500" />;
+        return <Folder className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -373,11 +373,11 @@ export default function MyProjects() {
                   setTab(t.id);
                   setSearch("");
                 }}
-                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all ${tab === t.id ? "border-brand-purple bg-brand-purple text-white" : "border-neutral-200 bg-white text-neutral-600 hover:text-brand-purple dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-300 dark:hover:text-brand-purple-lighter"}`}
+                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all ${tab === t.id ? "border-brand-purple bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:bg-card dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"}`}
               >
                 <Icon className="h-4 w-4" /> {t.label}{" "}
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-xs ${tab === t.id ? "bg-white/20" : "bg-neutral-100"}`}
+                  className={`rounded-full px-1.5 py-0.5 text-xs ${tab === t.id ? "bg-white/20" : "bg-muted"}`}
                 >
                   {t.count}
                 </span>
@@ -391,14 +391,14 @@ export default function MyProjects() {
           <div className="relative mb-4 w-full sm:max-w-xs">
             <Search
               aria-hidden="true"
-              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             />
             <input
               type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={`Search ${tab}…`}
-              className="input-field pl-9 dark:bg-brand-navy-mid dark:border-white/10"
+              className="input-field pl-9 dark:bg-card dark:border-white/10"
             />
           </div>
         )}
@@ -410,20 +410,20 @@ export default function MyProjects() {
               {filteredProjects.map((p) => (
                 <div
                   key={p.id}
-                  className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="flex items-center justify-between rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex items-start gap-3">
                     {projectIcon(p.project_type)}
                     <div>
-                      <h3 className="text-sm font-bold text-brand-navy dark:text-white">
+                      <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                         {p.name}
                       </h3>
                       {p.description && (
-                        <p className="mt-0.5 text-xs text-neutral-500">
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {p.description}
                         </p>
                       )}
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         Updated {new Date(p.updated_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -432,7 +432,7 @@ export default function MyProjects() {
                     <button
                       type="button"
                       onClick={() => handleOpenProject(p)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple-dark"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                       title="Open"
                     >
                       <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />{" "}
@@ -441,7 +441,7 @@ export default function MyProjects() {
                     <button
                       type="button"
                       onClick={() => handleShare("project", p.id)}
-                      className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                       title="Share"
                     >
                       <Share2 className="h-4 w-4" />
@@ -449,7 +449,7 @@ export default function MyProjects() {
                     <button
                       type="button"
                       onClick={() => handleDuplicate(p.id)}
-                      className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                       title="Duplicate"
                     >
                       <Copy aria-hidden="true" className="h-4 w-4" />
@@ -484,7 +484,7 @@ export default function MyProjects() {
                 <Link
                   key={c.id}
                   to={`/colors/paint/${c.slug}`}
-                  className="group overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md"
+                  className="group overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                 >
                   <div
                     className="aspect-square"
@@ -498,7 +498,7 @@ export default function MyProjects() {
                     </span>
                   </div>
                   <div className="p-2">
-                    <p className="truncate text-xs font-semibold text-brand-navy dark:text-white">
+                    <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {c.name}
                     </p>
                   </div>
@@ -523,7 +523,7 @@ export default function MyProjects() {
                 <Link
                   key={p.id}
                   to={`/colors/${p.slug}`}
-                  className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg"
+                  className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <img
@@ -532,7 +532,7 @@ export default function MyProjects() {
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       loading="lazy"
                     />
-                    <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur dark:bg-brand-navy/90">
+                    <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/90 p-2 backdrop-blur dark:bg-background/90">
                       {[
                         p.main_color_code,
                         p.secondary_color_code,
@@ -547,7 +547,7 @@ export default function MyProjects() {
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">
+                    <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
                       {p.title}
                     </h3>
                   </div>
@@ -579,7 +579,7 @@ export default function MyProjects() {
                 type="button"
                 onClick={handleCreateCollection}
                 disabled={creating || !newCollName.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50 hover:bg-brand-purple-dark"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 hover:bg-primary/90"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Create
               </button>
@@ -589,7 +589,7 @@ export default function MyProjects() {
                 {filteredCollections.map((c) => (
                   <div
                     key={c.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid dark:border-white/5 dark:bg-brand-navy-mid"
+                    className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card dark:border-white/5 dark:bg-card"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -607,29 +607,29 @@ export default function MyProjects() {
                             <button
                               type="button"
                               onClick={() => handleRename(c.id)}
-                              className="rounded-md bg-brand-purple p-1.5 text-white"
+                              className="rounded-md bg-primary p-1.5 text-primary-foreground"
                             >
                               <Check aria-hidden="true" className="h-4 w-4" />
                             </button>
                             <button
                               type="button"
                               onClick={() => setRenamingId(null)}
-                              className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:border-white/5 dark:text-neutral-500"
+                              className="rounded-md border border-border p-1.5 text-muted-foreground dark:border-white/5 dark:text-muted-foreground"
                             >
                               <X aria-hidden="true" className="h-4 w-4" />
                             </button>
                           </div>
                         ) : (
                           <>
-                            <h3 className="text-sm font-bold text-brand-navy dark:text-white">
+                            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                               {c.name}
                             </h3>
                             {c.description && (
-                              <p className="text-xs text-neutral-500">
+                              <p className="text-xs text-muted-foreground">
                                 {c.description}
                               </p>
                             )}
-                            <p className="mt-0.5 text-xs text-neutral-500">
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                               {(collectionColors[c.id] ?? []).length} colors
                             </p>
                           </>
@@ -643,7 +643,7 @@ export default function MyProjects() {
                               setRenamingId(c.id);
                               setRenameValue(c.name);
                             }}
-                            className="rounded-lg border border-neutral-200 p-2 text-neutral-500 hover:text-brand-purple dark:border-white/5 dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                            className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                             title="Rename"
                           >
                             <Pencil className="h-4 w-4" />
@@ -664,7 +664,7 @@ export default function MyProjects() {
                         {(collectionColors[c.id] ?? []).map((col) => (
                           <div
                             key={col.id}
-                            className="group relative flex items-center gap-2 rounded-lg border border-neutral-200 p-1.5 pr-3 hover:border-brand-purple"
+                            className="group relative flex items-center gap-2 rounded-lg border border-border p-1.5 pr-3 hover:border-brand-purple"
                           >
                             <Link
                               to={`/colors/paint/${col.slug}`}
@@ -674,7 +674,7 @@ export default function MyProjects() {
                                 className="h-8 w-8 rounded"
                                 style={{ background: col.hex_code }}
                               />
-                              <span className="text-xs font-medium text-neutral-700 dark:text-neutral-200">
+                              <span className="text-xs font-medium text-card-foreground dark:text-muted-foreground/60">
                                 {col.name}
                               </span>
                             </Link>
@@ -688,7 +688,7 @@ export default function MyProjects() {
                                       fromColl: c.id,
                                     })
                                   }
-                                  className="rounded p-0.5 text-neutral-500 hover:text-brand-purple"
+                                  className="rounded p-0.5 text-muted-foreground hover:text-brand-purple"
                                   title="Move to another collection"
                                 >
                                   <ArrowRight
@@ -697,8 +697,8 @@ export default function MyProjects() {
                                   />
                                 </button>
                                 {moveState?.colorId === col.id && (
-                                  <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg dark:border-white/5 dark:bg-brand-navy-mid">
-                                    <p className="mb-1 text-[10px] font-semibold uppercase text-neutral-500">
+                                  <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-border bg-card p-2 shadow-lg dark:border-white/5 dark:bg-card">
+                                    <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">
                                       Move to
                                     </p>
                                     {collections
@@ -708,7 +708,7 @@ export default function MyProjects() {
                                           key={oc.id}
                                           type="button"
                                           onClick={() => handleMoveColor(oc.id)}
-                                          className="block w-full rounded px-2 py-1.5 text-left text-xs font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100"
+                                          className="block w-full rounded px-2 py-1.5 text-left text-xs font-medium text-card-foreground dark:text-muted-foreground/60 hover:bg-muted"
                                         >
                                           {oc.name}
                                         </button>
@@ -743,7 +743,7 @@ export default function MyProjects() {
                   <button
                     type="button"
                     onClick={handleClearRecent}
-                    className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm font-medium text-neutral-600 hover:text-red-500 dark:border-white/5 dark:text-neutral-300 dark:hover:text-red-400"
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-red-500 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-red-400"
                   >
                     <Trash2 aria-hidden="true" className="h-4 w-4" /> Clear
                     History
@@ -753,12 +753,12 @@ export default function MyProjects() {
                   {recentlyViewed.map((c) => (
                     <div
                       key={c.id}
-                      className="group relative overflow-hidden rounded-lg border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-md"
+                      className="group relative overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                     >
                       <button
                         type="button"
                         onClick={() => handlePinRecent(c.id)}
-                        className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-neutral-500 dark:bg-brand-navy/80 dark:text-neutral-500 hover:text-brand-purple"
+                        className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-muted-foreground dark:bg-background/80 dark:text-muted-foreground hover:text-brand-purple"
                         title="Pin/Unpin"
                       >
                         <Pin className="h-3.5 w-3.5" />
@@ -776,7 +776,7 @@ export default function MyProjects() {
                           </span>
                         </div>
                         <div className="p-2">
-                          <p className="truncate text-xs font-semibold text-brand-navy dark:text-white">
+                          <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">
                             {c.name}
                           </p>
                         </div>

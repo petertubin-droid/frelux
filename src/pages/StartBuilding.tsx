@@ -145,32 +145,32 @@ export default function StartBuilding() {
       />
 
       {/* ── Construction Journey Visual ── */}
-      <div className="border-b border-neutral-200/80 bg-brand-navy-mid dark:bg-brand-navy-mid">
+      <div className="border-b border-border/80 bg-card dark:bg-card">
         <Container className="py-6">
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide text-xs font-medium text-white/60">
-            <span className="whitespace-nowrap text-white/40">FOUNDATION</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">STRUCTURE</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">WALLS</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">ROOF</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">SCREEDING</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">POP CEILING</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide text-xs font-medium text-primary-foreground/60">
+            <span className="whitespace-nowrap text-primary-foreground/40">FOUNDATION</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">STRUCTURE</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">WALLS</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">ROOF</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">SCREEDING</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">POP CEILING</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">
               TILES / FLOORING
             </span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">PAINTING</span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">PAINTING</span>
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">
               EXTERIOR FINISHING
             </span>
-            <ChevronRight className="h-3 w-3 text-white/20" />
-            <span className="whitespace-nowrap text-white/40">
+            <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
+            <span className="whitespace-nowrap text-primary-foreground/40">
               COLOUR / DESIGN
             </span>
           </div>
@@ -184,39 +184,39 @@ export default function StartBuilding() {
           onClick={() =>
             track("start_building_clicked", { category: "build_to_roof" })
           }
-          className="group block overflow-hidden rounded-2xl border border-neutral-200 bg-gradient-to-br from-brand-navy to-brand-navy-mid shadow-premium-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10"
+          className="group block overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-background to-card shadow-premium-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10"
         >
           <div className="grid items-center gap-0 md:grid-cols-2">
             {/* Left: Content */}
             <div className="p-8 sm:p-10 lg:p-12">
-              <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/20 px-3 py-1 text-xs font-medium text-brand-purple-light">
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-brand-purple-light">
                 <Building2 aria-hidden="true" className="h-3.5 w-3.5" />
                 Start Here
               </div>
-              <h2 className="mt-5 font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              <h2 className="mt-5 font-display text-3xl font-bold tracking-tight text-primary-foreground sm:text-4xl">
                 Build to Roof
               </h2>
-              <p className="mt-4 max-w-md text-base leading-relaxed text-white/60">
+              <p className="mt-4 max-w-md text-base leading-relaxed text-primary-foreground/60">
                 Your starting point for estimating a building project. Estimate
                 your project from building to roof, then move into the finishing
                 stages with FRELUX.
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/50">
                   <CheckCircle2
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
                   />
                   Foundation to roofing
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/50">
                   <CheckCircle2
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
                   />
                   Blocks, cement, sand & granite
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/50">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/50">
                   <CheckCircle2
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
@@ -224,7 +224,7 @@ export default function StartBuilding() {
                   Nigerian construction standards
                 </span>
               </div>
-              <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-brand-purple-dark group-hover:shadow-xl">
+              <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-primary/90 group-hover:shadow-xl">
                 Start Build-to-Roof Estimate
                 <ArrowRight
                   aria-hidden="true"
@@ -240,7 +240,7 @@ export default function StartBuilding() {
                 className="absolute inset-0 h-full w-full object-cover"
                 loading="eager"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-navy via-brand-navy/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
             </div>
           </div>
         </Link>
@@ -249,10 +249,10 @@ export default function StartBuilding() {
       {/* ── Secondary Categories ── */}
       <Container className="pb-12">
         <div className="mb-6">
-          <h2 className="font-display text-xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-2xl">
+          <h2 className="font-display text-xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-2xl">
             Finishing & Specialised Calculators
           </h2>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             After your structure is built, estimate materials and costs for each
             finishing stage.
           </p>
@@ -375,21 +375,21 @@ export default function StartBuilding() {
           onClick={() =>
             track("start_building_clicked", { category: "ai_photo_estimator" })
           }
-          className="group flex flex-col items-center gap-4 rounded-2xl border border-neutral-200 bg-gradient-to-r from-brand-navy-mid to-brand-navy p-6 text-center shadow-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10 sm:flex-row sm:text-left"
+          className="group flex flex-col items-center gap-4 rounded-2xl border border-border bg-gradient-to-r from-card to-background p-6 text-center shadow-lg transition-all hover:shadow-xl hover:scale-[1.01] dark:border-white/10 sm:flex-row sm:text-left"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-green/20">
             <Camera aria-hidden="true" className="h-6 w-6 text-accent-green" />
           </div>
           <div className="flex-1">
-            <h3 className="font-display text-lg font-bold text-white">
+            <h3 className="font-display text-lg font-bold text-primary-foreground">
               Not sure where to start? Try the AI Photo Estimator
             </h3>
-            <p className="mt-1 text-sm text-white/60">
+            <p className="mt-1 text-sm text-primary-foreground/60">
               Upload a photo of your site or room and get an AI-powered material
               and cost estimate in seconds.
             </p>
           </div>
-          <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-all group-hover:bg-white/15">
+          <div className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-5 py-3 text-sm font-semibold text-primary-foreground transition-all group-hover:bg-white/15">
             Try it now
             <ArrowRight
               aria-hidden="true"
@@ -401,28 +401,28 @@ export default function StartBuilding() {
 
       {/* ── Not sure where to start ── */}
       <Container className="pb-16">
-        <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center dark:border-neutral-700 dark:bg-brand-navy-mid/50">
-          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10">
+        <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-6 text-center dark:border-border border-border dark:bg-background-mid/50">
+          <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
             <HelpCircle className="h-5 w-5 text-brand-purple" />
           </div>
-          <h3 className="mt-4 font-display text-lg font-bold text-neutral-900 dark:text-white">
+          <h3 className="mt-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
             Not sure where to start?
           </h3>
-          <p className="mx-auto mt-2 max-w-md text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground dark:text-muted-foreground">
             Tell FRELUX what you're working on and we'll guide you to the right
             calculator.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
               to="/calculators"
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
             >
               View All Calculators
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
               to="/learn"
-              className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 px-5 py-3 text-sm font-semibold text-neutral-700 transition-all hover:bg-neutral-100 dark:border-white/10 dark:text-white dark:hover:bg-white/5"
+              className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-card-foreground transition-all hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
             >
               Learn Construction Basics
             </Link>
@@ -454,23 +454,23 @@ function CategoryCard({
   onClick?: () => void;
 }) {
   return (
-    <div className="group flex flex-col rounded-xl border border-neutral-200 bg-white p-5 shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:bg-brand-navy-mid">
+    <div className="group flex flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:bg-card">
       {/* Header */}
       <Link
         to={tools[0].to}
         onClick={onClick}
         className="flex items-center gap-3"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple transition-colors group-hover:bg-brand-purple/20">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple transition-colors group-hover:bg-primary/20">
           {icon}
         </div>
-        <h3 className="font-display text-base font-bold text-neutral-900 transition-colors group-hover:text-brand-purple dark:text-white">
+        <h3 className="font-display text-base font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
           {title}
         </h3>
       </Link>
 
       {/* Description */}
-      <p className="mt-3 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
         {description}
       </p>
 
@@ -481,9 +481,9 @@ function CategoryCard({
             key={tool.to}
             to={tool.to}
             onClick={onClick}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-600 transition-colors hover:text-brand-purple dark:text-neutral-300 dark:hover:text-brand-purple-lighter"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
           >
-            <ChevronRight className="h-3.5 w-3.5 text-neutral-300 dark:text-neutral-600" />
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/80 dark:text-muted-foreground" />
             {tool.label}
           </Link>
         ))}

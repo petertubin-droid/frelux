@@ -102,7 +102,7 @@ export default function ColorPreview() {
               <div className="relative mt-2">
                 <img src={imagePreview} alt="Room" className="max-h-64 rounded-lg border" />
                 <button type="button" onClick={() => setImagePreview(null)}
-                  className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white">
+                  className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-primary-foreground">
                   <X aria-hidden="true" className="h-4 w-4" />
                 </button>
               </div>
@@ -221,7 +221,7 @@ export default function ColorPreview() {
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
           >
             {loading ? <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> : <Eye aria-hidden="true" className="h-5 w-5" />}
             Generate AI Preview

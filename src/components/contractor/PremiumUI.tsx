@@ -67,7 +67,7 @@ export interface StatCardProps {
 }
 
 const statAccentMap: Record<NonNullable<StatCardProps['accent']>, { icon: string; glow: string }> = {
-  purple: { icon: 'text-brand-purple', glow: 'bg-brand-purple/10' },
+  purple: { icon: 'text-brand-purple', glow: 'bg-primary/10' },
   orange: { icon: 'text-accent-orange', glow: 'bg-accent-orange/10' },
   green: { icon: 'text-accent-green', glow: 'bg-accent-green/10' },
   cyan: { icon: 'text-accent-cyan', glow: 'bg-accent-cyan/10' },
@@ -101,16 +101,16 @@ export function StatCard({
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
             {label}
           </p>
-          <p className="mt-2 text-2xl font-bold text-brand-navy dark:text-white tabular-nums">
+          <p className="mt-2 text-2xl font-bold text-foreground dark:text-primary-foreground tabular-nums">
             {prefix}
             {formatted}
             {suffix}
           </p>
           {sublabel && (
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{sublabel}</p>
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">{sublabel}</p>
           )}
         </div>
         <div
@@ -133,16 +133,16 @@ export function SkeletonCard() {
   return (
     <div className="card p-5 space-y-4">
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 animate-skeleton-pulse rounded-xl bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+        <div className="h-10 w-10 animate-skeleton-pulse rounded-xl bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
         <div className="flex-1 space-y-2">
-          <div className="h-3 w-1/3 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
-          <div className="h-3 w-1/2 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+          <div className="h-3 w-1/3 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
+          <div className="h-3 w-1/2 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
         </div>
       </div>
-      <div className="h-20 w-full animate-skeleton-pulse rounded-lg bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+      <div className="h-20 w-full animate-skeleton-pulse rounded-lg bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
       <div className="flex gap-3">
-        <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
-        <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+        <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
+        <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
       </div>
     </div>
   );
@@ -154,14 +154,14 @@ export function SkeletonList({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 rounded-xl border border-neutral-200 dark:border-white/5 p-4"
+          className="flex items-center gap-4 rounded-xl border border-border dark:border-white/5 p-4"
         >
-          <div className="h-10 w-10 shrink-0 animate-skeleton-pulse rounded-full bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+          <div className="h-10 w-10 shrink-0 animate-skeleton-pulse rounded-full bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
           <div className="flex-1 space-y-2">
-            <div className="h-3 w-1/3 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
-            <div className="h-3 w-1/2 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+            <div className="h-3 w-1/3 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
+            <div className="h-3 w-1/2 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
           </div>
-          <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 bg-[length:200%_100%]" />
+          <div className="h-5 w-16 animate-skeleton-pulse rounded bg-gradient-to-r from-muted via-muted to-muted bg-[length:200%_100%]" />
         </div>
       ))}
     </div>
@@ -181,7 +181,7 @@ export interface EmptyStateProps {
 }
 
 const emptyAccentMap: Record<NonNullable<EmptyStateProps['accent']>, string> = {
-  purple: 'text-brand-purple bg-brand-purple/10',
+  purple: 'text-brand-purple bg-primary/10',
   orange: 'text-accent-orange bg-accent-orange/10',
   green: 'text-accent-green bg-accent-green/10',
   cyan: 'text-accent-cyan bg-accent-cyan/10',
@@ -206,8 +206,8 @@ export function EmptyState({
       >
         <Icon className="h-10 w-10" />
       </div>
-      <h3 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h3>
-      <p className="mt-2 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+      <h3 className="text-xl font-bold text-foreground dark:text-primary-foreground">{title}</h3>
+      <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
         {description}
       </p>
       {actionLabel && onAction && (
@@ -249,10 +249,10 @@ export function SuccessScreen({
         </div>
       </div>
 
-      <h3 className="text-2xl font-bold text-brand-navy dark:text-white animate-fade-in-up">
+      <h3 className="text-2xl font-bold text-foreground dark:text-primary-foreground animate-fade-in-up">
         {title}
       </h3>
-      <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 animate-fade-in-up">
+      <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground animate-fade-in-up">
         {message}
       </p>
 
@@ -289,7 +289,7 @@ export function ProgressTracker({
     clamped >= 75
       ? 'bg-accent-green'
       : clamped >= 50
-        ? 'bg-brand-purple'
+        ? 'bg-primary'
         : clamped >= 25
           ? 'bg-accent-orange'
           : 'bg-red-500';
@@ -299,19 +299,19 @@ export function ProgressTracker({
       {(label || showValue) && (
         <div className="mb-1.5 flex items-center justify-between">
           {label && (
-            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
               {label}
             </span>
           )}
           {showValue && (
-            <span className="text-sm font-bold tabular-nums text-brand-navy dark:text-white">
+            <span className="text-sm font-bold tabular-nums text-foreground dark:text-primary-foreground">
               {clamped}%
             </span>
           )}
         </div>
       )}
       <div
-        className="h-2.5 w-full overflow-hidden rounded-full bg-neutral-200"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-muted"
         role="progressbar"
         aria-valuenow={clamped}
         aria-valuemin={0}
@@ -356,12 +356,12 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
                 <div
                   className={classNames(
                     'flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-all duration-300',
-                    isComplete && 'bg-brand-purple text-white',
+                    isComplete && 'bg-primary text-primary-foreground',
                     isCurrent &&
-                      'bg-brand-purple text-white ring-4 ring-brand-purple/20 animate-success-pop',
+                      'bg-primary text-primary-foreground ring-4 ring-brand-purple/20 animate-success-pop',
                     !isComplete &&
                       !isCurrent &&
-                      'bg-neutral-200 text-neutral-500 dark:text-neutral-500',
+                      'bg-muted text-muted-foreground dark:text-muted-foreground',
                   )}
                 >
                   {isComplete ? (
@@ -376,17 +376,17 @@ export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
                     isCurrent
                       ? 'text-brand-purple'
                       : isComplete
-                        ? 'text-neutral-700 dark:text-neutral-200'
-                        : 'text-neutral-500 dark:text-neutral-500',
+                        ? 'text-card-foreground dark:text-muted-foreground/60'
+                        : 'text-muted-foreground dark:text-muted-foreground',
                   )}
                 >
                   {step}
                 </span>
               </div>
               {!isLast && (
-                <div className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-neutral-200">
+                <div className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-muted">
                   <div
-                    className="absolute inset-y-0 left-0 bg-brand-purple transition-all duration-500 ease-out"
+                    className="absolute inset-y-0 left-0 bg-primary transition-all duration-500 ease-out"
                     style={{ width: isComplete ? '100%' : '0%' }}
                   />
                 </div>
@@ -421,14 +421,14 @@ export function SectionCard({
     <section
       className={classNames('card overflow-hidden', className)}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-neutral-200 dark:border-white/5 px-5 py-4">
+      <header className="flex items-center justify-between gap-3 border-b border-border dark:border-white/5 px-5 py-4">
         <div className="flex items-center gap-2.5">
           {Icon && (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <Icon className="h-4.5 w-4.5 text-brand-purple" />
             </div>
           )}
-          <h3 className="text-sm font-bold uppercase tracking-wide text-brand-navy dark:text-white">
+          <h3 className="text-sm font-bold uppercase tracking-wide text-foreground dark:text-primary-foreground">
             {title}
           </h3>
         </div>
@@ -457,12 +457,12 @@ export interface BadgeProps {
 }
 
 const badgeVariantMap: Record<BadgeVariant, string> = {
-  default: 'bg-neutral-100 text-neutral-600 dark:text-neutral-300',
+  default: 'bg-muted text-muted-foreground dark:text-muted-foreground/80',
   success: 'bg-accent-green/10 text-accent-green',
   warning: 'bg-accent-yellow/10 text-accent-yellow',
   error: 'bg-red-500/10 text-red-600',
   info: 'bg-blue-500/10 text-blue-600',
-  purple: 'bg-brand-purple/10 text-brand-purple',
+  purple: 'bg-primary/10 text-brand-purple',
 };
 
 export function Badge({
@@ -523,18 +523,18 @@ export function Toggle({
         style={{"width":"2.75rem","height":"1.5rem","minWidth":"2.75rem"}}
         className={classNames(
           'relative inline-flex appearance-none h-6 w-11 shrink-0 items-center rounded-full border-0 p-0 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-purple focus:ring-offset-2',
-          checked ? 'bg-brand-purple' : 'bg-neutral-300',
+          checked ? 'bg-primary' : 'bg-muted',
         )}
       >
         <span
           className={classNames(
-            'inline-block h-5 w-5 transform rounded-full bg-white dark:bg-brand-navy-mid shadow-sm transition-all duration-300',
+            'inline-block h-5 w-5 transform rounded-full bg-card dark:bg-card shadow-sm transition-all duration-300',
             checked ? 'translate-x-5' : 'translate-x-0.5',
           )}
         />
       </button>
       {label && (
-        <span className="text-sm font-medium text-brand-navy dark:text-white">{label}</span>
+        <span className="text-sm font-medium text-foreground dark:text-primary-foreground">{label}</span>
       )}
     </label>
   );

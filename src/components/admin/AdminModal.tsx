@@ -33,7 +33,7 @@ export function AdminModal({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className={`${maxWidth} max-h-[90vh] overflow-y-auto`}>
         <div className="flex items-center justify-between pr-8">
-          <DialogTitle className="text-lg font-bold text-brand-navy dark:text-white">
+          <DialogTitle className="text-lg font-bold text-foreground dark:text-primary-foreground">
             {title}
           </DialogTitle>
           {description && (

@@ -180,7 +180,7 @@ const PHASE_COLORS: Record<TimelinePhase, string> = {
   primer: "bg-cyan-500",
   painting: "bg-indigo-500",
   tiling: "bg-rose-500",
-  drying: "bg-gray-400",
+  drying: "bg-muted-foreground/40",
   inspection: "bg-teal-500",
   completion: "bg-green-500",
   touch_up: "bg-orange-500",
@@ -194,7 +194,7 @@ const PHASE_TEXT_COLORS: Record<TimelinePhase, string> = {
   primer: "text-cyan-600",
   painting: "text-indigo-600",
   tiling: "text-rose-600",
-  drying: "text-gray-500",
+  drying: "text-muted-foreground",
   inspection: "text-teal-600",
   completion: "text-green-600",
   touch_up: "text-orange-600",
@@ -800,7 +800,7 @@ export default function ProjectDashboard() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-gray-500">
+        <div className="flex flex-col items-center gap-4 text-muted-foreground">
           <Loader2
             aria-hidden="true"
             className="h-8 w-8 animate-spin text-violet-600"
@@ -819,7 +819,7 @@ export default function ProjectDashboard() {
           <p className="text-sm font-medium text-red-700">{error}</p>
           <button
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+            className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Go Back
           </button>
@@ -832,23 +832,23 @@ export default function ProjectDashboard() {
 
   return (
     <>
-      <div className="min-h-screen bg-gray-50 pb-12">
+      <div className="min-h-screen bg-muted/50 pb-12">
         {/* ── Header ── */}
-        <div className="sticky top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur-md">
+        <div className="sticky top-0 z-20 border-b border-border bg-white/90 backdrop-blur-md">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => navigate(-1)}
-                  className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                  className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-card-foreground"
                 >
                   <ArrowLeft aria-hidden="true" className="h-5 w-5" />
                 </button>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+                  <h1 className="text-xl font-bold text-foreground sm:text-2xl">
                     {project.name}
                   </h1>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {prettify(project.project_type)} ·{" "}
                     {prettify(project.status)} ·{" "}
                     {prettify(project.finish_quality)}
@@ -859,7 +859,7 @@ export default function ProjectDashboard() {
                 <button
                   onClick={doRecalculate}
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <TrendingUp aria-hidden="true" className="h-4 w-4" />{" "}
                   Recalculate
@@ -869,7 +869,7 @@ export default function ProjectDashboard() {
                     createProjectVersion(id!, "Manual version snapshot")
                   }
                   disabled={actionLoading}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <Save aria-hidden="true" className="h-4 w-4" /> Snapshot
                 </button>
@@ -887,8 +887,8 @@ export default function ProjectDashboard() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                       isActive
-                        ? "bg-violet-600 text-white"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-violet-600 text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted"
                     }`}
                   >
                     <Icon aria-hidden="true" className="h-4 w-4" />
@@ -1158,17 +1158,17 @@ function OverviewTab(props: OverviewTabProps) {
           return (
             <div
               key={stat.label}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
             >
               <div className="flex items-center justify-between">
                 <div className={`rounded-lg ${stat.color} p-2.5`}>
-                  <Icon aria-hidden="true" className="h-5 w-5 text-white" />
+                  <Icon aria-hidden="true" className="h-5 w-5 text-primary-foreground" />
                 </div>
               </div>
-              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-gray-500">
+              <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {stat.label}
               </p>
-              <p className="mt-1 text-xl font-bold text-gray-900">
+              <p className="mt-1 text-xl font-bold text-foreground">
                 {stat.value}
               </p>
             </div>
@@ -1177,16 +1177,16 @@ function OverviewTab(props: OverviewTabProps) {
       </div>
 
       {/* Progress bar */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold text-gray-900">
+          <h3 className="text-base font-semibold text-foreground">
             Project Progress
           </h3>
           <span className="text-lg font-bold text-violet-600">
             {props.progress}%
           </span>
         </div>
-        <div className="mt-3 h-4 w-full overflow-hidden rounded-full bg-gray-200">
+        <div className="mt-3 h-4 w-full overflow-hidden rounded-full bg-muted">
           <div
             className="h-full rounded-full bg-gradient-to-r from-violet-500 via-purple-500 to-indigo-500 transition-all duration-500"
             style={{ width: `${Math.min(100, props.progress)}%` }}
@@ -1220,52 +1220,52 @@ function OverviewTab(props: OverviewTabProps) {
           return (
             <div
               key={item.label}
-              className="rounded-lg border border-gray-200 bg-white p-4 text-center"
+              className="rounded-lg border border-border bg-card p-4 text-center"
             >
               <Icon
                 aria-hidden="true"
-                className="mx-auto h-5 w-5 text-gray-400"
+                className="mx-auto h-5 w-5 text-muted-foreground"
               />
-              <p className="mt-2 text-2xl font-bold text-gray-900">
+              <p className="mt-2 text-2xl font-bold text-foreground">
                 {item.value}
               </p>
-              <p className="text-xs text-gray-500">{item.label}</p>
+              <p className="text-xs text-muted-foreground">{item.label}</p>
             </div>
           );
         })}
       </div>
 
       {/* Client info */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-base font-semibold text-gray-900">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 className="text-base font-semibold text-foreground">
           Client Information
         </h3>
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-medium uppercase text-gray-500">
+            <p className="text-xs font-medium uppercase text-muted-foreground">
               Client Name
             </p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+            <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_name ?? "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase text-gray-500">Phone</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+            <p className="text-xs font-medium uppercase text-muted-foreground">Phone</p>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_phone ?? "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase text-gray-500">Email</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+            <p className="text-xs font-medium uppercase text-muted-foreground">Email</p>
+            <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_email ?? "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase text-gray-500">
+            <p className="text-xs font-medium uppercase text-muted-foreground">
               Address
             </p>
-            <p className="mt-1 text-sm font-medium text-gray-900">
+            <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_address ?? "N/A"}
             </p>
           </div>
@@ -1313,12 +1313,12 @@ function RoomsTab(props: RoomsTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-foreground">
           Project Rooms ({rooms.length})
         </h2>
         <button
           onClick={onShowForm}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Room
         </button>
@@ -1328,12 +1328,12 @@ function RoomsTab(props: RoomsTabProps) {
       {showRoomForm && (
         <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-foreground">
               {editingRoomId ? "Edit Room" : "New Room"}
             </h3>
             <button
               onClick={onCancelForm}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-muted-foreground hover:text-muted-foreground"
             >
               <X className="h-5 w-5" />
             </button>
@@ -1342,7 +1342,7 @@ function RoomsTab(props: RoomsTabProps) {
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Name */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Room Name
               </label>
               <input
@@ -1352,13 +1352,13 @@ function RoomsTab(props: RoomsTabProps) {
                   setRoomForm((p) => ({ ...p, name: e.target.value }))
                 }
                 placeholder="e.g. Master Bedroom"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
 
             {/* Room type */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Room Type
               </label>
               <select
@@ -1369,7 +1369,7 @@ function RoomsTab(props: RoomsTabProps) {
                     room_type: e.target.value as RoomType,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {ROOM_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -1381,7 +1381,7 @@ function RoomsTab(props: RoomsTabProps) {
 
             {/* Calculation type */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Calculation Type
               </label>
               <select
@@ -1392,7 +1392,7 @@ function RoomsTab(props: RoomsTabProps) {
                     calculation_type: e.target.value as RoomCalcType,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {CALC_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -1404,7 +1404,7 @@ function RoomsTab(props: RoomsTabProps) {
 
             {/* Dimensions */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Length
               </label>
               <input
@@ -1415,11 +1415,11 @@ function RoomsTab(props: RoomsTabProps) {
                   setRoomForm((p) => ({ ...p, length_m: e.target.value }))
                 }
                 placeholder="0"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Width
               </label>
               <input
@@ -1430,11 +1430,11 @@ function RoomsTab(props: RoomsTabProps) {
                   setRoomForm((p) => ({ ...p, width_m: e.target.value }))
                 }
                 placeholder="0"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Height
               </label>
               <input
@@ -1445,13 +1445,13 @@ function RoomsTab(props: RoomsTabProps) {
                   setRoomForm((p) => ({ ...p, height_m: e.target.value }))
                 }
                 placeholder="0"
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
 
             {/* Unit */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Unit
               </label>
               <select
@@ -1462,7 +1462,7 @@ function RoomsTab(props: RoomsTabProps) {
                     unit: e.target.value as "meters" | "feet",
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 <option value="meters">Meters</option>
                 <option value="feet">Feet</option>
@@ -1471,7 +1471,7 @@ function RoomsTab(props: RoomsTabProps) {
 
             {/* Surface assessment dropdowns */}
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Surface Condition
               </label>
               <select
@@ -1482,7 +1482,7 @@ function RoomsTab(props: RoomsTabProps) {
                     surface_condition: e.target.value as SurfaceCondition,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {SURFACE_CONDITIONS.map((t) => (
                   <option key={t} value={t}>
@@ -1492,7 +1492,7 @@ function RoomsTab(props: RoomsTabProps) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Surface Type
               </label>
               <select
@@ -1503,7 +1503,7 @@ function RoomsTab(props: RoomsTabProps) {
                     surface_type: e.target.value as SurfaceType,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {SURFACE_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -1513,7 +1513,7 @@ function RoomsTab(props: RoomsTabProps) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Wall Smoothness
               </label>
               <select
@@ -1524,7 +1524,7 @@ function RoomsTab(props: RoomsTabProps) {
                     wall_smoothness: e.target.value as WallSmoothness,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {WALL_SMOOTHNESS.map((t) => (
                   <option key={t} value={t}>
@@ -1534,7 +1534,7 @@ function RoomsTab(props: RoomsTabProps) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Porosity
               </label>
               <select
@@ -1545,7 +1545,7 @@ function RoomsTab(props: RoomsTabProps) {
                     porosity: e.target.value as Porosity,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {POROSITY_LEVELS.map((t) => (
                   <option key={t} value={t}>
@@ -1560,7 +1560,7 @@ function RoomsTab(props: RoomsTabProps) {
             <button
               onClick={onSubmit}
               disabled={actionLoading || !roomForm.name.trim()}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
             >
               {actionLoading ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -1571,7 +1571,7 @@ function RoomsTab(props: RoomsTabProps) {
             </button>
             <button
               onClick={onCancelForm}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
             </button>
@@ -1581,9 +1581,9 @@ function RoomsTab(props: RoomsTabProps) {
 
       {/* Rooms list */}
       {rooms.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Package aria-hidden="true" className="h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
+          <Package aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <p className="text-sm text-muted-foreground">
             No rooms yet. Add your first room to get started.
           </p>
         </div>
@@ -1605,14 +1605,14 @@ function RoomsTab(props: RoomsTabProps) {
             return (
               <div
                 key={room.id}
-                className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {room.name}
                     </h3>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {prettify(room.room_type)} ·{" "}
                       {prettify(room.calculation_type)}
                     </p>
@@ -1620,13 +1620,13 @@ function RoomsTab(props: RoomsTabProps) {
                   <div className="flex gap-1">
                     <button
                       onClick={() => onEdit(room)}
-                      className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600"
+                      className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => onDelete(room.id)}
-                      className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                      className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </button>
@@ -1634,7 +1634,7 @@ function RoomsTab(props: RoomsTabProps) {
                 </div>
 
                 {dims.length > 0 && (
-                  <p className="mt-2 text-xs text-gray-600">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     {dims.join(" · ")}
                   </p>
                 )}
@@ -1648,23 +1648,23 @@ function RoomsTab(props: RoomsTabProps) {
                   </span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-gray-100 pt-3">
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-border/50 pt-3">
                   <div>
-                    <p className="text-xs text-gray-500">Material</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Material</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {currencySymbol}
                       {room.material_cost.toLocaleString("en-NG")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Labour</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Labour</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {currencySymbol}
                       {room.labour_cost.toLocaleString("en-NG")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="text-xs text-muted-foreground">Total</p>
                     <p className="text-sm font-semibold text-violet-600">
                       {currencySymbol}
                       {room.room_total_cost.toLocaleString("en-NG")}
@@ -1720,12 +1720,12 @@ function LabourTab(props: LabourTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-foreground">
           Labour Plan ({labourPlan.length})
         </h2>
         <button
           onClick={onShowForm}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Role
         </button>
@@ -1735,12 +1735,12 @@ function LabourTab(props: LabourTabProps) {
       {showLabourForm && (
         <div className="rounded-xl border border-violet-200 bg-violet-50/50 p-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-semibold text-gray-900">
+            <h3 className="text-base font-semibold text-foreground">
               {editingLabourId ? "Edit Labour Role" : "New Labour Role"}
             </h3>
             <button
               onClick={onCancelForm}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-muted-foreground hover:text-muted-foreground"
             >
               <X className="h-5 w-5" />
             </button>
@@ -1748,7 +1748,7 @@ function LabourTab(props: LabourTabProps) {
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Role
               </label>
               <select
@@ -1759,7 +1759,7 @@ function LabourTab(props: LabourTabProps) {
                     role: e.target.value as LabourRole,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               >
                 {LABOUR_ROLES.map((r) => (
                   <option key={r} value={r}>
@@ -1769,7 +1769,7 @@ function LabourTab(props: LabourTabProps) {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Worker Count
               </label>
               <input
@@ -1779,11 +1779,11 @@ function LabourTab(props: LabourTabProps) {
                 onChange={(e) =>
                   setLabourForm((p) => ({ ...p, worker_count: e.target.value }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Days Required
               </label>
               <input
@@ -1796,11 +1796,11 @@ function LabourTab(props: LabourTabProps) {
                     days_required: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600">
+              <label className="block text-xs font-medium text-muted-foreground">
                 Daily Wage ({currencySymbol})
               </label>
               <input
@@ -1811,13 +1811,13 @@ function LabourTab(props: LabourTabProps) {
                 onChange={(e) =>
                   setLabourForm((p) => ({ ...p, daily_wage: e.target.value }))
                 }
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
               />
             </div>
           </div>
 
           <div className="mt-4">
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Notes
             </label>
             <input
@@ -1827,7 +1827,7 @@ function LabourTab(props: LabourTabProps) {
                 setLabourForm((p) => ({ ...p, notes: e.target.value }))
               }
               placeholder="Optional notes…"
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
 
@@ -1850,7 +1850,7 @@ function LabourTab(props: LabourTabProps) {
             <button
               onClick={onSubmit}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
             >
               {actionLoading ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -1861,7 +1861,7 @@ function LabourTab(props: LabourTabProps) {
             </button>
             <button
               onClick={onCancelForm}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
             </button>
@@ -1871,57 +1871,57 @@ function LabourTab(props: LabourTabProps) {
 
       {/* Labour table */}
       {labourPlan.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Users aria-hidden="true" className="h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
+          <Users aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <p className="text-sm text-muted-foreground">
             No labour roles yet. Add workers to plan your project.
           </p>
         </div>
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5 md:block">
+          <div className="hidden overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:bg-card dark:border-white/5 md:block">
             <table className="w-full">
-              <thead className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-border bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase text-muted-foreground">
                     Role
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase text-muted-foreground">
                     Workers
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-center text-xs font-medium uppercase text-muted-foreground">
                     Days
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
                     Daily Wage
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
                     Total Cost
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                  <th className="px-4 py-3 text-right text-xs font-medium uppercase text-muted-foreground">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border/50">
                 {labourPlan.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
+                  <tr key={item.id} className="hover:bg-muted/50">
                     <td className="px-4 py-3">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {prettify(item.role)}
                       </p>
                       {item.notes && (
-                        <p className="text-xs text-gray-500">{item.notes}</p>
+                        <p className="text-xs text-muted-foreground">{item.notes}</p>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-700">
+                    <td className="px-4 py-3 text-center text-sm text-card-foreground">
                       {item.worker_count}
                     </td>
-                    <td className="px-4 py-3 text-center text-sm text-gray-700">
+                    <td className="px-4 py-3 text-center text-sm text-card-foreground">
                       {item.days_required}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm text-gray-700">
+                    <td className="px-4 py-3 text-right text-sm text-card-foreground">
                       {currencySymbol}
                       {item.daily_wage.toLocaleString("en-NG")}
                     </td>
@@ -1933,13 +1933,13 @@ function LabourTab(props: LabourTabProps) {
                       <div className="flex justify-end gap-1">
                         <button
                           onClick={() => onEdit(item)}
-                          className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600"
+                          className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                         >
                           <Edit aria-hidden="true" className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => onDelete(item.id)}
-                          className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                          className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                         >
                           <Trash2 aria-hidden="true" className="h-4 w-4" />
                         </button>
@@ -1948,11 +1948,11 @@ function LabourTab(props: LabourTabProps) {
                   </tr>
                 ))}
               </tbody>
-              <tfoot className="border-t border-gray-200 bg-gray-50">
+              <tfoot className="border-t border-border bg-muted/50">
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-4 py-3 text-right text-sm font-semibold text-gray-700"
+                    className="px-4 py-3 text-right text-sm font-semibold text-card-foreground"
                   >
                     Total Labour Cost:
                   </td>
@@ -1971,52 +1971,52 @@ function LabourTab(props: LabourTabProps) {
             {labourPlan.map((item) => (
               <div
                 key={item.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                className="rounded-xl border border-border bg-card p-4 shadow-sm"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-gray-900">
+                  <h3 className="text-sm font-semibold text-foreground">
                     {prettify(item.role)}
                   </h3>
                   <div className="flex gap-1">
                     <button
                       onClick={() => onEdit(item)}
-                      className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600"
+                      className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => onDelete(item.id)}
-                      className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                      className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
                 {item.notes && (
-                  <p className="mt-1 text-xs text-gray-500">{item.notes}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>
                 )}
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-2 text-center">
                   <div>
-                    <p className="text-xs text-gray-500">Workers</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Workers</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {item.worker_count}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Days</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Days</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {item.days_required}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Wage</p>
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-xs text-muted-foreground">Wage</p>
+                    <p className="text-sm font-semibold text-foreground">
                       {currencySymbol}
                       {item.daily_wage.toLocaleString("en-NG")}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">Total</p>
+                    <p className="text-xs text-muted-foreground">Total</p>
                     <p className="text-sm font-semibold text-violet-600">
                       {currencySymbol}
                       {item.total_cost.toLocaleString("en-NG")}
@@ -2025,8 +2025,8 @@ function LabourTab(props: LabourTabProps) {
                 </div>
               </div>
             ))}
-            <div className="flex justify-between rounded-lg bg-gray-50 px-4 py-3">
-              <span className="text-sm font-semibold text-gray-700">
+            <div className="flex justify-between rounded-lg bg-muted/50 px-4 py-3">
+              <span className="text-sm font-semibold text-card-foreground">
                 Total Labour Cost:
               </span>
               <span className="text-sm font-bold text-violet-600">
@@ -2084,14 +2084,14 @@ function ShoppingTab(props: ShoppingTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-foreground">
           Shopping List ({shoppingList.length})
         </h2>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={onGenerate}
             disabled={actionLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
           >
             {actionLoading ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -2103,14 +2103,14 @@ function ShoppingTab(props: ShoppingTabProps) {
           <button
             onClick={onPrint}
             disabled={shoppingList.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Printer aria-hidden="true" className="h-4 w-4" /> Print
           </button>
           <button
             onClick={onDownloadPDF}
             disabled={shoppingList.length === 0}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Download aria-hidden="true" className="h-4 w-4" /> PDF
           </button>
@@ -2127,20 +2127,20 @@ function ShoppingTab(props: ShoppingTabProps) {
       {/* Summary bar */}
       {shoppingList.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs uppercase text-gray-500">Total Items</p>
-            <p className="mt-1 text-lg font-bold text-gray-900">
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs uppercase text-muted-foreground">Total Items</p>
+            <p className="mt-1 text-lg font-bold text-foreground">
               {shoppingList.length}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs uppercase text-gray-500">Purchased</p>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs uppercase text-muted-foreground">Purchased</p>
             <p className="mt-1 text-lg font-bold text-green-600">
               {shoppingPurchased}/{shoppingList.length}
             </p>
           </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-4">
-            <p className="text-xs uppercase text-gray-500">Est. Total</p>
+          <div className="rounded-lg border border-border bg-card p-4">
+            <p className="text-xs uppercase text-muted-foreground">Est. Total</p>
             <p className="mt-1 text-lg font-bold text-violet-600">
               {currencySymbol}
               {shoppingTotal.toLocaleString("en-NG")}
@@ -2151,12 +2151,12 @@ function ShoppingTab(props: ShoppingTabProps) {
 
       {/* Shopping list grouped by category */}
       {shoppingList.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
           <ClipboardList
             aria-hidden="true"
-            className="h-10 w-10 text-gray-300"
+            className="h-10 w-10 text-muted-foreground/80"
           />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             No shopping list yet. Click "Generate" to create one from your
             rooms.
           </p>
@@ -2171,10 +2171,10 @@ function ShoppingTab(props: ShoppingTabProps) {
             return (
               <div
                 key={category}
-                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5"
+                className="overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:bg-card dark:border-white/5"
               >
-                <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50 px-4 py-3">
-                  <h3 className="text-sm font-semibold capitalize text-gray-700">
+                <div className="flex items-center justify-between border-b border-border/50 bg-muted/50 px-4 py-3">
+                  <h3 className="text-sm font-semibold capitalize text-card-foreground">
                     {prettify(category)}
                   </h3>
                   <span className="text-sm font-semibold text-violet-600">
@@ -2182,15 +2182,15 @@ function ShoppingTab(props: ShoppingTabProps) {
                     {categoryTotal.toLocaleString("en-NG")}
                   </span>
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-border/50">
                   {items.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50"
                     >
                       <button
                         onClick={() => onTogglePurchased(item)}
-                        className={`shrink-0 rounded ${item.is_purchased ? "text-green-500" : "text-gray-300 hover:text-gray-400"}`}
+                        className={`shrink-0 rounded ${item.is_purchased ? "text-green-500" : "text-muted-foreground/80 hover:text-muted-foreground"}`}
                       >
                         {item.is_purchased ? (
                           <CheckCircle2
@@ -2204,16 +2204,16 @@ function ShoppingTab(props: ShoppingTabProps) {
                       <div
                         className={`flex-1 ${item.is_purchased ? "line-through opacity-60" : ""}`}
                       >
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-foreground">
                           {item.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {item.quantity} {item.unit} · {currencySymbol}
                           {item.estimated_price.toLocaleString("en-NG")} each
                         </p>
                       </div>
                       <span
-                        className={`text-sm font-semibold ${item.is_purchased ? "text-gray-400" : "text-gray-900"}`}
+                        className={`text-sm font-semibold ${item.is_purchased ? "text-muted-foreground" : "text-foreground"}`}
                       >
                         {currencySymbol}
                         {item.total_price.toLocaleString("en-NG")}
@@ -2254,7 +2254,7 @@ interface QuotationTabProps {
 }
 
 const QUOTATION_STATUS_COLORS: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-700",
+  draft: "bg-muted text-card-foreground",
   sent: "bg-blue-100 text-blue-700",
   accepted: "bg-green-100 text-green-700",
   rejected: "bg-red-100 text-red-700",
@@ -2284,23 +2284,23 @@ function QuotationTab(props: QuotationTabProps) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">
+      <h2 className="text-lg font-semibold text-foreground">
         Quotations ({quotations.length})
       </h2>
 
       {/* Quotation generator inputs */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="text-base font-semibold text-gray-900">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 className="text-base font-semibold text-foreground">
           Generate New Quotation
         </h3>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Adjust markup, profit, tax, and additional costs to generate a
           quotation.
         </p>
 
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Markup %
             </label>
             <input
@@ -2308,11 +2308,11 @@ function QuotationTab(props: QuotationTabProps) {
               step="0.5"
               value={quotMarkup}
               onChange={(e) => setQuotMarkup(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Profit %
             </label>
             <input
@@ -2320,11 +2320,11 @@ function QuotationTab(props: QuotationTabProps) {
               step="0.5"
               value={quotProfit}
               onChange={(e) => setQuotProfit(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Tax %
             </label>
             <input
@@ -2332,11 +2332,11 @@ function QuotationTab(props: QuotationTabProps) {
               step="0.5"
               value={quotTax}
               onChange={(e) => setQuotTax(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Transport Cost
             </label>
             <input
@@ -2344,11 +2344,11 @@ function QuotationTab(props: QuotationTabProps) {
               step="100"
               value={quotTransport}
               onChange={(e) => setQuotTransport(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-gray-600">
+            <label className="block text-xs font-medium text-muted-foreground">
               Misc Cost
             </label>
             <input
@@ -2356,7 +2356,7 @@ function QuotationTab(props: QuotationTabProps) {
               step="100"
               value={quotMisc}
               onChange={(e) => setQuotMisc(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
             />
           </div>
         </div>
@@ -2364,7 +2364,7 @@ function QuotationTab(props: QuotationTabProps) {
         <button
           onClick={onGenerate}
           disabled={actionLoading}
-          className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
         >
           {actionLoading ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -2377,9 +2377,9 @@ function QuotationTab(props: QuotationTabProps) {
 
       {/* Generated quotations */}
       {quotations.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <FileText aria-hidden="true" className="h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
+          <FileText aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <p className="text-sm text-muted-foreground">
             No quotations yet. Set your parameters above and generate one.
           </p>
         </div>
@@ -2388,21 +2388,21 @@ function QuotationTab(props: QuotationTabProps) {
           {quotations.map((quot) => (
             <div
               key={quot.id}
-              className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+              className="rounded-xl border border-border bg-card p-6 shadow-sm"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">
+                    <h3 className="text-sm font-semibold text-foreground">
                       {quot.quotation_number}
                     </h3>
                     <span
-                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${QUOTATION_STATUS_COLORS[quot.status] ?? "bg-gray-100 text-gray-700"}`}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${QUOTATION_STATUS_COLORS[quot.status] ?? "bg-muted text-card-foreground"}`}
                     >
                       {prettify(quot.status)}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {new Date(quot.created_at).toLocaleDateString("en-GB", {
                       year: "numeric",
                       month: "short",
@@ -2414,7 +2414,7 @@ function QuotationTab(props: QuotationTabProps) {
                 <div className="flex gap-2">
                   <button
                     onClick={() => onDownloadPDF(quot)}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
                   >
                     <Download aria-hidden="true" className="h-4 w-4" /> PDF
                   </button>
@@ -2433,57 +2433,57 @@ function QuotationTab(props: QuotationTabProps) {
 
               {/* Cost breakdown */}
               <div className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-4">
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Materials</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">Materials</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.material_cost.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Labour</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">Labour</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.labour_cost.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
                     Markup ({quot.markup_percentage}%)
                   </p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.markup_amount.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
                     Profit ({quot.profit_percentage}%)
                   </p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.profit_amount.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">
                     Tax ({quot.tax_percentage}%)
                   </p>
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.tax_amount.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Transport</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">Transport</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.transport_cost.toLocaleString("en-NG")}
                   </p>
                 </div>
-                <div className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs text-gray-500">Misc</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="rounded-lg bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground">Misc</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {currencySymbol}
                     {quot.misc_cost.toLocaleString("en-NG")}
                   </p>
@@ -2498,7 +2498,7 @@ function QuotationTab(props: QuotationTabProps) {
               </div>
 
               {/* Footer info */}
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-gray-500">
+              <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
                 {quot.validity_days && (
                   <span>Valid for {quot.validity_days} days</span>
                 )}
@@ -2541,13 +2541,13 @@ function TimelineTab(props: TimelineTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-foreground">
           Project Timeline ({timeline.length})
         </h2>
         <button
           onClick={onGenerate}
           disabled={actionLoading}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
         >
           {actionLoading ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -2559,9 +2559,9 @@ function TimelineTab(props: TimelineTabProps) {
       </div>
 
       {timeline.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-gray-300 bg-white py-16">
-          <Calendar aria-hidden="true" className="h-10 w-10 text-gray-300" />
-          <p className="text-sm text-gray-500">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
+          <Calendar aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <p className="text-sm text-muted-foreground">
             No timeline generated yet. Click "Generate" to create a project
             timeline.
           </p>
@@ -2569,17 +2569,17 @@ function TimelineTab(props: TimelineTabProps) {
       ) : (
         <>
           {/* Progress summary */}
-          <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-2">
               <CheckCircle2
                 aria-hidden="true"
                 className="h-5 w-5 text-green-500"
               />
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-card-foreground">
                 {completedPhases} of {timeline.length} phases completed
               </span>
             </div>
-            <div className="h-2 w-32 overflow-hidden rounded-full bg-gray-200">
+            <div className="h-2 w-32 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500"
                 style={{
@@ -2590,13 +2590,13 @@ function TimelineTab(props: TimelineTabProps) {
           </div>
 
           {/* Gantt-like visual timeline */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 className="mb-4 text-base font-semibold text-gray-900">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="mb-4 text-base font-semibold text-foreground">
               Timeline Schedule
             </h3>
 
             {/* Day axis */}
-            <div className="mb-2 flex justify-between text-xs text-gray-400">
+            <div className="mb-2 flex justify-between text-xs text-muted-foreground">
               <span>Day 0</span>
               <span>Day {Math.ceil(maxTimelineDay / 2)}</span>
               <span>Day {maxTimelineDay}</span>
@@ -2612,7 +2612,7 @@ function TimelineTab(props: TimelineTabProps) {
                   maxTimelineDay > 0
                     ? ((phase.end_day - phase.start_day) / maxTimelineDay) * 100
                     : 0;
-                const barColor = PHASE_COLORS[phase.phase] ?? "bg-gray-500";
+                const barColor = PHASE_COLORS[phase.phase] ?? "bg-muted-foreground";
 
                 return (
                   <div key={phase.id} className="group">
@@ -2626,20 +2626,20 @@ function TimelineTab(props: TimelineTabProps) {
                           />
                         ) : (
                           <Circle
-                            className={`h-4 w-4 ${PHASE_TEXT_COLORS[phase.phase] ?? "text-gray-400"}`}
+                            className={`h-4 w-4 ${PHASE_TEXT_COLORS[phase.phase] ?? "text-muted-foreground"}`}
                           />
                         )}
                         <span
-                          className={`text-sm font-medium ${phase.is_completed ? "text-gray-400 line-through" : "text-gray-900"}`}
+                          className={`text-sm font-medium ${phase.is_completed ? "text-muted-foreground line-through" : "text-foreground"}`}
                         >
                           {phase.name}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-muted-foreground">
                           ({prettify(phase.phase)})
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-muted-foreground">
                           Day {phase.start_day}–{phase.end_day} (
                           {phase.days_required}d)
                         </span>
@@ -2648,7 +2648,7 @@ function TimelineTab(props: TimelineTabProps) {
                           disabled={actionLoading}
                           className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
                             phase.is_completed
-                              ? "border-gray-300 text-gray-500 hover:bg-gray-50"
+                              ? "border-border text-muted-foreground hover:bg-muted/50"
                               : "border-green-300 bg-green-50 text-green-700 hover:bg-green-100"
                           }`}
                         >
@@ -2658,9 +2658,9 @@ function TimelineTab(props: TimelineTabProps) {
                     </div>
 
                     {/* Bar row */}
-                    <div className="relative h-7 w-full rounded bg-gray-100">
+                    <div className="relative h-7 w-full rounded bg-muted">
                       <div
-                        className={`absolute top-0 flex h-7 items-center justify-center rounded text-xs font-medium text-white ${barColor} ${phase.is_completed ? "opacity-40" : ""}`}
+                        className={`absolute top-0 flex h-7 items-center justify-center rounded text-xs font-medium text-primary-foreground ${barColor} ${phase.is_completed ? "opacity-40" : ""}`}
                         style={{
                           left: `${leftPercent}%`,
                           width: `${Math.max(widthPercent, 2)}%`,
@@ -2677,8 +2677,8 @@ function TimelineTab(props: TimelineTabProps) {
             </div>
 
             {/* Total duration */}
-            <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
-              <span className="text-sm font-medium text-gray-600">
+            <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3">
+              <span className="text-sm font-medium text-muted-foreground">
                 Total Estimated Duration
               </span>
               <span className="text-sm font-bold text-violet-600">
@@ -2688,15 +2688,15 @@ function TimelineTab(props: TimelineTabProps) {
           </div>
 
           {/* Phase legend */}
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-            <h4 className="mb-3 text-xs font-semibold uppercase text-gray-500">
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <h4 className="mb-3 text-xs font-semibold uppercase text-muted-foreground">
               Phase Legend
             </h4>
             <div className="flex flex-wrap gap-3">
               {(Object.keys(PHASE_COLORS) as TimelinePhase[]).map((phase) => (
                 <div key={phase} className="flex items-center gap-1.5">
                   <div className={`h-3 w-3 rounded ${PHASE_COLORS[phase]}`} />
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-muted-foreground">
                     {prettify(phase)}
                   </span>
                 </div>
@@ -2741,9 +2741,9 @@ function NotesTab(props: NotesTabProps) {
   return (
     <div className="space-y-6">
       {/* Notes section */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
         <div className="flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
+          <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Hammer aria-hidden="true" className="h-5 w-5 text-violet-600" />{" "}
             Project Notes
           </h3>
@@ -2751,7 +2751,7 @@ function NotesTab(props: NotesTabProps) {
             <button
               onClick={onSave}
               disabled={actionLoading}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
             >
               {actionLoading ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -2770,9 +2770,9 @@ function NotesTab(props: NotesTabProps) {
           }}
           placeholder="Add project notes, observations, instructions, or reminders…"
           rows={10}
-          className="mt-3 w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-800 focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
+          className="mt-3 w-full resize-y rounded-lg border border-border px-4 py-3 text-sm text-foreground focus:border-violet-500 focus:ring-1 focus:ring-violet-500"
         />
-        <p className="mt-2 text-xs text-gray-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           {notesDirty
             ? 'Unsaved changes, click "Save Notes" to persist.'
             : "All changes saved."}
@@ -2780,19 +2780,19 @@ function NotesTab(props: NotesTabProps) {
       </div>
 
       {/* Attachments section */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <h3 className="flex items-center gap-2 text-base font-semibold text-gray-900">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h3 className="flex items-center gap-2 text-base font-semibold text-foreground">
           <Upload aria-hidden="true" className="h-5 w-5 text-violet-600" />{" "}
           Attachments
         </h3>
 
         {/* Upload area */}
-        <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center transition-colors hover:border-violet-400 hover:bg-violet-50">
-          <Upload aria-hidden="true" className="h-8 w-8 text-gray-400" />
-          <p className="text-sm font-medium text-gray-600">
+        <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/50 px-6 py-10 text-center transition-colors hover:border-violet-400 hover:bg-violet-50">
+          <Upload aria-hidden="true" className="h-8 w-8 text-muted-foreground" />
+          <p className="text-sm font-medium text-muted-foreground">
             Click to upload files
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Photos, documents, blueprints, or any project file
           </p>
           <input
@@ -2809,7 +2809,7 @@ function NotesTab(props: NotesTabProps) {
             {attachments.map((att) => (
               <div
                 key={att.id}
-                className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3"
+                className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-violet-50">
                   <FileText
@@ -2818,10 +2818,10 @@ function NotesTab(props: NotesTabProps) {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="truncate text-sm font-medium text-gray-900">
+                  <p className="truncate text-sm font-medium text-foreground">
                     {att.file_name}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {(att.file_size / 1024).toFixed(1)} KB ·{" "}
                     {new Date(att.created_at).toLocaleDateString("en-GB")}
                   </p>
@@ -2831,14 +2831,14 @@ function NotesTab(props: NotesTabProps) {
                     href={att.public_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-violet-600"
+                    className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                   >
                     <Download aria-hidden="true" className="h-4 w-4" />
                   </a>
                 )}
                 <button
                   onClick={() => onDeleteAttachment(att.id)}
-                  className="rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
                 </button>

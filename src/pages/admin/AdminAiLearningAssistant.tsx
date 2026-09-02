@@ -71,18 +71,18 @@ export default function AdminAiLearningAssistant() {
         {/* Action selection + input */}
         <div className="lg:col-span-1">
           <AdminCard className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">AI Action</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">AI Action</h2>
             <div className="space-y-2">
               {actions.map((a) => {
                 const Icon = a.icon;
                 const selected = action === a.value;
                 return (
                   <AdminButton key={a.value} type="button" onClick={() => setAction(a.value)}
-                    className={classNames('flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all', selected ? 'border-brand-purple bg-brand-purple/5 ring-1 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}>
-                    <Icon className={classNames('mt-0.5 h-4 w-4 shrink-0', selected ? 'text-brand-purple' : 'text-neutral-500')} />
+                    className={classNames('flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all', selected ? 'border-brand-purple bg-primary/5 ring-1 ring-brand-purple/20' : 'border-border hover:border-border')}>
+                    <Icon className={classNames('mt-0.5 h-4 w-4 shrink-0', selected ? 'text-brand-purple' : 'text-muted-foreground')} />
                     <div>
-                      <p className={classNames('text-sm font-semibold', selected ? 'text-brand-purple' : 'text-brand-navy dark:text-white')}>{a.label}</p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">{a.desc}</p>
+                      <p className={classNames('text-sm font-semibold', selected ? 'text-brand-purple' : 'text-foreground dark:text-primary-foreground')}>{a.label}</p>
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{a.desc}</p>
                     </div>
                   </AdminButton>
                 );
@@ -94,7 +94,7 @@ export default function AdminAiLearningAssistant() {
         {/* Input + result */}
         <div className="space-y-6 lg:col-span-2">
           <AdminCard className="space-y-4">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Input</h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Input</h2>
 
             <AdminField label="Topic" hint="Enter a topic or title for the AI to work with">
               <AdminInput  value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="e.g. How to prepare a wall for painting" />
@@ -119,13 +119,13 @@ export default function AdminAiLearningAssistant() {
           {result && (
             <AdminCard className="space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Result</h2>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Result</h2>
                 <AdminButton variant="secondary" type="button" onClick={handleCopyResult} className="text-xs">
                   <Send aria-hidden="true" className="h-3 w-3" /> Copy
                 </AdminButton>
               </div>
-              <div className="max-h-[500px] overflow-y-auto rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-4">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-neutral-700 dark:text-neutral-200">{result}</pre>
+              <div className="max-h-[500px] overflow-y-auto rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-4">
+                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/60">{result}</pre>
               </div>
             </AdminCard>
           )}

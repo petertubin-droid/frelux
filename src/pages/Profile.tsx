@@ -62,14 +62,14 @@ export default function Profile() {
         <div className="mx-auto max-w-lg px-4 py-16 text-center">
           <User
             aria-hidden="true"
-            className="mx-auto h-12 w-12 text-neutral-300"
+            className="mx-auto h-12 w-12 text-muted-foreground/80"
           />
-          <p className="mt-4 text-neutral-500">
+          <p className="mt-4 text-muted-foreground">
             Please sign in to view and edit your profile.
           </p>
           <Link
             to="/login?redirect=/profile"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Sign In
           </Link>
@@ -194,11 +194,11 @@ export default function Profile() {
 
       <div className="mx-auto max-w-3xl px-4 py-8">
         {/* Profile Card */}
-        <div className="rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
+        <div className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm dark:border-white/10 dark:bg-card">
           {/* Avatar Section */}
           <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
             <div className="relative group">
-              <div className="h-28 w-28 overflow-hidden rounded-full border-2 border-neutral-200 bg-neutral-100 dark:border-white/10 dark:bg-white/5">
+              <div className="h-28 w-28 overflow-hidden rounded-full border-2 border-border bg-muted dark:border-white/10 dark:bg-white/5">
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
@@ -217,7 +217,7 @@ export default function Profile() {
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
-                className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-brand-purple text-white shadow-lg transition-all hover:bg-brand-purple/90 active:scale-95 disabled:opacity-50"
+                className="absolute -bottom-1 -right-1 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
                 aria-label="Change profile picture"
               >
                 {uploading ? (
@@ -239,21 +239,21 @@ export default function Profile() {
             </div>
 
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-xl font-bold text-brand-navy dark:text-white">
+              <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
                 {displayName}
               </h2>
-              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">
+              <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
                 {user.email}
               </p>
               <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.role === "admin" ? "bg-accent-orange/15 text-accent-orange" : "bg-brand-purple/10 text-brand-purple"}`}
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.role === "admin" ? "bg-accent-orange/15 text-accent-orange" : "bg-primary/10 text-brand-purple"}`}
                 >
                   <Shield aria-hidden="true" className="h-3 w-3" />
                   {profile?.role === "admin" ? "Admin" : "Member"}
                 </span>
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === "pro_worker" ? "bg-accent-green/15 text-accent-green" : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500"}`}
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${profile?.account_type === "pro_worker" ? "bg-accent-green/15 text-accent-green" : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground"}`}
                 >
                   {profile?.account_type === "pro_worker"
                     ? "Pro Worker"
@@ -265,16 +265,16 @@ export default function Profile() {
 
           {/* Marketplace ID */}
           {profile?.marketplace_id && (
-            <div className="mt-6 flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3 dark:bg-white/5">
+            <div className="mt-6 flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3 dark:bg-white/5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <ShoppingBag className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                     Marketplace ID
                   </p>
-                  <p className="text-sm font-bold tracking-wider text-brand-navy dark:text-white">
+                  <p className="text-sm font-bold tracking-wider text-foreground dark:text-primary-foreground">
                     {profile.marketplace_id}
                   </p>
                 </div>
@@ -282,7 +282,7 @@ export default function Profile() {
               <button
                 type="button"
                 onClick={copyMarketplaceId}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:bg-white hover:text-brand-purple dark:text-neutral-400 dark:hover:bg-white/5"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5"
               >
                 {copied ? (
                   <Check
@@ -299,20 +299,20 @@ export default function Profile() {
         </div>
 
         {/* Edit Form */}
-        <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
-          <h3 className="text-base font-bold text-brand-navy dark:text-white">
+        <div className="mt-6 rounded-2xl border border-border/60 bg-card p-6 shadow-sm dark:border-white/10 dark:bg-card">
+          <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
             Personal Information
           </h3>
-          <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
             Update your name and contact details.
           </p>
 
           <div className="mt-5 space-y-4">
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
                 <User
                   aria-hidden="true"
-                  className="h-3.5 w-3.5 text-neutral-500"
+                  className="h-3.5 w-3.5 text-muted-foreground"
                 />
                 Full Name
               </label>
@@ -321,13 +321,13 @@ export default function Profile() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Enter your full name"
-                className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-800 transition-colors placeholder:text-neutral-300 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-600"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <Phone className="h-3.5 w-3.5 text-neutral-500" />
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
                 Phone Number
               </label>
               <input
@@ -335,22 +335,22 @@ export default function Profile() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+234 800 000 0000"
-                className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-800 transition-colors placeholder:text-neutral-300 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-600"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground transition-colors placeholder:text-muted-foreground/80 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
-                <Mail className="h-3.5 w-3.5 text-neutral-500" />
+              <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                 Email
               </label>
               <input
                 type="email"
                 value={user.email ?? ""}
                 disabled
-                className="w-full cursor-not-allowed rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-2.5 text-sm text-neutral-400 dark:border-white/10 dark:bg-white/5 dark:text-neutral-500"
+                className="w-full cursor-not-allowed rounded-xl border border-border bg-muted/50 px-4 py-2.5 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground"
               />
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 Email cannot be changed here. Contact support to update your
                 email.
               </p>
@@ -362,7 +362,7 @@ export default function Profile() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90 active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -376,16 +376,16 @@ export default function Profile() {
 
         {/* Account Info */}
         <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm dark:border-white/10 dark:bg-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                 <Calendar className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Member Since
                 </p>
-                <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {profile?.created_at
                     ? new Date(profile.created_at).toLocaleDateString("en-US", {
                         year: "numeric",
@@ -398,16 +398,16 @@ export default function Profile() {
             </div>
           </div>
 
-          <div className="rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
+          <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm dark:border-white/10 dark:bg-card">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                 <Shield aria-hidden="true" className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Account Type
                 </p>
-                <p className="text-sm font-semibold capitalize text-brand-navy dark:text-white">
+                <p className="text-sm font-semibold capitalize text-foreground dark:text-primary-foreground">
                   {profile?.account_type?.replace("_", " ") ?? "Client"}
                 </p>
               </div>
@@ -416,14 +416,14 @@ export default function Profile() {
         </div>
 
         {/* Marketplace Note */}
-        <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-brand-purple/5 p-5 dark:bg-brand-purple/10">
+        <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-primary/5 p-5 dark:bg-primary/10">
           <div className="flex items-start gap-3">
             <ShoppingBag className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple" />
             <div>
-              <p className="text-sm font-semibold text-brand-navy dark:text-white">
+              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Your Marketplace ID
               </p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 This unique ID will be used to identify you in the upcoming
                 FRELUX marketplace. Share it with clients and partners so they
                 can find you easily.
@@ -433,17 +433,17 @@ export default function Profile() {
         </div>
 
         {/* FRELUX Credits & Rewards */}
-        <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-5">
+        <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/15">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/15">
                 <Gem className="h-5 w-5 text-brand-purple" />
               </div>
               <div>
-                <p className="text-xs font-medium text-neutral-500">
+                <p className="text-xs font-medium text-muted-foreground">
                   FRELUX Credits
                 </p>
-                <p className="text-lg font-bold text-brand-navy dark:text-white">
+                <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {wallet?.balance ?? 0}
                 </p>
               </div>
@@ -458,7 +458,7 @@ export default function Profile() {
               </div>
               <Link
                 to="/rewards"
-                className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-purple/90 transition-colors"
+                className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 View Rewards
               </Link>
@@ -467,14 +467,14 @@ export default function Profile() {
         </div>
 
         {/* Subscription Status */}
-        <div className="mt-6 rounded-2xl border border-neutral-200/60 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-brand-navy-mid">
+        <div className="mt-6 rounded-2xl border border-border/60 bg-card p-5 shadow-sm dark:border-white/10 dark:bg-card">
           <div className="flex items-center gap-3">
             <div
               className={
                 "flex h-10 w-10 items-center justify-center rounded-lg " +
                 (isPaid
-                  ? "bg-brand-purple/15 text-brand-purple"
-                  : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500")
+                  ? "bg-primary/15 text-brand-purple"
+                  : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground")
               }
             >
               {isPaid ? (
@@ -484,16 +484,16 @@ export default function Profile() {
               )}
             </div>
             <div className="flex-1">
-              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Subscription Status
               </p>
               {isPaid ? (
                 <div>
-                  <p className="text-sm font-semibold capitalize text-brand-navy dark:text-white">
+                  <p className="text-sm font-semibold capitalize text-foreground dark:text-primary-foreground">
                     {paidStatus?.plan || "Premium"} · Active
                   </p>
                   {paidStatus?.paid_until && (
-                    <p className="mt-0.5 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       Expires{" "}
                       {new Date(paidStatus.paid_until).toLocaleDateString(
@@ -508,14 +508,14 @@ export default function Profile() {
                   <p className="text-sm font-semibold capitalize text-amber-600 dark:text-amber-400">
                     {paidStatus.plan || "Premium"} · Expired
                   </p>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                     Expired on{" "}
                     {new Date(paidStatus.paid_until).toLocaleDateString()}
                   </p>
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm font-semibold text-neutral-500 dark:text-neutral-500">
+                  <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground">
                     Free Plan
                   </p>
                   <Link

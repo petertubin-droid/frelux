@@ -33,10 +33,10 @@ export default function TemplateCard({
     : undefined;
 
   return (
-    <div className="group relative flex flex-col rounded-xl border border-neutral-200 bg-white p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-brand-navy-mid dark:hover:border-brand-purple/40">
+    <div className="group relative flex flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40">
       {/* Top row: badge + favorite */}
       <div className="flex items-start justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
           <Calculator className="h-3 w-3" />
           {calculatorLabel(template.calculator_type)}
         </span>
@@ -48,7 +48,7 @@ export default function TemplateCard({
               'rounded-md p-1 transition-colors',
               template.is_favorite
                 ? 'text-amber-500 hover:text-amber-600'
-                : 'text-neutral-300 hover:text-neutral-400 dark:text-neutral-600 dark:hover:text-neutral-500'
+                : 'text-muted-foreground/80 hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground'
             )}
             aria-label={template.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
           >
@@ -59,11 +59,11 @@ export default function TemplateCard({
 
       {/* Title + description */}
       <div className="mt-3 flex-1">
-        <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+        <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
           {template.name}
         </h3>
         {template.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
             {template.description}
           </p>
         )}
@@ -77,7 +77,7 @@ export default function TemplateCard({
         {onUse ? (
           <button
             onClick={onUse}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Use Template
             <ArrowRight className="h-3.5 w-3.5" />
@@ -85,7 +85,7 @@ export default function TemplateCard({
         ) : useHref ? (
           <Link
             to={useHref}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             View Template
             <ArrowRight className="h-3.5 w-3.5" />
@@ -97,7 +97,7 @@ export default function TemplateCard({
             {onEdit && (
               <button
                 onClick={onEdit}
-                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Edit template"
               >
                 <Edit2 className="h-3.5 w-3.5" />
@@ -106,7 +106,7 @@ export default function TemplateCard({
             {onExport && (
               <button
                 onClick={onExport}
-                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Export template"
               >
                 <Download className="h-3.5 w-3.5" />
@@ -115,7 +115,7 @@ export default function TemplateCard({
             {onDuplicate && (
               <button
                 onClick={onDuplicate}
-                className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/5 dark:hover:text-white"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Duplicate template"
               >
                 <Copy className="h-3.5 w-3.5" />
@@ -132,7 +132,7 @@ export default function TemplateCard({
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="rounded-md p-1.5 text-neutral-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                   aria-label="Delete template"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -170,7 +170,7 @@ function TemplateInputSummary({ template }: { template: DbCalculatorTemplate }) 
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
       {parts.map((p, i) => (
-        <span key={i} className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-medium text-neutral-600 dark:bg-white/5 dark:text-neutral-500">
+        <span key={i} className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
           {p}
         </span>
       ))}

@@ -252,7 +252,7 @@ export default function TileCostEstimator({
             ]}
           />
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -277,7 +277,7 @@ export default function TileCostEstimator({
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
             <Section title="Surface">
               <Field label="Surface type">
                 <select
@@ -285,13 +285,13 @@ export default function TileCostEstimator({
                   onChange={(e) =>
                     update("surfaceType", e.target.value as "floor" | "wall")
                   }
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                  className="input-field dark:bg-card dark:border-white/10"
                 >
                   <option value="floor">Floor</option>
                   <option value="wall">Wall</option>
                 </select>
               </Field>
-              <div className="mt-4 inline-flex rounded-lg border border-neutral-200 dark:border-white/5 p-1">
+              <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
                   <button
                     key={u}
@@ -300,8 +300,8 @@ export default function TileCostEstimator({
                     className={
                       "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
                       (input.unit === u
-                        ? "bg-brand-purple text-white"
-                        : "text-neutral-600 dark:text-neutral-300 hover:text-brand-purple")
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground dark:text-muted-foreground/80 hover:text-brand-purple")
                     }
                   >
                     {u}
@@ -323,7 +323,7 @@ export default function TileCostEstimator({
                     step="0.01"
                     value={input.length || ""}
                     onChange={(e) => update("length", Number(e.target.value))}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />
                 </Field>
@@ -338,7 +338,7 @@ export default function TileCostEstimator({
                       step="0.01"
                       value={input.width || ""}
                       onChange={(e) => update("width", Number(e.target.value))}
-                      className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                      className="input-field dark:bg-card dark:border-white/10"
                       placeholder="0.00"
                     />
                   </Field>
@@ -353,7 +353,7 @@ export default function TileCostEstimator({
                       step="0.01"
                       value={input.height || ""}
                       onChange={(e) => update("height", Number(e.target.value))}
-                      className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                      className="input-field dark:bg-card dark:border-white/10"
                       placeholder="0.00"
                     />
                   </Field>
@@ -371,7 +371,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("tileWidthMm", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                   />
                 </Field>
                 <Field label="Tile height (mm)">
@@ -382,7 +382,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("tileHeightMm", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                   />
                 </Field>
                 <Field label="Tiles per box">
@@ -393,7 +393,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("tilesPerBox", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                   />
                 </Field>
                 <Field label={`Price per box (${currencySymbol})`}>
@@ -404,7 +404,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("tilePricePerBox", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0"
                   />
                 </Field>
@@ -421,7 +421,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("adhesivePricePerBag", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0"
                   />
                 </Field>
@@ -434,7 +434,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("adhesiveCoverageRate", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0"
                   />
                 </Field>
@@ -446,7 +446,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("groutPricePerKg", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0"
                   />
                 </Field>
@@ -459,7 +459,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("groutCoverageRate", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0"
                   />
                 </Field>
@@ -472,7 +472,7 @@ export default function TileCostEstimator({
                     onChange={(e) =>
                       update("wasteMargin", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                   />
                 </Field>
               </div>
@@ -501,8 +501,8 @@ export default function TileCostEstimator({
           {/* Results panel */}
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
-              <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+              <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
                   Estimated total
                 </p>
                 {result ? (
@@ -510,11 +510,11 @@ export default function TileCostEstimator({
                     {formatCurrency(result.grandTotal, currencySymbol)}
                   </p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">
+                  <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
                     {currencySymbol}0
                   </p>
                 )}
-                <p className="mt-1 text-xs text-white/50">
+                <p className="mt-1 text-xs text-primary-foreground/50">
                   Estimate only, not a final quote.
                 </p>
               </div>
@@ -542,7 +542,7 @@ export default function TileCostEstimator({
                       label="Grout cost"
                       value={formatCurrency(result.groutCost, currencySymbol)}
                     />
-                    <div className="border-t border-neutral-100 pt-2">
+                    <div className="border-t border-border/50 pt-2">
                       <Row
                         label="Material cost"
                         value={formatCurrency(
@@ -560,7 +560,7 @@ export default function TileCostEstimator({
                         />
                       )}
                     </div>
-                    <div className="border-t border-neutral-100 pt-2">
+                    <div className="border-t border-border/50 pt-2">
                       <Row
                         label="Grand total"
                         value={formatCurrency(
@@ -570,7 +570,7 @@ export default function TileCostEstimator({
                         strong
                       />
                     </div>
-                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 dark:bg-white/5 p-3 text-xs text-muted-foreground">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                       {input.surfaceType === "floor" ? "Floor" : "Wall"} tiling
                       with {input.wasteMargin}% waste margin.
@@ -713,14 +713,14 @@ export default function TileCostEstimator({
                     </div>
                   </>
                 ) : (
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Enter dimensions and click Generate Estimate to see your
                     cost breakdown.
                   </p>
                 )}
               </div>
               {result && (
-                <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="tile_cost"
@@ -736,7 +736,7 @@ export default function TileCostEstimator({
                   />
                 </div>
               )}
-              <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
+              <div className="border-t border-border/50 bg-muted/50 dark:bg-white/5 px-6 py-3 text-xs text-muted-foreground">
                 Estimate only. Actual costs may vary depending on materials,
                 location, and market prices.
               </div>
@@ -770,8 +770,8 @@ function Section({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "mb-6 border-b border-neutral-100 pb-6"}>
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
+    <div className={last ? "" : "mb-6 border-b border-border/50 pb-6"}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>
       {children}
@@ -792,16 +792,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="relative mt-1.5">
         {children}
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
           </span>
         )}
@@ -825,8 +825,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -835,8 +835,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}

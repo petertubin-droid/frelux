@@ -201,7 +201,7 @@ export default function Colors() {
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Tab switcher */}
-        <div className="mb-6 inline-flex rounded-xl border border-neutral-200/60 bg-white p-1 shadow-card dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="mb-6 inline-flex rounded-xl border border-border/60 bg-card p-1 shadow-card dark:border-white/5 dark:bg-card">
           {(["colors", "palettes"] as Tab[]).map((t) => (
             <button
               key={t}
@@ -214,8 +214,8 @@ export default function Colors() {
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold capitalize transition-all duration-200",
                 tab === t
-                  ? "bg-brand-purple text-white shadow-sm dark:bg-brand-purple"
-                  : "text-neutral-600 hover:text-brand-purple dark:text-neutral-300 dark:hover:text-brand-purple-lighter",
+                  ? "bg-primary text-primary-foreground shadow-sm dark:bg-primary"
+                  : "text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter",
               )}
             >
               {t === "colors" ? (
@@ -262,22 +262,22 @@ export default function Colors() {
               !query &&
               !filterType &&
               !categoryId && (
-                <div className="mb-8 rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-card dark:border-white/5 dark:bg-brand-navy-mid">
+                <div className="mb-8 rounded-2xl border border-border/60 bg-card p-6 shadow-card dark:border-white/5 dark:bg-card">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <h3 className="font-display text-sm font-bold text-neutral-900 dark:text-white">
+                      <h3 className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
                         Color Family Distribution
                       </h3>
-                      <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                         Click a family to filter
                       </p>
                     </div>
-                    <span className="text-xs font-semibold text-neutral-500">
+                    <span className="text-xs font-semibold text-muted-foreground">
                       {totalColors} colors
                     </span>
                   </div>
                   {/* Bar chart */}
-                  <div className="flex h-10 overflow-hidden rounded-xl border border-neutral-200/60">
+                  <div className="flex h-10 overflow-hidden rounded-xl border border-border/60">
                     {families.map((f, _i) => {
                       const segmentWidth = `${100 / families.length}%`;
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
@@ -294,7 +294,7 @@ export default function Colors() {
                           title={f.name}
                         >
                           <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-white">
+                            <span className="rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
                               {f.name}
                             </span>
                           </div>
@@ -314,7 +314,7 @@ export default function Colors() {
                             setFamilyId(f.id);
                             setPage(1);
                           }}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200/60 px-2.5 py-1 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-border/60 px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple"
                         >
                           <span
                             className="h-3 w-3 rounded-full ring-1 ring-black/5"
@@ -333,7 +333,7 @@ export default function Colors() {
               <div className="relative w-full sm:max-w-xs">
                 <Search
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                 />
                 <input
                   type="search"
@@ -483,7 +483,7 @@ export default function Colors() {
               </FilterRow>
             </div>
 
-            <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">
               {totalColors} colors found
             </p>
 
@@ -522,18 +522,18 @@ export default function Colors() {
                   type="button"
                   disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
-                  className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50 dark:border-white/5 dark:text-neutral-300 dark:hover:bg-white/5"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
                   Prev
                 </button>
-                <span className="px-3 text-sm text-neutral-500">
+                <span className="px-3 text-sm text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
                 <button
                   type="button"
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => p + 1)}
-                  className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 transition-colors disabled:opacity-40 hover:bg-neutral-50 dark:border-white/5 dark:text-neutral-300 dark:hover:bg-white/5"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
                   Next
                 </button>
@@ -547,7 +547,7 @@ export default function Colors() {
             <div className="relative w-full sm:max-w-xs">
               <Search
                 aria-hidden="true"
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
               />
               <input
                 type="search"
@@ -564,7 +564,7 @@ export default function Colors() {
                   <Link
                     key={c.id}
                     to={`/colors/${c.slug}`}
-                    className="group overflow-hidden rounded-2xl border border-neutral-200/60 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-neutral-200"
+                    className="group overflow-hidden rounded-2xl border border-border/60 bg-card transition-all dark:border-white/5 dark:bg-card duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-border"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <img
@@ -574,7 +574,7 @@ export default function Colors() {
                         loading="lazy"
                       />
                       {/* Premium color strip */}
-                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/95 p-3 backdrop-blur-md dark:bg-brand-navy/95">
+                      <div className="absolute bottom-0 left-0 right-0 flex gap-1 bg-white/95 p-3 backdrop-blur-md dark:bg-background/95">
                         {[
                           c.main_color_code,
                           c.secondary_color_code,
@@ -590,14 +590,14 @@ export default function Colors() {
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="font-display text-lg font-bold text-neutral-900 dark:text-white transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">
+                      <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">
                         {c.title}
                       </h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500 line-clamp-2">
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground line-clamp-2">
                         {c.description}
                       </p>
                       <div className="mt-3 flex items-center gap-2">
-                        <span className="rounded-full bg-brand-purple/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold text-brand-purple">
                           {c.style}
                         </span>
                         {c.is_trending && (
@@ -628,30 +628,30 @@ export default function Colors() {
         {/* AI Paint Matcher */}
         <div className="mt-10 mb-6 grid gap-6 lg:grid-cols-2">
           <PaintMatcher />
-          <div className="flex flex-col justify-center rounded-lg border border-neutral-200 p-6 dark:border-neutral-700">
-            <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+          <div className="flex flex-col justify-center rounded-lg border border-border p-6 dark:border-border border-border">
+            <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Can't find your color?
             </h3>
-            <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
               Take a photo of the painted wall and our AI Paint Matcher will
               scan it and find the closest paint color from our library of
               hundreds of professional colors.
             </p>
-            <ul className="mt-4 space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />{" "}
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
                 Upload or take a photo
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />{" "}
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
                 Get instant color matches
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />{" "}
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
                 See similarity scores
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />{" "}
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
                 Link to full color details
               </li>
             </ul>
@@ -687,7 +687,7 @@ function FilterRow({
 }) {
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-start">
-      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 sm:w-20">
+      <span className="shrink-0 pt-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground sm:w-20">
         {label}
       </span>
       <div className="flex flex-wrap gap-2">{children}</div>
@@ -711,8 +711,8 @@ function Chip({
       className={classNames(
         "rounded-lg border px-3 py-1.5 text-xs font-medium transition-all duration-200",
         active
-          ? "border-brand-purple bg-brand-purple text-white shadow-sm"
-          : "border-neutral-200/60 bg-white text-neutral-600 hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/5 dark:bg-brand-navy-mid dark:text-neutral-300 dark:hover:text-brand-purple-lighter",
+          ? "border-brand-purple bg-primary text-primary-foreground shadow-sm"
+          : "border-border/60 bg-card text-muted-foreground hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/5 dark:bg-card dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter",
       )}
     >
       {children}

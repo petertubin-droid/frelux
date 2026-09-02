@@ -304,14 +304,14 @@ export default function AdminAiSettings() {
       <AdminCard>
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 dark:bg-brand-purple/20">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
               <Power aria-hidden="true" className="h-5 w-5 text-brand-purple" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-brand-navy dark:text-white">
+              <h2 className="text-base font-bold text-foreground dark:text-primary-foreground">
                 Global AI Master Switch
               </h2>
-              <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
                 When off, all AI features across the entire site are disabled.
                 Individual feature controls below are ignored.
               </p>
@@ -332,7 +332,7 @@ export default function AdminAiSettings() {
           aiDisabled && "opacity-40 pointer-events-none",
         )}
       >
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Access Control
           &amp; Monetization
         </h2>
@@ -418,7 +418,7 @@ export default function AdminAiSettings() {
 
       {/* ── AI Feature Registry ── */}
       <div className="mt-6">
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           <Crown aria-hidden="true" className="h-4 w-4" /> AI Features (
           {AI_FEATURES.length})
         </h2>
@@ -443,7 +443,7 @@ export default function AdminAiSettings() {
                   }
                   className="flex w-full items-center gap-3 text-left"
                 >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 dark:bg-brand-purple/20">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 dark:bg-primary/20">
                     <feature.icon
                       aria-hidden="true"
                       className="h-5 w-5 text-brand-purple"
@@ -451,7 +451,7 @@ export default function AdminAiSettings() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="truncate text-sm font-bold text-brand-navy dark:text-white">
+                      <h3 className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
                         {feature.name}
                       </h3>
                       <span
@@ -467,7 +467,7 @@ export default function AdminAiSettings() {
                         {feature.category}
                       </span>
                     </div>
-                    <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-0.5 truncate text-xs text-muted-foreground dark:text-muted-foreground">
                       {feature.description}
                     </p>
                   </div>
@@ -475,7 +475,7 @@ export default function AdminAiSettings() {
                     {isChecking ? (
                       <Loader2
                         aria-hidden="true"
-                        className="h-4 w-4 animate-spin text-neutral-400"
+                        className="h-4 w-4 animate-spin text-muted-foreground"
                       />
                     ) : health === "ok" ? (
                       <span className="flex items-center gap-1 text-xs font-semibold text-green-600 dark:text-green-400">
@@ -488,15 +488,15 @@ export default function AdminAiSettings() {
                         Error
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-xs text-neutral-400">
-                        <span className="h-2 w-2 rounded-full bg-neutral-300 dark:bg-neutral-600" />{" "}
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <span className="h-2 w-2 rounded-full bg-muted dark:bg-muted-foreground" />{" "}
                         Unknown
                       </span>
                     )}
                     <ChevronDown
                       aria-hidden="true"
                       className={classNames(
-                        "h-4 w-4 text-neutral-400 transition-transform",
+                        "h-4 w-4 text-muted-foreground transition-transform",
                         isExpanded && "rotate-180",
                       )}
                     />
@@ -504,7 +504,7 @@ export default function AdminAiSettings() {
                 </button>
 
                 {isExpanded && (
-                  <div className="mt-4 border-t border-neutral-200 pt-4 dark:border-white/5">
+                  <div className="mt-4 border-t border-border pt-4 dark:border-white/5">
                     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                       <InfoTile
                         label="Edge Function"
@@ -561,7 +561,7 @@ export default function AdminAiSettings() {
                     </div>
 
                     {feature.key === "building-estimation" && (
-                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
                           Image Estimation Settings
                         </h4>
@@ -641,11 +641,11 @@ export default function AdminAiSettings() {
                     )}
 
                     {feature.key === "livechat" && (
-                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
                           Live Chat Settings
                         </h4>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           Uses OpenAI GPT-4o-mini. System prompt is in the edge
                           function source. Requires{" "}
                           <code className="text-[10px] text-brand-purple">
@@ -667,26 +667,26 @@ export default function AdminAiSettings() {
                     )}
 
                     {feature.key === "color-consult" && (
-                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                      <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                         <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
                           Color Consultant Settings
                         </h4>
-                        <div className="flex items-center gap-2 rounded-lg bg-neutral-50 p-2 text-xs dark:bg-white/5">
+                        <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2 text-xs dark:bg-white/5">
                           <Clock
                             aria-hidden="true"
-                            className="h-3.5 w-3.5 text-neutral-400"
+                            className="h-3.5 w-3.5 text-muted-foreground"
                           />
                           <span>
                             Free uses:{" "}
                             <strong>{settings.ai_daily_free_uses}</strong> per{" "}
                             {settings.ai_reset_period}
                           </span>
-                          <span className="text-neutral-300 dark:text-neutral-600">
+                          <span className="text-muted-foreground/80 dark:text-muted-foreground">
                             |
                           </span>
                           <DollarSign
                             aria-hidden="true"
-                            className="h-3.5 w-3.5 text-neutral-400"
+                            className="h-3.5 w-3.5 text-muted-foreground"
                           />
                           <span>
                             Paid:{" "}
@@ -701,11 +701,11 @@ export default function AdminAiSettings() {
 
                     {feature.category === "admin" &&
                       feature.key !== "livechat" && (
-                        <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                        <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 dark:border-brand-purple/30 dark:bg-primary/10">
                           <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-purple dark:text-brand-purple-lighter">
                             {feature.name} Configuration
                           </h4>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                             Admin-only feature — no user-facing access control.
                             Powered by Google Gemini. Requires{" "}
                             <code className="text-[10px] text-brand-purple">
@@ -725,7 +725,7 @@ export default function AdminAiSettings() {
 
       {/* ── API Keys Reference ── */}
       <AdminCard className="mt-6">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           <Settings2 aria-hidden="true" className="h-4 w-4" /> API Keys &amp;
           Secrets
         </h2>
@@ -741,7 +741,7 @@ export default function AdminAiSettings() {
             provider="OpenAI"
           />
         </div>
-        <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="mt-3 text-xs text-muted-foreground dark:text-muted-foreground">
           API keys are stored in Supabase Edge Function secrets.{" "}
           <a
             href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_REF}/settings/functions`}
@@ -767,12 +767,12 @@ function InfoTile({
   icon: typeof Bot;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-3 dark:border-white/5">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+    <div className="rounded-lg border border-border p-3 dark:border-white/5">
+      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         <Icon aria-hidden="true" className="h-3 w-3" />
         {label}
       </div>
-      <p className="mt-1 text-sm font-semibold text-brand-navy dark:text-white">
+      <p className="mt-1 text-sm font-semibold text-foreground dark:text-primary-foreground">
         {value}
       </p>
     </div>
@@ -789,17 +789,17 @@ function SecretRow({
   provider: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-neutral-200 p-3 dark:border-white/5">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 dark:border-white/5">
       <div className="min-w-0">
-        <code className="text-xs font-semibold text-brand-navy dark:text-white">
+        <code className="text-xs font-semibold text-foreground dark:text-primary-foreground">
           {name}
         </code>
-        <p className="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">
+        <p className="mt-0.5 text-[11px] text-muted-foreground dark:text-muted-foreground">
           Used by: {usedBy}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-600 dark:bg-white/10 dark:text-neutral-300">
+        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground/80">
           {provider}
         </span>
         <span

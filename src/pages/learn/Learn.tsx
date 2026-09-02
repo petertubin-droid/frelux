@@ -154,7 +154,7 @@ export default function Learn() {
           subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
           breadcrumbs={[{ label: "Learn Hub" }]}
         />
-        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-32 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -191,52 +191,52 @@ export default function Learn() {
 
       {/* Premium hero section with search */}
       <div className="mx-auto max-w-7xl px-4 pt-10 sm:px-6">
-        <div className="relative overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-white/10 bg-gradient-to-br from-white via-brand-purple/[0.03] to-brand-purple/[0.06] dark:from-brand-navy-mid dark:via-brand-navy-mid/50 dark:to-brand-navy p-8 sm:p-14">
+        <div className="relative overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] dark:from-card dark:via-card/50 dark:to-background p-8 sm:p-14">
           {/* Decorative orbs */}
           <div
-            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple/8 blur-3xl"
+            className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/8 blur-3xl"
             aria-hidden="true"
           />
           <div
-            className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-brand-purple/5 blur-3xl"
+            className="pointer-events-none absolute -left-20 bottom-0 h-48 w-48 rounded-full bg-primary/5 blur-3xl"
             aria-hidden="true"
           />
           {/* Top accent line */}
           <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/30 to-transparent"
+            className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
             aria-hidden="true"
           />
 
           <div className="relative mx-auto max-w-2xl text-center">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-brand-purple/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
               {recent.length + featured.length}+ Expert Articles
             </div>
-            <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-brand-navy dark:text-white sm:text-4xl">
+            <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl">
               Master Your Craft with{" "}
-              <span className="bg-gradient-to-r from-brand-purple to-brand-purple-lighter bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-lighter bg-clip-text text-transparent">
                 Expert Guides
               </span>
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-neutral-500 dark:text-neutral-400">
+            <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-muted-foreground dark:text-muted-foreground">
               In-depth tutorials, practical tips, and professional techniques
               for every aspect of building, finishing, and construction.
             </p>
             {/* Search bar */}
             <div className="mt-8 relative mx-auto max-w-lg">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search articles, guides, tutorials…"
-                className="w-full rounded-2xl border border-neutral-200 bg-white/80 py-3.5 pl-12 pr-4 text-sm font-medium text-brand-navy shadow-sm placeholder:text-neutral-400 focus:border-brand-purple/50 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-brand-navy dark:text-white dark:placeholder:text-neutral-500"
+                className="w-full rounded-2xl border border-border bg-white/80 py-3.5 pl-12 pr-4 text-sm font-medium text-foreground shadow-sm placeholder:text-muted-foreground focus:border-brand-purple/50 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 dark:border-white/10 dark:bg-background dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               />
             </div>
             {/* Search results dropdown */}
             {searchQuery.trim() && (
-              <div className="mt-3 mx-auto max-w-lg overflow-hidden rounded-2xl border border-neutral-200 bg-white text-left shadow-xl dark:border-white/10 dark:bg-brand-navy">
+              <div className="mt-3 mx-auto max-w-lg overflow-hidden rounded-2xl border border-border bg-card text-left shadow-xl dark:border-white/10 dark:bg-background">
                 {searching ? (
-                  <div className="p-5 text-center text-sm text-neutral-500">
+                  <div className="p-5 text-center text-sm text-muted-foreground">
                     <Loader2 className="inline h-4 w-4 animate-spin mr-2" />
                     Searching…
                   </div>
@@ -246,7 +246,7 @@ export default function Learn() {
                       <Link
                         key={a.id}
                         to={`/learn/${a.slug}`}
-                        className="flex items-start gap-3 px-4 py-3 transition-all hover:bg-brand-purple/5"
+                        className="flex items-start gap-3 px-4 py-3 transition-all hover:bg-primary/5"
                       >
                         {a.cover_image_url && (
                           <img
@@ -256,19 +256,19 @@ export default function Learn() {
                           />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">
+                          <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                             {a.title}
                           </p>
-                          <span className="text-xs capitalize text-neutral-500">
+                          <span className="text-xs capitalize text-muted-foreground">
                             {a.category_slug.replace(/-/g, " ")}
                           </span>
                         </div>
-                        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-neutral-300" />
+                        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground/80" />
                       </Link>
                     ))}
                   </div>
                 ) : (
-                  <div className="p-5 text-center text-sm text-neutral-500">
+                  <div className="p-5 text-center text-sm text-muted-foreground">
                     No articles found for "{searchQuery}"
                   </div>
                 )}
@@ -287,10 +287,10 @@ export default function Learn() {
                 <Award className="h-4 w-4 text-accent-orange" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                   Featured Articles
                 </h2>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   Hand-picked guides our readers love most
                 </p>
               </div>
@@ -300,7 +300,7 @@ export default function Learn() {
                 <Link
                   key={article.id}
                   to={`/learn/${article.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (
                     <div className="relative aspect-[16/10] overflow-hidden">
@@ -316,23 +316,23 @@ export default function Learn() {
                       </span>
                     </div>
                   ) : (
-                    <div className="relative flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-neutral-50 to-brand-purple/5 dark:from-white/5 dark:to-brand-purple/10">
-                      <ImageOff className="h-7 w-7 text-neutral-300" />
+                    <div className="relative flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+                      <ImageOff className="h-7 w-7 text-muted-foreground/80" />
                       <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-orange shadow-sm">
                         <Award className="h-3 w-3" /> Featured
                       </span>
                     </div>
                   )}
                   <div className="flex flex-1 flex-col p-5">
-                    <h3 className="font-display text-base font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                    <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                       {article.title}
                     </h3>
                     {article.excerpt && (
-                      <p className="mt-2 text-sm leading-relaxed text-neutral-500 line-clamp-2 dark:text-neutral-400">
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
                         {article.excerpt}
                       </p>
                     )}
-                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-neutral-400">
+                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
                       {article.author && (
                         <span className="font-medium">{article.author}</span>
                       )}
@@ -353,14 +353,14 @@ export default function Learn() {
         {/* Browse by category — hierarchical */}
         <section className="mb-14">
           <div className="mb-6 flex items-center gap-3">
-            <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+            <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <BookOpen className="h-4 w-4 text-brand-purple" />
             </div>
             <div>
-              <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                 Browse by Topic
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Explore guides organized by discipline
               </p>
             </div>
@@ -375,37 +375,37 @@ export default function Learn() {
                 return (
                   <div
                     key={cat.id}
-                    className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                    className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <button
                       onClick={() => toggleParent(cat.slug)}
-                      className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-brand-purple/[0.03]"
+                      className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-primary/[0.03]"
                     >
-                      <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/10 to-brand-purple/5 text-brand-purple transition-transform group-hover:scale-105">
+                      <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
                         <IconComponent className="h-7 w-7" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-display text-base font-bold text-brand-navy dark:text-white">
+                        <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
                           {cat.name}
                         </h3>
                         {cat.description && (
-                          <p className="mt-1 text-sm leading-relaxed text-neutral-500 line-clamp-1 dark:text-neutral-400">
+                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-1 dark:text-muted-foreground">
                             {cat.description}
                           </p>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-500 dark:bg-white/10 dark:text-neutral-400">
+                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
                           {children.length} topics
                         </span>
                         <ChevronDown
-                          className={`h-5 w-5 text-neutral-400 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
+                          className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
                         />
                       </div>
                     </button>
                     {isExpanded && (
                       <div
-                        className="border-t border-neutral-100 dark:border-white/5"
+                        className="border-t border-border/50 dark:border-white/5"
                         style={{ animation: "fadeInDown 0.3s ease-out" }}
                       >
                         <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -415,24 +415,24 @@ export default function Learn() {
                               <Link
                                 key={child.id}
                                 to={`/learn/category/${child.slug}`}
-                                className="group/sub flex items-center gap-3 rounded-xl p-3.5 transition-all hover:bg-brand-purple/5 hover:shadow-sm"
+                                className="group/sub flex items-center gap-3 rounded-xl p-3.5 transition-all hover:bg-primary/5 hover:shadow-sm"
                               >
-                                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-purple/5 text-brand-purple/70 transition-colors group-hover/sub:bg-brand-purple/10 group-hover/sub:text-brand-purple">
+                                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-brand-purple/70 transition-colors group-hover/sub:bg-primary/10 group-hover/sub:text-brand-purple">
                                   <ChildIcon className="h-4 w-4" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="truncate text-sm font-semibold text-brand-navy dark:text-white">
+                                  <h4 className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                                     {child.name}
                                   </h4>
                                   {child.description && (
-                                    <p className="mt-0.5 text-xs leading-snug text-neutral-400 line-clamp-1">
+                                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground line-clamp-1">
                                       {child.description}
                                     </p>
                                   )}
                                 </div>
                                 <ArrowRight
                                   aria-hidden="true"
-                                  className="h-4 w-4 shrink-0 text-neutral-300 transition-all group-hover/sub:text-brand-purple group-hover/sub:translate-x-0.5"
+                                  className="h-4 w-4 shrink-0 text-muted-foreground/80 transition-all group-hover/sub:text-brand-purple group-hover/sub:translate-x-0.5"
                                 />
                               </Link>
                             );
@@ -448,17 +448,17 @@ export default function Learn() {
                 <Link
                   key={cat.id}
                   to={`/learn/category/${cat.slug}`}
-                  className="group flex items-start gap-5 rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group flex items-start gap-5 rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
-                  <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/10 to-brand-purple/5 text-brand-purple transition-transform group-hover:scale-105">
+                  <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
                     <IconComponent className="h-7 w-7" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-base font-bold text-brand-navy dark:text-white">
+                    <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
                       {cat.name}
                     </h3>
                     {cat.description && (
-                      <p className="mt-1.5 text-sm leading-relaxed text-neutral-500 line-clamp-2 dark:text-neutral-400">
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
                         {cat.description}
                       </p>
                     )}
@@ -480,14 +480,14 @@ export default function Learn() {
         {recent.length > 0 && (
           <section>
             <div className="mb-6 flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <Clock className="h-4 w-4 text-brand-purple" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                   Latest Articles
                 </h2>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   Fresh from our editorial desk
                 </p>
               </div>
@@ -497,7 +497,7 @@ export default function Learn() {
                 <Link
                   key={article.id}
                   to={`/learn/${article.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (
                     <div className="relative aspect-[16/10] overflow-hidden">
@@ -509,23 +509,23 @@ export default function Learn() {
                       />
                     </div>
                   ) : (
-                    <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-neutral-50 to-brand-purple/5 dark:from-white/5 dark:to-brand-purple/10">
-                      <ImageOff className="h-7 w-7 text-neutral-300" />
+                    <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+                      <ImageOff className="h-7 w-7 text-muted-foreground/80" />
                     </div>
                   )}
                   <div className="flex flex-1 flex-col p-5">
                     <span className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-purple">
                       {article.category_slug.replace(/-/g, " ")}
                     </span>
-                    <h3 className="font-display text-base font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                    <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                       {article.title}
                     </h3>
                     {article.excerpt && (
-                      <p className="mt-2 text-sm leading-relaxed text-neutral-500 line-clamp-2 dark:text-neutral-400">
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
                         {article.excerpt}
                       </p>
                     )}
-                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-neutral-400">
+                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
                       {article.read_time_minutes && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />{" "}
@@ -549,15 +549,15 @@ export default function Learn() {
         )}
 
         {recent.length === 0 && featured.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-20 text-center dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-20 text-center dark:border-white/10 dark:bg-white/5">
             <BookOpen
               aria-hidden="true"
-              className="mx-auto h-12 w-12 text-neutral-300"
+              className="mx-auto h-12 w-12 text-muted-foreground/80"
             />
-            <p className="mt-5 text-base font-semibold text-neutral-600 dark:text-neutral-300">
+            <p className="mt-5 text-base font-semibold text-muted-foreground dark:text-muted-foreground/80">
               Articles coming soon
             </p>
-            <p className="mt-2 text-sm text-neutral-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               We're preparing in-depth guides, tutorials, and expert tips. Check
               back shortly.
             </p>

@@ -26,8 +26,8 @@ export function RewardedFeatureGate({
 
   if (access.loading) {
     return (
-      <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 py-6 text-sm text-neutral-400 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple dark:border-white/10 dark:border-t-brand-purple-lighter" />
+      <div className="mt-6 flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/50 py-6 text-sm text-muted-foreground dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-brand-purple dark:border-white/10 dark:border-t-brand-purple-lighter" />
         Loading…
       </div>
     );
@@ -46,7 +46,7 @@ export function RewardedFeatureGate({
       <>
         {children(access)}
         {access.expiresAt && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-neutral-600">
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-muted-foreground">
             <Clock
               aria-hidden="true"
               className="h-3.5 w-3.5 text-accent-green"
@@ -60,15 +60,15 @@ export function RewardedFeatureGate({
 
   return (
     <>
-      <div className="mt-6 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent">
+      <div className="mt-6 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent">
         <div className="p-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
             <Lock aria-hidden="true" className="h-6 w-6 text-brand-purple" />
           </div>
-          <h3 className="mt-3 text-base font-bold text-brand-navy dark:text-white">
+          <h3 className="mt-3 text-base font-bold text-foreground dark:text-primary-foreground">
             {featureName}
           </h3>
-          <p className="mx-auto mt-1 max-w-md text-sm text-neutral-500">
+          <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
             Unlock advanced features by watching a short ad. No subscriptions,
             no payments. Just one ad for full access until 11:59 PM today.
           </p>
@@ -76,7 +76,7 @@ export function RewardedFeatureGate({
             {features.map((f) => (
               <div
                 key={f}
-                className="flex items-center gap-2 text-sm text-neutral-600"
+                className="flex items-center gap-2 text-sm text-muted-foreground"
               >
                 <CheckCircle2
                   aria-hidden="true"
@@ -93,20 +93,20 @@ export function RewardedFeatureGate({
               !access.config?.is_enabled ||
               (!access.primaryProvider && !access.fallbackProvider)
             }
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             <Lock aria-hidden="true" className="h-4 w-4" />
             Watch Ad to Unlock Advanced Calculator
           </button>
           {!access.config?.is_enabled && (
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-muted-foreground">
               This feature is temporarily disabled.
             </p>
           )}
           {access.config?.is_enabled &&
             !access.primaryProvider &&
             !access.fallbackProvider && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 No ad provider is configured yet. Coming soon!
               </p>
             )}

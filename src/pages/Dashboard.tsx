@@ -40,7 +40,7 @@ const QUICK_ACTIONS = [
     to: "/paint-calculator",
     label: "Paint Calc",
     icon: Calculator,
-    color: "text-brand-purple bg-brand-purple/8",
+    color: "text-brand-purple bg-primary/8",
   },
   {
     to: "/paint-calculator?mode=cost",
@@ -146,14 +146,14 @@ export default function Dashboard() {
                 <Link
                   key={a.to}
                   to={a.to}
-                  className="group flex items-center gap-3 rounded-xl border border-neutral-200/60 bg-white p-4 transition-all hover:border-brand-purple/20 hover:shadow-sm dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/20 hover:shadow-sm dark:border-white/5 dark:bg-card"
                 >
                   <span
                     className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${a.color} transition-transform duration-300 group-hover:scale-110`}
                   >
                     <a.icon className="h-5 w-5" />
                   </span>
-                  <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                  <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {a.label}
                   </span>
                 </Link>
@@ -162,9 +162,9 @@ export default function Dashboard() {
 
             {/* Continue Last Project */}
             {lastProject && (
-              <section className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-white p-6 dark:from-brand-purple/10 dark:to-brand-navy-mid animate-fade-in-up">
+              <section className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-card p-6 dark:from-primary/10 dark:to-card animate-fade-in-up">
                 <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-purple/5 blur-3xl"
+                  className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/5 blur-3xl"
                   aria-hidden="true"
                 />
                 <div className="relative flex items-center gap-2 text-sm font-semibold text-brand-purple">
@@ -172,15 +172,15 @@ export default function Dashboard() {
                 </div>
                 <div className="relative mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+                    <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                       {lastProject.name}
                     </h3>
                     {lastProject.description && (
-                      <p className="mt-1 text-sm text-neutral-500">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {lastProject.description}
                       </p>
                     )}
-                    <p className="mt-1 text-xs text-neutral-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       Updated{" "}
                       {new Date(lastProject.updated_at).toLocaleDateString()}
                     </p>
@@ -210,7 +210,7 @@ export default function Dashboard() {
               style={{ animationDelay: "0.05s" }}
             >
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
                   <Calculator className="h-5 w-5 text-brand-purple" /> Recent
                   Calculations
                 </h2>
@@ -236,22 +236,22 @@ export default function Dashboard() {
                         projectId: p.id,
                         projectName: p.name,
                       }}
-                      className="card-hover group rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid animate-fade-in-up"
+                      className="card-hover group rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card animate-fade-in-up"
                       style={{ animationDelay: `${i * 0.04}s` }}
                     >
                       <div className="flex items-start justify-between">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/8 text-brand-purple">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/8 text-brand-purple">
                           <FolderOpen className="h-4 w-4" />
                         </span>
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-xs text-muted-foreground">
                           {new Date(p.updated_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter transition-colors">
+                      <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter transition-colors">
                         {p.name}
                       </h3>
                       {p.description && (
-                        <p className="mt-0.5 text-xs text-neutral-500 line-clamp-2">
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
                           {p.description}
                         </p>
                       )}
@@ -276,7 +276,7 @@ export default function Dashboard() {
                 style={{ animationDelay: "0.1s" }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
                     <Bookmark className="h-5 w-5 text-rose-400" /> Favorite
                     Colors
                   </h2>
@@ -297,14 +297,14 @@ export default function Dashboard() {
                       <Link
                         key={c.id}
                         to={`/colors/paint/${c.slug}`}
-                        className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
+                        className="card-hover flex items-center gap-2 rounded-xl border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
                       >
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">
+                          <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                             {c.name}
                           </p>
-                          <p className="text-xs text-neutral-500">
+                          <p className="text-xs text-muted-foreground">
                             {c.hex_code}
                           </p>
                         </div>
@@ -328,8 +328,8 @@ export default function Dashboard() {
                 style={{ animationDelay: "0.15s" }}
               >
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="flex items-center gap-2 text-lg font-bold text-brand-navy dark:text-white">
-                    <Clock className="h-5 w-5 text-neutral-500" /> Recently
+                  <h2 className="flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
+                    <Clock className="h-5 w-5 text-muted-foreground" /> Recently
                     Viewed
                   </h2>
                   <Link
@@ -349,14 +349,14 @@ export default function Dashboard() {
                       <Link
                         key={c.id}
                         to={`/colors/paint/${c.slug}`}
-                        className="card-hover flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
+                        className="card-hover flex items-center gap-2 rounded-xl border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
                       >
                         <ColorSwatch hex={c.hex_code} size="md" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">
+                          <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                             {c.name}
                           </p>
-                          <p className="text-xs text-neutral-500">
+                          <p className="text-xs text-muted-foreground">
                             {c.hex_code}
                           </p>
                         </div>
@@ -377,7 +377,7 @@ export default function Dashboard() {
 
             {/* AI Suggestion */}
             <section
-              className="relative overflow-hidden rounded-2xl border border-neutral-200/60 bg-gradient-to-br from-neutral-50 to-white p-6 dark:border-white/5 dark:from-brand-navy-mid dark:to-brand-navy-mid animate-fade-in-up"
+              className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-muted/50 to-card p-6 dark:border-white/5 dark:from-card dark:to-card animate-fade-in-up"
               style={{ animationDelay: "0.2s" }}
             >
               <div
@@ -387,7 +387,7 @@ export default function Dashboard() {
               <div className="relative flex items-center gap-2 text-sm font-semibold text-accent-orange">
                 <Lightbulb className="h-4 w-4" /> AI Suggestion
               </div>
-              <p className="relative mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="relative mt-3 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 Try the Smart Color Assistant to get personalized color
                 recommendations based on your room type, lighting, and style
                 preferences.

@@ -154,7 +154,7 @@ export default function PopCeilingCalculatorHub() {
       >
         <Suspense
           fallback={
-            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-500">
+            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
               Loading…
             </div>
           }
@@ -166,17 +166,17 @@ export default function PopCeilingCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             About the FRELUX POP Ceiling Calculator
           </h2>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX POP Ceiling Calculator is a comprehensive tool for
             planning plaster of paris (POP) ceiling projects. It combines
             material quantity calculation with cost estimation in one unified
             experience, supporting both Nigerian and international POP ceiling
             workflows.
           </p>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Calculation Modes
           </h3>
           <ul>
@@ -191,10 +191,10 @@ export default function PopCeilingCalculatorHub() {
               factors.
             </li>
           </ul>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             FRELUX/Nigerian POP Material Logic
           </h3>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The calculator uses established Nigerian POP material rules with
             admin-configured workflows, material requirements, and packaging
             sizes. Different ceiling designs and workflows have their own

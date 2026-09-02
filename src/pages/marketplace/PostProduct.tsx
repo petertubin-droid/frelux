@@ -193,39 +193,39 @@ export default function PostProduct() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Post a Product for Sale
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Building materials, painting supplies, interior design products, tools
           & more.
         </p>
       </div>
 
-      <div className="space-y-5 rounded-xl border border-neutral-200 p-6 dark:border-white/10">
+      <div className="space-y-5 rounded-xl border border-border p-6 dark:border-white/10">
         {/* Title */}
         <div>
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+          <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
             Product Title *
           </label>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Dulux Vinyl Matt Emulsion — 4 Litres (White)"
-            className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
 
         {/* Category + Brand */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Category
             </label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
               <option value="">Select category</option>
               {categories.map((c) => (
@@ -236,21 +236,21 @@ export default function PostProduct() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Brand
             </label>
             <input
               value={brand}
               onChange={(e) => setBrand(e.target.value)}
               placeholder="e.g. Dulux"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+          <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
             Description
           </label>
           <textarea
@@ -258,14 +258,14 @@ export default function PostProduct() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe the product, condition, specifications, what's included..."
             rows={4}
-            className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
 
         {/* Price + Condition */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Price (₦) *
             </label>
             <input
@@ -273,11 +273,11 @@ export default function PostProduct() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="e.g. 15000"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Compare-at Price
             </label>
             <input
@@ -285,17 +285,17 @@ export default function PostProduct() {
               value={compareAtPrice}
               onChange={(e) => setCompareAtPrice(e.target.value)}
               placeholder="e.g. 20000"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Condition
             </label>
             <select
               value={condition}
               onChange={(e) => setCondition(e.target.value as ProductCondition)}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
               {CONDITIONS.map((c) => (
                 <option key={c.value} value={c.value}>
@@ -309,7 +309,7 @@ export default function PostProduct() {
         {/* Quantity + Unit + Negotiable */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Quantity
             </label>
             <input
@@ -317,18 +317,18 @@ export default function PostProduct() {
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               min="1"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Unit
             </label>
             <input
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               placeholder="e.g. bag, litre, piece"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
           <div className="flex items-end pb-2">
@@ -339,7 +339,7 @@ export default function PostProduct() {
                 onChange={(e) => setNegotiable(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-neutral-700 dark:text-neutral-200">
+              <span className="text-card-foreground dark:text-muted-foreground/60">
                 Price negotiable
               </span>
             </label>
@@ -348,7 +348,7 @@ export default function PostProduct() {
 
         {/* Images */}
         <div>
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+          <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
             Product Images *
           </label>
           <div className="mt-2 space-y-3">
@@ -357,7 +357,7 @@ export default function PostProduct() {
                 {images.map((img, idx) => (
                   <div
                     key={idx}
-                    className="group relative aspect-square overflow-hidden rounded-lg border border-neutral-200 dark:border-white/10"
+                    className="group relative aspect-square overflow-hidden rounded-lg border border-border dark:border-white/10"
                   >
                     <img
                       src={img}
@@ -375,7 +375,7 @@ export default function PostProduct() {
                         </button>
                         <button
                           onClick={() => removeImage(idx)}
-                          className="rounded bg-red-500 p-1 text-white"
+                          className="rounded bg-red-500 p-1 text-primary-foreground"
                         >
                           <X aria-hidden="true" className="h-3 w-3" />
                         </button>
@@ -389,7 +389,7 @@ export default function PostProduct() {
                       </div>
                     </div>
                     {idx === 0 && (
-                      <span className="absolute left-1 top-1 rounded bg-brand-purple px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      <span className="absolute left-1 top-1 rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
                         COVER
                       </span>
                     )}
@@ -397,10 +397,14 @@ export default function PostProduct() {
                 ))}
               </div>
             )}
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-200 p-4 text-sm text-neutral-500 hover:border-brand-purple dark:border-white/10 dark:text-neutral-500">
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-4 text-sm text-muted-foreground hover:border-brand-purple dark:border-white/10 dark:text-muted-foreground">
               {uploading ? (
                 <>
-                  <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> Uploading…
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-4 w-4 animate-spin"
+                  />{" "}
+                  Uploading…
                 </>
               ) : (
                 <>
@@ -429,13 +433,13 @@ export default function PostProduct() {
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               State
             </label>
             <select
               value={state}
               onChange={(e) => setState(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
               <option value="">Select state</option>
               {NIGERIAN_STATES.map((s) => (
@@ -446,25 +450,25 @@ export default function PostProduct() {
             </select>
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               City
             </label>
             <input
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="e.g. Lekki"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Area
             </label>
             <input
               value={area}
               onChange={(e) => setArea(e.target.value)}
               placeholder="e.g. Phase 1"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
         </div>
@@ -479,7 +483,7 @@ export default function PostProduct() {
                 onChange={(e) => setDeliveryAvailable(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-neutral-700 dark:text-neutral-200">
+              <span className="text-card-foreground dark:text-muted-foreground/60">
                 Delivery available
               </span>
             </label>
@@ -489,7 +493,7 @@ export default function PostProduct() {
                 value={deliveryFee}
                 onChange={(e) => setDeliveryFee(e.target.value)}
                 placeholder="Delivery fee (₦)"
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             )}
           </div>
@@ -501,7 +505,7 @@ export default function PostProduct() {
                 onChange={(e) => setPickupAvailable(e.target.checked)}
                 className="rounded"
               />
-              <span className="text-neutral-700 dark:text-neutral-200">
+              <span className="text-card-foreground dark:text-muted-foreground/60">
                 Pickup available
               </span>
             </label>
@@ -510,14 +514,14 @@ export default function PostProduct() {
 
         {/* Tags */}
         <div>
-          <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+          <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
             Tags
           </label>
           <div className="mt-1 flex flex-wrap gap-1">
             {tags.map((t) => (
               <span
                 key={t}
-                className="inline-flex items-center gap-1 rounded-md bg-brand-purple/10 px-2 py-1 text-xs text-brand-purple"
+                className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs text-brand-purple"
               >
                 {t}
                 <button
@@ -537,11 +541,11 @@ export default function PostProduct() {
                 e.key === "Enter" && (e.preventDefault(), addTag())
               }
               placeholder="Add a tag and press Enter"
-              className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
             <button
               onClick={addTag}
-              className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10"
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
             </button>
@@ -550,13 +554,13 @@ export default function PostProduct() {
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
-        <div className="flex gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
+        <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
           <button
             onClick={handleSubmit}
             disabled={
               submitting || !title.trim() || !price || images.length === 0
             }
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -567,7 +571,7 @@ export default function PostProduct() {
           </button>
           <button
             onClick={() => navigate("/marketplace")}
-            className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+            className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >
             Cancel
           </button>

@@ -108,9 +108,9 @@ export default function LabourCostSection({
   const methods: LabourPricingMethod[] = ['fixed', 'per_sqm', 'per_room', 'daily', 'custom'];
 
   return (
-    <div className={last ? '' : 'mb-6 border-b border-neutral-100 pb-6'}>
+    <div className={last ? '' : 'mb-6 border-b border-border/50 pb-6'}>
       <div className="flex items-center justify-between">
-        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-neutral-500">
+        <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
           <HardHat className="h-4 w-4" />
           {label}
         </h2>
@@ -118,7 +118,7 @@ export default function LabourCostSection({
       </div>
 
       {!config.includeLabour && (
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           Labour cost is optional. Toggle on to include labour in your estimate.
         </p>
       )}
@@ -127,7 +127,7 @@ export default function LabourCostSection({
         <div className="space-y-4">
           {/* Pricing method selector */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-neutral-700">Pricing Method</label>
+            <label className="mb-2 block text-sm font-semibold text-card-foreground">Pricing Method</label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {methods.map((method) => (
                 <button
@@ -137,14 +137,14 @@ export default function LabourCostSection({
                   className={classNames(
                     'rounded-lg border p-3 text-left transition-all',
                     config.pricingMethod === method
-                      ? 'border-brand-purple bg-brand-purple/5'
-                      : 'border-neutral-200 hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600',
+                      ? 'border-brand-purple bg-primary/5'
+                      : 'border-border hover:border-border dark:border-border border-border dark:hover:border-border',
                   )}
                 >
-                  <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                  <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {PRICING_METHOD_LABELS[method]}
                   </span>
-                  <span className="mt-0.5 block text-xs text-neutral-500">
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
                     {PRICING_METHOD_DESCRIPTIONS[method]}
                   </span>
                 </button>
@@ -155,9 +155,9 @@ export default function LabourCostSection({
           {/* Suggested categories */}
           {categories.length > 0 && (
             <div>
-              <label className="mb-2 block text-sm font-semibold text-neutral-700">
+              <label className="mb-2 block text-sm font-semibold text-card-foreground">
                 Suggested Labour Categories
-                <span className="ml-1 font-normal text-neutral-500">(optional, you can override)</span>
+                <span className="ml-1 font-normal text-muted-foreground">(optional, you can override)</span>
               </label>
               <select
                 value={config.categoryId ?? ''}
@@ -175,7 +175,7 @@ export default function LabourCostSection({
           )}
 
           {/* Method-specific inputs */}
-          <div className="rounded-lg bg-neutral-50 p-4 dark:bg-neutral-800/50">
+          <div className="rounded-lg bg-muted/50 p-4 dark:bg-card-foreground/50">
             {config.pricingMethod === 'fixed' && (
               <Field label={`Fixed Labour Cost (${currencySymbol})`} hint="Enter the total labour cost for the entire project">
                 <input
@@ -207,7 +207,7 @@ export default function LabourCostSection({
                     min={0}
                     value={area ? area.toFixed(2) : ''}
                     readOnly
-                    className="input-field bg-neutral-100 dark:bg-neutral-700"
+                    className="input-field bg-muted dark:bg-card-foreground/80"
                     placeholder="0"
                   />
                 </Field>
@@ -279,7 +279,7 @@ export default function LabourCostSection({
           </div>
 
           {/* Info note */}
-          <div className="flex items-start gap-2 rounded-lg bg-brand-purple/5 p-3 text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="flex items-start gap-2 rounded-lg bg-primary/5 p-3 text-xs text-muted-foreground dark:text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
             <span>
               Labour rates vary by contractor, location, and project. These are suggestions only.
@@ -302,7 +302,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
         'relative inline-flex appearance-none h-6 w-11 shrink-0 rounded-full transition-all duration-300 border-0 p-0',
         checked
           ? 'bg-accent-green shadow-sm shadow-accent-green/30'
-          : 'bg-neutral-200 dark:bg-neutral-700',
+          : 'bg-muted dark:bg-card-foreground/80',
       )}
       aria-pressed={checked}
       aria-label="Include labour cost"
@@ -310,7 +310,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     >
       <span
         className={classNames(
-          'absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ease-out',
+          'absolute top-0.5 h-5 w-5 rounded-full bg-card shadow-md transition-all duration-300 ease-out',
           checked
             ? 'translate-x-5'
             : 'translate-x-0.5',
@@ -323,8 +323,8 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>}
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{label}</span>
+      {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
       <div className="mt-1.5">{children}</div>
     </label>
   );

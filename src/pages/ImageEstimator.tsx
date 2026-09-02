@@ -81,7 +81,7 @@ function AiFeatureSlide() {
           }}
         >
           <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
-          <span className="text-xs font-medium text-white/70">{msg}</span>
+          <span className="text-xs font-medium text-primary-foreground/70">{msg}</span>
         </div>
       ))}
     </div>
@@ -306,9 +306,9 @@ export default function ImageEstimator() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-muted/50">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-brand-navy text-white">
+      <div className="relative overflow-hidden bg-background text-primary-foreground">
         <div
           className="absolute inset-0 animate-mesh-float"
           style={{
@@ -317,7 +317,7 @@ export default function ImageEstimator() {
         />
         <div className="relative max-w-5xl mx-auto px-4 py-10">
           <div className="flex items-center gap-3 mb-2">
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
               <Camera
                 aria-hidden="true"
                 className="w-7 h-7 text-accent-green"
@@ -357,7 +357,7 @@ export default function ImageEstimator() {
         {/* Phase: Upload */}
         {phase === "upload" && (
           <div className="space-y-6">
-            <div className="rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-8 text-center hover:border-brand-purple transition-colors">
+            <div className="rounded-2xl border-2 border-dashed border-border bg-card p-8 text-center hover:border-brand-purple transition-colors">
               {imageDataUrl ? (
                 <div className="space-y-4">
                   <img
@@ -374,17 +374,17 @@ export default function ImageEstimator() {
                 </div>
               ) : (
                 <>
-                  <ImagePlus className="w-16 h-16 text-neutral-300 mx-auto mb-4" />
-                  <p className="text-sm text-neutral-600 mb-2">
+                  <ImagePlus className="w-16 h-16 text-muted-foreground/80 mx-auto mb-4" />
+                  <p className="text-sm text-muted-foreground mb-2">
                     Upload a photo of a building
                   </p>
-                  <p className="text-xs text-neutral-500 mb-6">
+                  <p className="text-xs text-muted-foreground mb-6">
                     JPG or PNG, max 10MB. The clearer the photo, the better the
                     estimate.
                   </p>
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark transition-colors"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
                     <Camera aria-hidden="true" className="w-4 h-4" />
                     Choose Building Photo
@@ -404,13 +404,13 @@ export default function ImageEstimator() {
             </div>
 
             {imageDataUrl && (
-              <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6 space-y-4">
-                <h3 className="font-semibold text-neutral-900">
+              <div className="rounded-2xl border border-border bg-card shadow-card p-6 space-y-4">
+                <h3 className="font-semibold text-foreground">
                   Project Details
                 </h3>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-neutral-600 mb-1 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-1 block">
                       Project name (optional)
                     </label>
                     <input
@@ -418,11 +418,11 @@ export default function ImageEstimator() {
                       value={projectName}
                       onChange={(e) => setProjectName(e.target.value)}
                       placeholder="e.g. House on Allen Avenue"
-                      className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-neutral-600 mb-1 block">
+                    <label className="text-sm font-medium text-muted-foreground mb-1 block">
                       Location
                     </label>
                     <input
@@ -430,7 +430,7 @@ export default function ImageEstimator() {
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
                       placeholder="e.g. Lagos"
-                      className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
+                      className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20"
                     />
                   </div>
                 </div>
@@ -455,7 +455,7 @@ export default function ImageEstimator() {
 
                 <button
                   onClick={runEstimation}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-green/90 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
                 >
                   <Zap className="w-4 h-4" />
                   Analyze Building & Generate Estimate
@@ -475,14 +475,14 @@ export default function ImageEstimator() {
                 className="w-8 h-8 text-brand-purple absolute inset-0 m-auto animate-spin"
               />
             </div>
-            <h3 className="mt-6 text-lg font-semibold text-neutral-900">
+            <h3 className="mt-6 text-lg font-semibold text-foreground">
               Analyzing your building photo…
             </h3>
-            <p className="mt-2 text-sm text-neutral-500">
+            <p className="mt-2 text-sm text-muted-foreground">
               AI is detecting building type, dimensions, roof structure, and
               more.
             </p>
-            <div className="mt-4 space-y-2 text-xs text-neutral-500">
+            <div className="mt-4 space-y-2 text-xs text-muted-foreground">
               <p>✓ Uploading image</p>
               <p>✓ AI vision analysis</p>
               <p>→ Generating estimate parameters</p>
@@ -493,14 +493,14 @@ export default function ImageEstimator() {
         {/* Phase: Review AI analysis */}
         {phase === "review" && analysis && estimateInput && (
           <div className="space-y-6">
-            <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+            <div className="rounded-2xl border border-border bg-card shadow-card p-6">
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground flex items-center gap-2">
                     <CheckCircle2 className="w-5 h-5 text-green-500" />
                     AI Analysis Complete
                   </h3>
-                  <p className="text-sm text-neutral-500 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     Review the AI's estimates below and adjust if needed.
                   </p>
                 </div>
@@ -670,44 +670,44 @@ export default function ImageEstimator() {
 
               {/* Confidence factors */}
               {analysis.confidence_factors && (
-                <div className="mt-3 rounded-lg bg-neutral-50 border border-neutral-100 p-3">
-                  <p className="text-xs font-medium text-neutral-500 mb-2">
+                <div className="mt-3 rounded-lg bg-muted/50 border border-border/50 p-3">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">
                     Analysis Confidence Factors:
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Image quality</span>
+                      <span className="text-muted-foreground">Image quality</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
                             key={n}
-                            className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.image_quality * 5) ? "bg-green-400" : "bg-neutral-200"}`}
+                            className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.image_quality * 5) ? "bg-green-400" : "bg-muted"}`}
                           />
                         ))}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Angle quality</span>
+                      <span className="text-muted-foreground">Angle quality</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
                             key={n}
-                            className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.angle_quality * 5) ? "bg-green-400" : "bg-neutral-200"}`}
+                            className={`w-2 h-2 rounded-full ${n <= Math.round(analysis.confidence_factors.angle_quality * 5) ? "bg-green-400" : "bg-muted"}`}
                           />
                         ))}
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Scale reference</span>
-                      <span className="text-neutral-600">
+                      <span className="text-muted-foreground">Scale reference</span>
+                      <span className="text-muted-foreground">
                         {analysis.confidence_factors.scale_reference_visible
                           ? "✓"
                           : "✗"}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-neutral-500">Multiple facades</span>
-                      <span className="text-neutral-600">
+                      <span className="text-muted-foreground">Multiple facades</span>
+                      <span className="text-muted-foreground">
                         {analysis.confidence_factors.multiple_facades_visible
                           ? "✓"
                           : "✗"}
@@ -747,7 +747,7 @@ export default function ImageEstimator() {
 
               <button
                 onClick={generateEstimate}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-white hover:bg-accent-green/90 transition-colors"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
               >
                 <TrendingUp className="w-4 h-4" />
                 Generate Full Cost Estimate
@@ -773,10 +773,10 @@ export default function ImageEstimator() {
               aria-hidden="true"
               className="w-16 h-16 text-amber-400 mb-4"
             />
-            <h3 className="text-lg font-semibold text-neutral-900">
+            <h3 className="text-lg font-semibold text-foreground">
               Something went wrong
             </h3>
-            <p className="mt-2 text-sm text-neutral-500 max-w-md text-center">
+            <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">
               {error}
             </p>
             <button
@@ -784,7 +784,7 @@ export default function ImageEstimator() {
                 setPhase("upload");
                 setError("");
               }}
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-purple-dark"
+              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Try Again
             </button>
@@ -883,15 +883,15 @@ function LockedView({
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full rounded-2xl border border-neutral-200 bg-white shadow-card p-8 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-purple/10 mb-4">
+    <div className="min-h-screen bg-muted/50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full rounded-2xl border border-border bg-card shadow-card p-8 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
           <Lock className="w-8 h-8 text-brand-purple" />
         </div>
         <div className="mb-4 flex justify-center">
           <PremiumBadge size="lg" glow />
         </div>
-        <p className="text-sm text-neutral-500 mb-6">
+        <p className="text-sm text-muted-foreground mb-6">
           {decision.reason === "disabled" &&
             "AI Building Photo Estimation is currently disabled."}
           {decision.reason === "limit_reached" &&
@@ -903,21 +903,21 @@ function LockedView({
         </p>
 
         {config?.paidEnabled && config.paidPrice > 0 && (
-          <div className="rounded-xl bg-brand-navy p-6 text-white mb-6">
+          <div className="rounded-xl bg-background p-6 text-primary-foreground mb-6">
             <div className="flex justify-center mb-2">
               <PremiumBadge size="md" glow />
             </div>
             <p className="text-2xl font-bold">
               {formatCurrency(config.paidPrice)}
             </p>
-            <p className="text-sm text-white/60 mt-1">per estimation</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">per estimation</p>
           </div>
         )}
 
         {"nextAction" in decision && decision.nextAction === "rewarded" && (
           <>
             {adState === "success" ? (
-              <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 text-sm font-medium text-white">
+              <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 text-sm font-medium text-primary-foreground">
                 <CheckCircle2 className="w-4 h-4" />
                 Unlocked! Loading...
               </div>
@@ -933,7 +933,7 @@ function LockedView({
                     setAdState("idle");
                     setAdError("");
                   }}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   <Zap className="w-4 h-4" />
                   Try Again
@@ -949,7 +949,7 @@ function LockedView({
                   adState === "checking" ||
                   !adProviderReady
                 }
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {adState === "watching" ||
                 adState === "verifying" ||
@@ -971,14 +971,14 @@ function LockedView({
               </button>
             )}
             {adState === "idle" && !adProviderReady && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Ad provider not yet configured. Check back soon!
               </p>
             )}
           </>
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
-          <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark">
+          <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90">
             <PremiumBadge size="xs" />
             Upgrade
           </button>
@@ -986,13 +986,13 @@ function LockedView({
         {"nextAction" in decision && decision.nextAction === "login" && (
           <a
             href="/login"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-medium text-white hover:bg-brand-purple-dark"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Sign In to Continue
           </a>
         )}
 
-        <p className="mt-6 text-xs text-neutral-500">
+        <p className="mt-6 text-xs text-muted-foreground">
           <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
           Access controlled by FRELUX administration
         </p>
@@ -1016,13 +1016,13 @@ function EstimateResultView({
   return (
     <div className="space-y-6">
       {/* Summary */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-6">
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h2 className="text-xl font-bold text-neutral-900">
+            <h2 className="text-xl font-bold text-foreground">
               {estimate.project_name}
             </h2>
-            <p className="text-sm text-neutral-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {estimate.location} · {estimate.total_floor_area} m² ·{" "}
               {estimate.building_type}
             </p>
@@ -1044,7 +1044,7 @@ function EstimateResultView({
           </div>
         </div>
         {analysis && (
-          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-purple/5 px-3 py-1.5 text-xs text-brand-purple">
+          <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/5 px-3 py-1.5 text-xs text-brand-purple">
             <BadgeCheck className="w-3.5 h-3.5" />
             AI-estimated from photo analysis · confidence:{" "}
             {analysis.ai_confidence}
@@ -1054,72 +1054,72 @@ function EstimateResultView({
 
       {/* Grand total */}
       <div className="grid md:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-neutral-200 bg-brand-navy p-6 text-white">
-          <p className="text-xs text-white/60 mb-1">
+        <div className="rounded-2xl border border-border bg-background p-6 text-primary-foreground">
+          <p className="text-xs text-primary-foreground/60 mb-1">
             Estimated Build-to-Roof Cost
           </p>
           <p className="text-2xl font-bold">
             {formatCurrency(estimate.grand_total)}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-          <p className="text-xs text-neutral-500 mb-1">Materials</p>
-          <p className="text-xl font-bold text-neutral-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <p className="text-xs text-muted-foreground mb-1">Materials</p>
+          <p className="text-xl font-bold text-foreground">
             {formatCurrency(estimate.materials_total)}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-          <p className="text-xs text-neutral-500 mb-1">Labour</p>
-          <p className="text-xl font-bold text-neutral-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <p className="text-xs text-muted-foreground mb-1">Labour</p>
+          <p className="text-xl font-bold text-foreground">
             {formatCurrency(estimate.labour_total)}
           </p>
         </div>
-        <div className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-card">
-          <p className="text-xs text-neutral-500 mb-1">Contingency</p>
-          <p className="text-xl font-bold text-neutral-900">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
+          <p className="text-xs text-muted-foreground mb-1">Contingency</p>
+          <p className="text-xl font-bold text-foreground">
             {formatCurrency(estimate.contingency)}
           </p>
         </div>
       </div>
 
       {/* Cost breakdown */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
         <div className="p-6 pb-3">
-          <h3 className="font-semibold text-neutral-900">
+          <h3 className="font-semibold text-foreground">
             Cost Breakdown by Stage
           </h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-y border-neutral-100 bg-neutral-50 text-left">
-                <th className="px-6 py-3 font-medium text-neutral-500">
+              <tr className="border-y border-border/50 bg-muted/50 text-left">
+                <th className="px-6 py-3 font-medium text-muted-foreground">
                   Stage
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Materials
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Labour
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Total
                 </th>
               </tr>
             </thead>
             <tbody>
               {estimate.stages.map((stage, i) => (
-                <tr key={i} className="border-b border-neutral-50">
-                  <td className="px-6 py-3 font-medium text-neutral-900">
+                <tr key={i} className="border-b border-border/50">
+                  <td className="px-6 py-3 font-medium text-foreground">
                     {stage.stage_label}
                   </td>
-                  <td className="px-6 py-3 text-right text-neutral-600">
+                  <td className="px-6 py-3 text-right text-muted-foreground">
                     {formatCurrency(stage.materials_total)}
                   </td>
-                  <td className="px-6 py-3 text-right text-neutral-600">
+                  <td className="px-6 py-3 text-right text-muted-foreground">
                     {formatCurrency(stage.labour_total)}
                   </td>
-                  <td className="px-6 py-3 text-right font-semibold text-neutral-900">
+                  <td className="px-6 py-3 text-right font-semibold text-foreground">
                     {formatCurrency(stage.stage_total)}
                   </td>
                 </tr>
@@ -1161,7 +1161,7 @@ function EstimateResultView({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <button
           onClick={onEdit}
-          className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+          className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
         >
           ← Edit AI Parameters
         </button>
@@ -1199,13 +1199,13 @@ function EstimateResultView({
                 setPdfGateOpen(true);
               }
             }}
-            className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
           >
             <FileText className="w-4 h-4" /> Print
           </button>
           <a
             href="/build-to-roof-estimator"
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-purple-dark"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Full Manual Estimator →
           </a>
@@ -1244,7 +1244,7 @@ function NumberField({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <input
@@ -1252,7 +1252,7 @@ function NumberField({
         value={value}
         step={step}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+        className="w-full rounded-lg border border-border px-2.5 py-1.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       />
     </div>
   );
@@ -1271,13 +1271,13 @@ function ParamField({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-1.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+        className="w-full rounded-lg border border-border px-2.5 py-1.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       >
         {options.map((o) => (
           <option key={o} value={o}>

@@ -160,7 +160,7 @@ export default function PaintingCalculatorHub() {
       >
         <Suspense
           fallback={
-            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-500">
+            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
               Loading…
             </div>
           }
@@ -174,10 +174,10 @@ export default function PaintingCalculatorHub() {
       {/* SEO Content */}
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             About the FRELUX Painting Calculator
           </h2>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Painting Calculator is a comprehensive tool for anyone
             planning a painting project in Nigeria. It consolidates three
             essential painting calculations into one unified experience:
@@ -198,10 +198,10 @@ export default function PaintingCalculatorHub() {
               surface conditions, and colour conditions.
             </li>
           </ul>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             FRELUX Painting Methodology
           </h3>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             FRELUX uses a proprietary calculation methodology that accounts for
             wall surface conditions, colour conditions, paint type coverage
             rates, and waste factors specific to Nigerian construction
@@ -209,10 +209,10 @@ export default function PaintingCalculatorHub() {
             coverage rates, and material packaging sizes to produce results
             expressed in paint buckets — not generic m²-per-litre estimates.
           </p>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Nigerian Construction Context
           </h3>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             All calculations are tuned for the Nigerian market with local
             product prices, standard room dimensions, and materials commonly
             available from Nigerian building material suppliers.

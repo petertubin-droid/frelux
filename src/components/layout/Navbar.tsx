@@ -164,8 +164,8 @@ export default function Navbar() {
         className={classNames(
           "fixed top-0 z-40 w-full transition-all duration-500",
           scrolled
-            ? "glass-premium border-b border-neutral-200/40 shadow-sm dark:border-white/5 dark:glass-dark-premium"
-            : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-brand-navy/50 dark:border-transparent",
+            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5 dark:glass-dark-premium"
+            : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-background/50 dark:border-transparent",
         )}
       >
         <nav
@@ -177,7 +177,7 @@ export default function Navbar() {
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-neutral-700 transition-all hover:bg-neutral-100 active:scale-95 lg:hidden dark:text-neutral-200 dark:hover:bg-white/5"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-card-foreground transition-all hover:bg-muted active:scale-95 lg:hidden dark:text-muted-foreground/60 dark:hover:bg-white/5"
               aria-label="Open menu"
               aria-expanded={mobileOpen}
             >
@@ -214,7 +214,7 @@ export default function Navbar() {
                         location.pathname.startsWith(workspace.path) ||
                           openDropdown === workspace.label
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-neutral-600 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
+                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
                       )}
                     >
                       {workspace.label}
@@ -232,17 +232,17 @@ export default function Navbar() {
                       >
                         {/* Premium mega-menu panel */}
                         <div
-                          className="origin-top-left rounded-2xl border border-neutral-200/50 bg-white shadow-premium-lg dark:border-white/10 dark:bg-brand-navy-mid"
+                          className="origin-top-left rounded-2xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
                           style={{
                             animation:
                               "navDropdownIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both",
                           }}
                         >
                           {/* Dropdown header bar */}
-                          <div className="flex items-center justify-between rounded-t-2xl border-b border-neutral-100 bg-gradient-to-r from-brand-purple/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-brand-purple/10">
+                          <div className="flex items-center justify-between rounded-t-2xl border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent px-5 py-2.5 dark:border-white/5 dark:from-primary/10">
                             <NavLink
                               to={workspace.path}
-                              className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                              className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                             >
                               {workspace.label}
                               <ChevronRight className="h-3 w-3" />
@@ -278,7 +278,7 @@ export default function Navbar() {
                                     {/* Section label */}
                                     {group.section && (
                                       <div className="px-3 pb-1 pt-2.5">
-                                        <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
                                           {group.section}
                                         </p>
                                       </div>
@@ -292,8 +292,8 @@ export default function Navbar() {
                                           classNames(
                                             "group flex items-start gap-3 rounded-xl px-3 py-2 transition-all duration-150",
                                             isActive
-                                              ? "bg-brand-purple/8"
-                                              : "hover:bg-brand-purple/5",
+                                              ? "bg-primary/8"
+                                              : "hover:bg-primary/5",
                                           )
                                         }
                                       >
@@ -303,13 +303,13 @@ export default function Navbar() {
                                               "text-[13px] font-medium leading-tight transition-colors",
                                               location.pathname === child.path
                                                 ? "text-brand-purple dark:text-brand-purple-lighter"
-                                                : "text-neutral-700 group-hover:text-brand-purple dark:text-neutral-200 dark:group-hover:text-brand-purple-lighter",
+                                                : "text-card-foreground group-hover:text-brand-purple dark:text-muted-foreground/60 dark:group-hover:text-brand-purple-lighter",
                                             )}
                                           >
                                             {child.label}
                                           </p>
                                           {child.description && (
-                                            <p className="mt-0.5 text-[11px] leading-snug text-neutral-500 dark:text-neutral-500">
+                                            <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground dark:text-muted-foreground">
                                               {child.description}
                                             </p>
                                           )}
@@ -317,7 +317,7 @@ export default function Navbar() {
                                       </NavLink>
                                     ))}
                                     {gi < groups.length - 1 && (
-                                      <div className="mx-3 my-1.5 border-t border-neutral-100 dark:border-white/5" />
+                                      <div className="mx-3 my-1.5 border-t border-border/50 dark:border-white/5" />
                                     )}
                                   </div>
                                 ))}
@@ -333,7 +333,7 @@ export default function Navbar() {
                     href={workspace.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg px-3.5 py-2 text-sm font-medium text-neutral-600 transition-all duration-200 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5"
+                    className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-all duration-200 hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5"
                   >
                     {workspace.label}
                   </a>
@@ -345,7 +345,7 @@ export default function Navbar() {
                         "rounded-lg px-3.5 py-2 text-sm font-medium transition-all duration-200",
                         isActive
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-neutral-600 hover:text-brand-purple hover:bg-neutral-50 dark:text-neutral-300 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
+                          : "text-muted-foreground hover:text-brand-purple hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter dark:hover:bg-white/5",
                       )
                     }
                   >
@@ -367,12 +367,12 @@ export default function Navbar() {
                 });
                 document.dispatchEvent(e);
               }}
-              className="hidden items-center gap-2 rounded-lg border border-neutral-200 px-2.5 py-1.5 text-xs text-neutral-500 transition-colors hover:border-neutral-300 hover:text-neutral-600 xl:flex dark:border-white/10 dark:hover:border-white/20 dark:text-neutral-500"
+              className="hidden items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:border-border hover:text-muted-foreground xl:flex dark:border-white/10 dark:hover:border-white/20 dark:text-muted-foreground"
               aria-label="Open command palette"
             >
               <Search className="h-3.5 w-3.5" />
               <span>Search</span>
-              <kbd className="rounded border border-neutral-200 px-1 text-[10px] font-medium dark:border-white/10">
+              <kbd className="rounded border border-border px-1 text-[10px] font-medium dark:border-white/10">
                 ⌘K
               </kbd>
             </button>
@@ -385,7 +385,7 @@ export default function Navbar() {
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
-                className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200"
+                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-card-foreground active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
               >
                 {theme === "dark" ? (
                   <Sun className="h-[18px] w-[18px]" />
@@ -400,7 +400,7 @@ export default function Navbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Chat on WhatsApp"
-                className="inline-flex items-center justify-center rounded-lg p-2 text-neutral-500 transition-all hover:bg-neutral-100 hover:text-accent-green active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-accent-green"
+                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-accent-green active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-accent-green"
               >
                 <MessageCircle className="h-[18px] w-[18px]" />
               </a>
@@ -414,9 +414,9 @@ export default function Navbar() {
                   setOpenDropdown(openDropdown === "account" ? null : "account")
                 }
                 className={classNames(
-                  "inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-all hover:bg-neutral-100 hover:text-neutral-700 active:scale-95 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200",
+                  "inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-all hover:bg-muted hover:text-card-foreground active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60",
                   openDropdown === "account" &&
-                    "bg-neutral-100 text-brand-purple dark:bg-white/5 dark:text-brand-purple-lighter",
+                    "bg-muted text-brand-purple dark:bg-white/5 dark:text-brand-purple-lighter",
                 )}
                 aria-label={user ? "Account menu" : "Sign in"}
                 aria-expanded={openDropdown === "account"}
@@ -428,7 +428,7 @@ export default function Navbar() {
                     className="h-7 w-7 rounded-full object-cover"
                   />
                 ) : user ? (
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-purple text-xs font-bold text-white">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
                     {(profile?.full_name?.charAt(0) || (user.email ?? "?"))
                       .charAt(0)
                       .toUpperCase()}
@@ -440,7 +440,7 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-neutral-200/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid/95"
+                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-background-mid/95"
                   style={{
                     animationDuration: "0.22s",
                     transformOrigin: "top right",
@@ -451,8 +451,8 @@ export default function Navbar() {
                     <>
                       {/* Premium profile header with glass gradient */}
                       <div className="relative overflow-hidden rounded-t-2xl px-5 pt-5 pb-4">
-                        <div className="absolute inset-0 bg-gradient-to-br from-brand-purple/14 via-brand-purple/5 to-transparent dark:from-brand-purple/25 dark:via-brand-purple/10" />
-                        <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-brand-purple/8 blur-2xl dark:bg-brand-purple/15" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/14 via-primary/5 to-transparent dark:from-primary/25 dark:via-primary/10" />
+                        <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-primary/8 blur-2xl dark:bg-primary/15" />
                         <div className="relative flex items-center gap-3.5">
                           {profile?.avatar_url ? (
                             <img
@@ -461,7 +461,7 @@ export default function Navbar() {
                               className="h-12 w-12 rounded-full object-cover ring-2 ring-white/40 shadow-lg dark:ring-white/20"
                             />
                           ) : (
-                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-purple to-brand-purple-deep text-base font-bold text-white shadow-lg ring-2 ring-white/40 dark:ring-white/20">
+                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-base font-bold text-primary-foreground shadow-lg ring-2 ring-white/40 dark:ring-white/20">
                               {(
                                 profile?.full_name?.charAt(0) ||
                                 (user.email ?? "?")
@@ -471,10 +471,10 @@ export default function Navbar() {
                             </span>
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-neutral-800 truncate dark:text-neutral-100">
+                            <p className="text-sm font-semibold text-foreground truncate dark:text-muted-foreground/40">
                               {profile?.full_name || user.email?.split("@")[0]}
                             </p>
-                            <p className="text-xs text-neutral-500 truncate dark:text-neutral-500">
+                            <p className="text-xs text-muted-foreground truncate dark:text-muted-foreground">
                               {user.email}
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -486,13 +486,13 @@ export default function Navbar() {
 
                       {/* AI Credits balance card */}
                       <div className="px-3 pb-2">
-                        <div className="rounded-xl border border-neutral-100 bg-gradient-to-br from-neutral-50 to-white px-3.5 py-3 dark:border-white/5 dark:from-white/5 dark:to-transparent">
+                        <div className="rounded-xl border border-border/50 bg-gradient-to-br from-muted/50 to-card px-3.5 py-3 dark:border-white/5 dark:from-white/5 dark:to-transparent">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
-                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-deep text-white shadow-sm">
+                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground shadow-sm">
                                 <Bot className="h-3.5 w-3.5" />
                               </span>
-                              <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                              <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
                                 AI Credits
                               </span>
                             </div>
@@ -506,10 +506,10 @@ export default function Navbar() {
                           </div>
                           <div className="mt-2.5 flex items-end justify-between">
                             <div>
-                              <span className="text-2xl font-bold tracking-tight text-neutral-800 dark:text-neutral-100">
+                              <span className="text-2xl font-bold tracking-tight text-foreground dark:text-muted-foreground/40">
                                 {wallet?.balance ?? 0}
                               </span>
-                              <span className="ml-1 text-[11px] font-medium text-neutral-400 dark:text-neutral-500">
+                              <span className="ml-1 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
                                 available
                               </span>
                             </div>
@@ -517,7 +517,7 @@ export default function Navbar() {
                               <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
                                 {wallet?.total_earned ?? 0}
                               </span>
-                              <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                              <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                                 total owned
                               </span>
                             </div>
@@ -526,7 +526,7 @@ export default function Navbar() {
                       </div>
 
                       {/* Plan strip */}
-                      <div className="flex items-center justify-between gap-2 border-y border-neutral-100 bg-neutral-50/40 px-5 py-2 dark:border-white/5 dark:bg-white/3">
+                      <div className="flex items-center justify-between gap-2 border-y border-border/50 bg-muted/40 px-5 py-2 dark:border-white/5 dark:bg-white/3">
                         <Link
                           to="/dashboard"
                           onClick={() => setOpenDropdown(null)}
@@ -539,11 +539,11 @@ export default function Navbar() {
                               "Free"
                             )}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                             Plan
                           </span>
                         </Link>
-                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <div className="h-7 w-px bg-muted dark:bg-white/10" />
                         <Link
                           to="/rewards"
                           onClick={() => setOpenDropdown(null)}
@@ -552,20 +552,20 @@ export default function Navbar() {
                           <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                             {wallet?.total_earned ?? 0}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                             Lifetime Credits
                           </span>
                         </Link>
-                        <div className="h-7 w-px bg-neutral-200 dark:bg-white/10" />
+                        <div className="h-7 w-px bg-muted dark:bg-white/10" />
                         <Link
                           to="/pricing"
                           onClick={() => setOpenDropdown(null)}
                           className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
                         >
-                          <span className="text-sm font-bold text-neutral-600 dark:text-neutral-300">
+                          <span className="text-sm font-bold text-muted-foreground dark:text-muted-foreground/80">
                             {wallet?.total_spent ?? 0}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                             Spent
                           </span>
                         </Link>
@@ -579,9 +579,9 @@ export default function Navbar() {
                         {accountMenuSections.map((section, si) => (
                           <div key={section.section}>
                             {si > 0 && (
-                              <div className="mx-2 my-1.5 border-t border-neutral-100 dark:border-white/5" />
+                              <div className="mx-2 my-1.5 border-t border-border/50 dark:border-white/5" />
                             )}
-                            <p className="px-3 pb-1 pt-2.5 text-[10px] font-bold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">
+                            <p className="px-3 pb-1 pt-2.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                               {section.section}
                             </p>
                             {section.items.map((item) => {
@@ -597,9 +597,9 @@ export default function Navbar() {
                                       : undefined
                                   }
                                   onClick={() => setOpenDropdown(null)}
-                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-neutral-600 transition-all duration-200 hover:bg-brand-purple/6 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:bg-primary/6 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
-                                  <Icon className="h-4 w-4 shrink-0 text-neutral-500 transition-colors group-hover:text-brand-purple dark:text-neutral-500 dark:group-hover:text-brand-purple-lighter" />
+                                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:text-muted-foreground dark:group-hover:text-brand-purple-lighter" />
                                   {item.label}
                                 </Link>
                               );
@@ -609,14 +609,14 @@ export default function Navbar() {
                       </div>
 
                       {/* Sign out footer */}
-                      <div className="border-t border-neutral-100 px-2 py-2.5 dark:border-white/5">
+                      <div className="border-t border-border/50 px-2 py-2.5 dark:border-white/5">
                         <button
                           type="button"
                           onClick={() => {
                             signOut();
                             setOpenDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-neutral-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-neutral-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-muted-foreground dark:hover:bg-red-500/10 dark:hover:text-red-400"
                         >
                           <LogOut className="h-4 w-4 shrink-0" />
                           Sign Out
@@ -626,10 +626,10 @@ export default function Navbar() {
                   ) : (
                     <div className="py-2">
                       <div className="px-5 py-2 pb-3">
-                        <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                        <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                           Welcome to FRELUX
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                           Sign in to access your projects, estimates, and
                           rewards.
                         </p>
@@ -638,7 +638,7 @@ export default function Navbar() {
                         <Link
                           to="/login"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex items-center gap-2.5 rounded-xl bg-brand-purple/5 px-3 py-2.5 text-sm font-semibold text-brand-purple transition-all hover:bg-brand-purple/10 dark:bg-brand-purple/10 dark:text-brand-purple-lighter dark:hover:bg-brand-purple/20"
+                          className="flex items-center gap-2.5 rounded-xl bg-primary/5 px-3 py-2.5 text-sm font-semibold text-brand-purple transition-all hover:bg-primary/10 dark:bg-primary/10 dark:text-brand-purple-lighter dark:hover:bg-primary/20"
                         >
                           <LogIn className="h-4 w-4 shrink-0" />
                           Sign In
@@ -646,7 +646,7 @@ export default function Navbar() {
                         <Link
                           to="/login?mode=signup"
                           onClick={() => setOpenDropdown(null)}
-                          className="mt-1 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-neutral-600 transition-all hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+                          className="mt-1 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                         >
                           <User className="h-4 w-4 shrink-0" />
                           Create Account
@@ -661,7 +661,7 @@ export default function Navbar() {
             {/* Primary CTA — Start Calculating */}
             <Link
               to="/paint-calculator?mode=room-estimate"
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-brand-purple dark:hover:bg-brand-purple-dark"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-primary dark:hover:bg-primary/90"
             >
               <Calculator className="h-4 w-4" />
               Start Calculating
@@ -688,19 +688,19 @@ export default function Navbar() {
         {/* Drawer */}
         <div
           className={classNames(
-            "absolute left-0 top-0 h-full w-[300px] max-w-[300px] overflow-y-auto bg-white shadow-2xl transition-transform duration-300 dark:bg-brand-navy",
+            "absolute left-0 top-0 h-full w-[300px] max-w-[300px] overflow-y-auto bg-card shadow-2xl transition-transform duration-300 dark:bg-background",
             mobileOpen ? "translate-x-0" : "-translate-x-full",
           )}
         >
           {/* Drawer header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-100 dark:border-white/5">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 dark:border-white/5">
             <Link to="/" onClick={() => setMobileOpen(false)}>
               <Logo />
             </Link>
             <button
               type="button"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -724,8 +724,8 @@ export default function Navbar() {
                       className={classNames(
                         "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         location.pathname.startsWith(workspace.path)
-                          ? "bg-brand-purple/8 text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter"
-                          : "text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5",
+                          ? "bg-primary/8 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )}
                     >
                       {workspace.label}
@@ -737,11 +737,11 @@ export default function Navbar() {
                       />
                     </button>
                     {mobileExpanded === workspace.label && (
-                      <div className="ml-3 mt-1 border-l border-neutral-100 pl-3 dark:border-white/10">
+                      <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
                         {groupBySection(workspace.children).map((group, gi) => (
                           <div key={gi}>
                             {group.section && (
-                              <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-neutral-300 dark:text-neutral-600">
+                              <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
                                 {group.section}
                               </p>
                             )}
@@ -754,7 +754,7 @@ export default function Navbar() {
                                     "block rounded-lg px-3 py-2 text-sm transition-colors",
                                     isActive
                                       ? "font-medium text-brand-purple dark:text-brand-purple-lighter"
-                                      : "text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter",
+                                      : "text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter",
                                   )
                                 }
                               >
@@ -771,7 +771,7 @@ export default function Navbar() {
                     href={workspace.path}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                   >
                     {workspace.label}
                   </a>
@@ -782,8 +782,8 @@ export default function Navbar() {
                       classNames(
                         "block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
                         isActive
-                          ? "bg-brand-purple/8 text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter"
-                          : "text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5",
+                          ? "bg-primary/8 text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                          : "text-card-foreground hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5",
                       )
                     }
                   >
@@ -794,14 +794,14 @@ export default function Navbar() {
             ))}
 
             {/* Language, Accessibility & Theme — stacked for narrow drawer */}
-            <div className="mt-4 space-y-1 border-t border-neutral-100 pt-4 dark:border-white/5">
+            <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />
               <button
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
               >
                 {theme === "dark" ? (
                   <Sun className="h-4 w-4" />
@@ -814,7 +814,7 @@ export default function Navbar() {
                     "ml-auto text-xs",
                     theme === "dark"
                       ? "text-brand-purple dark:text-brand-purple-lighter"
-                      : "text-neutral-500",
+                      : "text-muted-foreground",
                   )}
                 >
                   {theme === "dark" ? "On" : "Off"}
@@ -829,7 +829,7 @@ export default function Navbar() {
               )}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-white/5"
+              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
             >
               <MessageCircle className="h-4 w-4" />
               <span>WhatsApp</span>
@@ -837,12 +837,12 @@ export default function Navbar() {
 
             {/* AI Credit info */}
             {user && (
-              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-brand-purple/5 to-transparent p-3 dark:from-brand-purple/10">
+              <div className="mt-4 rounded-xl border border-brand-purple/15 bg-gradient-to-br from-primary/5 to-transparent p-3 dark:from-primary/10">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-brand-purple to-brand-purple-deep text-white">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground">
                     <Bot className="h-3.5 w-3.5" />
                   </span>
-                  <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                  <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
                     AI Credits
                   </p>
                   <Link
@@ -855,33 +855,33 @@ export default function Navbar() {
                 </div>
                 <div className="mt-2.5 flex items-center justify-between gap-2">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                       Available
                     </span>
-                    <span className="text-lg font-bold text-neutral-800 dark:text-neutral-100">
+                    <span className="text-lg font-bold text-foreground dark:text-muted-foreground/40">
                       {wallet?.balance ?? 0}
                     </span>
                   </div>
-                  <div className="h-8 w-px bg-neutral-200 dark:bg-white/10" />
+                  <div className="h-8 w-px bg-muted dark:bg-white/10" />
                   <Link
                     to="/rewards"
                     onClick={() => setMobileOpen(false)}
                     className="flex flex-col transition-opacity hover:opacity-70"
                   >
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                       Total Owned
                     </span>
                     <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
                       {wallet?.total_earned ?? 0}
                     </span>
                   </Link>
-                  <div className="h-8 w-px bg-neutral-200 dark:bg-white/10" />
+                  <div className="h-8 w-px bg-muted dark:bg-white/10" />
                   <Link
                     to="/pricing"
                     onClick={() => setMobileOpen(false)}
                     className="flex flex-col transition-opacity hover:opacity-70"
                   >
-                    <span className="text-[10px] font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+                    <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
                       Plan
                     </span>
                     <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
@@ -896,7 +896,7 @@ export default function Navbar() {
             <Link
               to="/paint-calculator?mode=room-estimate"
               onClick={() => setMobileOpen(false)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-brand-purple/20 transition-all hover:bg-brand-purple-dark active:scale-[0.98]"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
             >
               <Calculator className="h-4 w-4" />
               Start Calculating

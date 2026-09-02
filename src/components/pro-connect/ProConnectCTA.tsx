@@ -36,12 +36,12 @@ export default function ProConnectCTA({ calculatorType, className = '' }: ProCon
   const label = categoryLabels[categorySlug] || 'Professionals';
 
   return (
-    <div className={`mt-8 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple-light/5 p-6 dark:border-brand-purple-lighter/20 ${className}`}>
-      <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">{text.title}</h3>
-      <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{text.subtitle}</p>
+    <div className={`mt-8 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary-light/5 p-6 dark:border-brand-purple-lighter/20 ${className}`}>
+      <h3 className="text-lg font-semibold text-foreground dark:text-primary-foreground">{text.title}</h3>
+      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">{text.subtitle}</p>
       <Link
         to={`/pro-connect?category=${categorySlug}`}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
       >
         Find {label}
         <ArrowRight aria-hidden="true" className="h-4 w-4" />

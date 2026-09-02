@@ -65,7 +65,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       return (
         <div className="mt-4 space-y-4">
           {parsed.summary && (
-            <div className="rounded-lg bg-brand-purple/5 p-4">
+            <div className="rounded-lg bg-primary/5 p-4">
               <p className="text-sm text-foreground">{parsed.summary}</p>
             </div>
           )}
@@ -285,7 +285,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
             onClick={() => { setActiveAction(action.key); setResult(null); setError(null); }}
             className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               activeAction === action.key
-                ? 'bg-brand-purple text-white'
+                ? 'bg-primary text-primary-foreground'
                 : 'border text-foreground hover:bg-accent'
             }`}
           >
@@ -310,7 +310,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
                 onClick={() => setOptimizeTarget(preset)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
                   optimizeTarget === preset
-                    ? 'bg-brand-purple text-white'
+                    ? 'bg-primary text-primary-foreground'
                     : 'border text-foreground hover:bg-accent'
                 }`}
               >
@@ -343,7 +343,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
             <button
               onClick={runAi}
               disabled={loading || !question.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
             >
               {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Send aria-hidden="true" className="h-4 w-4" />}
             </button>
@@ -355,7 +355,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
         <button
           onClick={runAi}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
           {activeAction === 'review' ? 'Run AI Review' : 'Explain Calculations'}
@@ -366,7 +366,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
         <button
           onClick={runAi}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <TrendingDown className="h-4 w-4" />}
           Optimize Estimate

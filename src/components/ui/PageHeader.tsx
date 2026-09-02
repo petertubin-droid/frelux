@@ -21,33 +21,33 @@ export default function PageHeader({
   breadcrumbs?: { label: string; path?: string }[];
 }) {
   return (
-    <div className="relative overflow-hidden border-b border-neutral-200/80 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+    <div className="relative overflow-hidden border-b border-border/80 bg-card dark:border-white/5 dark:bg-card">
       {/* Premium gradient mesh background */}
       <div className="calc-header-mesh pointer-events-none absolute inset-0" aria-hidden="true" />
       {/* Floating accent orb */}
-      <div className="calc-orb pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-brand-purple/5 blur-3xl" aria-hidden="true" />
+      <div className="calc-orb pointer-events-none absolute -right-20 -top-10 h-48 w-48 rounded-full bg-primary/5 blur-3xl" aria-hidden="true" />
       {/* Top accent line */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/20 to-transparent" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" aria-hidden="true" />
 
       <div className="relative mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
         {backTo && (
           <Link
             to={backTo}
-            className="group mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+            className="group mb-5 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
           >
             <ChevronLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
             {backLabel ?? 'Back'}
           </Link>
         )}
         {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+          <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
             {breadcrumbs.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1.5">
-                {i > 0 && <span className="text-neutral-300 dark:text-neutral-600">/</span>}
+                {i > 0 && <span className="text-muted-foreground/80 dark:text-muted-foreground">/</span>}
                 {crumb.path ? (
                   <Link to={crumb.path} className="transition-colors hover:text-brand-purple dark:hover:text-brand-purple-lighter">{crumb.label}</Link>
                 ) : (
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{crumb.label}</span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{crumb.label}</span>
                 )}
               </span>
             ))}
@@ -55,16 +55,16 @@ export default function PageHeader({
         )}
         {eyebrow && (
           <p className="section-label mb-3 animate-fade-in-up">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple animate-pulse" />
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {eyebrow}
           </p>
         )}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="animate-fade-in-up">
-            <h1 className="font-display text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl text-balance dark:text-white">
+            <h1 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl text-balance dark:text-primary-foreground">
               {title}
             </h1>
-            {subtitle && <p className="mt-3 max-w-2xl text-base text-neutral-500 text-balance dark:text-neutral-500">{subtitle}</p>}
+            {subtitle && <p className="mt-3 max-w-2xl text-base text-muted-foreground text-balance dark:text-muted-foreground">{subtitle}</p>}
           </div>
           {actions && <div className="shrink-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{actions}</div>}
         </div>

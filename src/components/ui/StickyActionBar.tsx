@@ -28,7 +28,7 @@ export default function StickyActionBar({
 
   return (
     
-    <div role="toolbar" aria-label="Quick actions" className="action-bar-glow sticky bottom-0 z-30 mt-6 border-t border-neutral-200/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-brand-navy-mid/90 animate-fade-in-up">
+    <div role="toolbar" aria-label="Quick actions" className="action-bar-glow sticky bottom-0 z-30 mt-6 border-t border-border/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-background-mid/90 animate-fade-in-up">
       <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-3">
         {buttons.map((btn) => (
           <button type="button"
@@ -38,7 +38,7 @@ export default function StickyActionBar({
               'press-scale inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 sm:px-4',
               btn.primary
                 ? 'btn-primary'
-                : 'border border-neutral-200 text-neutral-700 hover:border-neutral-300 hover:bg-neutral-50 dark:text-neutral-200 dark:border-white/10 dark:hover:border-white/20 dark:hover:bg-white/5',
+                : 'border border-border text-card-foreground hover:border-border hover:bg-muted/50 dark:text-muted-foreground/60 dark:border-white/10 dark:hover:border-white/20 dark:hover:bg-white/5',
             )}
           >
             <btn.icon className="h-4 w-4" />

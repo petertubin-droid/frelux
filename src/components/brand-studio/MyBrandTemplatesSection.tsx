@@ -47,8 +47,8 @@ export function MyBrandTemplatesSection({
 
   if (profiles.length === 0) {
     return (
-      <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center dark:border-white/10 dark:bg-white/5">
-        <p className="text-sm text-neutral-500">
+      <div className="rounded-2xl border border-border bg-card p-8 text-center dark:border-white/10 dark:bg-white/5">
+        <p className="text-sm text-muted-foreground">
           No saved brand profiles yet. Create one in the Brand Identity section.
         </p>
       </div>
@@ -62,8 +62,8 @@ export function MyBrandTemplatesSection({
           key={profile.id}
           className={`rounded-xl border p-4 transition-colors ${
             selectedProfileId === profile.id
-              ? "border-brand-purple bg-brand-purple/5"
-              : "border-neutral-200 bg-white dark:border-white/10 dark:bg-white/5"
+              ? "border-brand-purple bg-primary/5"
+              : "border-border bg-card dark:border-white/10 dark:bg-white/5"
           }`}
         >
           <div className="flex items-start justify-between gap-3">
@@ -72,16 +72,16 @@ export function MyBrandTemplatesSection({
                 <img
                   src={profile.logo_url}
                   alt={profile.name}
-                  className="h-10 w-10 rounded border border-neutral-200 object-contain"
+                  className="h-10 w-10 rounded border border-border object-contain"
                 />
               ) : (
-                <div className="flex h-10 w-10 items-center justify-center rounded border border-neutral-200 bg-neutral-100 text-xs font-bold text-neutral-400">
+                <div className="flex h-10 w-10 items-center justify-center rounded border border-border bg-muted text-xs font-bold text-muted-foreground">
                   {profile.name.charAt(0).toUpperCase()}
                 </div>
               )}
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-brand-navy dark:text-white">
+                  <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {profile.name}
                   </h3>
                   {profile.is_default && (
@@ -91,7 +91,7 @@ export function MyBrandTemplatesSection({
                   )}
                 </div>
                 {profile.tagline && (
-                  <p className="text-xs text-neutral-500">{profile.tagline}</p>
+                  <p className="text-xs text-muted-foreground">{profile.tagline}</p>
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <span
@@ -112,7 +112,7 @@ export function MyBrandTemplatesSection({
             <div className="flex items-center gap-1">
               <button
                 onClick={() => onSelectProfile(profile.id)}
-                className="rounded-lg p-2 text-brand-purple hover:bg-brand-purple/10"
+                className="rounded-lg p-2 text-brand-purple hover:bg-primary/10"
                 title="Select for editing"
               >
                 <Edit3 className="h-4 w-4" />

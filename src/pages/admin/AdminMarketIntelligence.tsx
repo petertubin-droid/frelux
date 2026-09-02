@@ -74,16 +74,16 @@ export default function AdminMarketIntelligence() {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <TrendingUp aria-hidden="true" className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Market Intelligence
         </h1>
-        <span className="rounded-md bg-brand-purple/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
+        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
           PRICE ENGINE
         </span>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {(
           [
             ["observations", "Price Observations", DollarSign],
@@ -101,7 +101,7 @@ export default function AdminMarketIntelligence() {
               "flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -167,7 +167,7 @@ function ObservationsTab() {
             onChange={(e) =>
               setStatusFilter(e.target.value as ValidationStatus | "all")
             }
-            className="rounded-lg border border-neutral-200 px-3 py-1.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="all">All Statuses</option>
             {Object.entries(VALIDATION_STATUS_LABELS).map(([v, l]) => (
@@ -176,27 +176,27 @@ function ObservationsTab() {
               </option>
             ))}
           </select>
-          <span className="text-sm text-neutral-500">
+          <span className="text-sm text-muted-foreground">
             {observations.length} observations
           </span>
         </div>
         <button
           onClick={() => setShowManual(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Manual Price Entry
         </button>
       </div>
 
       {observations.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-500">
+        <p className="py-10 text-center text-sm text-muted-foreground">
           No price observations found.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10">
+              <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10">
                 <th className="pb-2 pr-3 font-medium">Product</th>
                 <th className="pb-2 pr-3 font-medium">Price</th>
                 <th className="pb-2 pr-3 font-medium">Package</th>
@@ -211,15 +211,15 @@ function ObservationsTab() {
               {observations.map((obs) => (
                 <tr
                   key={obs.id}
-                  className="border-b border-neutral-100 dark:border-white/5"
+                  className="border-b border-border/50 dark:border-white/5"
                 >
                   <td className="py-2 pr-3">
-                    <div className="font-medium text-neutral-900 dark:text-white">
+                    <div className="font-medium text-foreground dark:text-primary-foreground">
                       {obs.original_product_name}
                     </div>
                     {obs.normalized_name &&
                       obs.normalized_name !== obs.original_product_name && (
-                        <div className="text-xs text-neutral-500">
+                        <div className="text-xs text-muted-foreground">
                           → {obs.normalized_name}
                         </div>
                       )}
@@ -227,7 +227,7 @@ function ObservationsTab() {
                   <td className="py-2 pr-3 font-semibold">
                     {obs.currency_code} {obs.price.toLocaleString()}
                   </td>
-                  <td className="py-2 pr-3 text-xs text-neutral-500">
+                  <td className="py-2 pr-3 text-xs text-muted-foreground">
                     {obs.package_size
                       ? `${obs.package_size} ${obs.package_unit ?? ""}`
                       : "—"}
@@ -242,7 +242,7 @@ function ObservationsTab() {
                   <td className="py-2 pr-3">
                     <StatusBadge status={obs.validation_status} />
                   </td>
-                  <td className="py-2 pr-3 text-xs text-neutral-500">
+                  <td className="py-2 pr-3 text-xs text-muted-foreground">
                     {new Date(obs.collected_at).toLocaleDateString()}
                   </td>
                   <td className="py-2">
@@ -281,7 +281,7 @@ function ObservationsTab() {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-muted-foreground">
                         {obs.review_action ?? "—"}
                       </span>
                     )}
@@ -329,11 +329,11 @@ function ApprovedTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-muted-foreground">
         {prices.length} approved prices — these are what calculators consume.
       </p>
       {prices.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-500">
+        <p className="py-10 text-center text-sm text-muted-foreground">
           No approved prices yet. Approve observations or enter prices manually.
         </p>
       ) : (
@@ -342,10 +342,10 @@ function ApprovedTab() {
             <div key={p.id} className="card p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {p.product_name}
                   </h3>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     {p.brand} · {p.category}
                   </p>
                 </div>
@@ -363,14 +363,14 @@ function ApprovedTab() {
                 </span>
               </div>
               <div className="mt-2 flex items-baseline gap-2">
-                <span className="text-lg font-bold text-neutral-900 dark:text-white">
+                <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {p.currency_code} {p.price.toLocaleString()}
                 </span>
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-muted-foreground">
                   {p.package_size} {p.package_unit}
                 </span>
               </div>
-              <div className="mt-1 flex items-center gap-3 text-xs text-neutral-500">
+              <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{p.market_code}</span>
                 <span>
                   {p.source_count} source{p.source_count !== 1 ? "s" : ""}
@@ -378,14 +378,14 @@ function ApprovedTab() {
                 <ConfidenceBadge confidence={p.confidence as MatchConfidence} />
               </div>
               {p.median_price && p.source_count > 1 && (
-                <div className="mt-1 text-xs text-neutral-500">
+                <div className="mt-1 text-xs text-muted-foreground">
                   Median: {p.currency_code} {p.median_price.toLocaleString()} ·
                   Range: {p.min_price?.toLocaleString()} –{" "}
                   {p.max_price?.toLocaleString()}
                 </div>
               )}
-              <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
-                <span className="text-xs text-neutral-500">
+              <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
+                <span className="text-xs text-muted-foreground">
                   Updated {new Date(p.last_updated).toLocaleDateString()}
                 </span>
                 <button
@@ -393,7 +393,7 @@ function ApprovedTab() {
                     await deactivateApprovedPrice(p.id);
                     setPrices(prices.filter((x) => x.id !== p.id));
                   }}
-                  className="text-xs text-neutral-500 hover:text-red-500"
+                  className="text-xs text-muted-foreground hover:text-red-500"
                 >
                   Deactivate
                 </button>
@@ -466,24 +466,24 @@ function SourcesTab() {
   return (
     <div>
       <div className="mb-4 flex justify-between">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           {sources.length} sources registered
         </p>
         <button
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Source
         </button>
       </div>
 
       {sources.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-300 p-8 text-center dark:border-white/10">
-          <Globe aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-neutral-300" />
-          <p className="text-sm font-medium text-neutral-500">
+        <div className="rounded-lg border border-dashed border-border p-8 text-center dark:border-white/10">
+          <Globe aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-muted-foreground/80" />
+          <p className="text-sm font-medium text-muted-foreground">
             No sources registered yet
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Add an approved source to start crawling construction material
             prices.
           </p>
@@ -496,13 +496,13 @@ function SourcesTab() {
                 <div className="flex items-center gap-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                      <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {s.source_name}
                       </span>
-                      <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                      <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                         {SOURCE_TYPE_LABELS[s.source_type]}
                       </span>
-                      <span className="text-[10px] text-neutral-500">
+                      <span className="text-[10px] text-muted-foreground">
                         Tier {s.reliability_tier}
                       </span>
                       {s.is_verified && (
@@ -511,7 +511,7 @@ function SourcesTab() {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-neutral-500">
+                    <div className="text-xs text-muted-foreground">
                       {s.country_code}
                       {s.region ? ` · ${s.region}` : ""}
                       {s.city ? ` · ${s.city}` : ""}
@@ -519,7 +519,7 @@ function SourcesTab() {
                       {s.crawl_frequency ? ` · ${s.crawl_frequency}` : ""}
                     </div>
                     {s.last_checked_at && (
-                      <div className="text-xs text-neutral-500">
+                      <div className="text-xs text-muted-foreground">
                         Last checked:{" "}
                         {new Date(s.last_checked_at).toLocaleString()}
                         {s.last_error ? ` · ⚠ ${s.last_error}` : ""}
@@ -531,7 +531,7 @@ function SourcesTab() {
                   <span
                     className={classNames(
                       "text-xs",
-                      s.is_active ? "text-emerald-600" : "text-neutral-500",
+                      s.is_active ? "text-emerald-600" : "text-muted-foreground",
                     )}
                   >
                     {s.is_active ? "Active" : "Inactive"}
@@ -539,7 +539,7 @@ function SourcesTab() {
                 </div>
               </div>
               {s.is_active && s.source_url && (
-                <div className="mt-2 flex items-center gap-2 border-t border-neutral-100 pt-2 dark:border-white/5">
+                <div className="mt-2 flex items-center gap-2 border-t border-border/50 pt-2 dark:border-white/5">
                   {crawling === s.id ? (
                     <span className="inline-flex items-center gap-1.5 text-xs text-brand-purple">
                       <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />{" "}
@@ -556,7 +556,7 @@ function SourcesTab() {
                       </button>
                       <button
                         onClick={() => handleCrawl(s, "production")}
-                        className="inline-flex items-center gap-1 rounded-md bg-brand-purple px-2 py-1 text-xs font-semibold text-white hover:bg-brand-purple-dark"
+                        className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                         title="Full crawl with price observation creation"
                       >
                         <Zap aria-hidden="true" className="h-3 w-3" /> Crawl Now
@@ -568,7 +568,7 @@ function SourcesTab() {
                       await deleteSource(s.id);
                       load();
                     }}
-                    className="rounded p-1 text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                    className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
                     title="Delete source"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -617,23 +617,23 @@ function CrawlReportModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid"
+        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+          <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Crawl Report
           </h2>
           <button
             onClick={onClose}
-            className="text-neutral-500 hover:text-neutral-600"
+            className="text-muted-foreground hover:text-muted-foreground"
           >
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
-        <div className="mb-3 text-sm text-neutral-500">
+        <div className="mb-3 text-sm text-muted-foreground">
           Source:{" "}
-          <span className="font-semibold text-neutral-900 dark:text-white">
+          <span className="font-semibold text-foreground dark:text-primary-foreground">
             {report.sourceName}
           </span>
         </div>
@@ -656,7 +656,7 @@ function CrawlReportModal({
               Status: {job.status} · {job.message}
             </div>
             {job.durationMs !== null && (
-              <div className="flex items-center gap-1 text-xs text-neutral-500">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock aria-hidden="true" className="h-3.5 w-3.5" /> Duration:{" "}
                 {(job.durationMs / 1000).toFixed(1)}s
               </div>
@@ -676,7 +676,7 @@ function CrawlReportModal({
             </div>
             {job.errors.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-500">
+                <h3 className="mb-1 text-xs font-bold uppercase text-muted-foreground">
                   Errors
                 </h3>
                 <div className="space-y-1">
@@ -694,12 +694,12 @@ function CrawlReportModal({
             )}
             {job.warnings.length > 0 && (
               <div>
-                <h3 className="mb-1 text-xs font-bold uppercase text-neutral-500">
+                <h3 className="mb-1 text-xs font-bold uppercase text-muted-foreground">
                   Warnings
                 </h3>
                 <div className="space-y-1">
                   {job.warnings.map((w, i) => (
-                    <div key={i} className="text-xs text-neutral-500">
+                    <div key={i} className="text-xs text-muted-foreground">
                       · {w}
                     </div>
                   ))}
@@ -708,14 +708,14 @@ function CrawlReportModal({
             )}
           </div>
         ) : (
-          <div className="text-sm text-neutral-500">
+          <div className="text-sm text-muted-foreground">
             No crawl data returned.
           </div>
         )}
         <div className="mt-4 flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Close
           </button>
@@ -727,9 +727,9 @@ function CrawlReportModal({
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-neutral-100 p-2 dark:border-white/5">
-      <div className="text-xs text-neutral-500">{label}</div>
-      <div className="text-lg font-bold text-neutral-900 dark:text-white">
+    <div className="rounded-lg border border-border/50 p-2 dark:border-white/5">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="text-lg font-bold text-foreground dark:text-primary-foreground">
         {value}
       </div>
     </div>
@@ -782,10 +782,10 @@ function SourceEditModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid"
+        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           New Source
         </h2>
         {error && (
@@ -872,26 +872,26 @@ function SourceEditModal({
             ]}
           />
         </div>
-        <label className="mt-3 flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
+        <label className="mt-3 flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/60">
           <input
             type="checkbox"
             checked={form.is_active}
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-            className="h-4 w-4 rounded border-neutral-300 text-brand-purple"
+            className="h-4 w-4 rounded border-border text-brand-purple"
           />
           Active source
         </label>
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -929,7 +929,7 @@ function ProvidersTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-muted-foreground">
         {providers.length} providers configured. Provider API keys are stored in
         Supabase secrets, never in the database.
       </p>
@@ -942,10 +942,10 @@ function ProvidersTab() {
             <div className="flex items-center gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-neutral-900 dark:text-white">
+                  <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {p.provider_name}
                   </span>
-                  <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                     {PROVIDER_TYPE_LABELS[p.provider_type]}
                   </span>
                   {p.is_free && (
@@ -954,13 +954,13 @@ function ProvidersTab() {
                     </span>
                   )}
                   {p.is_fallback && (
-                    <span className="text-[10px] text-neutral-500">
+                    <span className="text-[10px] text-muted-foreground">
                       fallback
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-neutral-500">{p.description}</p>
-                <div className="mt-1 flex items-center gap-3 text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">{p.description}</p>
+                <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
                   <span>Priority: {p.priority}</span>
                   {p.has_api_key && (
                     <span className="text-amber-500">⚠ API key configured</span>
@@ -983,13 +983,13 @@ function ProvidersTab() {
               className={classNames(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                 p.is_enabled
-                  ? "bg-brand-purple"
-                  : "bg-neutral-300 dark:bg-white/10",
+                  ? "bg-primary"
+                  : "bg-muted dark:bg-white/10",
               )}
             >
               <span
                 className={classNames(
-                  "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                  "inline-block h-4 w-4 transform rounded-full bg-card transition-transform",
                   p.is_enabled ? "translate-x-6" : "translate-x-1",
                 )}
               />
@@ -1033,11 +1033,11 @@ function AnomaliesTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-muted-foreground">
         {anomalies.length} anomaly flags
       </p>
       {anomalies.length === 0 ? (
-        <p className="py-10 text-center text-sm text-neutral-500">
+        <p className="py-10 text-center text-sm text-muted-foreground">
           No anomalies detected.
         </p>
       ) : (
@@ -1047,7 +1047,7 @@ function AnomaliesTab() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-500" />
-                  <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     {ANOMALY_TYPE_LABELS[a.anomaly_type]}
                   </span>
                   {a.deviation_percent && (
@@ -1063,14 +1063,14 @@ function AnomaliesTab() {
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10"
                       : a.resolution === "resolved"
                         ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
-                        : "bg-neutral-100 text-neutral-500 dark:bg-white/5",
+                        : "bg-muted text-muted-foreground dark:bg-white/5",
                   )}
                 >
                   {a.resolution}
                 </span>
               </div>
               {a.description && (
-                <p className="mt-1 text-xs text-neutral-500">{a.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{a.description}</p>
               )}
               {a.resolution === "open" && (
                 <div className="mt-2 flex gap-2">
@@ -1088,7 +1088,7 @@ function AnomaliesTab() {
                       await resolveAnomaly(a.id, "dismissed", user?.id ?? "");
                       load();
                     }}
-                    className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-500 dark:bg-white/5"
+                    className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/5"
                   >
                     Dismiss
                   </button>
@@ -1125,25 +1125,25 @@ function LogsTab() {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-muted-foreground">
         Recent system activity ({logs.length} events)
       </p>
       <div className="space-y-1">
         {logs.slice(0, 50).map((log) => (
           <div
             key={log.id}
-            className="flex items-start gap-2 border-b border-neutral-100 py-2 dark:border-white/5"
+            className="flex items-start gap-2 border-b border-border/50 py-2 dark:border-white/5"
           >
             <div
-              className="text-xs text-neutral-500"
+              className="text-xs text-muted-foreground"
               style={{ minWidth: "120px" }}
             >
               {new Date(log.created_at).toLocaleString()}
             </div>
-            <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+            <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
               {log.event_type}
             </span>
-            <span className="text-xs text-neutral-600 dark:text-neutral-500">
+            <span className="text-xs text-muted-foreground dark:text-muted-foreground">
               {log.message}
             </span>
           </div>
@@ -1240,10 +1240,10 @@ function ManualEntryModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid"
+        className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           Manual Price Entry
         </h2>
         {error && (
@@ -1320,14 +1320,14 @@ function ManualEntryModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving || !form.normalized_name || !form.price}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -1368,7 +1368,7 @@ function ConfidenceBadge({ confidence }: { confidence: MatchConfidence }) {
 function StatusBadge({ status }: { status: ValidationStatus }) {
   const colors: Record<ValidationStatus, string> = {
     collected:
-      "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+      "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
     validating:
       "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
     review_required:
@@ -1404,7 +1404,7 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+      <label className="mb-1 block text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </label>
       <input
@@ -1412,7 +1412,7 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-900 dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground"
       />
     </div>
   );
@@ -1431,13 +1431,13 @@ function SelectInput({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+      <label className="mb-1 block text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-900 dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

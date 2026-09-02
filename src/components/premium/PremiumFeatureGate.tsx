@@ -156,10 +156,10 @@ export function PremiumFeatureGate({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
+        <div className="relative rounded-2xl bg-card p-8 dark:bg-card">
           <Loader2
             aria-hidden="true"
             className="h-8 w-8 animate-spin text-brand-purple"
@@ -176,12 +176,12 @@ export function PremiumFeatureGate({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-brand-navy-mid">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl dark:bg-card">
         {/* Header with crown */}
-        <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
+        <div className="bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <PremiumBadge size="md" glow />
@@ -190,12 +190,12 @@ export function PremiumFeatureGate({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
+              className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-primary-foreground/70">
             {description ??
               "Unlock this premium feature. One-time use — choose how you want to access it."}
           </p>
@@ -214,7 +214,7 @@ export function PremiumFeatureGate({
               type="button"
               onClick={handleUseCredits}
               disabled={spending}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-all hover:bg-brand-purple/90 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
             >
               {spending ? (
                 <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
@@ -228,17 +228,17 @@ export function PremiumFeatureGate({
             {canWatchAd && (
               <>
                 <div className="flex items-center gap-3">
-                  <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                  <span className="text-[10px] font-medium text-neutral-500">
+                  <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                  <span className="text-[10px] font-medium text-muted-foreground">
                     OR
                   </span>
-                  <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                  <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                 </div>
                 <button
                   type="button"
                   onClick={handleWatchAd}
                   disabled={adUnlocking}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-brand-purple/10 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/10 disabled:opacity-50"
                 >
                   {adUnlocking ? (
                     <Loader2
@@ -254,7 +254,7 @@ export function PremiumFeatureGate({
             )}
 
             {!canWatchAd && (
-              <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Watch ads from the Rewards page to earn more credits.
               </p>
             )}

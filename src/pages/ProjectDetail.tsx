@@ -551,7 +551,7 @@ export default function ProjectDetail() {
               {stages.length === 0 && stageTemplates.length > 0 && (
                 <button
                   onClick={handleInitProgress}
-                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
                 >
                   <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
                   Enable Tracking
@@ -589,7 +589,7 @@ export default function ProjectDetail() {
                       className={`mt-0.5 flex-shrink-0 rounded-full border-2 transition-all duration-300 hover:scale-110 ${stage.is_completed ? "border-emerald-500 bg-emerald-500" : "border-muted-foreground/30 hover:border-primary"}`}
                     >
                       <CheckCircle2
-                        className={`h-6 w-6 transition-all ${stage.is_completed ? "text-white scale-100" : "text-transparent scale-0"}`}
+                        className={`h-6 w-6 transition-all ${stage.is_completed ? "text-primary-foreground scale-100" : "text-transparent scale-0"}`}
                       />
                     </button>
                     <div className="flex-1">
@@ -836,7 +836,7 @@ export default function ProjectDetail() {
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-2">
-                          <span className="text-xs text-white truncate max-w-[70%]">
+                          <span className="text-xs text-primary-foreground truncate max-w-[70%]">
                             {att.file_name}
                           </span>
                           <button
@@ -857,7 +857,7 @@ export default function ProjectDetail() {
                                 });
                               }
                             }}
-                            className="rounded-md bg-destructive/80 p-1.5 text-white hover:bg-destructive transition-colors"
+                            className="rounded-md bg-destructive/80 p-1.5 text-primary-foreground hover:bg-destructive transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>

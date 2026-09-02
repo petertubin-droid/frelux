@@ -79,10 +79,10 @@ export default function AdminPopMaterials() {
         </div>}
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {workflows.map((wf) => (
           <AdminButton key={wf} type="button" onClick={() => setFilterWf(wf)}
-            className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', filterWf === wf ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
+            className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', filterWf === wf ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple')}>
             {wf}
           </AdminButton>
         ))}
@@ -97,25 +97,25 @@ export default function AdminPopMaterials() {
             if (catItems.length === 0) return null;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{cat.replace(/_/g, ' ')}</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{cat.replace(/_/g, ' ')}</h3>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {catItems.map((mat) => (
                     <div key={mat.id} className="card p-3">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5">
-                            <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{mat.name}</p>
-                            {mat.is_optional && <span className="rounded-full bg-neutral-100 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-500">Opt</span>}
+                            <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{mat.name}</p>
+                            {mat.is_optional && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Opt</span>}
                           </div>
-                          <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
+                          <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
                             {mat.coverage_rate} {mat.coverage_unit} · {mat.package_size}{mat.package_unit} · ₦{mat.unit_price}
                           </p>
                         </div>
-                        <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', mat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
+                        <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', mat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
                           {mat.is_active ? 'On' : 'Off'}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                      <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                         <Toggle checked={mat.is_active} onChange={() => handleToggleActive(mat)} />
                         <div className="flex items-center gap-0.5">
                           <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(mat); setShowEditor(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
@@ -161,7 +161,7 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{material ? 'Edit Material' : 'New Material'}</h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
       </div>
 
@@ -194,11 +194,11 @@ function MaterialEditor({ material, defaultWorkflow, onSave, onCancel }: {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
-          <AdminInput type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Optional
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground">
+          <AdminInput type="checkbox" checked={form.is_optional} onChange={(e) => setForm({ ...form, is_optional: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Optional
         </label>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600">
-          <AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground">
+          <AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Active
         </label>
       </div>
 

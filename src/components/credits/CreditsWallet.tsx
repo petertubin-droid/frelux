@@ -97,17 +97,17 @@ export function CreditsWallet({ userId }: { userId: string }) {
   return (
     <div className="space-y-4">
       {/* Balance Card */}
-      <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-brand-purple to-brand-navy p-6 text-white">
+      <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-background p-6 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-white/70">FRELUX Credits</p>
+            <p className="text-sm font-medium text-primary-foreground/70">FRELUX Credits</p>
             <p className="mt-1 text-4xl font-bold">{wallet?.balance ?? 0}</p>
           </div>
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10">
             <Coins className="h-7 w-7 text-accent-green" />
           </div>
         </div>
-        <div className="mt-4 flex gap-4 text-xs text-white/60">
+        <div className="mt-4 flex gap-4 text-xs text-primary-foreground/60">
           <span className="flex items-center gap-1">
             <TrendingUp className="h-3.5 w-3.5" /> Earned:{" "}
             {wallet?.total_earned ?? 0}
@@ -128,8 +128,8 @@ export function CreditsWallet({ userId }: { userId: string }) {
           className={classNames(
             "flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all",
             canEarn
-              ? "bg-brand-purple text-white hover:bg-brand-purple/90"
-              : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
           )}
         >
           <PlayCircle className="h-5 w-5" />
@@ -143,7 +143,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
       {/* Daily limit progress */}
       {config?.is_enabled && (
-        <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-500">
+        <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground">
           <span>Today's ad earnings</span>
           <span className="font-medium">
             {todayEarned} / {dailyLimit}
@@ -152,7 +152,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-neutral-200 p-1 dark:border-white/10">
+      <div className="flex gap-1 rounded-xl border border-border p-1 dark:border-white/10">
         {(
           [
             ["overview", "Overview"],
@@ -167,8 +167,8 @@ export function CreditsWallet({ userId }: { userId: string }) {
             className={classNames(
               "flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all",
               tab === key
-                ? "bg-brand-purple text-white"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-white",
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-primary-foreground",
             )}
           >
             {label}
@@ -179,29 +179,29 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {/* Tab content */}
       {tab === "overview" && (
         <div className="space-y-3">
-          <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
-            <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+          <div className="rounded-xl border border-border p-4 dark:border-white/10">
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
               How Credits Work
             </h3>
-            <p className="mt-2 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
               FRELUX Credits are your access currency for AI-powered features.
               Earn credits by watching short rewarded ads, then spend them to
               unlock AI tools like the Color Consultant, Building Estimator, and
               more.
             </p>
             <div className="mt-3 space-y-2">
-              <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                 <Film className="h-3.5 w-3.5 text-brand-purple" />
                 Watch a rewarded ad to earn {creditsPerAd} credits
               </div>
-              <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                 <Coins className="h-3.5 w-3.5 text-accent-green" />
                 Spend credits on AI features (cost varies per feature)
               </div>
-              <div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-300">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
                 <Clock
                   aria-hidden="true"
-                  className="h-3.5 w-3.5 text-neutral-500"
+                  className="h-3.5 w-3.5 text-muted-foreground"
                 />
                 Up to {dailyLimit} ad rewards per day
               </div>
@@ -213,14 +213,14 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {tab === "history" && (
         <div className="space-y-2">
           {transactions.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-500">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No transactions yet
             </p>
           ) : (
             transactions.map((tx) => (
               <div
                 key={tx.id}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10"
+                className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10"
               >
                 <div className="flex items-center gap-3">
                   <div
@@ -228,7 +228,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                       "flex h-8 w-8 items-center justify-center rounded-full",
                       tx.amount > 0
                         ? "bg-accent-green/10"
-                        : "bg-brand-purple/10",
+                        : "bg-primary/10",
                     )}
                   >
                     {tx.amount > 0 ? (
@@ -238,10 +238,10 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     )}
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {tx.reason}
                     </p>
-                    <p className="text-[10px] text-neutral-500">
+                    <p className="text-[10px] text-muted-foreground">
                       {new Date(tx.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -251,7 +251,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                     "text-sm font-bold",
                     tx.amount > 0
                       ? "text-accent-green"
-                      : "text-neutral-500 dark:text-neutral-500",
+                      : "text-muted-foreground dark:text-muted-foreground",
                   )}
                 >
                   {tx.amount > 0 ? "+" : ""}
@@ -266,24 +266,24 @@ export function CreditsWallet({ userId }: { userId: string }) {
       {tab === "ads" && (
         <div className="space-y-2">
           {adHistory.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-500">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No ad history yet
             </p>
           ) : (
             adHistory.map((evt) => (
               <div
                 key={evt.id}
-                className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10"
+                className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/10">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
                     <Film className="h-4 w-4 text-brand-purple" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-neutral-900 dark:text-white">
+                    <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                       {evt.ad_provider}
                     </p>
-                    <p className="text-[10px] text-neutral-500">
+                    <p className="text-[10px] text-muted-foreground">
                       {new Date(evt.created_at).toLocaleString()}
                     </p>
                   </div>
@@ -460,12 +460,12 @@ function EarnCreditsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-brand-navy-mid">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl dark:bg-card">
         {/* Header */}
-        <div className="bg-gradient-to-br from-brand-purple to-brand-navy p-6 text-white">
+        <div className="bg-gradient-to-br from-primary to-background p-6 text-primary-foreground">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
@@ -474,12 +474,12 @@ function EarnCreditsModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
+              className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-primary-foreground/70">
             Watch a short ad to earn {creditsPerAd} FRELUX Credits. Credits can
             be spent on AI features.
           </p>
@@ -488,11 +488,11 @@ function EarnCreditsModal({
         {/* Content */}
         <div className="p-6">
           {/* Daily limit indicator */}
-          <div className="mb-4 flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
+            <span className="text-xs text-muted-foreground dark:text-muted-foreground">
               Today's progress
             </span>
-            <span className="text-xs font-bold text-neutral-900 dark:text-white">
+            <span className="text-xs font-bold text-foreground dark:text-primary-foreground">
               {todayEarned} / {dailyLimit}
             </span>
           </div>
@@ -502,23 +502,23 @@ function EarnCreditsModal({
               <button
                 type="button"
                 onClick={handleWatchAd}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-purple px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <PlayCircle className="h-5 w-5" />
                 Watch Ad — +{creditsPerAd} Credits
               </button>
-              <p className="mt-3 text-center text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-3 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Credits are only awarded after the ad is fully watched and
                 verified.
               </p>
 
               {/* Divider */}
               <div className="my-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                <span className="text-xs font-medium text-neutral-400 dark:text-neutral-600">
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   or
                 </span>
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
               </div>
 
               {/* Complete Offers — separate from Watch Ad */}
@@ -530,7 +530,7 @@ function EarnCreditsModal({
                 <ExternalLink className="h-5 w-5" />
                 Complete Offers — Earn More Credits
               </Link>
-              <p className="mt-2 text-center text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-2 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Surveys, app installs, and other offers. Rewards vary by offer.
               </p>
             </>
@@ -542,7 +542,7 @@ function EarnCreditsModal({
                 aria-hidden="true"
                 className="h-8 w-8 animate-spin text-brand-purple"
               />
-              <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 Loading ad…
               </p>
             </div>
@@ -550,13 +550,13 @@ function EarnCreditsModal({
 
           {phase === "watching" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-purple/10">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                 <Film className="h-10 w-10 text-brand-purple" />
               </div>
-              <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 Ad playing…
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Please keep this tab open.
               </p>
             </div>
@@ -568,10 +568,10 @@ function EarnCreditsModal({
                 aria-hidden="true"
                 className="h-8 w-8 animate-spin text-brand-purple"
               />
-              <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 Verifying ad completion…
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Credits will be added if the ad was completed.
               </p>
             </div>
@@ -585,16 +585,16 @@ function EarnCreditsModal({
                   className="h-8 w-8 text-accent-green"
                 />
               </div>
-              <p className="text-lg font-bold text-neutral-900 dark:text-white">
+              <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                 +{earnedAmount} Credits!
               </p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Added to your FRELUX Credits balance.
               </p>
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-white hover:bg-accent-green/90"
+                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90"
               >
                 Done
               </button>
@@ -609,19 +609,19 @@ function EarnCreditsModal({
                   className="h-8 w-8 text-red-400"
                 />
               </div>
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Ad unavailable
               </p>
-              <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 {errorMsg}
               </p>
-              <p className="text-center text-xs text-neutral-500">
+              <p className="text-center text-xs text-muted-foreground">
                 No credits were added.
               </p>
               <button
                 type="button"
                 onClick={() => setPhase("idle")}
-                className="mt-2 rounded-xl border border-neutral-200 px-6 py-2.5 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Try Again
               </button>
@@ -630,23 +630,23 @@ function EarnCreditsModal({
 
           {phase === "limit" && (
             <div className="flex flex-col items-center gap-3 py-8">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100 dark:bg-white/5">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted dark:bg-white/5">
                 <Clock
                   aria-hidden="true"
-                  className="h-8 w-8 text-neutral-500"
+                  className="h-8 w-8 text-muted-foreground"
                 />
               </div>
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Daily limit reached
               </p>
-              <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 You've earned the maximum {dailyLimit} credits from ads today.
                 Come back tomorrow!
               </p>
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-2 rounded-xl border border-neutral-200 px-6 py-2.5 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Close
               </button>
@@ -788,10 +788,10 @@ export function AiFeatureGate({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
+        <div className="relative rounded-2xl bg-card p-8 dark:bg-card">
           <Loader2
             aria-hidden="true"
             className="h-8 w-8 animate-spin text-brand-purple"
@@ -805,10 +805,10 @@ export function AiFeatureGate({
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative w-full max-w-md rounded-2xl bg-white p-8 dark:bg-brand-navy-mid">
+        <div className="relative w-full max-w-md rounded-2xl bg-card p-8 dark:bg-card">
           <div className="flex flex-col items-center gap-3">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-accent-green/10">
               <CheckCircle2
@@ -816,10 +816,10 @@ export function AiFeatureGate({
                 className="h-8 w-8 text-accent-green"
               />
             </div>
-            <p className="text-lg font-bold text-neutral-900 dark:text-white">
+            <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
               ✓ Unlocked
             </p>
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               {featureName} is ready to use.
             </p>
           </div>
@@ -836,11 +836,11 @@ export function AiFeatureGate({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-brand-navy-mid">
-        <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl dark:bg-card">
+        <div className="bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-2">
               <Coins className="h-6 w-6 text-accent-green" />
@@ -849,12 +849,12 @@ export function AiFeatureGate({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
+              className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
             </button>
           </div>
-          <p className="mt-2 text-sm text-white/70">
+          <p className="mt-2 text-sm text-primary-foreground/70">
             {featureCost?.description ??
               "Use FRELUX Credits to access this AI feature."}
           </p>
@@ -862,11 +862,11 @@ export function AiFeatureGate({
 
         <div className="p-6">
           {/* Balance */}
-          <div className="mb-4 flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
+            <span className="text-xs text-muted-foreground dark:text-muted-foreground">
               Your balance
             </span>
-            <span className="flex items-center gap-1 text-sm font-bold text-neutral-900 dark:text-white">
+            <span className="flex items-center gap-1 text-sm font-bold text-foreground dark:text-primary-foreground">
               <Coins className="h-3.5 w-3.5 text-accent-green" />
               {balance} Credits
             </span>
@@ -884,10 +884,10 @@ export function AiFeatureGate({
                 aria-hidden="true"
                 className="h-8 w-8 animate-spin text-brand-purple"
               />
-              <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
+              <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 Playing ad…
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Feature will unlock after the ad completes.
               </p>
             </div>
@@ -901,8 +901,8 @@ export function AiFeatureGate({
                 className={classNames(
                   "flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all",
                   canAfford && !spending
-                    ? "bg-brand-purple text-white hover:bg-brand-purple/90"
-                    : "cursor-not-allowed bg-neutral-200 text-neutral-400 dark:bg-white/5 dark:text-neutral-600",
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                 )}
               >
                 {spending ? (
@@ -922,17 +922,17 @@ export function AiFeatureGate({
               {canWatchAd && (
                 <>
                   <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                    <span className="text-[10px] font-medium text-neutral-500">
+                    <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                    <span className="text-[10px] font-medium text-muted-foreground">
                       OR
                     </span>
-                    <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                    <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                   </div>
                   <button
                     type="button"
                     onClick={handleWatchAd}
                     disabled={adUnlocking}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-brand-purple/10 disabled:opacity-50 dark:text-brand-purple"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/10 disabled:opacity-50 dark:text-brand-purple"
                   >
                     {adUnlocking ? (
                       <Loader2
@@ -948,7 +948,7 @@ export function AiFeatureGate({
               )}
 
               {!canAfford && !canWatchAd && (
-                <p className="text-center text-xs text-neutral-500 dark:text-neutral-500">
+                <p className="text-center text-xs text-muted-foreground dark:text-muted-foreground">
                   Not enough credits. Watch ads from the Credits page to earn
                   more.
                 </p>

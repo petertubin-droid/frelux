@@ -151,7 +151,7 @@ export default function TileCalculatorHub() {
       >
         <Suspense
           fallback={
-            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-500">
+            <div className="mx-auto max-w-5xl px-4 py-20 text-center text-muted-foreground">
               Loading…
             </div>
           }
@@ -163,16 +163,16 @@ export default function TileCalculatorHub() {
 
       <section className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
         <div className="prose prose-neutral max-w-none dark:prose-invert">
-          <h2 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             About the FRELUX Tile Calculator
           </h2>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Tile Calculator is a complete tiling project tool that
             combines tile quantity calculation with cost estimation. Whether
             you're tiling a floor, wall, bathroom, or kitchen, it handles all
             the calculations you need in one place.
           </p>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Calculation Modes
           </h3>
           <ul>
@@ -187,10 +187,10 @@ export default function TileCalculatorHub() {
               including labour cost options.
             </li>
           </ul>
-          <h3 className="font-display text-xl font-semibold text-neutral-900 dark:text-white">
+          <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             FRELUX Tiling Methodology
           </h3>
-          <p className="text-neutral-600 dark:text-neutral-300">
+          <p className="text-muted-foreground dark:text-muted-foreground/80">
             The calculator uses the established FRELUX tile calculation engine
             with admin-configured tile sizes, material requirements, and
             packaging sizes. It accounts for waste, breakage, pattern matching,

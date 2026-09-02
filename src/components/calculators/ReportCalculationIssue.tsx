@@ -95,7 +95,7 @@ export default function ReportCalculationIssue({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-neutral-500 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
         aria-expanded={open}
       >
         <Flag className="h-3.5 w-3.5" />
@@ -108,10 +108,10 @@ export default function ReportCalculationIssue({
       {open && (
         <form
           onSubmit={handleSubmit}
-          className="mt-2 space-y-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+          className="mt-2 space-y-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
         >
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               What seems wrong? <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -120,13 +120,13 @@ export default function ReportCalculationIssue({
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
               placeholder="Describe what you expected vs what the calculator showed..."
-              className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-neutral-200"
+              className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
               disabled={submitting}
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               What should the correct result be? (optional)
             </label>
             <input
@@ -134,13 +134,13 @@ export default function ReportCalculationIssue({
               value={expectedResult}
               onChange={(e) => setExpectedResult(e.target.value)}
               placeholder="e.g. 2 buckets instead of 3 buckets"
-              className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-neutral-200"
+              className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
               disabled={submitting}
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
+            <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Your email (optional, for follow-up)
             </label>
             <input
@@ -148,7 +148,7 @@ export default function ReportCalculationIssue({
               value={contactEmail}
               onChange={(e) => setContactEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-neutral-200"
+              className="w-full rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
               disabled={submitting}
             />
           </div>
@@ -158,7 +158,7 @@ export default function ReportCalculationIssue({
           <button
             type="submit"
             disabled={submitting || !description.trim()}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />

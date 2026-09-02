@@ -400,7 +400,7 @@ export default function CostEstimator({
             ]}
           />
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading pricing data…
         </div>
@@ -437,7 +437,7 @@ export default function CostEstimator({
         )}
 
         {!hasArea && (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-card-foreground">
             <Info
               aria-hidden="true"
               className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow"
@@ -457,7 +457,7 @@ export default function CostEstimator({
         )}
 
         <div className="grid gap-6 lg:grid-cols-5">
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
             {/* Project summary */}
             <Section title="Project summary">
               <div className="grid gap-4 sm:grid-cols-3">
@@ -503,7 +503,7 @@ export default function CostEstimator({
                 </Field>
               </div>
               {passed.paintTypeName && (
-                <p className="mt-3 text-xs text-neutral-500">
+                <p className="mt-3 text-xs text-muted-foreground">
                   From calculator: {passed.paintTypeName}
                   {passed.qualityName ? ` · ${passed.qualityName}` : ""} ·{" "}
                   {passed.coats ?? 2} coats
@@ -536,7 +536,7 @@ export default function CostEstimator({
                   </select>
                 </Field>
               ) : (
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   No paint products configured. Enter a manual price per bucket
                   below.
                 </p>
@@ -546,11 +546,11 @@ export default function CostEstimator({
               {input.paintProductId &&
               input.paintUseContainerPricing &&
               input.paintContainerSize > 0 ? (
-                <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                  <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     Container based pricing
                   </p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {formatNumber(input.paintLiters, 1)} L required ·{" "}
                     {input.paintContainerSize} L containers ·{" "}
                     {Math.ceil(input.paintLiters / input.paintContainerSize)}{" "}
@@ -558,12 +558,12 @@ export default function CostEstimator({
                     {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
                     each
                   </p>
-                  <p className="mt-2 text-xs text-neutral-500">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Paint cost ={" "}
                     {Math.ceil(input.paintLiters / input.paintContainerSize)} ×{" "}
                     {formatCurrency(input.paintContainerPrice, currencySymbol)}{" "}
                     ={" "}
-                    <span className="font-semibold text-brand-navy dark:text-white">
+                    <span className="font-semibold text-foreground dark:text-primary-foreground">
                       {formatCurrency(
                         Math.ceil(
                           input.paintLiters / input.paintContainerSize,
@@ -615,22 +615,22 @@ export default function CostEstimator({
                   </div>
                   {/* Show live cost summary below the inputs when a price is entered */}
                   {manualBucketPrice > 0 && input.paintLiters > 0 && (
-                    <div className="mt-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
-                      <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                    <div className="mt-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
+                      <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                         Bucket based pricing
                       </p>
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {formatNumber(input.paintLiters, 1)} L required ·{" "}
                         {manualBucketSize} L buckets ·{" "}
                         {Math.ceil(input.paintLiters / manualBucketSize)}{" "}
                         bucket(s) needed ·{" "}
                         {formatCurrency(manualBucketPrice, currencySymbol)} each
                       </p>
-                      <p className="mt-2 text-xs text-neutral-500">
+                      <p className="mt-2 text-xs text-muted-foreground">
                         Paint cost ={" "}
                         {Math.ceil(input.paintLiters / manualBucketSize)} ×{" "}
                         {formatCurrency(manualBucketPrice, currencySymbol)} ={" "}
-                        <span className="font-semibold text-brand-navy dark:text-white">
+                        <span className="font-semibold text-foreground dark:text-primary-foreground">
                           {formatCurrency(
                             Math.ceil(input.paintLiters / manualBucketSize) *
                               manualBucketPrice,
@@ -651,7 +651,7 @@ export default function CostEstimator({
                   checked={input.includePrimer}
                   onChange={(v) => update("includePrimer", v)}
                 />
-                <span className="text-sm text-neutral-600">Include primer</span>
+                <span className="text-sm text-muted-foreground">Include primer</span>
               </div>
               {input.includePrimer && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -686,7 +686,7 @@ export default function CostEstimator({
 
             {/* Materials */}
             <Section title="Additional materials">
-              <p className="mb-3 text-xs text-neutral-500">
+              <p className="mb-3 text-xs text-muted-foreground">
                 Toggle materials to include them. Prices auto fill from
                 configured data when available.
               </p>
@@ -778,8 +778,8 @@ export default function CostEstimator({
           {/* Results panel */}
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
-              <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+              <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
                   Estimated total
                 </p>
                 {result ? (
@@ -787,11 +787,11 @@ export default function CostEstimator({
                     {formatCurrency(result.total, currencySymbol)}
                   </p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">
+                  <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
                     {currencySymbol}0
                   </p>
                 )}
-                <p className="mt-1 text-xs text-white/50">
+                <p className="mt-1 text-xs text-primary-foreground/50">
                   Estimate only, not a final quote.
                 </p>
               </div>
@@ -881,7 +881,7 @@ export default function CostEstimator({
                     }
                   />
                 )}
-                <div className="border-t border-neutral-100 pt-2">
+                <div className="border-t border-border/50 pt-2">
                   <Row
                     label="Material cost"
                     value={
@@ -904,7 +904,7 @@ export default function CostEstimator({
                     />
                   )}
                 </div>
-                <div className="border-t border-neutral-100 pt-2">
+                <div className="border-t border-border/50 pt-2">
                   <Row
                     label="Grand total"
                     value={
@@ -916,14 +916,14 @@ export default function CostEstimator({
                   />
                 </div>
                 {result && (
-                  <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 text-xs text-neutral-500">
+                  <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                     Based on {formatNumber(input.paintableArea)} m² and{" "}
                     {formatNumber(input.paintLiters, 1)} L of paint.
                   </div>
                 )}
               </div>
-              <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-3 text-xs text-neutral-500">
+              <div className="border-t border-border/50 bg-muted/50 px-6 py-3 text-xs text-muted-foreground">
                 Estimate only. Actual costs may vary depending on product brand,
                 location, surface condition, market prices, and labor rates.
               </div>
@@ -945,7 +945,7 @@ export default function CostEstimator({
                     <button
                       type="button"
                       onClick={handlePdfExport}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-brand-purple/10 p-3 text-center transition-all hover:bg-brand-purple/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20"
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
                       <span className="text-xs font-semibold text-brand-purple">
@@ -965,10 +965,10 @@ export default function CostEstimator({
                     <button
                       type="button"
                       onClick={handleSaveLocal}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-neutral-100 p-3 text-center transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-muted p-3 text-center transition-all hover:bg-muted dark:bg-card-foreground/90 dark:hover:bg-card-foreground/80"
                     >
-                      <Save className="h-5 w-5 text-neutral-600 dark:text-neutral-300" />
-                      <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+                      <Save className="h-5 w-5 text-muted-foreground dark:text-muted-foreground/80" />
+                      <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
                         Save to Device
                       </span>
                     </button>
@@ -1062,8 +1062,8 @@ function Section({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "mb-6 border-b border-neutral-100 pb-6"}>
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
+    <div className={last ? "" : "mb-6 border-b border-border/50 pb-6"}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>
       {children}
@@ -1086,8 +1086,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -1096,8 +1096,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}
@@ -1117,11 +1117,11 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">
+      <span className="block text-sm font-semibold text-card-foreground">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="mt-1.5">{children}</div>
     </label>
@@ -1141,14 +1141,14 @@ function Toggle({
       onClick={() => onChange(!checked)}
       className={
         "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
-        (checked ? "bg-accent-green" : "bg-neutral-300")
+        (checked ? "bg-accent-green" : "bg-muted")
       }
       aria-pressed={checked}
       style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
     >
       <span
         className={
-          "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+          "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
           (checked ? "translate-x-4" : "translate-x-0.5")
         }
       />
@@ -1176,14 +1176,14 @@ function MaterialToggle({
       className={classNames(
         "rounded-lg border p-3 transition-colors",
         checked
-          ? "border-brand-purple/30 bg-brand-purple/5"
-          : "border-neutral-200",
+          ? "border-brand-purple/30 bg-primary/5"
+          : "border-border",
       )}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Toggle checked={checked} onChange={onToggle} />
-          <span className="text-sm font-semibold text-neutral-700">
+          <span className="text-sm font-semibold text-card-foreground">
             {label}
           </span>
         </div>
@@ -1198,7 +1198,7 @@ function MaterialToggle({
                 className="input-field pr-7 text-sm"
                 placeholder="0"
               />
-              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-neutral-500">
+              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                 {symbol}
               </span>
             </div>

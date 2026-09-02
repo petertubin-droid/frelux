@@ -54,7 +54,7 @@ const TYPE_OPTIONS: { value: ProjectType | 'all'; label: string }[] = [
 ];
 
 const STATUS_BADGE_CLASSES: Record<ProjectStatus, string> = {
-  draft: 'bg-gray-100 text-gray-700',
+  draft: 'bg-muted text-card-foreground',
   in_progress: 'bg-blue-100 text-blue-700',
   on_hold: 'bg-yellow-100 text-yellow-700',
   completed: 'bg-green-100 text-green-700',
@@ -261,20 +261,20 @@ export default function ContractorProjects() {
   // ============================================================
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted/50">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {/* ---------- Header ---------- */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-foreground">Projects</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               Manage your contractor estimation projects
             </p>
           </div>
           <button
             type="button"
             onClick={() => navigate('/contractor/wizard')}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
             New Project
@@ -298,23 +298,23 @@ export default function ContractorProjects() {
         {/* ---------- Toolbar: search + filters ---------- */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by project name or client…"
-              className="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900"
+              className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'all')}
-                className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-8 text-sm font-medium text-gray-700 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:w-44"
+                className="w-full appearance-none rounded-lg border border-border bg-card py-2.5 pl-10 pr-8 text-sm font-medium text-card-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring sm:w-44"
               >
                 {STATUS_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -327,7 +327,7 @@ export default function ContractorProjects() {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value as ProjectType | 'all')}
-              className="w-full appearance-none rounded-lg border border-gray-300 bg-white py-2.5 pl-3 pr-8 text-sm font-medium text-gray-700 focus:border-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-900 sm:w-40"
+              className="w-full appearance-none rounded-lg border border-border bg-card py-2.5 pl-3 pr-8 text-sm font-medium text-card-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring sm:w-40"
             >
               {TYPE_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -342,8 +342,8 @@ export default function ContractorProjects() {
         {loading ? (
           <div className="flex items-center justify-center py-24">
             <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
-              <p className="text-sm text-gray-500">Loading projects…</p>
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-foreground" />
+              <p className="text-sm text-muted-foreground">Loading projects…</p>
             </div>
           </div>
         ) : filteredProjects.length === 0 ? (
@@ -354,7 +354,7 @@ export default function ContractorProjects() {
           />
         ) : (
           <>
-            <p className="mb-4 text-sm text-gray-500">
+            <p className="mb-4 text-sm text-muted-foreground">
               Showing {filteredProjects.length}{' '}
               {filteredProjects.length === 1 ? 'project' : 'projects'}
             </p>
@@ -386,14 +386,14 @@ export default function ContractorProjects() {
       {/* Delete confirmation modal */}
       {confirmDeleteId && !busyId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
+          <div className="w-full max-w-sm rounded-xl bg-card p-6 shadow-xl">
             <div className="mb-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                 <Trash2 className="h-5 w-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900">Delete project?</h3>
+              <h3 className="text-lg font-semibold text-foreground">Delete project?</h3>
             </div>
-            <p className="mb-6 text-sm text-gray-500">
+            <p className="mb-6 text-sm text-muted-foreground">
               This action cannot be undone. The project and all of its rooms, calculations,
               and associated data will be permanently removed.
             </p>
@@ -401,14 +401,14 @@ export default function ContractorProjects() {
               <button
                 type="button"
                 onClick={() => setConfirmDeleteId(null)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => handleDelete(confirmDeleteId)}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-red-700"
               >
                 Delete
               </button>
@@ -457,7 +457,7 @@ function ProjectCard({
   const progress = Math.max(0, Math.min(100, project.progress_percentage ?? 0));
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:bg-brand-navy-mid dark:border-white/5 transition hover:shadow-md">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm dark:bg-card dark:border-white/5 transition hover:shadow-md">
       {/* Top row: badges + menu */}
       <div className="flex items-start justify-between px-5 pt-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -484,50 +484,50 @@ function ProjectCard({
             type="button"
             onClick={onToggleMenu}
             disabled={busy}
-            className="rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:opacity-50"
+            className="rounded-md p-1.5 text-muted-foreground transition hover:bg-muted hover:text-muted-foreground disabled:opacity-50"
             aria-label="Project actions"
           >
             <MoreVertical className="h-5 w-5" />
           </button>
 
           {menuOpen && (
-            <div className="absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <div className="absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg">
               <button
                 type="button"
                 onClick={onOpen}
-                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
               >
-                <ChevronRight className="h-4 w-4 text-gray-400" />
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 Open
               </button>
               <button
                 type="button"
                 onClick={onDuplicate}
-                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
               >
-                <Copy className="h-4 w-4 text-gray-400" />
+                <Copy className="h-4 w-4 text-muted-foreground" />
                 Duplicate
               </button>
               {isArchived ? (
                 <button
                   type="button"
                   onClick={onRestore}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
                 >
-                  <RotateCcw className="h-4 w-4 text-gray-400" />
+                  <RotateCcw className="h-4 w-4 text-muted-foreground" />
                   Restore
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={onArchive}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
                 >
-                  <Archive className="h-4 w-4 text-gray-400" />
+                  <Archive className="h-4 w-4 text-muted-foreground" />
                   Archive
                 </button>
               )}
-              <div className="my-1 border-t border-gray-100" />
+              <div className="my-1 border-t border-border/50" />
               <button
                 type="button"
                 onClick={onRequestDelete}
@@ -547,25 +547,25 @@ function ProjectCard({
         onClick={onOpen}
         className="flex flex-1 flex-col items-start px-5 pb-5 pt-3 text-left"
       >
-        <h3 className="line-clamp-2 text-base font-semibold text-gray-900 group-hover:text-gray-700">
+        <h3 className="line-clamp-2 text-base font-semibold text-foreground group-hover:text-card-foreground">
           {project.name}
         </h3>
 
-        <div className="mt-3 flex w-full flex-col gap-2 text-sm text-gray-500">
+        <div className="mt-3 flex w-full flex-col gap-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <Users className="h-4 w-4 text-gray-400" />
+            <Users className="h-4 w-4 text-muted-foreground" />
             {project.client_name || 'No client'}
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Building2 className="h-4 w-4 text-gray-400" />
+            <Building2 className="h-4 w-4 text-muted-foreground" />
             {project.building_type}
           </span>
         </div>
 
         {/* Total cost */}
         <div className="mt-4 flex items-center gap-1.5">
-          <DollarSign className="h-4 w-4 text-gray-400" />
-          <span className="text-lg font-bold text-gray-900">
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <span className="text-lg font-bold text-foreground">
             {formatCurrency(project.total_project_cost ?? 0, project.currency_symbol || '₦')}
           </span>
         </div>
@@ -573,14 +573,14 @@ function ProjectCard({
         {/* Progress */}
         <div className="mt-4 w-full">
           <div className="mb-1 flex items-center justify-between text-xs">
-            <span className="text-gray-500">Progress</span>
-            <span className="font-medium text-gray-700">{progress}%</span>
+            <span className="text-muted-foreground">Progress</span>
+            <span className="font-medium text-card-foreground">{progress}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                isArchived ? 'bg-gray-400' : 'bg-gray-900',
+                isArchived ? 'bg-muted-foreground/40' : 'bg-background',
               )}
               style={{ width: `${progress}%` }}
             />
@@ -588,7 +588,7 @@ function ProjectCard({
         </div>
 
         {/* Updated date */}
-        <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-gray-400">
+        <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
           <Clock className="h-3.5 w-3.5" />
           <Calendar className="h-3.5 w-3.5" />
           Updated {formatDate(project.updated_at)}
@@ -597,22 +597,22 @@ function ProjectCard({
 
       {/* Inline delete confirmation (when toggled from menu) */}
       {confirmDelete && (
-        <div className="border-t border-gray-100 px-5 py-3">
-          <p className="mb-2 text-xs text-gray-600">
+        <div className="border-t border-border/50 px-5 py-3">
+          <p className="mb-2 text-xs text-muted-foreground">
             This cannot be undone. Delete this project?
           </p>
           <div className="flex justify-end gap-2">
             <button
               type="button"
               onClick={onCancelDelete}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={onConfirmDelete}
-              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700"
+              className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-red-700"
             >
               Delete
             </button>
@@ -623,7 +623,7 @@ function ProjectCard({
       {/* Busy overlay */}
       {busy && (
         <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-foreground" />
         </div>
       )}
     </div>
@@ -642,14 +642,14 @@ interface EmptyStateProps {
 
 function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-        <Package className="h-8 w-8 text-gray-400" />
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card px-6 py-16 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+        <Package className="h-8 w-8 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold text-gray-900">
+      <h3 className="text-lg font-semibold text-foreground">
         {hasActiveFilters ? 'No projects found' : 'No projects yet'}
       </h3>
-      <p className="mt-1 max-w-sm text-sm text-gray-500">
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">
         {hasActiveFilters
           ? 'Try adjusting your search or filters to find what you are looking for.'
           : 'Start by creating your first contractor estimation project.'}
@@ -659,7 +659,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
           <button
             type="button"
             onClick={onReset}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-card-foreground hover:bg-muted/50"
           >
             Clear filters
           </button>
@@ -667,7 +667,7 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
         <button
           type="button"
           onClick={onCreate}
-          className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800"
+          className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90"
         >
           <Plus className="h-4 w-4" />
           Create your first project

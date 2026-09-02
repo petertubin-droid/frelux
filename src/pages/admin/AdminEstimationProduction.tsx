@@ -167,7 +167,7 @@ export default function AdminEstimationProduction() {
               PRODUCT_CATEGORIES.find((c) => c.value === cat)?.label ?? cat;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-300">
+                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-card-foreground dark:text-muted-foreground/80">
                   {catLabel}
                 </h3>
                 <div className="space-y-2">
@@ -191,14 +191,14 @@ export default function AdminEstimationProduction() {
                     return (
                       <div
                         key={qKey}
-                        className="rounded-lg border border-neutral-200 dark:border-white/10"
+                        className="rounded-lg border border-border dark:border-white/10"
                       >
-                        <div className="border-b border-neutral-200 bg-neutral-50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
+                        <div className="border-b border-border bg-muted/50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
                           <span className="text-xs font-semibold text-brand-purple">
                             {qLabel}
                           </span>
                         </div>
-                        <div className="divide-y divide-neutral-100 dark:divide-white/5">
+                        <div className="divide-y divide-border/50 dark:divide-white/5">
                           {qRules.map((rule) => (
                             <div
                               key={rule.id}
@@ -206,13 +206,13 @@ export default function AdminEstimationProduction() {
                             >
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+                                  <span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80">
                                     {LOCATION_RULES.find(
                                       (l) => l.value === rule.location_rule,
                                     )?.label ?? rule.location_rule}
                                   </span>
                                 </div>
-                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                                <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                   Minimum:{" "}
                                   <span className="font-semibold">
                                     {rule.min_quantity} {rule.unit}
@@ -306,7 +306,7 @@ function ProductionRuleForm({
           <AdminSelect
             value={productCategory}
             onChange={(e) => setProductCategory(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             {PRODUCT_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
@@ -323,7 +323,7 @@ function ProductionRuleForm({
           <AdminSelect
             value={qualitySlug}
             onChange={(e) => setQualitySlug(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             {QUALITY_SLUGS.map((q) => (
               <option key={q.value} value={q.value}>
@@ -337,7 +337,7 @@ function ProductionRuleForm({
           <AdminSelect
             value={locationRule}
             onChange={(e) => setLocationRule(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             {LOCATION_RULES.map((l) => (
               <option key={l.value} value={l.value}>
@@ -356,7 +356,7 @@ function ProductionRuleForm({
             value={minQuantity}
             onChange={(e) => setMinQuantity(parseFloat(e.target.value) || 0)}
             min={0}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </AdminField>
 
@@ -365,7 +365,7 @@ function ProductionRuleForm({
             type="text"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </AdminField>
 
@@ -374,7 +374,7 @@ function ProductionRuleForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </AdminField>
 
@@ -383,7 +383,7 @@ function ProductionRuleForm({
             type="number"
             value={sortOrder}
             onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
-            className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </AdminField>
       </div>

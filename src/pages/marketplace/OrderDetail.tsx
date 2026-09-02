@@ -37,7 +37,7 @@ const STATUS_FLOW = [
 ];
 const STATUS_COLORS: Record<string, string> = {
   pending_start:
-    "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+    "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
   in_progress:
     "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400",
   client_review:
@@ -45,7 +45,7 @@ const STATUS_COLORS: Record<string, string> = {
   completed:
     "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
   disputed: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400",
-  cancelled: "bg-neutral-100 text-neutral-500",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 export default function OrderDetail() {
@@ -170,21 +170,21 @@ export default function OrderDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
+    <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back
         </button>
 
         {/* Order header */}
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-neutral-500">
+                <span className="text-xs font-mono text-muted-foreground">
                   {order.order_number}
                 </span>
                 <span
@@ -196,19 +196,19 @@ export default function OrderDetail() {
                   {ORDER_STATUS_LABELS[order.status]}
                 </span>
               </div>
-              <h1 className="mt-2 text-lg font-bold text-neutral-900 dark:text-white">
+              <h1 className="mt-2 text-lg font-bold text-foreground dark:text-primary-foreground">
                 {order.listing?.title || "Untitled Job"}
               </h1>
-              <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                 {PROJECT_TYPE_LABELS[order.listing?.project_type || "painting"]}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-extrabold text-brand-navy dark:text-white">
+              <p className="text-lg font-extrabold text-foreground dark:text-primary-foreground">
                 ₦{order.agreed_price.toLocaleString()}
               </p>
               {order.agreed_timeline_days && (
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   <Calendar
                     aria-hidden="true"
                     className="mr-0.5 inline h-3 w-3"
@@ -220,8 +220,8 @@ export default function OrderDetail() {
           </div>
 
           {/* Participant info */}
-          <div className="mt-4 flex items-center gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10">
+          <div className="mt-4 flex items-center gap-3 border-t border-border/50 pt-4 dark:border-white/5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
               {order.pro_profile?.profile_image_url ? (
                 <img
                   src={order.pro_profile.profile_image_url}
@@ -237,7 +237,7 @@ export default function OrderDetail() {
             <div>
               <Link
                 to={`/pro-connect/${order.pro_profile?.slug}`}
-                className="text-sm font-semibold text-neutral-900 hover:text-brand-purple dark:text-white"
+                className="text-sm font-semibold text-foreground hover:text-brand-purple dark:text-primary-foreground"
               >
                 {order.pro_profile?.business_name ||
                   order.pro_profile?.display_name}
@@ -252,7 +252,7 @@ export default function OrderDetail() {
             <div className="ml-auto">
               <Link
                 to="/pro-connect/messages"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-300"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
               >
                 <MessageSquare className="h-3.5 w-3.5" /> Message
               </Link>
@@ -261,15 +261,15 @@ export default function OrderDetail() {
 
           {/* Payment status */}
           <div className="mt-3 flex items-center gap-2 text-xs">
-            <Wallet className="h-3.5 w-3.5 text-neutral-500" />
-            <span className="text-neutral-500 dark:text-neutral-500">
+            <Wallet className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-muted-foreground dark:text-muted-foreground">
               Payment:{" "}
             </span>
             <span
               className={classNames(
                 "font-semibold capitalize",
                 order.payment_status === "unpaid"
-                  ? "text-neutral-500"
+                  ? "text-muted-foreground"
                   : "text-emerald-600 dark:text-emerald-400",
               )}
             >
@@ -280,17 +280,17 @@ export default function OrderDetail() {
 
         {/* Status advancement */}
         {canAdvance && (isClient || isPro) && (
-          <div className="mt-4 flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-            <p className="text-sm text-neutral-500 dark:text-neutral-500">
+          <div className="mt-4 flex items-center justify-between rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               Current status:{" "}
-              <span className="font-semibold text-neutral-700 dark:text-white">
+              <span className="font-semibold text-card-foreground dark:text-primary-foreground">
                 {ORDER_STATUS_LABELS[order.status]}
               </span>
             </p>
             <button
               onClick={handleAdvanceStatus}
               disabled={submitting}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -305,7 +305,7 @@ export default function OrderDetail() {
         {/* Milestones */}
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
               Milestones ({milestones.length})
             </h2>
             {isPro && canAdvance && (
@@ -325,12 +325,12 @@ export default function OrderDetail() {
                 value={newMilestoneTitle}
                 onChange={(e) => setNewMilestoneTitle(e.target.value)}
                 placeholder="Milestone title..."
-                className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <button
                 onClick={handleAddMilestone}
                 disabled={submitting || !newMilestoneTitle.trim()}
-                className="rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Add
               </button>
@@ -338,7 +338,7 @@ export default function OrderDetail() {
           )}
 
           {milestones.length === 0 ? (
-            <p className="rounded-xl border border-neutral-200 bg-white p-4 text-center text-sm text-neutral-400 dark:border-white/5 dark:bg-brand-navy-mid">
+            <p className="rounded-xl border border-border bg-card p-4 text-center text-sm text-muted-foreground dark:border-white/5 dark:bg-card">
               No milestones yet.
             </p>
           ) : (
@@ -347,10 +347,10 @@ export default function OrderDetail() {
                 <div
                   key={m.id}
                   className={classNames(
-                    "rounded-lg border bg-white p-3 dark:bg-brand-navy-mid",
+                    "rounded-lg border bg-card p-3 dark:bg-card",
                     m.status === "approved"
                       ? "border-emerald-300 dark:border-emerald-500/30"
-                      : "border-neutral-200 dark:border-white/5",
+                      : "border-border dark:border-white/5",
                   )}
                 >
                   <div className="flex items-center justify-between">
@@ -359,10 +359,10 @@ export default function OrderDetail() {
                         className={classNames(
                           "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold",
                           m.status === "approved"
-                            ? "bg-emerald-500 text-white"
+                            ? "bg-emerald-500 text-primary-foreground"
                             : m.status === "in_progress"
-                              ? "bg-amber-500 text-white"
-                              : "bg-neutral-200 text-neutral-500 dark:bg-white/10 dark:text-neutral-500",
+                              ? "bg-amber-500 text-primary-foreground"
+                              : "bg-muted text-muted-foreground dark:bg-white/10 dark:text-muted-foreground",
                         )}
                       >
                         {m.status === "approved" ? (
@@ -371,7 +371,7 @@ export default function OrderDetail() {
                           idx + 1
                         )}
                       </span>
-                      <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                      <span className="text-sm font-medium text-foreground dark:text-primary-foreground">
                         {m.title}
                       </span>
                     </div>
@@ -382,7 +382,7 @@ export default function OrderDetail() {
                             onClick={() =>
                               handleUpdateMilestone(m.id, "in_progress")
                             }
-                            className="rounded-md border border-neutral-200 px-2 py-1 text-[10px] font-medium text-neutral-600 hover:text-amber-600 dark:border-white/10 dark:text-neutral-300"
+                            className="rounded-md border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground hover:text-amber-600 dark:border-white/10 dark:text-muted-foreground/80"
                           >
                             Start
                           </button>
@@ -390,7 +390,7 @@ export default function OrderDetail() {
                         {isClient && m.status === "in_progress" && (
                           <button
                             onClick={() => handleApproveMilestone(m.id)}
-                            className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white hover:bg-emerald-700"
+                            className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-primary-foreground hover:bg-emerald-700"
                           >
                             <Check aria-hidden="true" className="h-3 w-3" />{" "}
                             Approve
@@ -405,7 +405,7 @@ export default function OrderDetail() {
                     )}
                   </div>
                   {m.expected_date && (
-                    <p className="mt-1 ml-8 text-[10px] text-neutral-500 dark:text-neutral-500">
+                    <p className="mt-1 ml-8 text-[10px] text-muted-foreground dark:text-muted-foreground">
                       <Calendar
                         aria-hidden="true"
                         className="mr-0.5 inline h-2.5 w-2.5"
@@ -422,15 +422,15 @@ export default function OrderDetail() {
         {/* Reviews */}
         {order.status === "completed" && (
           <div className="mt-6">
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
               Reviews
             </h2>
             <div className="space-y-3">
               {/* Client review */}
               {order.client_rating ? (
-                <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    <span className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/80">
                       Client
                     </span>
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -440,7 +440,7 @@ export default function OrderDetail() {
                           "text-sm",
                           i < order.client_rating!
                             ? "text-amber-400"
-                            : "text-neutral-300",
+                            : "text-muted-foreground/80",
                         )}
                       >
                         ★
@@ -448,7 +448,7 @@ export default function OrderDetail() {
                     ))}
                   </div>
                   {order.client_review && (
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {order.client_review}
                     </p>
                   )}
@@ -456,7 +456,7 @@ export default function OrderDetail() {
               ) : isClient && !showReviewForm ? (
                 <button
                   onClick={() => setShowReviewForm(true)}
-                  className="w-full rounded-lg border border-dashed border-neutral-200 p-4 text-sm font-medium text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
+                  className="w-full rounded-lg border border-dashed border-border p-4 text-sm font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   Leave a review for the pro worker
                 </button>
@@ -464,9 +464,9 @@ export default function OrderDetail() {
 
               {/* Pro review */}
               {order.pro_rating && (
-                <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+                <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
                   <div className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    <span className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/80">
                       Pro Worker
                     </span>
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -476,7 +476,7 @@ export default function OrderDetail() {
                           "text-sm",
                           i < order.pro_rating!
                             ? "text-amber-400"
-                            : "text-neutral-300",
+                            : "text-muted-foreground/80",
                         )}
                       >
                         ★
@@ -484,7 +484,7 @@ export default function OrderDetail() {
                     ))}
                   </div>
                   {order.pro_review && (
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {order.pro_review}
                     </p>
                   )}
@@ -494,8 +494,8 @@ export default function OrderDetail() {
 
             {/* Review form */}
             {showReviewForm && (
-              <div className="mt-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-                <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+              <div className="mt-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+                <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   {isClient ? "Review the Pro Worker" : "Review the Client"}
                 </h3>
                 <div className="mt-2 flex gap-1">
@@ -506,7 +506,7 @@ export default function OrderDetail() {
                       className={`text-lg font-bold transition-colors ${
                         i < reviewRating
                           ? "text-amber-500"
-                          : "text-neutral-300 dark:text-neutral-600"
+                          : "text-muted-foreground/80 dark:text-muted-foreground"
                       }`}
                     >
                       {i + 1}
@@ -518,13 +518,13 @@ export default function OrderDetail() {
                   onChange={(e) => setReviewText(e.target.value)}
                   placeholder="Share your experience..."
                   rows={3}
-                  className="mt-3 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="mt-3 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
                 <div className="mt-2 flex gap-2">
                   <button
                     onClick={handleSubmitReview}
                     disabled={submitting}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   >
                     {submitting ? (
                       <Loader2
@@ -538,7 +538,7 @@ export default function OrderDetail() {
                   </button>
                   <button
                     onClick={() => setShowReviewForm(false)}
-                    className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                   >
                     Cancel
                   </button>

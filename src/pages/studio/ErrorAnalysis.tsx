@@ -65,7 +65,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 
 const STATUS_STYLES: Record<string, string> = {
   analyzing:
-    "bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500",
+    "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
   fix_proposed:
     "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400",
   awaiting_approval:
@@ -235,7 +235,7 @@ export default function ErrorAnalysis() {
       <div className="mb-4 flex items-center justify-between">
         <Link
           to="/admin/studio"
-          className="flex items-center gap-1 text-xs text-neutral-500 hover:text-brand-purple"
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
         >
           <ArrowLeft aria-hidden="true" className="h-3 w-3" /> Back to Studio
         </Link>
@@ -248,7 +248,7 @@ export default function ErrorAnalysis() {
       </div>
 
       {/* ── Tabs ── */}
-      <div className="mb-4 flex gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-4 flex gap-1 border-b border-border dark:border-white/10">
         {(["errors", "history"] as const).map((tab) => (
           <button
             key={tab}
@@ -257,7 +257,7 @@ export default function ErrorAnalysis() {
               "px-4 py-2 text-sm font-medium capitalize transition-colors",
               activeTab === tab
                 ? "border-b-2 border-brand-purple text-brand-purple"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200",
+                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60",
             )}
           >
             {tab === "errors" ? "Recent Errors" : "Fix History"}
@@ -270,13 +270,13 @@ export default function ErrorAnalysis() {
         <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
           {/* Error list */}
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Unresolved Errors
             </h3>
             {loading ? (
-              <p className="text-sm text-neutral-500">Loading...</p>
+              <p className="text-sm text-muted-foreground">Loading...</p>
             ) : recentErrors.length === 0 ? (
-              <p className="text-sm text-neutral-500">No unresolved errors.</p>
+              <p className="text-sm text-muted-foreground">No unresolved errors.</p>
             ) : (
               <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
                 {recentErrors.map((e) => (
@@ -286,8 +286,8 @@ export default function ErrorAnalysis() {
                     className={classNames(
                       "w-full rounded-lg border p-3 text-left transition-all",
                       selectedError?.id === e.id
-                        ? "border-brand-purple bg-brand-purple/5"
-                        : "border-neutral-200 hover:border-neutral-300 dark:border-white/5 dark:hover:border-white/10",
+                        ? "border-brand-purple bg-primary/5"
+                        : "border-border hover:border-border dark:border-white/5 dark:hover:border-white/10",
                     )}
                   >
                     <div className="flex items-center gap-2">
@@ -299,16 +299,16 @@ export default function ErrorAnalysis() {
                       >
                         {e.severity.toUpperCase()}
                       </span>
-                      <span className="text-xs text-neutral-500">
+                      <span className="text-xs text-muted-foreground">
                         {e.occurrence_count > 1
                           ? `${e.occurrence_count}×`
                           : formatDate(e.last_seen)}
                       </span>
                     </div>
-                    <p className="mt-1 truncate text-sm text-neutral-700 dark:text-neutral-300">
+                    <p className="mt-1 truncate text-sm text-card-foreground dark:text-muted-foreground/80">
                       {e.message}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {e.feature ?? "—"}
                     </p>
                   </button>
@@ -320,16 +320,16 @@ export default function ErrorAnalysis() {
           {/* Analysis panel */}
           <div className="space-y-4">
             {!selectedError ? (
-              <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 p-12 dark:border-white/5">
-                <Bug className="h-8 w-8 text-neutral-300" />
-                <p className="mt-2 text-sm text-neutral-500">
+              <div className="flex flex-col items-center justify-center rounded-xl border border-border p-12 dark:border-white/5">
+                <Bug className="h-8 w-8 text-muted-foreground/80" />
+                <p className="mt-2 text-sm text-muted-foreground">
                   Select an error to analyze with AI
                 </p>
               </div>
             ) : (
               <>
                 {/* Error summary */}
-                <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
+                <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
                   <div className="flex items-start gap-3">
                     <span
                       className={classNames(
@@ -340,10 +340,10 @@ export default function ErrorAnalysis() {
                       {selectedError.severity.toUpperCase()}
                     </span>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-neutral-800 dark:text-white">
+                      <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                         {selectedError.message}
                       </p>
-                      <div className="mt-1 flex flex-wrap gap-3 text-xs text-neutral-500">
+                      <div className="mt-1 flex flex-wrap gap-3 text-xs text-muted-foreground">
                         <span>{selectedError.error_type}</span>
                         {selectedError.feature && (
                           <span>· {selectedError.feature}</span>
@@ -363,14 +363,15 @@ export default function ErrorAnalysis() {
                 {!diagnosis && !analyzing && !error && (
                   <button
                     onClick={() => handleAnalyze(selectedError)}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white hover:bg-brand-purple/90"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
-                    <Zap aria-hidden="true" className="h-4 w-4" /> Analyze with AI
+                    <Zap aria-hidden="true" className="h-4 w-4" /> Analyze with
+                    AI
                   </button>
                 )}
 
                 {analyzing && (
-                  <div className="flex items-center justify-center gap-2 rounded-lg border border-neutral-200 p-6 dark:border-white/5">
+                  <div className="flex items-center justify-center gap-2 rounded-lg border border-border p-6 dark:border-white/5">
                     <svg
                       className="h-5 w-5 animate-spin text-brand-purple"
                       viewBox="0 0 24 24"
@@ -390,7 +391,7 @@ export default function ErrorAnalysis() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                       />
                     </svg>
-                    <span className="text-sm text-neutral-500">
+                    <span className="text-sm text-muted-foreground">
                       AI is analyzing the error...
                     </span>
                   </div>
@@ -411,10 +412,10 @@ export default function ErrorAnalysis() {
                 {/* Diagnosis result */}
                 {diagnosis && !analyzing && (
                   <div className="space-y-4">
-                    <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+                    <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
                       <div className="mb-3 flex items-center gap-2">
                         <Activity className="h-4 w-4 text-brand-purple" />
-                        <h3 className="text-sm font-semibold text-neutral-800 dark:text-white">
+                        <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           AI Diagnosis
                         </h3>
                       </div>
@@ -450,7 +451,7 @@ export default function ErrorAnalysis() {
                         />
 
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                          <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                             Risk level:
                           </span>
                           <span
@@ -485,14 +486,14 @@ export default function ErrorAnalysis() {
                     {!fix && !generatingFix && (
                       <button
                         onClick={handleGenerateFix}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white hover:bg-brand-purple/90"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                       >
                         <FileCode className="h-4 w-4" /> Generate Fix
                       </button>
                     )}
 
                     {generatingFix && (
-                      <div className="flex items-center justify-center gap-2 rounded-lg border border-neutral-200 p-4 dark:border-white/5">
+                      <div className="flex items-center justify-center gap-2 rounded-lg border border-border p-4 dark:border-white/5">
                         <svg
                           className="h-4 w-4 animate-spin text-brand-purple"
                           viewBox="0 0 24 24"
@@ -512,7 +513,7 @@ export default function ErrorAnalysis() {
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                           />
                         </svg>
-                        <span className="text-sm text-neutral-500">
+                        <span className="text-sm text-muted-foreground">
                           Generating fix...
                         </span>
                       </div>
@@ -521,10 +522,10 @@ export default function ErrorAnalysis() {
                     {/* Proposed fix */}
                     {fix && (
                       <div className="space-y-4">
-                        <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+                        <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
                           <div className="mb-3 flex items-center gap-2">
                             <FileCode className="h-4 w-4 text-brand-purple" />
-                            <h3 className="text-sm font-semibold text-neutral-800 dark:text-white">
+                            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                               Proposed Fix
                             </h3>
                           </div>
@@ -577,7 +578,7 @@ export default function ErrorAnalysis() {
                             )}
 
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                                 Risk level:
                               </span>
                               <span
@@ -596,18 +597,18 @@ export default function ErrorAnalysis() {
                           </div>
 
                           {/* Approve & Apply */}
-                          <div className="mt-4 flex items-center gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
+                          <div className="mt-4 flex items-center gap-3 border-t border-border/50 pt-4 dark:border-white/5">
                             <button
                               onClick={handleApprove}
                               disabled={approving}
-                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
                             >
                               <CheckCircle2 className="h-4 w-4" />
                               {approving
                                 ? "Approving..."
                                 : "Approve & Apply Fix"}
                             </button>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-muted-foreground">
                               Fix will be applied via Git commit and deployed
                               through the existing CI/CD pipeline
                             </p>
@@ -620,30 +621,30 @@ export default function ErrorAnalysis() {
 
                 {/* Fix history for this error */}
                 {fixHistory.length > 0 && (
-                  <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-                    <h3 className="mb-3 text-sm font-semibold text-neutral-800 dark:text-white">
+                  <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+                    <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
                       Fix History for This Error
                     </h3>
                     <div className="space-y-2">
                       {fixHistory.map((h) => (
                         <div
                           key={h.id}
-                          className="flex items-center gap-3 rounded-lg border border-neutral-100 p-2 dark:border-white/5"
+                          className="flex items-center gap-3 rounded-lg border border-border/50 p-2 dark:border-white/5"
                         >
                           <span
                             className={classNames(
                               "rounded px-2 py-0.5 text-[10px] font-medium",
                               STATUS_STYLES[h.status] ??
-                                "bg-neutral-100 text-neutral-600",
+                                "bg-muted text-muted-foreground",
                             )}
                           >
                             {h.status.replace(/_/g, " ")}
                           </span>
-                          <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                          <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                             {formatDate(h.created_at)}
                           </span>
                           {h.approved_by && (
-                            <span className="text-xs text-neutral-500">
+                            <span className="text-xs text-muted-foreground">
                               · Approved
                             </span>
                           )}
@@ -662,9 +663,9 @@ export default function ErrorAnalysis() {
       {activeTab === "history" && (
         <div className="space-y-4">
           {allFixHistory.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border border-neutral-200 p-12 dark:border-white/5">
-              <Clock className="h-8 w-8 text-neutral-300" />
-              <p className="mt-2 text-sm text-neutral-500">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-border p-12 dark:border-white/5">
+              <Clock className="h-8 w-8 text-muted-foreground/80" />
+              <p className="mt-2 text-sm text-muted-foreground">
                 No fix history yet
               </p>
             </div>
@@ -672,7 +673,7 @@ export default function ErrorAnalysis() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-500">
+                  <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10 dark:text-muted-foreground">
                     <th className="pb-2 pr-3 font-medium">Status</th>
                     <th className="pb-2 pr-3 font-medium">Error</th>
                     <th className="pb-2 pr-3 font-medium">Severity</th>
@@ -685,20 +686,20 @@ export default function ErrorAnalysis() {
                   {allFixHistory.map((h) => (
                     <tr
                       key={h.id}
-                      className="border-b border-neutral-100 hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/5"
+                      className="border-b border-border/50 hover:bg-muted/50 dark:border-white/5 dark:hover:bg-white/5"
                     >
                       <td className="py-2 pr-3">
                         <span
                           className={classNames(
                             "rounded px-2 py-0.5 text-[10px] font-medium",
                             STATUS_STYLES[h.status] ??
-                              "bg-neutral-100 text-neutral-600",
+                              "bg-muted text-muted-foreground",
                           )}
                         >
                           {h.status.replace(/_/g, " ")}
                         </span>
                       </td>
-                      <td className="py-2 pr-3 max-w-[300px] truncate text-neutral-700 dark:text-neutral-300">
+                      <td className="py-2 pr-3 max-w-[300px] truncate text-card-foreground dark:text-muted-foreground/80">
                         {h.error_message}
                       </td>
                       <td className="py-2 pr-3">
@@ -713,13 +714,13 @@ export default function ErrorAnalysis() {
                           </span>
                         )}
                       </td>
-                      <td className="py-2 pr-3 text-xs text-neutral-500">
+                      <td className="py-2 pr-3 text-xs text-muted-foreground">
                         {h.approved_at ? formatDate(h.approved_at) : "—"}
                       </td>
-                      <td className="py-2 pr-3 text-xs text-neutral-500">
+                      <td className="py-2 pr-3 text-xs text-muted-foreground">
                         {formatDate(h.created_at)}
                       </td>
-                      <td className="py-2 text-xs text-neutral-500">
+                      <td className="py-2 text-xs text-muted-foreground">
                         {h.deployed_at ? formatDate(h.deployed_at) : "—"}
                       </td>
                     </tr>
@@ -748,10 +749,10 @@ function DiagnosisField({
   if (!value || value === "unknown" || value === "none") return null;
   return (
     <div>
-      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+      <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
         {label}:{" "}
       </span>
-      <span className="text-sm text-neutral-800 dark:text-neutral-200">
+      <span className="text-sm text-foreground dark:text-muted-foreground/60">
         {icon}
         {value}
       </span>

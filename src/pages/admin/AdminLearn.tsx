@@ -322,7 +322,7 @@ export default function AdminLearn() {
       )}
 
       {/* Tab switcher */}
-      <div className="mb-6 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-6 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(["articles", "categories"] as const).map((t) => (
           <AdminButton
             key={t}
@@ -331,8 +331,8 @@ export default function AdminLearn() {
             className={classNames(
               "rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all",
               tab === t
-                ? "bg-brand-purple text-white"
-                : "text-neutral-600 hover:text-brand-purple",
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-brand-purple",
             )}
           >
             {t}
@@ -361,9 +361,9 @@ export default function AdminLearn() {
                   <div className="flex items-center gap-2">
                     <FileText
                       aria-hidden="true"
-                      className="h-4 w-4 shrink-0 text-neutral-500"
+                      className="h-4 w-4 shrink-0 text-muted-foreground"
                     />
-                    <p className="truncate text-sm font-bold text-brand-navy dark:text-white">
+                    <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
                       {article.title}
                     </p>
                     <span
@@ -371,7 +371,7 @@ export default function AdminLearn() {
                         "rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize",
                         article.status === "published"
                           ? "bg-accent-green/15 text-accent-green"
-                          : "bg-neutral-100 text-neutral-500",
+                          : "bg-muted text-muted-foreground",
                       )}
                     >
                       {article.status}
@@ -382,7 +382,7 @@ export default function AdminLearn() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 truncate text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground dark:text-muted-foreground">
                     {article.category_slug.replace(/-/g, " ")} ·{" "}
                     {new Date(article.updated_at).toLocaleDateString()}
                   </p>
@@ -399,7 +399,7 @@ export default function AdminLearn() {
                       setEditing(article);
                       setShowEditor(true);
                     }}
-                    className="rounded-md p-2 text-neutral-500 hover:text-brand-purple"
+                    className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"
                   >
                     <Pencil className="h-4 w-4" />
                   </AdminIconButton>
@@ -407,7 +407,7 @@ export default function AdminLearn() {
                     variant="ghost"
                     type="button"
                     onClick={() => handleDelete(article.id)}
-                    className="rounded-md p-2 text-neutral-300 hover:text-red-500"
+                    className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-4 w-4" />
                   </AdminIconButton>
@@ -437,20 +437,20 @@ export default function AdminLearn() {
           {categories.map((cat) => (
             <div key={cat.id} className="card p-3">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <BookOpen aria-hidden="true" className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {cat.name}
                   </p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     /{cat.slug} · Order {cat.sort_order}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-neutral-500 dark:text-neutral-500">
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                   {cat.is_active ? "Active" : "Inactive"}
                 </span>
                 <Toggle
@@ -494,16 +494,16 @@ export default function AdminLearn() {
                     className="flex w-full items-center gap-3 p-3 text-left"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-neutral-400" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="h-4 w-4 text-neutral-400" />
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
                     <HelpCircle className="h-4 w-4 text-brand-purple" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-brand-navy dark:text-white">
+                      <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
                         {article.title}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-muted-foreground">
                         {articleFaqs.length} FAQ
                         {articleFaqs.length !== 1 ? "s" : ""}
                       </p>
@@ -513,17 +513,17 @@ export default function AdminLearn() {
                         "rounded-full px-2 py-0.5 text-[10px] font-semibold",
                         article.status === "published"
                           ? "bg-accent-green/15 text-accent-green"
-                          : "bg-neutral-100 text-neutral-500",
+                          : "bg-muted text-muted-foreground",
                       )}
                     >
                       {article.status}
                     </span>
                   </button>
                   {isExpanded && (
-                    <div className="border-t border-neutral-100 dark:border-white/5 p-3">
+                    <div className="border-t border-border/50 dark:border-white/5 p-3">
                       {editingFaq?.articleId === article.id && (
-                        <div className="mb-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-3 space-y-3">
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                        <div className="mb-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 space-y-3">
+                          <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                             {editingFaq.faq ? "Edit FAQ" : "New FAQ"}
                           </h4>
                           <AdminField label="Question">
@@ -600,16 +600,16 @@ export default function AdminLearn() {
                           {articleFaqs.map((faq, idx) => (
                             <div
                               key={faq.id}
-                              className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 dark:border-white/5"
+                              className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5"
                             >
                               <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                                   <span className="text-brand-purple">
                                     Q{idx + 1}:
                                   </span>{" "}
                                   {faq.question}
                                 </p>
-                                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                   {faq.answer}
                                 </p>
                               </div>
@@ -627,7 +627,7 @@ export default function AdminLearn() {
                                       faq,
                                     })
                                   }
-                                  className="rounded-md p-2 text-neutral-500 hover:text-brand-purple"
+                                  className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"
                                 >
                                   <Pencil className="h-3.5 w-3.5" />
                                 </AdminIconButton>
@@ -637,7 +637,7 @@ export default function AdminLearn() {
                                   onClick={() =>
                                     handleDeleteFaq(faq.id, article.id)
                                   }
-                                  className="rounded-md p-2 text-neutral-300 hover:text-red-500"
+                                  className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
                                 </AdminIconButton>
@@ -646,7 +646,7 @@ export default function AdminLearn() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-neutral-500 py-2">
+                        <p className="text-xs text-muted-foreground py-2">
                           No FAQs yet for this article.
                         </p>
                       )}
@@ -783,7 +783,7 @@ function ArticleEditor({
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           {article ? "Edit Article" : "New Article"}
         </h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel}>
@@ -892,8 +892,8 @@ function ArticleEditor({
         </AdminField>
       </div>
 
-      <AdminCard className="bg-neutral-50 dark:bg-white/5">
-        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+      <AdminCard className="bg-muted/50 dark:bg-white/5">
+        <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           SEO Settings
         </h3>
         <div className="space-y-4">
@@ -922,14 +922,14 @@ function ArticleEditor({
       </AdminCard>
 
       <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2 text-sm text-neutral-600">
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
           <AdminInput
             type="checkbox"
             checked={form.is_featured}
             onChange={(e) =>
               setForm({ ...form, is_featured: e.target.checked })
             }
-            className="h-4 w-4 rounded border-neutral-300 text-brand-purple focus:ring-brand-purple"
+            className="h-4 w-4 rounded border-border text-brand-purple focus:ring-brand-purple"
           />
           Featured article
         </label>
@@ -959,7 +959,7 @@ function ArticleEditor({
           )}
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
               Google Compliance Report
             </h3>
             <AdminIconButton
@@ -970,7 +970,7 @@ function ArticleEditor({
               <X aria-hidden="true" className="h-4 w-4" />
             </AdminIconButton>
           </div>
-          <p className="text-sm font-semibold text-brand-navy dark:text-white">
+          <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
             Score: {complianceReport.score}/100 —{" "}
             {complianceReport.compliant
               ? "✅ Compliant"

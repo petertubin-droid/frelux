@@ -36,13 +36,13 @@ export default function AdminLegal() {
             {items.map((item) => (
               <AdminCard key={item.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex min-w-0 items-start gap-3">
-                  <FileText aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-neutral-500" />
+                  <FileText aria-hidden="true" className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.title}</h3>
+                      <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">{item.title}</h3>
                       {item.is_published ? <span className="rounded-full bg-accent-green/15 px-2 py-0.5 text-[11px] font-semibold text-accent-green">Published</span> : <span className="rounded-full bg-accent-yellow/20 px-2 py-0.5 text-[11px] font-semibold text-accent-yellow">Draft</span>}
                     </div>
-                    <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">/{item.slug} · updated {new Date(item.updated_at).toLocaleDateString()}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">/{item.slug} · updated {new Date(item.updated_at).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
@@ -80,8 +80,8 @@ function LegalForm({ initial, onClose, onSaved }: { initial: DbLegalPage; onClos
           <AdminField label="Title"><AdminInput  value={title} onChange={(e) => setTitle(e.target.value)} /></AdminField>
           <AdminField label="Content" hint="Plain text. Paragraphs separated by blank lines."><AdminTextarea className="min-h-[300px] resize-y font-mono text-sm" value={content} onChange={(e) => setContent(e.target.value)} /></AdminField>
           <div>
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Published</span>
-            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">When published, this content replaces the default draft layout on the public site.</p>
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Published</span>
+            <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">When published, this content replaces the default draft layout on the public site.</p>
             <div className="mt-2"><Toggle checked={isPublished} onChange={setIsPublished} /></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

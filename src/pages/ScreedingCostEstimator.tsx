@@ -184,7 +184,7 @@ export default function ScreedingCostEstimator({
             ]}
           />
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading configuration…
         </div>
@@ -222,7 +222,7 @@ export default function ScreedingCostEstimator({
         )}
 
         {netArea <= 0 && (
-          <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
+          <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-card-foreground">
             <Info
               aria-hidden="true"
               className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow"
@@ -244,7 +244,7 @@ export default function ScreedingCostEstimator({
         {config && (
           <div className="grid gap-6 lg:grid-cols-5">
             {/* Input panel */}
-            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
               <Section title="Screeding Area">
                 <Field
                   label="Net screeding area (m²)"
@@ -256,12 +256,12 @@ export default function ScreedingCostEstimator({
                     step="0.01"
                     value={netArea || ""}
                     onChange={(e) => setNetArea(Number(e.target.value))}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />
                 </Field>
                 {passed.method && (
-                  <p className="mt-3 text-xs text-neutral-500">
+                  <p className="mt-3 text-xs text-muted-foreground">
                     From calculator:{" "}
                     {passed.method === "full_room"
                       ? "Full room"
@@ -272,37 +272,37 @@ export default function ScreedingCostEstimator({
               </Section>
 
               <Section title="Mix Configuration (Admin Managed)">
-                <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+                <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="block text-neutral-500">
+                      <span className="block text-muted-foreground">
                         Paint coverage
                       </span>
-                      <span className="font-semibold text-brand-navy dark:text-white">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {config.paintCoverageRateM2PerL} m²/L
                       </span>
                     </div>
                     <div>
-                      <span className="block text-neutral-500">
+                      <span className="block text-muted-foreground">
                         Cement ratio
                       </span>
-                      <span className="font-semibold text-brand-navy dark:text-white">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {config.cementConsumptionRatioKgPerL} kg/L
                       </span>
                     </div>
                     <div>
-                      <span className="block text-neutral-500">
+                      <span className="block text-muted-foreground">
                         Default mix
                       </span>
-                      <span className="font-semibold text-brand-navy dark:text-white">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {config.defaultMixRatio}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-neutral-500">
+                      <span className="block text-muted-foreground">
                         Suggested labour rate
                       </span>
-                      <span className="font-semibold text-brand-navy dark:text-white">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {formatCurrency(
                           config.labourRatePerSqm,
                           currencySymbol,
@@ -316,22 +316,22 @@ export default function ScreedingCostEstimator({
 
               <Section title="Pricing">
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                    <span className="block text-neutral-500">
+                  <div className="rounded-lg border border-border dark:border-white/5 p-3">
+                    <span className="block text-muted-foreground">
                       Screeding Paint (20L bucket)
                     </span>
-                    <span className="font-semibold text-brand-navy dark:text-white">
+                    <span className="font-semibold text-foreground dark:text-primary-foreground">
                       {formatCurrency(
                         config.paintPricePerBucket,
                         currencySymbol,
                       )}
                     </span>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                    <span className="block text-neutral-500">
+                  <div className="rounded-lg border border-border dark:border-white/5 p-3">
+                    <span className="block text-muted-foreground">
                       White Cement (40kg bag)
                     </span>
-                    <span className="font-semibold text-brand-navy dark:text-white">
+                    <span className="font-semibold text-foreground dark:text-primary-foreground">
                       {formatCurrency(config.cementPricePerBag, currencySymbol)}
                     </span>
                   </div>
@@ -351,8 +351,8 @@ export default function ScreedingCostEstimator({
             {/* Results panel */}
             <div className="lg:col-span-2">
               <div className="card sticky top-20 overflow-hidden">
-                <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+                <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
                     Estimated grand total
                   </p>
                   {result ? (
@@ -360,11 +360,11 @@ export default function ScreedingCostEstimator({
                       {formatCurrency(result.grandTotal, currencySymbol)}
                     </p>
                   ) : (
-                    <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">
+                    <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
                       {currencySymbol}0
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-white/50">
+                  <p className="mt-1 text-xs text-primary-foreground/50">
                     Estimate only, not a final quote.
                   </p>
                 </div>
@@ -372,8 +372,8 @@ export default function ScreedingCostEstimator({
                   {result ? (
                     <>
                       {/* Screeding Paint */}
-                      <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                      <div className="rounded-lg border border-border dark:border-white/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                           Screeding Paint (20L Buckets)
                         </p>
                         <div className="mt-2 space-y-1 text-sm">
@@ -404,8 +404,8 @@ export default function ScreedingCostEstimator({
                       </div>
 
                       {/* White Cement */}
-                      <div className="rounded-lg border border-neutral-200 dark:border-white/5 p-3">
-                        <p className="text-xs font-bold uppercase tracking-widest text-neutral-500">
+                      <div className="rounded-lg border border-border dark:border-white/5 p-3">
+                        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                           White Cement (40kg Bags)
                         </p>
                         <div className="mt-2 space-y-1 text-sm">
@@ -436,7 +436,7 @@ export default function ScreedingCostEstimator({
                       </div>
 
                       {/* Cost breakdown */}
-                      <div className="rounded-lg bg-neutral-50 dark:bg-white/5 p-3">
+                      <div className="rounded-lg bg-muted/50 dark:bg-white/5 p-3">
                         <div className="space-y-1 text-sm">
                           <Row
                             label="Material cost"
@@ -468,7 +468,7 @@ export default function ScreedingCostEstimator({
                               currencySymbol,
                             )}
                           />
-                          <div className="border-t border-neutral-200 pt-1">
+                          <div className="border-t border-border pt-1">
                             <Row
                               label="Grand total"
                               value={formatCurrency(
@@ -481,7 +481,7 @@ export default function ScreedingCostEstimator({
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
+                      <div className="flex items-start gap-2 rounded-lg bg-muted/50 dark:bg-white/5 p-3 text-xs text-muted-foreground">
                         <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                         Based on {formatNumber(netArea)} m² screeding area,{" "}
                         {result.wasteAllowance}% waste, and{" "}
@@ -624,13 +624,13 @@ export default function ScreedingCostEstimator({
                       </div>
                     </>
                   ) : (
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       Enter the screeding area to see your estimate.
                     </p>
                   )}
                 </div>
                 {result && (
-                  <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                  <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
                     <EstimateDisclaimer
                       text={calcDefaults.estimateDisclaimer}
                     />
@@ -647,7 +647,7 @@ export default function ScreedingCostEstimator({
                     />
                   </div>
                 )}
-                <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
+                <div className="border-t border-border/50 bg-muted/50 dark:bg-white/5 px-6 py-3 text-xs text-muted-foreground">
                   Screeding Paint is measured in litres (m²/L). White Cement is
                   measured in kg (kg per L of paint).
                 </div>
@@ -686,12 +686,12 @@ export default function ScreedingCostEstimator({
 
         {/* Navigation to next step */}
         {netArea > 0 && (
-          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-8 flex flex-col gap-3 rounded-xl border border-border dark:border-white/5 bg-muted/50 dark:bg-white/5 dark:border-white/5 dark:bg-white/5 p-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-brand-navy dark:text-white">
+              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Next step: Paint Calculator
               </p>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 Once your walls are screeded, calculate how much paint you'll
                 need.
               </p>
@@ -737,8 +737,8 @@ function Section({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "mb-6 border-b border-neutral-100 pb-6"}>
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
+    <div className={last ? "" : "mb-6 border-b border-border/50 pb-6"}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>
       {children}
@@ -761,8 +761,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -771,8 +771,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}
@@ -792,11 +792,11 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="mt-1.5">{children}</div>
     </label>

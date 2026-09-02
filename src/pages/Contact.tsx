@@ -73,13 +73,13 @@ export default function Contact() {
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-5">
           <div className="lg:col-span-3">
-            <form onSubmit={onSubmit} aria-label="Contact form" className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid" noValidate>
+            <form onSubmit={onSubmit} aria-label="Contact form" className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card" noValidate>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Your name" error={errors.name}>
                   <input
                     value={form.name}
                     onChange={(e) => update('name', e.target.value)}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="Jane Doe"
                   />
                 </Field>
@@ -88,7 +88,7 @@ export default function Contact() {
                     type="email"
                     value={form.email}
                     onChange={(e) => update('email', e.target.value)}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="you@example.com"
                   />
                 </Field>
@@ -98,7 +98,7 @@ export default function Contact() {
                   <input
                     value={form.subject}
                     onChange={(e) => update('subject', e.target.value)}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="How can we help?"
                   />
                 </Field>
@@ -109,7 +109,7 @@ export default function Contact() {
                     value={form.message}
                     onChange={(e) => update('message', e.target.value)}
                     rows={5}
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10 resize-y"
+                    className="input-field dark:bg-card dark:border-white/10 resize-y"
                     placeholder="Tell us a bit about your project…"
                   />
                 </Field>
@@ -144,8 +144,8 @@ export default function Contact() {
 
           {/* Support info */}
           <div className="lg:col-span-2">
-            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
-              <h2 className="font-display text-lg font-bold text-neutral-900 dark:text-white">Other ways to reach us</h2>
+            <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">Other ways to reach us</h2>
               <ul className="mt-4 space-y-4 text-sm">
                 <li>
                   <a
@@ -154,28 +154,28 @@ export default function Contact() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => track('whatsapp_clicked', { source: 'contact' })}
-                    className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 transition-colors hover:border-accent-green/40 hover:bg-accent-green/5 dark:border-white/5 dark:hover:border-accent-green/30 dark:hover:bg-accent-green/10"
+                    className="flex items-start gap-3 rounded-lg border border-border p-3 transition-colors hover:border-accent-green/40 hover:bg-accent-green/5 dark:border-white/5 dark:hover:border-accent-green/30 dark:hover:bg-accent-green/10"
                   >
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent-green/10 text-accent-green">
                       <MessageCircle aria-hidden="true" className="h-4 w-4" />
                     </span>
                     <span>
-                      <span className="block font-semibold text-neutral-900 dark:text-white">WhatsApp</span>
-                      <span className="block text-neutral-500 dark:text-neutral-500">{siteConfig.whatsappDisplay}</span>
+                      <span className="block font-semibold text-foreground dark:text-primary-foreground">WhatsApp</span>
+                      <span className="block text-muted-foreground dark:text-muted-foreground">{siteConfig.whatsappDisplay}</span>
                     </span>
                   </a>
                 </li>
-                <li className="flex items-start gap-3 rounded-lg border border-neutral-200 p-3 dark:border-white/5">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <li className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5">
+                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                     <Mail aria-hidden="true" className="h-4 w-4" />
                   </span>
                   <span>
-                    <span className="block font-semibold text-neutral-900 dark:text-white">Email</span>
-                    <span className="block text-neutral-500 dark:text-neutral-500">{siteConfig.email}</span>
+                    <span className="block font-semibold text-foreground dark:text-primary-foreground">Email</span>
+                    <span className="block text-muted-foreground dark:text-muted-foreground">{siteConfig.email}</span>
                   </span>
                 </li>
               </ul>
-              <div className="mt-6 rounded-lg bg-neutral-50 p-4 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+              <div className="mt-6 rounded-lg bg-muted/50 p-4 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                 Typical response time: within one business day on weekdays.
               </div>
             </div>
@@ -190,7 +190,7 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   const errorId = label.toLowerCase().replace(/\s+/g, '-');
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{label}</span>
       <div className={classNames('mt-1.5')}>{children}</div>
       {error && <span role="alert" id={`${errorId}-error`} className="mt-1 block text-xs text-red-600">{error}</span>}
     </label>

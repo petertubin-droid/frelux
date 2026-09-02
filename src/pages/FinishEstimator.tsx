@@ -255,7 +255,7 @@ export default function FinishEstimator({
               aria-hidden="true"
               className="h-8 w-8 animate-spin text-brand-purple"
             />
-            <span className="ml-3 text-sm text-neutral-500">
+            <span className="ml-3 text-sm text-muted-foreground">
               Loading finish types...
             </span>
           </div>
@@ -277,11 +277,11 @@ export default function FinishEstimator({
         {!loading && !result && (
           <div className="space-y-8">
             {/* Step 1: Finish Type Selection */}
-            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
-              <h2 className="font-display text-lg font-bold text-neutral-900">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+              <h2 className="font-display text-lg font-bold text-foreground">
                 Choose finish type
               </h2>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Select the wall finish you want to estimate.
               </p>
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -297,25 +297,25 @@ export default function FinishEstimator({
                       className={
                         "select-card flex flex-col items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
-                          ? "select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20"
-                          : "border-neutral-200 hover:border-neutral-300")
+                          ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                          : "border-border hover:border-border")
                       }
                     >
                       <span
                         className={
                           "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
                           (selected
-                            ? "bg-brand-purple text-white"
-                            : "bg-neutral-100 " + meta.color)
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted " + meta.color)
                         }
                       >
                         <Icon className="h-5 w-5" />
                       </span>
                       <span>
-                        <span className="block text-sm font-semibold text-neutral-900">
+                        <span className="block text-sm font-semibold text-foreground">
                           {getFinishTypeLabel(ft)}
                         </span>
-                        <span className="mt-0.5 block text-xs text-neutral-500">
+                        <span className="mt-0.5 block text-xs text-muted-foreground">
                           {getFinishTypeDescription(ft)}
                         </span>
                       </span>
@@ -326,11 +326,11 @@ export default function FinishEstimator({
             </div>
 
             {/* Step 2: Area Input */}
-            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
-              <h2 className="font-display text-lg font-bold text-neutral-900">
+            <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+              <h2 className="font-display text-lg font-bold text-foreground">
                 Surface area
               </h2>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Enter your wall dimensions to calculate the paintable area.
               </p>
 
@@ -343,8 +343,8 @@ export default function FinishEstimator({
                     className={
                       "flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all " +
                       (areaInput.method === "full_room"
-                        ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-                        : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border")
                     }
                   >
                     Full Room
@@ -355,8 +355,8 @@ export default function FinishEstimator({
                     className={
                       "flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all " +
                       (areaInput.method === "individual_wall"
-                        ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-                        : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border")
                     }
                   >
                     Individual Wall
@@ -373,8 +373,8 @@ export default function FinishEstimator({
                       className={
                         "rounded-lg border px-4 py-2 text-sm font-medium transition-all " +
                         (areaInput.unit === u
-                          ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-                          : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                          ? "border-brand-purple bg-primary/5 text-brand-purple"
+                          : "border-border text-muted-foreground hover:border-border")
                       }
                     >
                       {u === "meters" ? "Meters" : "Feet"}
@@ -517,7 +517,7 @@ export default function FinishEstimator({
               </div>
 
               {/* Coats & Waste */}
-              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-neutral-100 pt-6">
+              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border/50 pt-6">
                 <div>
                   <label className="section-label">Number of Coats</label>
                   <input
@@ -623,13 +623,13 @@ export default function FinishEstimator({
               </div>
               {/* Material Breakdown */}
               <div className="mt-6 space-y-4">
-                <h4 className="text-sm font-bold text-neutral-900">
+                <h4 className="text-sm font-bold text-foreground">
                   Material Breakdown
                 </h4>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500">
+                      <tr className="border-b border-border text-left text-xs text-muted-foreground">
                         <th className="pb-2 font-medium">Material</th>
                         <th className="pb-2 text-right font-medium">
                           Qty Needed
@@ -644,32 +644,32 @@ export default function FinishEstimator({
                       {result.materials.map((mat, i) => (
                         <tr
                           key={i}
-                          className="border-b border-neutral-100 last:border-0"
+                          className="border-b border-border/50 last:border-0"
                         >
                           <td className="py-3">
-                            <span className="font-medium text-neutral-900">
+                            <span className="font-medium text-foreground">
                               {mat.name}
                             </span>
                             {mat.isBase && (
-                              <span className="ml-2 text-xs text-neutral-500">
+                              <span className="ml-2 text-xs text-muted-foreground">
                                 Base
                               </span>
                             )}
                             {mat.isFinishing && (
-                              <span className="ml-2 text-xs text-neutral-500">
+                              <span className="ml-2 text-xs text-muted-foreground">
                                 Finishing
                               </span>
                             )}
                           </td>
-                          <td className="py-3 text-right text-neutral-600">
+                          <td className="py-3 text-right text-muted-foreground">
                             {formatNumber(mat.quantityWithWaste)}{" "}
                             {mat.coverageUnit}
                           </td>
-                          <td className="py-3 text-right text-neutral-600">
+                          <td className="py-3 text-right text-muted-foreground">
                             {mat.packagesNeeded} × {mat.packageSize}
                             {mat.packageUnit}
                           </td>
-                          <td className="py-3 text-right font-medium text-neutral-900">
+                          <td className="py-3 text-right font-medium text-foreground">
                             {formatCurrency(mat.cost, currencySymbol)}
                           </td>
                         </tr>
@@ -679,21 +679,21 @@ export default function FinishEstimator({
                 </div>
 
                 {/* Cost Summary */}
-                <div className="rounded-xl bg-neutral-50 p-4">
+                <div className="rounded-xl bg-muted/50 p-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-neutral-500">Total Materials</span>
-                    <span className="font-semibold text-neutral-900">
+                    <span className="text-muted-foreground">Total Materials</span>
+                    <span className="font-semibold text-foreground">
                       {formatCurrency(result.materialCost, currencySymbol)}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-sm">
-                    <span className="text-neutral-500">Total Labour</span>
-                    <span className="font-semibold text-neutral-900">
+                    <span className="text-muted-foreground">Total Labour</span>
+                    <span className="font-semibold text-foreground">
                       {result.labourNote}
                     </span>
                   </div>
-                  <div className="mt-2 flex items-center justify-between border-t border-neutral-200 pt-2 text-sm">
-                    <span className="font-bold text-neutral-900">
+                  <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-sm">
+                    <span className="font-bold text-foreground">
                       Grand Total
                     </span>
                     <span className="font-bold text-brand-purple">

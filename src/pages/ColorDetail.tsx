@@ -65,7 +65,7 @@ export default function ColorDetail() {
 
   if (status === 'loading') {
     return (
-      <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500">
+      <div className="flex items-center justify-center gap-2 py-32 text-sm text-muted-foreground">
         <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…
       </div>
     );
@@ -96,14 +96,14 @@ export default function ColorDetail() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <Link
         to="/colors"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 hover:text-brand-purple"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         All color ideas
       </Link>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border border-neutral-200">
+        <div className="overflow-hidden rounded-xl border border-border">
           <img src={color.image_url} alt={color.title} className="h-full w-full object-cover" loading="lazy" />
         </div>
 
@@ -112,33 +112,33 @@ export default function ColorDetail() {
             {colorCats.map((cat) => (
               <span
                 key={cat.id}
-                className="rounded-full bg-brand-purple/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple"
+                className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-brand-purple"
               >
                 {cat.name}
               </span>
             ))}
           </div>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-brand-navy sm:text-4xl dark:text-white">{color.title}</h1>
-          <p className="mt-3 text-base leading-relaxed text-neutral-600">{color.description}</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl dark:text-primary-foreground">{color.title}</h1>
+          <p className="mt-3 text-base leading-relaxed text-muted-foreground">{color.description}</p>
 
           <div className="mt-6 space-y-3">
             {swatches.map((s) => (
               <div
                 key={s.hex}
-                className="flex items-center gap-4 rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="flex items-center gap-4 rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
               >
                 <div
                   className="h-12 w-12 shrink-0 rounded-md ring-1 ring-black/10"
                   style={{ background: s.hex }}
                 />
                 <div className="flex-1">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{s.label}</p>
-                  <p className="text-sm font-semibold text-brand-navy dark:text-white">{s.name}</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{s.label}</p>
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{s.name}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => copy(s.hex)}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs font-semibold text-neutral-600 hover:border-neutral-300 hover:text-brand-purple dark:border-white/5 dark:text-neutral-300 dark:hover:text-brand-purple-lighter"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
                 >
                   {copied === s.hex ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
                   {copied === s.hex ? 'Copied' : s.hex}
@@ -158,13 +158,13 @@ export default function ColorDetail() {
 
       {related.length > 0 && (
         <div>
-          <h2 className="text-xl font-bold text-brand-navy dark:text-white">Related combinations</h2>
+          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">Related combinations</h2>
           <div className="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((c) => (
               <Link
                 key={c.id}
                 to={`/colors/${c.slug}`}
-                className="group overflow-hidden rounded-xl border border-neutral-200 bg-white transition-all dark:border-white/5 dark:bg-brand-navy-mid hover:-translate-y-1 hover:shadow-lg"
+                className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
@@ -184,8 +184,8 @@ export default function ColorDetail() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h3 className="text-base font-bold text-brand-navy dark:text-white">{c.title}</h3>
-                  <p className="mt-1 text-sm text-neutral-500 line-clamp-2">{c.description}</p>
+                  <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">{c.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{c.description}</p>
                 </div>
               </Link>
             ))}
@@ -198,9 +198,9 @@ export default function ColorDetail() {
 
 function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-white/5 dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{label}</p>
-      <p className="mt-1 text-sm text-neutral-700">{value}</p>
+    <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5 dark:bg-white/5 dark:border-white/5 dark:bg-card">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm text-card-foreground">{value}</p>
     </div>
   );
 }

@@ -189,23 +189,23 @@ export default function AdminUsers() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-neutral-700">
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+              <tr className="border-b border-border dark:border-border border-border">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Email
                 </th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Role
                 </th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Subscription
                 </th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Plan
                 </th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Expires
                 </th>
-                <th className="py-3 pr-4 font-semibold text-neutral-500 dark:text-neutral-500">
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   Actions
                 </th>
               </tr>
@@ -215,7 +215,7 @@ export default function AdminUsers() {
                 <tr>
                   <td
                     colSpan={6}
-                    className="py-8 text-center text-neutral-500 dark:text-neutral-500"
+                    className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
                     No users yet.
                   </td>
@@ -230,9 +230,9 @@ export default function AdminUsers() {
                   return (
                     <tr
                       key={u.id}
-                      className="border-b border-neutral-100 last:border-0 dark:border-neutral-800"
+                      className="border-b border-border/50 last:border-0 dark:border-border"
                     >
-                      <td className="py-3 pr-4 font-medium text-brand-navy dark:text-white">
+                      <td className="py-3 pr-4 font-medium text-foreground dark:text-primary-foreground">
                         {u.email}
                       </td>
                       <td className="py-3 pr-4">
@@ -240,8 +240,8 @@ export default function AdminUsers() {
                           className={classNames(
                             "rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
                             u.role === "admin"
-                              ? "bg-brand-purple/15 text-brand-purple"
-                              : "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-500",
+                              ? "bg-primary/15 text-brand-purple"
+                              : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground",
                           )}
                         >
                           {u.role}
@@ -259,17 +259,17 @@ export default function AdminUsers() {
                             Expired
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-400 dark:bg-neutral-800">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground dark:bg-card-foreground/90">
                             <X className="h-3 w-3" /> Free
                           </span>
                         )}
                       </td>
-                      <td className="py-3 pr-4 text-neutral-600 dark:text-neutral-300">
+                      <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground/80">
                         {isEditing ? (
                           <AdminSelect
                             value={editPlan}
                             onChange={(e) => setEditPlan(e.target.value)}
-                            className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800"
+                            className="rounded-md border border-border px-2 py-1 text-xs dark:border-border border-border dark:bg-card-foreground/90"
                           >
                             {PLAN_OPTIONS.map((p) => (
                               <option key={p.value} value={p.value}>
@@ -285,12 +285,12 @@ export default function AdminUsers() {
                           "—"
                         )}
                       </td>
-                      <td className="py-3 pr-4 text-neutral-500 dark:text-neutral-500">
+                      <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground">
                         {isEditing ? (
                           <AdminSelect
                             value={editDays}
                             onChange={(e) => setEditDays(e.target.value)}
-                            className="rounded-md border border-neutral-200 px-2 py-1 text-xs dark:border-neutral-700 dark:bg-neutral-800"
+                            className="rounded-md border border-border px-2 py-1 text-xs dark:border-border border-border dark:bg-card-foreground/90"
                           >
                             {DURATION_OPTIONS.map((d) => (
                               <option key={d.value} value={d.value}>
@@ -331,7 +331,7 @@ export default function AdminUsers() {
                             <AdminButton
                               variant="secondary"
                               onClick={() => startEdit(u)}
-                              className="text-xs py-1 text-brand-purple hover:bg-brand-purple/5"
+                              className="text-xs py-1 text-brand-purple hover:bg-primary/5"
                             >
                               <PremiumBadge
                                 size="xs"

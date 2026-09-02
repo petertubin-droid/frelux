@@ -105,7 +105,7 @@ export default function ClientManagement() {
         <p className="text-sm text-muted-foreground">{clients.length} client{clients.length !== 1 ? 's' : ''}</p>
         <button
           onClick={() => { setForm({ name: '', company: '', email: '', phone: '', address: '', notes: '' }); setEditingId(null); setShowForm(true); }}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Client
         </button>
@@ -152,7 +152,7 @@ export default function ClientManagement() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="rounded-lg bg-brand-purple px-6 py-2 text-sm font-medium text-white">
+            <button type="submit" className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground">
               {editingId ? 'Update' : 'Create'}
             </button>
             <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}
@@ -344,7 +344,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
                 placeholder="Subject..." className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />
               <textarea rows={2} value={commForm.body} onChange={(e) => setCommForm({ ...commForm, body: e.target.value })}
                 placeholder="Details..." className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />
-              <button type="submit" className="rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-medium text-white">Save</button>
+              <button type="submit" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground">Save</button>
             </form>
           )}
 

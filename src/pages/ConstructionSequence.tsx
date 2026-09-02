@@ -50,17 +50,17 @@ export default function ConstructionSequence() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
           {/* Stage overview */}
-          <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
-            <h3 className="font-semibold text-neutral-900 mb-3">
+          <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+            <h3 className="font-semibold text-foreground mb-3">
               Construction Stages
             </h3>
             <div className="flex flex-wrap gap-2">
               {plan.stages.map((s, i) => (
                 <div
                   key={i}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple/10 px-3 py-1.5 text-xs font-medium text-brand-purple"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple"
                 >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-purple text-white text-xs">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs">
                     {i + 1}
                   </span>
                   {s}
@@ -85,7 +85,7 @@ export default function ConstructionSequence() {
               {plan.quality_gates.map((gate, i) => (
                 <div
                   key={i}
-                  className="rounded-lg border border-blue-100 bg-white p-3"
+                  className="rounded-lg border border-blue-100 bg-card p-3"
                 >
                   <p className="text-sm font-medium text-blue-900 flex items-center gap-2">
                     <FileCheck className="w-4 h-4 text-blue-500" />
@@ -117,7 +117,7 @@ export default function ConstructionSequence() {
                 {plan.parallel_activities.map((p, i) => (
                   <div
                     key={i}
-                    className="rounded-lg border border-green-100 bg-white p-3"
+                    className="rounded-lg border border-green-100 bg-card p-3"
                   >
                     <p className="text-xs font-medium text-green-700">
                       Steps {p.steps.join(" & ")} can overlap:
@@ -191,46 +191,46 @@ function StepCard({
   onToggle: () => void;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden">
+    <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
       <button
         onClick={onToggle}
         className="flex w-full items-center justify-between p-4 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-navy text-white text-sm font-bold shrink-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-primary-foreground text-sm font-bold shrink-0">
             {step.step_number}
           </span>
           <div>
-            <p className="text-sm font-semibold text-neutral-900">
+            <p className="text-sm font-semibold text-foreground">
               {step.title}
             </p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               {step.stage} · {step.estimated_duration_days}
             </p>
           </div>
         </div>
         {isOpen ? (
-          <ChevronDown aria-hidden="true" className="w-5 h-5 text-neutral-500" />
+          <ChevronDown aria-hidden="true" className="w-5 h-5 text-muted-foreground" />
         ) : (
-          <ChevronRight className="w-5 h-5 text-neutral-500" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
         )}
       </button>
 
       {isOpen && (
-        <div className="border-t border-neutral-100 p-4 space-y-4">
-          <p className="text-sm text-neutral-600">{step.description}</p>
+        <div className="border-t border-border/50 p-4 space-y-4">
+          <p className="text-sm text-muted-foreground">{step.description}</p>
 
           {/* Prerequisites */}
           {step.prerequisites.length > 0 && (
             <div>
-              <p className="text-xs font-medium text-neutral-500 mb-1">
+              <p className="text-xs font-medium text-muted-foreground mb-1">
                 Prerequisites:
               </p>
               <div className="flex gap-2">
                 {step.prerequisites.map((p) => (
                   <span
                     key={p}
-                    className="text-xs rounded bg-neutral-100 px-2 py-0.5 text-neutral-600"
+                    className="text-xs rounded bg-muted px-2 py-0.5 text-muted-foreground"
                   >
                     Step {p}
                   </span>
@@ -302,7 +302,7 @@ function Section({
 }) {
   const colorMap = {
     "brand-purple": "text-brand-purple",
-    neutral: "text-neutral-500",
+    neutral: "text-muted-foreground",
     green: "text-green-600",
     blue: "text-blue-600",
   };
@@ -317,9 +317,9 @@ function Section({
         {items.map((item, i) => (
           <li
             key={i}
-            className="text-xs text-neutral-600 flex items-start gap-2"
+            className="text-xs text-muted-foreground flex items-start gap-2"
           >
-            <span className="text-neutral-300 mt-0.5">•</span> {item}
+            <span className="text-muted-foreground/80 mt-0.5">•</span> {item}
           </li>
         ))}
       </ul>

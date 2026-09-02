@@ -34,8 +34,8 @@ const allTools: Tool[] = [
       "Complete room-by-room painting project estimate: paint buckets, ceiling, walls, surface conditions, and material costs.",
     benefit: "Bucket-level accuracy",
     to: "/paint-calculator?mode=room-estimate",
-    accent: "text-brand-purple bg-brand-purple/10",
-    glow: "group-hover:bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
+    glow: "group-hover:bg-primary/10",
     featured: true,
   },
   {
@@ -65,8 +65,8 @@ const allTools: Tool[] = [
       "Calculate POP cement, fibreglass mesh, and materials needed for your ceiling project.",
     benefit: "Cement & mesh quantities",
     to: "/pop-ceiling-calculator",
-    accent: "text-brand-purple bg-brand-purple/10",
-    glow: "group-hover:bg-brand-purple/10",
+    accent: "text-brand-purple bg-primary/10",
+    glow: "group-hover:bg-primary/10",
   },
   {
     icon: Grid3x3,
@@ -116,7 +116,7 @@ export default function ToolsSection() {
   return (
     <section
       data-tour="calculators"
-      className="relative overflow-hidden bg-white py-20 sm:py-24 dark:bg-brand-navy bg-noise"
+      className="relative overflow-hidden bg-card py-20 sm:py-24 dark:bg-background bg-noise"
     >
       {/* Subtle background pattern */}
       <div
@@ -141,7 +141,7 @@ export default function ToolsSection() {
               <Link
                 key={tool.to}
                 to={tool.to}
-                className={`card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-1 ${
+                className={`card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-500 dark:border-white/5 dark:bg-card lg:col-span-1 ${
                   isFeatured ? "lg:col-span-2 lg:row-span-1" : ""
                 } lg:col-span-1`}
                 style={{
@@ -155,11 +155,11 @@ export default function ToolsSection() {
               >
                 {/* Subtle hover gradient */}
                 <div
-                  className={`pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 ${tool.glow}`}
+                  className={`pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/0 blur-3xl transition-all duration-500 ${tool.glow}`}
                 />
 
                 {/* Shimmer border on top */}
-                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
+                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all duration-500 group-hover:via-primary/30" />
 
                 <div className="flex items-center gap-3">
                   <span
@@ -168,22 +168,22 @@ export default function ToolsSection() {
                     <Icon className="h-5 w-5" />
                   </span>
                   {isFeatured && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                       Recommended
                     </span>
                   )}
                 </div>
 
-                <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">
+                <h4 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">
                   {tool.title}
                 </h4>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                   {tool.description}
                 </p>
 
                 {/* Benefit tag */}
                 <div className="mt-4 flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 rounded-lg bg-neutral-50 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-muted/50 px-2.5 py-1 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                     {tool.benefit}
                   </span>
                 </div>
@@ -200,7 +200,7 @@ export default function ToolsSection() {
           {/* Color & AI — smaller card */}
           <Link
             to="/colors"
-            className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 transition-all duration-500 dark:border-white/5 dark:bg-brand-navy-mid"
+            className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-500 dark:border-white/5 dark:bg-card"
             style={{
               opacity: isVisible ? 1 : 0,
               transform: isVisible ? "translateY(0)" : "translateY(20px)",
@@ -210,16 +210,16 @@ export default function ToolsSection() {
               transitionDelay: `${allTools.length * 60}ms`,
             }}
           >
-            <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+            <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-brand-purple/10 transition-transform duration-300 group-hover:scale-110">
+              <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl text-brand-purple bg-primary/10 transition-transform duration-300 group-hover:scale-110">
                 <Palette className="h-5 w-5" />
               </span>
             </div>
-            <h4 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">
+            <h4 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">
               Color Library & AI
             </h4>
-            <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+            <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
               Browse hundreds of paint colours with names and codes. Get
               AI-powered recommendations.
             </p>
@@ -235,7 +235,7 @@ export default function ToolsSection() {
       <Container className="relative mt-12 text-center">
         <Link
           to="/templates"
-          className="group inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 bg-white px-6 py-3.5 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:border-brand-purple/20 hover:text-brand-purple hover:shadow-md dark:border-white/10 dark:bg-brand-navy-mid dark:text-white/80"
+          className="group inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:border-brand-purple/20 hover:text-brand-purple hover:shadow-md dark:border-white/10 dark:bg-card dark:text-primary-foreground/80"
         >
           Explore Calculator Templates
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

@@ -264,7 +264,7 @@ export default function LearnArticle() {
 
   if (status === "loading")
     return (
-      <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500">
+      <div className="flex items-center justify-center gap-2 py-32 text-sm text-muted-foreground">
         <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading…
       </div>
     );
@@ -274,9 +274,9 @@ export default function LearnArticle() {
       <div className="mx-auto max-w-md py-20 text-center">
         <AlertCircle
           aria-hidden="true"
-          className="mx-auto h-8 w-8 text-neutral-300"
+          className="mx-auto h-8 w-8 text-muted-foreground/80"
         />
-        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
           This article doesn't exist or hasn't been published yet.
         </p>
         <Link
@@ -308,7 +308,7 @@ export default function LearnArticle() {
       {/* Reading progress bar */}
       <div className="fixed left-0 right-0 top-0 z-50 h-1 bg-transparent">
         <div
-          className="h-full bg-gradient-to-r from-brand-purple to-brand-purple-lighter transition-[width] duration-150"
+          className="h-full bg-gradient-to-r from-primary to-primary-lighter transition-[width] duration-150"
           style={{ width: `${readingProgress}%` }}
         />
       </div>
@@ -318,11 +318,11 @@ export default function LearnArticle() {
         className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-14"
       >
         {/* Breadcrumb */}
-        <nav className="mb-8 flex items-center gap-2 text-xs text-neutral-500">
+        <nav className="mb-8 flex items-center gap-2 text-xs text-muted-foreground">
           <Link to="/learn" className="transition-colors hover:text-brand-purple">
             Learn
           </Link>
-          <span className="text-neutral-300">/</span>
+          <span className="text-muted-foreground/80">/</span>
           <Link
             to={`/learn/category/${article.category_slug}`}
             className="capitalize transition-colors hover:text-brand-purple"
@@ -336,10 +336,10 @@ export default function LearnArticle() {
           {tableOfContents.length > 0 && (
             <aside className="hidden w-56 shrink-0 lg:block">
               <div className="sticky top-8">
-                <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-neutral-400">
+                <div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   <BookOpen className="h-3.5 w-3.5" /> Contents
                 </div>
-                <nav className="space-y-1 border-l border-neutral-200 dark:border-white/10">
+                <nav className="space-y-1 border-l border-border dark:border-white/10">
                   {tableOfContents.map((h) => (
                     <a
                       key={h.id}
@@ -347,7 +347,7 @@ export default function LearnArticle() {
                       className={`block border-l-2 py-1.5 text-xs transition-all ${
                         activeHeading === h.id
                           ? "border-brand-purple font-semibold text-brand-purple"
-                          : "border-transparent text-neutral-500 hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300"
+                          : "border-transparent text-muted-foreground hover:border-border hover:text-card-foreground dark:hover:text-muted-foreground/80"
                       } ${h.level === 3 ? "pl-5" : "pl-3"}`}
                     >
                       {h.text}
@@ -357,7 +357,7 @@ export default function LearnArticle() {
                 {faqs.length > 0 && (
                   <a
                     href="#faqs"
-                    className="mt-2 block border-l-2 border-transparent py-1.5 pl-3 text-xs text-neutral-500 transition-colors hover:border-neutral-300 hover:text-neutral-700 dark:hover:text-neutral-300"
+                    className="mt-2 block border-l-2 border-transparent py-1.5 pl-3 text-xs text-muted-foreground transition-colors hover:border-border hover:text-card-foreground dark:hover:text-muted-foreground/80"
                   >
                     FAQs
                   </a>
@@ -370,33 +370,33 @@ export default function LearnArticle() {
           <div className="min-w-0 flex-1">
             {/* Category badge */}
             <div className="mb-5">
-              <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-purple">
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-brand-purple">
                 {article.category_slug.replace(/-/g, " ")}
               </span>
             </div>
 
             {/* Header */}
             <header className="mb-10">
-              <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-brand-navy dark:text-white sm:text-4xl lg:text-[2.75rem]">
+              <h1 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl lg:text-[2.75rem]">
                 {article.title}
               </h1>
               {article.excerpt && (
-                <p className="mt-5 text-lg leading-relaxed text-neutral-500 dark:text-neutral-400">
+                <p className="mt-5 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
                   {article.excerpt}
                 </p>
               )}
-              <div className="mt-7 flex flex-wrap items-center gap-5 border-b border-neutral-200 pb-7 dark:border-white/10">
+              <div className="mt-7 flex flex-wrap items-center gap-5 border-b border-border pb-7 dark:border-white/10">
                 {article.author && (
-                  <span className="flex items-center gap-2 text-xs font-medium text-neutral-500">
+                  <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                     <User aria-hidden="true" className="h-4 w-4" />{" "}
                     {article.author}
                   </span>
                 )}
-                <span className="flex items-center gap-2 text-xs font-medium text-neutral-500">
+                <span className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Clock className="h-4 w-4" /> {readingTime} min read
                 </span>
                 {article.published_at && (
-                  <span className="text-xs font-medium text-neutral-500">
+                  <span className="text-xs font-medium text-muted-foreground">
                     {new Date(article.published_at).toLocaleDateString(
                       "en-US",
                       { year: "numeric", month: "long", day: "numeric" },
@@ -405,7 +405,7 @@ export default function LearnArticle() {
                 )}
                 <button
                   onClick={shareArticle}
-                  className="ml-auto flex items-center gap-2 rounded-lg border border-neutral-200 px-3.5 py-2 text-xs font-medium text-neutral-600 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 hover:text-brand-purple dark:border-white/10 dark:text-neutral-400"
+                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-500" />
@@ -428,10 +428,10 @@ export default function LearnArticle() {
                 />
               </div>
             ) : (
-              <div className="mb-10 flex items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-gradient-to-br from-neutral-50 to-brand-purple/5 py-20 dark:border-white/5 dark:from-brand-navy-mid dark:to-brand-navy">
+              <div className="mb-10 flex items-center justify-center rounded-2xl border border-dashed border-border bg-gradient-to-br from-muted/50 to-primary/5 py-20 dark:border-white/5 dark:from-card dark:to-background">
                 <ImageOff
                   aria-hidden="true"
-                  className="h-10 w-10 text-neutral-300"
+                  className="h-10 w-10 text-muted-foreground/80"
                 />
               </div>
             )}
@@ -445,18 +445,18 @@ export default function LearnArticle() {
             <div
               className="prose prose-sm max-w-none sm:prose-base dark:prose-invert
               prose-headings:scroll-mt-20 prose-headings:font-display
-              prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-2xl prose-h2:font-bold prose-h2:text-brand-navy dark:prose-h2:text-white
-              prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-lg prose-h3:font-semibold prose-h3:text-brand-navy dark:prose-h3:text-white
-              prose-p:mt-5 prose-p:text-base prose-p:leading-[1.75] prose-p:text-neutral-700 dark:prose-p:text-neutral-300
-              prose-li:text-neutral-700 dark:prose-li:text-neutral-300 prose-li:leading-relaxed
-              prose-strong:font-semibold prose-strong:text-brand-navy dark:prose-strong:text-white
+              prose-h2:mt-12 prose-h2:mb-5 prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground dark:prose-h2:text-primary-foreground
+              prose-h3:mt-8 prose-h3:mb-3 prose-h3:text-lg prose-h3:font-semibold prose-h3:text-foreground dark:prose-h3:text-primary-foreground
+              prose-p:mt-5 prose-p:text-base prose-p:leading-[1.75] prose-p:text-card-foreground dark:prose-p:text-muted-foreground/80
+              prose-li:text-card-foreground dark:prose-li:text-muted-foreground/80 prose-li:leading-relaxed
+              prose-strong:font-semibold prose-strong:text-foreground dark:prose-strong:text-primary-foreground
               prose-a:font-medium prose-a:text-brand-purple prose-a:no-underline hover:prose-a:underline
-              prose-code:rounded-md prose-code:bg-neutral-100 dark:prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-medium
+              prose-code:rounded-md prose-code:bg-muted dark:prose-code:bg-white/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-medium
               prose-code:before:content-none prose-code:after:content-none
-              prose-pre:rounded-xl prose-pre:bg-neutral-900
-              prose-blockquote:border-l-4 prose-blockquote:border-brand-purple prose-blockquote:not-italic prose-blockquote:rounded-r-lg prose-blockquote:bg-brand-purple/5 prose-blockquote:py-1 prose-blockquote:pr-4
+              prose-pre:rounded-xl prose-pre:bg-background
+              prose-blockquote:border-l-4 prose-blockquote:border-brand-purple prose-blockquote:not-italic prose-blockquote:rounded-r-lg prose-blockquote:bg-primary/5 prose-blockquote:py-1 prose-blockquote:pr-4
               prose-table:rounded-lg prose-table:overflow-hidden
-              prose-th:bg-neutral-50 dark:prose-th:bg-white/5
+              prose-th:bg-muted/50 dark:prose-th:bg-white/5
               prose-img:rounded-xl
             "
             >
@@ -466,12 +466,12 @@ export default function LearnArticle() {
             {/* FAQ Section */}
             {faqs.length > 0 && (
               <section id="faqs" className="mt-14 scroll-mt-20">
-                <div className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-gradient-to-br from-neutral-50/50 to-white p-7 dark:border-white/10 dark:from-brand-navy-mid dark:to-brand-navy sm:p-9">
+                <div className="overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-muted/50/50 to-card p-7 dark:border-white/10 dark:from-card dark:to-background sm:p-9">
                   <div className="mb-6">
-                    <h2 className="font-display text-xl font-bold text-brand-navy dark:text-white">
+                    <h2 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
                       Frequently Asked Questions
                     </h2>
-                    <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
                       Quick answers to common questions about this topic
                     </p>
                   </div>
@@ -479,19 +479,19 @@ export default function LearnArticle() {
                     {faqs.map((faq, idx) => (
                       <div
                         key={faq.id}
-                        className="overflow-hidden rounded-xl border border-neutral-200/80 bg-white transition-all dark:border-white/10 dark:bg-brand-navy"
+                        className="overflow-hidden rounded-xl border border-border/80 bg-card transition-all dark:border-white/10 dark:bg-background"
                       >
                         <button
                           onClick={() =>
                             setOpenFaq(openFaq === idx ? null : idx)
                           }
-                          className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-brand-purple/[0.02]"
+                          className="flex w-full items-center justify-between gap-4 p-5 text-left transition-colors hover:bg-primary/[0.02]"
                         >
-                          <span className="text-sm font-semibold text-brand-navy dark:text-white">
+                          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                             {faq.question}
                           </span>
                           <ChevronDown
-                            className={`h-5 w-5 shrink-0 text-neutral-400 transition-transform duration-200 ${
+                            className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
                               openFaq === idx ? "rotate-180" : ""
                             }`}
                           />
@@ -501,7 +501,7 @@ export default function LearnArticle() {
                             openFaq === idx ? "max-h-96" : "max-h-0"
                           }`}
                         >
-                          <p className="px-5 pb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                          <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground/80">
                             {faq.answer}
                           </p>
                         </div>
@@ -513,26 +513,26 @@ export default function LearnArticle() {
             )}
 
             {/* CTA section */}
-            <div className="relative mt-14 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-8 text-center sm:p-10">
-              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-purple/10 blur-3xl" aria-hidden="true" />
+            <div className="relative mt-14 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center sm:p-10">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
               <div className="relative">
-                <h3 className="font-display text-xl font-bold text-brand-navy dark:text-white">
+                <h3 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
                   Ready to start your project?
                 </h3>
-                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                   Use FRELUX calculators to estimate materials, plan your
                   budget, and get professional results.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
                   <Link
                     to="/calculators"
-                    className="inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark hover:shadow-md"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
                   >
                     Try Our Calculators <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
                     to="/learn"
-                    className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-6 py-3 text-sm font-semibold text-brand-navy transition-all hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                    className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   >
                     More Guides
                   </Link>
@@ -542,21 +542,21 @@ export default function LearnArticle() {
 
             {/* Prev/Next navigation */}
             {(prevArticle || nextArticle) && (
-              <nav className="mt-12 grid gap-4 border-t border-neutral-200 pt-8 sm:grid-cols-2 dark:border-white/10">
+              <nav className="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2 dark:border-white/10">
                 {prevArticle ? (
                   <Link
                     to={`/learn/${prevArticle.slug}`}
-                    className="group flex items-center gap-4 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                    className="group flex items-center gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <ArrowLeft
                       aria-hidden="true"
-                      className="h-5 w-5 shrink-0 text-neutral-400 transition-colors group-hover:text-brand-purple"
+                      className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple"
                     />
                     <div className="min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                         Previous
                       </span>
-                      <p className="mt-1 truncate text-sm font-bold text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                      <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {prevArticle.title}
                       </p>
                     </div>
@@ -567,19 +567,19 @@ export default function LearnArticle() {
                 {nextArticle ? (
                   <Link
                     to={`/learn/${nextArticle.slug}`}
-                    className="group flex items-center justify-end gap-4 rounded-2xl border border-neutral-200/80 bg-white p-5 text-right shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                    className="group flex items-center justify-end gap-4 rounded-2xl border border-border/80 bg-card p-5 text-right shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <div className="min-w-0">
-                      <span className="text-xs font-semibold uppercase tracking-widest text-neutral-400">
+                      <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                         Next
                       </span>
-                      <p className="mt-1 truncate text-sm font-bold text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                      <p className="mt-1 truncate text-sm font-bold text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                         {nextArticle.title}
                       </p>
                     </div>
                     <ArrowRight
                       aria-hidden="true"
-                      className="h-5 w-5 shrink-0 text-neutral-400 transition-colors group-hover:text-brand-purple"
+                      className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple"
                     />
                   </Link>
                 ) : (
@@ -603,14 +603,14 @@ export default function LearnArticle() {
             {related.length > 0 && (
               <section className="mt-14">
                 <div className="mb-6 flex items-center gap-3">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                     <BookOpen className="h-4 w-4 text-brand-purple" />
                   </div>
                   <div>
-                    <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                    <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                       Related Articles
                     </h2>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       Continue learning about this topic
                     </p>
                   </div>
@@ -620,7 +620,7 @@ export default function LearnArticle() {
                     <Link
                       key={a.id}
                       to={`/learn/${a.slug}`}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-brand-navy-mid"
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
                     >
                       {a.cover_image_url ? (
                         <div className="aspect-[16/10] overflow-hidden">
@@ -632,16 +632,16 @@ export default function LearnArticle() {
                           />
                         </div>
                       ) : (
-                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-neutral-50 to-brand-purple/5 dark:from-white/5 dark:to-brand-purple/10">
-                          <ImageOff className="h-6 w-6 text-neutral-300" />
+                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+                          <ImageOff className="h-6 w-6 text-muted-foreground/80" />
                         </div>
                       )}
                       <div className="flex flex-1 flex-col p-4">
-                        <h3 className="text-sm font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                        <h3 className="text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                           {a.title}
                         </h3>
                         {a.read_time_minutes && (
-                          <span className="mt-auto flex items-center gap-1 pt-3 text-xs text-neutral-400">
+                          <span className="mt-auto flex items-center gap-1 pt-3 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" /> {a.read_time_minutes}{" "}
                             min read
                           </span>
@@ -657,14 +657,14 @@ export default function LearnArticle() {
             {recent.length > 0 && (
               <section className="mt-12">
                 <div className="mb-6 flex items-center gap-3">
-                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+                  <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                     <Clock className="h-4 w-4 text-brand-purple" />
                   </div>
                   <div>
-                    <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                    <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                       Recently Published
                     </h2>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       Latest from our editorial desk
                     </p>
                   </div>
@@ -674,7 +674,7 @@ export default function LearnArticle() {
                     <Link
                       key={a.id}
                       to={`/learn/${a.slug}`}
-                      className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-brand-navy-mid"
+                      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
                     >
                       {a.cover_image_url ? (
                         <div className="aspect-[16/10] overflow-hidden">
@@ -686,19 +686,19 @@ export default function LearnArticle() {
                           />
                         </div>
                       ) : (
-                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-neutral-50 to-brand-purple/5 dark:from-white/5 dark:to-brand-purple/10">
-                          <ImageOff className="h-6 w-6 text-neutral-300" />
+                        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+                          <ImageOff className="h-6 w-6 text-muted-foreground/80" />
                         </div>
                       )}
                       <div className="flex flex-1 flex-col p-4">
                         <span className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-brand-purple">
                           {a.category_slug.replace(/-/g, " ")}
                         </span>
-                        <h3 className="text-sm font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                        <h3 className="text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                           {a.title}
                         </h3>
                         {a.published_at && (
-                          <span className="mt-auto block pt-3 text-xs text-neutral-400">
+                          <span className="mt-auto block pt-3 text-xs text-muted-foreground">
                             {new Date(a.published_at).toLocaleDateString(
                               "en-US",
                               { month: "short", day: "numeric" },
@@ -745,7 +745,7 @@ function RenderedMarkdown({ content }: { content: string }) {
       elements.push(
         <pre
           key={key++}
-          className="overflow-auto rounded-xl bg-neutral-900 p-5 text-sm text-neutral-100"
+          className="overflow-auto rounded-xl bg-background p-5 text-sm text-muted-foreground/40"
         >
           <code>{codeLines.join("\n")}</code>
         </pre>,
@@ -764,7 +764,7 @@ function RenderedMarkdown({ content }: { content: string }) {
         <h3
           key={key++}
           id={id}
-          className="mt-8 text-lg font-semibold text-brand-navy dark:text-white"
+          className="mt-8 text-lg font-semibold text-foreground dark:text-primary-foreground"
         >
           {renderInline(text)}
         </h3>,
@@ -779,7 +779,7 @@ function RenderedMarkdown({ content }: { content: string }) {
         <h2
           key={key++}
           id={id}
-          className="mt-12 scroll-mt-20 font-display text-2xl font-bold text-brand-navy dark:text-white"
+          className="mt-12 scroll-mt-20 font-display text-2xl font-bold text-foreground dark:text-primary-foreground"
         >
           {renderInline(text)}
         </h2>,
@@ -794,7 +794,7 @@ function RenderedMarkdown({ content }: { content: string }) {
         <h1
           key={key++}
           id={id}
-          className="mt-12 scroll-mt-20 font-display text-3xl font-bold text-brand-navy dark:text-white"
+          className="mt-12 scroll-mt-20 font-display text-3xl font-bold text-foreground dark:text-primary-foreground"
         >
           {renderInline(text)}
         </h1>,
@@ -813,7 +813,7 @@ function RenderedMarkdown({ content }: { content: string }) {
           {items.map((item, idx) => (
             <li
               key={idx}
-              className="text-base leading-relaxed text-neutral-700 list-disc marker:text-brand-purple/50 dark:text-neutral-300"
+              className="text-base leading-relaxed text-card-foreground list-disc marker:text-brand-purple/50 dark:text-muted-foreground/80"
             >
               {renderInline(item)}
             </li>
@@ -836,7 +836,7 @@ function RenderedMarkdown({ content }: { content: string }) {
       elements.push(
         <p
           key={key++}
-          className="mt-5 text-base leading-[1.75] text-neutral-700 dark:text-neutral-300"
+          className="mt-5 text-base leading-[1.75] text-card-foreground dark:text-muted-foreground/80"
         >
           {renderInline(line)}
         </p>,
@@ -862,15 +862,15 @@ function renderTable(lines: string[], key: number): React.ReactNode {
   return (
     <div
       key={key}
-      className="mt-6 overflow-hidden overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10"
+      className="mt-6 overflow-hidden overflow-x-auto rounded-xl border border-border dark:border-white/10"
     >
       <table className="w-full text-sm">
-        <thead className="bg-neutral-50 dark:bg-white/5">
+        <thead className="bg-muted/50 dark:bg-white/5">
           <tr>
             {headers.map((h, i) => (
               <th
                 key={i}
-                className="px-5 py-3 text-left font-semibold text-brand-navy dark:text-white"
+                className="px-5 py-3 text-left font-semibold text-foreground dark:text-primary-foreground"
               >
                 {h}
               </th>
@@ -881,12 +881,12 @@ function renderTable(lines: string[], key: number): React.ReactNode {
           {rows.map((row, ri) => (
             <tr
               key={ri}
-              className="border-t border-neutral-200 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/5"
+              className="border-t border-border transition-colors hover:bg-muted/50 dark:border-white/10 dark:hover:bg-white/5"
             >
               {row.map((cell, ci) => (
                 <td
                   key={ci}
-                  className="px-5 py-3 text-neutral-700 dark:text-neutral-300"
+                  className="px-5 py-3 text-card-foreground dark:text-muted-foreground/80"
                 >
                   {renderInline(cell)}
                 </td>
@@ -906,7 +906,7 @@ function renderInline(text: string): React.ReactNode {
       return (
         <strong
           key={i}
-          className="font-semibold text-brand-navy dark:text-white"
+          className="font-semibold text-foreground dark:text-primary-foreground"
         >
           {part.slice(2, -2)}
         </strong>

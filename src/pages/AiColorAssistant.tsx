@@ -209,7 +209,7 @@ export default function AiColorAssistant() {
 
 function DisclaimerBanner() {
   return (
-    <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 p-4 text-sm text-neutral-700">
+    <div className="mb-6 flex items-start gap-3 rounded-lg border border-accent-cyan/30 bg-accent-cyan/10 p-4 text-sm text-card-foreground">
       <Info
         aria-hidden="true"
         className="mt-0.5 h-4 w-4 shrink-0 text-accent-cyan"
@@ -248,23 +248,23 @@ function UsageBanner({
   }
 
   return (
-    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid text-sm">
+    <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-border bg-card p-4 dark:border-white/5 dark:bg-card text-sm">
       <div className="flex items-center gap-2">
         <Clock className="h-4 w-4 text-brand-purple" />
-        <span className="font-semibold text-brand-navy dark:text-white">
+        <span className="font-semibold text-foreground dark:text-primary-foreground">
           {usage.remaining} uses remaining today
         </span>
       </div>
-      <span className="text-neutral-500">·</span>
-      <span className="text-neutral-500">Daily limit: {usage.limit}</span>
-      <span className="text-neutral-500">·</span>
-      <span className="text-neutral-500">Resets: {usage.resetPeriod}</span>
-      <span className="text-neutral-500">·</span>
-      <span className="text-neutral-500">
+      <span className="text-muted-foreground">·</span>
+      <span className="text-muted-foreground">Daily limit: {usage.limit}</span>
+      <span className="text-muted-foreground">·</span>
+      <span className="text-muted-foreground">Resets: {usage.resetPeriod}</span>
+      <span className="text-muted-foreground">·</span>
+      <span className="text-muted-foreground">
         Mode: {config.accessMode.replace("_", " + ")}
       </span>
-      <span className="text-neutral-500">·</span>
-      <span className="text-neutral-500">
+      <span className="text-muted-foreground">·</span>
+      <span className="text-muted-foreground">
         {usage.isAuthenticated ? "Signed in" : "Anonymous"}
       </span>
     </div>
@@ -286,16 +286,16 @@ function ChooseView({
         type="button"
         onClick={() => onSelect("text")}
         disabled={!!disabled}
-        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid text-left transition-all hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
+        className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card text-left transition-all hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
       >
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple transition-colors group-hover:bg-brand-purple group-hover:text-white">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-brand-purple transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
           <MessageSquare className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+          <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Describe my space
           </h2>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Tell us about your room, furniture, lighting, and the mood you want.
             The AI suggests a tailored color palette.
           </p>
@@ -309,16 +309,16 @@ function ChooseView({
         type="button"
         onClick={() => onSelect("image")}
         disabled={!!disabled}
-        className="group flex flex-col items-start gap-4 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid text-left transition-all hover:-translate-y-1 hover:border-accent-orange/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
+        className="group flex flex-col items-start gap-4 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card text-left transition-all hover:-translate-y-1 hover:border-accent-orange/40 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50 sm:p-8"
       >
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-orange/10 text-accent-orange transition-colors group-hover:bg-accent-orange group-hover:text-white">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-orange/10 text-accent-orange transition-colors group-hover:bg-accent-orange group-hover:text-primary-foreground">
           <ImageIcon className="h-6 w-6" />
         </span>
         <div>
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+          <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Upload a room image
           </h2>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Share a photo of your room. The AI analyzes wall color, furniture,
             and lighting to recommend colors.
           </p>
@@ -349,8 +349,8 @@ function ViewTab({
       className={classNames(
         "inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all",
         active
-          ? "border-brand-purple bg-brand-purple text-white"
-          : "border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-white/5 dark:text-neutral-300 dark:hover:border-white/10",
+          ? "border-brand-purple bg-primary text-primary-foreground"
+          : "border-border text-muted-foreground hover:border-border dark:border-white/5 dark:text-muted-foreground/80 dark:hover:border-white/10",
       )}
       aria-pressed={active}
     >
@@ -388,39 +388,39 @@ function AccessGate({
 
   if (decision.reason === "limit_reached") {
     return (
-      <div className="mb-4 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-neutral-700">
+      <div className="mb-4 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-4 text-sm text-card-foreground">
         <div className="flex items-start gap-3">
           <Clock className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
           <div>
-            <p className="font-semibold text-brand-navy dark:text-white">
+            <p className="font-semibold text-foreground dark:text-primary-foreground">
               You've used all your free AI recommendations for today.
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Your daily allowance resets tomorrow.
             </p>
             {decision.nextAction === "rewarded" && config?.rewardedEnabled && (
               <button
                 type="button"
                 onClick={onRewarded}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-white px-4 py-2 dark:border-accent-orange/30 dark:bg-brand-navy-mid text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
               >
                 <Gift className="h-4 w-4" />
                 Unlock with rewarded access
               </button>
             )}
             {decision.nextAction === "rewarded" && !config?.rewardedEnabled && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Rewarded access is not available right now. Please check back
                 later.
               </p>
             )}
             {decision.nextAction === "paid" && (
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Paid AI access will be available in the future.
               </p>
             )}
             {!isAuthenticated && (
-              <p className="mt-3 text-xs text-neutral-500">
+              <p className="mt-3 text-xs text-muted-foreground">
                 <Link
                   to="/login?redirect=/ai-color-assistant"
                   className="font-semibold text-brand-purple hover:underline"
@@ -576,16 +576,16 @@ function TextConsultation({
           />
         )}
         {rewardedState === "denied" && (
-          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-neutral-500">
+          <div className="mb-4 rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-muted-foreground">
             No rewarded access provider is currently configured. Please check
             back later.
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
           Describe your space
         </h2>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           The more detail you give, the better the recommendation. Mention room
           type, furniture, current colors, lighting, and the mood or style you
           want.
@@ -593,7 +593,7 @@ function TextConsultation({
 
         <form onSubmit={handleSubmit} className="mt-6">
           <label className="block">
-            <span className="block text-sm font-semibold text-neutral-700">
+            <span className="block text-sm font-semibold text-card-foreground">
               Your description
             </span>
             <textarea
@@ -603,12 +603,12 @@ function TextConsultation({
                 if (status === "error" || status === "success") reset();
               }}
               rows={6}
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-1.5 resize-y"
+              className="input-field dark:bg-card dark:border-white/10 mt-1.5 resize-y"
               placeholder="I have a small living room with grey furniture and limited natural light. I want it to feel brighter and more spacious."
               disabled={status === "generating" || !decision.allowed}
             />
           </label>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             {description.trim().length} characters · minimum 10
           </p>
 
@@ -833,16 +833,16 @@ function ImageConsultation({
           />
         )}
         {rewardedState === "denied" && (
-          <div className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-neutral-500">
+          <div className="mb-4 rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-3 text-xs text-muted-foreground">
             No rewarded access provider is currently configured. Please check
             back later.
           </div>
         )}
 
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
           Upload a room image
         </h2>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Share a clear photo of your room. JPG, PNG, or WebP up to 5 MB. You
           can optionally add a description for better results.
         </p>
@@ -851,16 +851,16 @@ function ImageConsultation({
           {!preview ? (
             <ImageDropzone onFile={onFile} disabled={!decision.allowed} />
           ) : (
-            <div className="relative overflow-hidden rounded-xl border border-neutral-200">
+            <div className="relative overflow-hidden rounded-xl border border-border">
               <img
                 src={preview}
                 alt="Room preview"
-                className="max-h-72 w-full object-contain bg-neutral-50 dark:bg-brand-navy"
+                className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
               />
               <button
                 type="button"
                 onClick={clearFile}
-                className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-600 shadow hover:bg-white dark:bg-brand-navy/90 dark:text-neutral-300 dark:hover:bg-brand-navy-mid"
+                className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted-foreground shadow hover:bg-card dark:bg-background/90 dark:text-muted-foreground/80 dark:hover:bg-card"
                 aria-label="Remove image"
               >
                 <X aria-hidden="true" className="h-4 w-4" />
@@ -876,13 +876,13 @@ function ImageConsultation({
           )}
 
           {file && !fileError && (
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-muted-foreground">
               {file.name} · {(file.size / 1024).toFixed(0)} KB
             </p>
           )}
 
           <label className="mt-4 block">
-            <span className="block text-sm font-semibold text-neutral-700">
+            <span className="block text-sm font-semibold text-card-foreground">
               Add a description (optional)
             </span>
             <textarea
@@ -892,7 +892,7 @@ function ImageConsultation({
                 if (status === "error" || status === "success") reset();
               }}
               rows={3}
-              className="input-field dark:bg-brand-navy-mid dark:border-white/10 mt-1.5 resize-y"
+              className="input-field dark:bg-card dark:border-white/10 mt-1.5 resize-y"
               placeholder="e.g. I want this bedroom to feel calm and relaxing."
               disabled={status === "analyzing" || !decision.allowed}
             />
@@ -973,8 +973,8 @@ function ImageDropzone({
         "flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-8 text-center transition-colors",
         disabled ? "cursor-not-allowed opacity-50" : "",
         dragging
-          ? "border-brand-purple bg-brand-purple/5"
-          : "border-neutral-200 hover:border-neutral-300",
+          ? "border-brand-purple bg-primary/5"
+          : "border-border hover:border-border",
       )}
       onClick={() => !disabled && inputRef.current?.click()}
     >
@@ -986,13 +986,13 @@ function ImageDropzone({
         className="sr-only"
         onChange={(e) => onFile(e.target.files?.[0])}
       />
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-neutral-500">
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
         <Upload className="h-5 w-5" />
       </span>
-      <p className="mt-3 text-sm font-semibold text-brand-navy dark:text-white">
+      <p className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
         Tap to upload or take a photo
       </p>
-      <p className="mt-1 text-xs text-neutral-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         JPG, PNG, or WebP · up to 5 MB
       </p>
     </div>
@@ -1028,8 +1028,8 @@ function ResultPanel({
       status !== "preparing")
   ) {
     return (
-      <div className="card sticky top-20 p-6 text-center text-sm text-neutral-500">
-        <Palette className="mx-auto h-8 w-8 text-neutral-300" />
+      <div className="card sticky top-20 p-6 text-center text-sm text-muted-foreground">
+        <Palette className="mx-auto h-8 w-8 text-muted-foreground/80" />
         <p className="mt-3">Your color recommendations will appear here.</p>
       </div>
     );
@@ -1055,10 +1055,10 @@ function ResultPanel({
           aria-hidden="true"
           className="mx-auto h-8 w-8 animate-spin text-brand-purple"
         />
-        <p className="mt-4 text-sm font-semibold text-brand-navy dark:text-white">
+        <p className="mt-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           {label}
         </p>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           This usually takes a few seconds.
         </p>
       </div>
@@ -1077,10 +1077,10 @@ function ResultPanel({
             <p className="text-sm font-semibold text-red-700">
               Couldn't generate recommendations
             </p>
-            <p className="mt-1 text-sm text-neutral-600">
+            <p className="mt-1 text-sm text-muted-foreground">
               {error ?? "An unexpected error occurred."}
             </p>
-            <p className="mt-3 text-xs text-neutral-500">
+            <p className="mt-3 text-xs text-muted-foreground">
               You can try again. If the problem persists, the AI service may be
               temporarily unavailable.
             </p>
@@ -1093,14 +1093,14 @@ function ResultPanel({
   // Success
   return (
     <div className="card sticky top-20 overflow-hidden">
-      <div className="bg-brand-navy p-5 text-white">
+      <div className="bg-background p-5 text-primary-foreground">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-xs font-semibold uppercase tracking-widest">
             Your palette
           </span>
         </div>
-        <p className="mt-2 text-sm text-white/80">
+        <p className="mt-2 text-sm text-primary-foreground/80">
           {recommendation?.paletteSummary}
         </p>
       </div>
@@ -1112,40 +1112,40 @@ function ResultPanel({
       </div>
 
       {recommendation?.finishSuggestion && (
-        <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        <div className="border-t border-border/50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Suggested finish
           </p>
-          <p className="mt-1 text-sm text-neutral-700">
+          <p className="mt-1 text-sm text-card-foreground">
             {recommendation.finishSuggestion}
           </p>
         </div>
       )}
 
       {recommendation?.whyItWorks && (
-        <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        <div className="border-t border-border/50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Why these colors work
           </p>
-          <p className="mt-1 text-sm leading-relaxed text-neutral-700">
+          <p className="mt-1 text-sm leading-relaxed text-card-foreground">
             {recommendation.whyItWorks}
           </p>
         </div>
       )}
 
       {recommendation?.additionalSuggestions && (
-        <div className="border-t border-neutral-100 px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        <div className="border-t border-border/50 px-5 py-4">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Additional suggestions
           </p>
-          <p className="mt-1 text-sm leading-relaxed text-neutral-700">
+          <p className="mt-1 text-sm leading-relaxed text-card-foreground">
             {recommendation.additionalSuggestions}
           </p>
         </div>
       )}
 
       {matchedColor && (
-        <div className="border-t border-neutral-100 bg-brand-purple/5 px-5 py-4">
+        <div className="border-t border-border/50 bg-primary/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-brand-purple">
             Similar FRELUX color
           </p>
@@ -1161,7 +1161,7 @@ function ResultPanel({
                 mode,
               });
             }}
-            className="mt-2 flex items-center gap-3 rounded-lg border border-brand-purple/20 bg-white p-3 dark:border-brand-purple/20 dark:bg-brand-navy-mid transition-colors hover:border-brand-purple/40"
+            className="mt-2 flex items-center gap-3 rounded-lg border border-brand-purple/20 bg-card p-3 dark:border-brand-purple/20 dark:bg-card transition-colors hover:border-brand-purple/40"
           >
             <div className="flex gap-1">
               {[
@@ -1177,10 +1177,10 @@ function ResultPanel({
               ))}
             </div>
             <div className="flex-1">
-              <p className="text-sm font-bold text-brand-navy dark:text-white">
+              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 {matchedColor.title}
               </p>
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 View this color combination
               </p>
             </div>
@@ -1193,11 +1193,11 @@ function ResultPanel({
       )}
 
       {matchedPaintColors.length > 0 && (
-        <div className="border-t border-neutral-100 bg-accent-green/5 px-5 py-4">
+        <div className="border-t border-border/50 bg-accent-green/5 px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-widest text-accent-green">
             Matching FRELUX paint colors
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Closest matches from our color library, tap to view full details.
           </p>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -1217,17 +1217,17 @@ function ResultPanel({
                     source: "paint_color",
                   });
                 }}
-                className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 dark:border-white/5 dark:bg-brand-navy-mid transition-colors hover:border-accent-green/40"
+                className="flex items-center gap-2 rounded-lg border border-border bg-card p-2 dark:border-white/5 dark:bg-card transition-colors hover:border-accent-green/40"
               >
                 <div
                   className="h-8 w-8 shrink-0 rounded ring-1 ring-black/10"
                   style={{ background: pc.hex_code }}
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-bold text-brand-navy dark:text-white">
+                  <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                     {pc.name}
                   </p>
-                  <p className="text-[10px] text-neutral-500">{pc.hex_code}</p>
+                  <p className="text-[10px] text-muted-foreground">{pc.hex_code}</p>
                 </div>
               </Link>
             ))}
@@ -1235,7 +1235,7 @@ function ResultPanel({
         </div>
       )}
 
-      <div className="border-t border-neutral-100 bg-neutral-50 px-5 py-3 text-xs text-neutral-500 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
+      <div className="border-t border-border/50 bg-muted/50 px-5 py-3 text-xs text-muted-foreground dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground">
         AI suggestions are for inspiration only. Test a physical paint sample
         before deciding.
       </div>
@@ -1259,7 +1259,7 @@ function ColorSwatch({
         : "Accent color";
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid">
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card">
       <div
         className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg ring-1 ring-black/10"
         style={{ background: hex, color: textColor }}
@@ -1267,13 +1267,13 @@ function ColorSwatch({
         <span className="text-[10px] font-bold">{valid ? "Aa" : "!"}</span>
       </div>
       <div className="flex-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           {roleLabel}
         </p>
-        <p className="text-sm font-bold text-brand-navy dark:text-white">
+        <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
           {color.name}
         </p>
-        <p className="font-mono text-xs text-neutral-500">
+        <p className="font-mono text-xs text-muted-foreground">
           {valid ? hex : "Invalid color"}
         </p>
       </div>

@@ -73,15 +73,15 @@ export default function Templates() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
       <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
           <Link to="/" className="hover:text-brand-purple dark:hover:text-brand-purple-lighter">Home</Link>
           <ChevronRight className="h-3 w-3" />
           <span>Templates</span>
         </div>
-        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
           FRELUX Calculator Templates
         </h1>
-        <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
           Professionally curated templates for common painting, tiling, screeding, and POP ceiling projects.
           Each template uses the FRELUX calculation engine with current prices and material rules.
         </p>
@@ -90,13 +90,13 @@ export default function Templates() {
       {/* Search + filters */}
       <div className="mb-6 space-y-3">
         <div className="relative">
-          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search templates..."
-            className="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-neutral-500"
+            className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
           />
         </div>
 
@@ -108,8 +108,8 @@ export default function Templates() {
               className={classNames(
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 activeCategory === tab.key
-                  ? 'bg-brand-purple text-white'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-300 dark:hover:bg-white/10'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/10'
               )}
             >
               {tab.label}
@@ -128,16 +128,16 @@ export default function Templates() {
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center dark:border-white/10 dark:bg-white/5">
-          <BadgeCheck className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
-          <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates found</p>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Try a different search or category filter.</p>
+        <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
+          <BadgeCheck className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
+          <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">No templates found</p>
+          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Try a different search or category filter.</p>
         </div>
       ) : (
         <div className="space-y-8">
           {featured.length > 0 && (
             <div>
-              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+              <h2 className="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />
                 Featured Templates
               </h2>
@@ -150,7 +150,7 @@ export default function Templates() {
           )}
           {rest.length > 0 && (
             <div>
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 All Templates
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -164,14 +164,14 @@ export default function Templates() {
       )}
 
       {/* Calculator links */}
-      <div className="mt-10 rounded-xl border border-neutral-200 bg-neutral-50 p-6 dark:border-white/10 dark:bg-white/5">
-        <h2 className="text-sm font-semibold text-neutral-900 dark:text-white">Browse Calculators</h2>
+      <div className="mt-10 rounded-xl border border-border bg-muted/50 p-6 dark:border-white/10 dark:bg-white/5">
+        <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Browse Calculators</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {(['paint', 'tile', 'screeding', 'pop'] as CalculatorType[]).map((type) => (
             <Link
               key={type}
               to={type === 'paint' ? '/paint-calculator' : type === 'tile' ? '/tile-calculator' : type === 'screeding' ? '/screeding-calculator' : '/pop-ceiling-calculator'}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
             >
               <Calculator aria-hidden="true" className="h-3.5 w-3.5" />
               {calculatorLabel(type)}
@@ -194,18 +194,18 @@ function PublicTemplateCard({ template }: { template: DbCalculatorTemplate }) {
   return (
     <Link
       to={`/templates/${template.slug}`}
-      className="group flex flex-col rounded-xl border border-neutral-200 bg-white p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-brand-navy-mid dark:hover:border-brand-purple/40"
+      className="group flex flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40"
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
           <Calculator aria-hidden="true" className="h-3 w-3" />
           {calculatorLabel(template.calculator_type)}
         </span>
         {template.is_featured && <BadgeCheck className="h-3.5 w-3.5 text-amber-500" />}
       </div>
-      <h3 className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white">{template.name}</h3>
+      <h3 className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">{template.name}</h3>
       {template.description && (
-        <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">{template.description}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">{template.description}</p>
       )}
       <div className="mt-4 flex items-center gap-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
         View Template

@@ -169,23 +169,23 @@ export default function Login() {
 
   if (showSuccess) {
     return (
-      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10 dark:bg-brand-navy">
+      <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-muted/50 px-4 py-10 dark:bg-background">
         <div
           className="pointer-events-none absolute inset-0 bg-grid"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/8 blur-[120px]"
+          className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-[120px]"
           aria-hidden="true"
         />
         <div className="relative w-full max-w-sm text-center animate-fade-in-up">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/15">
             <CheckCircle2 className="h-10 w-10 text-emerald-500 dark:text-emerald-400" />
           </div>
-          <h1 className="font-display text-2xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
             Account Created Successfully!
           </h1>
-          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
             Welcome to FRELUX. Your{" "}
             <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">
               {accountType === "pro_worker" ? "Worker" : "Client"}
@@ -194,7 +194,7 @@ export default function Login() {
           </p>
           <div className="mt-8 flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple dark:text-brand-purple-lighter" />
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-500">
+            <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Redirecting to your dashboard...
             </p>
           </div>
@@ -215,28 +215,28 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-neutral-50 px-4 py-10 dark:bg-brand-navy">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-muted/50 px-4 py-10 dark:bg-background">
       <div
         className="pointer-events-none absolute inset-0 bg-grid"
         aria-hidden="true"
       />
       <div
-        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-brand-purple/8 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-[120px]"
         aria-hidden="true"
       />
       <div className="relative w-full max-w-sm animate-fade-in-up">
         <div className="mb-6 flex justify-center">
           <Logo />
         </div>
-        <div className="card p-6 shadow-premium sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid transition-all duration-300">
-          <h1 className="font-display text-xl font-bold text-neutral-900 dark:text-white">
+        <div className="card p-6 shadow-premium sm:p-8 dark:border-white/5 dark:bg-card transition-all duration-300">
+          <h1 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
             {mode === "signin"
               ? "Sign in"
               : mode === "signup"
                 ? "Create account"
                 : "Reset password"}
           </h1>
-          <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
             {mode === "signin"
               ? "Sign in to access your projects, saved estimates, and AI features."
               : mode === "signup"
@@ -244,20 +244,20 @@ export default function Login() {
                 : "Enter your email and we will send you reset instructions."}
           </p>
           {!configured && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-neutral-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/60 bg-amber-50 p-3 text-xs text-card-foreground dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
               <p>Authentication is not configured. Please check back later.</p>
             </div>
           )}
           {info && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-neutral-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-card-foreground dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
               <p>{info}</p>
             </div>
           )}
           {mode === "signup" && (
             <div className="mt-5">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Account type
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
@@ -267,8 +267,8 @@ export default function Login() {
                   className={classNames(
                     "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                     accountType === "client"
-                      ? "border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15"
-                      : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20",
+                      ? "border-brand-purple bg-primary/5 dark:border-brand-purple-lighter dark:bg-primary/15"
+                      : "border-border bg-card hover:border-border dark:border-white/10 dark:bg-background dark:hover:border-white/20",
                   )}
                 >
                   <User
@@ -276,7 +276,7 @@ export default function Login() {
                       "h-6 w-6",
                       accountType === "client"
                         ? "text-brand-purple dark:text-brand-purple-lighter"
-                        : "text-neutral-500 dark:text-neutral-500",
+                        : "text-muted-foreground dark:text-muted-foreground",
                     )}
                   />
                   <div className="text-center">
@@ -285,12 +285,12 @@ export default function Login() {
                         "text-sm font-bold",
                         accountType === "client"
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-neutral-700 dark:text-neutral-200",
+                          : "text-card-foreground dark:text-muted-foreground/60",
                       )}
                     >
                       Client
                     </p>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">
+                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
                       Estimate and save projects
                     </p>
                   </div>
@@ -301,8 +301,8 @@ export default function Login() {
                   className={classNames(
                     "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all",
                     accountType === "pro_worker"
-                      ? "border-brand-purple bg-brand-purple/5 dark:border-brand-purple-lighter dark:bg-brand-purple/15"
-                      : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-white/10 dark:bg-brand-navy dark:hover:border-white/20",
+                      ? "border-brand-purple bg-primary/5 dark:border-brand-purple-lighter dark:bg-primary/15"
+                      : "border-border bg-card hover:border-border dark:border-white/10 dark:bg-background dark:hover:border-white/20",
                   )}
                 >
                   <HardHat
@@ -310,7 +310,7 @@ export default function Login() {
                       "h-6 w-6",
                       accountType === "pro_worker"
                         ? "text-brand-purple dark:text-brand-purple-lighter"
-                        : "text-neutral-500 dark:text-neutral-500",
+                        : "text-muted-foreground dark:text-muted-foreground",
                     )}
                   />
                   <div className="text-center">
@@ -319,12 +319,12 @@ export default function Login() {
                         "text-sm font-bold",
                         accountType === "pro_worker"
                           ? "text-brand-purple dark:text-brand-purple-lighter"
-                          : "text-neutral-700 dark:text-neutral-200",
+                          : "text-card-foreground dark:text-muted-foreground/60",
                       )}
                     >
                       Worker
                     </p>
-                    <p className="text-[10px] text-neutral-500 dark:text-neutral-500">
+                    <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">
                       Offer your services
                     </p>
                   </div>
@@ -338,27 +338,27 @@ export default function Login() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-brand-navy dark:text-neutral-200 dark:hover:bg-white/5"
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-background dark:text-muted-foreground/60 dark:hover:bg-white/5"
               >
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
               </button>
               <div className="my-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   or
                 </span>
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
               </div>
             </div>
           )}
           <form onSubmit={onSubmit} className="space-y-4" noValidate>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Email
               </span>
               <div className="relative mt-1.5">
-                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   type="email"
                   value={email}
@@ -372,11 +372,11 @@ export default function Login() {
             </label>
             {mode !== "reset" && (
               <label className="block">
-                <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                   Password
                 </span>
                 <div className="relative mt-1.5">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="password"
                     value={password}
@@ -439,7 +439,7 @@ export default function Login() {
                       setError(null);
                       setInfo(null);
                     }}
-                    className="text-neutral-500 hover:text-brand-purple hover:underline dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                    className="text-muted-foreground hover:text-brand-purple hover:underline dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                   >
                     Forgot your password?
                   </button>
@@ -474,7 +474,7 @@ export default function Login() {
             </div>
           </form>
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-500 dark:text-neutral-500">
+        <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground">
           <Link
             to="/"
             className="inline-flex items-center gap-1 hover:text-brand-purple dark:hover:text-brand-purple-lighter"

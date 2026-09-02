@@ -96,14 +96,14 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
       {/* Header bar */}
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
             <ExternalLink className="h-4 w-4 text-brand-purple" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-brand-navy dark:text-white">
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
               Complete Offers — Earn FRELUX Credits
             </h3>
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Complete available offers to earn FRELUX Credits. Rewards vary by
               offer.
             </p>
@@ -113,7 +113,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/10 dark:hover:text-white"
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/10 dark:hover:text-primary-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Rewards
@@ -122,15 +122,15 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
       </div>
 
       {/* Iframe container — responsive, no horizontal scroll */}
-      <div className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-white/10 dark:bg-brand-navy-mid">
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card dark:border-white/10 dark:bg-card">
         {/* Loading overlay — absolutely positioned so it doesn't affect layout */}
         {loading && !error && (
-          <div className="absolute inset-0 z-10 flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 bg-white dark:bg-brand-navy-mid">
+          <div className="absolute inset-0 z-10 flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 bg-card dark:bg-card">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+            <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
               Loading offerwall…
             </p>
-            <p className="text-xs text-neutral-400 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               This may take a few seconds.
             </p>
           </div>
@@ -141,17 +141,17 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8">
             <AlertCircle className="h-10 w-10 text-red-400" />
             <div className="text-center">
-              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Unable to load the offerwall
               </p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 This might be a temporary issue. Please try again.
               </p>
             </div>
             <button
               type="button"
               onClick={handleRetry}
-              className="flex items-center gap-2 rounded-xl bg-brand-purple px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
@@ -180,9 +180,9 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
       </div>
 
       {/* Info footer */}
-      <div className="mt-3 flex items-start gap-2 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
-        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-neutral-400" />
-        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+      <div className="mt-3 flex items-start gap-2 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
+        <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           Credits are awarded automatically after you complete an offer. The
           offerwall provider confirms completion securely — you don&apos;t need
           to do anything extra. Your FRELUX Credit balance will update once the

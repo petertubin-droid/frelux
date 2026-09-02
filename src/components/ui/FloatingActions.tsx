@@ -24,14 +24,14 @@ export default function FloatingActions() {
               key={action.to}
               to={action.to}
               onClick={() => setOpen(false)}
-              className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-2.5 shadow-lg animate-fade-in-up dark:border-white/10 dark:bg-brand-navy-mid"
+              className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-2.5 shadow-lg animate-fade-in-up dark:border-white/10 dark:bg-card"
               style={{ animationDelay: `${i * 40}ms` }}
               aria-label={action.label}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/20 dark:text-brand-purple-lighter">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-brand-purple dark:bg-primary/20 dark:text-brand-purple-lighter">
                 <action.icon className="h-4 w-4" />
               </span>
-              <span className="text-sm font-semibold text-neutral-700 whitespace-nowrap dark:text-neutral-200">{action.label}</span>
+              <span className="text-sm font-semibold text-card-foreground whitespace-nowrap dark:text-muted-foreground/60">{action.label}</span>
             </Link>
           ))}
         </div>
@@ -41,7 +41,7 @@ export default function FloatingActions() {
         onClick={() => setOpen((v) => !v)}
         className={classNames(
           'flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-all duration-300 press-scale sm:h-14 sm:w-14',
-          open ? 'bg-neutral-700 text-white rotate-45 dark:bg-neutral-600 shadow-lg' : 'bg-brand-purple text-white hover:bg-brand-purple/90 shadow-lg shadow-brand-purple/20 hover:shadow-brand-purple/30',
+          open ? 'bg-card-foreground/80 text-primary-foreground rotate-45 dark:bg-muted-foreground shadow-lg' : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-brand-purple/20 hover:shadow-brand-purple/30',
         )}
         aria-label={open ? 'Close quick actions' : 'Open quick actions'}
         aria-expanded={open}

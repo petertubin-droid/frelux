@@ -35,7 +35,7 @@ function SectionSkeleton({ minHeight }: { minHeight: number }) {
   return (
     <div
       style={{ minHeight }}
-      className="animate-pulse bg-neutral-50 dark:bg-brand-navy-mid"
+      className="animate-pulse bg-muted/50 dark:bg-card"
       aria-hidden="true"
     />
   );
@@ -123,7 +123,7 @@ export default function Home() {
       <section
         id="calculators"
         aria-label="Calculators"
-        className="bg-white dark:bg-brand-navy"
+        className="bg-card dark:bg-background"
       >
         <ChooseProject />
       </section>
@@ -157,32 +157,32 @@ export default function Home() {
       {/* Marketplace CTA — post a job and get bids */}
       <section
         aria-label="FRELUX Marketplace"
-        className="bg-neutral-50 py-16 dark:bg-brand-navy-mid sm:py-20"
+        className="bg-muted/50 py-16 dark:bg-card sm:py-20"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter">
               <ShoppingBag aria-hidden="true" className="h-3.5 w-3.5" />
               FRELUX Marketplace
             </div>
-            <h2 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+            <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
               Post a Job & Get Bids from Verified Pros
             </h2>
-            <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500 sm:text-base">
+            <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground sm:text-base">
               Run a calculation, post it as a job, and receive competitive bids
               from verified construction professionals in your area.
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 to="/marketplace"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
               >
                 <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse
                 Jobs
               </Link>
               <Link
                 to="/marketplace/post"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 px-6 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-200 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-semibold text-card-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
               </Link>

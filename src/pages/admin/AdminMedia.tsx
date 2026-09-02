@@ -61,14 +61,14 @@ export default function AdminMedia() {
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Folders sidebar */}
         <div className="w-full shrink-0 lg:w-52">
-          <div className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Folders</p>
+          <div className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Folders</p>
             <div className="space-y-1">
-              <AdminButton type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100')}>
+              <AdminButton type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted')}>
                 <FolderIcon className="h-4 w-4" /> All Media
               </AdminButton>
               {folders.map((f) => (
-                <AdminButton key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:bg-neutral-100')}>
+                <AdminButton key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted')}>
                   <FolderIcon className="h-4 w-4" /> {f.name}
                 </AdminButton>
               ))}
@@ -81,10 +81,10 @@ export default function AdminMedia() {
           {/* Toolbar */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file name…" className="pl-9" />
             </div>
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
               <Upload className="h-4 w-4" />
               {uploading ? 'Uploading…' : 'Upload Image'}
               <AdminInput type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ''; }} disabled={uploading} />
@@ -99,9 +99,9 @@ export default function AdminMedia() {
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {items.map((item) => (
                 <AdminCard key={item.id} className="group overflow-hidden p-0">
-                  <div className="relative aspect-square overflow-hidden bg-neutral-100">
+                  <div className="relative aspect-square overflow-hidden bg-muted">
                     <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
-                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-neutral-500 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </AdminIconButton>
                   </div>
@@ -110,16 +110,16 @@ export default function AdminMedia() {
                       <div className="flex items-center gap-2">
                         <AdminInput className="flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
                         <AdminButton type="button" onClick={() => saveAlt(item)}><Check aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-neutral-200 p-1.5 text-neutral-500 dark:text-neutral-500"><X aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-border p-1.5 text-muted-foreground dark:text-muted-foreground"><X aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <p className="truncate text-xs font-medium text-neutral-700" title={item.file_name}>{item.file_name}</p>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingAlt(item.id); setAltText(item.alt_text ?? ''); }} className="shrink-0 rounded p-1 text-neutral-500 hover:text-brand-purple"><Pencil className="h-3 w-3" /></AdminIconButton>
+                        <p className="truncate text-xs font-medium text-card-foreground" title={item.file_name}>{item.file_name}</p>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingAlt(item.id); setAltText(item.alt_text ?? ''); }} className="shrink-0 rounded p-1 text-muted-foreground hover:text-brand-purple"><Pencil className="h-3 w-3" /></AdminIconButton>
                       </div>
                     )}
-                    {item.alt_text && editingAlt !== item.id && <p className="mt-0.5 truncate text-[10px] text-neutral-500 dark:text-neutral-500">{item.alt_text}</p>}
-                    <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{(item.size_bytes / 1024).toFixed(0)} KB</p>
+                    {item.alt_text && editingAlt !== item.id && <p className="mt-0.5 truncate text-[10px] text-muted-foreground dark:text-muted-foreground">{item.alt_text}</p>}
+                    <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{(item.size_bytes / 1024).toFixed(0)} KB</p>
                   </div>
                 </AdminCard>
               ))}

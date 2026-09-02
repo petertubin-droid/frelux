@@ -44,7 +44,7 @@ const mountedRef = useRef(true);
         />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/10 dark:bg-white/5" />
+            <div key={i} className="h-40 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/10 dark:bg-white/5" />
           ))}
         </div>
       </section>
@@ -71,10 +71,10 @@ const mountedRef = useRef(true);
             const href = template.slug ? `/templates/${template.slug}` : meta?.path ?? '/templates';
             return (
               <li key={template.id}>
-                <article className="group flex h-full flex-col rounded-xl border border-neutral-200 bg-white p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:bg-brand-navy-mid dark:hover:border-brand-purple/40">
+                <article className="group flex h-full flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40">
                   {/* Calculator type badge */}
                   <div className="flex items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+                    <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                       <Calculator className="h-3 w-3" />
                       {calculatorLabel(template.calculator_type)}
                     </span>
@@ -86,19 +86,19 @@ const mountedRef = useRef(true);
                   </div>
 
                   {/* Template name */}
-                  <h3 className="mt-3 text-sm font-semibold text-neutral-900 dark:text-white">
+                  <h3 className="mt-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
                     {template.name}
                   </h3>
 
                   {/* Description */}
-                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
                     {template.description}
                   </p>
 
                   {/* CTA link */}
                   <Link
                     to={href}
-                    className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-brand-purple transition-colors hover:text-brand-purple-dark dark:text-brand-purple-lighter dark:hover:text-white"
+                    className="mt-auto inline-flex items-center gap-1 pt-3 text-xs font-medium text-brand-purple transition-colors hover:text-brand-purple-dark dark:text-brand-purple-lighter dark:hover:text-primary-foreground"
                   >
                     Use template
                     <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
@@ -114,7 +114,7 @@ const mountedRef = useRef(true);
       <div className="mt-8 text-center">
         <Link
           to="/templates"
-          className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-700 transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-neutral-300 dark:hover:border-brand-purple/40 dark:hover:text-brand-purple-lighter"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-card-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/40 dark:hover:text-brand-purple-lighter"
         >
           Browse all templates
           <ArrowRight className="h-4 w-4" />

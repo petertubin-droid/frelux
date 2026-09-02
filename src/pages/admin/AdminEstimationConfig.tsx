@@ -60,15 +60,15 @@ export default function AdminEstimationConfig() {
       />
 
       {/* Tabs navigation */}
-      <div className="mb-6 flex flex-wrap gap-2 border-b border-neutral-200 pb-3">
+      <div className="mb-6 flex flex-wrap gap-2 border-b border-border pb-3">
         <AdminButton
           type="button"
           onClick={() => setActiveTab('units')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'units'
-              ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:hover:bg-white/5 hover:text-brand-purple'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple'
           )}
         >
           Units
@@ -79,8 +79,8 @@ export default function AdminEstimationConfig() {
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'pack_sizes'
-              ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:hover:bg-white/5 hover:text-brand-purple'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple'
           )}
         >
           Pack Sizes
@@ -91,8 +91,8 @@ export default function AdminEstimationConfig() {
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_rules'
-              ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:hover:bg-white/5 hover:text-brand-purple'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple'
           )}
         >
           Calc Rules
@@ -103,8 +103,8 @@ export default function AdminEstimationConfig() {
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-semibold transition-all',
             activeTab === 'calc_versions'
-              ? 'bg-brand-purple text-white shadow-sm'
-              : 'border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid text-neutral-600 hover:bg-neutral-50 dark:hover:bg-white/5 hover:text-brand-purple'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'border border-border bg-card dark:border-white/5 dark:bg-card text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5 hover:text-brand-purple'
           )}
         >
           Calc Versions
@@ -174,7 +174,7 @@ function UnitsTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Estimation Units</h2>
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">Estimation Units</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -211,7 +211,7 @@ function UnitsTab() {
             }, {} as Record<string, EstimationUnit[]>)
           ).map(([cat, catItems]) => (
             <div key={cat}>
-              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-400 capitalize">
+              <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground capitalize">
                 {cat}
               </h3>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -219,17 +219,17 @@ function UnitsTab() {
                   <div key={item.id} className="card p-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                        <span className="rounded-md bg-neutral-100 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                        <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>
+                        <span className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
                           {item.symbol}
                         </span>
                         {!item.is_active && (
-                          <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                             Inactive
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                         Sort order: {item.sort_order}
                       </p>
                     </div>
@@ -388,7 +388,7 @@ function UnitForm({
               />
             </AdminField>
             <div>
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span>
               <div className="mt-2">
                 <Toggle checked={isActive} onChange={setIsActive} />
               </div>
@@ -498,7 +498,7 @@ function PackSizesTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Pack Sizes</h2>
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">Pack Sizes</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -536,17 +536,17 @@ function PackSizesTab() {
                     <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700 capitalize">
                       {item.ref_type}
                     </span>
-                    <h3 className="text-base font-bold text-brand-navy truncate">{refName}</h3>
+                    <h3 className="text-base font-bold text-foreground truncate">{refName}</h3>
                     {!item.is_active && (
-                      <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                         Inactive
                       </span>
                     )}
                   </div>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
                     <span>
                       Pack size:{' '}
-                      <strong className="text-brand-navy dark:text-white">
+                      <strong className="text-foreground dark:text-primary-foreground">
                         {item.pack_size} {unit?.symbol ?? ''}
                       </strong>
                     </span>
@@ -710,7 +710,7 @@ function PackSizeForm({
 
             <AdminField label="Referenced Item">
               {loadingRefs ? (
-                <div className="py-2 text-xs text-neutral-500 dark:text-neutral-500">Loading items…</div>
+                <div className="py-2 text-xs text-muted-foreground dark:text-muted-foreground">Loading items…</div>
               ) : refOptions.length > 0 ? (
                 <AdminSelect
                   
@@ -816,7 +816,7 @@ function PackSizeForm({
           </div>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>
@@ -860,7 +860,7 @@ function getRuleStatusBadge(status: RuleStatus | string) {
       );
     case 'calculated':
       return (
-        <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+        <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
           Calculated
         </span>
       );
@@ -878,7 +878,7 @@ function getRuleStatusBadge(status: RuleStatus | string) {
       );
     default:
       return (
-        <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-600">
+        <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
           {status}
         </span>
       );
@@ -935,7 +935,7 @@ function CalcRulesTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Calculation Rules</h2>
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">Calculation Rules</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -966,29 +966,29 @@ function CalcRulesTab() {
             <div key={rule.id} className="card p-4">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-mono text-base font-bold text-brand-navy dark:text-white">
+                  <h3 className="font-mono text-base font-bold text-foreground dark:text-primary-foreground">
                     {rule.rule_key}
                   </h3>
                   {getRuleStatusBadge(rule.rule_status)}
-                  <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-600">
+                  <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
                     {rule.calculator_type ?? 'Global'}
                   </span>
                   {!rule.is_active && (
-                    <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                       Inactive
                     </span>
                   )}
                 </div>
 
                 {rule.description && (
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{rule.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">{rule.description}</p>
                 )}
 
-                <div className="mt-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-2.5 border border-neutral-200">
-                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+                <div className="mt-2 rounded-lg bg-muted/50 dark:bg-white/5 p-2.5 border border-border">
+                  <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                     Rule Value (JSON)
                   </span>
-                  <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-neutral-800">
+                  <pre className="mt-1 max-h-24 overflow-x-auto font-mono text-xs text-foreground">
                     {JSON.stringify(rule.rule_value, null, 2)}
                   </pre>
                 </div>
@@ -1153,7 +1153,7 @@ function CalcRuleForm({
           </AdminField>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>
@@ -1237,7 +1237,7 @@ function CalcVersionsTab() {
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-brand-navy dark:text-white">Calculation Versions</h2>
+        <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">Calculation Versions</h2>
         <AdminButton
           onClick={() => {
             setEditing(null);
@@ -1271,18 +1271,18 @@ function CalcVersionsTab() {
                   <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 capitalize">
                     {ver.calculator_type}
                   </span>
-                  <h3 className="text-base font-bold text-brand-navy dark:text-white">
+                  <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
                     v{ver.version_number}{' '}
                     {ver.version_label ? `(${ver.version_label})` : ''}
                   </h3>
                   {!ver.is_active && (
-                    <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
                       Inactive
                     </span>
                   )}
                 </div>
                 {ver.description && (
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{ver.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">{ver.description}</p>
                 )}
               </div>
               <div className="flex shrink-0 items-center gap-3">
@@ -1426,7 +1426,7 @@ function CalcVersionForm({
           </AdminField>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span>
             <div className="mt-2">
               <Toggle checked={isActive} onChange={setIsActive} />
             </div>

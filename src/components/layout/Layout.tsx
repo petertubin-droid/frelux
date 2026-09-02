@@ -176,14 +176,14 @@ export default function Layout() {
 
   if (maintenance && !isAdmin) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 text-center dark:bg-brand-navy">
-        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-muted/50 px-4 text-center dark:bg-background">
+        <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-brand-purple">
           <Wrench className="h-8 w-8" />
         </div>
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Under Maintenance
         </h1>
-        <p className="mt-2 max-w-md text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 max-w-md text-muted-foreground dark:text-muted-foreground">
           We're making some improvements. Please check back soon.
         </p>
       </div>
@@ -194,7 +194,7 @@ export default function Layout() {
     <div className="flex min-h-screen w-full flex-col">
       <a
         href="#main-content"
-        className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+        className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
       >
         Skip to main content
       </a>

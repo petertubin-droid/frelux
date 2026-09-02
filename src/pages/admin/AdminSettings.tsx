@@ -165,7 +165,7 @@ export default function AdminSettings() {
       )}
       <div className="space-y-6">
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Brand
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -209,7 +209,7 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Contact
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -231,7 +231,7 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Defaults
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -263,7 +263,7 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Cost Estimator
           </h2>
           <AdminField
@@ -279,7 +279,7 @@ export default function AdminSettings() {
           </AdminField>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             SEO
           </h2>
           <AdminField label="SEO title" hint="Optional">
@@ -301,15 +301,15 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Premium Subscriptions
           </h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Enable Premium Subscriptions
               </p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 When enabled, users can subscribe to Pro and Premium plans via
                 Paystack. When disabled, premium features show a "Coming Soon"
                 message.
@@ -329,17 +329,17 @@ export default function AdminSettings() {
           )}
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-1 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Homepage Hero
           </h2>
           <p className="mb-4 text-xs text-amber-600 dark:text-amber-400">
             This is the approved, client-controlled copy shown on the homepage
             hero section. Changes here take effect immediately on save. Use{" "}
-            <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">
+            <code className="rounded bg-muted px-1 dark:bg-white/10">
               #calculators
             </code>{" "}
             for in-page anchors or{" "}
-            <code className="rounded bg-neutral-100 px-1 dark:bg-white/10">
+            <code className="rounded bg-muted px-1 dark:bg-white/10">
               /screeding-calculator
             </code>{" "}
             for routes.
@@ -409,22 +409,22 @@ export default function AdminSettings() {
           </div>
         </AdminCard>
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
             Maintenance
           </h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Maintenance mode
               </p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 When on, visitors see a maintenance notice instead of the tools.
                 Changes take effect immediately across the site.
               </p>
             </div>
             <div className="flex items-center gap-2">
               {maintenanceSaving && (
-                <span className="text-xs text-neutral-500">Saving…</span>
+                <span className="text-xs text-muted-foreground">Saving…</span>
               )}
               {maintenanceSaved && (
                 <span className="text-xs text-green-600">✓ Live</span>

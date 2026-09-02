@@ -163,10 +163,10 @@ export default function AdminTypography() {
 
       {/* Typography area assignments */}
       <AdminCard className="mb-6">
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           Font Assignments
         </h2>
-        <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">
+        <p className="mb-4 text-xs text-muted-foreground dark:text-muted-foreground">
           Click any area to browse and select a font from the library.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -180,7 +180,7 @@ export default function AdminTypography() {
                     'rounded-lg border p-4 transition-all cursor-pointer',
                     isPickerOpen
                       ? 'border-brand-purple ring-2 ring-brand-purple/20'
-                      : 'border-neutral-200 hover:border-neutral-300 dark:border-white/5 dark:hover:border-white/10',
+                      : 'border-border hover:border-border dark:border-white/5 dark:hover:border-white/10',
                   )}
                   onClick={() => {
                     setPickerArea(isPickerOpen ? null : area.key);
@@ -189,15 +189,15 @@ export default function AdminTypography() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-brand-navy dark:text-white">{area.label}</p>
-                      <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{area.description}</p>
+                      <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{area.label}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{area.description}</p>
                     </div>
                     {config[area.key] === originalConfig[area.key] ? (
-                      <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-semibold text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                         Active
                       </span>
                     ) : (
-                      <span className="rounded-full bg-brand-purple/15 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
                         Modified
                       </span>
                     )}
@@ -221,7 +221,7 @@ export default function AdminTypography() {
       {pickerArea && (
         <AdminCard className="mb-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
               Select Font for {TYPOGRAPHY_AREAS.find((a) => a.key === pickerArea)?.label}
             </h2>
             <AdminIconButton variant="ghost"
@@ -236,7 +236,7 @@ export default function AdminTypography() {
           {/* Search + Category filter */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <AdminInput
                 className="pl-10"
                 placeholder="Search fonts…"
@@ -281,26 +281,26 @@ export default function AdminTypography() {
             ))}
           </div>
           {filteredFonts.length === 0 && (
-            <p className="py-8 text-center text-sm text-neutral-500">No fonts match your search.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">No fonts match your search.</p>
           )}
         </AdminCard>
       )}
 
       {/* Live site preview */}
       <AdminCard>
-        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+        <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
           Live Website Preview
         </h2>
-        <div className="rounded-xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy">
+        <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-background">
           {/* Heading */}
           <h3
-            className="text-3xl font-bold text-brand-navy dark:text-white"
+            className="text-3xl font-bold text-foreground dark:text-primary-foreground"
             style={{ fontFamily: `var(--font-headings)` }}
           >
             Plan Your Perfect Paint Project
           </h3>
           <h4
-            className="mt-1 text-lg text-neutral-500 dark:text-neutral-500"
+            className="mt-1 text-lg text-muted-foreground dark:text-muted-foreground"
             style={{ fontFamily: `var(--font-calc-title)` }}
           >
             Tile Calculator
@@ -308,12 +308,12 @@ export default function AdminTypography() {
           {/* Navigation */}
           <div className="mt-4 flex gap-4 text-sm" style={{ fontFamily: `var(--font-nav)` }}>
             <span className="font-semibold text-brand-purple">Home</span>
-            <span className="text-neutral-500 dark:text-neutral-500">Paint Calc</span>
-            <span className="text-neutral-500 dark:text-neutral-500">Color Library</span>
-            <span className="text-neutral-500 dark:text-neutral-500">Learn</span>
+            <span className="text-muted-foreground dark:text-muted-foreground">Paint Calc</span>
+            <span className="text-muted-foreground dark:text-muted-foreground">Color Library</span>
+            <span className="text-muted-foreground dark:text-muted-foreground">Learn</span>
           </div>
           {/* Paragraph */}
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-300" style={{ fontFamily: `var(--font-body)` }}>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground/80" style={{ fontFamily: `var(--font-body)` }}>
             Calculate what you need, estimate what it may cost, and discover colors that can transform your space with precision.
           </p>
           {/* Buttons */}
@@ -326,20 +326,20 @@ export default function AdminTypography() {
             </button>
           </div>
           {/* Calculator card preview */}
-          <div className="mt-6 max-w-sm rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/5 dark:bg-white/5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500" style={{ fontFamily: `var(--font-calc-title)` }}>
+          <div className="mt-6 max-w-sm rounded-lg border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: `var(--font-calc-title)` }}>
               Your Tile Estimate
             </p>
-            <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white" style={{ fontFamily: `var(--font-calc-result)` }}>
+            <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground" style={{ fontFamily: `var(--font-calc-result)` }}>
               ₦371,000
             </p>
             <div className="mt-2 flex justify-between text-xs" style={{ fontFamily: `var(--font-body)` }}>
-              <span className="text-neutral-500">Surface area</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-200">20.0 m²</span>
+              <span className="text-muted-foreground">Surface area</span>
+              <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">20.0 m²</span>
             </div>
             <div className="mt-1 flex justify-between text-xs" style={{ fontFamily: `var(--font-body)` }}>
-              <span className="text-neutral-500">Tiles needed</span>
-              <span className="font-semibold text-neutral-700 dark:text-neutral-200">62 tiles</span>
+              <span className="text-muted-foreground">Tiles needed</span>
+              <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">62 tiles</span>
             </div>
           </div>
         </div>
@@ -356,8 +356,8 @@ function CategoryChip({ label, active, onClick }: { label: string; active: boole
       className={classNames(
         'rounded-full border px-3 py-1 text-xs font-semibold transition-all',
         active
-          ? 'border-brand-purple bg-brand-purple text-white'
-          : 'border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-white/10 dark:text-neutral-300 dark:hover:border-white/20',
+          ? 'border-brand-purple bg-primary text-primary-foreground'
+          : 'border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-white/20',
       )}
     >
       {label}
@@ -386,17 +386,17 @@ function FontCard({
       className={classNames(
         'rounded-lg border p-4 transition-all',
         isActive
-          ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20'
-          : 'border-neutral-200 hover:border-neutral-300 dark:border-white/5 dark:hover:border-white/10',
+          ? 'border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20'
+          : 'border-border hover:border-border dark:border-white/5 dark:hover:border-white/10',
       )}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-bold text-brand-navy dark:text-white">{font.name}</p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-500">{font.category}</p>
+          <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{font.name}</p>
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground">{font.category}</p>
         </div>
         {isActive && (
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-brand-purple text-white">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
             <Check aria-hidden="true" className="h-3.5 w-3.5" />
           </span>
         )}
@@ -410,12 +410,12 @@ function FontCard({
       </p>
       <div className="mt-3 flex items-center gap-2">
         {font.goodForBody && (
-          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
             Body
           </span>
         )}
         {font.goodForHeadings && (
-          <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+          <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
             Heading
           </span>
         )}
@@ -427,8 +427,8 @@ function FontCard({
         className={classNames(
           'mt-3 w-full rounded-lg py-2 text-xs font-semibold transition-all',
           isActive
-            ? 'bg-brand-purple/10 text-brand-purple'
-            : 'bg-neutral-100 text-neutral-700 hover:bg-brand-purple hover:text-white dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-brand-purple',
+            ? 'bg-primary/10 text-brand-purple'
+            : 'bg-muted text-card-foreground hover:bg-primary hover:text-primary-foreground dark:bg-white/5 dark:text-muted-foreground/60 dark:hover:bg-primary',
         )}
       >
         {isActive ? 'Currently Active' : 'Apply This Font'}

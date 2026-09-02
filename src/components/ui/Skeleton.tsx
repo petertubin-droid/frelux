@@ -22,7 +22,7 @@ export function Skeleton({
 }) {
   return (
     <div
-      className={classNames('animate-skeleton-pulse bg-gradient-to-r from-neutral-200 via-neutral-100 to-neutral-200 dark:from-white/10 dark:via-white/5 dark:to-white/10 bg-[length:200%_100%]', variantClasses[variant], className)}
+      className={classNames('animate-skeleton-pulse bg-gradient-to-r from-muted via-muted to-muted dark:from-white/10 dark:via-white/5 dark:to-white/10 bg-[length:200%_100%]', variantClasses[variant], className)}
       style={{ width, height }}
       aria-hidden="true"
     />
@@ -81,7 +81,7 @@ export function SkeletonStat({ className }: { className?: string }) {
 /* Premium color swatch skeleton */
 export function SkeletonColorCard({ className }: { className?: string }) {
   return (
-    <div className={classNames('rounded-2xl border border-neutral-200/60 overflow-hidden dark:border-white/5', className)}>
+    <div className={classNames('rounded-2xl border border-border/60 overflow-hidden dark:border-white/5', className)}>
       <Skeleton variant="rect" className="w-full aspect-[4/5]" />
       <div className="p-3.5 space-y-2">
         <Skeleton variant="text" className="w-2/3" />

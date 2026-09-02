@@ -50,17 +50,17 @@ export default function Footer() {
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="relative overflow-hidden border-t border-neutral-200/60 bg-neutral-50/50 dark:border-white/5 dark:bg-brand-navy"
+      className="relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
       style={{ contentVisibility: "auto", containIntrinsicSize: "380px" }}
     >
       {/* Subtle top gradient */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/10 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
 
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
               Practical tools to plan paint, estimate cost, and discover the
               right colors for your space.
             </p>
@@ -89,13 +89,13 @@ export default function Footer() {
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-neutral-200/60 pt-6 sm:flex-row dark:border-white/5">
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 sm:flex-row dark:border-white/5">
           <div className="flex items-center gap-4">
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               © {new Date().getFullYear()} {siteConfig.name}. All rights
               reserved.
             </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Estimates are for guidance only and not a guarantee of final cost
               or quantity.
             </p>
@@ -103,7 +103,7 @@ export default function Footer() {
           <button
             onClick={() => withdrawConsent()}
             aria-label="Withdraw cookie consent"
-            className="text-xs text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter transition-colors"
+            className="text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter transition-colors"
           >
             Cookie Preferences
           </button>
@@ -122,7 +122,7 @@ function FooterColumn({
 }) {
   return (
     <nav aria-label={title}>
-      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 dark:text-neutral-500">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
         {title}
       </h3>
       <ul className="mt-4 space-y-2.5">
@@ -130,7 +130,7 @@ function FooterColumn({
           <li key={link.path}>
             <Link
               to={link.path}
-              className="text-sm text-neutral-500 transition-colors hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+              className="text-sm text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
               {link.label}
             </Link>

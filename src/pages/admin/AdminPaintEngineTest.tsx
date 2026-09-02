@@ -379,13 +379,13 @@ export default function AdminPaintEngineTest() {
           {/* Coverage Info */}
           {selectedQuality && (
             <AdminCard>
-              <h3 className="mb-2 text-sm font-semibold text-neutral-700">
+              <h3 className="mb-2 text-sm font-semibold text-card-foreground">
                 Coverage Configuration for {selectedProduct?.name} —{" "}
                 {selectedQuality.name}
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div>
-                  <span className="text-xs text-neutral-500">Coverage</span>
+                  <span className="text-xs text-muted-foreground">Coverage</span>
                   <p className="text-sm font-medium">
                     {selectedQuality.coverage ?? "NOT CONFIGURED"}{" "}
                     {selectedQuality.coverage
@@ -396,7 +396,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Ceiling Coverage
                   </span>
                   <p className="text-sm font-medium">
@@ -410,13 +410,13 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-500">Pack Size</span>
+                  <span className="text-xs text-muted-foreground">Pack Size</span>
                   <p className="text-sm font-medium">
                     {selectedProduct?.standard_pack_size ?? 20} L
                   </p>
                 </div>
                 <div>
-                  <span className="text-xs text-neutral-500">Price</span>
+                  <span className="text-xs text-muted-foreground">Price</span>
                   <p className="text-sm font-medium">
                     {prices.get(qualityId)?.price
                       ? formatCurrency(
@@ -434,7 +434,7 @@ export default function AdminPaintEngineTest() {
           {result && (
             <AdminCard>
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-neutral-700">
+                <h3 className="text-sm font-semibold text-card-foreground">
                   Calculation Results
                 </h3>
                 <button
@@ -473,46 +473,46 @@ export default function AdminPaintEngineTest() {
 
               {/* Summary Grid */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Gross Wall Area
                   </span>
                   <p className="text-sm font-semibold">
                     {result.gross_wall_area_m2.toFixed(2)} m²
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Opening Deduction
                   </span>
                   <p className="text-sm font-semibold">
                     −{result.opening_deduction_m2.toFixed(2)} m²
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Net Wall Area
                   </span>
                   <p className="text-sm font-semibold">
                     {result.net_wall_area_m2.toFixed(2)} m²
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">Ceiling Area</span>
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">Ceiling Area</span>
                   <p className="text-sm font-semibold">
                     {result.ceiling_area_m2.toFixed(2)} m²
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Coverage (normalized)
                   </span>
                   <p className="text-sm font-semibold">
                     {result.coverage_rate ?? "N/A"} {result.coverage_unit}
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Effective Coats
                   </span>
                   <p className="text-sm font-semibold">
@@ -520,7 +520,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Theoretical Litres
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
@@ -528,7 +528,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-blue-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Theoretical Buckets
                   </span>
                   <p className="text-sm font-semibold text-blue-700">
@@ -536,7 +536,7 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Practical Buckets
                   </span>
                   <p className="text-sm font-semibold text-green-700">
@@ -544,21 +544,21 @@ export default function AdminPaintEngineTest() {
                   </p>
                 </div>
                 <div className="rounded-lg border bg-green-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     Practical Litres
                   </span>
                   <p className="text-sm font-semibold text-green-700">
                     {result.practical_total_litres.toFixed(2)} L
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">Leftover</span>
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">Leftover</span>
                   <p className="text-sm font-semibold">
                     {result.leftover_litres.toFixed(2)} L
                   </p>
                 </div>
-                <div className="rounded-lg border bg-neutral-50 p-3">
-                  <span className="text-xs text-neutral-500">
+                <div className="rounded-lg border bg-muted/50 p-3">
+                  <span className="text-xs text-muted-foreground">
                     Material Cost
                   </span>
                   <p className="text-sm font-semibold">
@@ -575,29 +575,29 @@ export default function AdminPaintEngineTest() {
               {/* Calculation Steps */}
               {expandedSteps && (
                 <div className="mt-4 border-t pt-4">
-                  <h4 className="mb-2 text-xs font-semibold text-neutral-500">
+                  <h4 className="mb-2 text-xs font-semibold text-muted-foreground">
                     Step-by-step Calculation
                   </h4>
                   <div className="space-y-1">
                     {result.calculation_steps.map((step, i) => (
                       <div
                         key={i}
-                        className="flex items-start gap-3 rounded-md border bg-neutral-50 p-2"
+                        className="flex items-start gap-3 rounded-md border bg-muted/50 p-2"
                       >
-                        <span className="mt-0.5 w-6 shrink-0 text-right text-xs font-medium text-neutral-500">
+                        <span className="mt-0.5 w-6 shrink-0 text-right text-xs font-medium text-muted-foreground">
                           {i + 1}.
                         </span>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-semibold text-neutral-700">
+                            <span className="text-xs font-semibold text-card-foreground">
                               {step.label}
                             </span>
-                            <span className="text-xs font-medium text-neutral-600">
+                            <span className="text-xs font-medium text-muted-foreground">
                               {step.value}
                             </span>
                           </div>
                           {step.detail && (
-                            <p className="mt-0.5 text-xs text-neutral-500">
+                            <p className="mt-0.5 text-xs text-muted-foreground">
                               {step.detail}
                             </p>
                           )}
@@ -609,8 +609,8 @@ export default function AdminPaintEngineTest() {
               )}
 
               {/* Customer Summary Preview */}
-              <div className="mt-4 rounded-lg border-2 border-dashed border-neutral-300 p-4">
-                <h4 className="mb-2 text-xs font-semibold text-neutral-500">
+              <div className="mt-4 rounded-lg border-2 border-dashed border-border p-4">
+                <h4 className="mb-2 text-xs font-semibold text-muted-foreground">
                   Customer-Facing Summary Preview
                 </h4>
                 <div className="space-y-1 text-sm">
@@ -636,7 +636,7 @@ export default function AdminPaintEngineTest() {
                     </strong>
                   </p>
                   <p>Material Cost: {result.customer_summary.material_cost}</p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     {result.customer_summary.labour_note}
                   </p>
                 </div>

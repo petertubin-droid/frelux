@@ -394,7 +394,7 @@ export default function AdSlot({
   if (resolved === "none") {
     return (
       <div
-        className={`hidden rounded-lg border border-dashed border-neutral-200 bg-neutral-50 px-4 py-6 text-center text-xs text-neutral-500 ${className ?? ""}`}
+        className={`hidden rounded-lg border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
         aria-hidden="true"
         data-ad-reserved={slotKey}
       >

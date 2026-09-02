@@ -67,28 +67,28 @@ export default function NotificationSettings() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid">
-        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-neutral-500" />
-        <span className="text-sm text-neutral-500">Checking notification settings…</span>
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card">
+        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Checking notification settings…</span>
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+    <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
           <div className={classNames(
             'flex h-10 w-10 items-center justify-center rounded-lg',
             subscribed
-              ? 'bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter'
-              : 'bg-neutral-100 text-neutral-400 dark:bg-white/5'
+              ? 'bg-primary/10 text-brand-purple dark:text-brand-purple-lighter'
+              : 'bg-muted text-muted-foreground dark:bg-white/5'
           )}>
             {subscribed ? <Bell aria-hidden="true" className="h-5 w-5" /> : <BellOff aria-hidden="true" className="h-5 w-5" />}
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">Push Notifications</h3>
-            <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Push Notifications</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
               {pushSupported
                 ? subscribed
                   ? 'You\'ll receive notifications when professionals message you.'
@@ -105,8 +105,8 @@ export default function NotificationSettings() {
             className={classNames(
               'rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50',
               subscribed
-                ? 'border border-neutral-200 text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5'
-                : 'bg-brand-purple text-white hover:bg-brand-purple-dark'
+                ? 'border border-border text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
             )}
           >
             {actionLoading ? (

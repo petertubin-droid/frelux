@@ -13,10 +13,10 @@ export default function AdminPricing() {
   return (
     <>
       <AdminHeader title="Cost & Pricing" subtitle="Manage paint products, materials, and labor rates." />
-      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-5 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(['products','materials','labor'] as Tab[]).map((t) => (
           <AdminButton key={t} type="button" onClick={() => setTab(t)}
-            className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
+            className={classNames('rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple')}>
             {t === 'products' ? 'Paint products' : t === 'materials' ? 'Materials' : 'Labor rates'}
           </AdminButton>
         ))}
@@ -78,13 +78,13 @@ function ProductsTab() {
               <AdminCard key={item.id} className="flex flex-col gap-2 p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                    {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                    <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>
+                    {!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
                   </div>
-                  <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{item.brand && `${item.brand} · `}{type?.name ?? 'No type'} · {item.container_size} L</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{item.brand && `${item.brand} · `}{type?.name ?? 'No type'} · {item.container_size} L</p>
                   <p className="mt-1 text-xs font-semibold text-brand-purple">{formatCurrency(Number(item.price), '₦')}</p>
                 </div>
-                <div className="mt-2 flex shrink-0 items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                   <div className="flex items-center gap-0.5">
                     <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -144,7 +144,7 @@ function SimpleForm({ table, initial, paintTypes, onClose, onSaved }: { table: s
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
-            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
@@ -179,11 +179,11 @@ function MaterialsTab() {
           {items.map((item) => (
             <AdminCard key={item.id} className="flex flex-col gap-2 p-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5"><h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>{!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}</div>
-                <p className="mt-0.5 text-[10px] text-neutral-500 capitalize">{item.category} · {item.unit}</p>
+                <div className="flex items-center gap-1.5"><h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>{!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}</div>
+                <p className="mt-0.5 text-[10px] text-muted-foreground capitalize">{item.category} · {item.unit}</p>
                 <p className="mt-1 text-xs font-semibold text-brand-purple">{formatCurrency(Number(item.price), '₦')}</p>
               </div>
-              <div className="mt-2 flex shrink-0 items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+              <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <div className="flex items-center gap-0.5">
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -233,7 +233,7 @@ function MaterialForm({ initial, onClose, onSaved }: { initial: DbMaterialPrice 
             <AdminField label="Currency"><AdminSelect  value={currency} onChange={(e) => setCurrency(e.target.value)}><option value="NGN">NGN (₦)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></AdminSelect></AdminField>
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
-          <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+          <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
     </AdminModal>
@@ -267,10 +267,10 @@ function LaborTab() {
           {items.map((item) => (
             <AdminCard key={item.id} className="flex flex-col gap-2 p-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5"><h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>{!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}</div>
+                <div className="flex items-center gap-1.5"><h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>{!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}</div>
                 <p className="mt-1 text-xs font-semibold text-brand-purple">{formatCurrency(Number(item.rate_per_sqm), '₦')} / m²</p>
               </div>
-              <div className="mt-2 flex shrink-0 items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+              <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                 <div className="flex items-center gap-0.5">
                   <AdminButton variant="secondary" onClick={() => { setEditing(item); setShowForm(true); }}><Pencil className="h-3.5 w-3.5" /></AdminButton>
@@ -314,7 +314,7 @@ function LaborForm({ initial, onClose, onSaved }: { initial: DbLaborRate | null;
             <AdminField label="Currency"><AdminSelect  value={currency} onChange={(e) => setCurrency(e.target.value)}><option value="NGN">NGN (₦)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option></AdminSelect></AdminField>
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
-          <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+          <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2"><AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton><AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton></div>
     </AdminModal>

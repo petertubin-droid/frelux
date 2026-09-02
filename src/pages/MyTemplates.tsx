@@ -101,12 +101,12 @@ export default function MyTemplates() {
   if (!user) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <Bookmark className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600" />
-        <h1 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">Sign in to view your templates</h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+        <Bookmark className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
+        <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">Sign in to view your templates</h1>
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           Your saved calculator templates are private and tied to your account.
         </p>
-        <Link to="/dashboard" className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white">
+        <Link to="/dashboard" className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
           <LogIn className="h-4 w-4" /> Sign In
         </Link>
       </div>
@@ -121,7 +121,7 @@ export default function MyTemplates() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-500">
+      <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
         <Link to="/" className="hover:text-brand-purple dark:hover:text-brand-purple-lighter">Home</Link>
         <ChevronRight className="h-3 w-3" />
         <span>My Templates</span>
@@ -129,17 +129,17 @@ export default function MyTemplates() {
 
       <div className="mt-3 flex items-start justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
             My Templates
           </h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             Your saved calculator configurations. Private and secure.
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => fileRef.current?.click()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
             title="Import a template from JSON file"
           >
             <Upload className="h-3.5 w-3.5" /> Import
@@ -154,7 +154,7 @@ export default function MyTemplates() {
           {filtered.length > 0 && (
             <button
               onClick={handleExportAll}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
               title="Export all templates as JSON files"
             >
               <Download aria-hidden="true" className="h-3.5 w-3.5" /> Export All
@@ -185,13 +185,13 @@ export default function MyTemplates() {
       <div className="mt-6 space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+            <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search your templates..."
-              className="w-full rounded-lg border border-neutral-200 bg-white py-2.5 pl-10 pr-4 text-sm text-neutral-900 placeholder-neutral-400 focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-neutral-500"
+              className="w-full rounded-lg border border-border bg-card py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
             />
           </div>
           <div className="flex gap-2">
@@ -202,8 +202,8 @@ export default function MyTemplates() {
                 className={classNames(
                   'rounded-lg px-3 py-2 text-xs font-medium transition-colors',
                   sort === opt.key
-                    ? 'bg-brand-purple text-white'
-                    : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-300'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground/80'
                 )}
               >
                 {opt.label}
@@ -220,8 +220,8 @@ export default function MyTemplates() {
               className={classNames(
                 'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors',
                 activeCategory === tab.key
-                  ? 'bg-brand-purple text-white'
-                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-300'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground/80'
               )}
             >
               {tab.label}
@@ -240,10 +240,10 @@ export default function MyTemplates() {
           {error}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center dark:border-white/10 dark:bg-white/5">
-          <Bookmark className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600" />
-          <p className="mt-3 text-sm font-medium text-neutral-600 dark:text-neutral-300">No templates yet</p>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center dark:border-white/10 dark:bg-white/5">
+          <Bookmark className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground" />
+          <p className="mt-3 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80">No templates yet</p>
+          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Use "Save as Template" in any calculator to create your first one. You can also import a template from a JSON file.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -251,7 +251,7 @@ export default function MyTemplates() {
               <Link
                 key={type}
                 to={CALCULATOR_META[type].path}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs font-medium text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300"
+                className="rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
               >
                 {calculatorLabel(type)} Calculator
               </Link>

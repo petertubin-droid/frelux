@@ -54,21 +54,21 @@ export default function AdminTimelineTemplates() {
             <AdminCard key={tpl.id}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="font-semibold text-neutral-800">{tpl.name}</h3>
-                  <p className="text-xs text-neutral-500 capitalize">{tpl.project_type.replace(/_/g, ' ')}</p>
-                  {tpl.description && <p className="mt-1 text-sm text-neutral-600">{tpl.description}</p>}
+                  <h3 className="font-semibold text-foreground">{tpl.name}</h3>
+                  <p className="text-xs text-muted-foreground capitalize">{tpl.project_type.replace(/_/g, ' ')}</p>
+                  {tpl.description && <p className="mt-1 text-sm text-muted-foreground">{tpl.description}</p>}
                 </div>
                 <div className="flex gap-1">
-                  <AdminIconButton variant="ghost" onClick={() => { setEditing(tpl); setShowForm(true); }} ><Edit3 aria-hidden="true" className="h-4 w-4 text-neutral-500" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" onClick={() => { setEditing(tpl); setShowForm(true); }} ><Edit3 aria-hidden="true" className="h-4 w-4 text-muted-foreground" /></AdminIconButton>
                   <AdminIconButton variant="danger" onClick={() => handleDelete(tpl.id)} ><Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 {tpl.phases.map((phase, i) => (
-                  <div key={i} className="flex items-center gap-1 rounded-lg bg-neutral-100 px-3 py-1 text-xs">
-                    <Calendar aria-hidden="true" className="h-3 w-3 text-neutral-500" />
+                  <div key={i} className="flex items-center gap-1 rounded-lg bg-muted px-3 py-1 text-xs">
+                    <Calendar aria-hidden="true" className="h-3 w-3 text-muted-foreground" />
                     <span className="font-medium">{phase.name}</span>
-                    <span className="text-neutral-500 dark:text-neutral-500">{phase.days}d</span>
+                    <span className="text-muted-foreground dark:text-muted-foreground">{phase.days}d</span>
                   </div>
                 ))}
               </div>
@@ -126,33 +126,33 @@ function TemplateForm({ template, onClose, onSaved }: { template: DbTimelineTemp
         <div className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Name</span>
-              <AdminInput value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Name</span>
+              <AdminInput value={name} onChange={e => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
             </label>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Project Type</span>
-              <AdminSelect value={projectType} onChange={e => setProjectType(e.target.value as ProjectType)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Project Type</span>
+              <AdminSelect value={projectType} onChange={e => setProjectType(e.target.value as ProjectType)} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm">
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
               </AdminSelect>
             </label>
           </div>
 
           <label className="block">
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Description</span>
-            <AdminInput value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm" />
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Description</span>
+            <AdminInput value={description} onChange={e => setDescription(e.target.value)} className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm" />
           </label>
 
           <div>
-            <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Phases</span>
+            <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Phases</span>
             <div className="mt-2 space-y-2">
               {phases.map((phase, i) => (
                 <div key={i} className="grid grid-cols-[1fr_1fr_80px_1fr_auto] gap-2">
-                  <AdminInput value={phase.name} onChange={e => { const p = [...phases]; p[i] = { ...p[i], name: e.target.value }; setPhases(p); }} placeholder="Phase name" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <AdminSelect value={phase.phase} onChange={e => { const p = [...phases]; p[i] = { ...p[i], phase: e.target.value as 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' }; setPhases(p); }} className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm">
+                  <AdminInput value={phase.name} onChange={e => { const p = [...phases]; p[i] = { ...p[i], name: e.target.value }; setPhases(p); }} placeholder="Phase name" className="rounded-lg border border-border px-2 py-1.5 text-sm" />
+                  <AdminSelect value={phase.phase} onChange={e => { const p = [...phases]; p[i] = { ...p[i], phase: e.target.value as 'preparation' | 'screeding' | 'pop_installation' | 'primer' | 'painting' | 'tiling' | 'drying' | 'inspection' | 'completion' }; setPhases(p); }} className="rounded-lg border border-border px-2 py-1.5 text-sm">
                     <option value="preparation">preparation</option><option value="screeding">screeding</option><option value="pop_installation">pop_installation</option><option value="primer">primer</option><option value="painting">painting</option><option value="tiling">tiling</option><option value="drying">drying</option><option value="inspection">inspection</option><option value="completion">completion</option>
                   </AdminSelect>
-                  <AdminInput type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
-                  <AdminInput value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-neutral-200 px-2 py-1.5 text-sm" />
+                  <AdminInput type="number" value={phase.days} onChange={e => { const p = [...phases]; p[i] = { ...p[i], days: +e.target.value }; setPhases(p); }} placeholder="Days" className="rounded-lg border border-border px-2 py-1.5 text-sm" />
+                  <AdminInput value={phase.depends_on ?? ""} onChange={e => { const p = [...phases]; p[i] = { ...p[i], depends_on: e.target.value }; setPhases(p); }} placeholder="Depends on (name)" className="rounded-lg border border-border px-2 py-1.5 text-sm" />
                   <AdminIconButton variant="danger" onClick={() => setPhases(phases.filter((_, j) => j !== i))} ><Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" /></AdminIconButton>
                 </div>
               ))}

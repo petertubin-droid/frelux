@@ -50,7 +50,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
             onClick={() => setCurrentStep(i)}
             className={classNames(
               'h-2.5 rounded-full transition-all',
-              i === currentStep ? 'w-8 bg-brand-purple' : i < currentStep ? 'w-2.5 bg-accent-green' : 'w-2.5 bg-neutral-300 dark:bg-neutral-600',
+              i === currentStep ? 'w-8 bg-primary' : i < currentStep ? 'w-2.5 bg-accent-green' : 'w-2.5 bg-muted dark:bg-muted-foreground',
             )}
             aria-label={`Step ${i + 1}`}
           />
@@ -58,32 +58,32 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
       </div>
 
       {/* Step card */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-brand-navy-mid sm:p-8">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm dark:border-border border-border dark:bg-card sm:p-8">
         {/* Header */}
         <div className="mb-5">
           {step.icon && (
-            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+            <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
               <step.icon className="h-5 w-5" />
             </div>
           )}
-          <h2 className="text-lg font-bold text-brand-navy dark:text-white">{step.title}</h2>
-          {step.subtitle && <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">{step.subtitle}</p>}
+          <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">{step.title}</h2>
+          {step.subtitle && <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">{step.subtitle}</p>}
         </div>
 
         {/* Content */}
         <div>{step.content}</div>
 
         {/* Navigation */}
-        <div className="mt-6 flex items-center justify-between border-t border-neutral-100 pt-5 dark:border-neutral-700">
+        <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-5 dark:border-border border-border">
           <button
             type="button"
             onClick={prev}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-neutral-500 transition-colors hover:text-brand-purple"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-brand-purple"
           >
             <ChevronLeft className="h-4 w-4" />
             {currentStep === 0 ? 'Exit' : 'Back'}
           </button>
-          <span className="text-xs text-neutral-500 dark:text-neutral-500">
+          <span className="text-xs text-muted-foreground dark:text-muted-foreground">
             Step {currentStep + 1} of {steps.length}
           </span>
           <button
@@ -91,10 +91,10 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
             onClick={next}
             disabled={!canProceed}
             className={classNames(
-              'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-all',
+              'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-bold text-primary-foreground transition-all',
               canProceed
-                ? 'bg-brand-purple hover:bg-brand-purple/90 press-scale'
-                : 'cursor-not-allowed bg-neutral-300 dark:bg-neutral-700',
+                ? 'bg-primary hover:bg-primary/90 press-scale'
+                : 'cursor-not-allowed bg-muted dark:bg-card-foreground/80',
             )}
           >
             {isLast ? (

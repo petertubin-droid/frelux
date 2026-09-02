@@ -23,16 +23,16 @@ export default function NotFound() {
       {/* Subtle grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid dark:opacity-20" aria-hidden="true" />
       {/* Soft glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-purple/8 blur-[100px]" aria-hidden="true" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[300px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/8 blur-[100px]" aria-hidden="true" />
 
       <Container className="relative animate-fade-in-up">
         <div className="mx-auto max-w-lg">
-          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-purple/10 text-brand-purple">
+          <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-brand-purple">
             <Search className="h-7 w-7" />
           </div>
           <p className="font-display text-7xl font-bold text-gradient-purple sm:text-8xl">404</p>
-          <h1 className="mt-4 font-display text-2xl font-bold text-neutral-900 dark:text-white">Page not found</h1>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+          <h1 className="mt-4 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">Page not found</h1>
+          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             The page you're looking for doesn't exist or may have moved.
           </p>
 
@@ -44,12 +44,12 @@ export default function NotFound() {
                 <Link
                   key={s.to}
                   to={s.to}
-                  className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-200 bg-white p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid dark:hover:border-brand-purple/20"
+                  className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card dark:hover:border-brand-purple/20"
                 >
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple transition-transform group-hover:scale-110">
+                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-brand-purple transition-transform group-hover:scale-110">
                     <Icon className="h-4 w-4" />
                   </span>
-                  <span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">{s.label}</span>
+                  <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground/80">{s.label}</span>
                 </Link>
               );
             })}

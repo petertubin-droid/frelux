@@ -18,7 +18,7 @@ const iconMap = {
 };
 
 const colorMap = {
-  0: { text: 'text-neutral-500 dark:text-neutral-500', bg: 'bg-neutral-100 dark:bg-white/5', border: 'border-neutral-200 dark:border-white/5' },
+  0: { text: 'text-muted-foreground dark:text-muted-foreground', bg: 'bg-muted dark:bg-white/5', border: 'border-border dark:border-white/5' },
   1: { text: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20' },
   2: { text: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-500/10', border: 'border-blue-200 dark:border-blue-500/20' },
   3: { text: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/20' },
@@ -70,18 +70,18 @@ export function VerificationBadge({ profile, size = 'sm', showLabel = true, clas
       </button>
 
       {showTooltip && (
-        <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-neutral-200 bg-white p-4 shadow-xl dark:border-white/10 dark:bg-brand-navy-mid">
+        <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-border bg-card p-4 shadow-xl dark:border-white/10 dark:bg-card">
           <div className="flex items-center gap-2 mb-2">
             <Icon className={classNames(sizeClasses[size].icon, colors.text)} />
-            <span className="text-sm font-semibold text-neutral-900 dark:text-white">{info.label}</span>
+            <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">{info.label}</span>
           </div>
-          <p className="text-xs text-neutral-500 dark:text-neutral-500 leading-relaxed">
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground leading-relaxed">
             {tier === 1 && 'This professional has verified their email address and phone number with FRELUX.'}
             {tier === 2 && 'FRELUX has reviewed the professional\u2019s identity and professional profile information according to FRELUX\u2019s verification requirements.'}
             {tier === 3 && 'This professional has demonstrated sustained excellence on FRELUX through verified credentials, legitimate reviews, and portfolio history.'}
           </p>
-          <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/5">
-            <p className="text-xs text-neutral-500 dark:text-neutral-500 italic">
+          <div className="mt-3 pt-3 border-t border-border/50 dark:border-white/5">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground italic">
               Verification does not constitute a guarantee of workmanship, pricing, or project outcome.
             </p>
           </div>

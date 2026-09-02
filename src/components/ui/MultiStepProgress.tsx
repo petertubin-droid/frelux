@@ -28,9 +28,9 @@ export default function MultiStepProgress({
                 <div
                   className={classNames(
                     'flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 sm:text-sm',
-                    isComplete && 'bg-brand-purple text-white shadow-sm shadow-brand-purple/30',
-                    isCurrent && 'bg-brand-purple text-white ring-4 ring-brand-purple/20 animate-success-pop',
-                    !isComplete && !isCurrent && 'bg-neutral-200 text-neutral-400 dark:bg-white/10 dark:text-neutral-500',
+                    isComplete && 'bg-primary text-primary-foreground shadow-sm shadow-brand-purple/30',
+                    isCurrent && 'bg-primary text-primary-foreground ring-4 ring-brand-purple/20 animate-success-pop',
+                    !isComplete && !isCurrent && 'bg-muted text-muted-foreground dark:bg-white/10 dark:text-muted-foreground',
                   )}
                 >
                   {isComplete ? <Check aria-hidden="true" className="h-4 w-4" /> : i + 1}
@@ -38,7 +38,7 @@ export default function MultiStepProgress({
                 <span
                   className={classNames(
                     'hidden text-[11px] font-medium sm:block sm:text-xs transition-colors',
-                    isCurrent ? 'text-brand-purple' : isComplete ? 'text-neutral-700 dark:text-neutral-200' : 'text-neutral-500',
+                    isCurrent ? 'text-brand-purple' : isComplete ? 'text-card-foreground dark:text-muted-foreground/60' : 'text-muted-foreground',
                   )}
                 >
                   {step.label}
@@ -46,14 +46,14 @@ export default function MultiStepProgress({
                 <span
                   className={classNames(
                     'block text-[10px] font-medium sm:hidden transition-colors',
-                    isCurrent ? 'text-brand-purple' : 'text-neutral-500',
+                    isCurrent ? 'text-brand-purple' : 'text-muted-foreground',
                   )}
                 >
                   {step.shortLabel ?? step.label}
                 </span>
               </div>
               {!isLast && (
-                <div className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-white/10">
+                <div className="relative h-0.5 flex-1 overflow-hidden rounded-full bg-muted dark:bg-white/10">
                   <div
                     className={classNames(
                       'absolute inset-y-0 left-0 transition-all duration-500 ease-out',

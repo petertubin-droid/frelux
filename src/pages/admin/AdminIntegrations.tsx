@@ -301,7 +301,7 @@ export default function AdminIntegrations() {
             return (
               <Card
                 key={key}
-                className={`p-4 ${configured ? "border-emerald-200 dark:border-emerald-800" : "border-neutral-200 dark:border-white/10"}`}
+                className={`p-4 ${configured ? "border-emerald-200 dark:border-emerald-800" : "border-border dark:border-white/10"}`}
               >
                 <div className="flex items-center gap-2">
                   <Icon

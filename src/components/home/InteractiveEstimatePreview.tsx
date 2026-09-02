@@ -127,7 +127,7 @@ export default function InteractiveEstimatePreview() {
   return (
     <section
       data-tour="cost"
-      className="relative overflow-hidden bg-neutral-50/50 py-20 sm:py-24 dark:bg-brand-navy-mid bg-noise"
+      className="relative overflow-hidden bg-muted/50 py-20 sm:py-24 dark:bg-card bg-noise"
     >
       <div
         className="pointer-events-none absolute inset-0 bg-grid opacity-30 dark:bg-grid-dark dark:opacity-20"
@@ -140,10 +140,10 @@ export default function InteractiveEstimatePreview() {
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
             See it in action
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold text-neutral-900 dark:text-white sm:text-4xl">
+          <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">
             What a FRELUX estimate looks like
           </h2>
-          <p className="mt-4 text-lg leading-relaxed text-neutral-500 dark:text-neutral-500">
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Real calculation output. No demo data, these numbers come from the
             actual FRELUX calculation engine.
           </p>
@@ -157,8 +157,8 @@ export default function InteractiveEstimatePreview() {
               onClick={() => setActivePreset(i)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
                 activePreset === i
-                  ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20"
-                  : "bg-white text-neutral-500 border border-neutral-200 hover:border-brand-purple/20 hover:text-brand-purple dark:bg-brand-navy-mid dark:border-white/10 dark:text-neutral-400 dark:hover:text-brand-purple-lighter"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-brand-purple/20"
+                  : "bg-card text-muted-foreground border border-border hover:border-brand-purple/20 hover:text-brand-purple dark:bg-card dark:border-white/10 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
               }`}
             >
               {p.label}
@@ -177,14 +177,14 @@ export default function InteractiveEstimatePreview() {
               "opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
-          <div className="overflow-hidden rounded-2xl border border-neutral-200/60 bg-white shadow-premium-lg dark:border-white/10 dark:bg-brand-navy-mid">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card">
             {/* Card header */}
-            <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4 dark:border-white/5">
+            <div className="flex items-center justify-between border-b border-border/50 px-6 py-4 dark:border-white/5">
               <div className="flex items-center gap-2.5">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <FileText className="h-4 w-4" />
                 </span>
-                <span className="font-display text-sm font-bold text-neutral-900 dark:text-white">
+                <span className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
                   Painting Estimate
                 </span>
               </div>
@@ -198,53 +198,53 @@ export default function InteractiveEstimatePreview() {
             <div className="grid gap-6 p-6 sm:grid-cols-2">
               {/* Left: Input parameters */}
               <div className="space-y-4">
-                <div className="rounded-xl bg-neutral-50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-white/30">
+                <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
                     <Ruler className="h-3 w-3" />
                     Room dimensions
                   </p>
-                  <p className="mt-2 font-display text-2xl font-bold text-neutral-900 dark:text-white">
+                  <p className="mt-2 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
                     {preset.length} × {preset.width} ft
                   </p>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     Wall height: {preset.height} ft
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
+                  <div className="rounded-lg bg-muted/50 p-3 text-center dark:bg-white/5">
                     <Layers className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
-                    <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">
+                    <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.coats}
                     </p>
-                    <p className="text-[10px] text-neutral-500">Coats</p>
+                    <p className="text-[10px] text-muted-foreground">Coats</p>
                   </div>
-                  <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
+                  <div className="rounded-lg bg-muted/50 p-3 text-center dark:bg-white/5">
                     <Ruler className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
-                    <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">
+                    <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.doors}
                     </p>
-                    <p className="text-[10px] text-neutral-500">Doors</p>
+                    <p className="text-[10px] text-muted-foreground">Doors</p>
                   </div>
-                  <div className="rounded-lg bg-neutral-50 p-3 text-center dark:bg-white/5">
+                  <div className="rounded-lg bg-muted/50 p-3 text-center dark:bg-white/5">
                     <Eye className="mx-auto h-4 w-4 text-brand-purple dark:text-brand-purple-lighter" />
-                    <p className="mt-1.5 text-sm font-bold text-neutral-900 dark:text-white">
+                    <p className="mt-1.5 text-sm font-bold text-foreground dark:text-primary-foreground">
                       {preset.windows}
                     </p>
-                    <p className="text-[10px] text-neutral-500">Windows</p>
+                    <p className="text-[10px] text-muted-foreground">Windows</p>
                   </div>
                 </div>
 
-                <div className="rounded-xl bg-neutral-50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-white/30">
+                <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
                     <Calculator className="h-3 w-3" />
                     Coverage rate
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+                  <p className="mt-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {DEFAULT_COVERAGE_M2_PER_LITER} m² per litre per coat
                     (internal)
                   </p>
-                  <p className="text-[11px] text-neutral-500">
+                  <p className="text-[11px] text-muted-foreground">
                     Configurable from admin settings
                   </p>
                 </div>
@@ -253,18 +253,18 @@ export default function InteractiveEstimatePreview() {
               {/* Right: Results */}
               <div className="space-y-4">
                 {/* Paintable area */}
-                <div className="rounded-xl border border-brand-purple/10 bg-brand-purple/5 p-4">
+                <div className="rounded-xl border border-brand-purple/10 bg-primary/5 p-4">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
                     Paintable area
                   </p>
-                  <p className="mt-2 font-display text-3xl font-bold text-neutral-900 dark:text-white">
+                  <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
                     {animatedValues.area.toFixed(1)}
-                    <span className="text-base font-normal text-neutral-500">
+                    <span className="text-base font-normal text-muted-foreground">
                       {" "}
                       m²
                     </span>
                   </p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Wall area: {result.wallArea} m² · Door: {result.doorArea} m²
                     · Window: {result.windowArea} m²
                   </p>
@@ -276,14 +276,14 @@ export default function InteractiveEstimatePreview() {
                     <Droplets className="h-3 w-3" />
                     Paint buckets required
                   </p>
-                  <p className="mt-2 font-display text-3xl font-bold text-neutral-900 dark:text-white">
+                  <p className="mt-2 font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
                     {Math.ceil(animatedValues.buckets)}
-                    <span className="text-base font-normal text-neutral-500">
+                    <span className="text-base font-normal text-muted-foreground">
                       {" "}
                       buckets
                     </span>
                   </p>
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Theoretical: {result.paintRequiredLiters.toFixed(1)} L +{" "}
                     {result.wasteMargin}% waste ={" "}
                     {result.adjustedLiters.toFixed(1)} L (rounded up to buckets)
@@ -291,8 +291,8 @@ export default function InteractiveEstimatePreview() {
                 </div>
 
                 {/* Container recommendation */}
-                <div className="rounded-xl bg-neutral-50 p-4 dark:bg-white/5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-neutral-400 dark:text-white/30">
+                <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
                     Recommended purchase
                   </p>
                   <div className="mt-2.5 space-y-1.5">
@@ -301,10 +301,10 @@ export default function InteractiveEstimatePreview() {
                         key={c.size}
                         className="flex items-center justify-between text-sm"
                       >
-                        <span className="text-neutral-600 dark:text-neutral-300">
+                        <span className="text-muted-foreground dark:text-muted-foreground/80">
                           {c.size} L bucket
                         </span>
-                        <span className="font-bold text-neutral-900 dark:text-white">
+                        <span className="font-bold text-foreground dark:text-primary-foreground">
                           ×{c.count}
                         </span>
                       </div>
@@ -315,8 +315,8 @@ export default function InteractiveEstimatePreview() {
             </div>
 
             {/* Card footer */}
-            <div className="flex items-center justify-between border-t border-neutral-100 px-6 py-4 dark:border-white/5">
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <div className="flex items-center justify-between border-t border-border/50 px-6 py-4 dark:border-white/5">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Materials, primer, and labour are calculated in the full cost
                 estimator.
               </p>

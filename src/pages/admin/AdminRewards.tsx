@@ -211,12 +211,12 @@ export default function AdminRewards() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-brand-navy dark:text-white">
+      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
         FRELUX Credits & Rewards
       </h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-2 border-b border-neutral-200 dark:border-white/5">
+      <div className="mb-6 flex gap-2 border-b border-border dark:border-white/5">
         {(
           [
             { key: "overview", label: "Overview", icon: TrendingUp },
@@ -236,7 +236,7 @@ export default function AdminRewards() {
               "flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition-colors",
               tab === t.key
                 ? "border-brand-purple text-brand-purple"
-                : "border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                : "border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
             )}
           >
             <t.icon className="h-4 w-4" /> {t.label}
@@ -248,36 +248,36 @@ export default function AdminRewards() {
       {tab === "overview" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-              <p className="text-xs text-neutral-500">
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <p className="text-xs text-muted-foreground">
                 Total Credits in Circulation
               </p>
               <p className="mt-1 text-2xl font-bold text-brand-purple">
                 {totalCreditsInCirculation}
               </p>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-              <p className="text-xs text-neutral-500">Active Wallets</p>
-              <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <p className="text-xs text-muted-foreground">Active Wallets</p>
+              <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {wallets.length}
               </p>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-              <p className="text-xs text-neutral-500">Recent Transactions</p>
-              <p className="mt-1 text-2xl font-bold text-brand-navy dark:text-white">
+            <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+              <p className="text-xs text-muted-foreground">Recent Transactions</p>
+              <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {transactions.length}
               </p>
             </div>
           </div>
 
           {/* Admin credit adjustment */}
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="mb-4 text-sm font-bold text-brand-navy dark:text-white">
+          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <h3 className="mb-4 text-sm font-bold text-foreground dark:text-primary-foreground">
               Adjust User Credits
             </h3>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="flex-1">
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   User ID
                 </label>
                 <input
@@ -285,11 +285,11 @@ export default function AdminRewards() {
                   value={adjustingUser}
                   onChange={(e) => setAdjustingUser(e.target.value)}
                   placeholder="Paste user UUID"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div className="w-28">
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   Amount
                 </label>
                 <input
@@ -298,11 +298,11 @@ export default function AdminRewards() {
                   onChange={(e) =>
                     setAdjustAmount(parseInt(e.target.value) || 0)
                   }
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   Reason
                 </label>
                 <input
@@ -310,7 +310,7 @@ export default function AdminRewards() {
                   value={adjustReason}
                   onChange={(e) => setAdjustReason(e.target.value)}
                   placeholder="Reason for adjustment"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <button
@@ -318,7 +318,7 @@ export default function AdminRewards() {
                 disabled={
                   adjusting || !adjustingUser || !adjustAmount || !adjustReason
                 }
-                className="rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {adjusting ? (
                   <Loader2
@@ -333,13 +333,13 @@ export default function AdminRewards() {
           </div>
 
           {/* Top wallets */}
-          <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="border-b border-neutral-100 px-5 py-3 text-sm font-bold text-brand-navy dark:border-white/5 dark:text-white">
+          <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card">
+            <h3 className="border-b border-border/50 px-5 py-3 text-sm font-bold text-foreground dark:border-white/5 dark:text-primary-foreground">
               User Credit Balances (Top 50)
             </h3>
-            <div className="divide-y divide-neutral-100 dark:divide-white/5 max-h-96 overflow-y-auto">
+            <div className="divide-y divide-border/50 dark:divide-white/5 max-h-96 overflow-y-auto">
               {wallets.length === 0 && (
-                <p className="px-5 py-8 text-center text-sm text-neutral-500">
+                <p className="px-5 py-8 text-center text-sm text-muted-foreground">
                   No wallets yet.
                 </p>
               )}
@@ -349,10 +349,10 @@ export default function AdminRewards() {
                   className="flex items-center justify-between px-5 py-3"
                 >
                   <div>
-                    <p className="text-xs font-mono text-neutral-500">
+                    <p className="text-xs font-mono text-muted-foreground">
                       {w.user_id.slice(0, 8)}...
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       Earned: {w.total_earned} · Spent: {w.total_spent}
                     </p>
                   </div>
@@ -371,21 +371,21 @@ export default function AdminRewards() {
           </div>
 
           {/* Recent transactions */}
-          <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="border-b border-neutral-100 px-5 py-3 text-sm font-bold text-brand-navy dark:border-white/5 dark:text-white">
+          <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card">
+            <h3 className="border-b border-border/50 px-5 py-3 text-sm font-bold text-foreground dark:border-white/5 dark:text-primary-foreground">
               Recent Transactions (Top 50)
             </h3>
-            <div className="divide-y divide-neutral-100 dark:divide-white/5 max-h-96 overflow-y-auto">
+            <div className="divide-y divide-border/50 dark:divide-white/5 max-h-96 overflow-y-auto">
               {transactions.map((tx) => (
                 <div
                   key={tx.id}
                   className="flex items-center justify-between px-5 py-3"
                 >
                   <div>
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    <p className="text-sm text-card-foreground dark:text-muted-foreground/80">
                       {tx.reason}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {tx.user_id.slice(0, 8)}... ·{" "}
                       {new Date(tx.created_at).toLocaleString("en-NG", {
                         dateStyle: "short",
@@ -413,14 +413,14 @@ export default function AdminRewards() {
       {tab === "rewards" && (
         <div className="space-y-4">
           {/* Seed button */}
-          <div className="flex items-center justify-between rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+          <div className="flex items-center justify-between rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
             <div className="flex items-center gap-2">
               <Database className="h-5 w-5 text-brand-purple" />
               <div>
-                <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   Reward Catalogue
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   {rewards.length} reward{rewards.length !== 1 ? "s" : ""} in
                   catalogue
                 </p>
@@ -429,7 +429,7 @@ export default function AdminRewards() {
             <button
               onClick={handleSeedRewards}
               disabled={seeding}
-              className="flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple/90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               {seeding ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -444,10 +444,10 @@ export default function AdminRewards() {
           {rewards.length === 0 && !seeding && (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-500/20 dark:bg-amber-500/5">
               <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
-              <p className="mt-3 text-sm text-neutral-700 dark:text-neutral-300">
+              <p className="mt-3 text-sm text-card-foreground dark:text-muted-foreground/80">
                 No rewards found in the database.
               </p>
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground">
                 Click "Seed 4 Core Rewards" above to create them.
               </p>
             </div>
@@ -458,11 +458,11 @@ export default function AdminRewards() {
             return (
               <div
                 key={reward.id}
-                className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card"
               >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs text-neutral-500 mb-1">
+                    <label className="block text-xs text-muted-foreground mb-1">
                       Name
                     </label>
                     <input
@@ -477,11 +477,11 @@ export default function AdminRewards() {
                           },
                         }))
                       }
-                      className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-neutral-500 mb-1">
+                    <label className="block text-xs text-muted-foreground mb-1">
                       Credit Cost
                     </label>
                     <input
@@ -496,11 +496,11 @@ export default function AdminRewards() {
                           },
                         }))
                       }
-                      className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="block text-xs text-neutral-500 mb-1">
+                    <label className="block text-xs text-muted-foreground mb-1">
                       Description
                     </label>
                     <textarea
@@ -514,7 +514,7 @@ export default function AdminRewards() {
                           },
                         }))
                       }
-                      className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                       rows={2}
                     />
                   </div>
@@ -534,14 +534,14 @@ export default function AdminRewards() {
                         }
                         className="rounded"
                       />
-                      <span className="text-neutral-600 dark:text-neutral-300">
+                      <span className="text-muted-foreground dark:text-muted-foreground/80">
                         Enabled
                       </span>
                     </label>
                     <button
                       onClick={() => handleSaveReward(reward.id)}
                       disabled={savingReward === reward.id}
-                      className="flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                     >
                       {savingReward === reward.id ? (
                         <Loader2
@@ -564,7 +564,7 @@ export default function AdminRewards() {
       {/* Settings tab */}
       {tab === "settings" && settingsDraft && (
         <div className="max-w-lg space-y-4">
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
             <label className="flex items-center gap-3 mb-4">
               <input
                 type="checkbox"
@@ -577,10 +577,10 @@ export default function AdminRewards() {
                 className="rounded"
               />
               <div>
-                <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   Rewards Enabled
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   Master toggle for the entire rewards system
                 </p>
               </div>
@@ -588,7 +588,7 @@ export default function AdminRewards() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   Weekly Mission Reward (credits)
                 </label>
                 <input
@@ -605,11 +605,11 @@ export default function AdminRewards() {
                         : s,
                     )
                   }
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   7-Day Streak Reward (credits)
                 </label>
                 <input
@@ -625,11 +625,11 @@ export default function AdminRewards() {
                         : s,
                     )
                   }
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
-                <label className="block text-xs text-neutral-500 mb-1">
+                <label className="block text-xs text-muted-foreground mb-1">
                   Streak Grace Days
                 </label>
                 <input
@@ -645,7 +645,7 @@ export default function AdminRewards() {
                         : s,
                     )
                   }
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
             </div>
@@ -653,7 +653,7 @@ export default function AdminRewards() {
             <button
               onClick={handleSaveSettings}
               disabled={savingSettings}
-              className="mt-4 flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {savingSettings ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -685,21 +685,21 @@ export default function AdminRewards() {
             </p>
           </div>
           {suspiciousTxs.length === 0 ? (
-            <p className="text-center text-sm text-neutral-500 py-8">
+            <p className="text-center text-sm text-muted-foreground py-8">
               No suspicious activity detected.
             </p>
           ) : (
-            <div className="divide-y divide-neutral-100 dark:divide-white/5 rounded-xl border border-neutral-200 dark:border-white/5">
+            <div className="divide-y divide-border/50 dark:divide-white/5 rounded-xl border border-border dark:border-white/5">
               {suspiciousTxs.map((tx) => (
                 <div
                   key={tx.id}
                   className="flex items-center justify-between px-5 py-3"
                 >
                   <div>
-                    <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    <p className="text-sm text-card-foreground dark:text-muted-foreground/80">
                       {tx.reason}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {tx.user_id.slice(0, 8)}... · {tx.type} · Ref:{" "}
                       {tx.reference_id?.slice(0, 20) ?? "N/A"}
                     </p>

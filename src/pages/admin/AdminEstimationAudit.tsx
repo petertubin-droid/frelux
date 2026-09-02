@@ -33,7 +33,7 @@ function getActionBadge(action: string) {
     case 'adjust':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     default:
-      return 'bg-neutral-100 text-neutral-700 border-neutral-200';
+      return 'bg-muted text-card-foreground border-border';
   }
 }
 
@@ -126,8 +126,8 @@ export default function AdminEstimationAudit() {
       {/* Filter Header */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
-          <span className="text-xs font-semibold text-neutral-600">Filter Entity:</span>
+          <Filter aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <span className="text-xs font-semibold text-muted-foreground">Filter Entity:</span>
           <AdminSelect
             className="text-xs py-1.5 w-48"
             value={selectedEntityType}
@@ -181,8 +181,8 @@ export default function AdminEstimationAudit() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1 rounded bg-neutral-100 px-2 py-0.5 text-xs font-semibold font-mono text-neutral-800 border border-neutral-200">
-                        <Database className="h-3 w-3 text-neutral-500" />
+                      <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-xs font-semibold font-mono text-foreground border border-border">
+                        <Database className="h-3 w-3 text-muted-foreground" />
                         {entry.entity_type}
                       </span>
 
@@ -195,13 +195,13 @@ export default function AdminEstimationAudit() {
                       </span>
 
                       {entry.entity_id && (
-                        <span className="font-mono text-xs text-neutral-500 dark:text-neutral-500">
+                        <span className="font-mono text-xs text-muted-foreground dark:text-muted-foreground">
                           ID: {entry.entity_id}
                         </span>
                       )}
                     </div>
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
                         <Calendar aria-hidden="true" className="h-3 w-3" />
                         {new Date(entry.created_at).toLocaleString()}
@@ -217,7 +217,7 @@ export default function AdminEstimationAudit() {
                     <span className="text-xs text-brand-purple font-medium hidden sm:inline">
                       {isExpanded ? 'Hide changes' : 'View details'}
                     </span>
-                    <div className="rounded-full bg-neutral-100 p-1.5 text-neutral-500 hover:bg-neutral-200">
+                    <div className="rounded-full bg-muted p-1.5 text-muted-foreground hover:bg-muted">
                       {isExpanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
                     </div>
                   </div>
@@ -225,33 +225,33 @@ export default function AdminEstimationAudit() {
 
                 {/* Expanded JSON diff panel */}
                 {isExpanded && (
-                  <div className="mt-4 border-t border-neutral-200 pt-4 text-xs">
+                  <div className="mt-4 border-t border-border pt-4 text-xs">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-neutral-500 text-[11px]">
+                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
                           Old Value
                         </h4>
                         {entry.old_value !== null && entry.old_value !== undefined ? (
-                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-neutral-900 p-3 font-mono text-[11px] text-red-300">
+                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-red-300">
                             {JSON.stringify(entry.old_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-500 italic">
+                          <div className="rounded-lg border border-dashed border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-3 text-muted-foreground italic">
                             None (Initial creation)
                           </div>
                         )}
                       </div>
 
                       <div>
-                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-neutral-500 text-[11px]">
+                        <h4 className="mb-1.5 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
                           New Value
                         </h4>
                         {entry.new_value !== null && entry.new_value !== undefined ? (
-                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-neutral-900 p-3 font-mono text-[11px] text-emerald-300">
+                          <pre className="max-h-60 overflow-x-auto rounded-lg bg-background p-3 font-mono text-[11px] text-emerald-300">
                             {JSON.stringify(entry.new_value, null, 2)}
                           </pre>
                         ) : (
-                          <div className="rounded-lg border border-dashed border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-3 text-neutral-500 italic">
+                          <div className="rounded-lg border border-dashed border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-3 text-muted-foreground italic">
                             None (Record deleted)
                           </div>
                         )}

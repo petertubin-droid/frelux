@@ -57,7 +57,7 @@ export function SubscriptionGate({
       <>
         {children}
         {isPaid && paidStatus?.paid_until && (
-          <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-neutral-600">
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 px-4 py-2 text-xs text-muted-foreground">
             <Clock
               aria-hidden="true"
               className="h-3.5 w-3.5 text-accent-green"
@@ -91,14 +91,14 @@ export function SubscriptionGate({
   if (premiumLive === false) {
     return (
       <div className="mx-auto max-w-md py-12 px-4">
-        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-purple/10">
+        <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-8 text-center">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
             <Gem className="h-7 w-7 text-brand-purple" />
           </div>
-          <h2 className="mt-4 text-xl font-bold text-brand-navy dark:text-white">
+          <h2 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
             {featureLabel}
           </h2>
-          <p className="mt-2 text-sm text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             This premium feature is coming soon. We're putting the finishing
             touches on FRELUX Premium subscriptions.
           </p>
@@ -114,7 +114,7 @@ export function SubscriptionGate({
             ].map((f) => (
               <div
                 key={f}
-                className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+                className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80"
               >
                 <CheckCircle2
                   aria-hidden="true"
@@ -125,13 +125,13 @@ export function SubscriptionGate({
             ))}
           </div>
 
-          <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-brand-purple/5 px-6 py-3 text-sm font-bold text-brand-purple">
+          <div className="mt-6 inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-6 py-3 text-sm font-bold text-brand-purple">
             <Gem className="h-4 w-4" />
             Coming Soon
           </div>
 
           {user && (
-            <p className="mt-3 text-xs text-neutral-500">
+            <p className="mt-3 text-xs text-muted-foreground">
               You'll be notified as soon as Premium goes live.
             </p>
           )}
@@ -144,7 +144,7 @@ export function SubscriptionGate({
   if (premiumLive === null) {
     return (
       <div className="mx-auto max-w-md py-12 px-4 animate-pulse">
-        <div className="h-48 rounded-2xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5" />
+        <div className="h-48 rounded-2xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5" />
       </div>
     );
   }
@@ -152,14 +152,14 @@ export function SubscriptionGate({
   // Premium is live — show the real paywall
   return (
     <div className="mx-auto max-w-md py-12 px-4">
-      <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-8 text-center">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-purple/10">
+      <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-8 text-center">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
           <Lock aria-hidden="true" className="h-7 w-7 text-brand-purple" />
         </div>
-        <h2 className="mt-4 text-xl font-bold text-brand-navy dark:text-white">
+        <h2 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
           {featureLabel}
         </h2>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           This feature requires the{" "}
           <span className="font-semibold capitalize text-brand-purple">
             {minPlan}
@@ -179,7 +179,7 @@ export function SubscriptionGate({
           ].map((f) => (
             <div
               key={f}
-              className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+              className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80"
             >
               <CheckCircle2
                 aria-hidden="true"
@@ -193,7 +193,7 @@ export function SubscriptionGate({
         {user ? (
           <Link
             to="/pricing"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
             Upgrade
@@ -201,7 +201,7 @@ export function SubscriptionGate({
         ) : (
           <Link
             to="/login?redirect=/pricing"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
             Sign in to Subscribe

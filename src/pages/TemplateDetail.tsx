@@ -147,12 +147,12 @@ export default function TemplateDetail() {
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
         <AlertCircle
           aria-hidden="true"
-          className="mx-auto h-10 w-10 text-neutral-300 dark:text-neutral-600"
+          className="mx-auto h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground"
         />
-        <h1 className="mt-4 text-lg font-semibold text-neutral-900 dark:text-white">
+        <h1 className="mt-4 text-lg font-semibold text-foreground dark:text-primary-foreground">
           Template Not Found
         </h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           {error ?? "This template may have been removed."}
         </p>
         <Link
@@ -181,15 +181,15 @@ export default function TemplateDetail() {
 
       {/* Header */}
       <div className="mt-6">
-        <span className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-primary/8 px-2.5 py-1 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
           <Calculator aria-hidden="true" className="h-3 w-3" />
           {calcLabel}
         </span>
-        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
           {template.name}
         </h1>
         {template.description && (
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             {template.description}
           </p>
         )}
@@ -207,18 +207,18 @@ export default function TemplateDetail() {
       </div>
 
       {/* Input summary */}
-      <div className="mt-6 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-brand-navy-mid">
-        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="mt-6 rounded-xl border border-border bg-card p-5 dark:border-white/10 dark:bg-card">
+        <h2 className="flex items-center gap-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground">
           <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           Template Configuration
         </h2>
         <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
           {inputSummary.map((item) => (
             <div key={item.label} className="flex flex-col">
-              <dt className="text-[11px] font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 {item.label}
               </dt>
-              <dd className="text-sm text-neutral-900 dark:text-white">
+              <dd className="text-sm text-foreground dark:text-primary-foreground">
                 {item.value}
               </dd>
             </div>
@@ -244,14 +244,14 @@ export default function TemplateDetail() {
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <button
           onClick={() => navigate(`${calcPath}?template=${template.id}`)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           Use This Template
           <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </button>
         <Link
           to={calcPath}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-600 transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-neutral-300"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
         >
           Open {calcLabel} Calculator
         </Link>
@@ -259,37 +259,37 @@ export default function TemplateDetail() {
 
       {/* FAQ */}
       <div className="mt-10">
-        <h2 className="mb-4 font-display text-lg font-bold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 font-display text-lg font-bold text-foreground dark:text-primary-foreground">
           Frequently Asked Questions
         </h2>
         <div className="space-y-4">
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
               What is the {template.name} template?
             </h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
               The {template.name} template is a pre-configured starting point
               for the FRELUX {calcLabel} calculator. It comes with common
               dimensions and settings pre-filled, which you can adjust to match
               your actual measurements.
             </p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
               How do I use this {calcLabel.toLowerCase()} template?
             </h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
               Click "Use This Template" to open the {calcLabel} with the
               template's inputs pre-filled. Adjust the dimensions to match your
               project, then run the calculation to get material quantities and
               cost estimates.
             </p>
           </div>
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+            <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
               Are the prices in this template current?
             </h3>
-            <p className="mt-1.5 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1.5 text-sm text-muted-foreground dark:text-muted-foreground">
               Template dimensions and settings are pre-configured, but material
               prices are always loaded from the current market database when you
               run the calculator. This ensures your estimate reflects today's
@@ -302,7 +302,7 @@ export default function TemplateDetail() {
       {/* Related templates */}
       {related.length > 0 && (
         <div className="mt-10">
-          <h2 className="mb-3 text-sm font-semibold text-neutral-900 dark:text-white">
+          <h2 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">
             Related Templates
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
@@ -310,19 +310,19 @@ export default function TemplateDetail() {
               <Link
                 key={t.id}
                 to={`/templates/${t.slug}`}
-                className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 transition-colors hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid"
+                className="group flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/10 dark:bg-card"
               >
                 <div>
-                  <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                  <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                     {t.name}
                   </p>
                   {t.description && (
-                    <p className="mt-0.5 line-clamp-1 text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       {t.description}
                     </p>
                   )}
                 </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-neutral-500 transition-transform group-hover:translate-x-0.5" />
+                <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </Link>
             ))}
           </div>
@@ -330,7 +330,7 @@ export default function TemplateDetail() {
       )}
 
       {/* Related calculator link */}
-      <div className="mt-10 border-t border-neutral-200/60 pt-6 dark:border-white/5">
+      <div className="mt-10 border-t border-border/60 pt-6 dark:border-white/5">
         <Link
           to={calcPath}
           className="group inline-flex items-center gap-2 text-sm font-semibold text-brand-purple dark:text-brand-purple-lighter"

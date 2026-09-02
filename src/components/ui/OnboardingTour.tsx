@@ -131,12 +131,12 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
     if (el) {
       el.style.position = el.style.position || 'relative';
       el.style.zIndex = '60';
-      el.classList.add('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-brand-navy', 'rounded-xl', 'transition-all', 'duration-300');
+      el.classList.add('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-background', 'rounded-xl', 'transition-all', 'duration-300');
     }
     return () => {
       if (el) {
         el.style.zIndex = '';
-        el.classList.remove('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-brand-navy', 'rounded-xl', 'transition-all', 'duration-300');
+        el.classList.remove('ring-4', 'ring-brand-purple', 'ring-offset-2', 'ring-offset-white', 'dark:ring-offset-background', 'rounded-xl', 'transition-all', 'duration-300');
       }
     };
   }, [step, currentTour.target]);
@@ -157,47 +157,47 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
         )}
         style={{ top: `${position.top}px`, left: `${position.left}px` }}
       >
-        <div className="overflow-hidden rounded-2xl border border-brand-purple/20 bg-white shadow-2xl dark:bg-brand-navy-mid">
+        <div className="overflow-hidden rounded-2xl border border-brand-purple/20 bg-card shadow-2xl dark:bg-card">
           {/* Header with progress bar */}
-          <div className="relative bg-gradient-to-r from-brand-purple to-brand-purple-light px-5 py-4">
+          <div className="relative bg-gradient-to-r from-primary to-primary-light px-5 py-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{currentTour.icon}</span>
                 <div>
-                  <h3 className="text-base font-bold text-white">{currentTour.title}</h3>
-                  <p className="text-[11px] text-white/70">Step {step + 1} of {TOUR_STEPS.length}</p>
+                  <h3 className="text-base font-bold text-primary-foreground">{currentTour.title}</h3>
+                  <p className="text-[11px] text-primary-foreground/70">Step {step + 1} of {TOUR_STEPS.length}</p>
                 </div>
               </div>
-              <button onClick={skip} className="rounded-lg p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white" aria-label="Skip tour">
+              <button onClick={skip} className="rounded-lg p-1 text-primary-foreground/70 transition-colors hover:bg-white/10 hover:text-primary-foreground" aria-label="Skip tour">
                 <X className="h-4 w-4" />
               </button>
             </div>
             {/* Progress bar */}
             <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/20">
-              <div className="h-full rounded-full bg-white transition-all duration-500" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full bg-card transition-all duration-500" style={{ width: `${progress}%` }} />
             </div>
           </div>
 
           {/* Body */}
           <div className="px-5 py-4">
-            <p className="text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">{currentTour.description}</p>
+            <p className="text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground/80">{currentTour.description}</p>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between border-t border-neutral-100 px-5 py-3 dark:border-white/5">
+          <div className="flex items-center justify-between border-t border-border/50 px-5 py-3 dark:border-white/5">
             <button
               onClick={prev}
               disabled={step === 0}
               className={classNames(
                 'flex items-center gap-1 text-sm font-medium transition-colors',
-                step === 0 ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-600 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-200',
+                step === 0 ? 'text-muted-foreground/80 dark:text-muted-foreground' : 'text-muted-foreground hover:text-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60',
               )}
             >
               <ArrowLeft className="h-4 w-4" /> Back
             </button>
             <button
               onClick={next}
-              className="flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90 press-scale"
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 press-scale"
             >
               {isLast ? (
                 <>
@@ -215,7 +215,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
         {/* Arrow pointing to target */}
         {position.placement === 'below' && (
           <div className="absolute -top-2 left-1/2 -translate-x-1/2">
-            <div className="h-4 w-4 rotate-45 border-l border-t border-brand-purple/20 bg-white dark:bg-brand-navy-mid" />
+            <div className="h-4 w-4 rotate-45 border-l border-t border-brand-purple/20 bg-card dark:bg-card" />
           </div>
         )}
       </div>

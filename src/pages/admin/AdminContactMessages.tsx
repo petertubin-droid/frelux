@@ -19,7 +19,7 @@ const STATUS_STYLES: Record<string, string> = {
   new: 'bg-accent-yellow/20 text-accent-yellow',
   read: 'bg-blue-100 text-blue-700',
   replied: 'bg-accent-green/15 text-accent-green',
-  archived: 'bg-neutral-200 text-neutral-500',
+  archived: 'bg-muted text-muted-foreground',
 };
 
 export default function AdminContactMessages() {
@@ -62,13 +62,13 @@ export default function AdminContactMessages() {
             {items.map((item) => (
               <div key={item.id} className="card p-3">
                 <div className="flex min-w-0 items-start gap-3">
-                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-neutral-500" />
+                  <Mail className="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-base font-bold text-brand-navy truncate">{item.subject}</h3>
+                      <h3 className="text-base font-bold text-foreground truncate">{item.subject}</h3>
                       <span className={classNames('rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize', STATUS_STYLES[item.status] ?? STATUS_STYLES.new)}>{item.status}</span>
                     </div>
-                    <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{item.name} · {item.email} · {new Date(item.created_at).toLocaleString()}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{item.name} · {item.email} · {new Date(item.created_at).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -81,11 +81,11 @@ export default function AdminContactMessages() {
         )}
       {viewing && (
         <AdminModal open onClose={() => setViewing(null)} title={viewing.subject} maxWidth="max-w-2xl">
-            <div className="space-y-1 text-sm text-neutral-500 dark:text-neutral-500">
-              <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">From:</span> {viewing.name} ({viewing.email})</p>
-              <p><span className="font-semibold text-neutral-700 dark:text-neutral-300">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
+            <div className="space-y-1 text-sm text-muted-foreground dark:text-muted-foreground">
+              <p><span className="font-semibold text-card-foreground dark:text-muted-foreground/80">From:</span> {viewing.name} ({viewing.email})</p>
+              <p><span className="font-semibold text-card-foreground dark:text-muted-foreground/80">Date:</span> {new Date(viewing.created_at).toLocaleString()}</p>
             </div>
-            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-neutral-50 p-4 text-sm text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">{viewing.message}</div>
+            <div className="mt-4 whitespace-pre-wrap rounded-lg bg-muted/50 p-4 text-sm text-card-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/60">{viewing.message}</div>
             <div className="mt-5 flex flex-wrap items-center justify-end gap-2">
               <a href={`mailto:${viewing.email}?subject=Re: ${encodeURIComponent(viewing.subject)}`}>
                 <AdminButton variant="secondary"><Mail className="h-4 w-4" /> Reply by email</AdminButton>

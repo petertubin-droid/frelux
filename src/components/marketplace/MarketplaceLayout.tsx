@@ -24,7 +24,7 @@ export default function MarketplaceLayout() {
       <Navbar />
       <main className="w-full flex-1 pt-16 pb-16 md:pb-0">
         {/* Marketplace sub-nav */}
-        <div className="sticky top-16 z-30 border-b border-neutral-100 bg-white/80 backdrop-blur dark:border-white/5 dark:bg-brand-navy/80">
+        <div className="sticky top-16 z-30 border-b border-border/50 bg-white/80 backdrop-blur dark:border-white/5 dark:bg-background/80">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
             <nav className="flex gap-1">
               {navItems.map((item) => {
@@ -37,7 +37,7 @@ export default function MarketplaceLayout() {
                       'inline-flex items-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors',
                       isActive(item.to, item.exact)
                         ? 'border-brand-purple text-brand-purple'
-                        : 'border-transparent text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+                        : 'border-transparent text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60'
                     )}
                   >
                     <Icon className="h-4 w-4" /> {item.label}
@@ -52,15 +52,15 @@ export default function MarketplaceLayout() {
                 className={classNames(
                   'hidden items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors sm:inline-flex',
                   location.pathname === '/marketplace/seller-dashboard'
-                    ? 'bg-brand-purple/10 text-brand-purple'
-                    : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+                    ? 'bg-primary/10 text-brand-purple'
+                    : 'text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60'
                 )}
               >
                 <LayoutDashboard className="h-4 w-4" /> Dashboard
               </Link>
               <Link
                 to="/marketplace/post"
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Post
               </Link>

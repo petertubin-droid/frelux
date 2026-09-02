@@ -56,7 +56,7 @@ function formatCurrency(amount: number, currency: string = 'NGN'): string {
 function getStatusBadge(status: string) {
   switch (status) {
     case 'draft':
-      return 'bg-neutral-100 text-neutral-700 border-neutral-200';
+      return 'bg-muted text-card-foreground border-border';
     case 'calculated':
       return 'bg-blue-100 text-blue-800 border-blue-200';
     case 'adjusted':
@@ -70,20 +70,20 @@ function getStatusBadge(status: string) {
     case 'cancelled':
       return 'bg-red-100 text-red-800 border-red-200';
     default:
-      return 'bg-neutral-100 text-neutral-700 border-neutral-200';
+      return 'bg-muted text-card-foreground border-border';
   }
 }
 
 function getLabourBadge(status: string) {
   switch (status) {
     case 'not_included':
-      return 'bg-neutral-100 text-neutral-600 border-neutral-200';
+      return 'bg-muted text-muted-foreground border-border';
     case 'negotiated_separately':
       return 'bg-blue-100 text-blue-700 border-blue-200';
     case 'included':
       return 'bg-emerald-100 text-emerald-700 border-emerald-200';
     default:
-      return 'bg-neutral-100 text-neutral-600 border-neutral-200';
+      return 'bg-muted text-muted-foreground border-border';
   }
 }
 
@@ -100,7 +100,7 @@ function getItemTypeBadge(type: string) {
     case 'labour':
       return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     default:
-      return 'bg-neutral-50 dark:bg-white/5 text-neutral-700 border-neutral-200';
+      return 'bg-muted/50 dark:bg-white/5 text-card-foreground border-border';
   }
 }
 
@@ -196,8 +196,8 @@ export default function AdminEstimationEstimates() {
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
-            <span className="text-xs font-semibold text-neutral-600">Calculator:</span>
+            <Filter aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-semibold text-muted-foreground">Calculator:</span>
             <AdminSelect
               className="text-xs py-1.5"
               value={calcFilter}
@@ -214,7 +214,7 @@ export default function AdminEstimationEstimates() {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-neutral-600">Status:</span>
+            <span className="text-xs font-semibold text-muted-foreground">Status:</span>
             <AdminSelect
               className="text-xs py-1.5"
               value={statusFilter}
@@ -233,7 +233,7 @@ export default function AdminEstimationEstimates() {
         </div>
 
         <div className="relative w-full lg:w-72">
-          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <AdminInput
  type="text"
  placeholder="Search estimate ref or description..."
@@ -267,11 +267,11 @@ export default function AdminEstimationEstimates() {
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-mono text-sm font-bold text-brand-navy dark:text-white">
+                      <span className="font-mono text-sm font-bold text-foreground dark:text-primary-foreground">
                         {est.estimate_ref}
                       </span>
 
-                      <span className="rounded bg-neutral-100 px-2 py-0.5 text-xs font-semibold capitalize text-neutral-700 border border-neutral-200">
+                      <span className="rounded bg-muted px-2 py-0.5 text-xs font-semibold capitalize text-card-foreground border border-border">
                         {est.calculator_type}
                       </span>
 
@@ -285,12 +285,12 @@ export default function AdminEstimationEstimates() {
                     </div>
 
                     {est.project_description && (
-                      <p className="mt-1.5 text-xs text-neutral-600 line-clamp-1">
+                      <p className="mt-1.5 text-xs text-muted-foreground line-clamp-1">
                         {est.project_description}
                       </p>
                     )}
 
-                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
                       <span className="inline-flex items-center gap-1">
                         <Calendar aria-hidden="true" className="h-3 w-3" /> {new Date(est.created_at).toLocaleString()}
                       </span>
@@ -303,13 +303,13 @@ export default function AdminEstimationEstimates() {
 
                   <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
                     <div className="text-right">
-                      <span className="text-base font-extrabold text-brand-navy dark:text-white">
+                      <span className="text-base font-extrabold text-foreground dark:text-primary-foreground">
                         {formatCurrency(est.total_material_cost, est.currency)}
                       </span>
-                      <p className="text-[10px] text-neutral-500 dark:text-neutral-500">Total Material Cost</p>
+                      <p className="text-[10px] text-muted-foreground dark:text-muted-foreground">Total Material Cost</p>
                     </div>
 
-                    <div className="rounded-full bg-neutral-100 p-2 text-neutral-500 hover:bg-neutral-200">
+                    <div className="rounded-full bg-muted p-2 text-muted-foreground hover:bg-muted">
                       {isExpanded ? <ChevronUp aria-hidden="true" className="h-4 w-4" /> : <ChevronDown aria-hidden="true" className="h-4 w-4" />}
                     </div>
                   </div>
@@ -317,22 +317,22 @@ export default function AdminEstimationEstimates() {
 
                 {/* Expanded Line Items Detail Panel */}
                 {isExpanded && (
-                  <div className="mt-5 border-t border-neutral-200 pt-4">
+                  <div className="mt-5 border-t border-border pt-4">
                     <div className="mb-3 flex items-center justify-between">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 flex items-center gap-1.5">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <Layers aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                         Estimate Line Items ({lineItems.length})
                       </h4>
                     </div>
 
                     {isItemLoading ? (
-                      <div className="p-4 text-center text-xs text-neutral-500 dark:text-neutral-500">Loading line items...</div>
+                      <div className="p-4 text-center text-xs text-muted-foreground dark:text-muted-foreground">Loading line items...</div>
                     ) : lineItems.length === 0 ? (
-                      <p className="text-xs text-neutral-500 italic p-2">No line items recorded for this estimate.</p>
+                      <p className="text-xs text-muted-foreground italic p-2">No line items recorded for this estimate.</p>
                     ) : (
-                      <div className="overflow-x-auto rounded-lg border border-neutral-200">
+                      <div className="overflow-x-auto rounded-lg border border-border">
                         <table className="w-full text-left text-xs">
-                          <thead className="bg-neutral-50 dark:bg-white/5 font-semibold text-neutral-600 border-b border-neutral-200">
+                          <thead className="bg-muted/50 dark:bg-white/5 font-semibold text-muted-foreground border-b border-border">
                             <tr>
                               <th className="p-2.5">Item Name</th>
                               <th className="p-2.5">Type</th>
@@ -343,12 +343,12 @@ export default function AdminEstimationEstimates() {
                               <th className="p-2.5">Source</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-neutral-200">
+                          <tbody className="divide-y divide-border">
                             {lineItems.map((item) => (
-                              <tr key={item.id} className="hover:bg-neutral-50 dark:bg-white/5/80">
-                                <td className="p-2.5 font-medium text-neutral-800">
+                              <tr key={item.id} className="hover:bg-muted/50 dark:bg-white/5/80">
+                                <td className="p-2.5 font-medium text-foreground">
                                   {item.item_name}
-                                  {item.notes && <p className="text-[10px] text-neutral-500 italic">{item.notes}</p>}
+                                  {item.notes && <p className="text-[10px] text-muted-foreground italic">{item.notes}</p>}
                                 </td>
                                 <td className="p-2.5">
                                   <span className={`inline-flex rounded border px-1.5 py-0.5 text-[10px] font-semibold uppercase ${getItemTypeBadge(item.item_type)}`}>
@@ -358,17 +358,17 @@ export default function AdminEstimationEstimates() {
                                 <td className="p-2.5 text-right font-mono">
                                   {item.quantity_required} {item.unit}
                                 </td>
-                                <td className="p-2.5 text-right font-mono font-semibold text-neutral-700 dark:text-neutral-200">
+                                <td className="p-2.5 text-right font-mono font-semibold text-card-foreground dark:text-muted-foreground/60">
                                   {item.practical_purchase_qty} {item.unit}
-                                  {item.pack_size && <span className="block text-[9px] text-neutral-500 dark:text-neutral-500">Pack: {item.pack_size}</span>}
+                                  {item.pack_size && <span className="block text-[9px] text-muted-foreground dark:text-muted-foreground">Pack: {item.pack_size}</span>}
                                 </td>
                                 <td className="p-2.5 text-right font-mono">
                                   {formatCurrency(item.unit_price, est.currency)}
                                 </td>
-                                <td className="p-2.5 text-right font-mono font-bold text-brand-navy dark:text-white">
+                                <td className="p-2.5 text-right font-mono font-bold text-foreground dark:text-primary-foreground">
                                   {formatCurrency(item.total_price, est.currency)}
                                 </td>
-                                <td className="p-2.5 capitalize text-neutral-500 text-[11px]">
+                                <td className="p-2.5 capitalize text-muted-foreground text-[11px]">
                                   {item.calculation_source}
                                   {item.adjustment_status !== 'none' && (
                                     <span className="ml-1 text-[10px] text-orange-600">({item.adjustment_status})</span>
@@ -411,7 +411,7 @@ export default function AdminEstimationEstimates() {
                         )}
 
                         {est.notes && (
-                          <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-2.5 text-neutral-700 sm:col-span-2">
+                          <div className="rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-2.5 text-card-foreground sm:col-span-2">
                             <span className="font-bold block mb-1 text-[11px]">Notes</span>
                             <p className="text-[11px]">{est.notes}</p>
                           </div>

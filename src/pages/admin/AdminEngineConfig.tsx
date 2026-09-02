@@ -97,10 +97,10 @@ export default function AdminEngineConfig() {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <Cpu className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Engine Configuration
         </h1>
-        <span className="rounded-md bg-brand-purple/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
+        <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-brand-purple">
           CONTROL LAYER
         </span>
       </div>
@@ -112,7 +112,7 @@ export default function AdminEngineConfig() {
       </div>
 
       {/* Tab bar */}
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {TABS.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
@@ -121,7 +121,7 @@ export default function AdminEngineConfig() {
               "flex items-center gap-2 px-3 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -203,7 +203,7 @@ function MaterialsTab() {
             setEditing(null);
             setShowForm(true);
           }}
-          className="flex items-center gap-1 rounded-md bg-brand-purple px-3 py-1.5 text-sm text-white"
+          className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Profile
         </button>
@@ -227,7 +227,7 @@ function MaterialsTab() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+            <tr className="border-b border-border dark:border-white/10 text-left">
               <th className="px-3 py-2">Product</th>
               <th className="px-3 py-2">Brand</th>
               <th className="px-3 py-2">Category</th>
@@ -242,7 +242,7 @@ function MaterialsTab() {
             {items.map((item) => (
               <tr
                 key={item.id}
-                className="border-b border-neutral-100 dark:border-white/5"
+                className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="px-3 py-2 font-medium">{item.product_name}</td>
                 <td className="px-3 py-2">{item.brand || "—"}</td>
@@ -259,7 +259,7 @@ function MaterialsTab() {
                   {item.is_approved ? (
                     <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                   ) : (
-                    <Ban className="h-4 w-4 text-neutral-500" />
+                    <Ban className="h-4 w-4 text-muted-foreground" />
                   )}
                 </td>
                 <td className="px-3 py-2">
@@ -276,7 +276,7 @@ function MaterialsTab() {
                     <button
                       onClick={() => handleToggle(item.id, !item.is_active)}
                       title={item.is_active ? "Deactivate" : "Activate"}
-                      className="rounded p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                      className="rounded p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"
                     >
                       <Power className="h-4 w-4" />
                     </button>
@@ -305,7 +305,7 @@ function MaterialsTab() {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-3 py-8 text-center text-neutral-500"
+                  className="px-3 py-8 text-center text-muted-foreground"
                 >
                   No material profiles yet
                 </td>
@@ -366,7 +366,7 @@ function MaterialProfileForm({
   }
 
   return (
-    <div className="mb-4 rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-900">
+    <div className="mb-4 rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
       <div className="mb-3 flex justify-between">
         <h3 className="font-semibold">
           {existing ? "Edit" : "Add"} Material Profile
@@ -458,14 +458,14 @@ function MaterialProfileForm({
       <div className="mt-3 flex justify-end gap-2">
         <button
           onClick={onClose}
-          className="rounded-md px-3 py-1.5 text-sm text-neutral-600"
+          className="rounded-md px-3 py-1.5 text-sm text-muted-foreground"
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-1 rounded-md bg-brand-purple px-3 py-1.5 text-sm text-white"
+          className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
           {saving ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -518,8 +518,8 @@ function RoofTab() {
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
             subTab === "materials"
-              ? "bg-brand-purple text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground",
           )}
         >
           Materials
@@ -529,8 +529,8 @@ function RoofTab() {
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
             subTab === "sections"
-              ? "bg-brand-purple text-white"
-              : "text-neutral-600",
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground",
           )}
         >
           Sections & Pitch
@@ -541,7 +541,7 @@ function RoofTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+              <tr className="border-b border-border dark:border-white/10 text-left">
                 <th className="px-3 py-2">Material</th>
                 <th className="px-3 py-2">Brand</th>
                 <th className="px-3 py-2">Category</th>
@@ -555,7 +555,7 @@ function RoofTab() {
               {materials.map((m) => (
                 <tr
                   key={m.id}
-                  className="border-b border-neutral-100 dark:border-white/5"
+                  className="border-b border-border/50 dark:border-white/5"
                 >
                   <td className="px-3 py-2 font-medium">{m.material_name}</td>
                   <td className="px-3 py-2">{m.brand || "—"}</td>
@@ -571,7 +571,7 @@ function RoofTab() {
                     {m.is_approved ? (
                       <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                     ) : (
-                      <Ban className="h-4 w-4 text-neutral-500" />
+                      <Ban className="h-4 w-4 text-muted-foreground" />
                     )}
                   </td>
                 </tr>
@@ -580,7 +580,7 @@ function RoofTab() {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-3 py-8 text-center text-neutral-500"
+                    className="px-3 py-8 text-center text-muted-foreground"
                   >
                     No roof materials configured
                   </td>
@@ -595,7 +595,7 @@ function RoofTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+              <tr className="border-b border-border dark:border-white/10 text-left">
                 <th className="px-3 py-2">Section</th>
                 <th className="px-3 py-2">Type</th>
                 <th className="px-3 py-2">Pitch</th>
@@ -609,7 +609,7 @@ function RoofTab() {
               {sections.map((s) => (
                 <tr
                   key={s.id}
-                  className="border-b border-neutral-100 dark:border-white/5"
+                  className="border-b border-border/50 dark:border-white/5"
                 >
                   <td className="px-3 py-2 font-medium">{s.section_name}</td>
                   <td className="px-3 py-2">{s.roof_type}</td>
@@ -630,7 +630,7 @@ function RoofTab() {
                 <tr>
                   <td
                     colSpan={7}
-                    className="px-3 py-8 text-center text-neutral-500"
+                    className="px-3 py-8 text-center text-muted-foreground"
                   >
                     No roof sections configured
                   </td>
@@ -677,7 +677,7 @@ function WasteTab() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+            <tr className="border-b border-border dark:border-white/10 text-left">
               <th className="px-3 py-2">Scope</th>
               <th className="px-3 py-2">Country</th>
               <th className="px-3 py-2">Market</th>
@@ -692,7 +692,7 @@ function WasteTab() {
             {configs.map((c) => (
               <tr
                 key={c.id}
-                className="border-b border-neutral-100 dark:border-white/5"
+                className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="px-3 py-2">
                   {SCOPE_LEVEL_LABELS[c.scope_level]}
@@ -716,7 +716,7 @@ function WasteTab() {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-3 py-8 text-center text-neutral-500"
+                  className="px-3 py-8 text-center text-muted-foreground"
                 >
                   No waste configurations
                 </td>
@@ -772,7 +772,7 @@ function AiTab() {
           onChange={(e) =>
             setFilter(e.target.value as AiVerificationState | "")
           }
-          className="rounded-md border border-neutral-200 px-3 py-1.5 text-sm dark:border-white/10 dark:bg-neutral-900"
+          className="rounded-md border border-border px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background"
         >
           <option value="">All States</option>
           {Object.entries(AI_VERIFICATION_STATE_LABELS).map(([k, v]) => (
@@ -786,7 +786,7 @@ function AiTab() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+            <tr className="border-b border-border dark:border-white/10 text-left">
               <th className="px-3 py-2">Type</th>
               <th className="px-3 py-2">State</th>
               <th className="px-3 py-2">AI Confidence</th>
@@ -800,7 +800,7 @@ function AiTab() {
             {items.map((item) => (
               <tr
                 key={item.id}
-                className="border-b border-neutral-100 dark:border-white/5"
+                className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="px-3 py-2">{item.measurement_type}</td>
                 <td className="px-3 py-2">
@@ -814,7 +814,7 @@ function AiTab() {
                           ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
                           : item.state === "rejected"
                             ? "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400"
-                            : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-500",
+                            : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground",
                     )}
                   >
                     {AI_VERIFICATION_STATE_LABELS[item.state]}
@@ -865,7 +865,7 @@ function AiTab() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-3 py-8 text-center text-neutral-500"
+                  className="px-3 py-8 text-center text-muted-foreground"
                 >
                   No AI verifications
                 </td>
@@ -926,7 +926,7 @@ function RulesTab() {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+          <tr className="border-b border-border dark:border-white/10 text-left">
             <th className="px-3 py-2">Rule ID</th>
             <th className="px-3 py-2">Name</th>
             <th className="px-3 py-2">Version</th>
@@ -940,7 +940,7 @@ function RulesTab() {
           {items.map((item) => (
             <tr
               key={item.id}
-              className="border-b border-neutral-100 dark:border-white/5"
+              className="border-b border-border/50 dark:border-white/5"
             >
               <td className="px-3 py-2 font-mono text-xs">{item.rule_id}</td>
               <td className="px-3 py-2">{item.rule_name}</td>
@@ -958,7 +958,7 @@ function RulesTab() {
                 {item.is_verified ? (
                   <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
-                  <Ban className="h-4 w-4 text-neutral-500" />
+                  <Ban className="h-4 w-4 text-muted-foreground" />
                 )}
               </td>
               <td className="px-3 py-2">
@@ -987,7 +987,7 @@ function RulesTab() {
             <tr>
               <td
                 colSpan={7}
-                className="px-3 py-8 text-center text-neutral-500"
+                className="px-3 py-8 text-center text-muted-foreground"
               >
                 No rule metadata
               </td>
@@ -1046,7 +1046,7 @@ function SettingsTab() {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+          <tr className="border-b border-border dark:border-white/10 text-left">
             <th className="px-3 py-2">Key</th>
             <th className="px-3 py-2">Category</th>
             <th className="px-3 py-2">Value</th>
@@ -1059,7 +1059,7 @@ function SettingsTab() {
           {items.map((item) => (
             <tr
               key={item.id}
-              className="border-b border-neutral-100 dark:border-white/5"
+              className="border-b border-border/50 dark:border-white/5"
             >
               <td className="px-3 py-2 font-mono text-xs">
                 {item.setting_key}
@@ -1078,7 +1078,7 @@ function SettingsTab() {
                         [item.setting_key]: e.target.value,
                       })
                     }
-                    className="w-full rounded border border-neutral-200 px-2 py-0.5 text-sm dark:border-white/10 dark:bg-neutral-900"
+                    className="w-full rounded border border-border px-2 py-0.5 text-sm dark:border-white/10 dark:bg-background"
                   />
                 ) : (
                   JSON.stringify(item.setting_value)
@@ -1089,7 +1089,7 @@ function SettingsTab() {
                 {item.is_editable ? (
                   <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
                 ) : (
-                  <Ban className="h-4 w-4 text-neutral-500" />
+                  <Ban className="h-4 w-4 text-muted-foreground" />
                 )}
               </td>
               <td className="px-3 py-2">
@@ -1182,7 +1182,7 @@ function MarketsTab() {
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
+            <tr className="border-b border-border dark:border-white/10 text-left">
               <th className="px-3 py-2">Code</th>
               <th className="px-3 py-2">Country</th>
               <th className="px-3 py-2">Status</th>
@@ -1193,7 +1193,7 @@ function MarketsTab() {
             {markets.map((m) => (
               <tr
                 key={m.country_code}
-                className="border-b border-neutral-100 dark:border-white/5"
+                className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="px-3 py-2 font-mono">{m.country_code}</td>
                 <td className="px-3 py-2 font-medium">{m.country_name}</td>
@@ -1205,7 +1205,7 @@ function MarketsTab() {
                         ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400"
                         : m.status === "coming_soon"
                           ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
-                          : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-500",
+                          : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground",
                     )}
                   >
                     {m.status}
@@ -1213,13 +1213,13 @@ function MarketsTab() {
                 </td>
                 <td className="px-3 py-2">
                   {m.country_code === "NG" ? (
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       Default market
                     </span>
                   ) : (
                     <button
                       onClick={() => handleToggle(m.country_code, m.status)}
-                      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-brand-purple hover:bg-brand-purple/10"
+                      className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-brand-purple hover:bg-primary/10"
                     >
                       <Power className="h-3 w-3" />
                       {m.status === "active" ? "Deactivate" : "Activate"}
@@ -1232,7 +1232,7 @@ function MarketsTab() {
               <tr>
                 <td
                   colSpan={4}
-                  className="px-3 py-8 text-center text-neutral-500"
+                  className="px-3 py-8 text-center text-muted-foreground"
                 >
                   No market profiles
                 </td>
@@ -1262,14 +1262,14 @@ function Input({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
+      <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
         {label}
       </label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900"
+        className="w-full rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
       />
     </div>
   );
@@ -1288,13 +1288,13 @@ function Select({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-neutral-600 dark:text-neutral-500">
+      <label className="mb-1 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900"
+        className="w-full rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
       >
         {options.map(([k, v]) => (
           <option key={k} value={k}>

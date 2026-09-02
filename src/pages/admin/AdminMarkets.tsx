@@ -53,21 +53,21 @@ export default function AdminMarkets() {
     <div>
       <div className="mb-6 flex items-center gap-3">
         <Globe aria-hidden="true" className="h-6 w-6 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           International Markets
         </h1>
       </div>
 
       {/* Market selector */}
       <div className="mb-6">
-        <label className="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+        <label className="mb-1 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           Selected Market
         </label>
         <MarketSelector value={selectedMarket} onChange={setSelectedMarket} />
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex gap-1 border-b border-border dark:border-white/10">
         {(
           [
             ["profiles", "Market Profiles", Globe],
@@ -82,7 +82,7 @@ export default function AdminMarkets() {
               "flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors",
               tab === key
                 ? "border-b-2 border-brand-purple text-brand-purple dark:text-brand-purple-lighter"
-                : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
             )}
           >
             <Icon className="h-4 w-4" /> {label}
@@ -128,7 +128,7 @@ function MarketSelector({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm text-neutral-900 dark:border-white/10 dark:bg-brand-navy dark:text-white"
+      className="rounded-lg border border-border bg-card px-4 py-2 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground"
     >
       {markets.map((m) => (
         <option key={m.country_code} value={m.country_code}>
@@ -174,12 +174,12 @@ function ProfilesTab() {
   return (
     <div>
       <div className="mb-4 flex justify-between">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           {profiles.length} market profiles
         </p>
         <button
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Market
         </button>
@@ -190,10 +190,10 @@ function ProfilesTab() {
           <div key={p.id} className="card p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   {p.country_name}
                 </h3>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   {p.country_code} · {p.region}
                 </p>
               </div>
@@ -204,14 +204,14 @@ function ProfilesTab() {
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
                     : p.status === "coming_soon"
                       ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
-                      : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                      : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                 )}
               >
                 {MARKET_STATUS_LABELS[p.status]}
               </span>
             </div>
 
-            <div className="mt-2 space-y-1 text-xs text-neutral-500 dark:text-neutral-500">
+            <div className="mt-2 space-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
               <p>
                 Currency: {p.currency_code} ({p.currency_symbol})
               </p>
@@ -223,10 +223,10 @@ function ProfilesTab() {
               {p.inherits_from && <p>Inherits from: {p.inherits_from}</p>}
             </div>
 
-            <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+            <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
               <button
                 onClick={() => setEditing(p)}
-                className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-brand-purple"
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
               >
                 <Edit2 className="h-3 w-3" /> Edit
               </button>
@@ -242,7 +242,7 @@ function ProfilesTab() {
                       load();
                     }
                   }}
-                  className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-red-500"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500"
                 >
                   <Trash2 aria-hidden="true" className="h-3 w-3" /> Delete
                 </button>
@@ -329,10 +329,10 @@ function ProfileEditModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid"
+        className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           {profile ? `Edit ${profile.country_name}` : "New Market Profile"}
         </h2>
 
@@ -436,14 +436,14 @@ function ProfileEditModal({
             onChange={(v) => setForm({ ...form, inherits_from: v })}
             placeholder=""
           />
-          <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
+          <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/60">
             <input
               type="checkbox"
               checked={form.is_visible}
               onChange={(e) =>
                 setForm({ ...form, is_visible: e.target.checked })
               }
-              className="h-4 w-4 rounded border-neutral-300 text-brand-purple"
+              className="h-4 w-4 rounded border-border text-brand-purple"
             />
             Visible in country selector
           </label>
@@ -452,14 +452,14 @@ function ProfileEditModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -508,19 +508,19 @@ function RulesTab({ marketCode }: { marketCode: string }) {
   return (
     <div>
       <div className="mb-4 flex justify-between">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-muted-foreground">
           {rules.length} material rules for {marketCode}
         </p>
         <button
           onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Rule
         </button>
       </div>
 
       {rules.length === 0 ? (
-        <p className="text-sm text-neutral-500 py-10 text-center">
+        <p className="text-sm text-muted-foreground py-10 text-center">
           No material rules configured for this market yet.
           {marketCode === "NG" &&
             " (Nigeria uses existing calculator defaults — rules can override them)"}
@@ -534,25 +534,25 @@ function RulesTab({ marketCode }: { marketCode: string }) {
             >
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                     {CALCULATOR_TYPE_LABELS[
                       r.calculator_type as MarketCalculatorType
                     ] ?? r.calculator_type}
                   </span>
-                  <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     {r.rule_key}
                   </span>
                   {r.rule_label && (
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       ({r.rule_label})
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   Version {r.rule_version} ·{" "}
                   {r.is_active ? "Active" : "Inactive"}
                 </p>
-                <pre className="mt-1 text-xs text-neutral-600 dark:text-neutral-500 overflow-x-auto">
+                <pre className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground overflow-x-auto">
                   {JSON.stringify(r.rule_value, null, 2)}
                 </pre>
               </div>
@@ -561,7 +561,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   await deleteMaterialRule(r.id);
                   load();
                 }}
-                className="rounded-md p-1.5 text-neutral-500 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+                className="rounded-md p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
               >
                 <Trash2 aria-hidden="true" className="h-4 w-4" />
               </button>
@@ -640,10 +640,10 @@ function RuleEditModal({
       onClick={onClose}
     >
       <div
-        className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-white p-6 dark:bg-brand-navy-mid"
+        className="max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-xl bg-card p-6 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
+        <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
           New Material Rule ({marketCode})
         </h2>
         {error && (
@@ -676,14 +676,14 @@ function RuleEditModal({
             placeholder="Paint Coverage Per Coat"
           />
           <div>
-            <label className="mb-1 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+            <label className="mb-1 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
               Rule Value (JSON)
             </label>
             <textarea
               value={form.rule_value}
               onChange={(e) => setForm({ ...form, rule_value: e.target.value })}
               rows={4}
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2 font-mono text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="w-full rounded-lg border border-border px-3 py-2 font-mono text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               placeholder='{"coverage": 35, "coverage_unit": "m² per bucket"}'
             />
           </div>
@@ -703,14 +703,14 @@ function RuleEditModal({
         <div className="mt-4 flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+            className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -761,7 +761,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
 
   return (
     <div>
-      <p className="mb-4 text-sm text-neutral-500">
+      <p className="mb-4 text-sm text-muted-foreground">
         Control which calculators are available in this market.
         {marketCode === "NG" &&
           " Nigeria has all calculators active by default."}
@@ -779,10 +779,10 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
               className="card flex items-center justify-between p-3"
             >
               <div>
-                <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {CALCULATOR_TYPE_LABELS[calc]}
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   {config ? `v${config.config_version}` : "No config"}
                 </p>
               </div>
@@ -798,13 +798,13 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                 className={classNames(
                   "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
                   isAvailable
-                    ? "bg-brand-purple"
-                    : "bg-neutral-300 dark:bg-white/10",
+                    ? "bg-primary"
+                    : "bg-muted dark:bg-white/10",
                 )}
               >
                 <span
                   className={classNames(
-                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+                    "inline-block h-4 w-4 transform rounded-full bg-card transition-transform",
                     isAvailable ? "translate-x-6" : "translate-x-1",
                   )}
                 />
@@ -835,7 +835,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+      <label className="mb-1 block text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </label>
       <input
@@ -844,7 +844,7 @@ function Field({
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-900 dark:border-white/10 dark:bg-brand-navy dark:text-white disabled:opacity-50"
+        className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground disabled:opacity-50"
       />
     </div>
   );
@@ -863,13 +863,13 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+      <label className="mb-1 block text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm text-neutral-900 dark:border-white/10 dark:bg-brand-navy dark:text-white"
+        className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground dark:border-white/10 dark:bg-background dark:text-primary-foreground"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>

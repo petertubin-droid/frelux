@@ -111,13 +111,13 @@ export default function NearbyResults({
   return (
     <div
       className={classNames(
-        "rounded-2xl border border-neutral-200/60 bg-white dark:border-white/10 dark:bg-brand-navy-mid",
+        "rounded-2xl border border-border/60 bg-card dark:border-white/10 dark:bg-card",
         compact ? "p-4" : "p-6",
       )}
     >
       {/* Header */}
       <div className="mb-4">
-        <h3 className="text-base font-bold text-neutral-900 dark:text-white">
+        <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
           {title ||
             (mode === "professionals"
               ? "Professionals Near You"
@@ -126,7 +126,7 @@ export default function NearbyResults({
                 : "Near You")}
         </h3>
         {!userLocation && (
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             Set your location to discover nearby{" "}
             {mode === "professionals"
               ? "professionals"
@@ -162,9 +162,9 @@ export default function NearbyResults({
             <div className="py-8 text-center">
               <MapPin
                 aria-hidden="true"
-                className="mx-auto h-8 w-8 text-neutral-300 dark:text-neutral-600"
+                className="mx-auto h-8 w-8 text-muted-foreground/80 dark:text-muted-foreground"
               />
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+              <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
                 No{" "}
                 {mode === "professionals"
                   ? "professionals"
@@ -173,7 +173,7 @@ export default function NearbyResults({
                     : "results"}{" "}
                 found within {radius} km of your location.
               </p>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 Try increasing the distance filter or check back later.
               </p>
             </div>
@@ -183,7 +183,7 @@ export default function NearbyResults({
               {showPros && pros.length > 0 && (
                 <div className="space-y-2">
                   {!compact && (
-                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Professionals ({pros.length})
                     </p>
                   )}
@@ -191,9 +191,9 @@ export default function NearbyResults({
                     <Link
                       key={pro.id}
                       to={`/pro-connect/${pro.slug}`}
-                      className="flex items-center gap-3 rounded-xl border border-neutral-200/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 dark:border-white/5 dark:hover:bg-white/5"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/5 dark:hover:bg-white/5"
                     >
-                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                         {pro.profile_image_url ? (
                           <img
                             src={pro.profile_image_url}
@@ -208,7 +208,7 @@ export default function NearbyResults({
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                          <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                             {pro.business_name || pro.display_name}
                           </p>
                           {pro.verification_status === "verified" && (
@@ -218,7 +218,7 @@ export default function NearbyResults({
                             />
                           )}
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
                           {pro.rating_avg > 0 && (
                             <span className="inline-flex items-center gap-0.5">
                               <span className="text-amber-400 text-xs">★</span>
@@ -236,7 +236,7 @@ export default function NearbyResults({
                       </div>
                       <ArrowRight
                         aria-hidden="true"
-                        className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600"
+                        className="h-4 w-4 shrink-0 text-muted-foreground/80 dark:text-muted-foreground"
                       />
                     </Link>
                   ))}
@@ -247,7 +247,7 @@ export default function NearbyResults({
               {showListings && listings.length > 0 && (
                 <div className="space-y-2">
                   {!compact && (
-                    <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Job Listings ({listings.length})
                     </p>
                   )}
@@ -255,16 +255,16 @@ export default function NearbyResults({
                     <Link
                       key={listing.id}
                       to={`/marketplace/${listing.id}`}
-                      className="flex items-center gap-3 rounded-xl border border-neutral-200/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 dark:border-white/5 dark:hover:bg-white/5"
+                      className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/5 dark:hover:bg-white/5"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                         <Briefcase className="h-4 w-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                        <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {listing.title}
                         </p>
-                        <div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
                           <span className="capitalize">
                             {listing.project_type.replace("_", " ")}
                           </span>
@@ -279,7 +279,7 @@ export default function NearbyResults({
                       </div>
                       <ArrowRight
                         aria-hidden="true"
-                        className="h-4 w-4 shrink-0 text-neutral-300 dark:text-neutral-600"
+                        className="h-4 w-4 shrink-0 text-muted-foreground/80 dark:text-muted-foreground"
                       />
                     </Link>
                   ))}

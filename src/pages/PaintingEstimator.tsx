@@ -716,7 +716,7 @@ export default function PaintingEstimator({
           </>
         )}
         <div className="mx-auto max-w-5xl px-4 py-20 sm:px-6">
-          <div className="flex items-center justify-center gap-3 text-neutral-500">
+          <div className="flex items-center justify-center gap-3 text-muted-foreground">
             <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin" />
             <span>Loading configuration…</span>
           </div>
@@ -805,13 +805,13 @@ export default function PaintingEstimator({
 
         {/* Project description & location */}
         <div className="card mb-6 p-5 sm:p-6 dark:border-white/5">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-neutral-900 dark:text-white">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
             <Building2 className="h-5 w-5 text-brand-purple" />
             Project Details
           </h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Project Description
               </span>
               <input
@@ -819,11 +819,11 @@ export default function PaintingEstimator({
                 value={projectDescription}
                 onChange={(e) => setProjectDescription(e.target.value)}
                 placeholder="e.g. 3-bedroom apartment painting"
-                className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               />
             </label>
             <label className="block">
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Customer Location
               </span>
               <select
@@ -833,7 +833,7 @@ export default function PaintingEstimator({
                     e.target.value as "owerri" | "outside_owerri" | "unknown",
                   )
                 }
-                className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               >
                 <option value="unknown">Select location…</option>
                 <option value="owerri">Owerri, Imo State</option>
@@ -872,7 +872,7 @@ export default function PaintingEstimator({
         {/* Add room button */}
         <button
           onClick={addRoom}
-          className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-neutral-300 py-3 text-sm font-semibold text-neutral-500 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
+          className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
           Add Another Room
@@ -900,7 +900,7 @@ export default function PaintingEstimator({
                 setSaved(false);
                 setAdjustments([]);
               }}
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-600 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Reset
@@ -1032,7 +1032,7 @@ function RoomCard({
         className="flex cursor-pointer items-center justify-between px-5 py-4"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-purple/10 text-sm font-bold text-brand-purple">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-brand-purple">
             {roomIndex + 1}
           </div>
           <div>
@@ -1044,10 +1044,10 @@ function RoomCard({
                 onUpdate({ room_name: e.target.value });
               }}
               onClick={(e) => e.stopPropagation()}
-              className="rounded border-transparent bg-transparent text-base font-semibold text-neutral-900 focus:outline-none focus:ring-1 focus:ring-brand-purple dark:text-white"
+              className="rounded border-transparent bg-transparent text-base font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-brand-purple dark:text-primary-foreground"
               placeholder="Room name"
             />
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               {room.length} × {room.breadth} × {room.height} {room.unit}
               {room.include_ceiling ? " • Ceiling" : " • Walls only"}
             </p>
@@ -1060,7 +1060,7 @@ function RoomCard({
                 e.stopPropagation();
                 onRemove();
               }}
-              className="rounded-lg p-2 text-neutral-500 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
             </button>
@@ -1068,12 +1068,12 @@ function RoomCard({
           {isExpanded ? (
             <ChevronUp
               aria-hidden="true"
-              className="h-5 w-5 text-neutral-500"
+              className="h-5 w-5 text-muted-foreground"
             />
           ) : (
             <ChevronDown
               aria-hidden="true"
-              className="h-5 w-5 text-neutral-500"
+              className="h-5 w-5 text-muted-foreground"
             />
           )}
         </div>
@@ -1081,7 +1081,7 @@ function RoomCard({
 
       {/* Expanded content */}
       {isExpanded && (
-        <div className="border-t border-neutral-100 px-5 py-5 dark:border-white/5">
+        <div className="border-t border-border/50 px-5 py-5 dark:border-white/5">
           {/* Dimensions */}
           <Section
             icon={<Square className="h-4 w-4" />}
@@ -1107,7 +1107,7 @@ function RoomCard({
                 unit={room.unit}
               />
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
+                <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
                   Unit
                 </span>
                 <select
@@ -1115,7 +1115,7 @@ function RoomCard({
                   onChange={(e) =>
                     onUpdate({ unit: e.target.value as "feet" | "meters" })
                   }
-                  className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-2 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-card px-2 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                 >
                   <option value="feet">Feet (ft)</option>
                   <option value="meters">Metres (m)</option>
@@ -1133,7 +1133,7 @@ function RoomCard({
                 onChange={(e) => onUpdate({ doors_unknown: e.target.checked })}
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-500">
+              <span className="text-muted-foreground dark:text-muted-foreground">
                 I don't know the door dimensions
               </span>
             </label>
@@ -1157,7 +1157,7 @@ function RoomCard({
                   />
                   <button
                     onClick={() => onRemoveDoor(di)}
-                    className="mb-2 rounded p-2 text-neutral-500 hover:text-red-500"
+                    className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
@@ -1184,7 +1184,7 @@ function RoomCard({
                 }
                 className="rounded"
               />
-              <span className="text-neutral-500 dark:text-neutral-500">
+              <span className="text-muted-foreground dark:text-muted-foreground">
                 I don't know the window dimensions
               </span>
             </label>
@@ -1208,7 +1208,7 @@ function RoomCard({
                   />
                   <button
                     onClick={() => onRemoveWindow(wi)}
-                    className="mb-2 rounded p-2 text-neutral-500 hover:text-red-500"
+                    className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </button>
@@ -1231,7 +1231,7 @@ function RoomCard({
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
+                <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
                   Paint Type
                 </span>
                 <select
@@ -1244,7 +1244,7 @@ function RoomCard({
                       quality_id: quals[0]?.id ?? "",
                     });
                   }}
-                  className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                 >
                   <option value="">Select paint type…</option>
                   {products
@@ -1257,13 +1257,13 @@ function RoomCard({
                 </select>
               </label>
               <label className="block">
-                <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
+                <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
                   Quality Level
                 </span>
                 <select
                   value={room.quality_id}
                   onChange={(e) => onUpdate({ quality_id: e.target.value })}
-                  className="mt-1.5 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                  className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                   disabled={!room.product_id}
                 >
                   <option value="">Select quality…</option>
@@ -1301,7 +1301,7 @@ function RoomCard({
               onChange={(e) =>
                 onUpdate({ colour_condition_key: e.target.value })
               }
-              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
             >
               {colourConditions.map((c) => (
                 <option key={c.id} value={c.condition_key}>
@@ -1329,7 +1329,7 @@ function RoomCard({
               onChange={(e) =>
                 onUpdate({ surface_condition_key: e.target.value })
               }
-              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
             >
               {surfaceConditions.map((s) => (
                 <option key={s.id} value={s.condition_key}>
@@ -1366,13 +1366,13 @@ function RoomCard({
                   }
                   className="rounded"
                 />
-                <span className="text-neutral-700 dark:text-neutral-200">
+                <span className="text-card-foreground dark:text-muted-foreground/60">
                   Include ceiling
                 </span>
               </label>
               {room.include_ceiling && (
                 <label className="flex items-center gap-2 text-sm">
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Ceiling colour:
                   </span>
                   <select
@@ -1380,7 +1380,7 @@ function RoomCard({
                     onChange={(e) =>
                       onUpdate({ ceiling_colour: e.target.value })
                     }
-                    className="rounded-lg border border-neutral-200 bg-white px-2 py-1 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                    className="rounded-lg border border-border bg-card px-2 py-1 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
                   >
                     <option value="white">White (FRELUX default)</option>
                     <option value="custom">
@@ -1391,7 +1391,7 @@ function RoomCard({
               )}
             </div>
             {!room.include_ceiling && (
-              <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
                 Ceiling excluded, ceiling quantity = 0.
               </p>
             )}
@@ -1400,13 +1400,13 @@ function RoomCard({
           {/* Coats */}
           <Section icon={<Layers className="h-4 w-4" />} title="Coats">
             <div className="flex items-center gap-3">
-              <label className="text-sm text-neutral-500 dark:text-neutral-500">
+              <label className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Number of coats:
               </label>
               <select
                 value={room.coats}
                 onChange={(e) => onUpdate({ coats: parseInt(e.target.value) })}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+                className="rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               >
                 <option value={2}>2 (FRELUX standard)</option>
                 <option value={3}>3 (Extra finish)</option>
@@ -1486,9 +1486,9 @@ function EstimateResult({
           key={room.room_id}
           className="calc-card card overflow-hidden dark:border-white/5"
         >
-          <div className="bg-gradient-to-br from-brand-navy to-brand-purple px-5 py-4 text-white">
+          <div className="bg-gradient-to-br from-background to-primary px-5 py-4 text-primary-foreground">
             <h3 className="text-base font-bold">{room.room_name}</h3>
-            <p className="text-xs text-white/70">
+            <p className="text-xs text-primary-foreground/70">
               {room.length_m.toFixed(2)} × {room.breadth_m.toFixed(2)} ×{" "}
               {room.height_m.toFixed(2)} m{" • "}
               {room.product?.name ?? "N/A"} ({room.quality?.name ?? "N/A"})
@@ -1496,66 +1496,66 @@ function EstimateResult({
           </div>
           <div className="p-5">
             {/* Customer-facing summary — painter language */}
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
+            <div className="rounded-lg border border-border bg-muted/50 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Room Size:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.room_size}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Wall Height:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.wall_height}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Paint:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.paint}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Coats:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.coats}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Ceiling:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.ceiling}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Doors:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.doors}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Windows:
                   </span>{" "}
-                  <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                     {room.customer_summary.windows}
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Requirement:
                   </span>{" "}
                   <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
@@ -1563,7 +1563,7 @@ function EstimateResult({
                   </span>
                 </div>
                 <div>
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Purchase:
                   </span>{" "}
                   <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
@@ -1572,11 +1572,11 @@ function EstimateResult({
                 </div>
               </div>
               {room.customer_summary.material_cost !== "Not configured" && (
-                <div className="mt-2 border-t border-neutral-200 pt-2 dark:border-white/10">
-                  <span className="text-neutral-500 dark:text-neutral-500">
+                <div className="mt-2 border-t border-border pt-2 dark:border-white/10">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     Material Cost:
                   </span>{" "}
-                  <span className="font-bold text-neutral-900 dark:text-white">
+                  <span className="font-bold text-foreground dark:text-primary-foreground">
                     {room.customer_summary.material_cost}
                   </span>
                 </div>
@@ -1630,7 +1630,7 @@ function EstimateResult({
 
             {/* Leftover */}
             {room.leftover_litres > 0 && (
-              <div className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
+              <div className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
                 Estimated remaining: {room.leftover_litres.toFixed(2)} L after
                 theoretical requirement
               </div>
@@ -1640,7 +1640,7 @@ function EstimateResult({
             {(room.colour_condition || room.surface_condition) && (
               <div className="mt-3 space-y-1">
                 {room.colour_condition && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     <span className="font-semibold">Colour condition:</span>{" "}
                     {room.colour_condition.name}
                     {room.colour_condition.requires_warning &&
@@ -1648,7 +1648,7 @@ function EstimateResult({
                   </p>
                 )}
                 {room.surface_condition && (
-                  <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     <span className="font-semibold">Surface condition:</span>{" "}
                     {room.surface_condition.name}
                     {room.surface_condition.primer_recommended &&
@@ -1660,8 +1660,8 @@ function EstimateResult({
 
             {/* Calculation steps */}
             {showCalculation && room.calculation_steps.length > 0 && (
-              <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/10 dark:bg-white/5">
-                <p className="mb-2 text-xs font-bold text-neutral-600 dark:text-neutral-300">
+              <div className="mt-4 rounded-lg border border-border bg-muted/50 p-4 dark:border-white/10 dark:bg-white/5">
+                <p className="mb-2 text-xs font-bold text-muted-foreground dark:text-muted-foreground/80">
                   How was this calculated?
                 </p>
                 <div className="space-y-1">
@@ -1670,13 +1670,13 @@ function EstimateResult({
                       key={si}
                       className="flex justify-between gap-4 text-xs"
                     >
-                      <span className="text-neutral-500 dark:text-neutral-500">
+                      <span className="text-muted-foreground dark:text-muted-foreground">
                         {step.label}
                       </span>
-                      <span className="text-right font-medium text-neutral-700 dark:text-neutral-200">
+                      <span className="text-right font-medium text-card-foreground dark:text-muted-foreground/60">
                         {step.value}
                         {step.detail && (
-                          <span className="block text-neutral-500 dark:text-neutral-500">
+                          <span className="block text-muted-foreground dark:text-muted-foreground">
                             {step.detail}
                           </span>
                         )}
@@ -1692,7 +1692,7 @@ function EstimateResult({
 
       {/* Combined summary */}
       <div className="calc-card card overflow-hidden dark:border-white/5">
-        <div className="bg-gradient-to-br from-brand-purple to-brand-purple-deep px-5 py-4 text-white">
+        <div className="bg-gradient-to-br from-primary to-primary-deep px-5 py-4 text-primary-foreground">
           <h3 className="text-lg font-bold">Project Summary</h3>
         </div>
         <div className="p-5 space-y-4">
@@ -1710,7 +1710,7 @@ function EstimateResult({
           </div>
 
           {result.combined_leftover_litres > 0 && (
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Estimated remaining after theoretical requirement:{" "}
               {result.combined_leftover_litres.toFixed(2)} L
             </p>
@@ -1737,7 +1737,7 @@ function EstimateResult({
                 </span>
               )}
             </p>
-            <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-300">
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground/80">
               {result.production_message}
             </p>
           </div>
@@ -1745,31 +1745,31 @@ function EstimateResult({
           {/* Breakdown by paint type/quality */}
           {result.breakdown.length > 0 && (
             <div>
-              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">
+              <h4 className="mb-2 text-sm font-bold text-foreground dark:text-primary-foreground">
                 Breakdown by Paint Type & Quality
               </h4>
               <div className="space-y-2">
                 {result.breakdown.map((entry, i) => (
                   <div
                     key={i}
-                    className="flex flex-wrap justify-between gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs dark:bg-white/5"
+                    className="flex flex-wrap justify-between gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs dark:bg-white/5"
                   >
                     <div>
-                      <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+                      <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">
                         {entry.label}
                       </span>
-                      <span className="ml-2 text-neutral-500 dark:text-neutral-500">
+                      <span className="ml-2 text-muted-foreground dark:text-muted-foreground">
                         {entry.room_count} room(s)
                       </span>
                     </div>
                     <div className="flex gap-4">
-                      <span className="text-neutral-500 dark:text-neutral-500">
+                      <span className="text-muted-foreground dark:text-muted-foreground">
                         {entry.theoretical_litres.toFixed(2)} L theoretical
                       </span>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                      <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                         {entry.practical_buckets} buckets
                       </span>
-                      <span className="font-semibold text-neutral-900 dark:text-white">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
                         {formatCurrency(entry.material_cost, result.currency)}
                       </span>
                     </div>
@@ -1780,24 +1780,24 @@ function EstimateResult({
           )}
 
           {/* Total rooms */}
-          <div className="text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="text-xs text-muted-foreground dark:text-muted-foreground">
             Total rooms: {result.rooms.length}
           </div>
 
           {/* Material cost */}
           {result.line_items.length > 0 && (
             <div>
-              <h4 className="mb-2 text-sm font-bold text-neutral-900 dark:text-white">
+              <h4 className="mb-2 text-sm font-bold text-foreground dark:text-primary-foreground">
                 Material Cost Breakdown
               </h4>
               <div className="space-y-2">
                 {result.line_items.map((item, i) => (
                   <div key={i} className="flex justify-between gap-4 text-xs">
                     <div>
-                      <span className="font-medium text-neutral-700 dark:text-neutral-200">
+                      <span className="font-medium text-card-foreground dark:text-muted-foreground/60">
                         {item.item_name}
                       </span>
-                      <span className="block text-neutral-500 dark:text-neutral-500">
+                      <span className="block text-muted-foreground dark:text-muted-foreground">
                         {item.practical_purchase_qty} L ×{" "}
                         {formatCurrency(
                           item.unit_price,
@@ -1806,7 +1806,7 @@ function EstimateResult({
                         /L
                       </span>
                     </div>
-                    <span className="font-semibold text-neutral-900 dark:text-white">
+                    <span className="font-semibold text-foreground dark:text-primary-foreground">
                       {formatCurrency(item.total_price, result.currency)}
                     </span>
                   </div>
@@ -1816,9 +1816,9 @@ function EstimateResult({
           )}
 
           {/* Total */}
-          <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
+          <div className="border-t border-border pt-4 dark:border-white/10">
             <div className="flex justify-between text-sm">
-              <span className="font-semibold text-neutral-600 dark:text-neutral-300">
+              <span className="font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 Estimated Material Cost
               </span>
               <span className="text-lg font-bold text-brand-purple">
@@ -1826,18 +1826,18 @@ function EstimateResult({
               </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="text-neutral-500 dark:text-neutral-500">
+              <span className="text-muted-foreground dark:text-muted-foreground">
                 Labour
               </span>
-              <span className="text-neutral-500 dark:text-neutral-500">
+              <span className="text-muted-foreground dark:text-muted-foreground">
                 Not included, negotiated separately.
               </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+              <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">
                 Estimated Total Excluding Labour
               </span>
-              <span className="text-lg font-bold text-neutral-900 dark:text-white">
+              <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                 {formatCurrency(result.total_material_cost, result.currency)}
               </span>
             </div>
@@ -1947,7 +1947,7 @@ function EstimateResult({
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
                 saved
                   ? "bg-green-100 text-green-700 dark:bg-green-500/10 dark:text-green-400"
-                  : "bg-brand-purple text-white hover:bg-brand-purple-dark",
+                  : "bg-primary text-primary-foreground hover:bg-primary/90",
               )}
             >
               {saved ? (
@@ -1988,7 +1988,7 @@ function EstimateResult({
             />
             <button
               onClick={onToggleCalculation}
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-semibold text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200"
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >
               <Info aria-hidden="true" className="h-4 w-4" />
               {showCalculation
@@ -1998,13 +1998,13 @@ function EstimateResult({
           </div>
 
           {/* Post as Job CTA — marketplace integration */}
-          <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+          <div className="mt-4 rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-bold text-brand-navy dark:text-white">
+                <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   Need someone to do the work?
                 </p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   Post this estimate as a job and get bids from verified pros
                   near you.
                 </p>
@@ -2059,7 +2059,7 @@ function Section({
 }) {
   return (
     <div className="mb-4">
-      <h4 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+      <h4 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         {icon}
         {title}
       </h4>
@@ -2082,7 +2082,7 @@ function NumberField({
   return (
     <label className="block">
       {label && (
-        <span className="block text-xs font-semibold text-neutral-500 dark:text-neutral-500">
+        <span className="block text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
           {label}
         </span>
       )}
@@ -2093,9 +2093,9 @@ function NumberField({
           onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
           min={0}
           step={0.1}
-          className="mt-0.5 w-full rounded-lg border border-neutral-200 bg-white px-2 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+          className="mt-0.5 w-full rounded-lg border border-border bg-card px-2 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
         />
-        {unit && <span className="text-xs text-neutral-500">{unit}</span>}
+        {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
       </div>
     </label>
   );
@@ -2115,17 +2115,17 @@ function StatBox({
       className={classNames(
         "rounded-lg p-3",
         highlight
-          ? "bg-brand-purple/10 dark:bg-brand-purple/20"
-          : "bg-neutral-50 dark:bg-white/5",
+          ? "bg-primary/10 dark:bg-primary/20"
+          : "bg-muted/50 dark:bg-white/5",
       )}
     >
-      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
+      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{label}</p>
       <p
         className={classNames(
           "mt-1 text-sm font-bold",
           highlight
             ? "text-brand-purple dark:text-brand-purple-lighter"
-            : "text-neutral-900 dark:text-white",
+            : "text-foreground dark:text-primary-foreground",
         )}
       >
         {value}
@@ -2136,7 +2136,7 @@ function StatBox({
 
 function TrustBadge({ label, value }: { label: string; value: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-1 text-xs text-neutral-500 dark:bg-white/5 dark:text-neutral-500">
+    <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-1 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
       <span className="font-bold">{label}:</span>
       {value}
     </span>

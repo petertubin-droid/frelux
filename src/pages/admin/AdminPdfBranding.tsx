@@ -230,7 +230,7 @@ export default function AdminPdfBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <Settings2 className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
             Brand Studio Feature
           </h2>
         </div>
@@ -259,11 +259,11 @@ export default function AdminPdfBranding() {
       <AdminCard className="mb-4 p-5">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5 text-brand-purple" />
-          <h2 className="text-sm font-bold text-brand-navy dark:text-white">
+          <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
             FRELUX Default PDF Branding
           </h2>
         </div>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           This is the default branding used for all PDFs when a user doesn't
           have custom branding.
         </p>
@@ -349,7 +349,7 @@ export default function AdminPdfBranding() {
         </div>
 
         <div className="mt-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+          <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
             Watermark Configuration
           </h3>
           <div className="space-y-3">
@@ -394,7 +394,7 @@ export default function AdminPdfBranding() {
                 <select
                   value={watermarkPosition}
                   onChange={(e) => setWatermarkPosition(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                 >
                   <option value="center">Center</option>
                   <option value="top-left">Top Left</option>
@@ -424,20 +424,20 @@ export default function AdminPdfBranding() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PremiumBadge size="sm" />
-            <h2 className="text-sm font-bold text-brand-navy dark:text-white">
+            <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
               PDF Templates
             </h2>
           </div>
           <button
             onClick={() => setShowNewTpl(!showNewTpl)}
-            className="inline-flex items-center gap-1 rounded-lg bg-brand-purple/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-brand-purple/20"
+            className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20"
           >
             <Plus className="h-3 w-3" /> New Template
           </button>
         </div>
 
         {showNewTpl && (
-          <div className="mt-4 rounded-lg border border-neutral-200 p-4 dark:border-white/10">
+          <div className="mt-4 rounded-lg border border-border p-4 dark:border-white/10">
             <div className="grid gap-3 sm:grid-cols-2">
               <AdminField label="Template Name">
                 <AdminInput
@@ -480,7 +480,7 @@ export default function AdminPdfBranding() {
               </AdminButton>
               <button
                 onClick={() => setShowNewTpl(false)}
-                className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs dark:border-white/10"
+                className="rounded-lg border border-border px-3 py-1.5 text-xs dark:border-white/10"
               >
                 Cancel
               </button>
@@ -492,16 +492,16 @@ export default function AdminPdfBranding() {
           {templates.map((tpl) => (
             <div
               key={tpl.id}
-              className="rounded-lg border border-neutral-200 p-3 dark:border-white/10"
+              className="rounded-lg border border-border p-3 dark:border-white/10"
             >
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-brand-navy dark:text-white">
+                    <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                       {tpl.name}
                     </span>
                     {tpl.is_system && (
-                      <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500 dark:bg-white/10">
+                      <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground dark:bg-white/10">
                         System
                       </span>
                     )}
@@ -518,7 +518,7 @@ export default function AdminPdfBranding() {
                     )}
                   </div>
                   {tpl.description && (
-                    <p className="mt-0.5 text-xs text-neutral-500">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {tpl.description}
                     </p>
                   )}

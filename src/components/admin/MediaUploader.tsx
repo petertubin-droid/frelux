@@ -15,13 +15,13 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
 
   return (
     <div className={className}>
-      {label && <span className="mb-1.5 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">{label}</span>}
+      {label && <span className="mb-1.5 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{label}</span>}
       <div className="flex items-center gap-3">
-        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5">
+        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-border dark:border-white/5 bg-muted/50 dark:bg-white/5">
           {value ? (
             <img src={value} alt="Preview" className="h-full w-full object-cover" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-neutral-300">
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
               <ImageIcon aria-hidden="true" className="h-6 w-6" />
             </div>
           )}
@@ -30,7 +30,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
           <button
             type="button"
             onClick={() => setPickerOpen(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-purple-dark"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
           >
             <Upload aria-hidden="true" className="h-3.5 w-3.5" />
             {value ? 'Change Image' : 'Upload / Select'}
@@ -39,7 +39,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
             <button
               type="button"
               onClick={() => onChange('')}
-              className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500 hover:text-red-500"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground hover:text-red-500"
             >
               <X className="h-3 w-3" /> Remove
             </button>
@@ -51,7 +51,7 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
           type="text"
           value={value}
           readOnly
-          className="mt-2 w-full rounded-lg border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-3 py-1.5 text-xs text-neutral-500 dark:text-neutral-500"
+          className="mt-2 w-full rounded-lg border border-border dark:border-white/5 bg-muted/50 dark:bg-white/5 px-3 py-1.5 text-xs text-muted-foreground dark:text-muted-foreground"
         />
       )}
       <MediaPicker

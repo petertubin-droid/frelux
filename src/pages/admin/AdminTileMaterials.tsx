@@ -104,10 +104,10 @@ export default function AdminTileMaterials() {
         }
       />
 
-      <div className="mb-4 inline-flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1">
+      <div className="mb-4 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(['sizes', 'materials'] as Tab[]).map((t) => (
           <AdminButton key={t} type="button" onClick={() => setTab(t)}
-            className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple')}>
+            className={classNames('rounded-md px-4 py-2 text-sm font-semibold capitalize transition-all', tab === t ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple')}>
             {t === 'sizes' ? 'Tile Sizes' : 'Materials'}
           </AdminButton>
         ))}
@@ -122,19 +122,19 @@ export default function AdminTileMaterials() {
             <AdminCard key={s.id} className="flex flex-col gap-2 p-3">
               <div className="flex-1">
                 <div className="flex items-center gap-1.5">
-                  <p className="truncate text-xs font-bold text-brand-navy dark:text-white">{s.name}</p>
-                  {s.is_standard && <span className="rounded-full bg-brand-purple/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand-purple">Std</span>}
-                  <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
+                  <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{s.name}</p>
+                  {s.is_standard && <span className="rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand-purple">Std</span>}
+                  <span className={classNames('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', s.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
                     {s.is_active ? 'On' : 'Off'}
                   </span>
                 </div>
-                <p className="mt-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box</p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{s.width_mm}×{s.height_mm}mm · {s.tiles_per_box}/box</p>
               </div>
-              <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+              <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle checked={s.is_active} onChange={() => handleToggleSizeActive(s)} />
                 <div className="flex items-center gap-0.5">
-                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-neutral-500 hover:text-brand-purple"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
-                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingSize(s); setShowSizeEditor(true); }} className="rounded-md p-1.5 text-muted-foreground hover:text-brand-purple"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                  <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteSize(s.id)} className="rounded-md p-1.5 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
                 </div>
               </div>
             </AdminCard>
@@ -156,23 +156,23 @@ export default function AdminTileMaterials() {
             if (catItems.length === 0) return null;
             return (
               <div key={cat}>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{cat}</h3>
+                <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{cat}</h3>
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                   {catItems.map((m) => (
                     <AdminCard key={m.id} className="flex flex-col gap-2 p-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-brand-navy dark:text-white">{m.name}</p>
-                          <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', m.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500')}>
+                          <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{m.name}</p>
+                          <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold', m.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
                             {m.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{m.coverage_rate} {m.coverage_unit} · ₦{m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{m.coverage_rate} {m.coverage_unit} · ₦{m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Toggle checked={m.is_active} onChange={() => handleToggleMatActive(m)} />
-                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-neutral-500 hover:text-brand-purple"><Pencil aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingMat(m); setShowMatEditor(true); }} className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"><Pencil aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
+                        <AdminIconButton variant="ghost" type="button" onClick={() => handleDeleteMat(m.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></AdminIconButton>
                       </div>
                     </AdminCard>
                   ))}
@@ -203,7 +203,7 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{size ? 'Edit Tile Size' : 'New Tile Size'}</h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
       <AdminField label="Name"><AdminInput  value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. 300 × 300 mm" /></AdminField>
@@ -214,8 +214,8 @@ function TileSizeEditor({ size, onSave, onCancel }: { size: DbTileSize | null; o
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Standard</label>
-        <label className="flex items-center gap-2 pt-6 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_standard} onChange={(e) => setForm({ ...form, is_standard: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Standard</label>
+        <label className="flex items-center gap-2 pt-6 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Active</label>
       </div>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
@@ -242,7 +242,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
   return (
     <AdminCard className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">{material ? 'Edit Material' : 'New Material'}</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{material ? 'Edit Material' : 'New Material'}</h2>
         <AdminIconButton variant="ghost" type="button" onClick={onCancel} ><X className="h-4 w-4" /></AdminIconButton>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -267,7 +267,7 @@ function TileMaterialEditor({ material, onSave, onCancel }: { material: DbTileMa
         <AdminField label="Labour Rate/m² (₦)"><AdminInput type="number"  value={form.labour_rate_per_sqm} onChange={(e) => setForm({ ...form, labour_rate_per_sqm: Number(e.target.value) })} /></AdminField>
         <AdminField label="Sort Order"><AdminInput type="number"  value={form.sort_order} onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })} /></AdminField>
       </div>
-      <label className="flex items-center gap-2 text-sm text-neutral-600"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-neutral-300 text-brand-purple" /> Active</label>
+      <label className="flex items-center gap-2 text-sm text-muted-foreground"><AdminInput type="checkbox" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="h-4 w-4 rounded border-border text-brand-purple" /> Active</label>
       <div className="flex justify-end gap-3">
         <AdminButton onClick={onCancel}>Cancel</AdminButton>
         <AdminButton onClick={() => onSave(form)} disabled={!form.name.trim()}><Check aria-hidden="true" className="h-4 w-4" /> Save</AdminButton>

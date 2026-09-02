@@ -290,10 +290,10 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="admin-layout min-h-screen bg-neutral-50 dark:bg-[#0a0a0f]">
+    <div className="admin-layout min-h-screen bg-muted/50 dark:bg-[#0a0a0f]">
       {/* Mobile header */}
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4 dark:border-neutral-800 dark:bg-neutral-900 lg:hidden">
-        <span className="text-sm font-bold text-brand-navy dark:text-white">
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card px-4 dark:border-border dark:bg-background lg:hidden">
+        <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
           FRELUX Admin
         </span>
         <div className="flex items-center gap-1">
@@ -301,7 +301,7 @@ export default function AdminLayout() {
             type="button"
             onClick={toggle}
             aria-label="Toggle dark mode"
-            className="inline-flex items-center justify-center rounded-md p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
               <Sun className="h-5 w-5" />
@@ -312,7 +312,7 @@ export default function AdminLayout() {
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="inline-flex items-center justify-center rounded-md p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
             aria-label="Open admin menu"
           >
             <Menu className="h-5 w-5" />
@@ -322,7 +322,7 @@ export default function AdminLayout() {
 
       <div className="flex">
         {/* Desktop sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 lg:flex">
+        <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-border bg-card dark:border-border dark:bg-background lg:flex">
           <SidebarContent
             user={user?.email}
             onSignOut={handleSignOut}
@@ -335,18 +335,18 @@ export default function AdminLayout() {
         {mobileOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div
-              className="absolute inset-0 bg-neutral-900/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
-            <aside className="absolute left-0 top-0 h-full w-64 bg-white shadow-xl dark:bg-neutral-900">
-              <div className="flex h-14 items-center justify-between border-b border-neutral-200 px-4 dark:border-neutral-800">
-                <span className="text-sm font-bold text-brand-navy dark:text-white">
+            <aside className="absolute left-0 top-0 h-full w-64 bg-card shadow-xl dark:bg-background">
+              <div className="flex h-14 items-center justify-between border-b border-border px-4 dark:border-border">
+                <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   FRELUX Admin
                 </span>
                 <button
                   type="button"
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-md p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                  className="rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
                   aria-label="Close admin menu"
                 >
                   <X className="h-5 w-5" />
@@ -388,17 +388,17 @@ function SidebarContent({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="hidden border-b border-neutral-200 px-5 py-4 dark:border-neutral-800 lg:block">
-        <span className="text-base font-bold text-brand-navy dark:text-white">
+      <div className="hidden border-b border-border px-5 py-4 dark:border-border lg:block">
+        <span className="text-base font-bold text-foreground dark:text-primary-foreground">
           FRELUX Admin
         </span>
-        <p className="text-xs text-neutral-500">Platform management</p>
+        <p className="text-xs text-muted-foreground">Platform management</p>
       </div>
 
       <nav className="flex-1 overflow-y-auto p-3">
         {navModules.map((module) => (
           <div key={module.heading} className="mb-4">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-neutral-500">
+            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               {module.heading}
             </p>
             <div className="space-y-0.5">
@@ -414,8 +414,8 @@ function SidebarContent({
                       classNames(
                         "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-brand-purple text-white dark:nav-active"
-                          : "text-neutral-600 hover:bg-neutral-100 hover:text-brand-purple dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-brand-purple-light",
+                          ? "bg-primary text-primary-foreground dark:nav-active"
+                          : "text-muted-foreground hover:bg-muted hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90 dark:hover:text-brand-purple-light",
                       )
                     }
                   >
@@ -429,11 +429,11 @@ function SidebarContent({
         ))}
       </nav>
 
-      <div className="border-t border-neutral-200 p-3 dark:border-neutral-800">
+      <div className="border-t border-border p-3 dark:border-border">
         <div className="mb-2 flex items-center justify-between">
           <Link
             to="/"
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             <ExternalLink className="h-4 w-4" /> View website
           </Link>
@@ -441,7 +441,7 @@ function SidebarContent({
             type="button"
             onClick={onToggleTheme}
             aria-label="Toggle dark mode"
-            className="inline-flex items-center justify-center rounded-md p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4" />
@@ -450,7 +450,7 @@ function SidebarContent({
             )}
           </button>
         </div>
-        <div className="mt-1 px-3 py-1 text-xs text-neutral-500 truncate">
+        <div className="mt-1 px-3 py-1 text-xs text-muted-foreground truncate">
           {user}
         </div>
         <button

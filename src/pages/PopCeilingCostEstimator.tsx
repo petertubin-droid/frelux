@@ -220,7 +220,7 @@ export default function PopCeilingCostEstimator({
             ]}
           />
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -244,7 +244,7 @@ export default function PopCeilingCostEstimator({
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid lg:col-span-3">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
             <Section title="Workflow">
               <Field label="POP ceiling workflow">
                 <select
@@ -255,7 +255,7 @@ export default function PopCeilingCostEstimator({
                       e.target.value as "nigeria" | "international",
                     )
                   }
-                  className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                  className="input-field dark:bg-card dark:border-white/10"
                 >
                   <option value="nigeria">
                     Nigeria (POP cement, fibre, surface board)
@@ -268,7 +268,7 @@ export default function PopCeilingCostEstimator({
             </Section>
 
             <Section title="Dimensions">
-              <div className="inline-flex rounded-lg border border-neutral-200 dark:border-white/5 p-1">
+              <div className="inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
                   <button
                     key={u}
@@ -277,8 +277,8 @@ export default function PopCeilingCostEstimator({
                     className={
                       "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
                       (input.unit === u
-                        ? "bg-brand-purple text-white"
-                        : "text-neutral-600 dark:text-neutral-300 hover:text-brand-purple")
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground dark:text-muted-foreground/80 hover:text-brand-purple")
                     }
                   >
                     {u}
@@ -298,7 +298,7 @@ export default function PopCeilingCostEstimator({
                     onChange={(e) =>
                       update("roomLength", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />
                 </Field>
@@ -314,7 +314,7 @@ export default function PopCeilingCostEstimator({
                     onChange={(e) =>
                       update("roomWidth", Number(e.target.value))
                     }
-                    className="input-field dark:bg-brand-navy-mid dark:border-white/10"
+                    className="input-field dark:bg-card dark:border-white/10"
                     placeholder="0.00"
                   />
                 </Field>
@@ -348,8 +348,8 @@ export default function PopCeilingCostEstimator({
                     className={
                       "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                       (input.wasteMargin === w
-                        ? "border-brand-purple bg-brand-purple text-white"
-                        : "border-neutral-200 text-neutral-600 dark:text-neutral-300 hover:border-neutral-300")
+                        ? "border-brand-purple bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground dark:text-muted-foreground/80 hover:border-border")
                     }
                   >
                     {w}%
@@ -381,8 +381,8 @@ export default function PopCeilingCostEstimator({
           {/* Results panel */}
           <div className="lg:col-span-2">
             <div className="card sticky top-20 overflow-hidden">
-              <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/60">
+              <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
+                <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
                   Estimated total
                 </p>
                 {result ? (
@@ -390,11 +390,11 @@ export default function PopCeilingCostEstimator({
                     {formatCurrency(result.grandTotal, currencySymbol)}
                   </p>
                 ) : (
-                  <p className="mt-1 text-3xl font-bold text-white/40 sm:text-4xl">
+                  <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
                     {currencySymbol}0
                   </p>
                 )}
-                <p className="mt-1 text-xs text-white/50">
+                <p className="mt-1 text-xs text-primary-foreground/50">
                   Estimate only, not a final quote.
                 </p>
               </div>
@@ -425,7 +425,7 @@ export default function PopCeilingCostEstimator({
                       label="Waste allowance"
                       value={`${formatNumber(result.wasteAmount)} m²`}
                     />
-                    <div className="border-t border-neutral-100 pt-2">
+                    <div className="border-t border-border/50 pt-2">
                       <Row
                         label="Grand total"
                         value={formatCurrency(
@@ -435,7 +435,7 @@ export default function PopCeilingCostEstimator({
                         strong
                       />
                     </div>
-                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-neutral-50 dark:bg-white/5 p-3 text-xs text-neutral-500">
+                    <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 dark:bg-white/5 p-3 text-xs text-muted-foreground">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
                       {input.workflow === "nigeria"
                         ? "Nigeria"
@@ -535,14 +535,14 @@ export default function PopCeilingCostEstimator({
                     </div>
                   </>
                 ) : (
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Enter dimensions and click Generate Estimate to see your
                     cost breakdown.
                   </p>
                 )}
               </div>
               {result && (
-                <div className="border-t border-neutral-100 px-6 py-3 dark:border-white/5">
+                <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="pop_ceiling_cost"
@@ -559,7 +559,7 @@ export default function PopCeilingCostEstimator({
                   />
                 </div>
               )}
-              <div className="border-t border-neutral-100 bg-neutral-50 dark:bg-white/5 px-6 py-3 text-xs text-neutral-500">
+              <div className="border-t border-border/50 bg-muted/50 dark:bg-white/5 px-6 py-3 text-xs text-muted-foreground">
                 Estimate only. Actual costs may vary depending on materials,
                 location, and market prices.
               </div>
@@ -623,8 +623,8 @@ function Section({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "mb-6 border-b border-neutral-100 pb-6"}>
-      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500">
+    <div className={last ? "" : "mb-6 border-b border-border/50 pb-6"}>
+      <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>
       {children}
@@ -645,16 +645,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="relative mt-1.5">
         {children}
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
           </span>
         )}
@@ -678,8 +678,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -688,8 +688,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}
@@ -710,29 +710,29 @@ function ToggleRow({
   hint?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 dark:border-white/5 p-3">
+    <div className="flex items-center gap-3 rounded-lg border border-border dark:border-white/5 p-3">
       <button
         type="button"
         onClick={() => onChange(!checked)}
         className={
           "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
-          (checked ? "bg-accent-green" : "bg-neutral-300")
+          (checked ? "bg-accent-green" : "bg-muted")
         }
         aria-pressed={checked}
         style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       >
         <span
           className={
-            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+            "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
             (checked ? "translate-x-4" : "translate-x-0.5")
           }
         />
       </button>
       <div>
-        <p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+        <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           {label}
         </p>
-        {hint && <p className="text-xs text-neutral-500">{hint}</p>}
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       </div>
     </div>
   );

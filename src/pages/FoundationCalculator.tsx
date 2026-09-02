@@ -97,12 +97,12 @@ export default function FoundationCalculator() {
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
         {/* Inputs */}
-        <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
           <div className="mb-5 flex items-center gap-2">
-            <span className="text-xs font-medium text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground">
               Measurement unit:
             </span>
-            <div className="inline-flex rounded-lg border border-neutral-200 overflow-hidden dark:border-white/10">
+            <div className="inline-flex rounded-lg border border-border overflow-hidden dark:border-white/10">
               <button
                 onClick={() => {
                   if (measurementUnit === "ft") {
@@ -116,7 +116,7 @@ export default function FoundationCalculator() {
                     );
                   }
                 }}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "m" ? "bg-brand-purple text-white" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-white/5"}`}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
               >
                 m
               </button>
@@ -133,7 +133,7 @@ export default function FoundationCalculator() {
                     );
                   }
                 }}
-                className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "ft" ? "bg-brand-purple text-white" : "text-neutral-500 hover:bg-neutral-50 dark:hover:bg-white/5"}`}
+                className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
               >
                 ft
               </button>
@@ -141,7 +141,7 @@ export default function FoundationCalculator() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Foundation type
               </label>
               <select
@@ -155,7 +155,7 @@ export default function FoundationCalculator() {
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Soil type
               </label>
               <select
@@ -172,7 +172,7 @@ export default function FoundationCalculator() {
             </div>
             {soilType === "custom" && (
               <div>
-                <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                   Bearing capacity (kN/m²)
                 </label>
                 <input
@@ -186,7 +186,7 @@ export default function FoundationCalculator() {
               </div>
             )}
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 {shape === "pad" ? "Column load (kN)" : "Wall load (kN/m)"}
               </label>
               <input
@@ -201,7 +201,7 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Foundation depth ({measurementUnit})
               </label>
               <input
@@ -213,7 +213,7 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Building length ({measurementUnit})
               </label>
               <input
@@ -227,7 +227,7 @@ export default function FoundationCalculator() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500 mb-1.5 block">
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
                 Building width ({measurementUnit})
               </label>
               <input
@@ -267,7 +267,7 @@ export default function FoundationCalculator() {
           <div className="card-elevated p-6 sm:p-8">
             <div className="mb-6 flex items-center gap-2">
               <Layers className="h-5 w-5 text-brand-purple" />
-              <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                 Foundation Design Results
               </h2>
             </div>
@@ -275,37 +275,37 @@ export default function FoundationCalculator() {
             {/* Key results — premium stat cards */}
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               {result.shape !== "raft" && (
-                <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-5 dark:border-brand-purple/30">
-                  <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-purple/10 blur-2xl" />
-                  <p className="relative text-xs font-medium text-neutral-500 mb-1.5">
+                <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5 dark:border-brand-purple/30">
+                  <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+                  <p className="relative text-xs font-medium text-muted-foreground mb-1.5">
                     {result.shape === "pad" ? "Pad Size" : "Footing Width"}
                   </p>
-                  <p className="relative text-2xl font-bold text-brand-navy dark:text-white">
+                  <p className="relative text-2xl font-bold text-foreground dark:text-primary-foreground">
                     {result.shape === "pad"
                       ? `${result.recommended_width} × ${result.recommended_length}`
                       : `${result.recommended_width}`}
-                    <span className="text-sm font-normal text-neutral-400 ml-1">
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
                       mm
                     </span>
                   </p>
                 </div>
               )}
-              <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs font-medium text-neutral-500 mb-1.5">
+              <div className="rounded-2xl border border-border/80 bg-muted/50 p-5 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs font-medium text-muted-foreground mb-1.5">
                   Allowable Bearing
                 </p>
-                <p className="text-2xl font-bold text-brand-navy dark:text-white">
+                <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
                   {result.bearing_capacity}
-                  <span className="text-sm font-normal text-neutral-400 ml-1">
+                  <span className="text-sm font-normal text-muted-foreground ml-1">
                     kN/m²
                   </span>
                 </p>
               </div>
-              <div className="rounded-2xl border border-neutral-200/80 bg-neutral-50/50 p-5 dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs font-medium text-neutral-500 mb-1.5">
+              <div className="rounded-2xl border border-border/80 bg-muted/50 p-5 dark:border-white/10 dark:bg-white/5">
+                <p className="text-xs font-medium text-muted-foreground mb-1.5">
                   Factor of Safety
                 </p>
-                <p className="text-2xl font-bold text-brand-navy dark:text-white">
+                <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
                   {result.factor_of_safety}
                 </p>
               </div>
@@ -324,10 +324,10 @@ export default function FoundationCalculator() {
                 <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
               )}
               <div>
-                <p className="text-xs font-medium text-neutral-500">
+                <p className="text-xs font-medium text-muted-foreground">
                   Bearing Capacity Check
                 </p>
-                <p className="text-sm text-neutral-900 dark:text-white">
+                <p className="text-sm text-foreground dark:text-primary-foreground">
                   Applied: {result.applied_pressure} kN/m² ≤ Allowable:{" "}
                   {result.bearing_capacity} kN/m²
                 </p>
@@ -347,12 +347,12 @@ export default function FoundationCalculator() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-xl border border-neutral-200/80 bg-white p-4 dark:border-white/10 dark:bg-brand-navy-mid"
+                  className="rounded-xl border border-border/80 bg-card p-4 dark:border-white/10 dark:bg-card"
                 >
-                  <p className="text-xs font-medium text-neutral-400 mb-1">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
                     {item.label}
                   </p>
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {item.value}
                   </p>
                 </div>
@@ -391,7 +391,7 @@ export default function FoundationCalculator() {
                 {showFormulas ? "Hide" : "Show"} calculation formulas
               </button>
               {showFormulas && (
-                <div className="mt-3 overflow-hidden rounded-xl bg-neutral-900 p-5 dark:bg-black/40">
+                <div className="mt-3 overflow-hidden rounded-xl bg-background p-5 dark:bg-black/40">
                   {result.formula_transparency.map((f, i) => (
                     <p
                       key={i}
@@ -405,7 +405,7 @@ export default function FoundationCalculator() {
             </div>
 
             {/* Reset */}
-            <div className="mt-6 flex items-center gap-3 border-t border-neutral-100 pt-5 dark:border-white/5">
+            <div className="mt-6 flex items-center gap-3 border-t border-border/50 pt-5 dark:border-white/5">
               <button
                 onClick={() => setResult(null)}
                 className="btn-secondary inline-flex items-center gap-2"

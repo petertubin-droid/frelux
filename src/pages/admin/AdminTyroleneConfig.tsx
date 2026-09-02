@@ -470,7 +470,7 @@ export default function AdminTyroleneConfig() {
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted-foreground">
                 Standard partition dimensions (width × height in metres) used as the baseline for Tyrolene estimation.
                 When actual partition dimensions differ, the system calculates equivalent standard partitions.
               </p>
@@ -484,7 +484,7 @@ export default function AdminTyroleneConfig() {
  value={partitionWidth}
  onChange={e => setPartitionWidth(e.target.value)}
                   placeholder="e.g., 3"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                 />
               </AdminField>
               <AdminField label="Standard Partition Height (m)">
@@ -495,12 +495,12 @@ export default function AdminTyroleneConfig() {
  value={partitionHeight}
  onChange={e => setPartitionHeight(e.target.value)}
                   placeholder="e.g., 3"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm"
                 />
               </AdminField>
             </div>
             {partitionWidth && partitionHeight && !isNaN(parseFloat(partitionWidth)) && !isNaN(parseFloat(partitionHeight)) && (
-              <p className="text-xs text-neutral-500">
+              <p className="text-xs text-muted-foreground">
                 Standard partition area: {(parseFloat(partitionWidth) * parseFloat(partitionHeight)).toFixed(2)}m²
               </p>
             )}
@@ -519,10 +519,10 @@ export default function AdminTyroleneConfig() {
             <div className="flex items-start gap-3">
               <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-muted-foreground">
                   FRELUX verified material ratio. For every {partitionsPerRatio} standard partitions:
                 </p>
-                <p className="text-xs text-neutral-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   Changes apply only to new estimates. Historical estimates retain the ratio used at the time of calculation.
                 </p>
               </div>
@@ -533,13 +533,13 @@ export default function AdminTyroleneConfig() {
  min="1"
  value={partitionsPerRatio}
  onChange={e => setPartitionsPerRatio(parseInt(e.target.value) || 4)}
-                className="w-32 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                className="w-32 rounded-lg border border-border px-3 py-2 text-sm"
               />
             </AdminField>
             <div className="space-y-2">
               {ratioEntries.map((entry, idx) => (
                 <div key={entry.slug} className="flex items-center gap-3">
-                  <span className="text-sm font-medium text-neutral-700 w-32">{entry.slug.replace(/-/g, ' ')}:</span>
+                  <span className="text-sm font-medium text-card-foreground w-32">{entry.slug.replace(/-/g, ' ')}:</span>
                   <AdminInput
  type="number"
  step="0.01"
@@ -550,9 +550,9 @@ export default function AdminTyroleneConfig() {
                       updated[idx] = { ...entry, quantity: parseFloat(e.target.value) || 0 };
                       setRatioEntries(updated);
                     }}
-                    className="w-24 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                    className="w-24 rounded-lg border border-border px-3 py-2 text-sm"
                   />
-                  <span className="text-sm text-neutral-500">{entry.unit}</span>
+                  <span className="text-sm text-muted-foreground">{entry.unit}</span>
                 </div>
               ))}
             </div>
@@ -570,7 +570,7 @@ export default function AdminTyroleneConfig() {
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted-foreground">
                 Configure the current price for each Tyrolene material. New estimates will use these prices.
                 Historical estimates retain the price snapshot from when they were created.
               </p>
@@ -580,13 +580,13 @@ export default function AdminTyroleneConfig() {
             ) : (
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {materials.map(mat => (
-                  <div key={mat.id} className="flex items-center gap-2 rounded-lg border border-neutral-200 p-2.5">
+                  <div key={mat.id} className="flex items-center gap-2 rounded-lg border border-border p-2.5">
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-neutral-900">{mat.name}</p>
-                      <p className="text-xs text-neutral-500">{mat.slug} · {mat.category}</p>
+                      <p className="text-sm font-medium text-foreground">{mat.name}</p>
+                      <p className="text-xs text-muted-foreground">{mat.slug} · {mat.category}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-neutral-500">₦</span>
+                      <span className="text-sm text-muted-foreground">₦</span>
                       <AdminInput
  type="number"
  min="0"
@@ -594,7 +594,7 @@ export default function AdminTyroleneConfig() {
  value={prices[mat.slug] ?? ''}
  onChange={e => setPrices(prev => ({ ...prev, [mat.slug]: e.target.value }))}
                         placeholder="0.00"
-                        className="w-32 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                        className="w-32 rounded-lg border border-border px-3 py-2 text-sm"
                       />
                       <AdminButton
                         onClick={() => savePrice(mat.slug)}
@@ -618,7 +618,7 @@ export default function AdminTyroleneConfig() {
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <Info aria-hidden="true" className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted-foreground">
                 Configure Tyrolene production minimums. Owerri has no minimum (always eligible).
                 For outside Owerri, set the minimum partition count or leave empty to indicate
                 that production eligibility cannot be determined.
@@ -632,8 +632,8 @@ export default function AdminTyroleneConfig() {
             </div>
 
             {/* Outside Owerri */}
-            <div className="rounded-lg border border-neutral-200 p-3">
-              <p className="text-sm font-medium text-neutral-900 mb-2">Outside Owerri. Minimum Partitions</p>
+            <div className="rounded-lg border border-border p-3">
+              <p className="text-sm font-medium text-foreground mb-2">Outside Owerri. Minimum Partitions</p>
               <div className="flex items-center gap-3">
                 <AdminInput
  type="number"
@@ -641,9 +641,9 @@ export default function AdminTyroleneConfig() {
  value={outsideOwerriMin}
  onChange={e => setOutsideOwerriMin(e.target.value)}
                   placeholder="Not configured"
-                  className="w-40 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                  className="w-40 rounded-lg border border-border px-3 py-2 text-sm"
                 />
-                <span className="text-sm text-neutral-500">partitions</span>
+                <span className="text-sm text-muted-foreground">partitions</span>
                 <AdminButton
                   onClick={saveProductionMin}
                   disabled={saving}

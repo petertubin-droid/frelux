@@ -194,7 +194,7 @@ export default function ScreedingCalculator({
         className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
       >
         {!screedingResult && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-6">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-6">
             <MeasurementInput
               project={project}
               context="screeding"
@@ -205,8 +205,8 @@ export default function ScreedingCalculator({
               onRemoveMeasurement={removeMeasurement}
             >
               {project.projectMode === "fence" && (
-                <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
-                  <p className="font-medium text-brand-navy dark:text-white mb-1.5">
+                <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-xs text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
+                  <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
                     Fence Screeding
                   </p>
                   Each fence dimension has its own partition count. The area is
@@ -215,8 +215,8 @@ export default function ScreedingCalculator({
                 </div>
               )}
               {project.projectMode === "house_building" && (
-                <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-xs text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
-                  <p className="font-medium text-brand-navy dark:text-white mb-1.5">
+                <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-xs text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
+                  <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
                     House / Building
                   </p>
                   Add each space type separately. Use quantity for identical
@@ -238,10 +238,10 @@ export default function ScreedingCalculator({
         )}
 
         {screedingResult && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid space-y-4">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card space-y-4">
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-              <h2 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                 Screeding Area Result
               </h2>
               {confidence && (
@@ -251,16 +251,16 @@ export default function ScreedingCalculator({
               )}
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-8 text-center dark:border-brand-purple/30">
-              <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-brand-purple/10 blur-3xl" />
-              <p className="relative text-sm font-medium text-neutral-500">
+            <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center dark:border-brand-purple/30">
+              <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-3xl" />
+              <p className="relative text-sm font-medium text-muted-foreground">
                 Total Screeding Area
               </p>
-              <p className="relative mt-3 text-4xl font-bold text-brand-navy dark:text-white">
+              <p className="relative mt-3 text-4xl font-bold text-foreground dark:text-primary-foreground">
                 {formatNumber(screedingResult.totalAreaM2, 2)}{" "}
-                <span className="text-2xl text-neutral-400">m²</span>
+                <span className="text-2xl text-muted-foreground">m²</span>
               </p>
-              <p className="relative mt-1 text-xs text-neutral-400">
+              <p className="relative mt-1 text-xs text-muted-foreground">
                 Surface area in square metres
               </p>
             </div>
@@ -282,8 +282,8 @@ export default function ScreedingCalculator({
               onUserWasteChange={engine.setUserWaste}
             />
 
-            <div className="rounded-xl border border-neutral-200/80 bg-neutral-50/50 p-4 text-sm text-neutral-500 dark:border-white/10 dark:bg-white/5 dark:text-neutral-400">
-              <p className="font-medium text-brand-navy dark:text-white mb-1.5">
+            <div className="rounded-xl border border-border/80 bg-muted/50 p-4 text-sm text-muted-foreground dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground">
+              <p className="font-medium text-foreground dark:text-primary-foreground mb-1.5">
                 Next Step
               </p>
               This area feeds into the FRELUX screeding material calculation

@@ -90,7 +90,7 @@ export default function BrandStudio() {
 
   return (
     <SubscriptionGate feature="brand_studio">
-      <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      <div className="min-h-screen bg-muted/50 dark:bg-background">
         <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
           {/* Header */}
           <div className="mb-6 flex items-center gap-3">
@@ -98,25 +98,25 @@ export default function BrandStudio() {
               <PremiumBadge size="md" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+              <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
                 FRELUX Brand Studio
               </h1>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Brand your PDF exports with your own business identity.
               </p>
             </div>
           </div>
 
           {/* Section tabs */}
-          <div className="mb-6 flex flex-wrap gap-2 border-b border-neutral-200 dark:border-white/10 pb-2">
+          <div className="mb-6 flex flex-wrap gap-2 border-b border-border dark:border-white/10 pb-2">
             {sections.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   activeSection === s.id
-                    ? "bg-brand-purple text-white"
-                    : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-white/5"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted dark:text-muted-foreground dark:hover:bg-white/5"
                 }`}
               >
                 <span className="mr-1">{s.icon}</span>
@@ -128,7 +128,7 @@ export default function BrandStudio() {
           {/* Content */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="h-6 w-6 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple" />
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-brand-purple" />
             </div>
           ) : (
             <div className="space-y-6">
@@ -144,7 +144,7 @@ export default function BrandStudio() {
               {activeSection === "ai-logo" && (
                 <Suspense
                   fallback={
-                    <div className="py-8 text-center text-sm text-neutral-400">
+                    <div className="py-8 text-center text-sm text-muted-foreground">
                       Loading AI Logo Studio…
                     </div>
                   }

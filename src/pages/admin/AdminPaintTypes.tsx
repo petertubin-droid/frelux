@@ -46,11 +46,11 @@ export default function AdminPaintTypes() {
               <div key={item.id} className="card p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                    {!item.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">Inactive</span>}
+                    <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>
+                    {!item.is_active && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">Inactive</span>}
                   </div>
-                  {item.description && <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">{item.description}</p>}
-                  <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Coverage: {item.coverage_rate} {item.coverage_unit} · Containers: {item.container_sizes.join(', ')} L</p>
+                  {item.description && <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">{item.description}</p>}
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Coverage: {item.coverage_rate} {item.coverage_unit} · Containers: {item.container_sizes.join(', ')} L</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
@@ -110,7 +110,7 @@ function PaintTypeForm({ initial, onClose, onSaved }: { initial: DbPaintType | n
           </AdminField>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={(e) => setSortOrder(Number(e.target.value))} /></AdminField>
-            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2">

@@ -256,20 +256,20 @@ export default function AdminImageEstimation() {
       <AdminCard>
         <div className="flex items-center gap-2 mb-6">
           <Settings2 className="w-5 h-5 text-brand-purple" />
-          <h3 className="font-semibold text-neutral-900">
+          <h3 className="font-semibold text-foreground">
             Access Configuration
           </h3>
         </div>
 
         <div className="space-y-5">
           {/* Enable/Disable */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
-              <p className="font-medium text-neutral-900 flex items-center gap-2">
+              <p className="font-medium text-foreground flex items-center gap-2">
                 <Camera aria-hidden="true" className="w-4 h-4" />
                 Feature Enabled
               </p>
-              <p className="text-xs text-neutral-500 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Master switch for the AI building photo estimator.
               </p>
             </div>
@@ -283,7 +283,7 @@ export default function AdminImageEstimation() {
 
           {/* Access mode */}
           <div>
-            <label className="text-sm font-medium text-neutral-700 mb-2 block">
+            <label className="text-sm font-medium text-card-foreground mb-2 block">
               Access Mode
             </label>
             <AdminSelect
@@ -295,7 +295,7 @@ export default function AdminImageEstimation() {
                     .value as EstimationConfig["estimation_access_mode"],
                 }))
               }
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
             >
               <option value="disabled">Disabled</option>
               <option value="free">Free (with daily limit)</option>
@@ -312,7 +312,7 @@ export default function AdminImageEstimation() {
             config.estimation_access_mode === "rewarded" ||
             config.estimation_access_mode === "free_rewarded") && (
             <div>
-              <label className="text-sm font-medium text-neutral-700 mb-1 block">
+              <label className="text-sm font-medium text-card-foreground mb-1 block">
                 Daily Free Uses
               </label>
               <AdminInput
@@ -328,9 +328,9 @@ export default function AdminImageEstimation() {
                     ),
                   }))
                 }
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+                className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
               />
-              <p className="text-xs text-neutral-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 Number of free estimations per user per day.
               </p>
             </div>
@@ -339,12 +339,12 @@ export default function AdminImageEstimation() {
           {/* Rewarded */}
           {(config.estimation_access_mode === "rewarded" ||
             config.estimation_access_mode === "free_rewarded") && (
-            <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
               <div>
-                <p className="font-medium text-neutral-900">
+                <p className="font-medium text-foreground">
                   Rewarded Ads Enabled
                 </p>
-                <p className="text-xs text-neutral-500 mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Let users watch ads to unlock more estimations.
                 </p>
               </div>
@@ -363,13 +363,13 @@ export default function AdminImageEstimation() {
           {/* Paid */}
           {config.estimation_access_mode === "paid" && (
             <>
-              <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                 <div>
-                  <p className="font-medium text-neutral-900 flex items-center gap-2">
+                  <p className="font-medium text-foreground flex items-center gap-2">
                     <PremiumBadge size="xs" />
                     Paid Access Enabled
                   </p>
-                  <p className="text-xs text-neutral-500 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Require payment/subscription for access.
                   </p>
                 </div>
@@ -385,7 +385,7 @@ export default function AdminImageEstimation() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-neutral-700 mb-1 block">
+                  <label className="text-sm font-medium text-card-foreground mb-1 block">
                     Price per Estimation
                   </label>
                   <AdminInput
@@ -401,11 +401,11 @@ export default function AdminImageEstimation() {
                         ),
                       }))
                     }
-                    className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+                    className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-neutral-700 mb-1 block">
+                  <label className="text-sm font-medium text-card-foreground mb-1 block">
                     Currency
                   </label>
                   <AdminInput
@@ -417,7 +417,7 @@ export default function AdminImageEstimation() {
                         estimation_paid_currency: e.target.value,
                       }))
                     }
-                    className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+                    className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
                   />
                 </div>
               </div>
@@ -426,7 +426,7 @@ export default function AdminImageEstimation() {
 
           {/* Reset period */}
           <div>
-            <label className="text-sm font-medium text-neutral-700 mb-1 block">
+            <label className="text-sm font-medium text-card-foreground mb-1 block">
               Usage Reset Period
             </label>
             <AdminSelect
@@ -437,7 +437,7 @@ export default function AdminImageEstimation() {
                   estimation_reset_period: e.target.value,
                 }))
               }
-              className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+              className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -446,10 +446,10 @@ export default function AdminImageEstimation() {
           </div>
 
           {/* Admin override */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-neutral-50">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
             <div>
-              <p className="font-medium text-neutral-900">Admin Override</p>
-              <p className="text-xs text-neutral-500 mt-0.5">
+              <p className="font-medium text-foreground">Admin Override</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Admins can use the feature without limits.
               </p>
             </div>
@@ -493,19 +493,19 @@ export default function AdminImageEstimation() {
             className="w-5 h-5 text-blue-500 shrink-0 mt-0.5"
           />
           <div>
-            <p className="text-sm font-medium text-neutral-900">
+            <p className="text-sm font-medium text-foreground">
               Edge Function Deployment
             </p>
-            <p className="text-xs text-neutral-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               The AI building estimation edge function must be deployed to
               Supabase for this feature to work. Deploy with:{" "}
-              <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
                 supabase functions deploy ai-building-estimation
               </code>
             </p>
-            <p className="text-xs text-neutral-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Requires{" "}
-              <code className="text-xs bg-neutral-100 px-1.5 py-0.5 rounded">
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
                 GEMINI_API_KEY
               </code>{" "}
               environment variable.
@@ -527,12 +527,12 @@ function StatCard({
   value: number;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-2 mb-2">
-        <Icon className="w-4 h-4 text-neutral-500" />
-        <span className="text-xs font-medium text-neutral-500">{label}</span>
+        <Icon className="w-4 h-4 text-muted-foreground" />
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>
-      <p className="text-2xl font-bold text-neutral-900">{value}</p>
+      <p className="text-2xl font-bold text-foreground">{value}</p>
     </div>
   );
 }

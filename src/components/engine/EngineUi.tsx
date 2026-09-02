@@ -67,8 +67,8 @@ export function EngineWasteSelector({
   }
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-900">
-      <label className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+    <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
+      <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         Waste Allowance
       </label>
       <div className="flex gap-2">
@@ -85,8 +85,8 @@ export function EngineWasteSelector({
             className={classNames(
               "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               mode === key
-                ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-500",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground",
             )}
           >
             {label}
@@ -95,7 +95,7 @@ export function EngineWasteSelector({
       </div>
 
       {mode === "system" && (
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           Using {resolution.wastePercent}% waste ({resolution.source})
         </p>
       )}
@@ -109,14 +109,14 @@ export function EngineWasteSelector({
             step="any"
             value={userWaste ?? resolution.wastePercent}
             onChange={(e) => onUserWasteChange(parseFloat(e.target.value) || 0)}
-            className="w-20 rounded-md border border-neutral-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900"
+            className="w-20 rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
           />
-          <span className="text-sm text-neutral-500">% waste</span>
+          <span className="text-sm text-muted-foreground">% waste</span>
         </div>
       )}
 
       {mode === "none" && (
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           No waste allowance — exact quantity only
         </p>
       )}
@@ -142,19 +142,19 @@ export function EngineAlreadyHaveInput({
   const purchase = Math.max(0, required - alreadyHave);
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-900">
-      <label className="mb-2 block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+    <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
+      <label className="mb-2 block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
         Already Have / Purchase Quantity
       </label>
       <div className="grid grid-cols-3 gap-3 text-sm">
         <div>
-          <div className="text-xs text-neutral-500">Required</div>
+          <div className="text-xs text-muted-foreground">Required</div>
           <div className="font-semibold">
             {required} {unit}
           </div>
         </div>
         <div>
-          <div className="text-xs text-neutral-500">Already Have</div>
+          <div className="text-xs text-muted-foreground">Already Have</div>
           <input
             type="number"
             min={0}
@@ -163,11 +163,11 @@ export function EngineAlreadyHaveInput({
             onChange={(e) =>
               onAlreadyHaveChange(parseFloat(e.target.value) || 0)
             }
-            className="w-full rounded-md border border-neutral-200 px-2 py-1 text-sm dark:border-white/10 dark:bg-neutral-900"
+            className="w-full rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
           />
         </div>
         <div>
-          <div className="text-xs text-neutral-500">Purchase</div>
+          <div className="text-xs text-muted-foreground">Purchase</div>
           <div className="font-semibold text-brand-purple">
             {purchase} {unit}
           </div>
@@ -250,27 +250,27 @@ export function EngineConfidenceDetail({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5">
+    <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <ShieldCheck className="h-4 w-4 text-brand-purple" />
           Result Confidence
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-500" />
+          <ChevronUp aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500" />
+          <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
       {expanded && (
-        <div className="border-t border-neutral-200 px-4 py-3 dark:border-white/5">
+        <div className="border-t border-border px-4 py-3 dark:border-white/5">
           <div className="space-y-2 text-sm">
             {result.factors.map((factor, i) => (
               <div key={i} className="flex items-center justify-between">
-                <span className="text-neutral-600 dark:text-neutral-500">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {factor.name}
                 </span>
                 <span
@@ -279,7 +279,7 @@ export function EngineConfidenceDetail({
                   }
                 >
                   {factor.passed ? "✓" : "⚠"}{" "}
-                  <span className="ml-1 text-xs text-neutral-500">
+                  <span className="ml-1 text-xs text-muted-foreground">
                     {factor.detail}
                   </span>
                 </span>
@@ -288,11 +288,11 @@ export function EngineConfidenceDetail({
           </div>
           {result.recommendations.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Recommendations
               </p>
               {result.recommendations.map((rec, i) => (
-                <p key={i} className="text-xs text-neutral-500">
+                <p key={i} className="text-xs text-muted-foreground">
                   • {rec}
                 </p>
               ))}
@@ -316,35 +316,35 @@ export function EngineExplanationPanel({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5">
+    <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
       <button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <Info aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           How FRELUX Calculated This
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-neutral-500" />
+          <ChevronUp aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500" />
+          <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
       {expanded && (
-        <div className="border-t border-neutral-200 px-4 py-3 dark:border-white/5">
+        <div className="border-t border-border px-4 py-3 dark:border-white/5">
           <div className="space-y-1.5">
             {result.steps.map((step, i) => (
               <div key={i} className="flex items-start gap-2 text-sm">
-                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-brand-purple/10 text-xs font-semibold text-brand-purple">
+                <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-brand-purple">
                   {i + 1}
                 </span>
                 <div>
-                  <span className="text-neutral-600 dark:text-neutral-500">
+                  <span className="text-muted-foreground dark:text-muted-foreground">
                     {step.description}
                   </span>
                   {step.value !== undefined && step.value !== null && (
-                    <span className="ml-1 font-medium text-neutral-800 dark:text-neutral-200">
+                    <span className="ml-1 font-medium text-foreground dark:text-muted-foreground/60">
                       {step.value}
                     </span>
                   )}
@@ -353,14 +353,14 @@ export function EngineExplanationPanel({
             ))}
           </div>
           {result.resultSummary && (
-            <div className="mt-3 rounded-md bg-brand-purple/5 px-3 py-2 text-sm font-medium text-brand-purple">
+            <div className="mt-3 rounded-md bg-primary/5 px-3 py-2 text-sm font-medium text-brand-purple">
               {result.resultSummary}
             </div>
           )}
           {result.notes.length > 0 && (
             <div className="mt-2 space-y-0.5">
               {result.notes.map((note, i) => (
-                <p key={i} className="text-xs text-neutral-500">
+                <p key={i} className="text-xs text-muted-foreground">
                   • {note}
                 </p>
               ))}
@@ -384,37 +384,37 @@ export function EngineMaterialSummaryCard({
   if (summary.entries.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-neutral-900">
+    <div className="rounded-lg border border-border bg-card p-4 dark:border-white/10 dark:bg-background">
       <div className="mb-3 flex items-center gap-2">
         <Package className="h-4 w-4 text-brand-purple" />
-        <h3 className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+        <h3 className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           Material Summary
         </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
-              <th className="pb-2 pr-3 font-medium text-neutral-500">
+            <tr className="border-b border-border dark:border-white/10 text-left">
+              <th className="pb-2 pr-3 font-medium text-muted-foreground">
                 Material
               </th>
-              <th className="pb-2 pr-3 font-medium text-neutral-500">
+              <th className="pb-2 pr-3 font-medium text-muted-foreground">
                 Total Qty
               </th>
-              <th className="pb-2 pr-3 font-medium text-neutral-500">Unit</th>
-              <th className="pb-2 font-medium text-neutral-500">Sources</th>
+              <th className="pb-2 pr-3 font-medium text-muted-foreground">Unit</th>
+              <th className="pb-2 font-medium text-muted-foreground">Sources</th>
             </tr>
           </thead>
           <tbody>
             {summary.entries.map((entry, i) => (
               <tr
                 key={i}
-                className="border-b border-neutral-100 dark:border-white/5"
+                className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="py-2 pr-3 font-medium">{entry.productName}</td>
                 <td className="py-2 pr-3">{entry.totalQuantity}</td>
                 <td className="py-2 pr-3">{entry.quantityUnit}</td>
-                <td className="py-2 text-neutral-500">
+                <td className="py-2 text-muted-foreground">
                   {entry.spaceIds.length}
                 </td>
               </tr>
@@ -423,7 +423,7 @@ export function EngineMaterialSummaryCard({
         </table>
       </div>
       {summary.totalEntries > 0 && (
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           {summary.totalEntries} entries across {summary.entries.length}{" "}
           material types
         </p>
@@ -442,16 +442,16 @@ export function EngineEstimateReportView({
   report: EstimateReportData;
 }) {
   return (
-    <div className="rounded-lg border border-neutral-200 bg-white p-6 dark:border-white/10 dark:bg-neutral-900">
+    <div className="rounded-lg border border-border bg-card p-6 dark:border-white/10 dark:bg-background">
       {/* Header */}
-      <div className="mb-4 border-b border-neutral-200 pb-4 dark:border-white/10">
-        <h2 className="text-xl font-bold text-neutral-900 dark:text-white">
+      <div className="mb-4 border-b border-border pb-4 dark:border-white/10">
+        <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
           {report.projectName}
         </h2>
         {report.location && (
-          <p className="text-sm text-neutral-500">{report.location}</p>
+          <p className="text-sm text-muted-foreground">{report.location}</p>
         )}
-        <div className="mt-1 flex gap-4 text-xs text-neutral-500">
+        <div className="mt-1 flex gap-4 text-xs text-muted-foreground">
           <span>{new Date(report.date).toLocaleDateString()}</span>
           <span>{report.measurementSystem}</span>
           <span>{report.currency}</span>
@@ -461,16 +461,16 @@ export function EngineEstimateReportView({
       {/* Spaces */}
       {report.spaces.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+          <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
             Spaces
           </h3>
           {report.spaces.map((space, i) => (
             <div
               key={i}
-              className="mb-2 rounded-md bg-neutral-50 px-3 py-2 text-sm dark:bg-white/5"
+              className="mb-2 rounded-md bg-muted/50 px-3 py-2 text-sm dark:bg-white/5"
             >
               <span className="font-medium">{space.name}</span>
-              <span className="ml-2 text-neutral-500">{space.dimensions}</span>
+              <span className="ml-2 text-muted-foreground">{space.dimensions}</span>
             </div>
           ))}
         </div>
@@ -479,22 +479,22 @@ export function EngineEstimateReportView({
       {/* Materials */}
       {report.materials.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+          <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
             Materials
           </h3>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 dark:border-white/10 text-left">
-                <th className="pb-1 font-medium text-neutral-500">Material</th>
-                <th className="pb-1 font-medium text-neutral-500">Quantity</th>
-                <th className="pb-1 font-medium text-neutral-500">Unit</th>
+              <tr className="border-b border-border dark:border-white/10 text-left">
+                <th className="pb-1 font-medium text-muted-foreground">Material</th>
+                <th className="pb-1 font-medium text-muted-foreground">Quantity</th>
+                <th className="pb-1 font-medium text-muted-foreground">Unit</th>
               </tr>
             </thead>
             <tbody>
               {report.materials.map((mat, i) => (
                 <tr
                   key={i}
-                  className="border-b border-neutral-100 dark:border-white/5"
+                  className="border-b border-border/50 dark:border-white/5"
                 >
                   <td className="py-1.5">{mat.productName}</td>
                   <td className="py-1.5">{mat.totalQuantity}</td>
@@ -509,7 +509,7 @@ export function EngineEstimateReportView({
       {/* Unit prices */}
       {report.unitPrices.length > 0 && (
         <div className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+          <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
             Unit Prices
           </h3>
           {report.unitPrices.map((price, i) => (
@@ -525,7 +525,7 @@ export function EngineEstimateReportView({
 
       {/* Total */}
       {report.total > 0 && (
-        <div className="border-t border-neutral-200 pt-4 dark:border-white/10">
+        <div className="border-t border-border pt-4 dark:border-white/10">
           <div className="flex justify-between text-base font-bold">
             <span>Total</span>
             <span>
@@ -537,19 +537,19 @@ export function EngineEstimateReportView({
 
       {/* Notes */}
       {report.notes.length > 0 && (
-        <div className="mt-4 border-t border-neutral-200 pt-3 dark:border-white/10">
-          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-neutral-500">
+        <div className="mt-4 border-t border-border pt-3 dark:border-white/10">
+          <p className="mb-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Notes
           </p>
           {report.notes.map((note, i) => (
-            <p key={i} className="text-xs text-neutral-500">
+            <p key={i} className="text-xs text-muted-foreground">
               • {note}
             </p>
           ))}
         </div>
       )}
 
-      <div className="mt-4 flex items-center gap-1 text-xs text-neutral-500">
+      <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
         <FileText aria-hidden="true" className="h-3 w-3" />
         Generated by FRELUX Calculation Engine
       </div>

@@ -61,23 +61,23 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-100 px-4 py-10 dark:bg-brand-navy">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted px-4 py-10 dark:bg-background">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex justify-center"><Logo /></div>
-        <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
-          <h1 className="text-xl font-bold text-brand-navy dark:text-white">{mode === 'signin' ? 'Admin sign in' : 'Create admin account'}</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+        <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
+          <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">{mode === 'signin' ? 'Admin sign in' : 'Create admin account'}</h1>
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             {mode === 'signin' ? 'Sign in with an authorized admin account to manage the platform.' : 'Create an account, then ask an existing admin to grant you admin access.'}
           </p>
           {!configured && (
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-neutral-700 dark:text-neutral-200">
+            <div className="mt-4 flex items-start gap-2 rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-card-foreground dark:text-muted-foreground/60">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-accent-yellow" />
               <p>Supabase isn't configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable admin access.</p>
             </div>
           )}
           {signedUpEmail ? (
             <div className="mt-6 space-y-4">
-              <div className="rounded-lg border border-accent-green/30 bg-accent-green/10 p-4 text-sm text-neutral-700 dark:text-neutral-200">
+              <div className="rounded-lg border border-accent-green/30 bg-accent-green/10 p-4 text-sm text-card-foreground dark:text-muted-foreground/60">
                 <p className="font-semibold text-accent-green">Account created</p>
                 <p className="mt-1">Your account <span className="font-semibold">{signedUpEmail}</span> has been registered. New accounts start as a regular user. To get admin access, an existing admin needs to update your role to <span className="font-semibold">admin</span> in the profiles table.</p>
               </div>
@@ -90,7 +90,7 @@ export default function AdminLogin() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
-                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm font-semibold text-neutral-700 shadow-sm transition-all hover:bg-neutral-50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-brand-navy dark:text-neutral-200 dark:hover:bg-white/5"
+                className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:bg-muted/50 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:border-white/10 dark:bg-background dark:text-muted-foreground/60 dark:hover:bg-white/5"
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting...' : 'Continue with Google'}
@@ -98,23 +98,23 @@ export default function AdminLogin() {
 
               {/* Divider */}
               <div className="my-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">or</span>
-                <div className="h-px flex-1 bg-neutral-200 dark:bg-white/10" />
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">or</span>
+                <div className="h-px flex-1 bg-muted dark:bg-white/10" />
               </div>
 
               <form onSubmit={onSubmit} className="space-y-4" noValidate>
                 <label className="block">
-                  <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Email</span>
+                  <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Email</span>
                   <div className="relative mt-1.5">
-                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                    <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <AdminInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="pl-9" placeholder="admin@example.com" autoComplete="email" required />
                   </div>
                 </label>
                 <label className="block">
-                  <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Password</span>
+                  <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Password</span>
                   <div className="relative mt-1.5">
-                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                    <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <AdminInput type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="pl-9" placeholder="--------" autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} minLength={6} required />
                   </div>
                 </label>
@@ -136,7 +136,7 @@ export default function AdminLogin() {
             </>
           )}
         </div>
-        <p className="mt-6 text-center text-xs text-neutral-500 dark:text-neutral-500"><Link to="/" className="hover:text-brand-purple">Back to website</Link></p>
+        <p className="mt-6 text-center text-xs text-muted-foreground dark:text-muted-foreground"><Link to="/" className="hover:text-brand-purple">Back to website</Link></p>
       </div>
     </div>
   );

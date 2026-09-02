@@ -266,7 +266,7 @@ export default function PopCeilingCalculator({
             ]}
           />
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -301,12 +301,12 @@ export default function PopCeilingCalculator({
       </div>
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
         {!result && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
             {/* Workflow selection */}
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Choose workflow
             </h2>
-            <p className="mt-1 text-sm text-neutral-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Select the POP ceiling method that matches your region.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -321,25 +321,25 @@ export default function PopCeilingCalculator({
                     className={
                       "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
                       (selected
-                        ? "select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20"
-                        : "border-neutral-200")
+                        ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                        : "border-border")
                     }
                   >
                     <span
                       className={
                         "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
                         (selected
-                          ? "bg-brand-purple text-white"
-                          : "bg-neutral-100 text-neutral-600")
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground")
                       }
                     >
                       <Icon className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-brand-navy dark:text-white">
+                      <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {wf.name}
                       </span>
-                      <span className="block text-xs text-neutral-500">
+                      <span className="block text-xs text-muted-foreground">
                         {wf.description}
                       </span>
                     </span>
@@ -350,7 +350,7 @@ export default function PopCeilingCalculator({
 
             {/* Unit toggle */}
             <div className="mt-6">
-              <div className="inline-flex rounded-lg border border-neutral-200 p-1">
+              <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
                   <button
                     key={u}
@@ -359,8 +359,8 @@ export default function PopCeilingCalculator({
                     className={
                       "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
                       (input.unit === u
-                        ? "bg-brand-purple text-white"
-                        : "text-neutral-600 hover:text-brand-purple")
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-brand-purple")
                     }
                   >
                     {u}
@@ -421,10 +421,10 @@ export default function PopCeilingCalculator({
 
             {/* Waste margin */}
             <div className="mt-6">
-              <span className="block text-sm font-semibold text-neutral-700">
+              <span className="block text-sm font-semibold text-card-foreground">
                 Waste / safety margin
               </span>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 Extra material added to account for spillage and uneven
                 application.
               </p>
@@ -437,8 +437,8 @@ export default function PopCeilingCalculator({
                     className={
                       "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                       (input.wasteMargin === w
-                        ? "border-brand-purple bg-brand-purple text-white"
-                        : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                        ? "border-brand-purple bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-border")
                     }
                   >
                     {w}%
@@ -620,45 +620,45 @@ function PopResultCard({
 
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
-      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
+      <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">
             Your POP Ceiling Estimate
           </span>
         </div>
-        <p className="mt-3 text-sm text-white/60">
+        <p className="mt-3 text-sm text-primary-foreground/60">
           {input.workflow === "nigeria" ? "Nigeria" : "International"} workflow
           · {input.wasteMargin}% waste margin
         </p>
         <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">
           {formatNumber(result.ceilingArea)} m²
         </p>
-        <p className="mt-1 text-sm text-white/60">ceiling area</p>
+        <p className="mt-1 text-sm text-primary-foreground/60">ceiling area</p>
       </div>
 
       <div className="p-6 sm:p-8">
         {Object.entries(grouped).map(([cat, items]) => (
           <div key={cat} className="mb-6">
-            <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-neutral-500">
+            <h3 className="mb-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
               {categoryLabels[cat] ?? cat}
             </h3>
             <div className="space-y-2">
               {items.map((m, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between rounded-lg border border-neutral-200 p-3"
+                  className="flex items-center justify-between rounded-lg border border-border p-3"
                 >
                   <div>
-                    <p className="text-sm font-semibold text-brand-navy dark:text-white">
+                    <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                       {m.name}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {formatNumber(m.quantity)} {m.unit} · {m.packagesNeeded}{" "}
                       package(s)
                     </p>
                   </div>
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">
+                  <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                     {formatCurrency(m.cost, currencySymbol)}
                   </p>
                 </div>
@@ -667,7 +667,7 @@ function PopResultCard({
           </div>
         ))}
 
-        <div className="mt-4 space-y-2 rounded-lg bg-neutral-50 p-4">
+        <div className="mt-4 space-y-2 rounded-lg bg-muted/50 p-4">
           <Row
             label="Material cost"
             value={formatCurrency(result.materialCost, currencySymbol)}
@@ -680,7 +680,7 @@ function PopResultCard({
             label="Waste allowance"
             value={`${formatNumber(result.wasteAmount)} m²`}
           />
-          <div className="border-t border-neutral-200 pt-2">
+          <div className="border-t border-border pt-2">
             <Row
               label="Grand total"
               value={formatCurrency(result.grandTotal, currencySymbol)}
@@ -812,20 +812,20 @@ function PopResultCard({
         />
 
         {/* Post as Job CTA */}
-        <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+        <div className="mt-4 rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold text-brand-navy dark:text-white">
+              <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
                 Need a pro for this POP ceiling?
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                 Post this estimate as a job and get bids from verified pros near
                 you.
               </p>
             </div>
             <a
               href={`/marketplace/post?project_type=pop_ceiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=POP Ceiling Installation — ${result.ceilingArea.toFixed(1)} m²`}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
             >
               Post as Job
             </a>
@@ -907,27 +907,27 @@ function Toggle({
   hint?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4">
+    <div className="flex items-center gap-3 rounded-lg border border-border p-4">
       <button
         type="button"
         onClick={() => onChange(!checked)}
         className={
           "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
-          (checked ? "bg-accent-green" : "bg-neutral-300")
+          (checked ? "bg-accent-green" : "bg-muted")
         }
         aria-pressed={checked}
         style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       >
         <span
           className={
-            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+            "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
             (checked ? "translate-x-4" : "translate-x-0.5")
           }
         />
       </button>
       <div>
-        <p className="text-sm font-semibold text-neutral-700">{label}</p>
-        {hint && <p className="text-xs text-neutral-500">{hint}</p>}
+        <p className="text-sm font-semibold text-card-foreground">{label}</p>
+        {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       </div>
     </div>
   );
@@ -948,16 +948,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">
+      <span className="block text-sm font-semibold text-card-foreground">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="relative mt-1.5">
         {children}
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
           </span>
         )}
@@ -984,8 +984,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -994,8 +994,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}

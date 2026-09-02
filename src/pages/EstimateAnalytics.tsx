@@ -170,7 +170,7 @@ export default function EstimateAnalytics() {
                 <div key={type} className="flex items-center gap-3">
                   <span className="w-28 text-sm font-medium">{CALCULATOR_LABELS[type] ?? type}</span>
                   <div className="h-6 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-brand-purple" style={{ width: `${pct}%` }} />
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
                   </div>
                   <span className="w-12 text-right text-sm text-muted-foreground">{count}</span>
                 </div>

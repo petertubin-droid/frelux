@@ -276,7 +276,7 @@ export default function MarketplaceHome() {
   return (
     <div>
       {/* ── Hero Section: BUILD. BUY. SELL. CONNECT. ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-brand-navy via-brand-navy to-brand-purple/20">
+      <div className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/20">
         {/* Decorative grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
@@ -286,20 +286,20 @@ export default function MarketplaceHome() {
             backgroundSize: "40px 40px",
           }}
         />
-        <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-brand-purple/20 blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-brand-purple/10 blur-3xl" />
+        <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute bottom-0 left-1/4 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8 lg:py-20">
           <div className="text-center">
             {/* Tagline words */}
             <div className="mb-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
-              <span className="text-white">BUILD.</span>
+              <span className="text-primary-foreground">BUILD.</span>
               <span className="text-brand-purple-lighter">BUY.</span>
-              <span className="text-white">SELL.</span>
+              <span className="text-primary-foreground">SELL.</span>
               <span className="text-brand-purple-lighter">CONNECT.</span>
             </div>
 
-            <p className="mx-auto max-w-2xl text-sm text-neutral-300 sm:text-base">
+            <p className="mx-auto max-w-2xl text-sm text-muted-foreground/80 sm:text-base">
               Nigeria's #1 marketplace for construction materials, professional
               services, and building projects. Find trusted suppliers, hire
               verified pros, and get your project done.
@@ -309,40 +309,40 @@ export default function MarketplaceHome() {
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link
                 to="/marketplace/post"
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark hover:shadow-lg"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
               </Link>
               <Link
                 to="/marketplace/products/post"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
                 <Store className="h-4 w-4" /> Sell a Product
               </Link>
               <Link
                 to="/pro-connect/register"
-                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur transition-all hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
                 <Briefcase className="h-4 w-4" /> Become a Pro
               </Link>
             </div>
 
             {/* Stats bar */}
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-500 sm:gap-10">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground sm:gap-10">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white">
+                <span className="text-lg font-bold text-primary-foreground">
                   {jobsTotal + productsTotal}
                 </span>
                 <span>Active Listings</span>
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white">14</span>
+                <span className="text-lg font-bold text-primary-foreground">14</span>
                 <span>Categories</span>
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-white">36</span>
+                <span className="text-lg font-bold text-primary-foreground">36</span>
                 <span>States Covered</span>
               </div>
             </div>
@@ -351,10 +351,10 @@ export default function MarketplaceHome() {
       </div>
 
       {/* ── Category Showcase ── */}
-      <div className="border-b border-neutral-100 dark:border-white/5">
+      <div className="border-b border-border/50 dark:border-white/5">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Browse by Category
             </h2>
           </div>
@@ -396,10 +396,10 @@ export default function MarketplaceHome() {
               <Link
                 key={cat.slug}
                 to={`/marketplace/category/${cat.slug}`}
-                className="group flex flex-col items-center gap-2 rounded-xl border border-neutral-200 p-4 transition-all hover:border-brand-purple/30 hover:bg-brand-purple/5 dark:border-white/10 dark:hover:bg-white/5"
+                className="group flex flex-col items-center gap-2 rounded-xl border border-border p-4 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/10 dark:hover:bg-white/5"
               >
                 <span className="text-2xl">{cat.icon}</span>
-                <span className="text-center text-xs font-medium text-neutral-700 group-hover:text-brand-purple dark:text-neutral-300 dark:group-hover:text-brand-purple-lighter">
+                <span className="text-center text-xs font-medium text-card-foreground group-hover:text-brand-purple dark:text-muted-foreground/80 dark:group-hover:text-brand-purple-lighter">
                   {cat.label}
                 </span>
               </Link>
@@ -409,14 +409,14 @@ export default function MarketplaceHome() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-neutral-100 dark:border-white/5">
+      <div className="border-b border-border/50 dark:border-white/5">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+              <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
                 FRELUX Marketplace
               </h1>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Post jobs, buy & sell building materials and interior design
                 products.
               </p>
@@ -425,14 +425,14 @@ export default function MarketplaceHome() {
               {tab === "jobs" ? (
                 <Link
                   to="/marketplace/post"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
                 </Link>
               ) : (
                 <Link
                   to="/marketplace/products/post"
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
                 </Link>
@@ -447,8 +447,8 @@ export default function MarketplaceHome() {
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
                 tab === "jobs"
-                  ? "bg-brand-navy text-white dark:bg-white dark:text-brand-navy"
-                  : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                  ? "bg-background text-primary-foreground dark:bg-white dark:text-foreground"
+                  : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
               )}
             >
               <Briefcase className="h-4 w-4" /> Jobs
@@ -458,7 +458,7 @@ export default function MarketplaceHome() {
                     "rounded-full px-1.5 py-0.5 text-xs",
                     tab === "jobs"
                       ? "bg-white/20"
-                      : "bg-neutral-100 dark:bg-white/5",
+                      : "bg-muted dark:bg-white/5",
                   )}
                 >
                   {jobsTotal}
@@ -470,8 +470,8 @@ export default function MarketplaceHome() {
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
                 tab === "products"
-                  ? "bg-brand-navy text-white dark:bg-white dark:text-brand-navy"
-                  : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-500",
+                  ? "bg-background text-primary-foreground dark:bg-white dark:text-foreground"
+                  : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground",
               )}
             >
               <Store className="h-4 w-4" /> Products
@@ -481,7 +481,7 @@ export default function MarketplaceHome() {
                     "rounded-full px-1.5 py-0.5 text-xs",
                     tab === "products"
                       ? "bg-white/20"
-                      : "bg-neutral-100 dark:bg-white/5",
+                      : "bg-muted dark:bg-white/5",
                   )}
                 >
                   {productsTotal}
@@ -579,13 +579,13 @@ function JobsTab(props: {
         <div className="relative flex-1">
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
             placeholder="Search jobs..."
-            className="w-full rounded-lg border border-neutral-200 py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
         <button
@@ -593,8 +593,8 @@ function JobsTab(props: {
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
             props.showFilters
-              ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-              : "border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500",
+              ? "border-brand-purple bg-primary/5 text-brand-purple"
+              : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground",
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -607,7 +607,7 @@ function JobsTab(props: {
           <select
             value={props.projectType}
             onChange={(e) => props.setProjectType(e.target.value)}
-            className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">All trades</option>
             {PROJECT_TYPES.map((t) => (
@@ -619,7 +619,7 @@ function JobsTab(props: {
           <select
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
-            className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">All states</option>
             {NIGERIAN_STATES.map((s) => (
@@ -634,7 +634,7 @@ function JobsTab(props: {
               props.setState("");
               props.setSearch("");
             }}
-            className="text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
+            className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
@@ -653,9 +653,9 @@ function JobsTab(props: {
       {/* Nearby */}
       {props.userLocation && props.nearbyListings.length > 0 && (
         <div className="mb-6">
-          <h2 className="mb-3 text-sm font-bold text-neutral-900 dark:text-white">
+          <h2 className="mb-3 text-sm font-bold text-foreground dark:text-primary-foreground">
             Jobs Near You{" "}
-            <span className="ml-2 text-xs font-normal text-neutral-500">
+            <span className="ml-2 text-xs font-normal text-muted-foreground">
               ({props.nearbyListings.length} within {props.radius} km)
             </span>
           </h2>
@@ -664,22 +664,22 @@ function JobsTab(props: {
               <Link
                 key={listing.id}
                 to={`/marketplace/${listing.id}`}
-                className="group rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4 transition-all hover:border-brand-purple/40 hover:shadow-md"
+                className="group rounded-xl border border-brand-purple/20 bg-primary/5 p-4 transition-all hover:border-brand-purple/40 hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
-                  <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
+                  <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-brand-purple">
                     {PROJECT_TYPE_LABELS[listing.project_type] ||
                       listing.project_type}
                   </span>
-                  <span className="text-xs text-neutral-500">
+                  <span className="text-xs text-muted-foreground">
                     📍 {formatDistance(listing.distance_km)}
                   </span>
                 </div>
-                <h3 className="mt-2 text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                <h3 className="mt-2 text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                   {listing.title}
                 </h3>
                 {listing.location_city && (
-                  <p className="mt-1 text-xs text-neutral-500">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {listing.location_city}
                   </p>
                 )}
@@ -699,23 +699,23 @@ function JobsTab(props: {
         </div>
       ) : props.listings.length === 0 ? (
         <div className="py-12 text-center">
-          <Briefcase className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+          <Briefcase className="mx-auto h-10 w-10 text-muted-foreground/80" />
+          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
             No jobs found
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Try adjusting your search or post a job.
           </p>
           <Link
             to="/marketplace/post"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
           </Link>
         </div>
       ) : (
         <>
-          <p className="mb-3 text-sm text-neutral-500">
+          <p className="mb-3 text-sm text-muted-foreground">
             {props.total} jobs found
           </p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -723,10 +723,10 @@ function JobsTab(props: {
               <Link
                 key={listing.id}
                 to={`/marketplace/${listing.id}`}
-                className="group rounded-xl border border-neutral-200 p-5 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
+                className="group rounded-xl border border-border p-5 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
               >
                 <div className="flex items-center justify-between">
-                  <span className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-semibold text-neutral-600 dark:bg-white/5">
+                  <span className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/5">
                     {PROJECT_TYPE_LABELS[listing.project_type] ||
                       listing.project_type}
                   </span>
@@ -736,11 +736,11 @@ function JobsTab(props: {
                     </span>
                   )}
                 </div>
-                <h3 className="mt-3 text-base font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                <h3 className="mt-3 text-base font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                   {listing.title}
                 </h3>
                 {listing.description && (
-                  <p className="mt-1 line-clamp-2 text-xs text-neutral-500">
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                     {listing.description}
                   </p>
                 )}
@@ -752,12 +752,12 @@ function JobsTab(props: {
                       listing.currency,
                     )}
                   </span>
-                  <span className="text-neutral-500">
+                  <span className="text-muted-foreground">
                     {timeAgo(listing.created_at)}
                   </span>
                 </div>
                 {(listing.location_city || listing.location_state) && (
-                  <div className="mt-2 flex items-center gap-1 text-xs text-neutral-500">
+                  <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin aria-hidden="true" className="h-3 w-3" />
                     {listing.location_city && `${listing.location_city}, `}
                     {listing.location_state}
@@ -770,7 +770,7 @@ function JobsTab(props: {
             <div className="mt-6 text-center">
               <button
                 onClick={props.onLoadMore}
-                className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Load More
               </button>
@@ -812,19 +812,19 @@ function ProductsTab(props: {
         <div className="relative flex-1">
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <input
             value={props.search}
             onChange={(e) => props.setSearch(e.target.value)}
             placeholder="Search products, brands, materials..."
-            className="w-full rounded-lg border border-neutral-200 py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
         <select
           value={props.sort}
           onChange={(e) => props.setSort(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           {SORT_OPTIONS.map((s) => (
             <option key={s.value} value={s.value}>
@@ -837,8 +837,8 @@ function ProductsTab(props: {
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
             props.showFilters
-              ? "border-brand-purple bg-brand-purple/5 text-brand-purple"
-              : "border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500",
+              ? "border-brand-purple bg-primary/5 text-brand-purple"
+              : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground",
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
@@ -852,8 +852,8 @@ function ProductsTab(props: {
           className={classNames(
             "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
             !props.category
-              ? "bg-brand-purple text-white"
-              : "bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500",
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
           )}
         >
           All
@@ -865,8 +865,8 @@ function ProductsTab(props: {
             className={classNames(
               "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
               props.category === c.slug
-                ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
             )}
           >
             {c.name}
@@ -880,7 +880,7 @@ function ProductsTab(props: {
           <select
             value={props.condition}
             onChange={(e) => props.setCondition(e.target.value)}
-            className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">Any condition</option>
             {Object.entries(PRODUCT_CONDITION_LABELS).map(([v, l]) => (
@@ -892,7 +892,7 @@ function ProductsTab(props: {
           <select
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
-            className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">All states</option>
             {NIGERIAN_STATES.map((s) => (
@@ -908,7 +908,7 @@ function ProductsTab(props: {
               props.setCategory("");
               props.setSearch("");
             }}
-            className="text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
+            className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
           </button>
@@ -925,23 +925,23 @@ function ProductsTab(props: {
         </div>
       ) : props.products.length === 0 ? (
         <div className="py-12 text-center">
-          <Store className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+          <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
+          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
             No products found
           </p>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Try adjusting your search or list a product for sale.
           </p>
           <Link
             to="/marketplace/products/post"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
           </Link>
         </div>
       ) : (
         <>
-          <p className="mb-3 text-sm text-neutral-500">
+          <p className="mb-3 text-sm text-muted-foreground">
             {props.total} products found
           </p>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -959,10 +959,10 @@ function ProductsTab(props: {
                 <Link
                   key={product.id}
                   to={`/marketplace/products/${product.id}`}
-                  className="group rounded-xl border border-neutral-200 overflow-hidden transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
+                  className="group rounded-xl border border-border overflow-hidden transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
                 >
                   {/* Image */}
-                  <div className="aspect-square overflow-hidden bg-neutral-100 dark:bg-white/5 relative">
+                  <div className="aspect-square overflow-hidden bg-muted dark:bg-white/5 relative">
                     {product.images.length > 0 ? (
                       <img
                         src={
@@ -973,22 +973,22 @@ function ProductsTab(props: {
                         className="h-full w-full object-cover transition-transform group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-neutral-300">
+                      <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
                         <Store className="h-8 w-8" />
                       </div>
                     )}
                     {discount && (
-                      <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                      <span className="absolute left-2 top-2 rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-primary-foreground">
                         -{discount}%
                       </span>
                     )}
                   </div>
                   {/* Info */}
                   <div className="p-3">
-                    <p className="truncate text-sm font-medium text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                    <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                       {product.title}
                     </p>
-                    <p className="mt-0.5 text-xs text-neutral-500">
+                    <p className="mt-0.5 text-xs text-muted-foreground">
                       {product.category?.name || "Other"}
                     </p>
                     <div className="mt-2 flex items-baseline gap-1">
@@ -997,7 +997,7 @@ function ProductsTab(props: {
                       </span>
                       {product.compare_at_price &&
                         product.compare_at_price > product.price && (
-                          <span className="text-xs text-neutral-500 line-through">
+                          <span className="text-xs text-muted-foreground line-through">
                             {formatPrice(
                               product.compare_at_price,
                               product.currency,
@@ -1005,7 +1005,7 @@ function ProductsTab(props: {
                           </span>
                         )}
                     </div>
-                    <div className="mt-1 flex items-center justify-between text-xs text-neutral-500">
+                    <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
                       <span>{PRODUCT_CONDITION_LABELS[product.condition]}</span>
                       {product.location_city && (
                         <span className="inline-flex items-center gap-0.5">
@@ -1023,7 +1023,7 @@ function ProductsTab(props: {
             <div className="mt-6 text-center">
               <button
                 onClick={props.onLoadMore}
-                className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Load More
               </button>

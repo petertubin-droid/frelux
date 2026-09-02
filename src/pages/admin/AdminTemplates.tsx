@@ -92,8 +92,8 @@ export default function AdminTemplates() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-900 dark:text-white">Calculator Templates</h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">Manage public FRELUX templates and user-submitted templates.</p>
+          <h1 className="text-xl font-semibold text-foreground dark:text-primary-foreground">Calculator Templates</h1>
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">Manage public FRELUX templates and user-submitted templates.</p>
         </div>
         <AdminButton onClick={() => setCreating(true)}>
           <Plus aria-hidden="true" className="h-4 w-4" /> New Template
@@ -102,13 +102,13 @@ export default function AdminTemplates() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+        <Search aria-hidden="true" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <AdminInput
  type="text"
  value={search}
  onChange={(e) => setSearch(e.target.value)}
           placeholder="Search templates..."
-          className="w-full rounded-lg border border-neutral-200 bg-white py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white"
+          className="w-full rounded-lg border border-border bg-card py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
         />
       </div>
 
@@ -118,10 +118,10 @@ export default function AdminTemplates() {
           <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-neutral-200 dark:border-white/10">
+        <div className="overflow-x-auto rounded-xl border border-border dark:border-white/10">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 dark:bg-white/5">
-              <tr className="text-left text-xs font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+            <thead className="bg-muted/50 dark:bg-white/5">
+              <tr className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Type</th>
                 <th className="px-4 py-3">Visibility</th>
@@ -131,30 +131,30 @@ export default function AdminTemplates() {
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100 dark:divide-white/5">
+            <tbody className="divide-y divide-border/50 dark:divide-white/5">
               {filtered.map((t) => (
-                <tr key={t.id} className="bg-white dark:bg-transparent">
+                <tr key={t.id} className="bg-card dark:bg-transparent">
                   <td className="px-4 py-3">
-                    <div className="font-medium text-neutral-900 dark:text-white">{t.name}</div>
-                    {t.description && <div className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500 line-clamp-1">{t.description}</div>}
+                    <div className="font-medium text-foreground dark:text-primary-foreground">{t.name}</div>
+                    {t.description && <div className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground line-clamp-1">{t.description}</div>}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="rounded-md bg-brand-purple/8 px-2 py-0.5 text-xs font-medium text-brand-purple dark:bg-brand-purple/15 dark:text-brand-purple-lighter">
+                    <span className="rounded-md bg-primary/8 px-2 py-0.5 text-xs font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter">
                       {calculatorLabel(t.calculator_type)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-500">{t.visibility}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">{t.visibility}</td>
                   <td className="px-4 py-3">
-                    <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-neutral-300 dark:text-neutral-600')}>
+                    <AdminIconButton variant="ghost" onClick={() => togglePublished(t)} className={classNames('rounded-md p-1', t.is_published ? 'text-green-500' : 'text-muted-foreground/80 dark:text-muted-foreground')}>
                       {t.is_published ? <Eye aria-hidden="true" className="h-4 w-4" /> : <EyeOff aria-hidden="true" className="h-4 w-4" />}
                     </AdminIconButton>
                   </td>
                   <td className="px-4 py-3">
                     <AdminIconButton variant="ghost" onClick={() => toggleFeatured(t)}>
-                      <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-neutral-300 dark:text-neutral-600')} fill={t.is_featured ? 'currentColor' : 'none'} />
+                      <BadgeCheck className={classNames('h-4 w-4', t.is_featured ? 'text-amber-500' : 'text-muted-foreground/80 dark:text-muted-foreground')} fill={t.is_featured ? 'currentColor' : 'none'} />
                     </AdminIconButton>
                   </td>
-                  <td className="px-4 py-3 text-xs text-neutral-500 dark:text-neutral-500">{t.slug ?? '-'}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground dark:text-muted-foreground">{t.slug ?? '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
                       <AdminIconButton variant="ghost" onClick={() => setEditing(t)} title="Edit">
@@ -173,7 +173,7 @@ export default function AdminTemplates() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <div className="py-12 text-center text-sm text-neutral-500 dark:text-neutral-500">No templates found.</div>
+            <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">No templates found.</div>
           )}
         </div>
       )}
@@ -265,61 +265,61 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
         <div className="mt-4 space-y-4">
           {/* Name */}
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Name *</label>
-            <AdminInput type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Name *</label>
+            <AdminInput type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Description</label>
-            <AdminTextarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Description</label>
+            <AdminTextarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
           </div>
 
           {/* Calculator type */}
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Calculator Type</label>
-            <AdminSelect value={calculatorType} onChange={(e) => setCalculatorType(e.target.value as CalculatorType)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white">
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Calculator Type</label>
+            <AdminSelect value={calculatorType} onChange={(e) => setCalculatorType(e.target.value as CalculatorType)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground">
               {CALC_TYPES.map((t) => <option key={t} value={t}>{calculatorLabel(t)}</option>)}
             </AdminSelect>
           </div>
 
           {/* Input JSON */}
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Input Configuration (JSON)</label>
-            <AdminTextarea value={inputJson} onChange={(e) => setInputJson(e.target.value)} rows={8} className="mt-1 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-white" />
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Input Configuration (JSON)</label>
+            <AdminTextarea value={inputJson} onChange={(e) => setInputJson(e.target.value)} rows={8} className="mt-1 w-full rounded-lg border border-border bg-muted/50 px-3 py-2 font-mono text-xs dark:border-white/10 dark:bg-black/20 dark:text-primary-foreground" />
             {jsonError && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{jsonError}</p>}
           </div>
 
           {/* SEO fields */}
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">URL Slug</label>
-              <AdminInput type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+              <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">URL Slug</label>
+              <AdminInput type="text" value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. 10x12-bedroom-painting" className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">Display Order</label>
-              <AdminInput type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+              <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">Display Order</label>
+              <AdminInput type="number" value={displayOrder} onChange={(e) => setDisplayOrder(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">SEO Title</label>
-            <AdminInput type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">SEO Title</label>
+            <AdminInput type="text" value={seoTitle} onChange={(e) => setSeoTitle(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-neutral-700 dark:text-neutral-300">SEO Description</label>
-            <AdminTextarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-white" />
+            <label className="block text-xs font-medium text-card-foreground dark:text-muted-foreground/80">SEO Description</label>
+            <AdminTextarea value={seoDescription} onChange={(e) => setSeoDescription(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground" />
           </div>
 
           {/* Toggles */}
           <div className="flex flex-wrap gap-4">
-            <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <AdminInput type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-neutral-300" />
+            <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
+              <AdminInput type="checkbox" checked={isPublished} onChange={(e) => setIsPublished(e.target.checked)} className="rounded border-border" />
               Published
             </label>
-            <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <AdminInput type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="rounded border-neutral-300" />
+            <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
+              <AdminInput type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} className="rounded border-border" />
               Featured
             </label>
           </div>

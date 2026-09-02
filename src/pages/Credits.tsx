@@ -18,7 +18,7 @@ export default function CreditsPage() {
   if (!user) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-16 text-center">
-        <p className="text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
           Sign in to view your FRELUX Credits and start earning.
         </p>
       </div>
@@ -27,7 +27,7 @@ export default function CreditsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="mb-4 text-xl font-bold text-neutral-900 dark:text-white">FRELUX Credits</h1>
+      <h1 className="mb-4 text-xl font-bold text-foreground dark:text-primary-foreground">FRELUX Credits</h1>
       <CreditsWallet userId={user.id} />
     </div>
   );

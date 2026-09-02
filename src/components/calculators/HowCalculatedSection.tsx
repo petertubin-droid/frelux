@@ -19,59 +19,59 @@ export default function HowCalculatedSection({
   if (!methodologyText && assumptions.length === 0) return null;
 
   return (
-    <div className="calc-card mt-4 overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5">
+    <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-neutral-100 dark:hover:bg-white/5"
+        className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"
         aria-expanded={expanded}
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+        <span className="flex items-center gap-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
           <Info className="h-4 w-4 text-brand-purple" />
           How this estimate is calculated
         </span>
         <ChevronDown
-          className={`h-4 w-4 text-neutral-500 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
         />
       </button>
 
       {expanded && (
-        <div className="animate-content-reveal border-t border-neutral-200 px-4 py-3 dark:border-white/5">
+        <div className="animate-content-reveal border-t border-border px-4 py-3 dark:border-white/5">
           {methodologyText && (
-            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-neutral-600 dark:text-neutral-500">
+            <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
               {methodologyText}
             </pre>
           )}
 
           {assumptions.length > 0 && (
             <div className="mt-3 space-y-1">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Active assumptions
               </p>
               {assumptions.map((a) => (
                 <div key={a.label} className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-500">{a.label}</span>
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{a.value}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">{a.label}</span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{a.value}</span>
                 </div>
               ))}
             </div>
           )}
 
           {(priceSourceDate || priceSource) && (
-            <div className="mt-3 space-y-1 border-t border-neutral-200 pt-2 dark:border-white/5">
-              <p className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">
+            <div className="mt-3 space-y-1 border-t border-border pt-2 dark:border-white/5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
                 Price information
               </p>
               {priceSource && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-500">Source</span>
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{priceSource}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">Source</span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{priceSource}</span>
                 </div>
               )}
               {priceSourceDate && (
                 <div className="flex justify-between text-xs">
-                  <span className="text-neutral-500 dark:text-neutral-500">Effective date</span>
-                  <span className="font-medium text-neutral-700 dark:text-neutral-300">{priceSourceDate}</span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">Effective date</span>
+                  <span className="font-medium text-card-foreground dark:text-muted-foreground/80">{priceSourceDate}</span>
                 </div>
               )}
             </div>

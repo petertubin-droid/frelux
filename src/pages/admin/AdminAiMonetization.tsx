@@ -97,12 +97,12 @@ export default function AdminAiMonetization() {
         {/* Global AI toggle */}
         <AdminCard>
           <div className="flex items-start gap-3">
-            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><DollarSign aria-hidden="true" className="h-5 w-5" /></div>
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple"><DollarSign aria-hidden="true" className="h-5 w-5" /></div>
             <div className="flex-1">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Global AI</h2>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Global AI</h2>
               <div className="mt-3 flex items-center gap-3">
                 <Toggle checked={settings.ai_enabled} onChange={(v) => update('ai_enabled', v)} />
-                <div><p className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">AI features enabled</p><p className="text-xs text-neutral-500 dark:text-neutral-500">Master switch for all Smart Color Assistant features.</p></div>
+                <div><p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">AI features enabled</p><p className="text-xs text-muted-foreground dark:text-muted-foreground">Master switch for all Smart Color Assistant features.</p></div>
               </div>
             </div>
           </div>
@@ -110,16 +110,16 @@ export default function AdminAiMonetization() {
 
         {/* Access mode */}
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Access Mode</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Access Mode</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {ACCESS_MODES.map((m) => (
               <AdminButton
                 key={m.value}
                 type="button"
                 onClick={() => update('ai_access_mode', m.value)}
-                className={'flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-all ' + (settings.ai_access_mode === m.value ? 'border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20' : 'border-neutral-200 hover:border-neutral-300')}
+                className={'flex flex-col items-start gap-1 rounded-lg border p-4 text-left transition-all ' + (settings.ai_access_mode === m.value ? 'border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20' : 'border-border hover:border-border')}
               >
-                <span className="text-sm font-semibold text-brand-navy dark:text-white">
+                <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {m.label}
                   {/* Issue #4 fix: Show warning indicator on paid mode when no provider */}
                   {m.value === 'paid' && !paymentProviderConfigured && (
@@ -128,7 +128,7 @@ export default function AdminAiMonetization() {
                     </span>
                   )}
                 </span>
-                <span className="text-xs text-neutral-500 dark:text-neutral-500">{m.description}</span>
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground">{m.description}</span>
               </AdminButton>
             ))}
           </div>
@@ -136,8 +136,8 @@ export default function AdminAiMonetization() {
 
         {/* Daily usage */}
         <AdminCard>
-          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Shared Daily Usage</h2>
-          <p className="mb-4 text-xs text-neutral-500 dark:text-neutral-500">This limit is shared across all AI features (text consultation, image analysis). Only successful generations consume a use.</p>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Shared Daily Usage</h2>
+          <p className="mb-4 text-xs text-muted-foreground dark:text-muted-foreground">This limit is shared across all AI features (text consultation, image analysis). Only successful generations consume a use.</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Daily free AI uses" hint="Default: 3. Shared across all AI features.">
               <AdminInput type="number" min={0} max={100}  value={settings.ai_daily_free_uses} onChange={(e) => update('ai_daily_free_uses', Number(e.target.value))} />
@@ -153,18 +153,18 @@ export default function AdminAiMonetization() {
 
         {/* Rewarded access */}
         <AdminCard>
-          <div className="flex items-center gap-2"><Gift aria-hidden="true" className="h-4 w-4 text-accent-orange" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Rewarded Access</h2></div>
-          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">Provider agnostic architecture. No rewarded provider is connected yet, the UI shows an unavailable state. Never grants access on a button click alone.</p>
+          <div className="flex items-center gap-2"><Gift aria-hidden="true" className="h-4 w-4 text-accent-orange" /><h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Rewarded Access</h2></div>
+          <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">Provider agnostic architecture. No rewarded provider is connected yet, the UI shows an unavailable state. Never grants access on a button click alone.</p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle checked={settings.ai_rewarded_enabled} onChange={(v) => update('ai_rewarded_enabled', v)} />
-            <span className="text-sm text-neutral-600">Rewarded access available (shows option to users)</span>
+            <span className="text-sm text-muted-foreground">Rewarded access available (shows option to users)</span>
           </div>
         </AdminCard>
 
         {/* Paid access (future) */}
         <AdminCard>
-          <div className="flex items-center gap-2"><CreditCard aria-hidden="true" className="h-4 w-4 text-accent-green" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Paid Access</h2></div>
-          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="flex items-center gap-2"><CreditCard aria-hidden="true" className="h-4 w-4 text-accent-green" /><h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Paid Access</h2></div>
+          <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
             {paymentProviderConfigured
               ? 'A payment provider is configured. Paid access can be enabled.'
               : 'No payment provider is connected yet. Connect a provider (Paystack, Flutterwave, or Stripe) before enabling paid mode, otherwise users will be locked out of AI features.'}
@@ -181,7 +181,7 @@ export default function AdminAiMonetization() {
                 update('ai_paid_enabled', v);
               }}
             />
-            <span className="text-sm text-neutral-600">
+            <span className="text-sm text-muted-foreground">
               Paid access {paymentProviderConfigured ? 'enabled' : '(disabled, no provider)'}
             </span>
           </div>
@@ -210,11 +210,11 @@ export default function AdminAiMonetization() {
 
         {/* Admin override */}
         <AdminCard>
-          <div className="flex items-center gap-2"><Lock aria-hidden="true" className="h-4 w-4 text-brand-navy" /><h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">Admin Override</h2></div>
-          <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">When enabled, admin users bypass AI usage limits for testing.</p>
+          <div className="flex items-center gap-2"><Lock aria-hidden="true" className="h-4 w-4 text-foreground" /><h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Admin Override</h2></div>
+          <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">When enabled, admin users bypass AI usage limits for testing.</p>
           <div className="mt-3 flex items-center gap-3">
             <Toggle checked={settings.ai_admin_override} onChange={(v) => update('ai_admin_override', v)} />
-            <span className="text-sm text-neutral-600">Admins bypass daily limits</span>
+            <span className="text-sm text-muted-foreground">Admins bypass daily limits</span>
           </div>
         </AdminCard>
       </div>

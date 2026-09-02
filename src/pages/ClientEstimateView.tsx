@@ -320,7 +320,7 @@ export default function ClientEstimateView() {
                   <button
                     onClick={handleRequestChanges}
                     disabled={actionLoading || !feedback.trim()}
-                    className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                    className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                   >
                     {actionLoading ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -337,7 +337,7 @@ export default function ClientEstimateView() {
                 <button
                   onClick={handleApprove}
                   disabled={actionLoading}
-                  className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                  className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                 >
                   {actionLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

@@ -81,18 +81,18 @@ export function FloatingTip({ tip, children }: { tip: TipConfig; children: React
     >
       {children}
       {show && (
-        <div className="absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 animate-fade-in-up rounded-xl border border-amber-200/60 bg-white p-3 shadow-xl dark:border-amber-500/15 dark:bg-brand-navy-mid">
+        <div className="absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 animate-fade-in-up rounded-xl border border-amber-200/60 bg-card p-3 shadow-xl dark:border-amber-500/15 dark:bg-card">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-1.5">
               <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
               <p className="text-xs font-bold text-amber-700 dark:text-amber-400">{tip.title}</p>
             </div>
-            <button onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-neutral-300 hover:text-neutral-500" aria-label="Dismiss">
+            <button onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
               <X className="h-3 w-3" />
             </button>
           </div>
-          <p className="mt-1 text-xs leading-relaxed text-neutral-500 dark:text-neutral-500">{tip.content}</p>
-          <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-amber-200/60 bg-white dark:border-amber-500/15 dark:bg-brand-navy-mid" />
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">{tip.content}</p>
+          <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-amber-200/60 bg-card dark:border-amber-500/15 dark:bg-card" />
         </div>
       )}
     </div>

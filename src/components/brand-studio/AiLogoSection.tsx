@@ -127,7 +127,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
       {!canUse ? (
         <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent p-8 text-center">
           <PremiumBadge size="lg" glow className="mx-auto" />
-          <p className="mx-auto mt-4 max-w-md text-sm text-neutral-500">
+          <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground">
             AI Logo Studio requires premium access or a rewarded-ad unlock.
             Upgrade to generate custom AI logos for your brand.
           </p>
@@ -135,10 +135,10 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
       ) : (
         <>
           {/* Generation form */}
-          <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+          <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/10 dark:bg-white/5">
             <div className="mb-4 flex items-center gap-2">
               <Crown className="h-5 w-5 text-brand-purple" />
-              <h2 className="text-base font-bold text-brand-navy dark:text-white">
+              <h2 className="text-base font-bold text-foreground dark:text-primary-foreground">
                 AI Logo Generator
               </h2>
             </div>
@@ -154,7 +154,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                     Industry / Category
                   </label>
                   <input
@@ -162,17 +162,17 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                     value={industry}
                     onChange={(e) => setIndustry(e.target.value)}
                     placeholder="e.g. Painting & Decoration"
-                    className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                  <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                     Style
                   </label>
                   <select
                     value={style}
                     onChange={(e) => setStyle(e.target.value)}
-                    className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                   >
                     {LOGO_STYLES.map((s) => (
                       <option key={s} value={s}>
@@ -184,7 +184,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                   Colour Preferences (optional)
                 </label>
                 <input
@@ -192,14 +192,14 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                   value={colorPrefs}
                   onChange={(e) => setColorPrefs(e.target.value)}
                   placeholder="e.g. Gold and dark blue"
-                  className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                 />
               </div>
 
               <button
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-purple/90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {generating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -208,7 +208,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                 )}
                 {generating ? "Generating…" : "Generate Logo"}
               </button>
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-muted-foreground">
                 Uses AI image generation. Daily limit:{" "}
                 {access?.aiLogoDailyLimit ?? 3} generations.
               </p>
@@ -217,18 +217,18 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
 
           {/* Generated logos */}
           {loadingLogos && (
-            <p className="text-sm text-neutral-400">Loading your logos…</p>
+            <p className="text-sm text-muted-foreground">Loading your logos…</p>
           )}
           {logos.length > 0 && (
             <div>
-              <h3 className="mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+              <h3 className="mb-3 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
                 Your Generated Logos
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {logos.map((logo) => (
                   <div
                     key={logo.id}
-                    className="rounded-xl border border-neutral-200 bg-white p-3 dark:border-white/10 dark:bg-white/5"
+                    className="rounded-xl border border-border bg-card p-3 dark:border-white/10 dark:bg-white/5"
                   >
                     <img
                       src={logo.image_url}
@@ -241,7 +241,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                         className={`rounded-lg p-1.5 text-xs font-medium ${
                           logo.is_selected
                             ? "bg-accent-green/20 text-accent-green"
-                            : "bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
+                            : "bg-primary/10 text-brand-purple hover:bg-primary/20"
                         }`}
                       >
                         <Check className="inline h-3 w-3" />{" "}

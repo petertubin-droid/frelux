@@ -62,24 +62,24 @@ export function CookieBanner() {
         <div className="w-full max-w-3xl animate-[cookie-slide-up_0.4s_cubic-bezier(0.16,1,0.3,1)]">
           <div className="glass dark:glass-dark rounded-2xl shadow-2xl shadow-brand-purple-deep/10 dark:shadow-black/40 border border-white/30 dark:border-white/10 overflow-hidden">
             {/* Gradient top accent */}
-            <div className="h-[3px] bg-gradient-to-r from-brand-purple via-brand-purple-light to-brand-purple-lighter" />
+            <div className="h-[3px] bg-gradient-to-r from-primary via-primary-light to-primary-lighter" />
 
             <div className="p-5 sm:p-6">
               {/* Header */}
               <div className="flex items-start gap-3 mb-4">
-                <div className="flex-shrink-0 mt-0.5 grid h-10 w-10 place-items-center rounded-xl bg-brand-purple/10 dark:bg-brand-purple/20">
+                <div className="flex-shrink-0 mt-0.5 grid h-10 w-10 place-items-center rounded-xl bg-primary/10 dark:bg-primary/20">
                   <Cookie className="h-5 w-5 text-brand-purple dark:text-brand-purple-lighter" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 id="cookie-banner-title" className="text-base font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">
+                  <h2 id="cookie-banner-title" className="text-base font-semibold text-foreground dark:text-muted-foreground/30 tracking-tight">
                     Cookie Preferences
                   </h2>
-                  <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-500 leading-relaxed">
+                  <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground leading-relaxed">
                     We use cookies to power essential features, improve the site with analytics, and keep tools free with relevant ads.
                     You choose what to allow.{' '}
                     <Link
                       to="/cookie-policy"
-                      className="font-medium text-brand-purple dark:text-brand-purple-lighter hover:text-brand-purple-dark dark:hover:text-white underline underline-offset-2 decoration-brand-purple/30 transition-colors"
+                      className="font-medium text-brand-purple dark:text-brand-purple-lighter hover:text-brand-purple-dark dark:hover:text-primary-foreground underline underline-offset-2 decoration-brand-purple/30 transition-colors"
                     >
                       Learn more
                     </Link>
@@ -88,7 +88,7 @@ export function CookieBanner() {
                 {/* Close button (dismiss without saving — banner returns next visit) */}
                 <button
                   onClick={dismiss}
-                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors"
+                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/60 hover:bg-muted dark:hover:bg-white/5 transition-colors"
                   aria-label="Close"
                 >
                   <X className="h-4.5 w-4.5" style={{ width: '1.125rem', height: '1.125rem' }} />
@@ -104,21 +104,21 @@ export function CookieBanner() {
                     return (
                       <div
                         key={key}
-                        className="flex items-start gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/[0.03] border border-neutral-200/60 dark:border-white/5"
+                        className="flex items-start gap-3 p-3 rounded-xl bg-white/50 dark:bg-white/[0.03] border border-border/60 dark:border-white/5"
                       >
-                        <div className="flex-shrink-0 mt-0.5 grid h-8 w-8 place-items-center rounded-lg bg-neutral-100 dark:bg-white/5">
-                          <Icon className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />
+                        <div className="flex-shrink-0 mt-0.5 grid h-8 w-8 place-items-center rounded-lg bg-muted dark:bg-white/5">
+                          <Icon className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-neutral-800 dark:text-neutral-100">{label}</span>
+                            <span className="text-sm font-medium text-foreground dark:text-muted-foreground/40">{label}</span>
                             {required && (
-                              <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:text-brand-purple-lighter bg-brand-purple/10 dark:bg-brand-purple/15 px-1.5 py-0.5 rounded">
+                              <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-purple dark:text-brand-purple-lighter bg-primary/10 dark:bg-primary/15 px-1.5 py-0.5 rounded">
                                 Always on
                               </span>
                             )}
                           </div>
-                          <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5 leading-relaxed">{description}</p>
+                          <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
                         </div>
                         {/* Toggle */}
                         <button
@@ -126,15 +126,15 @@ export function CookieBanner() {
                           disabled={required}
                           className={`flex-shrink-0 relative h-6 w-11 rounded-full transition-colors duration-200 ${
                             enabled
-                              ? 'bg-brand-purple'
-                              : 'bg-neutral-200 dark:bg-neutral-700'
-                          } ${required ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-brand-purple-dark dark:hover:bg-brand-purple-light'}`}
+                              ? 'bg-primary'
+                              : 'bg-muted dark:bg-card-foreground/80'
+                          } ${required ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:bg-primary/90 dark:hover:bg-primary-light'}`}
                           aria-label={`Toggle ${label}`}
                           role="switch"
                           aria-checked={enabled}
                         >
                           <span
-                            className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+                            className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-card shadow-sm transition-transform duration-200 ${
                               enabled ? 'translate-x-5' : 'translate-x-0'
                             }`}
                           />
@@ -151,13 +151,13 @@ export function CookieBanner() {
                   <>
                     <button
                       onClick={() => setCustomizing(false)}
-                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-600 dark:text-neutral-300 rounded-xl hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors"
+                      className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl hover:bg-muted dark:hover:bg-white/5 transition-colors"
                     >
                       Back
                     </button>
                     <button
                       onClick={handleSaveChoices}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-brand-purple rounded-xl shadow-sm hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       <Check className="h-4 w-4" />
                       Save Preferences
@@ -167,20 +167,20 @@ export function CookieBanner() {
                   <>
                     <button
                       onClick={reject}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-600 dark:text-neutral-300 rounded-xl hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl hover:bg-muted dark:hover:bg-white/5 transition-colors"
                     >
                       Reject Non-Essential
                     </button>
                     <button
                       onClick={handleCustomize}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-neutral-700 dark:text-neutral-200 rounded-xl border border-neutral-200 dark:border-white/10 hover:bg-neutral-50 dark:hover:bg-white/5 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-card-foreground dark:text-muted-foreground/60 rounded-xl border border-border dark:border-white/10 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors"
                     >
                       <Settings2 className="h-4 w-4" />
                       Customize
                     </button>
                     <button
                       onClick={accept}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-brand-purple rounded-xl shadow-sm hover:bg-brand-purple-dark hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       Accept All
                     </button>

@@ -127,24 +127,25 @@ export default function PostListing() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
+    <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
         <button
           onClick={() => navigate("/marketplace")}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
-          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to Marketplace
+          <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
+          Marketplace
         </button>
 
-        <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Post a Job
         </h1>
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           Describe your project and get bids from verified professionals.
         </p>
 
         {estimateRef && (
-          <div className="mt-4 flex items-center gap-2 rounded-lg bg-brand-purple/5 border border-brand-purple/20 p-3 text-sm text-brand-purple">
+          <div className="mt-4 flex items-center gap-2 rounded-lg bg-primary/5 border border-brand-purple/20 p-3 text-sm text-brand-purple">
             <Info aria-hidden="true" className="h-4 w-4 shrink-0" />
             <span>
               Pre-filled from your estimate. Adjust details as needed.
@@ -153,10 +154,10 @@ export default function PostListing() {
         )}
 
         {/* Form */}
-        <div className="mt-6 space-y-4 rounded-xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="mt-6 space-y-4 rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
           {/* Title */}
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Job Title *
             </label>
             <input
@@ -164,13 +165,13 @@ export default function PostListing() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Paint 3-bedroom flat in Lekki"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Description
             </label>
             <textarea
@@ -178,20 +179,20 @@ export default function PostListing() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the scope of work, number of rooms, condition of walls, any specific requirements..."
               rows={4}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
           </div>
 
           {/* Project type + urgency */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Project Type
               </label>
               <select
                 value={projectType}
                 onChange={(e) => setProjectType(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
                 {Object.entries(PROJECT_TYPE_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -201,13 +202,13 @@ export default function PostListing() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Urgency
               </label>
               <select
                 value={urgency}
                 onChange={(e) => setUrgency(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
                 <option value="standard">Standard</option>
                 <option value="urgent">Urgent</option>
@@ -219,7 +220,7 @@ export default function PostListing() {
           {/* Budget */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Budget Min (₦)
               </label>
               <input
@@ -227,11 +228,11 @@ export default function PostListing() {
                 value={budgetMin}
                 onChange={(e) => setBudgetMin(e.target.value)}
                 placeholder="100000"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Budget Max (₦)
               </label>
               <input
@@ -239,7 +240,7 @@ export default function PostListing() {
                 value={budgetMax}
                 onChange={(e) => setBudgetMax(e.target.value)}
                 placeholder="200000"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
           </div>
@@ -256,13 +257,13 @@ export default function PostListing() {
           {/* Location */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 State
               </label>
               <select
                 value={state}
                 onChange={(e) => setState(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
                 <option value="">Select state</option>
                 {(dbLocations.length > 0
@@ -276,7 +277,7 @@ export default function PostListing() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 City
               </label>
               <input
@@ -284,11 +285,11 @@ export default function PostListing() {
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="e.g. Lekki"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                 Area
               </label>
               <input
@@ -296,18 +297,18 @@ export default function PostListing() {
                 value={area}
                 onChange={(e) => setArea(e.target.value)}
                 placeholder="e.g. Phase 1"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
           </div>
 
           {error && <p className="text-sm text-red-500">{error}</p>}
 
-          <div className="flex gap-3 border-t border-neutral-100 pt-4 dark:border-white/5">
+          <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
             <button
               onClick={handleSubmit}
               disabled={submitting || !title.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -318,7 +319,7 @@ export default function PostListing() {
             </button>
             <button
               onClick={() => navigate("/marketplace")}
-              className="rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
               Cancel
             </button>
@@ -330,10 +331,10 @@ export default function PostListing() {
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link
               to="/calculators"
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm text-neutral-600 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
             >
-              <Calculator aria-hidden="true" className="h-4 w-4" /> Run a calculator first for
-              accurate scope
+              <Calculator aria-hidden="true" className="h-4 w-4" /> Run a
+              calculator first for accurate scope
             </Link>
           </div>
         )}

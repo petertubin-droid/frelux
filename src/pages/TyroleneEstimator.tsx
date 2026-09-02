@@ -576,7 +576,7 @@ export default function TyroleneEstimator({
             aria-hidden="true"
             className="h-8 w-8 animate-spin text-brand-purple"
           />
-          <p className="text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             Loading Tyrolene configuration…
           </p>
         </div>
@@ -630,17 +630,17 @@ export default function TyroleneEstimator({
         </div>
 
         {/* Material Ratio Display */}
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/50 p-4">
+        <div className="rounded-lg border border-border bg-muted/50 dark:border-border border-border dark:bg-card-foreground/50 p-4">
           <div className="flex items-start gap-3">
             <Info
               aria-hidden="true"
               className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
             />
             <div className="flex-1">
-              <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 FRELUX Tyrolene Material Ratio
               </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1 mb-2">
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1 mb-2">
                 Based on {materialRatio.partitions_per_ratio} standard
                 partitions:
               </p>
@@ -648,12 +648,12 @@ export default function TyroleneEstimator({
                 {materialRatio.materials.map((m) => (
                   <div
                     key={m.slug}
-                    className="text-xs rounded-md bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 px-3 py-2"
+                    className="text-xs rounded-md bg-card dark:bg-card-foreground/90 border border-border dark:border-border border-border px-3 py-2"
                   >
-                    <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                    <span className="font-medium text-card-foreground dark:text-muted-foreground/80">
                       {m.slug.replace(/-/g, " ")}:
                     </span>{" "}
-                    <span className="text-neutral-900 dark:text-white">
+                    <span className="text-foreground dark:text-primary-foreground">
                       {m.quantity} {m.unit}
                     </span>
                   </div>
@@ -706,8 +706,8 @@ export default function TyroleneEstimator({
         )}
 
         {/* Project Info */}
-        <div className="calc-card rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 p-5 space-y-4">
-          <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+        <div className="calc-card rounded-xl border border-border bg-card dark:border-border border-border dark:bg-card-foreground/90 p-5 space-y-4">
+          <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground flex items-center gap-2">
             <Building2
               aria-hidden="true"
               className="h-4 w-4 text-brand-purple"
@@ -715,7 +715,7 @@ export default function TyroleneEstimator({
             Project Information
           </h3>
           <div>
-            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1">
               Project Description
             </label>
             <input
@@ -727,7 +727,7 @@ export default function TyroleneEstimator({
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-1">
+            <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-1">
               Customer Location
             </label>
             <div className="flex gap-2">
@@ -746,8 +746,8 @@ export default function TyroleneEstimator({
                   className={classNames(
                     "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors border",
                     customerLocation === opt.value
-                      ? "border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter"
-                      : "border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500 hover:border-neutral-300",
+                      ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
+                      : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground hover:border-border",
                   )}
                 >
                   <MapPin className="h-3.5 w-3.5" />
@@ -759,9 +759,9 @@ export default function TyroleneEstimator({
         </div>
 
         {/* Input Mode Toggle */}
-        <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 p-5">
+        <div className="rounded-xl border border-border bg-card dark:border-border border-border dark:bg-card-foreground/90 p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display text-base font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+            <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground flex items-center gap-2">
               <Layers className="h-4 w-4 text-brand-purple" />
               Partition Input
             </h3>
@@ -771,8 +771,8 @@ export default function TyroleneEstimator({
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
                   inputMode === "standard"
-                    ? "border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter"
-                    : "border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500",
+                    ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
+                    : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
                 )}
               >
                 Standard Count
@@ -782,8 +782,8 @@ export default function TyroleneEstimator({
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
                   inputMode === "actual"
-                    ? "border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter"
-                    : "border-neutral-200 dark:border-neutral-600 text-neutral-500 dark:text-neutral-500",
+                    ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
+                    : "border-border dark:border-border text-muted-foreground dark:text-muted-foreground",
                 )}
               >
                 Actual Dimensions
@@ -794,7 +794,7 @@ export default function TyroleneEstimator({
           {/* Standard Partition Count Input */}
           {inputMode === "standard" && (
             <div>
-              <label className="block text-xs font-medium text-neutral-500 dark:text-neutral-500 mb-2">
+              <label className="block text-xs font-medium text-muted-foreground dark:text-muted-foreground mb-2">
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
@@ -802,7 +802,7 @@ export default function TyroleneEstimator({
                   onClick={() =>
                     setStandardCount(Math.max(0, standardCount - 1))
                   }
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:border-brand-purple"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
                   –
                 </button>
@@ -813,17 +813,17 @@ export default function TyroleneEstimator({
                   onChange={(e) =>
                     setStandardCount(Math.max(0, parseInt(e.target.value) || 0))
                   }
-                  className="w-24 text-center rounded-lg border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-3 py-2 text-lg font-semibold text-neutral-900 dark:text-white focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
+                  className="w-24 text-center rounded-lg border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-lg font-semibold text-foreground dark:text-primary-foreground focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
                 />
                 <button
                   onClick={() => setStandardCount(standardCount + 1)}
-                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 dark:border-neutral-600 text-neutral-500 hover:border-brand-purple"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
                   +
                 </button>
               </div>
               {standardPartition.width && standardPartition.height && (
-                <p className="text-xs text-neutral-500 mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   Standard partition: {standardPartition.width}m ×{" "}
                   {standardPartition.height}m ={" "}
                   {(standardPartition.width * standardPartition.height).toFixed(
@@ -848,7 +848,7 @@ export default function TyroleneEstimator({
                   </p>
                 </div>
               ) : (
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   Standard partition: {standardPartition.width}m ×{" "}
                   {standardPartition.height}m ={" "}
                   {(standardPartition.width * standardPartition.height).toFixed(
@@ -862,16 +862,16 @@ export default function TyroleneEstimator({
               {partitionTypes.map((pt, _idx) => (
                 <div
                   key={pt.id}
-                  className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3 space-y-3"
+                  className="rounded-lg border border-border dark:border-border p-3 space-y-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                    <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                       {pt.label}
                     </span>
                     {partitionTypes.length > 1 && (
                       <button
                         onClick={() => removePartitionType(pt.id)}
-                        className="text-neutral-500 hover:text-red-500"
+                        className="text-muted-foreground hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -879,7 +879,7 @@ export default function TyroleneEstimator({
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-1">
+                      <label className="block text-xs text-muted-foreground mb-1">
                         Qty
                       </label>
                       <input
@@ -893,11 +893,11 @@ export default function TyroleneEstimator({
                             Math.max(0, parseInt(e.target.value) || 0),
                           )
                         }
-                        className="w-full rounded-md border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-white"
+                        className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-1">
+                      <label className="block text-xs text-muted-foreground mb-1">
                         Width (m)
                       </label>
                       <input
@@ -912,11 +912,11 @@ export default function TyroleneEstimator({
                             parseFloat(e.target.value) || 0,
                           )
                         }
-                        className="w-full rounded-md border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-white"
+                        className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-neutral-500 mb-1">
+                      <label className="block text-xs text-muted-foreground mb-1">
                         Height (m)
                       </label>
                       <input
@@ -931,11 +931,11 @@ export default function TyroleneEstimator({
                             parseFloat(e.target.value) || 0,
                           )
                         }
-                        className="w-full rounded-md border border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-neutral-900 dark:text-white"
+                        className="w-full rounded-md border border-border dark:border-border bg-card dark:bg-background px-2 py-1.5 text-sm text-foreground dark:text-primary-foreground"
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Area: {(pt.quantity * pt.width * pt.height).toFixed(2)}m²
                   </p>
                 </div>
@@ -978,7 +978,7 @@ export default function TyroleneEstimator({
           {result && (
             <button
               onClick={handleReset}
-              className="flex items-center justify-center gap-2 rounded-lg border border-neutral-200 dark:border-neutral-600 px-4 py-3 text-sm font-medium text-neutral-500 hover:border-neutral-300"
+              className="flex items-center justify-center gap-2 rounded-lg border border-border dark:border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-border"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" /> Reset
             </button>
@@ -1042,9 +1042,9 @@ export default function TyroleneEstimator({
             {result.valid && (
               <>
                 {/* Summary Card */}
-                <div className="rounded-xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-800 overflow-hidden">
-                  <div className="bg-brand-purple px-5 py-4">
-                    <h3 className="font-display text-lg font-bold text-white flex items-center gap-2">
+                <div className="rounded-xl border border-border bg-card dark:border-border border-border dark:bg-card-foreground/90 overflow-hidden">
+                  <div className="bg-primary px-5 py-4">
+                    <h3 className="font-display text-lg font-bold text-primary-foreground flex items-center gap-2">
                       <Box className="h-5 w-5" />
                       Tyrolene Estimate
                     </h3>
@@ -1056,24 +1056,24 @@ export default function TyroleneEstimator({
                   <div className="p-5 space-y-4">
                     {/* Partition Summary */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-500">Partitions</p>
-                        <p className="text-lg font-bold text-neutral-900 dark:text-white">
+                      <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
+                        <p className="text-xs text-muted-foreground">Partitions</p>
+                        <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                           {result.equivalent_standard_partitions}
                         </p>
                       </div>
-                      <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-500">
+                      <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
+                        <p className="text-xs text-muted-foreground">
                           Standard Partition
                         </p>
-                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                        <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {result.standard_partition_width}m ×{" "}
                           {result.standard_partition_height}m
                         </p>
                       </div>
-                      <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-3">
-                        <p className="text-xs text-neutral-500">Adjusted</p>
-                        <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                      <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
+                        <p className="text-xs text-muted-foreground">Adjusted</p>
+                        <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {result.has_dimensional_adjustment
                             ? "Yes · measured"
                             : "No · standard count"}
@@ -1109,7 +1109,7 @@ export default function TyroleneEstimator({
 
                     {/* Material Requirements */}
                     <div>
-                      <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-3 flex items-center gap-2">
+                      <h4 className="text-sm font-semibold text-foreground dark:text-primary-foreground mb-3 flex items-center gap-2">
                         <Package className="h-4 w-4 text-brand-purple" />
                         Material Requirement
                       </h4>
@@ -1117,44 +1117,44 @@ export default function TyroleneEstimator({
                         {result.materials.map((m) => (
                           <div
                             key={m.material_slug}
-                            className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3"
+                            className="rounded-lg border border-border dark:border-border p-3"
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm font-medium text-neutral-900 dark:text-white">
+                              <span className="text-sm font-medium text-foreground dark:text-primary-foreground">
                                 {m.material_name}
                               </span>
-                              <span className="text-xs text-neutral-500">
+                              <span className="text-xs text-muted-foreground">
                                 {m.rounding_rule} · pack {m.pack_size}
                               </span>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                               <div>
-                                <span className="text-neutral-500">
+                                <span className="text-muted-foreground">
                                   Theoretical:{" "}
                                 </span>
-                                <span className="font-medium text-neutral-900 dark:text-white">
+                                <span className="font-medium text-foreground dark:text-primary-foreground">
                                   {m.theoretical_quantity} {m.theoretical_unit}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-neutral-500">
+                                <span className="text-muted-foreground">
                                   Practical:{" "}
                                 </span>
-                                <span className="font-medium text-neutral-900 dark:text-white">
+                                <span className="font-medium text-foreground dark:text-primary-foreground">
                                   {m.practical_purchase_quantity}{" "}
                                   {m.theoretical_unit}
                                 </span>
                                 {m.leftover_quantity > 0 && (
-                                  <span className="text-neutral-500 ml-1">
+                                  <span className="text-muted-foreground ml-1">
                                     (+{m.leftover_quantity} leftover)
                                   </span>
                                 )}
                               </div>
                               <div>
-                                <span className="text-neutral-500">
+                                <span className="text-muted-foreground">
                                   Price:{" "}
                                 </span>
-                                <span className="font-medium text-neutral-900 dark:text-white">
+                                <span className="font-medium text-foreground dark:text-primary-foreground">
                                   {formatCurrency(
                                     m.unit_price,
                                     result.currency,
@@ -1163,7 +1163,7 @@ export default function TyroleneEstimator({
                                 </span>
                               </div>
                               <div>
-                                <span className="text-neutral-500">
+                                <span className="text-muted-foreground">
                                   Total:{" "}
                                 </span>
                                 <span className="font-semibold text-brand-purple dark:text-brand-purple-lighter">
@@ -1180,12 +1180,12 @@ export default function TyroleneEstimator({
                     </div>
 
                     {/* Cost Summary */}
-                    <div className="rounded-lg bg-neutral-50 dark:bg-neutral-900/50 p-4 space-y-2">
+                    <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-4 space-y-2">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-neutral-500 dark:text-neutral-500">
+                        <span className="text-muted-foreground dark:text-muted-foreground">
                           Theoretical Material Cost
                         </span>
-                        <span className="font-medium text-neutral-900 dark:text-white">
+                        <span className="font-medium text-foreground dark:text-primary-foreground">
                           {formatCurrency(
                             result.theoretical_material_cost,
                             result.currency,
@@ -1193,7 +1193,7 @@ export default function TyroleneEstimator({
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-neutral-500 dark:text-neutral-500">
+                        <span className="text-muted-foreground dark:text-muted-foreground">
                           Practical Purchase Cost
                         </span>
                         <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
@@ -1206,8 +1206,8 @@ export default function TyroleneEstimator({
                     </div>
 
                     {/* Labour */}
-                    <div className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3">
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                    <div className="rounded-lg border border-border dark:border-border p-3">
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                         {result.labour_note}
                       </p>
                     </div>
@@ -1221,13 +1221,13 @@ export default function TyroleneEstimator({
                           : "border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30",
                       )}
                     >
-                      <p className="text-xs font-medium text-neutral-900 dark:text-white mb-1">
+                      <p className="text-xs font-medium text-foreground dark:text-primary-foreground mb-1">
                         Production:{" "}
                         {result.production_eligible
                           ? "Available"
                           : "Check Required"}
                       </p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                         {result.production_message}
                       </p>
                       {!result.production_min_configured && (
@@ -1240,15 +1240,15 @@ export default function TyroleneEstimator({
 
                     {/* Customer Trust Indicators */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="rounded-md bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2">
-                        <span className="text-neutral-500">CALCULATED:</span>{" "}
-                        <span className="text-neutral-900 dark:text-white">
+                      <div className="rounded-md bg-muted/50 dark:bg-black/50 px-3 py-2">
+                        <span className="text-muted-foreground">CALCULATED:</span>{" "}
+                        <span className="text-foreground dark:text-primary-foreground">
                           FRELUX Engine
                         </span>
                       </div>
-                      <div className="rounded-md bg-neutral-50 dark:bg-neutral-900/50 px-3 py-2">
-                        <span className="text-neutral-500">NEGOTIATED:</span>{" "}
-                        <span className="text-neutral-900 dark:text-white">
+                      <div className="rounded-md bg-muted/50 dark:bg-black/50 px-3 py-2">
+                        <span className="text-muted-foreground">NEGOTIATED:</span>{" "}
+                        <span className="text-foreground dark:text-primary-foreground">
                           Labour (separately)
                         </span>
                       </div>
@@ -1270,19 +1270,19 @@ export default function TyroleneEstimator({
                     </button>
 
                     {showSteps && (
-                      <div className="rounded-lg border border-neutral-200 dark:border-neutral-600 p-3 space-y-2">
+                      <div className="rounded-lg border border-border dark:border-border p-3 space-y-2">
                         {result.calculation_steps.map((step, i) => (
                           <div key={i} className="flex flex-col">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+                              <span className="text-xs font-medium text-card-foreground dark:text-muted-foreground/80">
                                 {step.label}
                               </span>
-                              <span className="text-xs font-semibold text-neutral-900 dark:text-white">
+                              <span className="text-xs font-semibold text-foreground dark:text-primary-foreground">
                                 {step.value}
                               </span>
                             </div>
                             {step.detail && (
-                              <span className="text-xs text-neutral-500 mt-0.5">
+                              <span className="text-xs text-muted-foreground mt-0.5">
                                 {step.detail}
                               </span>
                             )}
@@ -1438,7 +1438,7 @@ export default function TyroleneEstimator({
                       <button
                         onClick={handleSave}
                         disabled={calculating || saved}
-                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors disabled:opacity-50"
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-green-700 transition-colors disabled:opacity-50"
                       >
                         {saved ? (
                           <>

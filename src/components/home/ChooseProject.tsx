@@ -26,7 +26,7 @@ const projectCards: ProjectCard[] = [
     description: 'Calculate paint quantities, containers, and full cost breakdowns for any room.',
     to: '/paint-calculator',
     accent: 'text-brand-purple',
-    iconBg: 'bg-brand-purple/10',
+    iconBg: 'bg-primary/10',
   },
   {
     icon: Grid3x3,
@@ -50,7 +50,7 @@ const projectCards: ProjectCard[] = [
     description: 'Estimate POP cement, fibreglass mesh, and materials for ceiling projects.',
     to: '/pop-ceiling-calculator',
     accent: 'text-brand-purple',
-    iconBg: 'bg-brand-purple/10',
+    iconBg: 'bg-primary/10',
   },
   {
     icon: Building2,
@@ -75,10 +75,10 @@ export default function ChooseProject() {
     <section aria-label="Choose your project type" className="relative -mt-12 pb-16 pt-4 sm:pb-20" style={{ zIndex: 1 }}>
       <Container>
         <div className="mb-8 text-center">
-          <h2 className="font-display text-2xl font-bold text-neutral-900 sm:text-3xl dark:text-white">
+          <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl dark:text-primary-foreground">
             Choose Your Project
           </h2>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             Select a calculator to start estimating materials and costs immediately.
           </p>
         </div>
@@ -91,13 +91,13 @@ export default function ChooseProject() {
                 key={card.to}
                 to={card.to}
                 aria-label={`Open ${card.title} calculator`}
-                className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white p-6 shadow-sm transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-brand-navy-mid dark:hover:border-brand-purple/30"
+                className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 shadow-sm transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-card dark:hover:border-brand-purple/30"
               >
                 {/* Hover glow */}
-                <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-brand-purple/0 blur-3xl transition-all duration-500 group-hover:bg-brand-purple/10" />
+                <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/0 blur-3xl transition-all duration-500 group-hover:bg-primary/10" />
 
                 {/* Shimmer border */}
-                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand-purple/0 to-transparent transition-all duration-500 group-hover:via-brand-purple/30" />
+                <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all duration-500 group-hover:via-primary/30" />
 
                 <div className="flex items-center gap-3">
                   <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg} ${card.accent} transition-transform duration-300 group-hover:scale-110`}>
@@ -105,8 +105,8 @@ export default function ChooseProject() {
                   </span>
                 </div>
 
-                <h3 className="mt-4 font-display text-base font-bold text-neutral-900 dark:text-white">{card.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-neutral-500 dark:text-neutral-500">{card.description}</p>
+                <h3 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">{card.title}</h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">{card.description}</p>
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                   Open calculator

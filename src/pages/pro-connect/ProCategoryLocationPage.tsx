@@ -107,11 +107,11 @@ export default function ProCategoryLocationPage() {
   if (notFound) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <Briefcase className="mx-auto h-12 w-12 text-neutral-300" />
-        <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">
+        <Briefcase className="mx-auto h-12 w-12 text-muted-foreground/80" />
+        <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
           Page Not Found
         </h1>
-        <p className="mt-2 text-sm text-neutral-500">
+        <p className="mt-2 text-sm text-muted-foreground">
           This category or location doesn't exist.
         </p>
         <Link
@@ -126,11 +126,11 @@ export default function ProCategoryLocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-brand-navy">
+    <div className="min-h-screen bg-muted/50 dark:bg-background">
       {/* Breadcrumb */}
-      <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-          <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
+          <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
             <Link to="/" className="hover:text-brand-purple">
               Home
             </Link>
@@ -139,7 +139,7 @@ export default function ProCategoryLocationPage() {
               Pro Connect
             </Link>
             <span>/</span>
-            <span className="text-neutral-900 dark:text-white">
+            <span className="text-foreground dark:text-primary-foreground">
               {professionLabel} in {location?.city || "..."}
             </span>
           </nav>
@@ -147,12 +147,12 @@ export default function ProCategoryLocationPage() {
       </div>
 
       {/* Header */}
-      <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
+          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
             {professionLabel} in {locationLabel || "..."}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
             Browse verified {professionLabel.toLowerCase()} in {locationLabel}.
             Check ratings, portfolios, and connect directly.
           </p>
@@ -172,21 +172,21 @@ export default function ProCategoryLocationPage() {
             />
           </div>
         ) : pros.length === 0 ? (
-          <div className="rounded-xl border border-neutral-200/60 bg-white p-8 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-            <Briefcase className="mx-auto h-8 w-8 text-neutral-300" />
-            <p className="mt-2 text-sm text-neutral-500">
+          <div className="rounded-xl border border-border/60 bg-card p-8 text-center dark:border-white/5 dark:bg-card">
+            <Briefcase className="mx-auto h-8 w-8 text-muted-foreground/80" />
+            <p className="mt-2 text-sm text-muted-foreground">
               No {professionLabel.toLowerCase()} listed in {locationLabel} yet.
             </p>
             <Link
               to="/pro-connect/register"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               Register as a Pro
             </Link>
           </div>
         ) : (
           <>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               {pros.length}{" "}
               {pros.length === 1 ? "professional" : "professionals"} found
             </p>
@@ -195,10 +195,10 @@ export default function ProCategoryLocationPage() {
                 <Link
                   key={pro.id}
                   to={`/pro-connect/${pro.slug}`}
-                  className="group rounded-xl border border-neutral-200/60 bg-white p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex items-start gap-3">
-                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+                    <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                       {pro.profile_image_url ? (
                         <img
                           src={pro.profile_image_url}
@@ -213,7 +213,7 @@ export default function ProCategoryLocationPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
-                        <p className="truncate text-sm font-bold text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                        <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                           {pro.business_name || pro.display_name}
                         </p>
                         {pro.verification_status === "verified" && (
@@ -224,11 +224,11 @@ export default function ProCategoryLocationPage() {
                         )}
                       </div>
                       {pro.bio && (
-                        <p className="mt-0.5 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-500">
+                        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
                           {pro.bio}
                         </p>
                       )}
-                      <div className="mt-1.5 flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
+                      <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
                         {pro.rating_avg > 0 && (
                           <span className="inline-flex items-center gap-0.5">
                             <span className="text-amber-400 text-xs">★</span>

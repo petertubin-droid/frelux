@@ -58,7 +58,7 @@ const colorByType: Record<EmptyIllustration, string> = {
   favorites: 'text-rose-400',
   templates: 'text-blue-400',
   learn: 'text-accent-orange',
-  search: 'text-neutral-500',
+  search: 'text-muted-foreground',
   generic: 'text-brand-purple',
 };
 
@@ -91,8 +91,8 @@ export default function EmptyState({
           {illustrationPaths[illustration]}
         </svg>
       </div>
-      <h3 className="text-xl font-bold text-brand-navy dark:text-white animate-fade-in-up" style={{ animationDelay: '0.05s' }}>{title}</h3>
-      <p className="mt-2 max-w-md text-sm text-neutral-500 leading-relaxed dark:text-neutral-500 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{description}</p>
+      <h3 className="text-xl font-bold text-foreground dark:text-primary-foreground animate-fade-in-up" style={{ animationDelay: '0.05s' }}>{title}</h3>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground leading-relaxed dark:text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.1s' }}>{description}</p>
       {(actionLabel || secondaryLabel) && (
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3 animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
           {actionLabel && actionTo && (

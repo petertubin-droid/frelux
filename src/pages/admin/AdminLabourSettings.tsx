@@ -24,7 +24,7 @@ export default function AdminLabourSettings() {
         title="Labour Settings"
         subtitle="Configure labour estimation globally or per estimator. Set suggested rates, default pricing methods, and manage labour categories. Users can always override any suggested rate from the frontend."
       />
-      <div className="mb-5 inline-flex rounded-lg border border-neutral-200 bg-white dark:bg-neutral-900 p-1 dark:border-neutral-700">
+      <div className="mb-5 inline-flex rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">
         {([
           { key: 'settings', label: 'Estimator Settings', icon: HardHat },
           { key: 'categories', label: 'Labour Categories', icon: Plus },
@@ -35,7 +35,7 @@ export default function AdminLabourSettings() {
             onClick={() => setTab(t.key)}
             className={
               'inline-flex items-center gap-1.5 rounded-md px-4 py-1.5 text-sm font-semibold transition-all ' +
-              (tab === t.key ? 'bg-brand-purple text-white' : 'text-neutral-600 hover:text-brand-purple dark:text-neutral-300')
+              (tab === t.key ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-brand-purple dark:text-muted-foreground/80')
             }
           >
             <t.icon className="h-4 w-4" />
@@ -100,15 +100,15 @@ function SettingsTab() {
             <AdminCard key={setting.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-brand-navy dark:text-white">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
-                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                  <h3 className="text-xs font-bold text-foreground dark:text-primary-foreground">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                     {setting.is_enabled ? 'Labour estimation enabled' : 'Labour estimation disabled'}
                     {' · '}Default method: {PRICING_METHOD_LABELS[setting.default_pricing_method]}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle checked={setting.is_enabled} onChange={(v) => updateSetting(setting.id, { is_enabled: v })} />
-                  <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">{setting.is_enabled ? 'Enabled' : 'Disabled'}</span>
                 </div>
               </div>
 
@@ -117,7 +117,7 @@ function SettingsTab() {
                   <AdminSelect
                     value={setting.default_pricing_method}
                     onChange={(e) => updateSetting(setting.id, { default_pricing_method: e.target.value as LabourPricingMethod })}
-                    className="dark:bg-brand-navy-mid dark:border-white/10"
+                    className="dark:bg-card dark:border-white/10"
                   >
                     {Object.entries(PRICING_METHOD_LABELS).map(([k, v]) => (
                       <option key={k} value={k}>{v}</option>
@@ -130,7 +130,7 @@ function SettingsTab() {
  min={0}
  value={setting.suggested_rates.fixed}
  onChange={(e) => updateRate(setting.id, 'fixed', Number(e.target.value))}
-                    className="dark:bg-brand-navy-mid dark:border-white/10"
+                    className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per m²" hint="Per square metre">
@@ -139,7 +139,7 @@ function SettingsTab() {
  min={0}
  value={setting.suggested_rates.per_sqm}
  onChange={(e) => updateRate(setting.id, 'per_sqm', Number(e.target.value))}
-                    className="dark:bg-brand-navy-mid dark:border-white/10"
+                    className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Rate per Room" hint="Per room">
@@ -148,7 +148,7 @@ function SettingsTab() {
  min={0}
  value={setting.suggested_rates.per_room}
  onChange={(e) => updateRate(setting.id, 'per_room', Number(e.target.value))}
-                    className="dark:bg-brand-navy-mid dark:border-white/10"
+                    className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
                 <AdminField label="Suggested Daily Rate" hint="Per working day">
@@ -157,13 +157,13 @@ function SettingsTab() {
  min={0}
  value={setting.suggested_rates.daily}
  onChange={(e) => updateRate(setting.id, 'daily', Number(e.target.value))}
-                    className="dark:bg-brand-navy-mid dark:border-white/10"
+                    className="dark:bg-card dark:border-white/10"
                   />
                 </AdminField>
               </div>
 
               {saving === setting.id && (
-                <div className="mt-3 flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
+                <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
                   <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> Saving…
                 </div>
               )}
@@ -225,7 +225,7 @@ function CategoriesTab() {
               onClick={() => setFilterKey(k)}
               className={
                 'rounded-md px-3 py-1.5 text-sm font-semibold transition-all ' +
-                (filterKey === k ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-300')
+                (filterKey === k ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted dark:bg-card-foreground/90 dark:text-muted-foreground/80')
               }
             >
               {ESTIMATOR_LABELS[k]}
@@ -236,24 +236,24 @@ function CategoriesTab() {
       </div>
 
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.length === 0 && <p className="text-sm text-neutral-500 dark:text-neutral-500">No categories for this estimator yet.</p>}
+        {filtered.length === 0 && <p className="text-sm text-muted-foreground dark:text-muted-foreground">No categories for this estimator yet.</p>}
         {filtered.map((cat) => (
           <div key={cat.id} className="card p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <HardHat className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{cat.category_name}</h3>
-                  <p className="text-[10px] text-neutral-500">{PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦{Number(cat.suggested_rate).toLocaleString()}</p>
+                  <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{cat.category_name}</h3>
+                  <p className="text-[10px] text-muted-foreground">{PRICING_METHOD_LABELS[cat.rate_unit] ?? cat.rate_unit} · ₦{Number(cat.suggested_rate).toLocaleString()}</p>
                 </div>
               </div>
-              <span className={'rounded-full px-1.5 py-0.5 text-[9px] font-semibold ' + (cat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-200 text-neutral-500')}>
+              <span className={'rounded-full px-1.5 py-0.5 text-[9px] font-semibold ' + (cat.is_active ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground')}>
                 {cat.is_active ? 'On' : 'Off'}
               </span>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+            <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
               <Toggle checked={cat.is_active} onChange={() => toggleActive(cat)} />
               <div className="flex items-center gap-0.5">
                 <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(cat); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>

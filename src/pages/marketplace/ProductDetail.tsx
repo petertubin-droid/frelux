@@ -159,7 +159,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-lg font-medium text-neutral-900 dark:text-white">
+        <p className="text-lg font-medium text-foreground dark:text-primary-foreground">
           Product not found
         </p>
         <Link
@@ -187,7 +187,7 @@ export default function ProductDetail() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
-      <div className="mb-4 flex items-center gap-2 text-xs text-neutral-500">
+      <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
         <Link to="/marketplace" className="hover:text-brand-purple">
           Marketplace
         </Link>
@@ -214,7 +214,7 @@ export default function ProductDetail() {
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Images */}
         <div>
-          <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-white/10">
+          <div className="overflow-hidden rounded-xl border border-border dark:border-white/10">
             <img
               src={
                 product.images[product.primary_image_idx] ||
@@ -256,7 +256,7 @@ export default function ProductDetail() {
               {discount}% OFF
             </span>
           )}
-          <h1 className="mt-2 text-xl font-bold text-neutral-900 dark:text-white sm:text-2xl">
+          <h1 className="mt-2 text-xl font-bold text-foreground dark:text-primary-foreground sm:text-2xl">
             {product.title}
           </h1>
 
@@ -266,12 +266,12 @@ export default function ProductDetail() {
             </span>
             {product.compare_at_price &&
               product.compare_at_price > product.price && (
-                <span className="text-sm text-neutral-500 line-through">
+                <span className="text-sm text-muted-foreground line-through">
                   {formatPrice(product.compare_at_price, product.currency)}
                 </span>
               )}
             {product.negotiable && (
-              <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5">
+              <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5">
                 Negotiable
               </span>
             )}
@@ -279,29 +279,29 @@ export default function ProductDetail() {
 
           {/* Quick specs */}
           <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-500">Condition</p>
-              <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">
+            <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
+              <p className="text-xs text-muted-foreground">Condition</p>
+              <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {PRODUCT_CONDITION_LABELS[product.condition]}
               </p>
             </div>
-            <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-500">Quantity</p>
-              <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">
+            <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
+              <p className="text-xs text-muted-foreground">Quantity</p>
+              <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {product.quantity} {product.unit || "available"}
               </p>
             </div>
             {product.brand && (
-              <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-                <p className="text-xs text-neutral-500">Brand</p>
-                <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">
+              <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
+                <p className="text-xs text-muted-foreground">Brand</p>
+                <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                   {product.brand}
                 </p>
               </div>
             )}
-            <div className="rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <p className="text-xs text-neutral-500">Category</p>
-              <p className="mt-0.5 font-medium text-neutral-900 dark:text-white">
+            <div className="rounded-lg border border-border/50 p-3 dark:border-white/5">
+              <p className="text-xs text-muted-foreground">Category</p>
+              <p className="mt-0.5 font-medium text-foreground dark:text-primary-foreground">
                 {category?.name || "Other"}
               </p>
             </div>
@@ -326,7 +326,7 @@ export default function ProductDetail() {
 
           {/* Location */}
           {product.location_city && (
-            <div className="mt-3 flex items-center gap-1.5 text-sm text-neutral-500">
+            <div className="mt-3 flex items-center gap-1.5 text-sm text-muted-foreground">
               <MapPin aria-hidden="true" className="h-4 w-4" />
               {product.location_area && `${product.location_area}, `}
               {product.location_city}, {product.location_state}
@@ -339,7 +339,7 @@ export default function ProductDetail() {
               {product.tags.map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-0.5 rounded-md bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600 dark:bg-white/5"
+                  className="inline-flex items-center gap-0.5 rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground dark:bg-white/5"
                 >
                   <Tag aria-hidden="true" className="h-2.5 w-2.5" />
                   {t}
@@ -350,11 +350,11 @@ export default function ProductDetail() {
 
           {/* Description */}
           {product.description && (
-            <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+            <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Description
               </h3>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground dark:text-muted-foreground/80">
                 {product.description}
               </p>
             </div>
@@ -362,8 +362,8 @@ export default function ProductDetail() {
 
           {/* Seller */}
           {product.seller && (
-            <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-100 p-3 dark:border-white/5">
-              <div className="h-10 w-10 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+            <div className="mt-4 flex items-center gap-3 rounded-lg border border-border/50 p-3 dark:border-white/5">
+              <div className="h-10 w-10 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                 {product.seller.avatar_url ? (
                   <img
                     src={product.seller.avatar_url}
@@ -377,11 +377,11 @@ export default function ProductDetail() {
                 )}
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {product.seller.full_name}
                 </p>
                 {product.seller.marketplace_id && (
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     @{product.seller.marketplace_id}
                   </p>
                 )}
@@ -393,7 +393,7 @@ export default function ProductDetail() {
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
             <button
               onClick={() => setShowInquiry(!showInquiry)}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-purple-dark"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <MessageCircle aria-hidden="true" className="h-4 w-4" />
               Contact Seller
@@ -409,7 +409,7 @@ export default function ProductDetail() {
                   navigator.clipboard.writeText(window.location.href);
                 }
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
               <Share2 className="h-4 w-4" /> Share
             </button>
@@ -417,8 +417,8 @@ export default function ProductDetail() {
 
           {/* Inquiry form */}
           {showInquiry && !inquirySent && (
-            <div className="mt-4 space-y-3 rounded-xl border border-neutral-200 p-4 dark:border-white/10">
-              <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+            <div className="mt-4 space-y-3 rounded-xl border border-border p-4 dark:border-white/10">
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                 Send an inquiry
               </h3>
               <textarea
@@ -426,7 +426,7 @@ export default function ProductDetail() {
                 onChange={(e) => setInquiryMessage(e.target.value)}
                 placeholder="I'm interested in this product. Is it still available?"
                 rows={3}
-                className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -434,20 +434,20 @@ export default function ProductDetail() {
                   value={inquiryPrice}
                   onChange={(e) => setInquiryPrice(e.target.value)}
                   placeholder="Offer price (₦)"
-                  className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
                 <input
                   type="tel"
                   value={inquiryPhone}
                   onChange={(e) => setInquiryPhone(e.target.value)}
                   placeholder="Phone (optional)"
-                  className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <button
                 onClick={handleInquiry}
                 disabled={submitting || !inquiryMessage.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {submitting ? (
                   <Loader2
@@ -470,7 +470,7 @@ export default function ProductDetail() {
           )}
 
           {/* Stats */}
-          <div className="mt-3 flex items-center gap-3 text-xs text-neutral-500">
+          <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Eye aria-hidden="true" className="h-3 w-3" />{" "}
               {product.view_count} views
@@ -486,7 +486,7 @@ export default function ProductDetail() {
       {/* Related products */}
       {relatedProducts.length > 0 && (
         <div className="mt-12">
-          <h2 className="mb-4 text-lg font-bold text-neutral-900 dark:text-white">
+          <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
             Similar Products
           </h2>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -494,9 +494,9 @@ export default function ProductDetail() {
               <Link
                 key={rp.id}
                 to={`/marketplace/products/${rp.id}`}
-                className="group rounded-xl border border-neutral-200 p-3 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
+                className="group rounded-xl border border-border p-3 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
               >
-                <div className="aspect-square overflow-hidden rounded-lg bg-neutral-100 dark:bg-white/5">
+                <div className="aspect-square overflow-hidden rounded-lg bg-muted dark:bg-white/5">
                   {rp.images.length > 0 ? (
                     <img
                       src={rp.images[rp.primary_image_idx] || rp.images[0]}
@@ -504,12 +504,12 @@ export default function ProductDetail() {
                       className="h-full w-full object-cover transition-transform group-hover:scale-105"
                     />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-neutral-300">
+                    <div className="flex h-full w-full items-center justify-center text-muted-foreground/80">
                       <Store className="h-8 w-8" />
                     </div>
                   )}
                 </div>
-                <p className="mt-2 truncate text-sm font-medium text-neutral-900 dark:text-white group-hover:text-brand-purple">
+                <p className="mt-2 truncate text-sm font-medium text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                   {rp.title}
                 </p>
                 <p className="mt-0.5 text-sm font-bold text-brand-purple">

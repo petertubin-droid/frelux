@@ -28,22 +28,22 @@ export function AdBlockNotice() {
   if (!blocked || dismissed) return null;
 
   return (
-    <div className="fixed bottom-36 right-4 z-[45] max-w-[calc(100vw-2rem)] rounded-xl border border-neutral-200 bg-white p-4 shadow-lg dark:border-neutral-700 dark:bg-neutral-900 sm:bottom-20 sm:max-w-sm">
+    <div className="fixed bottom-36 right-4 z-[45] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-4 shadow-lg dark:border-border border-border dark:bg-background sm:bottom-20 sm:max-w-sm">
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        className="absolute right-2 top-2 rounded-md p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+        className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
       </button>
       <div className="flex items-start gap-3 pr-4">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <Shield className="h-5 w-5 text-brand-purple" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-brand-navy dark:text-white">Ad blocker detected</h3>
-          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+          <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">Ad blocker detected</h3>
+          <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Frelux is free because of ads. Please consider disabling your ad blocker so we can keep building tools for you.
           </p>
         </div>

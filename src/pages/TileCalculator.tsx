@@ -349,7 +349,7 @@ export default function TileCalculator({
             <WorkWeatherBanner workType="tiling" />
           </>
         )}
-        <div className="flex items-center justify-center gap-2 py-20 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-20 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -388,12 +388,12 @@ export default function TileCalculator({
         className="mx-auto max-w-3xl px-4 py-10 sm:px-6"
       >
         {!result && (
-          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+          <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
             {/* Surface type */}
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Surface type
             </h2>
-            <p className="mt-1 text-sm text-neutral-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               Are you tiling a floor or a wall?
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -416,25 +416,25 @@ export default function TileCalculator({
                     className={
                       "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
                       (selected
-                        ? "select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20"
-                        : "border-neutral-200")
+                        ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                        : "border-border")
                     }
                   >
                     <span
                       className={
                         "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
                         (selected
-                          ? "bg-brand-purple text-white"
-                          : "bg-neutral-100 text-neutral-600")
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground")
                       }
                     >
                       <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                     </span>
                     <span>
-                      <span className="block text-sm font-semibold text-brand-navy dark:text-white">
+                      <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {s.label}
                       </span>
-                      <span className="block text-xs text-neutral-500">
+                      <span className="block text-xs text-muted-foreground">
                         {s.desc}
                       </span>
                     </span>
@@ -445,7 +445,7 @@ export default function TileCalculator({
 
             {/* Unit toggle */}
             <div className="mt-6">
-              <div className="inline-flex rounded-lg border border-neutral-200 p-1">
+              <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
                   <button
                     key={u}
@@ -454,8 +454,8 @@ export default function TileCalculator({
                     className={
                       "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
                       (input.unit === u
-                        ? "bg-brand-purple text-white"
-                        : "text-neutral-600 hover:text-brand-purple")
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-brand-purple")
                     }
                   >
                     {u}
@@ -592,10 +592,10 @@ export default function TileCalculator({
 
             {/* Installation method */}
             <div className="mt-6">
-              <h2 className="text-lg font-bold text-brand-navy">
+              <h2 className="text-lg font-bold text-foreground">
                 Installation method
               </h2>
-              <p className="mt-1 text-sm text-neutral-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Choose how the tiles will be installed.
               </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -622,25 +622,25 @@ export default function TileCalculator({
                       className={
                         "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
-                          ? "select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20"
-                          : "border-neutral-200")
+                          ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                          : "border-border")
                       }
                     >
                       <span
                         className={
                           "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
                           (selected
-                            ? "bg-brand-purple text-white"
-                            : "bg-neutral-100 text-neutral-600")
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-muted text-muted-foreground")
                         }
                       >
                         <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                       </span>
                       <span>
-                        <span className="block text-sm font-semibold text-brand-navy">
+                        <span className="block text-sm font-semibold text-foreground">
                           {m.label}
                         </span>
-                        <span className="block text-xs text-neutral-500">
+                        <span className="block text-xs text-muted-foreground">
                           {m.desc}
                         </span>
                       </span>
@@ -792,10 +792,10 @@ export default function TileCalculator({
 
             {/* Waste margin */}
             <div className="mt-6">
-              <span className="block text-sm font-semibold text-neutral-700">
+              <span className="block text-sm font-semibold text-card-foreground">
                 Waste / safety margin
               </span>
-              <p className="mt-0.5 text-xs text-neutral-500">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 Extra tiles added for cuts, breakage, and future repairs.
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -807,8 +807,8 @@ export default function TileCalculator({
                     className={
                       "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                       (input.wasteMargin === w
-                        ? "border-brand-purple bg-brand-purple text-white"
-                        : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                        ? "border-brand-purple bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-border")
                     }
                   >
                     {w}%
@@ -982,14 +982,14 @@ function TileResultCard({
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5">
-      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
+      <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-sm font-semibold uppercase tracking-widest">
             Your Tile Estimate
           </span>
         </div>
-        <p className="mt-3 text-sm text-white/60">
+        <p className="mt-3 text-sm text-primary-foreground/60">
           {input.surfaceType === "floor" ? "Floor" : "Wall"} tiling ·{" "}
           {input.tileWidthMm}×{input.tileHeightMm}mm · {input.wasteMargin}%
           waste
@@ -997,12 +997,12 @@ function TileResultCard({
         <p className="calc-result mt-1 text-4xl font-bold sm:text-5xl">
           {result.boxesNeeded} box(es)
         </p>
-        <p className="mt-1 text-sm text-white/60">
+        <p className="mt-1 text-sm text-primary-foreground/60">
           {result.tilesNeeded} tiles needed
         </p>
       </div>
 
-      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
+      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-card">
         <Stat
           label="Surface area"
           value={`${formatNumber(result.surfaceArea)} m²`}
@@ -1070,7 +1070,7 @@ function TileResultCard({
           label="Labour cost"
           value={formatCurrency(result.labourCost, currencySymbol)}
         />
-        <div className="border-t border-neutral-100 pt-2">
+        <div className="border-t border-border/50 pt-2">
           <Row
             label="Grand total"
             value={formatCurrency(result.grandTotal, currencySymbol)}
@@ -1297,20 +1297,20 @@ function TileResultCard({
       </div>
 
       {/* Post as Job CTA */}
-      <div className="mt-4 rounded-xl border border-brand-purple/20 bg-brand-purple/5 p-4">
+      <div className="mt-4 rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-bold text-brand-navy dark:text-white">
+            <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
               Need a pro for this tiling job?
             </p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Post this estimate as a job and get bids from verified tilers near
               you.
             </p>
           </div>
           <a
             href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling — ${result.surfaceArea.toFixed(1)} m²`}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark whitespace-nowrap"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
             Post as Job
           </a>
@@ -1331,11 +1331,11 @@ function TileResultCard({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="stat-card dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+    <div className="stat-card dark:border-white/5 dark:bg-card">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
         {label}
       </p>
-      <p className="mt-1.5 text-xl font-bold text-brand-navy dark:text-white">
+      <p className="mt-1.5 text-xl font-bold text-foreground dark:text-primary-foreground">
         {value}
       </p>
     </div>
@@ -1357,16 +1357,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">
+      <span className="block text-sm font-semibold text-card-foreground">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="relative mt-1.5">
         {children}
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
           </span>
         )}
@@ -1393,8 +1393,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-500 dark:text-neutral-500")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-muted-foreground dark:text-muted-foreground")
         }
       >
         {label}
@@ -1403,8 +1403,8 @@ function Row({
         className={
           "text-sm " +
           (strong
-            ? "font-bold text-brand-navy dark:text-white"
-            : "text-neutral-700 dark:text-neutral-200")
+            ? "font-bold text-foreground dark:text-primary-foreground"
+            : "text-card-foreground dark:text-muted-foreground/60")
         }
       >
         {value}

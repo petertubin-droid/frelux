@@ -183,7 +183,7 @@ export function BrandIdentitySection({
     return (
       <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent p-8 text-center">
         <PremiumBadge size="lg" glow className="mx-auto" />
-        <p className="mx-auto mt-4 max-w-md text-sm text-neutral-500">
+        <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground">
           Brand Studio is a premium feature. Upgrade to create your own branded
           PDF profiles with custom colours, logos, and contact details.
         </p>
@@ -204,8 +204,8 @@ export function BrandIdentitySection({
         </div>
       )}
 
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-4 text-base font-bold text-brand-navy dark:text-white">
+      <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/10 dark:bg-white/5">
+        <h2 className="mb-4 text-base font-bold text-foreground dark:text-primary-foreground">
           {editingId ? "Edit Brand Profile" : "Create Brand Profile"}
         </h2>
 
@@ -234,7 +234,7 @@ export function BrandIdentitySection({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                 Phone
               </label>
               <input
@@ -242,11 +242,11 @@ export function BrandIdentitySection({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+234 800 123 4567"
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                 WhatsApp
               </label>
               <input
@@ -254,11 +254,11 @@ export function BrandIdentitySection({
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
                 placeholder="+234 800 123 4567"
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                 Email
               </label>
               <input
@@ -266,11 +266,11 @@ export function BrandIdentitySection({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="info@yourbusiness.com"
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
                 Website
               </label>
               <input
@@ -278,7 +278,7 @@ export function BrandIdentitySection({
                 value={website}
                 onChange={(e) => setWebsite(e.target.value)}
                 placeholder="https://yourbusiness.com"
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
               />
             </div>
           </div>
@@ -292,58 +292,58 @@ export function BrandIdentitySection({
 
           {/* Colours */}
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">
+            <h3 className="mb-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/80">
               Brand Colours
             </h3>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="text-xs text-neutral-500">Primary</label>
+                <label className="text-xs text-muted-foreground">Primary</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded border border-neutral-200"
+                    className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
                     type="text"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-full rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    className="w-full rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-neutral-500">Secondary</label>
+                <label className="text-xs text-muted-foreground">Secondary</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={secondaryColor}
                     onChange={(e) => setSecondaryColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded border border-neutral-200"
+                    className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
                     type="text"
                     value={secondaryColor}
                     onChange={(e) => setSecondaryColor(e.target.value)}
-                    className="w-full rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    className="w-full rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-xs text-neutral-500">Accent</label>
+                <label className="text-xs text-muted-foreground">Accent</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={accentColor}
                     onChange={(e) => setAccentColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded border border-neutral-200"
+                    className="h-10 w-12 cursor-pointer rounded border border-border"
                   />
                   <input
                     type="text"
                     value={accentColor}
                     onChange={(e) => setAccentColor(e.target.value)}
-                    className="w-full rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-white"
+                    className="w-full rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
                   />
                 </div>
               </div>
@@ -352,7 +352,7 @@ export function BrandIdentitySection({
 
           {/* Logo upload */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
               Logo
             </label>
             <div className="flex items-center gap-3">
@@ -360,7 +360,7 @@ export function BrandIdentitySection({
                 <img
                   src={logoUrl}
                   alt="logo"
-                  className="h-12 w-12 rounded border border-neutral-200 object-contain"
+                  className="h-12 w-12 rounded border border-border object-contain"
                 />
               )}
               <input
@@ -370,20 +370,20 @@ export function BrandIdentitySection({
                 className="text-sm"
               />
             </div>
-            <p className="mt-1 text-xs text-neutral-400">
+            <p className="mt-1 text-xs text-muted-foreground">
               Upload a PNG or JPEG. You can also generate one in AI Logo Studio.
             </p>
           </div>
 
           {/* Logo placement */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+            <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
               Logo Placement
             </label>
             <select
               value={logoPlacement}
               onChange={(e) => setLogoPlacement(e.target.value)}
-              className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
             >
               <option value="top-right">Top Right</option>
               <option value="top-left">Top Left</option>
@@ -395,7 +395,7 @@ export function BrandIdentitySection({
           </div>
 
           {/* Default toggle */}
-          <label className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+          <label className="flex items-center gap-2 text-sm text-card-foreground dark:text-muted-foreground/80">
             <input
               type="checkbox"
               checked={isDefault}
@@ -410,7 +410,7 @@ export function BrandIdentitySection({
             <button
               onClick={handleSave}
               disabled={saving || !name.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-bold text-white hover:bg-brand-purple/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {saving
@@ -431,7 +431,7 @@ export function BrandIdentitySection({
             )}
             <button
               onClick={resetForm}
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-100 dark:border-white/10 dark:hover:bg-white/5"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted dark:border-white/10 dark:hover:bg-white/5"
             >
               <Plus className="h-4 w-4" />
               New

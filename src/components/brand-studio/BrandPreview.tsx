@@ -27,11 +27,11 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-        <h2 className="mb-3 text-base font-bold text-brand-navy dark:text-white">
+      <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/10 dark:bg-white/5">
+        <h2 className="mb-3 text-base font-bold text-foreground dark:text-primary-foreground">
           PDF Branding Preview
         </h2>
-        <p className="mb-4 text-sm text-neutral-500">
+        <p className="mb-4 text-sm text-muted-foreground">
           {useProfile
             ? "Preview of your custom branding"
             : "Preview of FRELUX default branding"}
@@ -39,7 +39,7 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
 
         {/* Mock PDF preview */}
         <div
-          className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white dark:border-white/10"
+          className="relative overflow-hidden rounded-xl border border-border bg-card dark:border-white/10"
           style={{ minHeight: "400px" }}
         >
           {/* Watermark */}
@@ -88,7 +88,7 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
                   {brandName}
                 </h3>
                 {tagline && (
-                  <p className="text-xs italic text-neutral-500">{tagline}</p>
+                  <p className="text-xs italic text-muted-foreground">{tagline}</p>
                 )}
               </div>
               <div className="text-right">
@@ -98,11 +98,11 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
                 >
                   QUOTATION
                 </h4>
-                <p className="text-xs text-neutral-500">Ref: FRELUX-12345678</p>
+                <p className="text-xs text-muted-foreground">Ref: FRELUX-12345678</p>
               </div>
             </div>
             {(phone || email || address) && (
-              <div className="mt-2 text-xs text-neutral-500">
+              <div className="mt-2 text-xs text-muted-foreground">
                 {address && <span>{address} | </span>}
                 {phone && <span>Tel: {phone} | </span>}
                 {email && <span>Email: {email}</span>}
@@ -112,25 +112,25 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
 
           {/* Mock content */}
           <div className="relative z-10 p-6">
-            <div className="mb-4 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
+            <div className="mb-4 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
               <div className="grid grid-cols-4 gap-4 text-xs">
                 <div>
-                  <span className="text-neutral-400">Project Type</span>
+                  <span className="text-muted-foreground">Project Type</span>
                   <br />
                   <span className="font-semibold">Interior Painting</span>
                 </div>
                 <div>
-                  <span className="text-neutral-400">Paint Type</span>
+                  <span className="text-muted-foreground">Paint Type</span>
                   <br />
                   <span className="font-semibold">Premium Emulsion</span>
                 </div>
                 <div>
-                  <span className="text-neutral-400">Area</span>
+                  <span className="text-muted-foreground">Area</span>
                   <br />
                   <span className="font-semibold">120 m²</span>
                 </div>
                 <div>
-                  <span className="text-neutral-400">Paint Req.</span>
+                  <span className="text-muted-foreground">Paint Req.</span>
                   <br />
                   <span className="font-semibold">24 L</span>
                 </div>
@@ -140,26 +140,26 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
             <table className="w-full text-xs">
               <thead>
                 <tr style={{ borderBottom: `2px solid ${primaryColor}` }}>
-                  <th className="py-2 text-left text-neutral-400">#</th>
-                  <th className="py-2 text-left text-neutral-400">Item</th>
-                  <th className="py-2 text-left text-neutral-400">Qty</th>
-                  <th className="py-2 text-right text-neutral-400">Amount</th>
+                  <th className="py-2 text-left text-muted-foreground">#</th>
+                  <th className="py-2 text-left text-muted-foreground">Item</th>
+                  <th className="py-2 text-left text-muted-foreground">Qty</th>
+                  <th className="py-2 text-right text-muted-foreground">Amount</th>
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b border-neutral-100 dark:border-white/5">
+                <tr className="border-b border-border/50 dark:border-white/5">
                   <td className="py-2">1</td>
                   <td>Paint (Premium)</td>
                   <td>3 containers</td>
                   <td className="text-right font-semibold">₦45,000</td>
                 </tr>
-                <tr className="border-b border-neutral-100 dark:border-white/5">
+                <tr className="border-b border-border/50 dark:border-white/5">
                   <td className="py-2">2</td>
                   <td>Primer</td>
                   <td>1 unit</td>
                   <td className="text-right font-semibold">₦8,000</td>
                 </tr>
-                <tr className="border-b border-neutral-100 dark:border-white/5">
+                <tr className="border-b border-border/50 dark:border-white/5">
                   <td className="py-2">3</td>
                   <td>Labour</td>
                   <td>120 m²</td>
@@ -189,7 +189,7 @@ export function BrandPreview({ profiles, selectedProfileId, config }: Props) {
               </div>
             </div>
 
-            <div className="mt-6 text-center text-xs text-neutral-400">
+            <div className="mt-6 text-center text-xs text-muted-foreground">
               {useProfile
                 ? "Powered by FRELUX PAINT CALC"
                 : `Generated by ${brandName} — Smart Construction Estimation`}

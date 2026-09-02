@@ -26,7 +26,7 @@ export function RecentlyUsed() {
     <section className="animate-fade-in-up">
       <div className="mb-3 flex items-center gap-2">
         <Clock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-        <h2 className="text-sm font-bold text-brand-navy dark:text-white">Recently Used</h2>
+        <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">Recently Used</h2>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
         {tools.map(tool => {
@@ -35,18 +35,18 @@ export function RecentlyUsed() {
             <Link
               key={tool.path}
               to={tool.path}
-              className="group flex shrink-0 items-center gap-2.5 rounded-xl border border-neutral-200 bg-white px-4 py-3 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+              className="group flex shrink-0 items-center gap-2.5 rounded-xl border border-border bg-card px-4 py-3 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple dark:bg-brand-purple/15">
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-brand-purple dark:bg-primary/15">
                 <Icon className="h-4 w-4" />
               </span>
               <div>
-                <p className="text-sm font-semibold text-brand-navy group-hover:text-brand-purple dark:text-white dark:group-hover:text-brand-purple-lighter">{tool.label}</p>
-                <p className="text-[11px] text-neutral-500">
+                <p className="text-sm font-semibold text-foreground group-hover:text-brand-purple dark:text-primary-foreground dark:group-hover:text-brand-purple-lighter">{tool.label}</p>
+                <p className="text-[11px] text-muted-foreground">
                   {new Date(tool.visitedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
-              <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight aria-hidden="true" className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5" />
             </Link>
           );
         })}

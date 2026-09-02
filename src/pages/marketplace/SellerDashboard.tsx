@@ -161,16 +161,16 @@ export default function SellerDashboard() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
             Seller Dashboard
           </h1>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             Manage your profile, products, and sales
           </p>
         </div>
         <Link
           to="/marketplace/products/post"
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-dark"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> List a Product
         </Link>
@@ -210,15 +210,15 @@ export default function SellerDashboard() {
       </div>
 
       {/* Profile Card */}
-      <div className="mb-6 rounded-xl border border-neutral-200 p-5 dark:border-white/10">
+      <div className="mb-6 rounded-xl border border-border p-5 dark:border-white/10">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-purple/10">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <Store className="h-6 w-6 text-brand-purple" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-neutral-900 dark:text-white">
+                <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {businessName || "Individual Seller"}
                 </h2>
                 {profile?.verification_status === "verified" && (
@@ -228,7 +228,7 @@ export default function SellerDashboard() {
                   />
                 )}
               </div>
-              <p className="text-sm text-neutral-500">
+              <p className="text-sm text-muted-foreground">
                 {SELLER_TYPE_LABELS[sellerType]}
                 {profile &&
                   ` · ${SELLER_VERIFICATION_LABELS[profile.verification_status]}`}
@@ -238,7 +238,7 @@ export default function SellerDashboard() {
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-500"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               <Edit aria-hidden="true" className="h-4 w-4" /> Edit
             </button>
@@ -248,21 +248,21 @@ export default function SellerDashboard() {
         {!editing ? (
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {businessPhone && (
-              <div className="flex items-center gap-2 text-sm text-neutral-500">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Phone aria-hidden="true" className="h-4 w-4" /> {businessPhone}
               </div>
             )}
             {businessAddress && (
-              <div className="flex items-center gap-2 text-sm text-neutral-500">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <MapPin aria-hidden="true" className="h-4 w-4" />{" "}
                 {businessAddress}
               </div>
             )}
-            <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Truck className="h-4 w-4" />{" "}
               {deliveryAvailable ? "Delivery available" : "No delivery"}
             </div>
-            <div className="flex items-center gap-2 text-sm text-neutral-500">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 className="h-4 w-4" />{" "}
               {pickupAvailable ? "Pickup available" : "No pickup"}
             </div>
@@ -271,13 +271,13 @@ export default function SellerDashboard() {
           <div className="mt-4 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-500">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
                   Seller Type
                 </label>
                 <AdminSelect
                   value={sellerType}
                   onChange={(e) => setSellerType(e.target.value as SellerType)}
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 >
                   {Object.entries(SELLER_TYPE_LABELS).map(([v, l]) => (
                     <option key={v} value={v}>
@@ -287,7 +287,7 @@ export default function SellerDashboard() {
                 </AdminSelect>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-500">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
                   Business Name
                 </label>
                 <AdminInput
@@ -295,11 +295,11 @@ export default function SellerDashboard() {
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="Your business name"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-500">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
                   Business Phone
                 </label>
                 <AdminInput
@@ -307,11 +307,11 @@ export default function SellerDashboard() {
                   value={businessPhone}
                   onChange={(e) => setBusinessPhone(e.target.value)}
                   placeholder="+234..."
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-neutral-500">
+                <label className="mb-1 block text-xs font-medium text-muted-foreground">
                   Business Address
                 </label>
                 <AdminInput
@@ -319,12 +319,12 @@ export default function SellerDashboard() {
                   value={businessAddress}
                   onChange={(e) => setBusinessAddress(e.target.value)}
                   placeholder="Your address"
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                  className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 <input
                   type="checkbox"
                   checked={deliveryAvailable}
@@ -333,7 +333,7 @@ export default function SellerDashboard() {
                 />{" "}
                 Delivery available
               </label>
-              <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 <input
                   type="checkbox"
                   checked={pickupAvailable}
@@ -379,9 +379,9 @@ export default function SellerDashboard() {
       </div>
 
       {/* Products Table */}
-      <div className="rounded-xl border border-neutral-200 dark:border-white/10">
-        <div className="border-b border-neutral-200 p-4 dark:border-white/10">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-500">
+      <div className="rounded-xl border border-border dark:border-white/10">
+        <div className="border-b border-border p-4 dark:border-white/10">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
             Your Products
           </h2>
         </div>
@@ -389,30 +389,30 @@ export default function SellerDashboard() {
           <div className="py-12 text-center">
             <Package
               aria-hidden="true"
-              className="mx-auto h-10 w-10 text-neutral-300"
+              className="mx-auto h-10 w-10 text-muted-foreground/80"
             />
-            <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+            <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
               No products yet
             </p>
             <Link
               to="/marketplace/products/post"
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               <Plus aria-hidden="true" className="h-4 w-4" /> List Your First
               Product
             </Link>
           </div>
         ) : (
-          <div className="divide-y divide-neutral-100 dark:divide-white/5">
+          <div className="divide-y divide-border/50 dark:divide-white/5">
             {products.map((p) => {
               const prod = p as unknown as Record<string, unknown>;
               return (
                 <Link
                   key={prod.id as string}
                   to={`/marketplace/products/${prod.id}`}
-                  className="flex items-center gap-4 p-4 transition-colors hover:bg-neutral-50 dark:hover:bg-white/5"
+                  className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
                 >
-                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 dark:bg-white/5">
+                  <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5">
                     {Array.isArray(prod.images) &&
                     (prod.images as unknown[]).length > 0 ? (
                       <img
@@ -427,15 +427,15 @@ export default function SellerDashboard() {
                     ) : (
                       <Package
                         aria-hidden="true"
-                        className="m-auto h-6 w-6 text-neutral-300"
+                        className="m-auto h-6 w-6 text-muted-foreground/80"
                       />
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                    <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
                       {prod.title as string}
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       {PRODUCT_STATUS_LABELS[
                         prod.status as keyof typeof PRODUCT_STATUS_LABELS
                       ] || (prod.status as string)}
@@ -467,12 +467,12 @@ function StatCard({
   value: number | string;
 }) {
   return (
-    <div className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
-      <div className="flex items-center gap-2 text-neutral-500">
+    <div className="rounded-xl border border-border p-4 dark:border-white/10">
+      <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs font-medium">{label}</span>
       </div>
-      <p className="mt-2 text-xl font-bold text-neutral-900 dark:text-white">
+      <p className="mt-2 text-xl font-bold text-foreground dark:text-primary-foreground">
         {value}
       </p>
     </div>

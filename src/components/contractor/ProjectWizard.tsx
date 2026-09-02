@@ -172,9 +172,9 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
               <div
                 className={classNames(
                   'flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors',
-                  idx < step && 'border-purple-700 bg-purple-700 text-white',
+                  idx < step && 'border-purple-700 bg-purple-700 text-primary-foreground',
                   idx === step && 'border-purple-700 bg-purple-50 text-purple-700',
-                  idx > step && 'border-gray-300 bg-white dark:bg-brand-navy-mid text-gray-400',
+                  idx > step && 'border-border bg-card dark:bg-card text-muted-foreground',
                 )}
                 aria-current={idx === step ? 'step' : undefined}
               >
@@ -184,7 +184,7 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
                 <div
                   className={classNames(
                     'h-0.5 w-10 transition-colors sm:w-16',
-                    idx < step ? 'bg-purple-700' : 'bg-gray-300',
+                    idx < step ? 'bg-purple-700' : 'bg-muted',
                   )}
                 />
               )}
@@ -193,8 +193,8 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
         </div>
       </div>
 
-      <h2 className="text-center text-xl font-bold text-gray-900 sm:text-2xl">{title}</h2>
-      {subtitle && <p className="mt-1 text-center text-sm text-gray-500">{subtitle}</p>}
+      <h2 className="text-center text-xl font-bold text-foreground sm:text-2xl">{title}</h2>
+      {subtitle && <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>}
 
       <div className="mt-6">{children}</div>
     </div>
@@ -230,22 +230,22 @@ function OptionButton<T extends string>({
         'group flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200',
         selected
           ? 'border-2 border-purple-700 bg-purple-50 shadow-sm'
-          : 'border border-gray-200 bg-white dark:bg-brand-navy-mid hover:border-purple-300 hover:bg-purple-50/50',
+          : 'border border-border bg-card dark:bg-card hover:border-purple-300 hover:bg-purple-50/50',
       )}
     >
       {Icon && (
         <span
           className={classNames(
             'mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-colors',
-            selected ? 'bg-purple-700 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100',
+            selected ? 'bg-purple-700 text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-purple-100',
           )}
         >
           <Icon className="h-5 w-5" />
         </span>
       )}
       <span className="flex-1">
-        <span className="block font-semibold text-gray-900">{label}</span>
-        {description && <span className="mt-0.5 block text-sm text-gray-500">{description}</span>}
+        <span className="block font-semibold text-foreground">{label}</span>
+        {description && <span className="mt-0.5 block text-sm text-muted-foreground">{description}</span>}
       </span>
       {selected && (
         <Check className="mt-1 h-5 w-5 flex-shrink-0 text-purple-700" />
@@ -379,7 +379,7 @@ export default function ProjectWizard() {
     <WizardStep step={1} title="Project Details" subtitle="Tell us about the building and surface">
       <div className="space-y-6">
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Building Type</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Building Type</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {BUILDING_TYPES.map((opt) => (
               <OptionButton
@@ -394,7 +394,7 @@ export default function ProjectWizard() {
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Surface Location</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Surface Location</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {SURFACE_LOCATIONS.map((opt) => (
               <OptionButton
@@ -409,7 +409,7 @@ export default function ProjectWizard() {
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Construction Type</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Construction Type</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {CONSTRUCTION_TYPES.map((opt) => (
               <OptionButton
@@ -424,7 +424,7 @@ export default function ProjectWizard() {
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Finish Quality</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Finish Quality</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -445,12 +445,12 @@ export default function ProjectWizard() {
               <Award className="h-4 w-4" />
               <span className="text-sm font-semibold">Smart Recommendation</span>
             </div>
-            <p className="mt-1 text-sm text-gray-600">{recommendation.reason}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {recommendation.workflow.map((phase, idx) => (
                 <span
                   key={phase}
-                  className="inline-flex items-center gap-1 rounded-full bg-white dark:bg-brand-navy-mid px-2.5 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-200"
+                  className="inline-flex items-center gap-1 rounded-full bg-card dark:bg-card px-2.5 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-200"
                 >
                   {idx + 1}. {phase}
                 </span>
@@ -466,7 +466,7 @@ export default function ProjectWizard() {
     <WizardStep step={2} title="Budget & Materials" subtitle="Choose your budget and material quality levels">
       <div className="space-y-6">
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Budget Level</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Budget Level</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -482,7 +482,7 @@ export default function ProjectWizard() {
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-gray-700">Material Quality</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">Material Quality</legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -505,25 +505,25 @@ export default function ProjectWizard() {
       <div className="space-y-4">
         {/* Project name */}
         <div>
-          <label htmlFor="pw-name" className="mb-1.5 block text-sm font-semibold text-gray-700">
+          <label htmlFor="pw-name" className="mb-1.5 block text-sm font-semibold text-card-foreground">
             Project Name <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <FileText className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               id="pw-name"
               type="text"
               value={state.name}
               onChange={(e) => update('name', e.target.value)}
               placeholder="e.g. Lekki Phase 1 Duplex Painting"
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+              className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
             />
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="pw-desc" className="mb-1.5 block text-sm font-semibold text-gray-700">
+          <label htmlFor="pw-desc" className="mb-1.5 block text-sm font-semibold text-card-foreground">
             Description
           </label>
           <textarea
@@ -532,79 +532,79 @@ export default function ProjectWizard() {
             onChange={(e) => update('description', e.target.value)}
             rows={2}
             placeholder="Short project description (optional)"
-            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+            className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
           />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Client name */}
           <div>
-            <label htmlFor="pw-client-name" className="mb-1.5 block text-sm font-semibold text-gray-700">
+            <label htmlFor="pw-client-name" className="mb-1.5 block text-sm font-semibold text-card-foreground">
               Client Name
             </label>
             <div className="relative">
-              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 id="pw-client-name"
                 type="text"
                 value={state.client_name}
                 onChange={(e) => update('client_name', e.target.value)}
                 placeholder="Client full name"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+                className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
           </div>
 
           {/* Client phone */}
           <div>
-            <label htmlFor="pw-phone" className="mb-1.5 block text-sm font-semibold text-gray-700">
+            <label htmlFor="pw-phone" className="mb-1.5 block text-sm font-semibold text-card-foreground">
               Client Phone
             </label>
             <div className="relative">
-              <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 id="pw-phone"
                 type="tel"
                 value={state.client_phone}
                 onChange={(e) => update('client_phone', e.target.value)}
                 placeholder="+234 800 000 0000"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+                className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
           </div>
 
           {/* Client email */}
           <div>
-            <label htmlFor="pw-email" className="mb-1.5 block text-sm font-semibold text-gray-700">
+            <label htmlFor="pw-email" className="mb-1.5 block text-sm font-semibold text-card-foreground">
               Client Email
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 id="pw-email"
                 type="email"
                 value={state.client_email}
                 onChange={(e) => update('client_email', e.target.value)}
                 placeholder="client@example.com"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+                className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
           </div>
 
           {/* Client address */}
           <div>
-            <label htmlFor="pw-address" className="mb-1.5 block text-sm font-semibold text-gray-700">
+            <label htmlFor="pw-address" className="mb-1.5 block text-sm font-semibold text-card-foreground">
               Client Address
             </label>
             <div className="relative">
-              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <MapPin className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
                 id="pw-address"
                 type="text"
                 value={state.client_address}
                 onChange={(e) => update('client_address', e.target.value)}
                 placeholder="Project site address"
-                className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+                className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
             </div>
           </div>
@@ -612,7 +612,7 @@ export default function ProjectWizard() {
 
         {/* Notes */}
         <div>
-          <label htmlFor="pw-notes" className="mb-1.5 block text-sm font-semibold text-gray-700">
+          <label htmlFor="pw-notes" className="mb-1.5 block text-sm font-semibold text-card-foreground">
             Notes
           </label>
           <textarea
@@ -621,7 +621,7 @@ export default function ProjectWizard() {
             onChange={(e) => update('notes', e.target.value)}
             rows={3}
             placeholder="Any additional notes or special instructions (optional)"
-            className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
+            className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
           />
         </div>
       </div>
@@ -636,7 +636,7 @@ export default function ProjectWizard() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:py-12">
-      <div className="rounded-2xl bg-white dark:bg-brand-navy-mid p-6 shadow-lg ring-1 ring-gray-100 sm:p-8">
+      <div className="rounded-2xl bg-card dark:bg-card p-6 shadow-lg ring-1 ring-border/50 sm:p-8">
         {stepContent}
 
         {error && (
@@ -654,8 +654,8 @@ export default function ProjectWizard() {
             className={classNames(
               'inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
               step === 0 || submitting
-                ? 'cursor-not-allowed bg-gray-100 text-gray-400'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300',
+                ? 'cursor-not-allowed bg-muted text-muted-foreground'
+                : 'bg-muted text-card-foreground hover:bg-muted',
             )}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -670,8 +670,8 @@ export default function ProjectWizard() {
               className={classNames(
                 'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors',
                 canAdvance
-                  ? 'bg-purple-700 text-white hover:bg-purple-800'
-                  : 'cursor-not-allowed bg-purple-300 text-white',
+                  ? 'bg-purple-700 text-primary-foreground hover:bg-purple-800'
+                  : 'cursor-not-allowed bg-purple-300 text-primary-foreground',
               )}
             >
               Next
@@ -685,8 +685,8 @@ export default function ProjectWizard() {
               className={classNames(
                 'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors',
                 submitting || !state.name.trim()
-                  ? 'cursor-not-allowed bg-green-400 text-white'
-                  : 'bg-green-600 text-white hover:bg-green-700',
+                  ? 'cursor-not-allowed bg-green-400 text-primary-foreground'
+                  : 'bg-green-600 text-primary-foreground hover:bg-green-700',
               )}
             >
               {submitting ? (

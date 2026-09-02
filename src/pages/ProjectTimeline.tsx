@@ -78,7 +78,7 @@ export default function ProjectTimeline() {
 
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
         {/* Inputs */}
-        <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
+        <div className="rounded-2xl border border-border bg-card shadow-card p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <Select
               label="Building type"
@@ -162,7 +162,7 @@ export default function ProjectTimeline() {
               ]}
             />
           </div>
-          <label className="mt-4 flex items-center gap-2 text-sm text-neutral-600">
+          <label className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
             <input
               type="checkbox"
               checked={hasEngineer}
@@ -173,7 +173,7 @@ export default function ProjectTimeline() {
 
           <button
             onClick={calculate}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-purple px-6 py-3 text-sm font-bold text-white hover:bg-brand-purple-dark"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90"
           >
             <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate Timeline
           </button>
@@ -206,30 +206,30 @@ export default function ProjectTimeline() {
             </div>
 
             {/* Milestones */}
-            <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
-              <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-4">
+            <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+              <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
                 <Flag className="w-5 h-5 text-brand-purple" /> Project
                 Milestones
               </h3>
               <div className="space-y-3">
                 {result.milestones.map((m, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple text-white text-sm font-bold shrink-0">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
                       {i + 1}
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-neutral-900">
+                      <p className="text-sm font-medium text-foreground">
                         {m.label}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-muted-foreground">
                         {m.description}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-neutral-900">
+                      <p className="text-sm font-medium text-foreground">
                         Day {m.after_days}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-muted-foreground">
                         ≈ {Math.ceil(m.after_days / 6)} weeks
                       </p>
                     </div>
@@ -239,8 +239,8 @@ export default function ProjectTimeline() {
             </div>
 
             {/* Stage breakdown */}
-            <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-6">
-              <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-4">
+            <div className="rounded-2xl border border-border bg-card shadow-card p-6">
+              <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
                 <Clock aria-hidden="true" className="w-5 h-5 text-brand-purple" /> Stage-by-Stage
                 Breakdown
               </h3>
@@ -248,22 +248,22 @@ export default function ProjectTimeline() {
                 {result.stages.map((s, i) => (
                   <div
                     key={i}
-                    className="border border-neutral-100 rounded-lg p-3"
+                    className="border border-border/50 rounded-lg p-3"
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded bg-brand-navy text-white text-xs font-bold">
+                        <span className="flex h-6 w-6 items-center justify-center rounded bg-background text-primary-foreground text-xs font-bold">
                           {i + 1}
                         </span>
-                        <span className="text-sm font-medium text-neutral-900">
+                        <span className="text-sm font-medium text-foreground">
                           {s.stage_label}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-neutral-500">
+                        <span className="text-xs text-muted-foreground">
                           {s.min_days}-{s.max_days} days
                         </span>
-                        <span className="rounded bg-brand-purple/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
+                        <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-brand-purple">
                           {s.estimated_days} days
                         </span>
                       </div>
@@ -275,7 +275,7 @@ export default function ProjectTimeline() {
                       {s.activities.map((a, j) => (
                         <span
                           key={j}
-                          className="text-xs text-neutral-500 bg-neutral-50 rounded px-2 py-0.5"
+                          className="text-xs text-muted-foreground bg-muted/50 rounded px-2 py-0.5"
                         >
                           {a}
                         </span>
@@ -321,13 +321,13 @@ export default function ProjectTimeline() {
             </div>
 
             {/* Assumptions */}
-            <div className="rounded-xl bg-neutral-50 border border-neutral-200 p-4">
-              <p className="text-xs font-medium text-neutral-500 mb-2">
+            <div className="rounded-xl bg-muted/50 border border-border p-4">
+              <p className="text-xs font-medium text-muted-foreground mb-2">
                 Assumptions:
               </p>
               <div className="space-y-1">
                 {result.assumptions.map((a, i) => (
-                  <p key={i} className="text-xs text-neutral-500">
+                  <p key={i} className="text-xs text-muted-foreground">
                     • {a}
                   </p>
                 ))}
@@ -353,13 +353,13 @@ function Select({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+        className="w-full rounded-lg border border-border px-2.5 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       >
         {options.map((o) => (
           <option key={o.v} value={o.v}>
@@ -384,7 +384,7 @@ function Num({
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-neutral-500 mb-1 block">
+      <label className="text-xs font-medium text-muted-foreground mb-1 block">
         {label}
       </label>
       <input
@@ -392,7 +392,7 @@ function Num({
         value={value}
         step={step}
         onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
-        className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none"
+        className="w-full rounded-lg border border-border px-2.5 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none"
       />
     </div>
   );
@@ -408,11 +408,11 @@ function SummaryCard({
   unit: string;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 p-5 dark:border-brand-purple/30">
-      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-purple/10 blur-2xl" />
-      <p className="relative text-xs font-medium text-neutral-500 mb-1.5">{label}</p>
-      <p className="relative text-xl font-bold text-brand-navy dark:text-white">
-        {value} {unit && <span className="text-sm font-normal text-neutral-400">{unit}</span>}
+    <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5 dark:border-brand-purple/30">
+      <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
+      <p className="relative text-xs font-medium text-muted-foreground mb-1.5">{label}</p>
+      <p className="relative text-xl font-bold text-foreground dark:text-primary-foreground">
+        {value} {unit && <span className="text-sm font-normal text-muted-foreground">{unit}</span>}
       </p>
     </div>
   );

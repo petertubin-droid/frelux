@@ -12,8 +12,8 @@ interface LogoProps {
 export default function Logo({ className, variant = 'full', light = false }: LogoProps) {
   const { branding } = useBranding();
   const { theme } = useTheme();
-  const brandText = light || theme === 'dark' ? 'text-white dark:text-white' : 'text-brand-navy';
-  const subText = light || theme === 'dark' ? 'text-white/70 dark:text-white/70' : 'text-neutral-500 dark:text-neutral-500';
+  const brandText = light || theme === 'dark' ? 'text-primary-foreground dark:text-primary-foreground' : 'text-foreground';
+  const subText = light || theme === 'dark' ? 'text-primary-foreground/70 dark:text-primary-foreground/70' : 'text-muted-foreground dark:text-muted-foreground';
 
   const logoUrl = theme === 'dark' ? branding?.dark_logo_url : branding?.light_logo_url;
   const displayName = branding?.website_name ?? siteConfig.name;

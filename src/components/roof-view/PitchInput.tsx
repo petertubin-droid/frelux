@@ -99,8 +99,8 @@ export function PitchInput({
   // Flat roofs don't need pitch
   if (roofType === "flat") {
     return (
-      <div className="rounded-lg bg-neutral-50 border border-neutral-200 px-3 py-2.5">
-        <div className="flex items-center gap-2 text-xs text-neutral-500">
+      <div className="rounded-lg bg-muted/50 border border-border px-3 py-2.5">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CheckCircle2 aria-hidden="true" className="w-3.5 h-3.5 text-green-500" />
           <span>Flat roof — no pitch required for {sectionName}</span>
         </div>
@@ -114,7 +114,7 @@ export function PitchInput({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-medium text-neutral-600">
+        <label className="text-xs font-medium text-muted-foreground">
           Roof Pitch — {sectionName}
         </label>
         <div className="flex items-center gap-1">
@@ -129,8 +129,8 @@ export function PitchInput({
               disabled={disabled}
               className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
                 inputMode === mode
-                  ? "bg-neutral-900 text-white"
-                  : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                  ? "bg-background text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
               {mode === "degrees"
@@ -158,11 +158,11 @@ export function PitchInput({
             min={0}
             max={89}
             step={0.1}
-            className="w-24 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm"
+            className="w-24 rounded-lg border border-border px-3 py-1.5 text-sm"
           />
-          <span className="text-sm text-neutral-500">degrees</span>
+          <span className="text-sm text-muted-foreground">degrees</span>
           {nearestRatio && (
-            <span className="text-xs text-neutral-500">≈ {nearestRatio}</span>
+            <span className="text-xs text-muted-foreground">≈ {nearestRatio}</span>
           )}
         </div>
       )}
@@ -176,7 +176,7 @@ export function PitchInput({
             onChange(degrees);
           }}
           disabled={disabled}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-1.5 text-sm"
+          className="w-full rounded-lg border border-border px-3 py-1.5 text-sm"
         >
           <option value="">Select a pitch ratio...</option>
           {PITCH_RATIOS.map((r) => (
@@ -226,7 +226,7 @@ export function PitchInput({
               type="button"
               onClick={() => setInputMode("degrees")}
               disabled={disabled}
-              className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90"
+              className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
             >
               Enter Pitch
             </button>
@@ -234,7 +234,7 @@ export function PitchInput({
               type="button"
               onClick={() => setInputMode("ratio")}
               disabled={disabled}
-              className="rounded-lg border border-neutral-300 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50"
+              className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
             >
               Select Ratio
             </button>
@@ -244,7 +244,7 @@ export function PitchInput({
 
       {/* Info: what this pitch means for surface area */}
       {hasPitch && (
-        <div className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <HelpCircle aria-hidden="true" className="w-3 h-3" />
           Surface area = plan area ÷ cos({pitchDegrees!.toFixed(1)}°)
           {aiEstimated && (

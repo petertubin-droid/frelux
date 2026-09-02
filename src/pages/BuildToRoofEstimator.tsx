@@ -149,7 +149,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-xs sm:text-sm font-medium text-neutral-600 mb-1.5 block">
+      <label className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 block">
         {label}
       </label>
       <div className="relative">
@@ -159,10 +159,10 @@ function Field({
           step={step}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 sm:py-3 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-neutral-300"
+          className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 sm:py-3 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-border"
         />
         {unit && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-500 pointer-events-none font-medium">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none font-medium">
             {unit}
           </span>
         )}
@@ -184,13 +184,13 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="text-xs sm:text-sm font-medium text-neutral-600 mb-1.5 block">
+      <label className="text-xs sm:text-sm font-medium text-muted-foreground mb-1.5 block">
         {label}
       </label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 sm:py-3 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-neutral-300 cursor-pointer"
+        className="w-full rounded-xl border border-border bg-card px-3.5 py-2.5 sm:py-3 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all duration-200 hover:border-border cursor-pointer"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -215,13 +215,13 @@ function SectionCard({
 }) {
   return (
     <div
-      className={`rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 transition-shadow duration-300 hover:shadow-card-hover ${className}`}
+      className={`rounded-2xl border border-border bg-card shadow-card p-4 sm:p-6 transition-shadow duration-300 hover:shadow-card-hover ${className}`}
     >
       <div className="flex items-center gap-2.5 mb-4 sm:mb-5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/15 to-brand-purple/5 ring-1 ring-brand-purple/10">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-brand-purple/10">
           <Icon className="w-4.5 h-4.5 text-brand-purple" />
         </div>
-        <h3 className="font-semibold text-neutral-900 text-base sm:text-lg">
+        <h3 className="font-semibold text-foreground text-base sm:text-lg">
           {title}
         </h3>
       </div>
@@ -268,7 +268,7 @@ function RotatingText({
             }}
           >
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-accent-green shrink-0 animate-pulse" />
-            <span className="text-xs sm:text-sm font-medium text-white/80 whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-medium text-primary-foreground/80 whitespace-nowrap">
               {msg}
             </span>
           </div>
@@ -409,9 +409,9 @@ export default function BuildToRoofEstimator() {
 
   return (
     <SubscriptionGate feature="build_to_roof_estimator">
-      <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-neutral-100/50">
+      <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
         {/* Premium Header with mesh gradient */}
-        <div className="relative overflow-hidden bg-brand-navy text-white">
+        <div className="relative overflow-hidden bg-background text-primary-foreground">
           {/* Animated mesh background */}
           <div
             className="absolute inset-0 animate-mesh-float"
@@ -431,7 +431,7 @@ export default function BuildToRoofEstimator() {
 
           <div className="relative max-w-6xl mx-auto px-4 py-10 sm:py-14">
             <div className="flex items-center gap-3 sm:gap-4 mb-2">
-              <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/30 to-brand-purple/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
+              <div className="flex h-11 w-11 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/30 to-primary/10 ring-1 ring-brand-purple/30 backdrop-blur-sm">
                 <Building2
                   aria-hidden="true"
                   className="w-6 h-6 sm:w-8 sm:h-8 text-accent-green"
@@ -457,7 +457,7 @@ export default function BuildToRoofEstimator() {
             {/* Feature badges row */}
             <div className="mt-5 flex flex-wrap items-center gap-2 sm:gap-2.5">
               <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
                 style={{ animationDelay: "0.1s" }}
               >
                 <ShieldCheck className="w-3.5 h-3.5 text-accent-green" />
@@ -465,7 +465,7 @@ export default function BuildToRoofEstimator() {
                 <span className="sm:hidden">F→R</span>
               </span>
               <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
                 style={{ animationDelay: "0.2s" }}
               >
                 <BadgeCheck className="w-3.5 h-3.5 text-accent-green" />
@@ -473,7 +473,7 @@ export default function BuildToRoofEstimator() {
                 <span className="sm:hidden">Pricing</span>
               </span>
               <span
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white/80 backdrop-blur-md animate-badge-pop-in"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 sm:px-3 py-1.5 text-[11px] sm:text-xs font-medium text-primary-foreground/80 backdrop-blur-md animate-badge-pop-in"
                 style={{ animationDelay: "0.3s" }}
               >
                 <Gem className="w-3.5 h-3.5 text-brand-purple-light" />
@@ -499,7 +499,7 @@ export default function BuildToRoofEstimator() {
         </div>
 
         {/* Premium sticky progress bar */}
-        <div className="sticky top-0 z-30 border-b border-neutral-200 bg-white/90 backdrop-blur-lg shadow-sm">
+        <div className="sticky top-0 z-30 border-b border-border bg-white/90 backdrop-blur-lg shadow-sm">
           <div className="max-w-6xl mx-auto px-3 sm:px-4">
             <div className="flex items-center gap-1 overflow-x-auto py-2.5 sm:py-3 scrollbar-hide snap-x">
               {STEPS.map((s, i) => {
@@ -512,10 +512,10 @@ export default function BuildToRoofEstimator() {
                     onClick={() => i <= step && setStep(i)}
                     className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 snap-start ${
                       isActive
-                        ? "bg-gradient-to-r from-brand-purple to-brand-purple-light text-white shadow-md shadow-brand-purple/20 scale-105"
+                        ? "bg-gradient-to-r from-primary to-primary-light text-primary-foreground shadow-md shadow-brand-purple/20 scale-105"
                         : isDone
-                          ? "bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/15"
-                          : "text-neutral-500 hover:bg-neutral-50"
+                          ? "bg-primary/10 text-brand-purple hover:bg-primary/15"
+                          : "text-muted-foreground hover:bg-muted/50"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -526,9 +526,9 @@ export default function BuildToRoofEstimator() {
               })}
             </div>
             {/* Progress line with glow */}
-            <div className="h-1 w-full bg-neutral-100 rounded-full overflow-hidden">
+            <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-brand-purple to-accent-green transition-all duration-500 ease-out animate-progress-glow rounded-full"
+                className="h-full bg-gradient-to-r from-primary to-accent-green transition-all duration-500 ease-out animate-progress-glow rounded-full"
                 style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
               />
             </div>
@@ -592,10 +592,10 @@ export default function BuildToRoofEstimator() {
                 {step === 1 && (
                   <SectionCard title="Building Dimensions" icon={Ruler}>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-sm font-medium text-neutral-600">
+                      <span className="text-sm font-medium text-muted-foreground">
                         Measurement unit:
                       </span>
-                      <div className="inline-flex rounded-lg border border-neutral-200 overflow-hidden">
+                      <div className="inline-flex rounded-lg border border-border overflow-hidden">
                         <button
                           onClick={() => {
                             if (input.measurement_unit === "ft") {
@@ -630,7 +630,7 @@ export default function BuildToRoofEstimator() {
                               }));
                             }
                           }}
-                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-brand-purple text-white" : "text-neutral-500 hover:bg-neutral-50"}`}
+                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                         >
                           Meters (m)
                         </button>
@@ -668,7 +668,7 @@ export default function BuildToRoofEstimator() {
                               }));
                             }
                           }}
-                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-brand-purple text-white" : "text-neutral-500 hover:bg-neutral-50"}`}
+                          className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                         >
                           Feet (ft)
                         </button>
@@ -747,7 +747,7 @@ export default function BuildToRoofEstimator() {
                 {/* Step 2: Openings */}
                 {step === 2 && (
                   <SectionCard title="Door & Window Openings" icon={FolderOpen}>
-                    <p className="text-sm text-neutral-500 mb-4">
+                    <p className="text-sm text-muted-foreground mb-4">
                       Openings are used only as wall deductions. Door/window
                       purchase and installation costs are NOT included in the
                       Build-to-Roof total.
@@ -756,10 +756,10 @@ export default function BuildToRoofEstimator() {
                       {input.openings.map((opening, i) => (
                         <div
                           key={i}
-                          className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-neutral-50 border border-neutral-100"
+                          className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
                         >
                           <div>
-                            <label className="text-xs font-medium text-neutral-500 mb-1 block">
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">
                               Type
                             </label>
                             <select
@@ -772,7 +772,7 @@ export default function BuildToRoofEstimator() {
                                 };
                                 update("openings", openings);
                               }}
-                              className="w-full rounded-lg border border-neutral-200 px-2.5 py-2 text-sm"
+                              className="w-full rounded-lg border border-border px-2.5 py-2 text-sm"
                             >
                               <option value="door">Door</option>
                               <option value="window">Window</option>
@@ -1005,7 +1005,7 @@ export default function BuildToRoofEstimator() {
                           }
                         />
                       </div>
-                      <p className="mt-2 text-xs text-neutral-500">
+                      <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.concrete_mix_cement}:
                         {input.concrete_mix_sand}:{input.concrete_mix_granite}
                       </p>
@@ -1027,7 +1027,7 @@ export default function BuildToRoofEstimator() {
                           }
                         />
                       </div>
-                      <p className="mt-2 text-xs text-neutral-500">
+                      <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.mortar_mix_cement}:
                         {input.mortar_mix_sand}
                       </p>
@@ -1136,7 +1136,7 @@ export default function BuildToRoofEstimator() {
                     </div>
                     {/* Roof Geometry Editor — editable tracing (Feature 3) */}
                     <div className="mb-4">
-                      <p className="text-xs font-semibold text-neutral-600 mb-2">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2">
                         Roof Geometry (trace your roof outline)
                       </p>
                       <RoofGeometryEditor
@@ -1213,9 +1213,9 @@ export default function BuildToRoofEstimator() {
                           onChange={(e) =>
                             update("has_engineer_schedule", e.target.checked)
                           }
-                          className="w-4 h-4 rounded border-neutral-300 text-brand-purple focus:ring-brand-purple/20"
+                          className="w-4 h-4 rounded border-border text-brand-purple focus:ring-brand-purple/20"
                         />
-                        <span className="text-sm font-medium text-neutral-700">
+                        <span className="text-sm font-medium text-card-foreground">
                           I have an engineer-supplied structural schedule
                         </span>
                       </label>
@@ -1224,10 +1224,10 @@ export default function BuildToRoofEstimator() {
                           {input.structural_members.map((member, i) => (
                             <div
                               key={i}
-                              className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-neutral-50 border border-neutral-100"
+                              className="grid grid-cols-2 md:grid-cols-6 gap-2 sm:gap-3 items-end p-3 rounded-xl bg-muted/50 border border-border/50"
                             >
                               <div>
-                                <label className="text-xs font-medium text-neutral-500 mb-1 block">
+                                <label className="text-xs font-medium text-muted-foreground mb-1 block">
                                   Type
                                 </label>
                                 <select
@@ -1243,7 +1243,7 @@ export default function BuildToRoofEstimator() {
                                     };
                                     update("structural_members", members);
                                   }}
-                                  className="w-full rounded-lg border border-neutral-200 px-2 py-1.5 text-xs"
+                                  className="w-full rounded-lg border border-border px-2 py-1.5 text-xs"
                                 >
                                   <option value="column">Column</option>
                                   <option value="ground_beam">
@@ -1356,8 +1356,8 @@ export default function BuildToRoofEstimator() {
                         </div>
                       )}
                       {!input.has_engineer_schedule && (
-                        <div className="rounded-lg bg-neutral-50 border border-neutral-100 p-4">
-                          <p className="text-sm text-neutral-500">
+                        <div className="rounded-lg bg-muted/50 border border-border/50 p-4">
+                          <p className="text-sm text-muted-foreground">
                             No engineer's schedule provided. Structural concrete
                             quantities will not be calculated. The estimate will
                             be labeled as{" "}
@@ -1455,7 +1455,7 @@ export default function BuildToRoofEstimator() {
                           }
                         />
                         <div className="col-span-2">
-                          <p className="text-xs text-neutral-500 mb-1">
+                          <p className="text-xs text-muted-foreground mb-1">
                             Rebar prices (per 12m standard length):
                           </p>
                         </div>
@@ -1622,7 +1622,7 @@ export default function BuildToRoofEstimator() {
                           }
                         />
                       </div>
-                      <div className="mt-4 flex items-center gap-2 text-xs text-neutral-500">
+                      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                         <Info aria-hidden="true" className="w-3.5 h-3.5" />
                         <span>
                           Prices are user-configurable and not permanently
@@ -1914,13 +1914,13 @@ export default function BuildToRoofEstimator() {
                           }
                         />
                         <div></div>
-                        <div className="md:col-span-3 border-t border-neutral-100 pt-4 mt-2">
-                          <p className="text-sm font-medium text-neutral-700 mb-3">
+                        <div className="md:col-span-3 border-t border-border/50 pt-4 mt-2">
+                          <p className="text-sm font-medium text-card-foreground mb-3">
                             Contractor Payment
                           </p>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <div>
-                              <label className="text-sm font-medium text-neutral-600 mb-1 block">
+                              <label className="text-sm font-medium text-muted-foreground mb-1 block">
                                 Payment type
                               </label>
                               <select
@@ -1932,7 +1932,7 @@ export default function BuildToRoofEstimator() {
                                       "daily" | "contract",
                                   })
                                 }
-                                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2.5 text-sm text-neutral-900 focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
+                                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-purple focus:outline-none focus:ring-2 focus:ring-brand-purple/20 transition-all"
                               >
                                 <option value="contract">
                                   Lump sum (contract)
@@ -1981,8 +1981,8 @@ export default function BuildToRoofEstimator() {
                           </div>
                         </div>
                       </div>
-                      <div className="mt-4 rounded-lg bg-neutral-50 border border-neutral-100 p-3">
-                        <p className="text-xs text-neutral-500">
+                      <div className="mt-4 rounded-lg bg-muted/50 border border-border/50 p-3">
+                        <p className="text-xs text-muted-foreground">
                           Role-based total: ₦
                           {(
                             input.labour.bricklayer_per_day *
@@ -2012,12 +2012,12 @@ export default function BuildToRoofEstimator() {
                     title="Upload Architectural Drawing (Optional)"
                     icon={Upload}
                   >
-                    <div className="border-2 border-dashed border-neutral-300 rounded-xl p-6 sm:p-8 text-center">
-                      <FileText className="w-12 h-12 text-neutral-300 mx-auto mb-3" />
-                      <p className="text-sm text-neutral-600 mb-2">
+                    <div className="border-2 border-dashed border-border rounded-xl p-6 sm:p-8 text-center">
+                      <FileText className="w-12 h-12 text-muted-foreground/80 mx-auto mb-3" />
+                      <p className="text-sm text-muted-foreground mb-2">
                         Upload floor plans, elevations, sections, or roof plans
                       </p>
-                      <p className="text-xs text-neutral-500 mb-4">
+                      <p className="text-xs text-muted-foreground mb-4">
                         PDF, JPG, PNG supported
                       </p>
                       <input
@@ -2052,7 +2052,7 @@ export default function BuildToRoofEstimator() {
                       />
                       <label
                         htmlFor="drawing-upload"
-                        className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-medium text-white cursor-pointer hover:bg-brand-purple-dark transition-colors"
+                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors"
                       >
                         <Upload className="w-4 h-4" />
                         Choose File
@@ -2078,16 +2078,16 @@ export default function BuildToRoofEstimator() {
                 )}
               </div>
               {/* Navigation */}
-              <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-neutral-100">
+              <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
                 <button
                   onClick={prev}
                   disabled={step === 0}
-                  className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-100 transition-colors active:scale-95"
+                  className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors active:scale-95"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Back</span>
                 </button>
-                <span className="text-xs text-neutral-500 font-medium">
+                <span className="text-xs text-muted-foreground font-medium">
                   <span className="hidden sm:inline">Step </span>
                   {step + 1}{" "}
                   <span className="hidden sm:inline">
@@ -2099,7 +2099,7 @@ export default function BuildToRoofEstimator() {
                   <button
                     onClick={next}
                     disabled={!canProceed}
-                    className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-brand-purple to-brand-purple-light px-4 sm:px-5 py-2.5 text-sm font-medium text-white shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
+                    className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 sm:px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
                   >
                     <span className="hidden sm:inline">Next</span>
                     <ChevronRight className="w-4 h-4" />
@@ -2107,7 +2107,7 @@ export default function BuildToRoofEstimator() {
                 ) : step === STEPS.length - 2 ? (
                   <button
                     onClick={calculate}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-white shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
+                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
                   >
                     <Calculator aria-hidden="true" className="w-4 h-4" />
                     <span className="hidden sm:inline">Generate Estimate</span>
@@ -2175,13 +2175,13 @@ function EstimateResult({
   return (
     <div className="space-y-4 sm:space-y-6 animate-step-slide-in">
       {/* Project Summary */}
-      <div className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal">
+      <div className="rounded-2xl border border-border bg-card shadow-card p-4 sm:p-6 animate-card-reveal">
         <div className="flex items-start justify-between flex-wrap gap-3 sm:gap-4">
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg sm:text-xl font-bold text-neutral-900 truncate">
+            <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">
               {result.project_name}
             </h2>
-            <p className="text-sm text-neutral-500 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {result.location} · {result.total_floor_area} m² total floor area
             </p>
           </div>
@@ -2195,18 +2195,18 @@ function EstimateResult({
                 : "Preliminary Estimate"}
           </div>
         </div>
-        <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 text-xs text-neutral-600">
+        <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
           <ArrowRight className="w-3.5 h-3.5 text-accent-green" />
           {result.construction_stage}
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           {result.confidence_reason}
         </p>
       </div>
 
       {/* Grand Total */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-neutral-200 bg-brand-navy p-4 sm:p-6 text-white animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
+        <div className="rounded-2xl border border-border bg-background p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -2215,7 +2215,7 @@ function EstimateResult({
             }}
           />
           <div className="relative">
-            <p className="text-xs text-white/60 mb-1">
+            <p className="text-xs text-primary-foreground/60 mb-1">
               Estimated Build-to-Roof Cost
             </p>
             <p className="text-xl sm:text-2xl font-bold">
@@ -2224,32 +2224,32 @@ function EstimateResult({
           </div>
         </div>
         <div
-          className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in"
+          className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in"
           style={{ animationDelay: "0.1s" }}
         >
-          <p className="text-xs text-neutral-500 mb-1">Materials</p>
-          <p className="text-lg sm:text-xl font-bold text-neutral-900">
+          <p className="text-xs text-muted-foreground mb-1">Materials</p>
+          <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.materials_total)}
           </p>
         </div>
         <div
-          className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in"
+          className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in"
           style={{ animationDelay: "0.2s" }}
         >
-          <p className="text-xs text-neutral-500 mb-1">Labour</p>
-          <p className="text-lg sm:text-xl font-bold text-neutral-900">
+          <p className="text-xs text-muted-foreground mb-1">Labour</p>
+          <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.labour_total)}
           </p>
         </div>
         <div
-          className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6 shadow-card animate-stat-count-in col-span-2 md:col-span-1"
+          className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-card animate-stat-count-in col-span-2 md:col-span-1"
           style={{ animationDelay: "0.3s" }}
         >
-          <p className="text-xs text-neutral-500 mb-1">Contingency</p>
-          <p className="text-lg sm:text-xl font-bold text-neutral-900">
+          <p className="text-xs text-muted-foreground mb-1">Contingency</p>
+          <p className="text-lg sm:text-xl font-bold text-foreground">
             {formatCurrency(result.contingency)}
           </p>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs text-muted-foreground mt-1">
             Wastage: {formatCurrency(result.wastage_allowance)}
           </p>
         </div>
@@ -2257,34 +2257,34 @@ function EstimateResult({
 
       {/* Premium Cost Breakdown Table */}
       <div
-        className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden animate-card-reveal"
+        className="rounded-2xl border border-border bg-card shadow-card overflow-hidden animate-card-reveal"
         style={{ animationDelay: "0.4s" }}
       >
         <div className="flex items-center justify-between p-6 pb-3">
-          <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <DollarSign className="w-4 h-4 text-brand-purple" />
             </div>
             Cost Breakdown by Stage
           </h3>
-          <span className="text-xs font-medium text-neutral-500">
+          <span className="text-xs font-medium text-muted-foreground">
             {result.stages.length} stages
           </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-y border-neutral-100 bg-neutral-50 text-left">
-                <th className="px-6 py-3 font-medium text-neutral-500">
+              <tr className="border-y border-border/50 bg-muted/50 text-left">
+                <th className="px-6 py-3 font-medium text-muted-foreground">
                   Stage
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Materials
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Labour
                 </th>
-                <th className="px-4 sm:px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-4 sm:px-6 py-3 font-medium text-muted-foreground text-right">
                   Total
                 </th>
               </tr>
@@ -2293,30 +2293,30 @@ function EstimateResult({
               {result.stages.map((stage, i) => (
                 <tr
                   key={i}
-                  className="border-b border-neutral-50 hover:bg-neutral-50/50 transition-colors"
+                  className="border-b border-border/50 hover:bg-muted/50 transition-colors"
                 >
-                  <td className="px-4 sm:px-6 py-3 font-medium text-neutral-900">
+                  <td className="px-4 sm:px-6 py-3 font-medium text-foreground">
                     {stage.stage_label}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">
+                  <td className="px-4 sm:px-6 py-3 text-right text-muted-foreground">
                     {formatCurrency(stage.materials_total)}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">
+                  <td className="px-4 sm:px-6 py-3 text-right text-muted-foreground">
                     {formatCurrency(stage.labour_total)}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">
+                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-foreground">
                     {formatCurrency(stage.stage_total)}
                   </td>
                 </tr>
               ))}
-              <tr className="border-t-2 border-neutral-200 bg-neutral-50">
-                <td className="px-4 sm:px-6 py-3 font-bold text-neutral-900">
+              <tr className="border-t-2 border-border bg-muted/50">
+                <td className="px-4 sm:px-6 py-3 font-bold text-foreground">
                   TOTAL
                 </td>
-                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">
+                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-foreground">
                   {formatCurrency(result.materials_total)}
                 </td>
-                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">
+                <td className="px-4 sm:px-6 py-3 text-right font-semibold text-foreground">
                   {formatCurrency(result.labour_total)}
                 </td>
                 <td className="px-6 py-3 text-right font-bold text-brand-purple">
@@ -2330,51 +2330,51 @@ function EstimateResult({
 
       {/* Premium Shopping List */}
       <div
-        className="rounded-2xl border border-neutral-200 bg-white shadow-card overflow-hidden animate-card-reveal"
+        className="rounded-2xl border border-border bg-card shadow-card overflow-hidden animate-card-reveal"
         style={{ animationDelay: "0.5s" }}
       >
         <div className="flex items-center justify-between p-4 sm:p-6 pb-3">
-          <h3 className="font-semibold text-neutral-900 flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
               <Package className="w-4 h-4 text-brand-purple" />
             </div>
             Consolidated Material Shopping List
           </h3>
-          <span className="text-xs font-medium text-neutral-500">
+          <span className="text-xs font-medium text-muted-foreground">
             {result.shopping_list.length} items
           </span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-y border-neutral-100 bg-neutral-50 text-left">
-                <th className="px-4 sm:px-6 py-3 font-medium text-neutral-500">
+              <tr className="border-y border-border/50 bg-muted/50 text-left">
+                <th className="px-4 sm:px-6 py-3 font-medium text-muted-foreground">
                   Material
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Quantity
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Unit
                 </th>
-                <th className="px-6 py-3 font-medium text-neutral-500 text-right">
+                <th className="px-6 py-3 font-medium text-muted-foreground text-right">
                   Est. Cost
                 </th>
               </tr>
             </thead>
             <tbody>
               {result.shopping_list.map((item, i) => (
-                <tr key={i} className="border-b border-neutral-50">
-                  <td className="px-4 sm:px-6 py-3 font-medium text-neutral-900">
+                <tr key={i} className="border-b border-border/50">
+                  <td className="px-4 sm:px-6 py-3 font-medium text-foreground">
                     {item.label}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-600">
+                  <td className="px-4 sm:px-6 py-3 text-right text-muted-foreground">
                     {formatNumber(item.total_quantity)}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right text-neutral-500">
+                  <td className="px-4 sm:px-6 py-3 text-right text-muted-foreground">
                     {item.unit}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-neutral-900">
+                  <td className="px-4 sm:px-6 py-3 text-right font-semibold text-foreground">
                     {formatCurrency(item.total_cost)}
                   </td>
                 </tr>
@@ -2388,74 +2388,74 @@ function EstimateResult({
       {result.reinforcement_breakdown &&
         result.reinforcement_breakdown.items.length > 0 && (
           <div
-            className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal"
+            className="rounded-2xl border border-border bg-card shadow-card p-4 sm:p-6 animate-card-reveal"
             style={{ animationDelay: "0.6s" }}
           >
             <div className="flex items-center gap-2.5 mb-1">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <TrendingUp className="w-4 h-4 text-brand-purple" />
               </div>
-              <h3 className="text-lg font-semibold text-neutral-900">
+              <h3 className="text-lg font-semibold text-foreground">
                 Reinforcement Breakdown
               </h3>
             </div>
-            <p className="text-sm text-neutral-500 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Steel rods split by diameter — priced per 12m standard length
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b border-neutral-200">
+                <thead className="border-b border-border">
                   <tr>
-                    <th className="px-4 py-2 text-left font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-left font-medium text-muted-foreground">
                       Bar Type
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Diameter
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Total Length
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Std Lengths (12m)
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Weight
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Unit Price
                     </th>
-                    <th className="px-4 py-2 text-right font-medium text-neutral-500">
+                    <th className="px-4 py-2 text-right font-medium text-muted-foreground">
                       Cost
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-100">
+                <tbody className="divide-y divide-border/50">
                   {result.reinforcement_breakdown.items.map((item, i) => (
-                    <tr key={i} className="hover:bg-neutral-50">
-                      <td className="px-4 py-3 font-medium text-neutral-900">
+                    <tr key={i} className="hover:bg-muted/50">
+                      <td className="px-4 py-3 font-medium text-foreground">
                         {item.label}
                       </td>
-                      <td className="px-4 py-3 text-right text-neutral-600">
+                      <td className="px-4 py-3 text-right text-muted-foreground">
                         {item.diameter_mm}mm
                       </td>
-                      <td className="px-4 py-3 text-right text-neutral-600">
+                      <td className="px-4 py-3 text-right text-muted-foreground">
                         {item.total_length_m.toFixed(1)} m
                       </td>
-                      <td className="px-4 py-3 text-right font-medium text-neutral-900">
+                      <td className="px-4 py-3 text-right font-medium text-foreground">
                         {item.standard_lengths} lengths
                       </td>
-                      <td className="px-4 py-3 text-right text-neutral-600">
+                      <td className="px-4 py-3 text-right text-muted-foreground">
                         {item.weight_tonnes.toFixed(3)} t
                       </td>
-                      <td className="px-4 py-3 text-right text-neutral-600">
+                      <td className="px-4 py-3 text-right text-muted-foreground">
                         ₦{item.unit_price.toLocaleString()}
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold text-neutral-900">
+                      <td className="px-4 py-3 text-right font-semibold text-foreground">
                         ₦{item.total_cost.toLocaleString()}
                       </td>
                     </tr>
                   ))}
-                  <tr className="bg-neutral-50 font-semibold">
+                  <tr className="bg-muted/50 font-semibold">
                     <td className="px-4 py-3" colSpan={3}>
                       Total Steel
                     </td>
@@ -2477,7 +2477,7 @@ function EstimateResult({
                 </tbody>
               </table>
             </div>
-            <p className="mt-3 text-xs text-neutral-500">
+            <p className="mt-3 text-xs text-muted-foreground">
               Binding wire:{" "}
               {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (₦
               {result.reinforcement_breakdown.binding_wire_cost.toLocaleString()}
@@ -2490,35 +2490,35 @@ function EstimateResult({
       {result.stages.map((stage, i) => (
         <details
           key={i}
-          className="rounded-2xl border border-neutral-200 bg-white shadow-card"
+          className="rounded-2xl border border-border bg-card shadow-card"
         >
           <summary className="cursor-pointer p-4 sm:p-6 flex items-center justify-between">
-            <span className="font-semibold text-neutral-900 flex items-center gap-2">
+            <span className="font-semibold text-foreground flex items-center gap-2">
               <Layers className="w-5 h-5 text-brand-purple" />
               {stage.stage_label} — Detailed Quantities
             </span>
-            <span className="text-sm text-neutral-500">
+            <span className="text-sm text-muted-foreground">
               {formatCurrency(stage.stage_total)}
             </span>
           </summary>
           <div className="px-6 pb-6 space-y-4">
             {/* Quantities */}
             <div>
-              <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">
+              <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                 Quantity Takeoff
               </h4>
               <div className="space-y-2">
                 {stage.quantities.map((q, j) => (
-                  <div key={j} className="rounded-lg bg-neutral-50 p-3">
+                  <div key={j} className="rounded-lg bg-muted/50 p-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-neutral-700">
+                      <span className="text-sm font-medium text-card-foreground">
                         {q.label}
                       </span>
-                      <span className="text-sm font-semibold text-neutral-900">
+                      <span className="text-sm font-semibold text-foreground">
                         {formatNumber(q.base_quantity)} {q.unit}
                       </span>
                     </div>
-                    <p className="text-xs text-neutral-500">{q.formula}</p>
+                    <p className="text-xs text-muted-foreground">{q.formula}</p>
                     {q.wastage_percent > 0 && (
                       <p className="text-xs text-amber-600 mt-1">
                         +{q.wastage_percent}% wastage →{" "}
@@ -2532,37 +2532,37 @@ function EstimateResult({
             {/* Materials */}
             {stage.materials.length > 0 && (
               <div>
-                <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                   Materials
                 </h4>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-100 text-left">
-                      <th className="py-2 font-medium text-neutral-500">
+                    <tr className="border-b border-border/50 text-left">
+                      <th className="py-2 font-medium text-muted-foreground">
                         Item
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Qty
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Unit
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Cost
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {stage.materials.map((m, j) => (
-                      <tr key={j} className="border-b border-neutral-50">
-                        <td className="py-2 text-neutral-700">{m.label}</td>
-                        <td className="py-2 text-right text-neutral-600">
+                      <tr key={j} className="border-b border-border/50">
+                        <td className="py-2 text-card-foreground">{m.label}</td>
+                        <td className="py-2 text-right text-muted-foreground">
                           {formatNumber(m.final_quantity)}
                         </td>
-                        <td className="py-2 text-right text-neutral-500">
+                        <td className="py-2 text-right text-muted-foreground">
                           {m.unit}
                         </td>
-                        <td className="py-2 text-right font-medium text-neutral-900">
+                        <td className="py-2 text-right font-medium text-foreground">
                           {formatCurrency(m.total_cost)}
                         </td>
                       </tr>
@@ -2574,37 +2574,37 @@ function EstimateResult({
             {/* Labour */}
             {stage.labour.length > 0 && (
               <div>
-                <h4 className="text-xs font-medium text-neutral-500 uppercase mb-2">
+                <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                   Labour
                 </h4>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-100 text-left">
-                      <th className="py-2 font-medium text-neutral-500">
+                    <tr className="border-b border-border/50 text-left">
+                      <th className="py-2 font-medium text-muted-foreground">
                         Task
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Qty
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Rate
                       </th>
-                      <th className="py-2 font-medium text-neutral-500 text-right">
+                      <th className="py-2 font-medium text-muted-foreground text-right">
                         Cost
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {stage.labour.map((l, j) => (
-                      <tr key={j} className="border-b border-neutral-50">
-                        <td className="py-2 text-neutral-700">{l.label}</td>
-                        <td className="py-2 text-right text-neutral-600">
+                      <tr key={j} className="border-b border-border/50">
+                        <td className="py-2 text-card-foreground">{l.label}</td>
+                        <td className="py-2 text-right text-muted-foreground">
                           {formatNumber(l.quantity)}
                         </td>
-                        <td className="py-2 text-right text-neutral-600">
+                        <td className="py-2 text-right text-muted-foreground">
                           {formatCurrency(l.rate)}
                         </td>
-                        <td className="py-2 text-right font-medium text-neutral-900">
+                        <td className="py-2 text-right font-medium text-foreground">
                           {formatCurrency(l.total_cost)}
                         </td>
                       </tr>
@@ -2620,10 +2620,10 @@ function EstimateResult({
       {/* Premium Assumptions & Limitations */}
       <div className="grid md:grid-cols-2 gap-4">
         <div
-          className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal"
+          className="rounded-2xl border border-border bg-card shadow-card p-4 sm:p-6 animate-card-reveal"
           style={{ animationDelay: "0.7s" }}
         >
-          <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
+          <h3 className="font-semibold text-foreground flex items-center gap-2 mb-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
               <Info aria-hidden="true" className="w-4 h-4 text-blue-500" />
             </div>
@@ -2633,7 +2633,7 @@ function EstimateResult({
             {result.assumptions.map((a, i) => (
               <li
                 key={i}
-                className="text-sm text-neutral-600 flex items-start gap-2"
+                className="text-sm text-muted-foreground flex items-start gap-2"
               >
                 <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0 mt-0.5" />
                 <span>{a}</span>
@@ -2642,10 +2642,10 @@ function EstimateResult({
           </ul>
         </div>
         <div
-          className="rounded-2xl border border-neutral-200 bg-white shadow-card p-4 sm:p-6 animate-card-reveal"
+          className="rounded-2xl border border-border bg-card shadow-card p-4 sm:p-6 animate-card-reveal"
           style={{ animationDelay: "0.8s" }}
         >
-          <h3 className="font-semibold text-neutral-900 flex items-center gap-2 mb-3">
+          <h3 className="font-semibold text-foreground flex items-center gap-2 mb-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50">
               <AlertTriangle className="w-4 h-4 text-amber-500" />
             </div>
@@ -2655,7 +2655,7 @@ function EstimateResult({
             {result.limitations.map((l, i) => (
               <li
                 key={i}
-                className="text-sm text-neutral-600 flex items-start gap-2"
+                className="text-sm text-muted-foreground flex items-start gap-2"
               >
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                 <span>{l}</span>
@@ -2679,7 +2679,7 @@ function EstimateResult({
 
       {/* Premium Price Info with Freshness Indicator */}
       <div
-        className={`rounded-2xl border p-4 sm:p-6 animate-card-reveal ${result.price_stale ? "border-amber-300 bg-gradient-to-r from-amber-50 to-amber-50/30" : "border-neutral-200 bg-gradient-to-r from-neutral-50 to-neutral-50/30"}`}
+        className={`rounded-2xl border p-4 sm:p-6 animate-card-reveal ${result.price_stale ? "border-amber-300 bg-gradient-to-r from-amber-50 to-amber-50/30" : "border-border bg-gradient-to-r from-muted/50 to-muted/50/30"}`}
         style={{ animationDelay: "0.9s" }}
       >
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -2693,10 +2693,10 @@ function EstimateResult({
                 <BadgeCheck className="w-4 h-4 text-green-500" />
               )}
             </div>
-            <p className="text-sm text-neutral-500">
-              <span className="font-medium text-neutral-700">Price Date:</span>{" "}
+            <p className="text-sm text-muted-foreground">
+              <span className="font-medium text-card-foreground">Price Date:</span>{" "}
               {result.price_date} ·
-              <span className="font-medium text-neutral-700 ml-2">Source:</span>{" "}
+              <span className="font-medium text-card-foreground ml-2">Source:</span>{" "}
               {result.price_source}
             </p>
           </div>
@@ -2743,7 +2743,7 @@ function EstimateResult({
       <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-600 hover:bg-neutral-100 transition-colors active:scale-95"
+          className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors active:scale-95"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Edit Inputs</span>
@@ -2752,7 +2752,7 @@ function EstimateResult({
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-xl border border-neutral-200 px-3.5 sm:px-4 py-2.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-all active:scale-95"
+            className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
           >
             <Printer className="w-4 h-4" />
             <span className="hidden sm:inline">Print Estimate</span>

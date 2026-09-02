@@ -24,10 +24,10 @@ export function AchievementBadges({ compact = false }: Props) {
 
   if (compact) {
     return (
-      <div className="flex items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3 py-2 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 dark:border-white/5 dark:bg-card">
         <Trophy className="h-4 w-4 text-amber-500" />
-        <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">{totalUnlocked}/{totalAchievements}</span>
-        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+        <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{totalUnlocked}/{totalAchievements}</span>
+        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted dark:bg-white/5">
           <div className="h-full rounded-full bg-amber-400 transition-all" style={{ width: `${progress}%` }} />
         </div>
       </div>
@@ -35,12 +35,12 @@ export function AchievementBadges({ compact = false }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+    <div className="rounded-2xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-amber-500" />
-          <h3 className="text-base font-bold text-brand-navy dark:text-white">Achievements</h3>
+          <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">Achievements</h3>
         </div>
         <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-700 dark:bg-amber-500/20 dark:text-amber-400">
           {totalUnlocked}/{totalAchievements} unlocked
@@ -49,7 +49,7 @@ export function AchievementBadges({ compact = false }: Props) {
 
       {/* Progress bar */}
       <div className="mb-4">
-        <div className="h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
+        <div className="h-2 overflow-hidden rounded-full bg-muted dark:bg-white/5">
           <div className="h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-500 transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
@@ -75,17 +75,17 @@ export function AchievementBadges({ compact = false }: Props) {
                 'flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all',
                 isUnlocked
                   ? 'border-amber-200 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10'
-                  : 'border-neutral-100 bg-neutral-50 opacity-60 dark:border-white/5 dark:bg-white/5',
+                  : 'border-border/50 bg-muted/50 opacity-60 dark:border-white/5 dark:bg-white/5',
               )}
             >
               <span className={classNames('text-2xl', !isUnlocked && 'grayscale')}>{ach.icon}</span>
-              <span className={classNames('text-xs font-bold', isUnlocked ? 'text-amber-700 dark:text-amber-400' : 'text-neutral-500')}>
+              <span className={classNames('text-xs font-bold', isUnlocked ? 'text-amber-700 dark:text-amber-400' : 'text-muted-foreground')}>
                 {isUnlocked ? ach.title : '???'}
               </span>
-              <span className="text-[10px] text-neutral-500 leading-tight">
+              <span className="text-[10px] text-muted-foreground leading-tight">
                 {isUnlocked ? ach.description : `Unlock: ${ach.description}`}
               </span>
-              {!isUnlocked && <Lock className="h-3 w-3 text-neutral-300" />}
+              {!isUnlocked && <Lock className="h-3 w-3 text-muted-foreground/80" />}
             </div>
           );
         })}
@@ -96,9 +96,9 @@ export function AchievementBadges({ compact = false }: Props) {
 
 function StatTile({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-neutral-100 bg-neutral-50 px-2 py-2 text-center dark:border-white/5 dark:bg-white/5">
-      <p className="flex items-center justify-center gap-1 text-lg font-bold text-brand-navy dark:text-white">{value}{icon}</p>
-      <p className="text-[10px] font-medium text-neutral-500">{label}</p>
+    <div className="rounded-lg border border-border/50 bg-muted/50 px-2 py-2 text-center dark:border-white/5 dark:bg-white/5">
+      <p className="flex items-center justify-center gap-1 text-lg font-bold text-foreground dark:text-primary-foreground">{value}{icon}</p>
+      <p className="text-[10px] font-medium text-muted-foreground">{label}</p>
     </div>
   );
 }
@@ -112,16 +112,16 @@ export function AchievementToast({ achievements, onDismiss }: { achievements: { 
       {achievements.map((ach, i) => (
         <div
           key={ach.id}
-          className="flex items-center gap-3 rounded-xl border border-amber-200 bg-white px-4 py-3 shadow-xl animate-fade-in-up dark:border-amber-500/20 dark:bg-brand-navy-mid"
+          className="flex items-center gap-3 rounded-xl border border-amber-200 bg-card px-4 py-3 shadow-xl animate-fade-in-up dark:border-amber-500/20 dark:bg-card"
           style={{ animationDelay: `${i * 100}ms` }}
         >
           <span className="text-2xl">{ach.icon}</span>
           <div>
             <p className="text-sm font-bold text-amber-600 dark:text-amber-400">Achievement Unlocked!</p>
-            <p className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">{ach.title}</p>
-            <p className="text-[11px] text-neutral-500">{ach.description}</p>
+            <p className="text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">{ach.title}</p>
+            <p className="text-[11px] text-muted-foreground">{ach.description}</p>
           </div>
-          <button onClick={onDismiss} className="ml-2 text-neutral-300 hover:text-neutral-500" aria-label="Dismiss">
+          <button onClick={onDismiss} className="ml-2 text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
             <span className="text-lg leading-none">×</span>
           </button>
         </div>

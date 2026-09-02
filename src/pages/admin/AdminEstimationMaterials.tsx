@@ -152,7 +152,7 @@ export default function AdminEstimationMaterials() {
       {!loading && items.length > 0 && (
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative w-full sm:max-w-xs">
-            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+            <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <AdminInput
  type="search"
  value={search}
@@ -205,18 +205,18 @@ export default function AdminEstimationMaterials() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
-                          <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{item.name}</h3>
-                          {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                          <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{item.name}</h3>
+                          {!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
                         </div>
-                        {item.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-500">{item.description}</p>}
-                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
+                        {item.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">{item.description}</p>}
+                        <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
                           {baseUnit && <span>{baseUnit.symbol}</span>}
                           {item.pack_size != null && <span>· {item.pack_size}{packUnit ? packUnit.symbol : ''}</span>}
                           {item.supplier && <span>· {item.supplier}</span>}
                         </div>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                    <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                       <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
                       <div className="flex items-center gap-0.5">
                         <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
@@ -459,7 +459,7 @@ function MaterialForm({
               />
             </AdminField>
             <div>
-              <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span>
+              <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span>
               <div className="mt-2">
                 <Toggle checked={isActive} onChange={setIsActive} />
               </div>

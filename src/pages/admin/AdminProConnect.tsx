@@ -79,12 +79,12 @@ export default function AdminProConnect() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">
+      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
         Pro Connect Management
       </h1>
 
       {/* Tabs */}
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {(
           [
             ["professionals", "Professionals"],
@@ -182,7 +182,7 @@ function AdminProfessionalsTab() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+            className="h-20 animate-pulse rounded-lg bg-muted dark:bg-white/5"
           />
         ))}
       </div>
@@ -191,7 +191,7 @@ function AdminProfessionalsTab() {
 
   if (filtered.length === 0) {
     return (
-      <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+      <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
         No professionals found.
       </p>
     );
@@ -203,14 +203,14 @@ function AdminProfessionalsTab() {
         <div className="relative max-w-md">
           <Search
             aria-hidden="true"
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
           />
           <AdminInput
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search professionals..."
-            className="w-full rounded-lg border border-neutral-200 py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy"
+            className="w-full rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background"
           />
         </div>
       </div>
@@ -218,17 +218,17 @@ function AdminProfessionalsTab() {
         {filtered.map((p) => (
           <div
             key={p.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
           >
             <div className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-purple/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
                 {p.display_name.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {p.display_name}
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   {p.business_name || "No business"} · {p.rating_avg.toFixed(1)}{" "}
                   / 5 ({p.rating_count})
                   {p.pro_level && (
@@ -251,7 +251,7 @@ function AdminProfessionalsTab() {
                           ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
                           : p.verification_status === "suspended"
                             ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
-                            : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                            : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                 )}
               >
                 {p.verification_status.replace("_", " ")}
@@ -265,7 +265,7 @@ function AdminProfessionalsTab() {
                       "unverified" | "pending" | "verified" | "suspended",
                   )
                 }
-                className="rounded-lg border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy"
+                className="rounded-lg border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background"
               >
                 <option value="unverified">Unverified</option>
                 <option value="pending">Pending</option>
@@ -295,7 +295,7 @@ function AdminProfessionalsTab() {
                 href={`/pro-connect/${p.slug}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
+                className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
               >
                 <Eye aria-hidden="true" className="h-4 w-4" />
               </a>
@@ -416,8 +416,8 @@ function AdminVerificationTab() {
             className={classNames(
               "rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors",
               filter === f
-                ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-500",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-card-foreground dark:bg-white/5 dark:text-muted-foreground",
             )}
           >
             {f.replace("_", " ")}
@@ -430,12 +430,12 @@ function AdminVerificationTab() {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-24 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+              className="h-24 animate-pulse rounded-lg bg-muted dark:bg-white/5"
             />
           ))}
         </div>
       ) : requests.length === 0 ? (
-        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+        <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
           No verification requests found.
         </p>
       ) : (
@@ -453,7 +453,7 @@ function AdminVerificationTab() {
             return (
               <div
                 key={req.id}
-                className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+                className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -486,18 +486,18 @@ function AdminVerificationTab() {
                       </span>
                     </div>
                     {profile && (
-                      <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">
+                      <p className="mt-2 text-sm font-medium text-foreground dark:text-primary-foreground">
                         {profile.display_name}{" "}
                         {profile.business_name && `· ${profile.business_name}`}
                       </p>
                     )}
                     {req.professional_name && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                         Name: {req.professional_name}
                       </p>
                     )}
                     {req.identity_document_type && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                         ID Type:{" "}
                         <span className="capitalize">
                           {req.identity_document_type.replace(/_/g, " ")}
@@ -505,11 +505,11 @@ function AdminVerificationTab() {
                       </p>
                     )}
                     {req.years_experience != null && (
-                      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                         Experience: {req.years_experience} years
                       </p>
                     )}
-                    <p className="mt-1 text-xs text-neutral-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       Submitted:{" "}
                       {new Date(req.submitted_at).toLocaleDateString("en-GB", {
                         day: "numeric",
@@ -518,7 +518,7 @@ function AdminVerificationTab() {
                       })}
                     </p>
                     {req.admin_notes && (
-                      <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
+                      <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
                         Admin notes: {req.admin_notes}
                       </p>
                     )}
@@ -529,7 +529,7 @@ function AdminVerificationTab() {
                         href={`/pro-connect/${profile.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
+                        className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
                         title="View profile"
                       >
                         <Eye aria-hidden="true" className="h-4 w-4" />
@@ -537,7 +537,7 @@ function AdminVerificationTab() {
                     )}
                     <button
                       onClick={() => handleViewDocs(req)}
-                      className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
+                      className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
                       title="View verification documents"
                     >
                       <FileText aria-hidden="true" className="h-4 w-4" />
@@ -547,7 +547,7 @@ function AdminVerificationTab() {
 
                 {/* Actions */}
                 {req.status === "pending" && (
-                  <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
                     {selectedRequest?.id === req.id ? (
                       <div className="space-y-3">
                         <AdminInput
@@ -555,21 +555,21 @@ function AdminVerificationTab() {
                           value={actionNotes}
                           onChange={(e) => setActionNotes(e.target.value)}
                           placeholder="Admin notes (optional)"
-                          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
+                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <AdminInput
                           type="text"
                           value={rejectionReason}
                           onChange={(e) => setRejectionReason(e.target.value)}
                           placeholder="Rejection reason (if rejecting)"
-                          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
+                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <AdminInput
                           type="text"
                           value={moreInfoText}
                           onChange={(e) => setMoreInfoText(e.target.value)}
                           placeholder="What additional info is needed? (if requesting more info)"
-                          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
+                          className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                         />
                         <div className="flex flex-wrap gap-2">
                           <AdminButton
@@ -588,7 +588,7 @@ function AdminVerificationTab() {
                           <AdminButton
                             variant="danger"
                             onClick={() => handleReject(req.profile_id, req.id)}
-                            className="text-xs bg-red-500 border-red-500 text-white hover:bg-red-600"
+                            className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
                           >
                             <X className="mr-1 inline h-3.5 w-3.5" />
                             Reject
@@ -634,7 +634,7 @@ function AdminVerificationTab() {
 
                 {/* Reinstation/Suspension for non-pending */}
                 {req.status === "approved" && (
-                  <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
                     <AdminButton
                       variant="danger"
                       onClick={() => handleSuspend(req.profile_id)}
@@ -645,7 +645,7 @@ function AdminVerificationTab() {
                   </div>
                 )}
                 {req.status === "rejected" && (
-                  <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+                  <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
                     <AdminButton
                       variant="success"
                       onClick={() => handleReinstate(req.profile_id)}
@@ -720,16 +720,16 @@ function AdminKycTab() {
   return (
     <div>
       {/* Info banner */}
-      <div className="mb-4 flex items-start gap-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 text-sm">
+      <div className="mb-4 flex items-start gap-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-4 text-sm">
         <Shield
           aria-hidden="true"
           className="mt-0.5 h-5 w-5 shrink-0 text-brand-purple"
         />
         <div>
-          <p className="font-medium text-brand-navy dark:text-white">
+          <p className="font-medium text-foreground dark:text-primary-foreground">
             NIN Verification Review
           </p>
-          <p className="mt-1 text-neutral-600 dark:text-neutral-300">
+          <p className="mt-1 text-muted-foreground dark:text-muted-foreground/80">
             Review NIN submissions from workers. Approving auto-verifies them to
             Tier 2 (FRELUX Verified) and logs the NIN with a profile snapshot
             for future reference in case of reports.
@@ -754,8 +754,8 @@ function AdminKycTab() {
             className={classNames(
               "rounded-full px-3 py-1 text-xs font-medium capitalize transition-colors",
               filter === f
-                ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-500 hover:text-neutral-700 dark:bg-white/5 dark:text-neutral-500",
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-card-foreground dark:bg-white/5 dark:text-muted-foreground",
             )}
           >
             {f}
@@ -768,12 +768,12 @@ function AdminKycTab() {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+              className="h-28 animate-pulse rounded-lg bg-muted dark:bg-white/5"
             />
           ))}
         </div>
       ) : submissions.length === 0 ? (
-        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+        <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
           No NIN submissions found.
         </p>
       ) : (
@@ -781,7 +781,7 @@ function AdminKycTab() {
           {submissions.map((sub) => (
             <div
               key={sub.profile_id}
-              className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
@@ -790,37 +790,37 @@ function AdminKycTab() {
                       aria-hidden="true"
                       className="h-4 w-4 text-brand-purple"
                     />
-                    <span className="font-medium text-neutral-900 dark:text-white">
+                    <span className="font-medium text-foreground dark:text-primary-foreground">
                       {sub.display_name}
                     </span>
                     {sub.business_name && (
-                      <span className="text-sm text-neutral-500">
+                      <span className="text-sm text-muted-foreground">
                         · {sub.business_name}
                       </span>
                     )}
                   </div>
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-500">NIN:</span>
-                      <span className="font-mono text-sm font-bold text-neutral-900 dark:text-white">
+                    <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-muted-foreground">NIN:</span>
+                      <span className="font-mono text-sm font-bold text-foreground dark:text-primary-foreground">
                         {sub.nin_number}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-500">
+                    <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-muted-foreground">
                         Category:
                       </span>
-                      <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                      <span className="text-sm text-card-foreground dark:text-muted-foreground/80">
                         {sub.category_name ?? "N/A"}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
+                    <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 dark:bg-white/5">
                       <Phone
                         aria-hidden="true"
-                        className="h-3.5 w-3.5 text-neutral-500"
+                        className="h-3.5 w-3.5 text-muted-foreground"
                       />
-                      <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                      <span className="text-sm text-card-foreground dark:text-muted-foreground/80">
                         {sub.mobile_number ?? sub.phone_number ?? "N/A"}
                       </span>
                       {sub.mobile_otp_verified && (
@@ -830,11 +830,11 @@ function AdminKycTab() {
                         />
                       )}
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-neutral-50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-neutral-500">
+                    <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 dark:bg-white/5">
+                      <span className="text-xs text-muted-foreground">
                         Registered:
                       </span>
-                      <span className="text-sm text-neutral-700 dark:text-neutral-300">
+                      <span className="text-sm text-card-foreground dark:text-muted-foreground/80">
                         {new Date(sub.created_at).toLocaleDateString("en-GB", {
                           day: "numeric",
                           month: "short",
@@ -873,7 +873,7 @@ function AdminKycTab() {
                   href={`/pro-connect/${sub.slug}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg p-1.5 text-neutral-500 hover:text-brand-purple"
+                  className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
                 >
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </a>
@@ -881,7 +881,7 @@ function AdminKycTab() {
 
               {/* Actions for pending */}
               {!sub.nin_verified && sub.verification_status !== "rejected" && (
-                <div className="mt-4 border-t border-neutral-100 pt-4 dark:border-white/5">
+                <div className="mt-4 border-t border-border/50 pt-4 dark:border-white/5">
                   {selectedNin?.profile_id === sub.profile_id ? (
                     <div className="space-y-3">
                       <AdminInput
@@ -889,7 +889,7 @@ function AdminKycTab() {
                         value={rejectReason}
                         onChange={(e) => setRejectReason(e.target.value)}
                         placeholder="Rejection reason (if rejecting)"
-                        className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs dark:border-white/10 dark:bg-brand-navy"
+                        className="w-full rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background"
                       />
                       <div className="flex flex-wrap gap-2">
                         <AdminButton
@@ -910,7 +910,7 @@ function AdminKycTab() {
                           variant="danger"
                           onClick={() => handleReject(sub.profile_id)}
                           disabled={processing || !rejectReason.trim()}
-                          className="text-xs bg-red-500 border-red-500 text-white hover:bg-red-600"
+                          className="text-xs bg-red-500 border-red-500 text-primary-foreground hover:bg-red-600"
                         >
                           <X className="mr-1 inline h-3.5 w-3.5" />
                           Reject NIN
@@ -942,7 +942,7 @@ function AdminKycTab() {
                     <AdminButton
                       variant="secondary"
                       onClick={() => setSelectedNin(sub)}
-                      className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-brand-purple/5"
+                      className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-primary/5"
                     >
                       Review NIN →
                     </AdminButton>
@@ -952,7 +952,7 @@ function AdminKycTab() {
 
               {/* Already verified badge */}
               {sub.nin_verified && (
-                <div className="mt-4 border-t border-neutral-100 pt-3 dark:border-white/5">
+                <div className="mt-4 border-t border-border/50 pt-3 dark:border-white/5">
                   <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                     <Check aria-hidden="true" className="h-4 w-4" />
                     <span>
@@ -1067,7 +1067,7 @@ function AdminReportsTab() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+            className="h-20 animate-pulse rounded-lg bg-muted dark:bg-white/5"
           />
         ))}
       </div>
@@ -1082,8 +1082,8 @@ function AdminReportsTab() {
           className={classNames(
             "rounded-full px-3 py-1 text-xs font-medium",
             reportSubTab === "pro"
-              ? "bg-brand-purple text-white"
-              : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
           )}
         >
           Pro Connect Reports ({reports.length})
@@ -1093,8 +1093,8 @@ function AdminReportsTab() {
           className={classNames(
             "rounded-full px-3 py-1 text-xs font-medium",
             reportSubTab === "worker"
-              ? "bg-brand-purple text-white"
-              : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
           )}
         >
           Worker Channel Reports ({workerReports.length})
@@ -1102,7 +1102,7 @@ function AdminReportsTab() {
       </div>
 
       {reportSubTab === "pro" && reports.length === 0 && (
-        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+        <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
           No Pro Connect reports filed.
         </p>
       )}
@@ -1112,22 +1112,22 @@ function AdminReportsTab() {
           {reports.map((r) => (
             <div
               key={r.id}
-              className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium capitalize text-neutral-600 dark:bg-white/5 dark:text-neutral-300">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize text-muted-foreground dark:bg-white/5 dark:text-muted-foreground/80">
                     {r.report_type}
                   </span>
-                  <p className="mt-2 text-sm font-medium text-neutral-900 dark:text-white">
+                  <p className="mt-2 text-sm font-medium text-foreground dark:text-primary-foreground">
                     {r.reason}
                   </p>
                   {r.description && (
-                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+                    <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                       {r.description}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-neutral-500">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     {new Date(r.created_at).toLocaleDateString("en-GB")}
                   </p>
                 </div>
@@ -1139,7 +1139,7 @@ function AdminReportsTab() {
                         ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                         : r.status === "resolved"
                           ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                          : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                          : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                     )}
                   >
                     {r.status}
@@ -1170,7 +1170,7 @@ function AdminReportsTab() {
       )}
 
       {reportSubTab === "worker" && workerReports.length === 0 && (
-        <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+        <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
           No worker channel reports filed.
         </p>
       )}
@@ -1180,7 +1180,7 @@ function AdminReportsTab() {
           {workerReports.map((wr) => (
             <div
               key={wr.id}
-              className="rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -1195,18 +1195,18 @@ function AdminReportsTab() {
                           ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
                           : wr.status === "resolved"
                             ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                            : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                            : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
                       )}
                     >
                       {wr.status}
                     </span>
                   </div>
                   {wr.description && (
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {wr.description}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-neutral-500">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     {new Date(wr.created_at).toLocaleDateString("en-GB")}
                   </p>
                 </div>
@@ -1214,7 +1214,7 @@ function AdminReportsTab() {
                   <AdminButton
                     variant="secondary"
                     onClick={() => viewNinDetails(wr.id)}
-                    className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-brand-purple/5"
+                    className="rounded-lg border-brand-purple/30 text-brand-purple text-xs hover:bg-primary/5"
                   >
                     View NIN Details
                   </AdminButton>
@@ -1242,9 +1242,9 @@ function AdminReportsTab() {
               {/* NIN details popover */}
               {ninDetail &&
                 (ninDetail as Record<string, unknown>).report_id === wr.id && (
-                  <div className="mt-4 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+                  <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                     {ninDetailLoading ? (
-                      <p className="text-sm text-neutral-500">Loading...</p>
+                      <p className="text-sm text-muted-foreground">Loading...</p>
                     ) : (
                       <>
                         <p className="mb-2 text-sm font-semibold text-brand-purple">
@@ -1252,10 +1252,10 @@ function AdminReportsTab() {
                         </p>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-muted-foreground">
                               Reported User
                             </p>
-                            <p className="font-medium text-neutral-900 dark:text-white">
+                            <p className="font-medium text-foreground dark:text-primary-foreground">
                               {String(
                                 (ninDetail as Record<string, unknown>)
                                   .reported_name ?? "N/A",
@@ -1263,8 +1263,8 @@ function AdminReportsTab() {
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-500">NIN</p>
-                            <p className="font-mono font-bold text-neutral-900 dark:text-white">
+                            <p className="text-xs text-muted-foreground">NIN</p>
+                            <p className="font-mono font-bold text-foreground dark:text-primary-foreground">
                               {String(
                                 (ninDetail as Record<string, unknown>)
                                   .nin_number ?? "Not on file",
@@ -1272,7 +1272,7 @@ function AdminReportsTab() {
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-muted-foreground">
                               NIN Verified
                             </p>
                             <p className="font-medium">
@@ -1283,10 +1283,10 @@ function AdminReportsTab() {
                             </p>
                           </div>
                           <div>
-                            <p className="text-xs text-neutral-500">
+                            <p className="text-xs text-muted-foreground">
                               Verified At
                             </p>
-                            <p className="font-medium text-neutral-700 dark:text-neutral-300">
+                            <p className="font-medium text-card-foreground dark:text-muted-foreground/80">
                               {(ninDetail as Record<string, unknown>)
                                 .nin_verified_at
                                 ? new Date(
@@ -1300,11 +1300,11 @@ function AdminReportsTab() {
                           </div>
                         </div>
                         {(ninDetail as Record<string, unknown>).nin_history && (
-                          <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-white/10">
-                            <p className="mb-1 text-xs font-semibold text-neutral-500">
+                          <div className="mt-3 border-t border-border pt-3 dark:border-white/10">
+                            <p className="mb-1 text-xs font-semibold text-muted-foreground">
                               Verification History:
                             </p>
-                            <pre className="overflow-x-auto text-xs text-neutral-500 dark:text-neutral-500">
+                            <pre className="overflow-x-auto text-xs text-muted-foreground dark:text-muted-foreground">
                               {JSON.stringify(
                                 (ninDetail as Record<string, unknown>)
                                   .nin_history,
@@ -1373,14 +1373,14 @@ function AdminReviewsTab() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-16 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+            className="h-16 animate-pulse rounded-lg bg-muted dark:bg-white/5"
           />
         ))}
       </div>
     );
   if (reviews.length === 0)
     return (
-      <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+      <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
         No reviews to moderate.
       </p>
     );
@@ -1390,7 +1390,7 @@ function AdminReviewsTab() {
       {reviews.map((r) => (
         <div
           key={r.id}
-          className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/5 dark:bg-brand-navy-mid"
+          className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
         >
           <div className="flex items-start justify-between">
             <div className="flex-1">
@@ -1401,11 +1401,11 @@ function AdminReviewsTab() {
                     className={
                       s <= r.rating
                         ? "h-4 w-4 fill-amber-400 text-amber-400"
-                        : "h-4 w-4 text-neutral-200 dark:text-neutral-700"
+                        : "h-4 w-4 text-muted-foreground/60 dark:text-card-foreground"
                     }
                   />
                 ))}
-                <span className="text-xs text-neutral-500">
+                <span className="text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleDateString("en-GB")}
                 </span>
                 {r.is_hidden && (
@@ -1420,7 +1420,7 @@ function AdminReviewsTab() {
                 )}
               </div>
               {r.review_text && (
-                <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                   {r.review_text}
                 </p>
               )}
@@ -1467,19 +1467,19 @@ function AdminSettingsTab() {
 
   if (loading || !settings)
     return (
-      <div className="h-32 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5" />
+      <div className="h-32 animate-pulse rounded-lg bg-muted dark:bg-white/5" />
     );
 
   return (
     <div className="max-w-2xl space-y-6">
       {/* Badge descriptions */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           Verification Badge Descriptions
         </h3>
         <div className="space-y-3">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Contact Verified description
             </span>
             <AdminTextarea
@@ -1491,11 +1491,11 @@ function AdminSettingsTab() {
                 })
               }
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               FRELUX Verified description
             </span>
             <AdminTextarea
@@ -1507,11 +1507,11 @@ function AdminSettingsTab() {
                 })
               }
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               FRELUX Pro description
             </span>
             <AdminTextarea
@@ -1523,11 +1523,11 @@ function AdminSettingsTab() {
                 })
               }
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Verification disclaimer
             </span>
             <AdminTextarea
@@ -1539,20 +1539,20 @@ function AdminSettingsTab() {
                 })
               }
               rows={2}
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
         </div>
       </div>
 
       {/* Pro Level requirements */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           FRELUX Pro Eligibility Requirements
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Minimum reviews
             </span>
             <AdminInput
@@ -1564,11 +1564,11 @@ function AdminSettingsTab() {
                   pro_level_min_reviews: parseInt(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Minimum rating
             </span>
             <AdminInput
@@ -1581,11 +1581,11 @@ function AdminSettingsTab() {
                   pro_level_min_rating: parseFloat(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Min portfolio items
             </span>
             <AdminInput
@@ -1597,11 +1597,11 @@ function AdminSettingsTab() {
                   pro_level_min_portfolio_items: parseInt(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Min profile age (days)
             </span>
             <AdminInput
@@ -1613,7 +1613,7 @@ function AdminSettingsTab() {
                   pro_level_min_profile_age_days: parseInt(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
           </label>
         </div>
@@ -1852,7 +1852,7 @@ function AdminChannelsTab() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+            className="h-20 animate-pulse rounded-lg bg-muted dark:bg-white/5"
           />
         ))}
       </div>
@@ -1864,7 +1864,7 @@ function AdminChannelsTab() {
       {/* Categories section */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
             Channel Categories
           </h3>
           <AdminButton onClick={startNewCategory} className="text-xs py-1">
@@ -1875,13 +1875,13 @@ function AdminChannelsTab() {
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-2.5 dark:border-white/5 dark:bg-card"
             >
               <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {cat.name}
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   /{cat.slug} · {cat.is_active ? "Active" : "Inactive"}
                 </p>
               </div>
@@ -1903,7 +1903,7 @@ function AdminChannelsTab() {
             </div>
           ))}
           {categories.length === 0 && (
-            <p className="text-sm text-neutral-500">No categories yet.</p>
+            <p className="text-sm text-muted-foreground">No categories yet.</p>
           )}
         </div>
       </div>
@@ -1911,7 +1911,7 @@ function AdminChannelsTab() {
       {/* Channels section */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
             Worker Channels
           </h3>
           <AdminButton onClick={startNewChannel} className="text-xs py-1">
@@ -1922,7 +1922,7 @@ function AdminChannelsTab() {
           {channels.map((ch) => (
             <div
               key={ch.id}
-              className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white px-4 py-2.5 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-2.5 dark:border-white/5 dark:bg-card"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -1930,11 +1930,11 @@ function AdminChannelsTab() {
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-brand-purple dark:text-brand-purple-lighter"
                   />
-                  <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                  <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
                     {ch.name}
                   </p>
                   {ch.is_official && (
-                    <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-brand-purple">
                       Official
                     </span>
                   )}
@@ -1944,7 +1944,7 @@ function AdminChannelsTab() {
                     </span>
                   )}
                 </div>
-                <p className="mt-0.5 truncate text-xs text-neutral-500">
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
                   /{ch.slug} · {ch.region || "National"} ·{" "}
                   {ch.member_count ?? 0} members
                   {ch.category && ` · ${ch.category.name}`}
@@ -1968,7 +1968,7 @@ function AdminChannelsTab() {
             </div>
           ))}
           {channels.length === 0 && (
-            <p className="text-sm text-neutral-500">No channels yet.</p>
+            <p className="text-sm text-muted-foreground">No channels yet.</p>
           )}
         </div>
       </div>
@@ -1983,7 +1983,7 @@ function AdminChannelsTab() {
         >
           <div className="space-y-3">
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Name
               </span>
               <AdminInput
@@ -1992,11 +1992,11 @@ function AdminChannelsTab() {
                 onChange={(e) =>
                   setChannelForm({ ...channelForm, name: e.target.value })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Slug (auto-generated if empty)
               </span>
               <AdminInput
@@ -2006,11 +2006,11 @@ function AdminChannelsTab() {
                   setChannelForm({ ...channelForm, slug: e.target.value })
                 }
                 placeholder="e.g. lagos-price-watch"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Description
               </span>
               <AdminTextarea
@@ -2022,12 +2022,12 @@ function AdminChannelsTab() {
                   })
                 }
                 rows={2}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Region
                 </span>
                 <AdminInput
@@ -2036,11 +2036,11 @@ function AdminChannelsTab() {
                   onChange={(e) =>
                     setChannelForm({ ...channelForm, region: e.target.value })
                   }
-                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Icon (lucide name)
                 </span>
                 <AdminInput
@@ -2049,12 +2049,12 @@ function AdminChannelsTab() {
                   onChange={(e) =>
                     setChannelForm({ ...channelForm, icon: e.target.value })
                   }
-                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </label>
             </div>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Category
               </span>
               <AdminSelect
@@ -2065,7 +2065,7 @@ function AdminChannelsTab() {
                     category_id: e.target.value,
                   })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">Uncategorized</option>
                 {categories.map((c) => (
@@ -2076,7 +2076,7 @@ function AdminChannelsTab() {
               </AdminSelect>
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Sort order
               </span>
               <AdminInput
@@ -2088,11 +2088,11 @@ function AdminChannelsTab() {
                     sort_order: parseInt(e.target.value) || 0,
                   })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 <AdminInput
                   type="checkbox"
                   checked={channelForm.is_official}
@@ -2105,7 +2105,7 @@ function AdminChannelsTab() {
                 />
                 Official FRELUX channel
               </label>
-              <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+              <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 <AdminInput
                   type="checkbox"
                   checked={channelForm.is_active}
@@ -2144,7 +2144,7 @@ function AdminChannelsTab() {
         >
           <div className="space-y-3">
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Name
               </span>
               <AdminInput
@@ -2153,11 +2153,11 @@ function AdminChannelsTab() {
                 onChange={(e) =>
                   setCategoryForm({ ...categoryForm, name: e.target.value })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Slug (auto-generated if empty)
               </span>
               <AdminInput
@@ -2166,11 +2166,11 @@ function AdminChannelsTab() {
                 onChange={(e) =>
                   setCategoryForm({ ...categoryForm, slug: e.target.value })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Description
               </span>
               <AdminInput
@@ -2182,12 +2182,12 @@ function AdminChannelsTab() {
                     description: e.target.value,
                   })
                 }
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Icon (lucide name)
                 </span>
                 <AdminInput
@@ -2196,11 +2196,11 @@ function AdminChannelsTab() {
                   onChange={(e) =>
                     setCategoryForm({ ...categoryForm, icon: e.target.value })
                   }
-                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </label>
               <label className="block">
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                   Sort order
                 </span>
                 <AdminInput
@@ -2212,11 +2212,11 @@ function AdminChannelsTab() {
                       sort_order: parseInt(e.target.value) || 0,
                     })
                   }
-                  className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
                 />
               </label>
             </div>
-            <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
               <AdminInput
                 type="checkbox"
                 checked={categoryForm.is_active}
@@ -2320,7 +2320,7 @@ function AdminModerationTab() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+            className="h-20 animate-pulse rounded-lg bg-muted dark:bg-white/5"
           />
         ))}
       </div>
@@ -2352,50 +2352,50 @@ function AdminModerationTab() {
           "flex items-center gap-3 rounded-xl border p-4",
           config.is_enabled
             ? "border-emerald-200 bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-500/10"
-            : "border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5",
+            : "border-border bg-muted/50 dark:border-white/5 dark:bg-white/5",
         )}
       >
         <Bot
           className={classNames(
             "h-5 w-5",
-            config.is_enabled ? "text-emerald-500" : "text-neutral-500",
+            config.is_enabled ? "text-emerald-500" : "text-muted-foreground",
           )}
         />
         <div className="flex-1">
-          <p className="text-sm font-medium text-neutral-900 dark:text-white">
+          <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
             AI Moderation Bot: {config.is_enabled ? "Active" : "Disabled"}
           </p>
-          <p className="text-xs text-neutral-500 dark:text-neutral-500">
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground">
             {config.is_enabled
               ? `Using ${config.ai_provider} / ${config.ai_model} — messages are auto-checked on send.`
               : "All messages will pass through without moderation."}
           </p>
         </div>
-        <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+        <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
           <AdminInput
             type="checkbox"
             checked={config.is_enabled}
             onChange={(e) =>
               setConfig({ ...config, is_enabled: e.target.checked })
             }
-            className="h-4 w-4 rounded border-neutral-300"
+            className="h-4 w-4 rounded border-border"
           />
           {config.is_enabled ? "Enabled" : "Disabled"}
         </label>
       </div>
 
       {/* Thresholds */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           Auto-Action Thresholds
         </h3>
-        <p className="mb-4 text-xs text-neutral-500">
+        <p className="mb-4 text-xs text-muted-foreground">
           AI scores messages 0.0 (safe) to 1.0 (harmful). Set thresholds for
           automatic flagging and removal.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Auto-flag threshold (0.0–1.0)
             </span>
             <AdminInput
@@ -2410,14 +2410,14 @@ function AdminModerationTab() {
                   auto_flag_threshold: parseFloat(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               Messages scoring ≥ this are flagged for review.
             </span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Auto-remove threshold (0.0–1.0)
             </span>
             <AdminInput
@@ -2432,9 +2432,9 @@ function AdminModerationTab() {
                   auto_remove_threshold: parseFloat(e.target.value) || 0,
                 })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               Messages scoring ≥ this are removed automatically.
             </span>
           </label>
@@ -2442,13 +2442,13 @@ function AdminModerationTab() {
       </div>
 
       {/* Banned words & patterns */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           Banned Words & Patterns
         </h3>
         <div className="space-y-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Banned words (comma-separated)
             </span>
             <AdminTextarea
@@ -2456,14 +2456,14 @@ function AdminModerationTab() {
               onChange={(e) => setBannedWordsText(e.target.value)}
               rows={3}
               placeholder="e.g. scam, fraud, idiot, ..."
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               Messages containing these are instantly removed (score = 1.0).
             </span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Banned regex patterns (one per line)
             </span>
             <AdminTextarea
@@ -2471,9 +2471,9 @@ function AdminModerationTab() {
               onChange={(e) => setBannedPatternsText(e.target.value)}
               rows={3}
               placeholder="e.g. \b\d{10}\b (phone number spam)"
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm font-mono dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               Each line is a regex pattern. Matching messages are instantly
               removed.
             </span>
@@ -2482,13 +2482,13 @@ function AdminModerationTab() {
       </div>
 
       {/* AI Provider settings */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           AI Provider Settings
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Provider
             </span>
             <AdminSelect
@@ -2496,18 +2496,18 @@ function AdminModerationTab() {
               onChange={(e) =>
                 setConfig({ ...config, ai_provider: e.target.value })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             >
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
               <option value="local">Local / Heuristic only</option>
             </AdminSelect>
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               If set to "Local", only heuristic rules apply (no API calls).
             </span>
           </label>
           <label className="block">
-            <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">
+            <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
               Model
             </span>
             <AdminInput
@@ -2516,9 +2516,9 @@ function AdminModerationTab() {
               onChange={(e) =>
                 setConfig({ ...config, ai_model: e.target.value })
               }
-              className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
             />
-            <span className="mt-1 block text-[11px] text-neutral-500">
+            <span className="mt-1 block text-[11px] text-muted-foreground">
               e.g. gpt-4o-mini, claude-3-haiku. Set via OPENAI_API_KEY env var.
             </span>
           </label>
@@ -2526,8 +2526,8 @@ function AdminModerationTab() {
       </div>
 
       {/* Warning message */}
-      <div className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
-        <h3 className="mb-4 text-sm font-semibold text-neutral-900 dark:text-white">
+      <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
+        <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">
           Warning Message (shown to users)
         </h3>
         <AdminTextarea
@@ -2536,9 +2536,9 @@ function AdminModerationTab() {
             setConfig({ ...config, warning_message: e.target.value })
           }
           rows={2}
-          className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
         />
-        <span className="mt-1 block text-[11px] text-neutral-500">
+        <span className="mt-1 block text-[11px] text-muted-foreground">
           Posted as a system message in the channel when content is removed.
         </span>
       </div>

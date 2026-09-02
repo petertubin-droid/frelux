@@ -76,7 +76,7 @@ export default function LocationPicker({
   if (location && !compact) {
     return (
       <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-brand-purple/5 px-3 py-1.5 text-sm text-neutral-700 dark:text-neutral-200">
+        <div className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-primary/5 px-3 py-1.5 text-sm text-card-foreground dark:text-muted-foreground/60">
           <MapPin className="h-3.5 w-3.5 text-brand-purple" />
           <span className="font-medium">{location.label || 'Location set'}</span>
           {location.source === 'gps' && (
@@ -92,8 +92,8 @@ export default function LocationPicker({
                 className={classNames(
                   'rounded-md px-2 py-1 text-xs font-medium transition-colors',
                   radius === f.value
-                    ? 'bg-brand-purple text-white'
-                    : 'border border-neutral-200 text-neutral-500 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'border border-border text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground'
                 )}
               >
                 {f.label}
@@ -103,7 +103,7 @@ export default function LocationPicker({
         )}
         <button
           onClick={clear}
-          className="inline-flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-300"
+          className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
         >
           <X className="h-3 w-3" />
           Clear
@@ -115,13 +115,13 @@ export default function LocationPicker({
   if (compact && location) {
     return (
       <div className="flex items-center gap-1.5">
-        <span className="inline-flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-500">
+        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
           <MapPin className="h-3 w-3 text-brand-purple" />
           {location.label || 'Location set'}
         </span>
         <button
           onClick={clear}
-          className="text-xs text-neutral-500 hover:text-neutral-600 dark:text-neutral-500"
+          className="text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground"
         >
           ×
         </button>
@@ -135,7 +135,7 @@ export default function LocationPicker({
         <button
           onClick={detect}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90 active:scale-95 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -146,7 +146,7 @@ export default function LocationPicker({
         </button>
         <button
           onClick={() => setShowManual(!showManual)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-600 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-500"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
           <MapPin className="h-4 w-4" />
           Select Manually
@@ -158,12 +158,12 @@ export default function LocationPicker({
       )}
 
       {showManual && (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 dark:border-white/10 dark:bg-white/5">
+        <div className="rounded-lg border border-border bg-muted/50 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="flex flex-wrap gap-2">
             <select
               value={manualState}
               onChange={(e) => { setManualState(e.target.value); setManualCity(''); }}
-              className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+              className="rounded-md border border-border bg-card px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             >
               <option value="">Select State</option>
               {states.map((s) => (
@@ -174,7 +174,7 @@ export default function LocationPicker({
               value={manualCity}
               onChange={(e) => setManualCity(e.target.value)}
               disabled={!manualState}
-              className="rounded-md border border-neutral-200 bg-white px-3 py-1.5 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white disabled:opacity-50"
+              className="rounded-md border border-border bg-card px-3 py-1.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground disabled:opacity-50"
             >
               <option value="">Select City</option>
               {cities.map((c) => (
@@ -184,13 +184,13 @@ export default function LocationPicker({
             <button
               onClick={handleManualSelect}
               disabled={!manualState}
-              className="rounded-md bg-brand-purple px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-md bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               Set Location
             </button>
           </div>
           {permissionDenied && (
-            <p className="mt-2 text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
               Tip: You can allow location access in your browser settings, or select your city manually above.
             </p>
           )}

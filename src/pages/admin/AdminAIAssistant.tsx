@@ -93,7 +93,7 @@ const STATUS_COLORS: Record<string, string> = {
   resolved:
     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
   closed:
-    "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-400",
+    "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
   failed: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
 };
 
@@ -265,11 +265,11 @@ export default function AdminAIAssistant() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-neutral-900 dark:text-white">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground dark:text-primary-foreground">
             <Crown className="h-7 w-7 text-brand-purple" />
             AI Assistant
           </h1>
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
             Powered by Solas — your FRELUX Superagent. Describe any issue and
             get it fixed without leaving your admin.
           </p>
@@ -278,14 +278,14 @@ export default function AdminAIAssistant() {
           href={AGENT_CHAT_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple px-4 py-2 text-sm font-medium text-white hover:bg-brand-purple/90"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
           <ExternalLink className="h-4 w-4" /> Open Solas Chat
         </a>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="flex gap-1 border-b border-border dark:border-white/10">
         {[
           { id: "chat" as const, label: "Chat", icon: MessageSquare },
           { id: "history" as const, label: "Action History", icon: History },
@@ -300,7 +300,7 @@ export default function AdminAIAssistant() {
                 "flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors",
                 tab === t.id
                   ? "border-b-2 border-brand-purple text-brand-purple"
-                  : "text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200",
+                  : "text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -347,12 +347,12 @@ export default function AdminAIAssistant() {
                   <button
                     key={template.label}
                     onClick={() => applyTemplate(template)}
-                    className="flex items-center gap-3 rounded-xl border border-neutral-200 p-4 text-left transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10 dark:hover:border-brand-purple/30"
+                    className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10 dark:hover:border-brand-purple/30"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                    <span className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                       {template.label}
                     </span>
                   </button>
@@ -363,7 +363,7 @@ export default function AdminAIAssistant() {
 
           {/* Chat messages */}
           {messages.length > 0 && (
-            <div className="space-y-4 rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-brand-navy-mid">
+            <div className="space-y-4 rounded-xl border border-border bg-card p-4 dark:border-white/10 dark:bg-card">
               <div className="max-h-[500px] space-y-4 overflow-y-auto">
                 {messages.map((msg, i) => (
                   <div
@@ -374,7 +374,7 @@ export default function AdminAIAssistant() {
                     )}
                   >
                     {msg.role === "assistant" && (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                         <Crown className="h-4 w-4" />
                       </div>
                     )}
@@ -382,14 +382,14 @@ export default function AdminAIAssistant() {
                       className={classNames(
                         "max-w-[80%] rounded-2xl px-4 py-2.5 text-sm",
                         msg.role === "user"
-                          ? "bg-brand-purple text-white"
-                          : "bg-neutral-100 text-neutral-800 dark:bg-white/5 dark:text-neutral-200",
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-foreground dark:bg-white/5 dark:text-muted-foreground/60",
                       )}
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                     </div>
                     {msg.role === "user" && (
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-neutral-600 dark:bg-white/10 dark:text-neutral-300">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground dark:bg-white/10 dark:text-muted-foreground/80">
                         <span className="text-xs font-bold">
                           {user?.email?.[0]?.toUpperCase() || "A"}
                         </span>
@@ -399,11 +399,11 @@ export default function AdminAIAssistant() {
                 ))}
                 {sending && (
                   <div className="flex gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                       <Crown className="h-4 w-4" />
                     </div>
-                    <div className="rounded-2xl bg-neutral-100 px-4 py-3 dark:bg-white/5">
-                      <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+                    <div className="rounded-2xl bg-muted px-4 py-3 dark:bg-white/5">
+                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                     </div>
                   </div>
                 )}
@@ -421,24 +421,24 @@ export default function AdminAIAssistant() {
           )}
 
           {/* Input */}
-          <div className="rounded-xl border border-neutral-200 bg-white p-4 dark:border-white/10 dark:bg-brand-navy-mid">
+          <div className="rounded-xl border border-border bg-card p-4 dark:border-white/10 dark:bg-card">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Describe the issue you found, or what you want to change... e.g. 'The paint calculator dropdown is showing wrong prices for premium quality'"
               rows={3}
-              className="w-full resize-none rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-800 placeholder:text-neutral-400 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy dark:text-white dark:placeholder:text-neutral-500"
+              className="w-full resize-none rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-background dark:text-primary-foreground dark:placeholder:text-muted-foreground"
               disabled={sending}
             />
             <div className="mt-2 flex items-center justify-between">
-              <p className="text-xs text-neutral-400">
+              <p className="text-xs text-muted-foreground">
                 Press Enter to send · Shift+Enter for new line
               </p>
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || sending}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {sending ? (
                   <>
@@ -460,12 +460,12 @@ export default function AdminAIAssistant() {
       {tab === "history" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
               Recent Actions
             </h2>
             <button
               onClick={loadActions}
-              className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200"
+              className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60"
             >
               <RefreshCw
                 className={classNames(
@@ -482,12 +482,12 @@ export default function AdminAIAssistant() {
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="h-20 animate-pulse rounded-lg bg-neutral-100 dark:bg-white/5"
+                  className="h-20 animate-pulse rounded-lg bg-muted dark:bg-white/5"
                 />
               ))}
             </div>
           ) : actions.length === 0 ? (
-            <p className="rounded-lg border border-neutral-200 py-8 text-center text-sm text-neutral-400 dark:border-white/5 dark:text-neutral-500">
+            <p className="rounded-lg border border-border py-8 text-center text-sm text-muted-foreground dark:border-white/5 dark:text-muted-foreground">
               No actions yet. Start a conversation with Solas to track your
               fixes here.
             </p>
@@ -496,17 +496,17 @@ export default function AdminAIAssistant() {
               {actions.map((action) => (
                 <div
                   key={action.id}
-                  className="rounded-lg border border-neutral-200 p-4 dark:border-white/10"
+                  className="rounded-lg border border-border p-4 dark:border-white/10"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-neutral-900 dark:text-white">
+                      <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {action.title}
                       </p>
-                      <p className="mt-1 line-clamp-2 text-xs text-neutral-500 dark:text-neutral-400">
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground dark:text-muted-foreground">
                         {action.description}
                       </p>
-                      <p className="mt-1 text-xs text-neutral-400">
+                      <p className="mt-1 text-xs text-muted-foreground">
                         {new Date(action.created_at).toLocaleString()}
                       </p>
                     </div>
@@ -520,8 +520,8 @@ export default function AdminAIAssistant() {
                     </span>
                   </div>
                   {action.resolution && (
-                    <div className="mt-3 rounded-lg bg-neutral-50 p-3 dark:bg-white/5">
-                      <p className="line-clamp-3 text-xs text-neutral-600 dark:text-neutral-300">
+                    <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
+                      <p className="line-clamp-3 text-xs text-muted-foreground dark:text-muted-foreground/80">
                         {action.resolution}
                       </p>
                     </div>
@@ -543,14 +543,14 @@ export default function AdminAIAssistant() {
       {tab === "settings" && (
         <div className="space-y-6">
           {/* API Key Configuration */}
-          <div className="rounded-xl border border-neutral-200 p-6 dark:border-white/10">
+          <div className="rounded-xl border border-border p-6 dark:border-white/10">
             <div className="mb-4 flex items-center gap-2">
               <Key className="h-5 w-5 text-brand-purple" />
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
                 Solas API Key
               </h2>
             </div>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               Connect your admin to Solas (your FRELUX Superagent on Base44).
               You need the API key from your
               <a
@@ -564,7 +564,7 @@ export default function AdminAIAssistant() {
               → Developer/API Docs.
             </p>
 
-            <label className="mb-1.5 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
               Superagent API Key
             </label>
             <div className="flex gap-2">
@@ -573,12 +573,12 @@ export default function AdminAIAssistant() {
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="Enter your Solas API key"
-                className="flex-1 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
               />
               <button
                 onClick={saveApiKey}
                 disabled={!apiKey.trim() || apiKeySaving}
-                className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {apiKeySaving ? (
                   <>
@@ -593,21 +593,21 @@ export default function AdminAIAssistant() {
                 )}
               </button>
             </div>
-            <p className="mt-2 text-xs text-neutral-400">
+            <p className="mt-2 text-xs text-muted-foreground">
               The key is stored securely in your database and only accessible to
               admins.
             </p>
           </div>
 
           {/* Base44 Quick Access */}
-          <div className="rounded-xl border border-neutral-200 p-6 dark:border-white/10">
+          <div className="rounded-xl border border-border p-6 dark:border-white/10">
             <div className="mb-4 flex items-center gap-2">
               <ExternalLink className="h-5 w-5 text-brand-purple" />
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
                 Base44 Quick Access
               </h2>
             </div>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               Need to access Base44 directly? Use these links to jump into your
               dashboard, builder, or agent settings.
             </p>
@@ -616,16 +616,16 @@ export default function AdminAIAssistant() {
                 href={BASE44_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4 transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10"
+                className="flex items-center gap-3 rounded-lg border border-border p-4 transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <ExternalLink className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     Base44 Dashboard
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Main dashboard & app list
                   </p>
                 </div>
@@ -635,16 +635,16 @@ export default function AdminAIAssistant() {
                 href={AGENT_CHAT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4 transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10"
+                className="flex items-center gap-3 rounded-lg border border-border p-4 transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <Crown className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     Solas Chat
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Direct chat with Solas
                   </p>
                 </div>
@@ -654,16 +654,16 @@ export default function AdminAIAssistant() {
                 href={`${BASE44_URL}/superagent/6a872e1df3b5e9fc45fc13fb/settings`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4 transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10"
+                className="flex items-center gap-3 rounded-lg border border-border p-4 transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <Settings className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     Agent Settings
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Configure Solas, models, memory
                   </p>
                 </div>
@@ -673,16 +673,16 @@ export default function AdminAIAssistant() {
                 href={`${BASE44_URL}/docs`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-lg border border-neutral-200 p-4 transition-all hover:border-brand-purple hover:bg-brand-purple/5 dark:border-white/10"
+                className="flex items-center gap-3 rounded-lg border border-border p-4 transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                   <FileText className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-white">
+                  <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                     Documentation
                   </p>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-muted-foreground">
                     Base44 API docs & guides
                   </p>
                 </div>
@@ -691,14 +691,14 @@ export default function AdminAIAssistant() {
           </div>
 
           {/* API Configuration Panel */}
-          <div className="rounded-xl border border-neutral-200 p-6 dark:border-white/10">
+          <div className="rounded-xl border border-border p-6 dark:border-white/10">
             <div className="mb-4 flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-brand-purple" />
-              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+              <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
                 API Configuration
               </h2>
             </div>
-            <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
+            <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               Manage external API keys and endpoints used by FRELUX. Changes are
               saved to your database and take effect immediately. Use Solas chat
               to request API changes — just describe what you want to change and
@@ -706,13 +706,13 @@ export default function AdminAIAssistant() {
             </p>
             <div className="space-y-3">
               {/* Current integrations */}
-              <div className="rounded-lg border border-neutral-200 p-4 dark:border-white/10">
+              <div className="rounded-lg border border-border p-4 dark:border-white/10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                       Supabase Backend
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       Database, Auth, Edge Functions, Storage
                     </p>
                   </div>
@@ -722,13 +722,13 @@ export default function AdminAIAssistant() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-neutral-200 p-4 dark:border-white/10">
+              <div className="rounded-lg border border-border p-4 dark:border-white/10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                       Solas Superagent
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       AI-powered admin assistant & code fixes
                     </p>
                   </div>
@@ -745,17 +745,17 @@ export default function AdminAIAssistant() {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-neutral-200 p-4 dark:border-white/10">
+              <div className="rounded-lg border border-border p-4 dark:border-white/10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-neutral-900 dark:text-white">
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                       OpenAI (AI Features)
                     </p>
-                    <p className="text-xs text-neutral-500">
+                    <p className="text-xs text-muted-foreground">
                       Live chat, color consult, project assistant
                     </p>
                   </div>
-                  <span className="rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-500 dark:bg-white/5 dark:text-neutral-400">
+                  <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                     Check Integrations
                   </span>
                 </div>

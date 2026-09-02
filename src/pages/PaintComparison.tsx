@@ -120,7 +120,7 @@ export default function PaintComparison() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted-foreground">
               Loading paint comparisons…
             </p>
           </div>
@@ -136,7 +136,7 @@ export default function PaintComparison() {
           <>
             {/* Paint selector chips */}
             <div className="mb-8">
-              <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-neutral-500">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">
                 Select paints to compare
               </h2>
               <div className="flex flex-wrap gap-2">
@@ -148,8 +148,8 @@ export default function PaintComparison() {
                       onClick={() => togglePaint(c.id)}
                       className={`group inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
                         isSelected
-                          ? "bg-brand-purple text-white shadow-md shadow-brand-purple/25"
-                          : "border border-neutral-200 bg-white text-neutral-600 hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-400"
+                          ? "bg-primary text-primary-foreground shadow-md shadow-brand-purple/25"
+                          : "border border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground"
                       }`}
                     >
                       {isSelected ? (
@@ -165,12 +165,12 @@ export default function PaintComparison() {
             </div>
 
             {/* Premium comparison table */}
-            <div className="overflow-hidden rounded-2xl border border-neutral-200 shadow-lg dark:border-white/10">
+            <div className="overflow-hidden rounded-2xl border border-border shadow-lg dark:border-white/10">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-200 bg-gradient-to-r from-brand-purple/5 to-transparent dark:border-white/10">
-                      <th className="sticky left-0 z-10 bg-gradient-to-r from-brand-purple/5 to-transparent p-5 text-left font-bold text-neutral-500 dark:bg-brand-navy-mid">
+                    <tr className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent dark:border-white/10">
+                      <th className="sticky left-0 z-10 bg-gradient-to-r from-primary/5 to-transparent p-5 text-left font-bold text-muted-foreground dark:bg-card">
                         <span className="text-xs uppercase tracking-widest">
                           Feature
                         </span>
@@ -178,10 +178,10 @@ export default function PaintComparison() {
                       {visibleComparisons.map((c) => (
                         <th key={c.id} className="p-5 text-left">
                           <div className="flex items-center gap-2">
-                            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple">
+                            <div className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                               <Palette className="h-5 w-5" />
                             </div>
-                            <span className="font-bold text-brand-navy dark:text-white">
+                            <span className="font-bold text-foreground dark:text-primary-foreground">
                               {c.display_name}
                             </span>
                           </div>
@@ -191,8 +191,8 @@ export default function PaintComparison() {
                   </thead>
                   <tbody>
                     {/* Description row */}
-                    <tr className="border-b border-neutral-200 dark:border-white/10">
-                      <td className="sticky left-0 z-10 bg-white p-5 font-semibold text-neutral-500 dark:bg-brand-navy-mid">
+                    <tr className="border-b border-border dark:border-white/10">
+                      <td className="sticky left-0 z-10 bg-card p-5 font-semibold text-muted-foreground dark:bg-card">
                         <span className="text-xs uppercase tracking-widest">
                           Description
                         </span>
@@ -200,7 +200,7 @@ export default function PaintComparison() {
                       {visibleComparisons.map((c) => (
                         <td
                           key={c.id}
-                          className="p-5 text-neutral-600 dark:text-neutral-300"
+                          className="p-5 text-muted-foreground dark:text-muted-foreground/80"
                         >
                           {c.description || "—"}
                         </td>
@@ -211,13 +211,13 @@ export default function PaintComparison() {
                       return (
                         <tr
                           key={row.key}
-                          className={`border-b border-neutral-200 transition-colors hover:bg-brand-purple/5 dark:border-white/10 ${
+                          className={`border-b border-border transition-colors hover:bg-primary/5 dark:border-white/10 ${
                             i % 2 === 0
-                              ? "bg-neutral-50/50 dark:bg-white/[0.02]"
+                              ? "bg-muted/50 dark:bg-white/[0.02]"
                               : ""
                           }`}
                         >
-                          <td className="sticky left-0 z-10 bg-inherit p-5 font-semibold text-neutral-600 dark:text-neutral-400">
+                          <td className="sticky left-0 z-10 bg-inherit p-5 font-semibold text-muted-foreground dark:text-muted-foreground">
                             <span className="flex items-center gap-2">
                               {Icon && (
                                 <Icon className="h-4 w-4 text-brand-purple/60" />
@@ -228,7 +228,7 @@ export default function PaintComparison() {
                           {visibleComparisons.map((c) => (
                             <td
                               key={c.id}
-                              className="p-5 text-neutral-700 dark:text-neutral-300"
+                              className="p-5 text-card-foreground dark:text-muted-foreground/80"
                             >
                               {(c[row.key] as string) || "—"}
                             </td>
@@ -246,33 +246,33 @@ export default function PaintComparison() {
               {visibleComparisons.map((c, i) => (
                 <div
                   key={c.id}
-                  className="group relative overflow-hidden rounded-2xl border border-neutral-200 bg-white p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-brand-navy-mid"
+                  className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl dark:border-white/10 dark:bg-card"
                   style={{
                     animation: `fadeInUp 0.4s ease-out ${i * 80}ms both`,
                   }}
                 >
                   {/* Gradient accent bar */}
-                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-purple to-brand-purple/40 transition-all duration-500 group-hover:h-1.5" />
+                  <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary to-primary/40 transition-all duration-500 group-hover:h-1.5" />
 
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple transition-transform duration-300 group-hover:scale-110">
+                    <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-brand-purple transition-transform duration-300 group-hover:scale-110">
                       <Palette className="h-6 w-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+                    <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                       {c.display_name}
                     </h3>
                   </div>
 
-                  <p className="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
+                  <p className="mb-2 text-sm text-muted-foreground dark:text-muted-foreground">
                     {c.finish || ""}
                   </p>
-                  <p className="mb-5 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 line-clamp-3">
+                  <p className="mb-5 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground/80 line-clamp-3">
                     {c.description || ""}
                   </p>
 
                   <Link
                     to="/paint-calculator"
-                    className="group/btn inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-purple/20 transition-all duration-300 hover:bg-brand-purple/90 hover:shadow-lg hover:shadow-brand-purple/30 active:scale-95"
+                    className="group/btn inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-brand-purple/30 active:scale-95"
                   >
                     Calculate {c.display_name}
                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
@@ -282,18 +282,18 @@ export default function PaintComparison() {
             </div>
 
             {/* Help section */}
-            <div className="mt-10 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 via-transparent to-transparent p-6 sm:p-8">
-              <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+            <div className="mt-10 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 via-transparent to-transparent p-6 sm:p-8">
+              <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                 Need more help choosing?
               </h3>
-              <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+              <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
                 Use our AI Color Assistant for personalized recommendations, or
                 create a project to organize your painting work.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
                   to="/ai-color-assistant"
-                  className="group inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-semibold text-brand-navy transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-white"
+                  className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   <Eye className="h-4 w-4 text-brand-purple transition-transform duration-300 group-hover:rotate-12" />
                   AI Color Assistant
@@ -301,14 +301,14 @@ export default function PaintComparison() {
                 </Link>
                 <Link
                   to="/start-building"
-                  className="group inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-semibold text-brand-navy transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-white"
+                  className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   Create a Project
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   to="/learn/category/painting-guides"
-                  className="group inline-flex items-center gap-2 rounded-lg border border-neutral-200 px-5 py-2.5 text-sm font-semibold text-brand-navy transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-white"
+                  className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   Learn More
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
@@ -320,11 +320,11 @@ export default function PaintComparison() {
 
         {!loading && !error && comparisons.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Palette className="h-12 w-12 text-neutral-300 mb-4" />
-            <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-400">
+            <Palette className="h-12 w-12 text-muted-foreground/80 mb-4" />
+            <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground">
               No paint comparison data available yet.
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Please check back soon.
             </p>
           </div>

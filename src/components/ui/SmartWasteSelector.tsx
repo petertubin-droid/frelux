@@ -31,29 +31,29 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
   }, [surface, method, isRepair, projectType, coats, expanded]);
 
   return (
-    <div className="rounded-lg border border-neutral-200 dark:border-neutral-700">
+    <div className="rounded-lg border border-border dark:border-border border-border">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+        className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50 dark:hover:bg-card-foreground/50"
       >
         <div className="flex items-center gap-2">
           <Lightbulb aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <span className="text-sm font-semibold text-brand-navy dark:text-white">Smart waste calculator</span>
+          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">Smart waste calculator</span>
           {result && !expanded && (
-            <span className="rounded-full bg-brand-purple/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
               {result.wasteMargin}%
             </span>
           )}
         </div>
-        <ChevronDown className={classNames('h-4 w-4 text-neutral-500 transition-transform', expanded && 'rotate-180')} />
+        <ChevronDown className={classNames('h-4 w-4 text-muted-foreground transition-transform', expanded && 'rotate-180')} />
       </button>
 
       {expanded && (
-        <div className="border-t border-neutral-100 p-3 dark:border-white/5">
+        <div className="border-t border-border/50 p-3 dark:border-white/5">
           {/* Surface condition */}
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-neutral-500">Surface condition</label>
+            <label className="block text-xs font-semibold text-muted-foreground">Surface condition</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['smooth', 'textured', 'rough'] as SurfaceCondition[]).map((s) => (
                 <button
@@ -63,8 +63,8 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   className={classNames(
                     'rounded-lg border py-2 text-xs font-medium capitalize transition-all',
                     surface === s
-                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-neutral-700',
+                      ? 'border-brand-purple bg-primary/5 text-brand-purple'
+                      : 'border-border text-muted-foreground hover:border-border dark:border-border border-border',
                   )}
                 >
                   {s}
@@ -75,7 +75,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
 
           {/* Application method */}
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-neutral-500">Application method</label>
+            <label className="block text-xs font-semibold text-muted-foreground">Application method</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['brush', 'roller', 'spray'] as ApplicationMethod[]).map((m) => (
                 <button
@@ -85,8 +85,8 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   className={classNames(
                     'rounded-lg border py-2 text-xs font-medium capitalize transition-all',
                     method === m
-                      ? 'border-brand-purple bg-brand-purple/5 text-brand-purple'
-                      : 'border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-neutral-700',
+                      ? 'border-brand-purple bg-primary/5 text-brand-purple'
+                      : 'border-border text-muted-foreground hover:border-border dark:border-border border-border',
                   )}
                 >
                   {m}
@@ -97,34 +97,34 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
 
           {/* Repair work */}
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500">Repair / patch work?</span>
+            <span className="text-xs font-semibold text-muted-foreground">Repair / patch work?</span>
             <button
               type="button"
               onClick={() => setIsRepair(!isRepair)}
               className={classNames(
                 'relative h-5 w-9 rounded-full transition-colors',
-                isRepair ? 'bg-accent-green' : 'bg-neutral-300',
+                isRepair ? 'bg-accent-green' : 'bg-muted',
               )}
             >
-              <span className={classNames('absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform', isRepair ? 'translate-x-4' : 'translate-x-0.5')} />
+              <span className={classNames('absolute top-0.5 h-4 w-4 rounded-full bg-card transition-transform', isRepair ? 'translate-x-4' : 'translate-x-0.5')} />
             </button>
           </div>
 
           {/* Result */}
           {result && (
-            <div className="mt-3 rounded-lg bg-brand-purple/5 p-3">
+            <div className="mt-3 rounded-lg bg-primary/5 p-3">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-sm font-bold text-brand-purple">
                   <Lightbulb aria-hidden="true" className="h-4 w-4" />
                   Recommended: {result.wasteMargin}% waste
                 </span>
-                <span className="text-xs text-neutral-500">Current: {currentWaste}%</span>
+                <span className="text-xs text-muted-foreground">Current: {currentWaste}%</span>
               </div>
-              <p className="mt-1.5 text-xs text-neutral-500 dark:text-neutral-500">{result.reason}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground dark:text-muted-foreground">{result.reason}</p>
               <button
                 type="button"
                 onClick={() => onWasteChange(result.wasteMargin)}
-                className="mt-2 w-full rounded-lg bg-brand-purple py-2 text-xs font-bold text-white transition-colors hover:bg-brand-purple/90"
+                className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Apply {result.wasteMargin}% to calculation
               </button>

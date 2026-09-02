@@ -47,17 +47,17 @@ export default function AdminOverview() {
           return (
             <Link key={c.label} to={c.to} className="card group p-5 transition-all hover:-translate-y-0.5 hover:shadow-md">
               <div className="flex items-center justify-between">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Icon className="h-5 w-5" /></span>
-                <ArrowRight aria-hidden="true" className="h-4 w-4 text-neutral-300 transition-transform group-hover:translate-x-0.5" />
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple"><Icon className="h-5 w-5" /></span>
+                <ArrowRight aria-hidden="true" className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5" />
               </div>
-              <p className="mt-4 text-3xl font-bold text-brand-navy dark:text-white">{c.value}</p>
-              <p className="text-sm text-neutral-500 dark:text-neutral-500">{c.label}</p>
+              <p className="mt-4 text-3xl font-bold text-foreground dark:text-primary-foreground">{c.value}</p>
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground">{c.label}</p>
             </Link>
           );
         })}
       </div>
       <AdminCard className="mt-6">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">All records</h2>
+        <h2 className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">All records</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           <StatRow label="Paint products" value={counts?.paint_products ?? 0} />
           <StatRow label="Material prices" value={counts?.material_prices ?? 0} />
@@ -70,5 +70,5 @@ export default function AdminOverview() {
 }
 
 function StatRow({ label, value }: { label: string; value: number }) {
-  return (<div className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3"><span className="text-sm text-neutral-600">{label}</span><span className="text-sm font-bold text-brand-navy dark:text-white">{value}</span></div>);
+  return (<div className="flex items-center justify-between rounded-lg border border-border px-4 py-3"><span className="text-sm text-muted-foreground">{label}</span><span className="text-sm font-bold text-foreground dark:text-primary-foreground">{value}</span></div>);
 }

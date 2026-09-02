@@ -62,14 +62,14 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
   const progress = items.length > 0 ? Math.round((checkedCount / items.length) * 100) : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-900/40 p-4 dark:bg-black/60">
-      <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-brand-navy-mid">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 dark:bg-black/60">
+      <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-xl bg-card p-6 shadow-xl dark:bg-card">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingBag aria-hidden="true" className="h-5 w-5 text-brand-purple" />
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">{title}</h2>
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">{title}</h2>
           </div>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800">
+          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90">
             <X aria-hidden="true" className="h-5 w-5" />
           </button>
         </div>
@@ -77,12 +77,12 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
         {/* Progress bar */}
         {items.length > 0 && (
           <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-500">
+            <div className="flex items-center justify-between text-xs text-muted-foreground dark:text-muted-foreground">
               <span>{checkedCount} of {items.length} items</span>
               <span>{progress}% complete</span>
             </div>
-            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
-              <div className="h-full rounded-full bg-brand-purple transition-all" style={{ width: `${progress}%` }} />
+            <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted dark:bg-card-foreground/80">
+              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
             </div>
           </div>
         )}
@@ -98,20 +98,20 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
                 'flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all',
                 item.checked
                   ? 'border-accent-green/30 bg-accent-green/5'
-                  : 'border-neutral-200 hover:border-brand-purple/30 dark:border-neutral-700 dark:hover:border-brand-purple/30',
+                  : 'border-border hover:border-brand-purple/30 dark:border-border border-border dark:hover:border-brand-purple/30',
               )}
             >
               <span className={classNames(
                 'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-all',
-                item.checked ? 'border-accent-green bg-accent-green text-white' : 'border-neutral-300 dark:border-neutral-600',
+                item.checked ? 'border-accent-green bg-accent-green text-primary-foreground' : 'border-border dark:border-border',
               )}>
                 {item.checked && <Check aria-hidden="true" className="h-3.5 w-3.5" />}
               </span>
               <div className="min-w-0 flex-1">
-                <p className={classNames('text-sm font-semibold', item.checked ? 'text-neutral-500 line-through dark:text-neutral-500' : 'text-brand-navy dark:text-white')}>
+                <p className={classNames('text-sm font-semibold', item.checked ? 'text-muted-foreground line-through dark:text-muted-foreground' : 'text-foreground dark:text-primary-foreground')}>
                   {item.quantity}, {item.name}
                 </p>
-                {item.detail && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{item.detail}</p>}
+                {item.detail && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{item.detail}</p>}
               </div>
             </button>
           ))}
@@ -119,10 +119,10 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
 
         {/* Actions */}
         <div className="mt-5 flex gap-3">
-          <button type="button" onClick={handleShare} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-accent-green/90">
+          <button type="button" onClick={handleShare} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90">
             <Share2 className="h-4 w-4" /> Share on WhatsApp
           </button>
-          <button type="button" onClick={handlePrint} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 py-2.5 text-sm font-bold text-neutral-600 transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-neutral-700 dark:text-neutral-300">
+          <button type="button" onClick={handlePrint} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-bold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
             <Printer className="h-4 w-4" /> Print
           </button>
         </div>

@@ -188,7 +188,7 @@ function Select<T extends string>({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+      <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
         {label}
       </label>
       <select
@@ -276,7 +276,7 @@ function RoomForm({
       {/* Basic info */}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
             Room Name
           </label>
           <input
@@ -304,7 +304,7 @@ function RoomForm({
       {/* Dimensions */}
       <div className="grid gap-3 sm:grid-cols-4">
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
             Length ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -317,7 +317,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
             Width ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -330,7 +330,7 @@ function RoomForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-500">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
             Height ({form.unit === 'meters' ? 'm' : 'ft'})
           </label>
           <input
@@ -387,10 +387,10 @@ function RoomForm({
       </div>
 
       {/* Waste factor + prep preview */}
-      <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 p-4">
+      <div className="rounded-lg border border-border dark:border-white/5 bg-muted/50 dark:bg-white/5 p-4">
         <div className="flex items-center gap-2">
           <Info className="h-4 w-4 text-brand-purple" />
-          <span className="text-sm font-semibold text-brand-navy dark:text-white">
+          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
             Waste Factor: {wasteFactor}%
           </span>
           <Badge
@@ -399,7 +399,7 @@ function RoomForm({
             {wasteFactor <= 10 ? 'Low' : wasteFactor <= 20 ? 'Moderate' : 'High'}
           </Badge>
         </div>
-        <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
           Auto-calculated from surface condition, surface type, wall smoothness,
           and porosity. Higher waste factors mean more material will be needed
           to complete the job.
@@ -407,7 +407,7 @@ function RoomForm({
 
         {surfacePrep.length > 0 && (
           <div className="mt-3 space-y-1.5">
-            <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+            <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
               Surface Prep Recommendations:
             </p>
             {surfacePrep.map((step, i) => (
@@ -415,10 +415,10 @@ function RoomForm({
                 <Badge variant={PRIORITY_BADGE_VARIANT[step.priority]}>
                   {step.priority}
                 </Badge>
-                <span className="text-xs text-neutral-600 dark:text-neutral-300">
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground/80">
                   {step.action}
                   {step.product && (
-                    <span className="text-neutral-500 dark:text-neutral-500"> — {step.product}</span>
+                    <span className="text-muted-foreground dark:text-muted-foreground"> — {step.product}</span>
                   )}
                 </span>
               </div>
@@ -483,21 +483,21 @@ function RoomCard({
       <div className="flex items-start gap-3 p-4">
         {/* Drag handle (visual only) */}
         <div className="flex flex-col items-center gap-0.5 pt-1">
-          <GripVertical className="h-5 w-5 cursor-grab text-neutral-300" />
-          <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-500">
+          <GripVertical className="h-5 w-5 cursor-grab text-muted-foreground/80" />
+          <span className="text-[10px] font-bold text-muted-foreground dark:text-muted-foreground">
             {index + 1}
           </span>
         </div>
 
         {/* Room icon */}
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
           <RoomIcon className="h-5 w-5 text-brand-purple" />
         </div>
 
         {/* Info */}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h4 className="truncate text-base font-bold text-brand-navy dark:text-white">
+            <h4 className="truncate text-base font-bold text-foreground dark:text-primary-foreground">
               {room.name}
             </h4>
             <Badge variant="purple">{ROOM_TYPE_LABELS[room.room_type]}</Badge>
@@ -508,16 +508,16 @@ function RoomCard({
               </Badge>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-neutral-500 dark:text-neutral-500">
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
             {dimensions && <span>{dimensions}</span>}
             <span>Waste: {wasteFactor}%</span>
             {room.material_cost > 0 && (
-              <span className="font-semibold text-brand-navy dark:text-white">
+              <span className="font-semibold text-foreground dark:text-primary-foreground">
                 Material: ₦{room.material_cost.toLocaleString()}
               </span>
             )}
             {room.labour_cost > 0 && (
-              <span className="font-semibold text-brand-navy dark:text-white">
+              <span className="font-semibold text-foreground dark:text-primary-foreground">
                 Labour: ₦{room.labour_cost.toLocaleString()}
               </span>
             )}
@@ -529,7 +529,7 @@ function RoomCard({
           <button
             type="button"
             onClick={() => setExpanded((p) => !p)}
-            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+            className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
             aria-label={expanded ? 'Collapse room details' : 'Expand room details'}
             aria-expanded={expanded}
           >
@@ -542,7 +542,7 @@ function RoomCard({
           <button
             type="button"
             onClick={onEdit}
-            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-brand-purple/10 hover:text-brand-purple"
+            className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-primary/10 hover:text-brand-purple"
             aria-label="Edit room"
           >
             <Edit3 className="h-4 w-4" />
@@ -550,7 +550,7 @@ function RoomCard({
           <button
             type="button"
             onClick={() => setConfirmDelete(true)}
-            className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
+            className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
             aria-label="Delete room"
           >
             <Trash2 className="h-4 w-4" />
@@ -560,7 +560,7 @@ function RoomCard({
 
       {/* Expandable details */}
       {expanded && (
-        <div className="animate-slide-down border-t border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5">
+        <div className="animate-slide-down border-t border-border dark:border-white/5 bg-muted/50 dark:bg-white/5">
           {/* Surface assessment */}
           <div className="p-4">
             <div className="flex items-center gap-2">
@@ -571,43 +571,43 @@ function RoomCard({
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Condition
                 </p>
-                <p className="text-sm font-medium text-brand-navy dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {SURFACE_CONDITION_LABELS[room.surface_condition]}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Surface Type
                 </p>
-                <p className="text-sm font-medium text-brand-navy dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {SURFACE_TYPE_LABELS[room.surface_type]}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Smoothness
                 </p>
-                <p className="text-sm font-medium text-brand-navy dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {SMOOTHNESS_LABELS[room.wall_smoothness]}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                   Porosity
                 </p>
-                <p className="text-sm font-medium text-brand-navy dark:text-white">
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                   {POROSITY_LABELS[room.porosity]}
                 </p>
               </div>
             </div>
 
             {/* Waste factor explanation */}
-            <div className="mt-4 rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
+            <div className="mt-4 rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-brand-navy dark:text-white">
+                <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                   Waste Factor: {wasteFactor}%
                 </span>
                 <Badge
@@ -626,7 +626,7 @@ function RoomCard({
                       : 'High Waste'}
                 </Badge>
               </div>
-              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 Calculated from the surface assessment above. Surface condition,
                 type, smoothness, and porosity each contribute, rougher or more
                 porous surfaces with damage require extra material to account for
@@ -647,18 +647,18 @@ function RoomCard({
                   {room.surface_prep.map((step: SurfacePrepStep, i: number) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-2.5"
+                      className="flex items-start gap-2 rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-2.5"
                     >
                       <Badge variant={PRIORITY_BADGE_VARIANT[step.priority]}>
                         {step.priority}
                       </Badge>
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-brand-navy dark:text-white">
+                        <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                           {step.action}
                         </p>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-500">{step.reason}</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">{step.reason}</p>
                         {step.product && (
-                          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">
+                          <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                             <span className="font-semibold">Product:</span>{' '}
                             {step.product}
                           </p>
@@ -677,24 +677,24 @@ function RoomCard({
                   Calculation Result
                 </h5>
                 <div className="mt-2 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                  <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Material Cost
                     </p>
-                    <p className="text-lg font-bold text-brand-navy dark:text-white">
+                    <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                       ₦{room.material_cost.toLocaleString()}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                  <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Labour Cost
                     </p>
-                    <p className="text-lg font-bold text-brand-navy dark:text-white">
+                    <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                       ₦{room.labour_cost.toLocaleString()}
                     </p>
                   </div>
-                  <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-3">
-                    <p className="text-[11px] font-semibold uppercase text-neutral-500 dark:text-neutral-500">
+                  <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
+                    <p className="text-[11px] font-semibold uppercase text-muted-foreground dark:text-muted-foreground">
                       Room Total
                     </p>
                     <p className="text-lg font-bold text-brand-purple">
@@ -748,7 +748,7 @@ function RoomCard({
                   setConfirmDelete(false);
                   onDelete();
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-150 hover:bg-red-700 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all duration-150 hover:bg-red-700 active:scale-95"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete
@@ -790,19 +790,19 @@ function CalculatorModal({
       {/* Modal */}
       <div className="relative z-10 w-full max-w-2xl animate-fade-in-up">
         <div className="card max-h-[90vh] overflow-y-auto">
-          <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border dark:border-white/5 px-5 py-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <Calculator className="h-4.5 w-4.5 text-brand-purple" />
               </div>
-              <h3 className="text-base font-bold text-brand-navy dark:text-white">
+              <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
                 Calculator, {room.name}
               </h3>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+              className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
               aria-label="Close calculator"
             >
               <ChevronDown className="h-4 w-4" />
@@ -967,8 +967,8 @@ export function RoomBuilder({
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-brand-navy dark:text-white">Rooms</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-500">
+          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">Rooms</h2>
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             {rooms.length} room{rooms.length !== 1 ? 's' : ''} in this project
           </p>
         </div>
@@ -1047,7 +1047,7 @@ export function RoomBuilder({
                     <button
                       type="button"
                       onClick={() => setEditingId(null)}
-                      className="rounded-lg p-1.5 text-neutral-500 dark:text-neutral-500 transition-all duration-300 hover:bg-neutral-100 hover:text-brand-navy dark:text-white"
+                      className="rounded-lg p-1.5 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
                       aria-label="Close edit form"
                     >
                       <ChevronUp className="h-4 w-4" />

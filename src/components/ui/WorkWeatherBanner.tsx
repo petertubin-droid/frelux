@@ -51,11 +51,11 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
 
   if (loading) {
     return (
-      <div className="mb-4 flex items-center gap-3 rounded-2xl border border-neutral-200/60 bg-gradient-to-br from-white to-neutral-50 p-4 dark:border-white/10 dark:from-brand-navy-mid dark:to-brand-navy">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/10">
+      <div className="mb-4 flex items-center gap-3 rounded-2xl border border-border/60 bg-gradient-to-br from-card to-muted/50 p-4 dark:border-white/10 dark:from-card dark:to-background">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
           <CloudRain className="h-5 w-5 animate-pulse text-brand-purple" />
         </div>
-        <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
           Checking weather for {WORK_LABELS[workType].toLowerCase()}…
         </p>
       </div>
@@ -107,7 +107,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
       <div className="flex items-center gap-3 p-4">
         {/* Weather condition icon badge */}
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm dark:bg-white/10">
-          {conditionIcon(today.condition, "h-6 w-6 text-brand-navy dark:text-white")}
+          {conditionIcon(today.condition, "h-6 w-6 text-foreground dark:text-primary-foreground")}
         </div>
 
         {/* Rating + condition */}
@@ -120,7 +120,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                 : `${config.label} — postpone ${WORK_LABELS[workType].toLowerCase()}`}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+          <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
             {city} · {today.dayName} {today.condition}
           </p>
         </div>
@@ -138,7 +138,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
         {/* Expand toggle */}
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-neutral-500 transition-colors hover:bg-white/50 hover:text-neutral-700 dark:text-neutral-400 dark:hover:bg-white/5 dark:hover:text-neutral-200"
+          className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/50 hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
         >
           {goodDays}/5
           <ChevronDown className={classNames("h-3 w-3 transition-transform", expanded && "rotate-180")} />
@@ -157,7 +157,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
 
       {/* Expandable 5-day forecast */}
       {expanded && (
-        <div className="border-t border-neutral-200/50 bg-white/40 p-3 dark:border-white/10 dark:bg-white/5">
+        <div className="border-t border-border/50 bg-white/40 p-3 dark:border-white/10 dark:bg-white/5">
           <div className="grid grid-cols-5 gap-2">
             {days.map((day) => {
               const r = ratingConfig[day.paintRating];
@@ -166,17 +166,17 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                   key={day.date}
                   className="flex flex-col items-center gap-1.5 rounded-xl bg-white/70 p-2.5 text-center shadow-sm dark:bg-white/5"
                 >
-                  <p className="text-[11px] font-semibold text-neutral-600 dark:text-neutral-300">
+                  <p className="text-[11px] font-semibold text-muted-foreground dark:text-muted-foreground/80">
                     {day.dayName}
                   </p>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-neutral-100 dark:bg-white/5">
-                    {conditionIcon(day.condition, "h-4 w-4 text-brand-navy dark:text-neutral-200")}
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-white/5">
+                    {conditionIcon(day.condition, "h-4 w-4 text-foreground dark:text-muted-foreground/60")}
                   </div>
                   <r.Icon className={classNames("h-3.5 w-3.5", r.color)} />
-                  <p className="text-[10px] font-medium text-neutral-500 dark:text-neutral-400">
+                  <p className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground">
                     {Math.round(day.tempMax)}°
                   </p>
-                  <p className="text-[9px] text-neutral-400 dark:text-neutral-500">
+                  <p className="text-[9px] text-muted-foreground dark:text-muted-foreground">
                     {day.humidity}%
                   </p>
                 </div>
@@ -191,7 +191,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
 
 function MetricChip({ icon, value }: { icon: React.ReactNode; value: string }) {
   return (
-    <div className="flex items-center gap-1 rounded-lg bg-white/60 px-2 py-1 text-xs font-medium text-neutral-600 shadow-sm dark:bg-white/10 dark:text-neutral-300">
+    <div className="flex items-center gap-1 rounded-lg bg-white/60 px-2 py-1 text-xs font-medium text-muted-foreground shadow-sm dark:bg-white/10 dark:text-muted-foreground/80">
       {icon}
       {value}
     </div>

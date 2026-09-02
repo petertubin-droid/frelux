@@ -826,11 +826,11 @@ export default function PaintCalculator({
         )}
 
         {!result && paintTypes.length === 0 && !typesLoading && (
-          <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-8 text-center">
-            <p className="text-sm font-semibold text-neutral-600">
+          <div className="rounded-xl border border-dashed border-border bg-muted/50 p-8 text-center">
+            <p className="text-sm font-semibold text-muted-foreground">
               No paint types configured
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               An administrator needs to add paint types with coverage rates
               before the calculator can produce results.
             </p>
@@ -851,7 +851,7 @@ export default function PaintCalculator({
         )}
 
         {!result && paintTypes.length > 0 ? (
-          <div className="mt-8 card p-6 sm:p-8 dark:border-white/5 dark:bg-brand-navy-mid">
+          <div className="mt-8 card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
             <div className="mb-6 flex justify-end">
               <TemplatePicker
                 calculatorType="paint"
@@ -882,7 +882,7 @@ export default function PaintCalculator({
               />
             )}
 
-            <div className="mt-8 flex items-center justify-between border-t border-neutral-100 pt-6">
+            <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
               <button
                 type="button"
                 onClick={back}
@@ -1027,10 +1027,10 @@ function Step1({
 }) {
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+      <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
         Choose project type
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Select what you're painting to tailor the calculation.
       </p>
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -1045,25 +1045,25 @@ function Step1({
               className={
                 "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
                 (selected
-                  ? "select-card-active border-brand-purple bg-brand-purple/5 ring-2 ring-brand-purple/20"
-                  : "border-neutral-200")
+                  ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
+                  : "border-border")
               }
             >
               <span
                 className={
                   "inline-flex h-10 w-10 items-center justify-center rounded-lg " +
                   (selected
-                    ? "bg-brand-purple text-white"
-                    : "bg-neutral-100 text-neutral-600")
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground")
                 }
               >
                 <Icon className="h-5 w-5" />
               </span>
               <span>
-                <span className="block text-sm font-semibold text-brand-navy dark:text-white">
+                <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {p.label}
                 </span>
-                <span className="block text-xs text-neutral-500">
+                <span className="block text-xs text-muted-foreground">
                   {p.description}
                 </span>
               </span>
@@ -1093,14 +1093,14 @@ function Step2({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+      <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
         Enter measurements
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Provide the dimensions of the area you're painting.
       </p>
 
-      <div className="mt-5 inline-flex rounded-lg border border-neutral-200 p-1">
+      <div className="mt-5 inline-flex rounded-lg border border-border p-1">
         {(["meters", "feet"] as Unit[]).map((u) => (
           <button
             key={u}
@@ -1109,8 +1109,8 @@ function Step2({
             className={
               "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
               (input.unit === u
-                ? "bg-brand-purple text-white"
-                : "text-neutral-600 hover:text-brand-purple")
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-brand-purple")
             }
             aria-pressed={input.unit === u}
           >
@@ -1118,9 +1118,9 @@ function Step2({
           </button>
         ))}
       </div>
-      <p className="mt-2 text-xs text-neutral-500">
+      <p className="mt-2 text-xs text-muted-foreground">
         Currently using{" "}
-        <span className="font-semibold text-neutral-600">{input.unit}</span>.
+        <span className="font-semibold text-muted-foreground">{input.unit}</span>.
       </p>
 
       <div
@@ -1178,16 +1178,16 @@ function Step2({
       </div>
 
       {!isFence && !isExterior && (
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-neutral-200 p-4">
+        <div className="mt-6 flex items-center gap-3 rounded-lg border border-border p-4">
           <Toggle
             checked={input.includeCeiling}
             onChange={(v) => update("includeCeiling", v)}
           />
           <div>
-            <p className="text-sm font-semibold text-neutral-700">
+            <p className="text-sm font-semibold text-card-foreground">
               Include ceiling
             </p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               Adds the ceiling area (length × width) to the paintable surface.
               Requires width to be entered.
             </p>
@@ -1195,7 +1195,7 @@ function Step2({
         </div>
       )}
 
-      <p className="mt-4 text-xs text-neutral-500">
+      <p className="mt-4 text-xs text-muted-foreground">
         Calculations are performed in metric internally; feet values are
         converted automatically.
       </p>
@@ -1269,10 +1269,10 @@ function Step3({
 
   return (
     <div>
-      <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+      <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
         Surface details
       </h2>
-      <p className="mt-1 text-sm text-neutral-500">
+      <p className="mt-1 text-sm text-muted-foreground">
         Tell us about the finish you want
         {showOpenings ? ", plus doors and windows" : ""}.
       </p>
@@ -1421,10 +1421,10 @@ function Step3({
       {/* Quality selection — type-specific, dynamic from admin config */}
       {matchedEstProduct && (
         <div className="mt-4">
-          <span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">
+          <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
             Quality
           </span>
-          <p className="mt-0.5 text-xs text-neutral-500">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             Select the quality level for {matchedEstProduct.name}.
           </p>
           {availableQualities.length === 0 ? (
@@ -1460,24 +1460,24 @@ function Step3({
                 })}
               </select>
               {selectedQualityId && selectedQuality && (
-                <div className="mt-2 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-3 text-xs dark:border-brand-purple/30 dark:bg-brand-purple/10">
+                <div className="mt-2 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-xs dark:border-brand-purple/30 dark:bg-primary/10">
                   <p className="font-semibold text-brand-purple dark:text-brand-purple-lighter">
                     {selectedQuality.name}
                   </p>
                   {selectedQuality.coverage && (
-                    <p className="mt-0.5 text-neutral-600 dark:text-neutral-400">
+                    <p className="mt-0.5 text-muted-foreground dark:text-muted-foreground">
                       Coverage: {selectedQuality.coverage} m²/L per coat
                     </p>
                   )}
                   {selectedQualityPrice && (
-                    <p className="mt-0.5 text-neutral-600 dark:text-neutral-400">
+                    <p className="mt-0.5 text-muted-foreground dark:text-muted-foreground">
                       Price:{" "}
                       {selectedQualityPrice.currency === "NGN" ? "₦" : ""}
                       {selectedQualityPrice.price.toLocaleString()} per bucket
                     </p>
                   )}
                   {selectedQuality.description && (
-                    <p className="mt-0.5 text-neutral-500 dark:text-neutral-400">
+                    <p className="mt-0.5 text-muted-foreground dark:text-muted-foreground">
                       {selectedQuality.description}
                     </p>
                   )}
@@ -1489,10 +1489,10 @@ function Step3({
       )}
 
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-neutral-700">
+        <span className="block text-sm font-semibold text-card-foreground">
           Waste / safety margin
         </span>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Extra paint added to account for spills, roller waste, and touch ups.
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
@@ -1504,8 +1504,8 @@ function Step3({
               className={
                 "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                 (input.wasteMargin === w
-                  ? "border-brand-purple bg-brand-purple text-white"
-                  : "border-neutral-200 text-neutral-600 hover:border-neutral-300")
+                  ? "border-brand-purple bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground hover:border-border")
               }
             >
               {w}%
@@ -1521,10 +1521,10 @@ function Step3({
 
       {/* Surface condition */}
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-neutral-700">
+        <span className="block text-sm font-semibold text-card-foreground">
           Surface condition
         </span>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Affects coverage — rough surfaces absorb more paint.
         </p>
         <select
@@ -1544,10 +1544,10 @@ function Step3({
 
       {/* Colour condition */}
       <div className="mt-4">
-        <span className="block text-sm font-semibold text-neutral-700">
+        <span className="block text-sm font-semibold text-card-foreground">
           Colour change
         </span>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Dark colours over light may need extra coats or primer.
         </p>
         <select
@@ -1578,16 +1578,16 @@ function Step3({
       </div>
 
       {/* Primer toggle */}
-      <div className="mt-4 flex items-center gap-3 rounded-lg border border-neutral-200 p-4">
+      <div className="mt-4 flex items-center gap-3 rounded-lg border border-border p-4">
         <Toggle
           checked={input.includePrimer ?? false}
           onChange={(v) => update("includePrimer", v)}
         />
         <div>
-          <p className="text-sm font-semibold text-neutral-700">
+          <p className="text-sm font-semibold text-card-foreground">
             Include primer / sealer
           </p>
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-muted-foreground">
             {surfaceConditionOptions.find(
               (o) => o.key === (input.surfaceCondition ?? "smooth"),
             )?.primerRecommended
@@ -1633,7 +1633,7 @@ function ResultCard({
 }) {
   return (
     <div className="mt-8 card overflow-hidden dark:border-white/5 animate-fade-in-up dark:border-white/5">
-      <div className="relative bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white sm:p-8">
+      <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground sm:p-8">
         <div
           className="pointer-events-none absolute inset-0 overflow-hidden"
           aria-hidden="true"
@@ -1646,7 +1646,7 @@ function ResultCard({
             Your estimate
           </span>
         </div>
-        <p className="relative mt-3 text-sm text-white/60">
+        <p className="relative mt-3 text-sm text-primary-foreground/60">
           {input.projectType} project · {result.coats} coat
           {result.coats > 1 ? "s" : ""} · {paintTypeName}
           {qualityName && ` · ${qualityName}`}
@@ -1658,12 +1658,12 @@ function ResultCard({
           {result.recommendedContainers.reduce((s, c) => s + c.count, 0)}{" "}
           buckets
         </p>
-        <p className="relative mt-1 text-sm text-white/60">
+        <p className="relative mt-1 text-sm text-primary-foreground/60">
           estimated paint buckets required for your project
         </p>
       </div>
 
-      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-brand-navy-mid">
+      <div className="grid gap-4 p-6 sm:grid-cols-2 sm:p-8 dark:bg-card">
         <Stat
           label="Paintable area"
           value={`${formatNumber(result.paintableArea)} m²`}
@@ -1728,7 +1728,7 @@ function ResultCard({
 
       {/* Warnings */}
       {(result.heightWarning || result.colorWarning) && (
-        <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5 space-y-2">
+        <div className="border-t border-border/50 px-6 py-4 sm:px-8 dark:border-white/5 space-y-2">
           {result.heightWarning && (
             <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -1746,40 +1746,40 @@ function ResultCard({
 
       {/* Primer */}
       {result.primerLiters > 0 && (
-        <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+        <div className="border-t border-border/50 px-6 py-4 sm:px-8 dark:border-white/5">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             Primer / sealer
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             {result.primerContainers.map((c, i) => (
               <span
                 key={i}
-                className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white"
+                className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground"
               >
                 {c.count} × {c.size} L bucket
               </span>
             ))}
-            <span className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-3 py-1.5 text-sm font-semibold text-brand-purple">
+            <span className="rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-semibold text-brand-purple">
               {result.primerContainers.reduce((s, c) => s + c.count, 0)} buckets
               needed
             </span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Primer covers ~30% more area per litre than paint. Applied as 1 coat
             before painting.
           </p>
         </div>
       )}
 
-      <div className="border-t border-neutral-100 px-6 py-4 sm:px-8 dark:border-white/5">
-        <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+      <div className="border-t border-border/50 px-6 py-4 sm:px-8 dark:border-white/5">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
           Recommended paint buckets
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {result.recommendedContainers.map((c, i) => (
             <span
               key={i}
-              className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-brand-navy dark:text-white"
+              className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 px-3 py-1.5 text-sm font-semibold text-foreground dark:text-primary-foreground"
             >
               {c.count} × {c.size} L bucket
             </span>
@@ -1787,7 +1787,7 @@ function ResultCard({
         </div>
       </div>
 
-      <div className="border-t border-neutral-100 bg-neutral-50 px-6 py-4 text-xs text-neutral-500 sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-neutral-500">
+      <div className="border-t border-border/50 bg-muted/50 px-6 py-4 text-xs text-muted-foreground sm:px-8 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground">
         Wall area: {formatNumber(result.wallArea)} m²
         {result.ceilingArea > 0 &&
           ` · Ceiling: ${formatNumber(result.ceilingArea)} m²`}
@@ -1931,11 +1931,11 @@ function Stat({
     <div
       className={`rounded-xl border p-4 transition-all ${highlight ? "stat-card-highlight" : "stat-card"}`}
     >
-      <p className="text-xs font-semibold uppercase tracking-widest text-neutral-500">
+      <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
         {label}
       </p>
       <p
-        className={`mt-1.5 text-xl font-bold tabular-nums ${highlight ? "text-brand-purple dark:text-brand-purple-lighter" : "text-brand-navy dark:text-white"}`}
+        className={`mt-1.5 text-xl font-bold tabular-nums ${highlight ? "text-brand-purple dark:text-brand-purple-lighter" : "text-foreground dark:text-primary-foreground"}`}
       >
         {countValue !== undefined ? (
           <CountUp value={countValue} decimals={decimals} suffix={suffix} />
@@ -1961,14 +1961,14 @@ function Toggle({
       style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       className={
         "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full border-0 p-0 transition-colors " +
-        (checked ? "bg-accent-green" : "bg-neutral-300")
+        (checked ? "bg-accent-green" : "bg-muted")
       }
       aria-pressed={checked}
     >
       <span
         style={{ width: "1rem", height: "1rem" }}
         className={
-          "absolute top-0.5 left-0 rounded-full bg-white shadow transition-transform dark:bg-brand-navy-mid " +
+          "absolute top-0.5 left-0 rounded-full bg-card shadow transition-transform dark:bg-card " +
           (checked ? "translate-x-4" : "translate-x-0.5")
         }
       />
@@ -1991,16 +1991,16 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-neutral-700">
+      <span className="block text-sm font-semibold text-card-foreground">
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-neutral-500">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
       )}
       <div className="relative mt-1.5">
         {children}
         {suffix && (
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
           </span>
         )}

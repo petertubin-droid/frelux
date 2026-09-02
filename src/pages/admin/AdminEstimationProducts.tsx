@@ -145,7 +145,7 @@ export default function AdminEstimationProducts() {
         <>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <AdminInput
  type="search"
  value={search}
@@ -197,12 +197,12 @@ export default function AdminEstimationProducts() {
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
-                                <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">{p.name}</h3>
+                                <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{p.name}</h3>
                                 {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">Tiers</span>}
-                                {!p.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                                {!p.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
                               </div>
-                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-neutral-500 dark:text-neutral-500">{p.description}</p>}
-                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-neutral-500 dark:text-neutral-500">
+                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">{p.description}</p>}
+                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
                                 <span>{p.product_type}</span>
                                 <span>·</span>
                                 <span>{p.calculation_method}</span>
@@ -210,7 +210,7 @@ export default function AdminEstimationProducts() {
                               </div>
                             </div>
                           </div>
-                          <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                          <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                             <div className="flex items-center gap-1">
                               {p.has_quality_levels && (
                                 <AdminButton variant="link" type="button" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-[10px] font-semibold">
@@ -227,12 +227,12 @@ export default function AdminEstimationProducts() {
                           {expandedId === p.id && p.has_quality_levels && (
                             <div className="ml-4 mt-1 space-y-2">
                               {(qualityMap[p.id] ?? []).map(q => (
-                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
+                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
                                   <div className="flex items-center gap-2">
                                     <Tag aria-hidden="true" className="h-4 w-4 text-purple-500" />
-                                    <span className="text-sm font-semibold text-brand-navy dark:text-white">{q.name}</span>
-                                    {q.coverage && <span className="text-xs text-neutral-500 dark:text-neutral-500">· {q.coverage} {q.coverage_unit ?? ''}</span>}
-                                    {!q.is_active && <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-semibold text-neutral-600">Inactive</span>}
+                                    <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">{q.name}</span>
+                                    {q.coverage && <span className="text-xs text-muted-foreground dark:text-muted-foreground">· {q.coverage} {q.coverage_unit ?? ''}</span>}
+                                    {!q.is_active && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">Inactive</span>}
                                   </div>
                                   <div className="flex items-center gap-2">
                                     <Toggle checked={q.is_active} onChange={() => toggleQualityActive(q)} />
@@ -367,8 +367,8 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
           </div>
           <AdminField label="Paint compatibility"><AdminInput  value={paintCompat} onChange={e => setPaintCompat(e.target.value)} /></AdminField>
           <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
-            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
+            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
           <div className="flex justify-end gap-3 pt-2">
@@ -464,7 +464,7 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
             <AdminField label="Durability"><AdminInput  value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
           </div>
           <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
+            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
             <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
           </div>
           {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}

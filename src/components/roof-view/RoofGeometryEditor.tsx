@@ -180,8 +180,8 @@ export function RoofGeometryEditor({
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
               geometry.activeSectionId === section.id
-                ? "bg-brand-purple text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >
             <Layers aria-hidden="true" className="w-3 h-3" />
@@ -194,7 +194,7 @@ export function RoofGeometryEditor({
         <button
           onClick={handleAddSection}
           disabled={disabled}
-          className="inline-flex items-center gap-1 rounded-lg border border-dashed border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-500 hover:border-neutral-400 hover:text-neutral-600 disabled:opacity-50"
+          className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
         >
           <Plus aria-hidden="true" className="w-3 h-3" />
           Add Section
@@ -213,7 +213,7 @@ export function RoofGeometryEditor({
               )
             }
             disabled={disabled}
-            className="flex-1 rounded-lg border border-neutral-200 px-3 py-1.5 text-sm"
+            className="flex-1 rounded-lg border border-border px-3 py-1.5 text-sm"
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
@@ -232,7 +232,7 @@ export function RoofGeometryEditor({
 
       {/* Tool selector */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-neutral-500">Tool:</span>
+        <span className="text-xs font-medium text-muted-foreground">Tool:</span>
         {(
           [
             { id: "add", label: "Add Points", icon: MousePointer2 },
@@ -246,8 +246,8 @@ export function RoofGeometryEditor({
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
               tool === t.id
-                ? "bg-neutral-900 text-white"
-                : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+                ? "bg-background text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >
             <t.icon className="w-3.5 h-3.5" />
@@ -257,7 +257,7 @@ export function RoofGeometryEditor({
       </div>
 
       {/* SVG Canvas */}
-      <div className="relative rounded-xl border border-neutral-200 overflow-hidden bg-neutral-50">
+      <div className="relative rounded-xl border border-border overflow-hidden bg-muted/50">
         <svg
           ref={svgRef}
           width="100%"
@@ -389,7 +389,7 @@ export function RoofGeometryEditor({
         {/* Hint overlay */}
         {activeSection && activeSection.vertices.length === 0 && !disabled && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="rounded-lg bg-black/60 backdrop-blur px-4 py-2 text-xs text-white">
+            <div className="rounded-lg bg-black/60 backdrop-blur px-4 py-2 text-xs text-primary-foreground">
               Click on the canvas to add boundary points
             </div>
           </div>
@@ -398,7 +398,7 @@ export function RoofGeometryEditor({
 
       {/* Section info */}
       {activeSection && (
-        <div className="flex items-center gap-4 text-xs text-neutral-500">
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span>{activeSection.vertices.length} vertices</span>
           {activeSection.vertices.length >= 3 && (
             <>
@@ -425,7 +425,7 @@ export function RoofGeometryEditor({
         <button
           onClick={handleConfirm}
           disabled={disabled}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-white hover:bg-accent-green/90 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-accent-green/90 transition-colors"
         >
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Confirm Roof Geometry

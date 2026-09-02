@@ -125,7 +125,7 @@ export default function LearnCategory() {
             { label: "Loading…" },
           ]}
         />
-        <div className="flex items-center justify-center gap-2 py-32 text-sm text-neutral-500">
+        <div className="flex items-center justify-center gap-2 py-32 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />{" "}
           Loading…
         </div>
@@ -147,9 +147,9 @@ export default function LearnCategory() {
         <div className="mx-auto max-w-md py-20 text-center">
           <AlertCircle
             aria-hidden="true"
-            className="mx-auto h-8 w-8 text-neutral-300"
+            className="mx-auto h-8 w-8 text-muted-foreground/80"
           />
-          <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
             This category doesn't exist or has been removed.
           </p>
           <Link
@@ -179,22 +179,22 @@ export default function LearnCategory() {
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         {/* Category header banner — premium */}
-        <div className="relative mb-12 overflow-hidden rounded-3xl border border-neutral-200/80 dark:border-white/10 bg-gradient-to-br from-white via-brand-purple/[0.03] to-brand-purple/[0.06] dark:from-brand-navy-mid dark:via-brand-navy-mid/50 dark:to-brand-navy p-7 sm:p-10">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-brand-purple/8 blur-3xl" aria-hidden="true" />
+        <div className="relative mb-12 overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] dark:from-card dark:via-card/50 dark:to-background p-7 sm:p-10">
+          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl" aria-hidden="true" />
           <div className="relative flex items-center gap-6">
-            <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple/15 to-brand-purple/5 text-brand-purple">
+            <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 text-brand-purple">
               <IconComponent className="h-10 w-10" />
             </div>
             <div className="min-w-0 flex-1">
-              <h2 className="font-display text-2xl font-bold text-brand-navy dark:text-white">
+              <h2 className="font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {category.name}
               </h2>
               {category.description && (
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-500 dark:text-neutral-400">
+                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                   {category.description}
                 </p>
               )}
-              <div className="mt-3 flex items-center gap-4 text-xs text-neutral-400">
+              <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <BookOpen className="h-3.5 w-3.5" />
                   {articles.length} {articles.length === 1 ? "article" : "articles"}
@@ -214,14 +214,14 @@ export default function LearnCategory() {
         {isParent && (
           <section className="mb-12">
             <div className="mb-6 flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                 <BookOpen className="h-4 w-4 text-brand-purple" />
               </div>
               <div>
-                <h3 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                   Topics within {category.name}
                 </h3>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                   Dive deeper into specific areas
                 </p>
               </div>
@@ -233,17 +233,17 @@ export default function LearnCategory() {
                   <Link
                     key={sub.id}
                     to={`/learn/category/${sub.slug}`}
-                    className="group flex items-start gap-4 rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-brand-navy-mid"
+                    className="group flex items-start gap-4 rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
-                    <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple/10 to-brand-purple/5 text-brand-purple transition-transform group-hover:scale-105">
+                    <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
                       <SubIcon className="h-6 w-6" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-display text-sm font-bold text-brand-navy dark:text-white">
+                      <h4 className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
                         {sub.name}
                       </h4>
                       {sub.description && (
-                        <p className="mt-1.5 text-xs leading-relaxed text-neutral-500 line-clamp-2 dark:text-neutral-400">
+                        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
                           {sub.description}
                         </p>
                       )}
@@ -267,14 +267,14 @@ export default function LearnCategory() {
           <section>
             {isParent && (
               <div className="mb-6 flex items-center gap-3">
-                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                   <BookOpen className="h-4 w-4 text-brand-purple" />
                 </div>
                 <div>
-                  <h3 className="font-display text-lg font-bold text-brand-navy dark:text-white">
+                  <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
                     All Articles
                   </h3>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                     Every guide in this category
                   </p>
                 </div>
@@ -285,7 +285,7 @@ export default function LearnCategory() {
                 <Link
                   key={article.id}
                   to={`/learn/${article.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-brand-navy-mid"
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (
                     <div className="relative aspect-[16/10] overflow-hidden">
@@ -297,8 +297,8 @@ export default function LearnCategory() {
                       />
                     </div>
                   ) : (
-                    <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-neutral-50 to-brand-purple/5 dark:from-white/5 dark:to-brand-purple/10">
-                      <ImageOff className="h-7 w-7 text-neutral-300" />
+                    <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+                      <ImageOff className="h-7 w-7 text-muted-foreground/80" />
                     </div>
                   )}
                   <div className="flex flex-1 flex-col p-5">
@@ -307,15 +307,15 @@ export default function LearnCategory() {
                         {article.category_slug.replace(/-/g, " ")}
                       </span>
                     )}
-                    <h3 className="font-display text-base font-bold leading-snug text-brand-navy transition-colors group-hover:text-brand-purple dark:text-white">
+                    <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
                       {article.title}
                     </h3>
                     {article.excerpt && (
-                      <p className="mt-2 text-sm leading-relaxed text-neutral-500 line-clamp-2 dark:text-neutral-400">
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
                         {article.excerpt}
                       </p>
                     )}
-                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-neutral-400">
+                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
                       {article.read_time_minutes && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />{" "}
@@ -338,15 +338,15 @@ export default function LearnCategory() {
           </section>
         ) : (
           !isParent && (
-            <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-20 text-center dark:border-white/10 dark:bg-white/5">
+            <div className="rounded-2xl border border-dashed border-border bg-muted/50 p-20 text-center dark:border-white/10 dark:bg-white/5">
               <BookOpen
                 aria-hidden="true"
-                className="mx-auto h-12 w-12 text-neutral-300"
+                className="mx-auto h-12 w-12 text-muted-foreground/80"
               />
-              <p className="mt-5 text-base font-semibold text-neutral-600 dark:text-neutral-300">
+              <p className="mt-5 text-base font-semibold text-muted-foreground dark:text-muted-foreground/80">
                 No articles yet
               </p>
-              <p className="mt-2 text-sm text-neutral-500">
+              <p className="mt-2 text-sm text-muted-foreground">
                 Articles in this category are coming soon. Check back shortly.
               </p>
             </div>

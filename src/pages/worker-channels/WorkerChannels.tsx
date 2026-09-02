@@ -328,16 +328,16 @@ export default function WorkerChannels() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Users className="mx-auto mb-4 h-12 w-12 text-brand-purple" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Worker Channels
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           You need to sign in with a worker account to access the nationwide
           worker channels.
         </p>
         <Link
           to="/login"
-          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+          className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Sign In
         </Link>
@@ -350,16 +350,16 @@ export default function WorkerChannels() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Worker Access Only
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           These channels are exclusive to FRELUX worker accounts. Register as a
           professional to join the conversation.
         </p>
         <Link
           to="/pro-connect/register"
-          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+          className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Become a Professional
         </Link>
@@ -376,26 +376,26 @@ export default function WorkerChannels() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
-        <h1 className="text-2xl font-bold text-brand-navy dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Verification Required
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           Worker Channels are available to <strong>FRELUX Verified</strong>{" "}
           (Tier 2) and <strong>FRELUX Pro</strong> (Tier 3) members only.
         </p>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-muted-foreground">
           Your current tier:{" "}
           <span className="font-semibold text-amber-500">
             {tierLabels[verificationTier] ?? "Tier " + verificationTier}
           </span>
         </p>
-        <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">
           Complete mobile number verification and NIN (National ID) verification
           to reach Tier 2 and unlock channel access.
         </p>
         <Link
           to="/pro-connect/register"
-          className="mt-6 inline-flex items-center rounded-lg bg-brand-purple px-6 py-2.5 text-sm font-semibold text-white"
+          className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Complete Verification
         </Link>
@@ -419,7 +419,7 @@ export default function WorkerChannels() {
       />
 
       {modConfig?.is_enabled && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-brand-purple/20 bg-brand-purple/5 px-4 py-2.5 text-sm text-neutral-600 dark:text-neutral-300">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-brand-purple/20 bg-primary/5 px-4 py-2.5 text-sm text-muted-foreground dark:text-muted-foreground/80">
           <Shield aria-hidden="true" className="h-4 w-4 text-brand-purple" />
           <span>
             AI moderation is active. Messages are automatically checked for
@@ -430,10 +430,10 @@ export default function WorkerChannels() {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_1fr]">
         {/* Channel List Sidebar */}
-        <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-neutral-200/40 bg-white/60 p-3 dark:border-white/10 dark:bg-brand-navy-mid/40 lg:max-h-[calc(100vh-220px)]">
+        <div className="flex flex-col gap-1 overflow-y-auto rounded-xl border border-border/40 bg-white/60 p-3 dark:border-white/10 dark:bg-background-mid/40 lg:max-h-[calc(100vh-220px)]">
           <div className="mb-2 flex items-center gap-2 px-2">
             <Hash className="h-4 w-4 text-brand-purple" />
-            <span className="text-sm font-bold uppercase tracking-widest text-neutral-500 dark:text-neutral-500">
+            <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
               Channels
             </span>
           </div>
@@ -444,16 +444,16 @@ export default function WorkerChannels() {
               className={classNames(
                 "flex items-start gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-all",
                 channelSlug === ch.slug
-                  ? "bg-brand-purple/10 text-brand-purple font-semibold"
-                  : "text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-white/5",
+                  ? "bg-primary/10 text-brand-purple font-semibold"
+                  : "text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-white/5",
               )}
             >
-              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-purple/10 text-xs">
+              <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-xs">
                 {ch.is_official ? "✓" : "#"}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-medium">{ch.name.trim()}</div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <span className="flex items-center gap-0.5">
                     <Users className="h-3 w-3" /> {ch.member_count ?? 0}
                   </span>
@@ -469,22 +469,22 @@ export default function WorkerChannels() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex flex-col rounded-xl border border-neutral-200/40 bg-white/60 dark:border-white/10 dark:bg-brand-navy-mid/40 lg:max-h-[calc(100vh-220px)]">
+        <div className="flex flex-col rounded-xl border border-border/40 bg-white/60 dark:border-white/10 dark:bg-background-mid/40 lg:max-h-[calc(100vh-220px)]">
           {activeChannel ? (
             <>
               {/* Channel Header */}
-              <div className="flex items-center justify-between border-b border-neutral-200/40 px-4 py-3 dark:border-white/10">
+              <div className="flex items-center justify-between border-b border-border/40 px-4 py-3 dark:border-white/10">
                 <div className="min-w-0">
-                  <h2 className="truncate text-sm font-bold text-brand-navy dark:text-white">
+                  <h2 className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
                     {activeChannel.name.trim()}
                   </h2>
                   {activeChannel.description && (
-                    <p className="truncate text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="truncate text-xs text-muted-foreground dark:text-muted-foreground">
                       {activeChannel.description}
                     </p>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Users className="h-3.5 w-3.5" />
                   <span>{activeChannel.member_count ?? 0} members</span>
                 </div>
@@ -496,7 +496,7 @@ export default function WorkerChannels() {
                 className="flex-1 space-y-3 overflow-y-auto p-4"
               >
                 {messages.length === 0 && (
-                  <div className="flex h-full items-center justify-center text-center text-sm text-neutral-500">
+                  <div className="flex h-full items-center justify-center text-center text-sm text-muted-foreground">
                     <div>
                       <MessageSquare className="mx-auto mb-2 h-8 w-8 opacity-50" />
                       <p>
@@ -525,8 +525,8 @@ export default function WorkerChannels() {
 
               {/* Reply indicator */}
               {replyingTo && (
-                <div className="flex items-center justify-between border-t border-neutral-200/40 bg-neutral-50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
-                  <span className="text-xs text-neutral-500">
+                <div className="flex items-center justify-between border-t border-border/40 bg-muted/50 px-4 py-2 dark:border-white/10 dark:bg-white/5">
+                  <span className="text-xs text-muted-foreground">
                     Replying to a message
                   </span>
                   <button
@@ -539,9 +539,9 @@ export default function WorkerChannels() {
               )}
 
               {/* Input area */}
-              <div className="border-t border-neutral-200/40 p-3 dark:border-white/10">
+              <div className="border-t border-border/40 p-3 dark:border-white/10">
                 {showPriceUpdate ? (
-                  <div className="space-y-3 rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-3">
+                  <div className="space-y-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-3">
                     <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple">
                       <TrendingUp className="h-4 w-4" />
                       Share Price Update
@@ -590,7 +590,7 @@ export default function WorkerChannels() {
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => setShowPriceUpdate(false)}
-                        className="rounded-lg px-3 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5"
+                        className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
                       >
                         Cancel
                       </button>
@@ -599,7 +599,7 @@ export default function WorkerChannels() {
                         disabled={
                           sending || !priceForm.item.trim() || !priceForm.amount
                         }
-                        className="rounded-lg bg-brand-purple px-4 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+                        className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                       >
                         Share Price
                       </button>
@@ -609,7 +609,7 @@ export default function WorkerChannels() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setShowPriceUpdate(true)}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200 text-brand-purple transition-colors hover:bg-brand-purple/5 dark:border-white/10"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-brand-purple transition-colors hover:bg-primary/5 dark:border-white/10"
                       title="Share price update"
                     >
                       <TrendingUp className="h-5 w-5" />
@@ -626,7 +626,7 @@ export default function WorkerChannels() {
                     <button
                       onClick={handleSendMessage}
                       disabled={!newMessage.trim() || sending}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-purple text-white transition-all hover:bg-brand-purple/90 disabled:opacity-50"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
                     >
                       <Send aria-hidden="true" className="h-5 w-5" />
                     </button>
@@ -637,8 +637,8 @@ export default function WorkerChannels() {
           ) : (
             <div className="flex h-full min-h-[400px] items-center justify-center text-center">
               <div>
-                <MessageSquare className="mx-auto mb-3 h-10 w-10 text-neutral-300 dark:text-neutral-600" />
-                <p className="text-sm text-neutral-500">
+                <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">
                   Select a channel to start chatting
                 </p>
               </div>
@@ -662,7 +662,7 @@ export default function WorkerChannels() {
           onClick={() => setViewingProfile(null)}
         >
           <div
-            className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid"
+            className="max-w-md rounded-2xl bg-card p-6 shadow-2xl dark:bg-card"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between">
@@ -674,16 +674,16 @@ export default function WorkerChannels() {
                     className="h-14 w-14 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-purple/10 text-lg font-bold text-brand-purple">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-brand-purple">
                     {viewingProfile.display_name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div>
-                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+                  <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                     {viewingProfile.display_name}
                   </h3>
                   {viewingProfile.business_name && (
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-muted-foreground">
                       {viewingProfile.business_name}
                     </p>
                   )}
@@ -691,7 +691,7 @@ export default function WorkerChannels() {
               </div>
               <button
                 onClick={() => setViewingProfile(null)}
-                className="text-neutral-500 hover:text-neutral-600"
+                className="text-muted-foreground hover:text-muted-foreground"
               >
                 ✕
               </button>
@@ -711,14 +711,14 @@ export default function WorkerChannels() {
                 return null;
               })()}
               {viewingProfile.category_name && (
-                <span className="rounded-full bg-brand-purple/10 px-3 py-1 text-xs font-medium text-brand-purple">
+                <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-brand-purple">
                   {viewingProfile.category_name}
                 </span>
               )}
             </div>
 
             {viewingProfile.bio && (
-              <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">
+              <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground/80">
                 {viewingProfile.bio}
               </p>
             )}
@@ -726,30 +726,30 @@ export default function WorkerChannels() {
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               {viewingProfile.years_experience != null && (
                 <div>
-                  <p className="text-xs text-neutral-500">Experience</p>
-                  <p className="font-semibold text-brand-navy dark:text-white">
+                  <p className="text-xs text-muted-foreground">Experience</p>
+                  <p className="font-semibold text-foreground dark:text-primary-foreground">
                     {viewingProfile.years_experience} years
                   </p>
                 </div>
               )}
               <div>
-                <p className="text-xs text-neutral-500">Phone Verified</p>
-                <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-neutral-500'}">
+                <p className="text-xs text-muted-foreground">Phone Verified</p>
+                <p className="font-semibold {viewingProfile.phone_verified ? 'text-emerald-500' : 'text-muted-foreground'}">
                   {viewingProfile.phone_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-neutral-500">NIN Verified</p>
+                <p className="text-xs text-muted-foreground">NIN Verified</p>
                 <p
-                  className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-neutral-500"}`}
+                  className={`font-semibold ${viewingProfile.nin_verified ? "text-emerald-500" : "text-muted-foreground"}`}
                 >
                   {viewingProfile.nin_verified ? "✓ Yes" : "✗ No"}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-neutral-500">Mobile OTP</p>
+                <p className="text-xs text-muted-foreground">Mobile OTP</p>
                 <p
-                  className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-neutral-500"}`}
+                  className={`font-semibold ${viewingProfile.mobile_otp_verified ? "text-emerald-500" : "text-muted-foreground"}`}
                 >
                   {viewingProfile.mobile_otp_verified ? "✓ Yes" : "✗ No"}
                 </p>
@@ -759,7 +759,7 @@ export default function WorkerChannels() {
             <Link
               to={`/pro-connect/${viewingProfile.slug}`}
               onClick={() => setViewingProfile(null)}
-              className="mt-5 block w-full rounded-lg bg-brand-purple py-2.5 text-center text-sm font-semibold text-white"
+              className="mt-5 block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-primary-foreground"
             >
               View Full Profile
             </Link>
@@ -784,26 +784,26 @@ export default function WorkerChannels() {
           onClick={() => setShowReportModal(false)}
         >
           <div
-            className="max-w-md rounded-2xl bg-white p-6 shadow-2xl dark:bg-brand-navy-mid"
+            className="max-w-md rounded-2xl bg-card p-6 shadow-2xl dark:bg-card"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+            <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Report User
             </h3>
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
               Report inappropriate behavior. The user's NIN and verification
               data will be referenced during admin review.
             </p>
 
             <div className="mt-4 space-y-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                   Reason *
                 </label>
                 <select
                   value={reportReason}
                   onChange={(e) => setReportReason(e.target.value)}
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                 >
                   <option value="">Select a reason</option>
                   <option value="spam">Spam</option>
@@ -815,7 +815,7 @@ export default function WorkerChannels() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+                <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
                   Description (optional)
                 </label>
                 <textarea
@@ -823,7 +823,7 @@ export default function WorkerChannels() {
                   onChange={(e) => setReportDesc(e.target.value)}
                   placeholder="Provide additional details..."
                   rows={3}
-                  className="w-full rounded-lg border border-neutral-200 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-brand-navy"
+                  className="w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                 />
               </div>
 
@@ -838,14 +838,14 @@ export default function WorkerChannels() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowReportModal(false)}
-                  className="flex-1 rounded-lg border border-neutral-200 py-2.5 text-sm font-medium text-neutral-600 dark:border-white/10 dark:text-neutral-300"
+                  className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSubmitReport}
                   disabled={reportSubmitting || !reportReason}
-                  className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+                  className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   {reportSubmitting ? "Submitting..." : "Submit Report"}
                 </button>
@@ -889,7 +889,7 @@ function MessageBubble({
   if (isSystem) {
     return (
       <div className="flex justify-center">
-        <div className="rounded-full bg-brand-purple/10 px-4 py-1.5 text-xs text-brand-purple">
+        <div className="rounded-full bg-primary/10 px-4 py-1.5 text-xs text-brand-purple">
           {message.content}
         </div>
       </div>
@@ -907,8 +907,8 @@ function MessageBubble({
         className={classNames(
           "max-w-[75%] rounded-2xl px-3.5 py-2.5",
           isOwn
-            ? "bg-brand-purple text-white"
-            : "bg-neutral-100 dark:bg-white/5 dark:text-neutral-100",
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted dark:bg-white/5 dark:text-muted-foreground/40",
         )}
       >
         {!isOwn && (
@@ -924,7 +924,7 @@ function MessageBubble({
           <div
             className={classNames(
               "mb-1 rounded-md px-2 py-1 text-xs opacity-60",
-              isOwn ? "bg-white/10" : "bg-neutral-200 dark:bg-white/5",
+              isOwn ? "bg-white/10" : "bg-muted dark:bg-white/5",
             )}
           >
             Replying to a message
@@ -935,7 +935,7 @@ function MessageBubble({
           <div
             className={classNames(
               "mb-2 rounded-lg p-2.5",
-              isOwn ? "bg-white/10" : "bg-brand-purple/5",
+              isOwn ? "bg-white/10" : "bg-primary/5",
             )}
           >
             <div className="flex items-center gap-1.5 text-xs font-semibold">
@@ -962,7 +962,7 @@ function MessageBubble({
         <div
           className={classNames(
             "mt-1 text-[10px]",
-            isOwn ? "text-white/60" : "text-neutral-500",
+            isOwn ? "text-primary-foreground/60" : "text-muted-foreground",
           )}
         >
           {new Date(message.created_at).toLocaleTimeString("en-NG", {
@@ -976,14 +976,14 @@ function MessageBubble({
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
         <button
           onClick={() => setShowReactions(!showReactions)}
-          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="React"
         >
           <span className="text-xs">😊</span>
         </button>
         <button
           onClick={() => onReply(message.id)}
-          className="rounded p-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="Reply"
         >
           <MessageSquare className="h-3.5 w-3.5" />
@@ -991,7 +991,7 @@ function MessageBubble({
         {isOwn && (
           <button
             onClick={() => onDelete(message.id)}
-            className="rounded p-1 text-neutral-500 hover:bg-red-50 hover:text-red-500"
+            className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
             title="Delete"
           >
             <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -1001,7 +1001,7 @@ function MessageBubble({
 
       {/* Reaction picker */}
       {showReactions && (
-        <div className="absolute z-10 flex gap-1 rounded-lg border border-neutral-200 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-brand-navy-mid">
+        <div className="absolute z-10 flex gap-1 rounded-lg border border-border bg-card p-1.5 shadow-lg dark:border-white/10 dark:bg-card">
           {QUICK_EMOJIS.map((emoji) => (
             <button
               key={emoji}
@@ -1009,7 +1009,7 @@ function MessageBubble({
                 onReact(message.id, emoji);
                 setShowReactions(false);
               }}
-              className="rounded p-1 text-lg hover:bg-neutral-100 dark:hover:bg-white/5"
+              className="rounded p-1 text-lg hover:bg-muted dark:hover:bg-white/5"
             >
               {emoji}
             </button>
@@ -1029,9 +1029,9 @@ function MessageBubble({
             <button
               key={emoji}
               onClick={() => onReact(message.id, emoji)}
-              className="flex items-center gap-1 rounded-full bg-neutral-100 px-2 py-0.5 text-xs dark:bg-white/5"
+              className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs dark:bg-white/5"
             >
-              {emoji} <span className="text-neutral-500">{count}</span>
+              {emoji} <span className="text-muted-foreground">{count}</span>
             </button>
           ))}
         </div>

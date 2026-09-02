@@ -57,7 +57,7 @@ function getPriceTypeBadge(type: 'product' | 'quality' | 'material') {
     case 'material':
       return 'bg-amber-100 text-amber-800 border-amber-200';
     default:
-      return 'bg-neutral-100 text-neutral-700 border-neutral-200';
+      return 'bg-muted text-card-foreground border-border';
   }
 }
 
@@ -219,8 +219,8 @@ export default function AdminEstimationPricing() {
       {/* Filters & Search Bar */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-neutral-500" />
-          <div className="flex rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-1 text-xs font-medium">
+          <Filter aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <div className="flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1 text-xs font-medium">
             {(['all', 'product', 'quality', 'material'] as const).map((type) => (
               <AdminButton
                 key={type}
@@ -228,8 +228,8 @@ export default function AdminEstimationPricing() {
                 onClick={() => setTypeFilter(type)}
                 className={`rounded-md px-3 py-1.5 capitalize transition-colors ${
                   typeFilter === type
-                    ? 'bg-brand-purple text-white'
-                    : 'text-neutral-600 hover:text-neutral-900'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 {type}
@@ -239,7 +239,7 @@ export default function AdminEstimationPricing() {
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-neutral-500" />
+          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <AdminInput
  type="text"
  placeholder="Search price items..."
@@ -272,22 +272,22 @@ export default function AdminEstimationPricing() {
                       <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}>
                         {item.price_type}
                       </span>
-                      <h3 className="truncate text-xs font-bold text-brand-navy dark:text-white">
+                      <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                         {refInfo ? refInfo.name : `Ref: ${item.ref_id.slice(0, 8)}...`}
                       </h3>
-                      {!item.is_active && <span className="rounded-full bg-neutral-200 px-1.5 py-0.5 text-[9px] font-semibold text-neutral-600">Off</span>}
+                      {!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
                     </div>
-                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">
+                    <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
                       {packSizeVal && <span>Pack: {packSizeVal}</span>}
                       <span className="inline-flex items-center gap-0.5"><Calendar aria-hidden="true" className="h-2.5 w-2.5" />{item.effective_date}</span>
                     </div>
-                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-neutral-500">{item.notes}</p>}
+                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-muted-foreground">{item.notes}</p>}
                   </div>
                 </div>
-                <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+                <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-extrabold text-brand-navy dark:text-white">{formatCurrency(item.price, item.currency)}</span>
-                    <span className="text-[9px] uppercase text-neutral-500">{item.currency}</span>
+                    <span className="text-sm font-extrabold text-foreground dark:text-primary-foreground">{formatCurrency(item.price, item.currency)}</span>
+                    <span className="text-[9px] uppercase text-muted-foreground">{item.currency}</span>
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
@@ -544,7 +544,7 @@ function PricingForm({
           </AdminField>
 
           <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">Is Active</span>
+            <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Is Active</span>
             <Toggle checked={isActive} onChange={setIsActive} />
           </div>
 
@@ -607,7 +607,7 @@ function PriceHistoryModal({
 
   return (
     <AdminModal open onClose={onClose} title="Price History" maxWidth="max-w-xl">
-        <p className="text-xs text-neutral-500 dark:text-neutral-500">
+        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           {refName} ({item.price_type})
         </p>
 
@@ -629,37 +629,37 @@ function PriceHistoryModal({
           ) : (
             <div className="space-y-3">
               {history.map((h) => (
-                <div key={h.id} className="rounded-lg border border-neutral-200 p-3 text-xs bg-neutral-50 dark:bg-white/5">
-                  <div className="flex items-center justify-between font-medium text-neutral-800">
+                <div key={h.id} className="rounded-lg border border-border p-3 text-xs bg-muted/50 dark:bg-white/5">
+                  <div className="flex items-center justify-between font-medium text-foreground">
                     <span className="flex items-center gap-2">
                       <DollarSign aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
                       {h.old_price !== null ? (
                         <span>
-                          <span className="line-through text-neutral-500 dark:text-neutral-500">
+                          <span className="line-through text-muted-foreground dark:text-muted-foreground">
                             {formatCurrency(h.old_price, h.currency)}
                           </span>{' '}
                           →{' '}
-                          <span className="font-bold text-brand-navy dark:text-white">
+                          <span className="font-bold text-foreground dark:text-primary-foreground">
                             {formatCurrency(h.new_price, h.currency)}
                           </span>
                         </span>
                       ) : (
-                        <span className="font-bold text-brand-navy dark:text-white">
+                        <span className="font-bold text-foreground dark:text-primary-foreground">
                           Initial Price: {formatCurrency(h.new_price, h.currency)}
                         </span>
                       )}
                     </span>
-                    <span className="text-neutral-500 dark:text-neutral-500">
+                    <span className="text-muted-foreground dark:text-muted-foreground">
                       {new Date(h.created_at).toLocaleString()}
                     </span>
                   </div>
 
                   {h.change_reason && (
-                    <p className="mt-1 text-neutral-600 italic">Reason: {h.change_reason}</p>
+                    <p className="mt-1 text-muted-foreground italic">Reason: {h.change_reason}</p>
                   )}
 
                   {h.changed_by && (
-                    <p className="mt-0.5 text-[10px] text-neutral-500 font-mono">
+                    <p className="mt-0.5 text-[10px] text-muted-foreground font-mono">
                       Changed by: {h.changed_by}
                     </p>
                   )}

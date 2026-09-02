@@ -286,7 +286,7 @@ function ScrollToTop() {
 function PageLoader() {
   return (
     <div className="flex items-center justify-center py-32">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-brand-purple dark:border-neutral-700 dark:border-t-brand-purple-lighter" />
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-brand-purple dark:border-border border-border dark:border-t-brand-purple-lighter" />
     </div>
   );
 }
@@ -330,7 +330,7 @@ export default function App() {
     <ErrorBoundary boundaryName="app-root">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-md focus:bg-brand-purple focus:px-4 focus:py-2 focus:text-white focus:text-sm"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:text-sm"
       >
         Skip to main content
       </a>

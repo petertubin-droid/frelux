@@ -77,11 +77,11 @@ export default function AdminMarketplace() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">
+      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">
         Marketplace Management
       </h1>
 
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {(
           [
             ["listings", "Listings"],
@@ -185,20 +185,20 @@ function ListingsTab() {
         <div className="relative flex-1 max-w-xs">
           <Search
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500"
+            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
           />
           <AdminInput
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search listings..."
-            className="w-full rounded-lg border border-neutral-200 py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="w-full rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All Statuses</option>
           {Object.entries(LISTING_STATUS_LABELS).map(([v, l]) => (
@@ -213,26 +213,26 @@ function ListingsTab() {
         {filteredListings.map((l) => (
           <div key={l.id} className="card p-3">
             <div className="flex items-center justify-between">
-              <span className="rounded-md bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
+              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">
                 {PROJECT_TYPE_LABELS[l.project_type]}
               </span>
-              <span className="text-[10px] font-semibold text-neutral-500">
+              <span className="text-[10px] font-semibold text-muted-foreground">
                 {LISTING_STATUS_LABELS[l.status]}
               </span>
             </div>
             <Link
               to={`/marketplace/${l.id}`}
-              className="mt-1.5 block truncate text-xs font-bold text-brand-navy hover:text-brand-purple dark:text-white"
+              className="mt-1.5 block truncate text-xs font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
             >
               {l.title}
             </Link>
             {l.location_state && (
-              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-neutral-500">
+              <p className="mt-0.5 inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
                 <MapPin aria-hidden="true" className="h-2.5 w-2.5" />{" "}
                 {l.location_state}
               </p>
             )}
-            <div className="mt-1 flex items-center gap-3 text-[10px] text-neutral-500">
+            <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
               <span className="inline-flex items-center gap-0.5">
                 <Users aria-hidden="true" className="h-2.5 w-2.5" />{" "}
                 {l.bid_count}
@@ -242,7 +242,7 @@ function ListingsTab() {
                 {l.view_count}
               </span>
             </div>
-            <div className="mt-2 flex items-center justify-between border-t border-neutral-100 pt-2 dark:border-white/5">
+            <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
               <button
                 type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
@@ -250,7 +250,7 @@ function ListingsTab() {
                   "inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium transition-colors",
                   l.is_featured
                     ? "text-amber-600"
-                    : "text-neutral-500 hover:text-amber-500",
+                    : "text-muted-foreground hover:text-amber-500",
                 )}
               >
                 <Crown
@@ -264,7 +264,7 @@ function ListingsTab() {
               <AdminIconButton
                 variant="ghost"
                 onClick={() => handleRemove(l.id)}
-                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-neutral-500 hover:text-red-500"
+                className="inline-flex items-center gap-0.5 rounded-md px-1.5 py-1 text-[10px] font-medium text-muted-foreground hover:text-red-500"
               >
                 <Trash2 aria-hidden="true" className="h-3 w-3" /> Remove
               </AdminIconButton>
@@ -272,7 +272,7 @@ function ListingsTab() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-neutral-500">{total} total listings</p>
+      <p className="mt-3 text-xs text-muted-foreground">{total} total listings</p>
     </div>
   );
 }
@@ -351,12 +351,12 @@ function ProductsTab() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search products..."
-          className="flex-1 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         />
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All statuses</option>
           {Object.entries(PRODUCT_STATUS_LABELS).map(([v, l]) => (
@@ -375,7 +375,7 @@ function ProductsTab() {
           />
         </div>
       ) : products.length === 0 ? (
-        <p className="py-8 text-center text-sm text-neutral-500">
+        <p className="py-8 text-center text-sm text-muted-foreground">
           No products found.
         </p>
       ) : (
@@ -383,9 +383,9 @@ function ProductsTab() {
           {products.map((p) => (
             <div
               key={p.id}
-              className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 dark:border-white/10"
+              className="flex items-center gap-3 rounded-lg border border-border p-3 dark:border-white/10"
             >
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100 dark:bg-white/5">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5">
                 {p.images.length > 0 && (
                   <img
                     src={p.images[0]}
@@ -395,16 +395,16 @@ function ProductsTab() {
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">
                   {p.title}
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   ₦{p.price.toLocaleString()} ·{" "}
                   {p.category?.name || "No category"} ·{" "}
                   {PRODUCT_CONDITION_LABELS[p.condition]}
                   {p.brand && ` · ${p.brand}`}
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-muted-foreground">
                   {p.seller?.full_name || "Unknown"} · {p.view_count} views ·{" "}
                   {p.inquiry_count} inquiries
                 </p>
@@ -417,7 +417,7 @@ function ProductsTab() {
                       ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10"
                       : p.status === "sold"
                         ? "bg-blue-50 text-blue-600 dark:bg-blue-500/10"
-                        : "bg-neutral-100 text-neutral-500 dark:bg-white/5",
+                        : "bg-muted text-muted-foreground dark:bg-white/5",
                   )}
                 >
                   {PRODUCT_STATUS_LABELS[p.status]}
@@ -490,7 +490,7 @@ function OrdersTab() {
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All Statuses</option>
           {Object.entries(ORDER_STATUS_LABELS).map(([v, l]) => (
@@ -502,32 +502,32 @@ function OrdersTab() {
       </div>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-neutral-500">No orders found.</p>
+        <p className="text-sm text-muted-foreground">No orders found.</p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orders.map((o) => (
             <div key={o.id} className="card p-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[10px] text-neutral-500">
+                <span className="font-mono text-[10px] text-muted-foreground">
                   {o.order_number}
                 </span>
-                <span className="text-[10px] font-semibold text-neutral-500">
+                <span className="text-[10px] font-semibold text-muted-foreground">
                   {ORDER_STATUS_LABELS[o.status]}
                 </span>
               </div>
               <Link
                 to={`/marketplace/orders/${o.id}`}
-                className="mt-1.5 block truncate text-xs font-bold text-brand-navy hover:text-brand-purple dark:text-white"
+                className="mt-1.5 block truncate text-xs font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
               >
                 {o.listing?.title || "Untitled"}
               </Link>
-              <p className="mt-0.5 text-[10px] text-neutral-500">
+              <p className="mt-0.5 text-[10px] text-muted-foreground">
                 Pro: {o.pro_profile?.display_name || "Unknown"}
               </p>
-              <p className="mt-1 text-sm font-bold text-brand-navy dark:text-white">
+              <p className="mt-1 text-sm font-bold text-foreground dark:text-primary-foreground">
                 ₦{o.agreed_price.toLocaleString()}
               </p>
-              <div className="mt-1 flex items-center gap-2 text-[10px] text-neutral-500">
+              <div className="mt-1 flex items-center gap-2 text-[10px] text-muted-foreground">
                 <span>Payment: {o.payment_status.replace("_", " ")}</span>
                 {o.client_rating && (
                   <span className="inline-flex items-center gap-0.5">
@@ -593,8 +593,8 @@ function DisputesTab() {
   if (disputes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
-        <ShieldAlert className="h-10 w-10 text-neutral-300 dark:text-neutral-600" />
-        <p className="mt-2 text-sm text-neutral-500">No disputes reported.</p>
+        <ShieldAlert className="h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
+        <p className="mt-2 text-sm text-muted-foreground">No disputes reported.</p>
       </div>
     );
   }
@@ -611,21 +611,21 @@ function DisputesTab() {
                   ? "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                   : d.status === "resolved"
                     ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400"
-                    : "bg-neutral-100 text-neutral-500 dark:bg-white/5 dark:text-neutral-500",
+                    : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
               )}
             >
               {String(d.status)}
             </span>
-            <span className="text-[10px] text-neutral-500">
+            <span className="text-[10px] text-muted-foreground">
               By {d.raised_by_role as string} ·{" "}
               {new Date(d.created_at as string).toLocaleDateString()}
             </span>
           </div>
-          <p className="mt-2 text-sm font-bold text-neutral-900 dark:text-white">
+          <p className="mt-2 text-sm font-bold text-foreground dark:text-primary-foreground">
             {String(d.reason)}
           </p>
           {d.description != null && (
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
               {String(d.description)}
             </p>
           )}
@@ -722,11 +722,11 @@ function ReportsTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500">{reports.length} reports</p>
+        <p className="text-sm text-muted-foreground">{reports.length} reports</p>
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All Statuses</option>
           {Object.entries(REPORT_STATUS_LABELS).map(([v, l]) => (
@@ -739,8 +739,8 @@ function ReportsTab() {
 
       {reports.length === 0 ? (
         <div className="py-12 text-center">
-          <Flag className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+          <Flag className="mx-auto h-10 w-10 text-muted-foreground/80" />
+          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
             No reports found
           </p>
         </div>
@@ -749,7 +749,7 @@ function ReportsTab() {
           {reports.map((r) => (
             <div
               key={r.id}
-              className="rounded-xl border border-neutral-200 p-4 dark:border-white/10"
+              className="rounded-xl border border-border p-4 dark:border-white/10"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -757,19 +757,19 @@ function ReportsTab() {
                     <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
                       {REPORT_REASON_LABELS[r.reason] || r.reason}
                     </span>
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       {REPORT_STATUS_LABELS[r.status] || r.status}
                     </span>
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       · {r.report_type}
                     </span>
                   </div>
                   {r.description && (
-                    <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {r.description}
                     </p>
                   )}
-                  <p className="mt-2 text-xs text-neutral-500">
+                  <p className="mt-2 text-xs text-muted-foreground">
                     Reported {new Date(r.created_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -858,11 +858,11 @@ function ReviewsTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500">{reviews.length} reviews</p>
+        <p className="text-sm text-muted-foreground">{reviews.length} reviews</p>
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All Statuses</option>
           {Object.entries(REVIEW_STATUS_LABELS).map(([v, l]) => (
@@ -875,8 +875,8 @@ function ReviewsTab() {
 
       {reviews.length === 0 ? (
         <div className="py-12 text-center">
-          <MessageSquare className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+          <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground/80" />
+          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
             No reviews found
           </p>
         </div>
@@ -885,7 +885,7 @@ function ReviewsTab() {
           {reviews.map((r) => (
             <div
               key={r.id}
-              className="rounded-xl border border-neutral-200 p-4 dark:border-white/10"
+              className="rounded-xl border border-border p-4 dark:border-white/10"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -898,32 +898,32 @@ function ReviewsTab() {
                             "text-sm",
                             i <= r.rating
                               ? "text-amber-400"
-                              : "text-neutral-300",
+                              : "text-muted-foreground/80",
                           )}
                         >
                           ★
                         </span>
                       ))}
                     </div>
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       · {r.review_type}
                     </span>
-                    <span className="text-xs text-neutral-500">
+                    <span className="text-xs text-muted-foreground">
                       · {REVIEW_STATUS_LABELS[r.status] || r.status}
                     </span>
                   </div>
                   {r.title && (
-                    <p className="mt-2 text-sm font-semibold text-neutral-900 dark:text-white">
+                    <p className="mt-2 text-sm font-semibold text-foreground dark:text-primary-foreground">
                       {r.title}
                     </p>
                   )}
                   {r.body && (
-                    <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                    <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {r.body}
                     </p>
                   )}
                   {r.reviewer && (
-                    <p className="mt-2 text-xs text-neutral-500">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       By {r.reviewer.full_name} ·{" "}
                       {new Date(r.created_at).toLocaleDateString()}
                     </p>
@@ -1062,11 +1062,11 @@ function SellersTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500">{sellers.length} sellers</p>
+        <p className="text-sm text-muted-foreground">{sellers.length} sellers</p>
         <AdminSelect
           value={verificationFilter}
           onChange={(e) => setVerificationFilter(e.target.value)}
-          className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+          className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         >
           <option value="">All Verification Statuses</option>
           {Object.entries(SELLER_VERIFICATION_LABELS).map(([v, l]) => (
@@ -1079,8 +1079,8 @@ function SellersTab() {
 
       {sellers.length === 0 ? (
         <div className="py-12 text-center">
-          <Store className="mx-auto h-10 w-10 text-neutral-300" />
-          <p className="mt-3 text-sm font-medium text-neutral-900 dark:text-white">
+          <Store className="mx-auto h-10 w-10 text-muted-foreground/80" />
+          <p className="mt-3 text-sm font-medium text-foreground dark:text-primary-foreground">
             No sellers found
           </p>
         </div>
@@ -1089,7 +1089,7 @@ function SellersTab() {
           {sellers.map((s) => (
             <div
               key={s.id}
-              className="rounded-xl border border-neutral-200 p-4 dark:border-white/10"
+              className="rounded-xl border border-border p-4 dark:border-white/10"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -1097,14 +1097,14 @@ function SellersTab() {
                     {s.verification_status === "verified" && (
                       <BadgeCheck className="h-4 w-4 text-brand-purple" />
                     )}
-                    <span className="text-sm font-semibold text-neutral-900 dark:text-white">
+                    <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                       {s.business_name || "Individual Seller"}
                     </span>
-                    <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-600 dark:bg-white/5">
+                    <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground dark:bg-white/5">
                       {SELLER_TYPE_LABELS[s.seller_type] || s.seller_type}
                     </span>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-neutral-500">
+                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                     <span>
                       {SELLER_VERIFICATION_LABELS[s.verification_status] ||
                         s.verification_status}
@@ -1123,7 +1123,7 @@ function SellersTab() {
                     )}
                   </div>
                   {s.business_phone && (
-                    <p className="mt-1 text-xs text-neutral-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       {s.business_phone}
                     </p>
                   )}

@@ -61,7 +61,7 @@ export default function AdminPriceUpdater() {
   }, [report]);
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-muted/50">
       <AdminPageHeader
         title="Price Updater"
         subtitle="Scan Nigerian construction material markets for current prices"
@@ -73,7 +73,7 @@ export default function AdminPriceUpdater() {
           <button
             onClick={handleScan}
             disabled={scanning}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
             {scanning ? 'Scanning markets...' : 'Scan Material Prices'}
@@ -81,7 +81,7 @@ export default function AdminPriceUpdater() {
           {report && !scanning && (
             <button
               onClick={handleApply}
-              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-green-700 transition-colors"
             >
               <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
               Apply Updated Prices
@@ -107,9 +107,9 @@ export default function AdminPriceUpdater() {
         {/* Summary stats */}
         {report && (
           <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div className="rounded-xl border border-neutral-200 bg-white p-4">
-              <p className="text-xs font-medium text-neutral-500">Total Scanned</p>
-              <p className="mt-1 text-2xl font-bold text-neutral-900">{report.materials_scanned}</p>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-medium text-muted-foreground">Total Scanned</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">{report.materials_scanned}</p>
             </div>
             <div className="rounded-xl border border-green-200 bg-green-50 p-4">
               <p className="text-xs font-medium text-green-600">Live Updates</p>
@@ -119,38 +119,38 @@ export default function AdminPriceUpdater() {
               <p className="text-xs font-medium text-amber-600">Fallback</p>
               <p className="mt-1 text-2xl font-bold text-amber-700">{report.materials_failed}</p>
             </div>
-            <div className="rounded-xl border border-neutral-200 bg-white p-4">
-              <p className="text-xs font-medium text-neutral-500">Region</p>
-              <p className="mt-1 text-2xl font-bold text-neutral-900">{report.market_region}</p>
+            <div className="rounded-xl border border-border bg-card p-4">
+              <p className="text-xs font-medium text-muted-foreground">Region</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">{report.market_region}</p>
             </div>
           </div>
         )}
 
         {/* Results table */}
         {report && (
-          <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+          <div className="overflow-x-auto rounded-xl border border-border bg-card">
             <table className="w-full text-sm">
-              <thead className="border-b border-neutral-200 bg-neutral-50">
+              <thead className="border-b border-border bg-muted/50">
                 <tr>
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">Material</th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">Old Price</th>
-                  <th className="px-4 py-3 text-right font-medium text-neutral-600">New Price</th>
-                  <th className="px-4 py-3 text-center font-medium text-neutral-600">Change</th>
-                  <th className="px-4 py-3 text-center font-medium text-neutral-600">Confidence</th>
-                  <th className="px-4 py-3 text-left font-medium text-neutral-600">Source</th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">Material</th>
+                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">Old Price</th>
+                  <th className="px-4 py-3 text-right font-medium text-muted-foreground">New Price</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">Change</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground">Confidence</th>
+                  <th className="px-4 py-3 text-left font-medium text-muted-foreground">Source</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100">
+              <tbody className="divide-y divide-border/50">
                 {report.results.map((r) => (
-                  <tr key={r.material_key} className="hover:bg-neutral-50">
-                    <td className="px-4 py-3 font-medium text-neutral-900">{r.material_name}</td>
-                    <td className="px-4 py-3 text-right text-neutral-600">₦{r.old_price.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-right font-medium text-neutral-900">₦{r.new_price.toLocaleString()}</td>
+                  <tr key={r.material_key} className="hover:bg-muted/50">
+                    <td className="px-4 py-3 font-medium text-foreground">{r.material_name}</td>
+                    <td className="px-4 py-3 text-right text-muted-foreground">₦{r.old_price.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right font-medium text-foreground">₦{r.new_price.toLocaleString()}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`inline-flex items-center gap-1 text-xs font-medium ${
                         r.change_percent > 2 ? 'text-red-600' :
                         r.change_percent < -2 ? 'text-green-600' :
-                        'text-neutral-500'
+                        'text-muted-foreground'
                       }`}>
                         {r.change_percent > 2 ? <TrendingUp aria-hidden="true" className="w-3 h-3" /> :
                          r.change_percent < -2 ? <TrendingDown className="w-3 h-3" /> :
@@ -165,7 +165,7 @@ export default function AdminPriceUpdater() {
                         'bg-red-500'
                       }`} />
                     </td>
-                    <td className="px-4 py-3 text-xs text-neutral-500">{r.source}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{r.source}</td>
                   </tr>
                 ))}
               </tbody>
@@ -174,9 +174,9 @@ export default function AdminPriceUpdater() {
         )}
 
         {!report && !scanning && !error && (
-          <div className="rounded-xl border border-dashed border-neutral-300 bg-neutral-50 p-12 text-center">
-            <p className="text-neutral-500">Click "Scan Material Prices" to fetch current Nigerian market prices.</p>
-            <p className="mt-2 text-xs text-neutral-500">
+          <div className="rounded-xl border border-dashed border-border bg-muted/50 p-12 text-center">
+            <p className="text-muted-foreground">Click "Scan Material Prices" to fetch current Nigerian market prices.</p>
+            <p className="mt-2 text-xs text-muted-foreground">
               Scans Jiji, Jumia, and manufacturer price lists for cement, blocks, sand, granite, timber, roofing, and more.
             </p>
           </div>

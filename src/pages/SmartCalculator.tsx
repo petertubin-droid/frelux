@@ -85,20 +85,20 @@ export default function SmartCalculator() {
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <Link
           to="/"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-500"
+          className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
         </Link>
 
         {/* Header */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-purple/70 shadow-lg shadow-brand-purple/20">
-            <Brain className="h-7 w-7 text-white" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-brand-purple/20">
+            <Brain className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">
+          <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
             Smart Calculator
           </h1>
-          <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-neutral-500">
+          <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
             <Brain
               className="h-4 w-4 text-brand-purple"
               aria-hidden="true"
@@ -108,15 +108,15 @@ export default function SmartCalculator() {
         </div>
 
         {/* AI-powered badge banner */}
-        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10">
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
             <Brain className="h-5 w-5 text-brand-purple" />
           </div>
           <div>
-            <p className="text-sm font-bold text-brand-navy dark:text-white">
+            <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
               AI-Powered Estimation
             </p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               Describe your project in plain English — the AI calculates
               material quantities, costs, and recommendations automatically.
               Supports screeding, painting, tiling, POP ceiling, and custom
@@ -126,9 +126,9 @@ export default function SmartCalculator() {
         </div>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 py-16 dark:border-white/5 dark:bg-white/5">
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-muted/50 py-16 dark:border-white/5 dark:bg-white/5">
             <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted-foreground">
               Loading Smart Calculator…
             </p>
           </div>

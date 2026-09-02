@@ -232,10 +232,10 @@ export default function ProConnectDirectory() {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-foreground dark:text-primary-foreground">
           Find Construction Professionals
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-500">
+        <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
           Connect with verified painters, tilers, screeders, POP installers, and
           more across Nigeria
         </p>
@@ -246,14 +246,14 @@ export default function ProConnectDirectory() {
         <div className="relative flex-1">
           <Search
             aria-hidden="true"
-            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, business, or keyword..."
-            className="w-full rounded-lg border border-neutral-200 bg-white py-3 pl-11 pr-4 text-sm text-neutral-900 placeholder-neutral-400 focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-brand-navy-mid dark:text-white"
+            className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
           />
         </div>
         <button
@@ -261,8 +261,8 @@ export default function ProConnectDirectory() {
           className={classNames(
             "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
             showFilters || hasActiveFilters
-              ? "border-brand-purple bg-brand-purple text-white"
-              : "border-neutral-200 bg-white text-neutral-700 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-200",
+              ? "border-brand-purple bg-primary text-primary-foreground"
+              : "border-border bg-card text-card-foreground dark:border-white/10 dark:bg-card dark:text-muted-foreground/60",
           )}
         >
           <SlidersHorizontal className="h-4 w-4" />
@@ -285,17 +285,17 @@ export default function ProConnectDirectory() {
 
       {/* Filters panel */}
       {showFilters && (
-        <div className="mb-6 rounded-xl border border-neutral-200 bg-white p-5 dark:border-white/5 dark:bg-brand-navy-mid">
+        <div className="mb-6 rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {/* Category */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Category
               </label>
               <select
                 value={selectedCategory || ""}
                 onChange={(e) => setSelectedCategory(e.target.value || null)}
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">All categories</option>
                 {categories.map((c) => (
@@ -308,13 +308,13 @@ export default function ProConnectDirectory() {
 
             {/* Service */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Service
               </label>
               <select
                 value={selectedService || ""}
                 onChange={(e) => setSelectedService(e.target.value || null)}
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">All services</option>
                 {filteredServices.map((s) => (
@@ -327,7 +327,7 @@ export default function ProConnectDirectory() {
 
             {/* State */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 State
               </label>
               <select
@@ -336,7 +336,7 @@ export default function ProConnectDirectory() {
                   setSelectedState(e.target.value || null);
                   setSelectedCity(null);
                 }}
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">All states</option>
                 {states.map((s) => (
@@ -349,14 +349,14 @@ export default function ProConnectDirectory() {
 
             {/* City */}
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 City
               </label>
               <select
                 value={selectedCity || ""}
                 onChange={(e) => setSelectedCity(e.target.value || null)}
                 disabled={!selectedState}
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm disabled:opacity-50 dark:border-white/10 dark:bg-background"
               >
                 <option value="">All cities</option>
                 {cities.map((c) => (
@@ -371,13 +371,13 @@ export default function ProConnectDirectory() {
           {/* Availability + Rating filters */}
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Availability
               </label>
               <select
                 value={availabilityFilter || ""}
                 onChange={(e) => setAvailabilityFilter(e.target.value || null)}
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">Any availability</option>
                 <option value="available">Available now</option>
@@ -385,7 +385,7 @@ export default function ProConnectDirectory() {
               </select>
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-neutral-500 dark:text-neutral-500">
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 Minimum Rating
               </label>
               <select
@@ -395,7 +395,7 @@ export default function ProConnectDirectory() {
                     e.target.value ? parseFloat(e.target.value) : null,
                   )
                 }
-                className="w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">Any rating</option>
                 <option value="3">3.0+</option>
@@ -407,12 +407,12 @@ export default function ProConnectDirectory() {
 
           {/* Verified toggle + Clear */}
           <div className="mt-4 flex items-center justify-between">
-            <label className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+            <label className="flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
               <input
                 type="checkbox"
                 checked={verifiedOnly}
                 onChange={(e) => setVerifiedOnly(e.target.checked)}
-                className="rounded border-neutral-300 text-brand-purple focus:ring-brand-purple"
+                className="rounded border-border text-brand-purple focus:ring-brand-purple"
               />
               Verified professionals only
             </label>
@@ -441,8 +441,8 @@ export default function ProConnectDirectory() {
             className={classNames(
               "rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
               selectedCategory === cat.id
-                ? "border-brand-purple bg-brand-purple text-white"
-                : "border-neutral-200 bg-white text-neutral-600 hover:border-brand-purple/30 dark:border-white/10 dark:bg-brand-navy-mid dark:text-neutral-300",
+                ? "border-brand-purple bg-primary text-primary-foreground"
+                : "border-border bg-card text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:bg-card dark:text-muted-foreground/80",
             )}
           >
             {cat.name}
@@ -452,7 +452,7 @@ export default function ProConnectDirectory() {
 
       {/* Results count */}
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="text-sm text-muted-foreground dark:text-muted-foreground">
           {loading
             ? "Searching..."
             : `${total} professional${total !== 1 ? "s" : ""} found`}
@@ -473,16 +473,16 @@ export default function ProConnectDirectory() {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-64 animate-pulse rounded-xl border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-brand-navy-mid"
+              className="h-64 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-card"
             />
           ))}
         </div>
       ) : profiles.length === 0 ? (
-        <div className="rounded-xl border border-neutral-200 bg-white py-16 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-          <p className="text-neutral-500 dark:text-neutral-500">
+        <div className="rounded-xl border border-border bg-card py-16 text-center dark:border-white/5 dark:bg-card">
+          <p className="text-muted-foreground dark:text-muted-foreground">
             No professionals found matching your criteria.
           </p>
-          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
             Try expanding your search area or removing some filters.
           </p>
           {hasActiveFilters && (
@@ -511,7 +511,7 @@ export default function ProConnectDirectory() {
             <div className="mt-8 text-center">
               <button
                 onClick={() => setPage((p) => p + 1)}
-                className="rounded-lg border border-neutral-200 px-6 py-3 text-sm font-medium text-neutral-700 hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-neutral-200"
+                className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
               >
                 Load more professionals
               </button>

@@ -308,7 +308,7 @@ export default function GalleryUpload() {
               className={`relative w-12 h-6 rounded-full transition-all duration-300 ${isPublic ? "bg-primary" : "bg-muted"}`}
             >
               <div
-                className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-all duration-300 ${isPublic ? "left-6" : "left-0.5"}`}
+                className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow-md transition-all duration-300 ${isPublic ? "left-6" : "left-0.5"}`}
               />
             </div>
             <span className="text-sm font-medium">

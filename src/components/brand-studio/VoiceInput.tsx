@@ -193,7 +193,7 @@ export function VoiceInput({
   return (
     <div className={className}>
       {label && (
-        <label className="mb-1 block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+        <label className="mb-1 block text-sm font-medium text-card-foreground dark:text-muted-foreground/80">
           {label}
         </label>
       )}
@@ -204,7 +204,7 @@ export function VoiceInput({
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             rows={3}
-            className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-500"
+            className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
           />
         ) : (
           <input
@@ -212,7 +212,7 @@ export function VoiceInput({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-neutral-500"
+            className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground dark:placeholder:text-muted-foreground"
           />
         )}
         {isSupported && (
@@ -221,8 +221,8 @@ export function VoiceInput({
             onClick={handleButtonClick}
             className={`shrink-0 rounded-lg p-2 transition-colors ${
               isListening
-                ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-brand-purple/10 text-brand-purple hover:bg-brand-purple/20"
+                ? "bg-red-500 text-primary-foreground hover:bg-red-600"
+                : "bg-primary/10 text-brand-purple hover:bg-primary/20"
             }`}
             title={isListening ? "Stop voice input" : "Start voice input"}
             aria-label={isListening ? "Stop voice input" : "Start voice input"}
@@ -239,7 +239,7 @@ export function VoiceInput({
         <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
       )}
       {!isSupported && (
-        <p className="mt-1 text-xs text-neutral-400">
+        <p className="mt-1 text-xs text-muted-foreground">
           Voice input not supported in this browser. Type normally.
         </p>
       )}

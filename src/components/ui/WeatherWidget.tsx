@@ -40,12 +40,12 @@ export function WeatherWidget() {
     return (
       <div className="card p-6">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-purple/10">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
             <CloudRain aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-purple" />
           </div>
-          <h3 className="text-sm font-bold text-brand-navy dark:text-white">Best Days to Paint</h3>
+          <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">Best Days to Paint</h3>
         </div>
-        <div className="mt-4 flex items-center justify-center py-8 text-sm text-neutral-500">
+        <div className="mt-4 flex items-center justify-center py-8 text-sm text-muted-foreground">
           Loading weather data...
         </div>
       </div>
@@ -59,7 +59,7 @@ export function WeatherWidget() {
   return (
     <div className="card overflow-hidden">
       {/* Premium gradient header */}
-      <div className="bg-gradient-to-br from-brand-navy via-brand-navy to-brand-navy-light p-5 text-white">
+      <div className="bg-gradient-to-br from-background via-background to-background-light p-5 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
@@ -67,12 +67,12 @@ export function WeatherWidget() {
             </div>
             <div>
               <h3 className="text-sm font-bold">Best Days to Paint</h3>
-              <p className="mt-0.5 text-xs text-white/60">{city} · 5-day forecast</p>
+              <p className="mt-0.5 text-xs text-primary-foreground/60">{city} · 5-day forecast</p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-1.5 backdrop-blur-sm">
             <span className="text-2xl font-bold">{goodDays}</span>
-            <span className="text-xs text-white/60">/ 5 good</span>
+            <span className="text-xs text-primary-foreground/60">/ 5 good</span>
           </div>
         </div>
       </div>
@@ -84,7 +84,7 @@ export function WeatherWidget() {
         ))}
       </div>
 
-      <div className="border-t border-neutral-100 p-3 dark:border-white/5">
+      <div className="border-t border-border/50 p-3 dark:border-white/5">
         <Link to="/learn" className="text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter">
           Learn how weather affects painting →
         </Link>
@@ -105,19 +105,19 @@ function WeatherDayCard({ day }: { day: WeatherDay }) {
 
   return (
     <div className={classNames("rounded-xl border border-transparent p-2.5 text-center transition-all hover:shadow-sm", config.bg)}>
-      <p className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">{day.dayName}</p>
+      <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">{day.dayName}</p>
       <div className="my-1.5 flex items-center justify-center">
-        {conditionIcon(day.condition, "h-6 w-6 text-brand-navy dark:text-white")}
+        {conditionIcon(day.condition, "h-6 w-6 text-foreground dark:text-primary-foreground")}
       </div>
       <div className="flex items-center justify-center gap-0.5">
         <Icon className={classNames("h-3.5 w-3.5", config.color)} />
       </div>
       <p className={classNames("mt-0.5 text-[10px] font-medium", config.color)}>{config.label}</p>
       <div className="mt-2 space-y-0.5">
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
+        <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
           <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}%
         </p>
-        <p className="flex items-center justify-center gap-0.5 text-[10px] text-neutral-500 dark:text-neutral-400">
+        <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
           <Thermometer aria-hidden="true" className="h-2.5 w-2.5" /> {Math.round(day.tempMax)}°
         </p>
       </div>
@@ -134,21 +134,21 @@ export function WeatherWidgetCompact() {
   const goodDays = days.filter((d) => d.paintRating === "good").length;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-gradient-to-br from-neutral-50 to-white p-3 dark:border-neutral-700 dark:from-brand-navy-mid dark:to-brand-navy">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-purple/10">
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-gradient-to-br from-muted/50 to-card p-3 dark:border-border border-border dark:from-card dark:to-background">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
         {conditionIcon(today.condition, "h-5 w-5 text-brand-purple")}
       </div>
       <div className="flex-1">
-        <p className="text-sm font-semibold text-brand-navy dark:text-white">
+        <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
           {today.dayName} in {city}
         </p>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           {today.condition} · {Math.round(today.tempMax)}°C · {today.humidity}% humidity
         </p>
       </div>
-      <div className="flex items-center gap-1.5 rounded-lg bg-brand-purple/10 px-2.5 py-1.5">
+      <div className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5">
         <span className="text-lg font-bold text-brand-purple">{goodDays}</span>
-        <span className="text-[10px] text-neutral-500">/ 5 good</span>
+        <span className="text-[10px] text-muted-foreground">/ 5 good</span>
       </div>
     </div>
   );

@@ -38,32 +38,32 @@ export default function Achievements() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Back link */}
-      <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-brand-purple dark:text-neutral-400 dark:hover:text-brand-purple-lighter">
+      <Link to="/" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
         <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to home
       </Link>
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl font-bold text-brand-navy dark:text-white">Achievements</h1>
-        <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-500">
+        <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">Achievements</h1>
+        <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
           Unlock badges as you use FRELUX. Track your progress and milestones.
         </p>
-        <Link to="/rewards" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-brand-purple/90">
+        <Link to="/rewards" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90">
           💎 View FRELUX Rewards
         </Link>
       </div>
 
       {/* Progress overview */}
-      <div className="mb-8 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-white/5 dark:bg-brand-navy-mid">
+      <div className="mb-8 rounded-2xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-500">Total Progress</p>
-            <p className="text-2xl font-bold text-brand-navy dark:text-white">{totalUnlocked} / {totalAchievements} unlocked</p>
+            <p className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">Total Progress</p>
+            <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">{totalUnlocked} / {totalAchievements} unlocked</p>
           </div>
           <div className="text-3xl font-bold text-brand-purple dark:text-brand-purple-lighter">{progress}%</div>
         </div>
-        <div className="h-3 overflow-hidden rounded-full bg-neutral-100 dark:bg-white/5">
-          <div className="h-full rounded-full bg-gradient-to-r from-brand-purple to-brand-purple-light transition-all duration-500" style={{ width: `${progress}%` }} />
+        <div className="h-3 overflow-hidden rounded-full bg-muted dark:bg-white/5">
+          <div className="h-full rounded-full bg-gradient-to-r from-primary to-primary-light transition-all duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
@@ -94,18 +94,18 @@ export default function Achievements() {
                       'flex items-center gap-3 rounded-xl border p-4 transition-all',
                       isUnlocked
                         ? 'border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10'
-                        : 'border-neutral-200 bg-neutral-50 opacity-60 dark:border-white/5 dark:bg-brand-navy'
+                        : 'border-border bg-muted/50 opacity-60 dark:border-white/5 dark:bg-background'
                     )}
                   >
                     <span className="text-2xl">{isUnlocked ? ach.icon : '🔒'}</span>
                     <div className="min-w-0 flex-1">
-                      <p className={classNames('text-sm font-bold', isUnlocked ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-500')}>
+                      <p className={classNames('text-sm font-bold', isUnlocked ? 'text-foreground dark:text-primary-foreground' : 'text-muted-foreground dark:text-muted-foreground')}>
                         {ach.title}
                       </p>
-                      <p className="text-xs text-neutral-500 dark:text-neutral-500">{ach.description}</p>
+                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{ach.description}</p>
                     </div>
                     {isUnlocked && (
-                      <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-white">DONE</span>
+                      <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">DONE</span>
                     )}
                   </div>
                 );
@@ -121,9 +121,9 @@ export default function Achievements() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-4 text-center dark:border-white/5 dark:bg-brand-navy-mid">
-      <p className="text-2xl font-bold text-brand-navy dark:text-white">{value}</p>
-      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
+    <div className="rounded-xl border border-border bg-card p-4 text-center dark:border-white/5 dark:bg-card">
+      <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">{value}</p>
+      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{label}</p>
     </div>
   );
 }

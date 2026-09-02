@@ -416,23 +416,23 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
       ];
 
   return (
-    <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-white to-brand-purple/[0.02] p-1">
-      <div className="rounded-xl bg-white p-4 sm:p-6 dark:bg-brand-navy-mid">
+    <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-card to-primary/[0.02] p-1">
+      <div className="rounded-xl bg-card p-4 sm:p-6 dark:bg-card">
         {/* Header */}
-        <div className="flex items-center gap-2 border-b border-neutral-100 pb-4">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-purple/10">
+        <div className="flex items-center gap-2 border-b border-border/50 pb-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
             <Bot aria-hidden="true" className="h-5 w-5 text-brand-purple" />
           </div>
           <div className="flex-1">
-            <h3 className="text-base font-bold text-brand-navy dark:text-white">
+            <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">
               {toolLabel} — AI Advanced Mode
             </h3>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               AI-powered breakdown, smart recommendations, cost optimization &
               PDF export
             </p>
           </div>
-          <span className="flex items-center gap-1 rounded-full bg-brand-purple/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
+          <span className="flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-purple">
             <Brain className="h-3 w-3" /> AI
           </span>
         </div>
@@ -449,8 +449,8 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
                 className={
                   "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all " +
                   (tab === t.key
-                    ? "bg-brand-purple text-white"
-                    : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-400 dark:hover:bg-white/10")
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted dark:bg-white/5 dark:text-muted-foreground dark:hover:bg-white/10")
                 }
               >
                 <Icon aria-hidden="true" className="h-3.5 w-3.5" />
@@ -565,24 +565,24 @@ function AiBreakdownTab({
   return (
     <div className="space-y-5">
       {/* Source data */}
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-white/5 dark:bg-white/5">
+      <div className="rounded-lg border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">
         <div className="flex items-center gap-2">
           <Layers aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+          <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
             Calculator Input Summary
           </h4>
         </div>
-        <pre className="mt-2 whitespace-pre-wrap text-xs text-neutral-600 dark:text-neutral-300">
+        <pre className="mt-2 whitespace-pre-wrap text-xs text-muted-foreground dark:text-muted-foreground/80">
           {contextSummary}
         </pre>
       </div>
 
       {/* AI Analysis */}
-      <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/[0.02] p-4">
+      <div className="rounded-lg border border-brand-purple/20 bg-primary/[0.02] p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Brain aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-            <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+            <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
               AI-Powered Analysis
             </h4>
           </div>
@@ -602,20 +602,20 @@ function AiBreakdownTab({
               aria-hidden="true"
               className="h-6 w-6 animate-spin text-brand-purple"
             />
-            <p className="text-sm text-neutral-500">
+            <p className="text-sm text-muted-foreground">
               AI is analyzing your project…
             </p>
           </div>
         )}
 
         {!loading && aiBreakdown && (
-          <div className="mt-3 prose prose-sm max-w-none text-neutral-700 dark:text-neutral-200">
+          <div className="mt-3 prose prose-sm max-w-none text-card-foreground dark:text-muted-foreground/60">
             <FormattedAiResponse content={aiBreakdown} />
           </div>
         )}
 
         {!loading && !aiBreakdown && (
-          <p className="mt-3 text-sm text-neutral-500">
+          <p className="mt-3 text-sm text-muted-foreground">
             No analysis yet. Click refresh to generate.
           </p>
         )}
@@ -655,7 +655,7 @@ function AiBreakdownTab({
         </button>
       </div>
       {saveStatus === "saving" && (
-        <p className="text-xs text-neutral-500">Saving…</p>
+        <p className="text-xs text-muted-foreground">Saving…</p>
       )}
       {saveStatus === "saved" && (
         <p className="text-xs text-accent-green">Saved successfully.</p>
@@ -714,37 +714,37 @@ function ScreedingBreakdownTab({
       </div>
 
       {/* Line items */}
-      <div className="overflow-hidden rounded-lg border border-neutral-200 dark:border-white/5">
+      <div className="overflow-hidden rounded-lg border border-border dark:border-white/5">
         <table className="w-full text-sm">
-          <thead className="bg-neutral-50 dark:bg-white/5">
+          <thead className="bg-muted/50 dark:bg-white/5">
             <tr>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-neutral-500">
+              <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                 Material
               </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                 Qty
               </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                 Unit Price
               </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                 Total
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-neutral-100">
+          <tbody className="divide-y divide-border/50">
             {estimate.lineItems.map((item) => (
               <tr key={item.label}>
-                <td className="px-3 py-2.5 font-medium text-brand-navy dark:text-white">
+                <td className="px-3 py-2.5 font-medium text-foreground dark:text-primary-foreground">
                   {item.label}
                 </td>
-                <td className="px-3 py-2.5 text-right text-neutral-600">
+                <td className="px-3 py-2.5 text-right text-muted-foreground">
                   {formatNumber(item.quantity)} {item.unit}
                 </td>
-                <td className="px-3 py-2.5 text-right text-neutral-600">
+                <td className="px-3 py-2.5 text-right text-muted-foreground">
                   {formatCurrency(item.unitPrice, estimate.currencySymbol)}
                 </td>
-                <td className="px-3 py-2.5 text-right font-semibold text-brand-navy dark:text-white">
+                <td className="px-3 py-2.5 text-right font-semibold text-foreground dark:text-primary-foreground">
                   {formatCurrency(item.total, estimate.currencySymbol)}
                 </td>
               </tr>
@@ -796,7 +796,7 @@ function ScreedingBreakdownTab({
           label={`Tax/VAT (${estimate.taxPercentage}%)`}
           value={formatCurrency(estimate.taxAmount, estimate.currencySymbol)}
         />
-        <div className="flex items-center justify-between rounded-lg bg-brand-navy px-4 py-3 text-white">
+        <div className="flex items-center justify-between rounded-lg bg-background px-4 py-3 text-primary-foreground">
           <span className="text-sm font-bold">Grand Total</span>
           <span className="text-lg font-bold">
             {formatCurrency(estimate.grandTotal, estimate.currencySymbol)}
@@ -805,17 +805,17 @@ function ScreedingBreakdownTab({
       </div>
 
       {/* Shopping list */}
-      <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4">
+      <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-4">
         <div className="flex items-center gap-2">
           <ShoppingBag
             aria-hidden="true"
             className="h-4 w-4 text-brand-purple"
           />
-          <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+          <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
             Material Shopping List
           </h4>
         </div>
-        <ul className="mt-2 space-y-1 text-sm text-neutral-600">
+        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
           <li>
             {estimate.paintBuckets} × Screeding Paint (20 L bucket):{" "}
             {formatCurrency(
@@ -867,7 +867,7 @@ function ScreedingBreakdownTab({
         </button>
       </div>
       {saveStatus === "saving" && (
-        <p className="text-xs text-neutral-500">Saving…</p>
+        <p className="text-xs text-muted-foreground">Saving…</p>
       )}
       {saveStatus === "saved" && (
         <p className="text-xs text-accent-green">Saved successfully.</p>
@@ -896,10 +896,10 @@ function MixTab({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
           Custom Mix Ratio Editor
         </h4>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Adjust the paint to cement mix ratio for your wall condition.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -911,8 +911,8 @@ function MixTab({
               className={
                 "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                 (input.mixRatio === r
-                  ? "border-brand-purple bg-brand-purple text-white"
-                  : "border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-300 hover:border-neutral-300")
+                  ? "border-brand-purple bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80 hover:border-border")
               }
             >
               {r}
@@ -1006,10 +1006,10 @@ function CostsTab({
   return (
     <div className="space-y-5">
       {!isScreeding && (
-        <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-3">
+        <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-3">
           <div className="flex items-center gap-2">
             <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-            <p className="text-xs text-neutral-600 dark:text-neutral-300">
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground/80">
               These adjustments apply on top of your calculator's base results.
               Use the AI Analysis tab for a full breakdown.
             </p>
@@ -1031,10 +1031,10 @@ function CostsTab({
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
           Waste Percentage Scenarios
         </h4>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Compare different waste allowances.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -1046,8 +1046,8 @@ function CostsTab({
               className={
                 "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
                 (costAdjust.wastePercentage === w
-                  ? "border-brand-purple bg-brand-purple text-white"
-                  : "border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-300 hover:border-neutral-300")
+                  ? "border-brand-purple bg-primary text-primary-foreground"
+                  : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80 hover:border-border")
               }
             >
               {w}%
@@ -1074,8 +1074,8 @@ function CostsTab({
         />
       </div>
 
-      <div className="rounded-lg border border-neutral-200 p-4 dark:border-white/5">
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+      <div className="rounded-lg border border-border p-4 dark:border-white/5">
+        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
           Cost Summary
         </h4>
         <div className="mt-3 space-y-2 text-sm">
@@ -1121,11 +1121,11 @@ function CostsTab({
                 label="Tax/VAT"
                 value={formatCurrency(taxAmount, estimate.currencySymbol)}
               />
-              <div className="flex items-center justify-between border-t border-neutral-200 pt-2">
-                <span className="font-bold text-brand-navy dark:text-white">
+              <div className="flex items-center justify-between border-t border-border pt-2">
+                <span className="font-bold text-foreground dark:text-primary-foreground">
                   Grand Total
                 </span>
-                <span className="text-lg font-bold text-brand-navy dark:text-white">
+                <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {formatCurrency(grandTotal, estimate.currencySymbol)}
                 </span>
               </div>
@@ -1152,15 +1152,15 @@ function CostsTab({
                 label={`Tax/VAT (${costAdjust.taxPercentage}%)`}
                 value={formatCurrency(taxAmount)}
               />
-              <div className="flex items-center justify-between border-t border-neutral-200 pt-2">
-                <span className="font-bold text-brand-navy dark:text-white">
+              <div className="flex items-center justify-between border-t border-border pt-2">
+                <span className="font-bold text-foreground dark:text-primary-foreground">
                   Additional Costs
                 </span>
-                <span className="text-lg font-bold text-brand-navy dark:text-white">
+                <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
                   {formatCurrency(grandTotal)}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-neutral-500">
+              <p className="mt-2 text-xs text-muted-foreground">
                 Add this to your calculator's base material cost for the full
                 project total.
               </p>
@@ -1207,17 +1207,17 @@ function CompareTab({
   return (
     <div className="space-y-5">
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
           Cost Comparison
         </h4>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Compare your current estimate with saved estimates.
         </p>
       </div>
 
       {saved.length > 0 && (
         <div>
-          <p className="mb-2 text-xs font-semibold text-neutral-500">
+          <p className="mb-2 text-xs font-semibold text-muted-foreground">
             Select an estimate to compare:
           </p>
           <div className="flex flex-wrap gap-2">
@@ -1231,8 +1231,8 @@ function CompareTab({
                 className={
                   "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all " +
                   (selected === s.estimateData
-                    ? "border-brand-purple bg-brand-purple text-white"
-                    : "border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-300 hover:border-neutral-300")
+                    ? "border-brand-purple bg-primary text-primary-foreground"
+                    : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80 hover:border-border")
                 }
               >
                 {s.title}
@@ -1243,25 +1243,25 @@ function CompareTab({
       )}
 
       {selected && (
-        <div className="overflow-hidden rounded-lg border border-neutral-200 dark:border-white/5">
+        <div className="overflow-hidden rounded-lg border border-border dark:border-white/5">
           <table className="w-full text-sm">
-            <thead className="bg-neutral-50 dark:bg-white/5">
+            <thead className="bg-muted/50 dark:bg-white/5">
               <tr>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-neutral-500">
+                <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
                   Metric
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                   Current
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                   Saved
                 </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-neutral-500">
+                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
                   Diff
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-100">
+            <tbody className="divide-y divide-border/50">
               {[
                 {
                   label: "Paint (buckets)",
@@ -1292,13 +1292,13 @@ function CompareTab({
                 const diff = row.cur - row.sav;
                 return (
                   <tr key={row.label}>
-                    <td className="px-3 py-2 font-medium text-brand-navy dark:text-white">
+                    <td className="px-3 py-2 font-medium text-foreground dark:text-primary-foreground">
                       {row.label}
                     </td>
-                    <td className="px-3 py-2 text-right text-neutral-600">
+                    <td className="px-3 py-2 text-right text-muted-foreground">
                       {formatNumber(row.cur)}
                     </td>
-                    <td className="px-3 py-2 text-right text-neutral-600">
+                    <td className="px-3 py-2 text-right text-muted-foreground">
                       {formatNumber(row.sav)}
                     </td>
                     <td
@@ -1308,7 +1308,7 @@ function CompareTab({
                           ? "text-red-600"
                           : diff < 0
                             ? "text-accent-green"
-                            : "text-neutral-500")
+                            : "text-muted-foreground")
                       }
                     >
                       {diff > 0 ? "+" : ""}
@@ -1323,8 +1323,8 @@ function CompareTab({
       )}
 
       {saved.length === 0 && (
-        <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center">
-          <p className="text-sm text-neutral-500">
+        <div className="rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
+          <p className="text-sm text-muted-foreground">
             Save estimates first to compare them side by side.
           </p>
         </div>
@@ -1353,14 +1353,14 @@ function AiTab({
 }) {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4">
+      <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
         <div className="flex items-center gap-2">
           <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+          <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
             AI Powered Recommendations
           </h4>
         </div>
-        <p className="mt-1 text-xs text-neutral-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           Get smart suggestions to reduce waste and lower costs for your{" "}
           {toolLabel.toLowerCase()} project.
         </p>
@@ -1368,7 +1368,7 @@ function AiTab({
           type="button"
           onClick={onRecommend}
           disabled={loading}
-          className="mt-3 flex items-center gap-1.5 rounded-lg bg-brand-purple px-3 py-2 text-xs font-semibold text-white hover:bg-brand-purple/90 disabled:opacity-50"
+          className="mt-3 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -1380,10 +1380,10 @@ function AiTab({
       </div>
 
       <div>
-        <h4 className="text-sm font-bold text-brand-navy dark:text-white">
+        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
           Ask the AI Assistant
         </h4>
-        <p className="mt-0.5 text-xs text-neutral-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           Ask about calculations, materials, cost saving tips, or construction
           best practices.
         </p>
@@ -1415,27 +1415,27 @@ function AiTab({
       </div>
 
       {loading && !response && (
-        <div className="flex items-center gap-2 py-4 text-sm text-neutral-500">
+        <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
           <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />{" "}
           Analyzing your project…
         </div>
       )}
 
       {response && (
-        <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:border-white/5 dark:bg-white/5 p-4">
+        <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-4">
           <div className="flex items-start gap-2">
             <Bot
               aria-hidden="true"
               className="h-4 w-4 shrink-0 text-brand-purple mt-0.5"
             />
-            <div className="flex-1 text-sm text-neutral-700 dark:text-neutral-200">
+            <div className="flex-1 text-sm text-card-foreground dark:text-muted-foreground/60">
               <FormattedAiResponse content={response} />
             </div>
           </div>
         </div>
       )}
 
-      <p className="text-center text-xs text-neutral-500">
+      <p className="text-center text-xs text-muted-foreground">
         Powered by FRELUX AI · Responses are estimates, verify with your
         supplier
       </p>
@@ -1462,8 +1462,8 @@ function SavedTab({
 }) {
   if (estimates.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center">
-        <p className="text-sm text-neutral-500">
+      <div className="rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
+        <p className="text-sm text-muted-foreground">
           No saved estimates yet. Save an estimate to access it later.
         </p>
       </div>
@@ -1474,13 +1474,13 @@ function SavedTab({
       {estimates.map((e) => (
         <div
           key={e.id}
-          className="flex items-center justify-between rounded-lg border border-neutral-200 bg-white p-3 dark:border-white/5 dark:bg-white/5"
+          className="flex items-center justify-between rounded-lg border border-border bg-card p-3 dark:border-white/5 dark:bg-white/5"
         >
           <div>
-            <p className="text-sm font-semibold text-brand-navy dark:text-white">
+            <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
               {e.title}
             </p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-muted-foreground">
               {new Date(e.createdAt).toLocaleDateString()} · {e.currency}{" "}
               {formatNumber(e.totalCost)}
             </p>
@@ -1489,7 +1489,7 @@ function SavedTab({
             <button
               type="button"
               onClick={onExport}
-              className="rounded p-1.5 text-neutral-500 hover:text-brand-purple"
+              className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
               aria-label="Export"
             >
               <Download className="h-4 w-4" />
@@ -1497,7 +1497,7 @@ function SavedTab({
             <button
               type="button"
               onClick={() => onDelete(e.id)}
-              className="rounded p-1.5 text-neutral-500 hover:text-red-500"
+              className="rounded p-1.5 text-muted-foreground hover:text-red-500"
               aria-label="Delete"
             >
               <Trash2 className="h-4 w-4" />
@@ -1523,7 +1523,7 @@ function NumField({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-neutral-500">{label}</label>
+      <label className="text-xs font-semibold text-muted-foreground">{label}</label>
       <input
         type="number"
         value={value}
@@ -1537,9 +1537,9 @@ function NumField({
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-2.5">
-      <span className="text-sm text-neutral-500">{label}</span>
-      <span className="text-sm font-semibold text-brand-navy dark:text-white">
+    <div className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-2.5">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
         {value}
       </span>
     </div>
@@ -1560,11 +1560,11 @@ function FormattedAiResponse({ content }: { content: string }) {
           return (
             <div key={i}>
               {heading && !heading.startsWith("•") && (
-                <h4 className="text-sm font-bold text-brand-navy dark:text-white mb-1">
+                <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground mb-1">
                   {heading}
                 </h4>
               )}
-              <div className="text-sm text-neutral-600 dark:text-neutral-300 whitespace-pre-wrap leading-relaxed">
+              <div className="text-sm text-muted-foreground dark:text-muted-foreground/80 whitespace-pre-wrap leading-relaxed">
                 {body || heading}
               </div>
             </div>

@@ -35,7 +35,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
           compact ? 'h-8 w-8' : 'gap-1.5 px-3 py-1.5 text-sm font-medium',
           isListening
             ? 'border-red-300 bg-red-50 text-red-600 animate-pulse dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400'
-            : 'border-neutral-200 text-neutral-500 hover:border-brand-purple/30 hover:text-brand-purple dark:border-neutral-700 dark:text-neutral-500',
+            : 'border-border text-muted-foreground hover:border-brand-purple/30 hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground',
         )}
         aria-label={isListening ? 'Stop voice input' : `Speak ${label ?? 'value'}`}
         title={isListening ? 'Listening...' : `Speak ${label ?? 'value'}`}
@@ -44,7 +44,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
         {!compact && <span>{isListening ? 'Stop' : 'Speak'}</span>}
       </button>
       {feedback && (
-        <span className="text-xs text-neutral-500 dark:text-neutral-500">{feedback}</span>
+        <span className="text-xs text-muted-foreground dark:text-muted-foreground">{feedback}</span>
       )}
       {error && (
         <span className="text-xs text-red-500">{error}</span>

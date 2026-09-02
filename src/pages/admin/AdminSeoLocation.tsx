@@ -20,9 +20,9 @@ export default function AdminSeoLocation() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-neutral-900 dark:text-white">SEO & Location Management</h1>
+      <h1 className="mb-6 text-2xl font-bold text-foreground dark:text-primary-foreground">SEO & Location Management</h1>
 
-      <div className="mb-6 flex flex-wrap gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {([
           ['locations', 'Locations'],
           ['categories', 'Categories'],
@@ -135,16 +135,16 @@ function LocationsTab() {
     <div>
       <div className="mb-4 flex items-center justify-between">
         <div className="relative">
-          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+          <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <AdminInput
  type="text"
  value={search}
  onChange={(e) => setSearch(e.target.value)}
             placeholder="Search locations..."
-            className="rounded-lg border border-neutral-200 py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+            className="rounded-lg border border-border py-2 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
-        <span className="text-sm text-neutral-500">{locations.length} locations</span>
+        <span className="text-sm text-muted-foreground">{locations.length} locations</span>
       </div>
 
       {error && (
@@ -162,7 +162,7 @@ function LocationsTab() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-xs uppercase text-neutral-400 dark:border-white/10">
+              <tr className="border-b border-border text-left text-xs uppercase text-muted-foreground dark:border-white/10">
                 <th className="py-2 pr-4">State</th>
                 <th className="py-2 pr-4">City</th>
                 <th className="py-2 pr-4">Slug</th>
@@ -173,30 +173,30 @@ function LocationsTab() {
             </thead>
             <tbody>
               {filtered.map((loc) => (
-                <tr key={loc.id} className="border-b border-neutral-100 dark:border-white/5">
-                  <td className="py-2 pr-4 text-neutral-700 dark:text-neutral-200">{loc.state}</td>
-                  <td className="py-2 pr-4 text-neutral-700 dark:text-neutral-200">{loc.city}</td>
+                <tr key={loc.id} className="border-b border-border/50 dark:border-white/5">
+                  <td className="py-2 pr-4 text-card-foreground dark:text-muted-foreground/60">{loc.state}</td>
+                  <td className="py-2 pr-4 text-card-foreground dark:text-muted-foreground/60">{loc.city}</td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <AdminInput value={editSlug} onChange={(e) => setEditSlug(e.target.value)} className="w-28 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editSlug} onChange={(e) => setEditSlug(e.target.value)} className="w-28 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
-                      <span className="text-xs text-neutral-500">{loc.slug || '—'}</span>
+                      <span className="text-xs text-muted-foreground">{loc.slug || '—'}</span>
                     )}
                   </td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <AdminInput value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
-                      <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-neutral-500')}>
+                      <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-muted-foreground')}>
                         {loc.latitude ? loc.latitude.toFixed(4) : '—'}
                       </span>
                     )}
                   </td>
                   <td className="py-2 pr-4">
                     {editingId === loc.id ? (
-                      <AdminInput value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-neutral-200 px-2 py-1 text-xs dark:border-white/10 dark:bg-brand-navy dark:text-white" />
+                      <AdminInput value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
-                      <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-neutral-500')}>
+                      <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-muted-foreground')}>
                         {loc.longitude ? loc.longitude.toFixed(4) : '—'}
                       </span>
                     )}
@@ -214,7 +214,7 @@ function LocationsTab() {
                         </>
                       ) : (
                         <>
-                          <AdminIconButton variant="ghost" onClick={() => startEdit(loc)} title="Edit" className="rounded p-1 text-brand-purple hover:bg-brand-purple/10">
+                          <AdminIconButton variant="ghost" onClick={() => startEdit(loc)} title="Edit" className="rounded p-1 text-brand-purple hover:bg-primary/10">
                             <Navigation aria-hidden="true" className="h-3.5 w-3.5" />
                           </AdminIconButton>
                           {!loc.latitude && (
@@ -231,7 +231,7 @@ function LocationsTab() {
             </tbody>
           </table>
           {filtered.length === 0 && (
-            <p className="py-8 text-center text-sm text-neutral-500">No locations found. Add locations in Pro Connect Management.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">No locations found. Add locations in Pro Connect Management.</p>
           )}
         </div>
       )}
@@ -288,18 +288,18 @@ function CategoriesTab() {
       ) : (
         <div className="space-y-3">
           {categories.map((cat) => (
-            <div key={cat.id} className="rounded-xl border border-neutral-200 p-4 dark:border-white/10">
+            <div key={cat.id} className="rounded-xl border border-border p-4 dark:border-white/10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900 dark:text-white">{cat.name}</h3>
-                  <p className="text-xs text-neutral-500">/{cat.slug}</p>
+                  <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">{cat.name}</h3>
+                  <p className="text-xs text-muted-foreground">/{cat.slug}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={classNames(
                     'inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium',
                     cat.seo_indexable
                       ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
-                      : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
+                      : 'bg-muted text-muted-foreground dark:bg-white/5'
                   )}>
                     {cat.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                     {cat.seo_indexable ? 'Indexable' : 'No-index'}
@@ -315,24 +315,24 @@ function CategoriesTab() {
               </div>
 
               {editingId === cat.id && (
-                <div className="mt-4 space-y-3 border-t border-neutral-100 pt-3 dark:border-white/5">
+                <div className="mt-4 space-y-3 border-t border-border/50 pt-3 dark:border-white/5">
                   <div>
-                    <label className="text-xs font-medium text-neutral-500">SEO Title</label>
+                    <label className="text-xs font-medium text-muted-foreground">SEO Title</label>
                     <AdminInput
  value={editTitle}
  onChange={(e) => setEditTitle(e.target.value)}
                       placeholder={`${cat.name} Services & Jobs — FRELUX Marketplace`}
-                      className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-neutral-500">SEO Description</label>
+                    <label className="text-xs font-medium text-muted-foreground">SEO Description</label>
                     <AdminTextarea
                       value={editDesc}
                       onChange={(e) => setEditDesc(e.target.value)}
                       placeholder={`Find ${cat.name} professionals and job listings on FRELUX...`}
                       rows={3}
-                      className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                      className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                     />
                   </div>
                   <label className="flex items-center gap-2 text-sm">
@@ -342,7 +342,7 @@ function CategoriesTab() {
  onChange={(e) => setEditIndexable(e.target.checked)}
                       className="rounded"
                     />
-                    <span className="text-neutral-700 dark:text-neutral-200">Allow search engines to index this category page</span>
+                    <span className="text-card-foreground dark:text-muted-foreground/60">Allow search engines to index this category page</span>
                   </label>
                   <AdminButton
                     onClick={() => handleSave(cat.id)}
@@ -355,7 +355,7 @@ function CategoriesTab() {
               )}
 
               {!editingId && (cat.seo_title || cat.seo_description) && (
-                <div className="mt-2 text-xs text-neutral-500">
+                <div className="mt-2 text-xs text-muted-foreground">
                   {cat.seo_title && <p><strong>Title:</strong> {cat.seo_title}</p>}
                   {cat.seo_description && <p className="mt-0.5"><strong>Desc:</strong> {cat.seo_description}</p>}
                 </div>
@@ -423,7 +423,7 @@ function SeoPagesTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-neutral-500">Custom SEO metadata for dynamic pages (category, location, combo pages).</p>
+        <p className="text-sm text-muted-foreground">Custom SEO metadata for dynamic pages (category, location, combo pages).</p>
         <AdminButton
           onClick={() => setShowForm(!showForm)}
           className="py-2"
@@ -434,14 +434,14 @@ function SeoPagesTab() {
       </div>
 
       {showForm && (
-        <div className="mb-4 rounded-xl border border-neutral-200 p-4 dark:border-white/10">
+        <div className="mb-4 rounded-xl border border-border p-4 dark:border-white/10">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-neutral-500">Page Type</label>
+              <label className="text-xs font-medium text-muted-foreground">Page Type</label>
               <AdminSelect
                 value={form.page_type}
                 onChange={(e) => setForm({ ...form, page_type: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
                 <option value="marketplace_category">Marketplace Category</option>
                 <option value="marketplace_location">Marketplace Location</option>
@@ -451,53 +451,53 @@ function SeoPagesTab() {
               </AdminSelect>
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500">Entity ID (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground">Entity ID (optional)</label>
               <AdminInput
  value={form.entity_id}
  onChange={(e) => setForm({ ...form, entity_id: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500">Category Slug (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground">Category Slug (optional)</label>
               <AdminInput
  value={form.category_slug}
  onChange={(e) => setForm({ ...form, category_slug: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500">Location Slug (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground">Location Slug (optional)</label>
               <AdminInput
  value={form.location_slug}
  onChange={(e) => setForm({ ...form, location_slug: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-neutral-500">SEO Title *</label>
+              <label className="text-xs font-medium text-muted-foreground">SEO Title *</label>
               <AdminInput
  value={form.seo_title}
  onChange={(e) => setForm({ ...form, seo_title: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-neutral-500">SEO Description *</label>
+              <label className="text-xs font-medium text-muted-foreground">SEO Description *</label>
               <AdminTextarea
                 value={form.seo_description}
                 onChange={(e) => setForm({ ...form, seo_description: e.target.value })}
                 rows={2}
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-neutral-500">Canonical Path (optional)</label>
+              <label className="text-xs font-medium text-muted-foreground">Canonical Path (optional)</label>
               <AdminInput
  value={form.canonical_path}
  onChange={(e) => setForm({ ...form, canonical_path: e.target.value })}
                 placeholder="/marketplace/category/painting"
-                className="mt-1 w-full rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy dark:text-white"
+                className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
             <div>
@@ -508,7 +508,7 @@ function SeoPagesTab() {
  onChange={(e) => setForm({ ...form, is_indexable: e.target.checked })}
                   className="rounded"
                 />
-                <span className="text-neutral-700 dark:text-neutral-200">Indexable</span>
+                <span className="text-card-foreground dark:text-muted-foreground/60">Indexable</span>
               </label>
             </div>
           </div>
@@ -528,19 +528,19 @@ function SeoPagesTab() {
           <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
         </div>
       ) : settings.length === 0 ? (
-        <p className="py-8 text-center text-sm text-neutral-500">No custom SEO page settings yet.</p>
+        <p className="py-8 text-center text-sm text-muted-foreground">No custom SEO page settings yet.</p>
       ) : (
         <div className="space-y-2">
           {settings.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
+            <div key={s.id} className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-neutral-900 dark:text-white">{s.seo_title}</p>
-                <p className="truncate text-xs text-neutral-500">{s.page_type} · {s.category_slug || s.entity_id || s.location_slug}</p>
+                <p className="text-sm font-medium text-foreground dark:text-primary-foreground">{s.seo_title}</p>
+                <p className="truncate text-xs text-muted-foreground">{s.page_type} · {s.category_slug || s.entity_id || s.location_slug}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={classNames(
                   'inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs',
-                  s.is_indexable ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
+                  s.is_indexable ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10' : 'bg-muted text-muted-foreground dark:bg-white/5'
                 )}>
                   {s.is_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
                 </span>
@@ -595,7 +595,7 @@ function IndexabilityTab() {
           onClick={() => setTab2('listings')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
-            tab2 === 'listings' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
+            tab2 === 'listings' ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground'
           )}
         >
           Marketplace Listings
@@ -604,7 +604,7 @@ function IndexabilityTab() {
           onClick={() => setTab2('profiles')}
           className={classNames(
             'rounded-lg px-4 py-2 text-sm font-medium',
-            tab2 === 'profiles' ? 'bg-brand-purple text-white' : 'border border-neutral-200 text-neutral-600 dark:border-white/10 dark:text-neutral-500'
+            tab2 === 'profiles' ? 'bg-primary text-primary-foreground' : 'border border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground'
           )}
         >
           Professional Profiles
@@ -618,10 +618,10 @@ function IndexabilityTab() {
       ) : tab2 === 'listings' ? (
         <div className="space-y-2">
           {listings.map((l) => (
-            <div key={l.id} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
+            <div key={l.id} className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{l.title}</p>
-                <p className="text-xs text-neutral-500">{l.status} · {l.is_active ? 'Active' : 'Inactive'}</p>
+                <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">{l.title}</p>
+                <p className="text-xs text-muted-foreground">{l.status} · {l.is_active ? 'Active' : 'Inactive'}</p>
               </div>
               <AdminIconButton variant="ghost"
                 onClick={() => toggleListingIndexable(l.id, l.seo_indexable)}
@@ -629,7 +629,7 @@ function IndexabilityTab() {
                   'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium',
                   l.seo_indexable
                     ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
-                    : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
+                    : 'bg-muted text-muted-foreground dark:bg-white/5'
                 )}
               >
                 {l.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
@@ -637,15 +637,15 @@ function IndexabilityTab() {
               </AdminIconButton>
             </div>
           ))}
-          {listings.length === 0 && <p className="py-8 text-center text-sm text-neutral-500">No listings found.</p>}
+          {listings.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No listings found.</p>}
         </div>
       ) : (
         <div className="space-y-2">
           {profiles.map((p) => (
-            <div key={p.id} className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-white/10">
+            <div key={p.id} className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10">
               <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">{p.business_name || p.display_name}</p>
-                <p className="text-xs text-neutral-500">{p.verification_status} · /{p.slug}</p>
+                <p className="truncate text-sm font-medium text-foreground dark:text-primary-foreground">{p.business_name || p.display_name}</p>
+                <p className="text-xs text-muted-foreground">{p.verification_status} · /{p.slug}</p>
               </div>
               <AdminIconButton variant="ghost"
                 onClick={() => toggleProfileIndexable(p.id, p.seo_indexable)}
@@ -653,7 +653,7 @@ function IndexabilityTab() {
                   'inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-xs font-medium',
                   p.seo_indexable
                     ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
-                    : 'bg-neutral-100 text-neutral-500 dark:bg-white/5'
+                    : 'bg-muted text-muted-foreground dark:bg-white/5'
                 )}
               >
                 {p.seo_indexable ? <Eye aria-hidden="true" className="h-3 w-3" /> : <EyeOff aria-hidden="true" className="h-3 w-3" />}
@@ -661,7 +661,7 @@ function IndexabilityTab() {
               </AdminIconButton>
             </div>
           ))}
-          {profiles.length === 0 && <p className="py-8 text-center text-sm text-neutral-500">No profiles found.</p>}
+          {profiles.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No profiles found.</p>}
         </div>
       )}
     </div>

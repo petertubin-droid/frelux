@@ -225,7 +225,7 @@ export default function Pricing() {
             aria-hidden="true"
             className="mx-auto h-12 w-12 animate-spin text-brand-purple"
           />
-          <p className="mt-4 text-neutral-500">
+          <p className="mt-4 text-muted-foreground">
             Please wait while we verify your payment…
           </p>
         </div>
@@ -245,10 +245,10 @@ export default function Pricing() {
           <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-accent-green/15">
             <Check aria-hidden="true" className="h-10 w-10 text-accent-green" />
           </div>
-          <p className="mt-6 text-lg font-semibold text-brand-navy dark:text-white">
+          <p className="mt-6 text-lg font-semibold text-foreground dark:text-primary-foreground">
             You're all set, {user?.email}!
           </p>
-          <p className="mt-2 text-sm text-neutral-500">
+          <p className="mt-2 text-sm text-muted-foreground">
             Your{" "}
             <span className="font-semibold capitalize text-brand-purple">
               {paidStatus?.plan}
@@ -257,7 +257,7 @@ export default function Pricing() {
           </p>
           <Link
             to="/dashboard"
-            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple/90"
+            className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
           >
             Go to Dashboard{" "}
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -281,7 +281,7 @@ export default function Pricing() {
           <div
             role="tablist"
             aria-label="Billing cycle"
-            className="inline-flex rounded-xl border border-neutral-200 bg-white p-1 dark:border-neutral-700 dark:bg-neutral-900"
+            className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
           >
             <button
               role="tab"
@@ -290,8 +290,8 @@ export default function Pricing() {
               className={classNames(
                 "rounded-lg px-5 py-2 text-sm font-semibold transition-all",
                 billingCycle === "monthly"
-                  ? "bg-brand-purple text-white"
-                  : "text-neutral-500 hover:text-brand-purple",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-brand-purple",
               )}
             >
               Monthly
@@ -303,8 +303,8 @@ export default function Pricing() {
               className={classNames(
                 "rounded-lg px-5 py-2 text-sm font-semibold transition-all",
                 billingCycle === "yearly"
-                  ? "bg-brand-purple text-white"
-                  : "text-neutral-500 hover:text-brand-purple",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-brand-purple",
               )}
             >
               Yearly
@@ -317,15 +317,15 @@ export default function Pricing() {
 
         {/* Coming Soon banner */}
         {premiumLive === false && (
-          <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-brand-purple/5 to-transparent p-6 text-center">
+          <div className="mx-auto mt-6 max-w-lg rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 text-center">
             <Gem
               aria-hidden="true"
               className="mx-auto h-8 w-8 text-brand-purple"
             />
-            <h3 className="mt-3 text-lg font-bold text-brand-navy dark:text-white">
+            <h3 className="mt-3 text-lg font-bold text-foreground dark:text-primary-foreground">
               Premium Subscriptions — Coming Soon
             </h3>
-            <p className="mt-1 text-sm text-neutral-500">
+            <p className="mt-1 text-sm text-muted-foreground">
               We're putting the finishing touches on FRELUX Premium. Browse the
               plans below to see what's coming, and check back shortly to
               subscribe.
@@ -335,14 +335,14 @@ export default function Pricing() {
 
         {/* Current plan indicator */}
         {isPaid && (
-          <div className="mx-auto mt-6 max-w-md rounded-xl border border-brand-purple/30 bg-brand-purple/5 p-4 text-center">
-            <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          <div className="mx-auto mt-6 max-w-md rounded-xl border border-brand-purple/30 bg-primary/5 p-4 text-center">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground/80">
               You're currently on{" "}
               <span className="font-bold capitalize text-brand-purple">
                 {paidStatus?.plan}
               </span>
               {paidStatus?.paid_until && (
-                <span className="text-neutral-500">
+                <span className="text-muted-foreground">
                   {" "}
                   · expires{" "}
                   {new Date(paidStatus.paid_until).toLocaleDateString()}
@@ -364,10 +364,10 @@ export default function Pricing() {
               <div
                 key={plan.id}
                 className={classNames(
-                  "relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-brand-navy-mid",
+                  "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all dark:bg-card",
                   plan.highlight
                     ? "border-brand-purple ring-2 ring-brand-purple/20 lg:scale-105"
-                    : "border-neutral-200/60 dark:border-white/10",
+                    : "border-border/60 dark:border-white/10",
                   isCurrentPlan && "ring-2 ring-accent-green/30",
                 )}
               >
@@ -376,8 +376,8 @@ export default function Pricing() {
                     className={classNames(
                       "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide",
                       plan.highlight
-                        ? "bg-brand-purple text-white"
-                        : "bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300",
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80",
                     )}
                   >
                     {plan.badge}
@@ -388,24 +388,24 @@ export default function Pricing() {
                   {plan.id === "free" ? (
                     <Gem
                       aria-hidden="true"
-                      className="h-5 w-5 text-neutral-500"
+                      className="h-5 w-5 text-muted-foreground"
                     />
                   ) : (
                     <PremiumBadge size="sm" />
                   )}
-                  <h3 className="text-lg font-bold text-brand-navy dark:text-white">
+                  <h3 className="text-lg font-bold text-foreground dark:text-primary-foreground">
                     {plan.name}
                   </h3>
                 </div>
-                <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">
+                <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                   {plan.tagline}
                 </p>
 
                 <div className="mt-4">
-                  <span className="text-3xl font-extrabold text-brand-navy dark:text-white">
+                  <span className="text-3xl font-extrabold text-foreground dark:text-primary-foreground">
                     {formatNaira(price)}
                   </span>
-                  <span className="text-sm text-neutral-500">
+                  <span className="text-sm text-muted-foreground">
                     /{billingCycle === "monthly" ? "mo" : "yr"}
                   </span>
                 </div>
@@ -426,10 +426,10 @@ export default function Pricing() {
                       : premiumLive === false &&
                           plan.id !== "free" &&
                           plan.id !== "enterprise"
-                        ? "cursor-default border border-brand-purple/30 bg-brand-purple/5 text-brand-purple"
+                        ? "cursor-default border border-brand-purple/30 bg-primary/5 text-brand-purple"
                         : plan.highlight
-                          ? "bg-brand-purple text-white hover:bg-brand-purple/90"
-                          : "border border-neutral-200 text-brand-navy hover:border-brand-purple hover:text-brand-purple dark:border-white/20 dark:text-white dark:hover:border-brand-purple-lighter",
+                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                          : "border border-border text-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/20 dark:text-primary-foreground dark:hover:border-brand-purple-lighter",
                   )}
                 >
                   {isLoading ? (
@@ -458,7 +458,7 @@ export default function Pricing() {
                   {plan.features.map((feature, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-300"
+                      className="flex items-start gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80"
                     >
                       <Check
                         className={classNames(
@@ -478,7 +478,7 @@ export default function Pricing() {
         </div>
 
         {/* Trust badges */}
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-neutral-500">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
             <ShieldCheck aria-hidden="true" className="h-4 w-4" /> Secure
             payment via Paystack
@@ -493,7 +493,7 @@ export default function Pricing() {
 
         {/* FAQ */}
         <div className="mx-auto mt-16 max-w-2xl">
-          <h2 className="text-center text-xl font-bold text-brand-navy dark:text-white">
+          <h2 className="text-center text-xl font-bold text-foreground dark:text-primary-foreground">
             Frequently Asked Questions
           </h2>
           <div className="mt-6 space-y-4">
@@ -518,18 +518,18 @@ export default function Pricing() {
 
         {/* CTA for non-logged-in users */}
         {!user && (
-          <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-brand-purple/20 bg-brand-purple/5 p-6 text-center">
+          <div className="mx-auto mt-12 max-w-lg rounded-2xl border border-brand-purple/20 bg-primary/5 p-6 text-center">
             <AlertCircle
               aria-hidden="true"
               className="mx-auto h-8 w-8 text-brand-purple"
             />
-            <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
+            <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground/80">
               You need a FRELUX account to subscribe. Create one in seconds —
               it's free.
             </p>
             <Link
               to="/login?redirect=/pricing"
-              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-navy px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy/90"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl bg-background px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-background/90"
             >
               Sign Up / Log In{" "}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -544,17 +544,17 @@ export default function Pricing() {
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="rounded-xl border border-neutral-200/60 bg-white dark:border-white/10 dark:bg-brand-navy-mid">
+    <div className="rounded-xl border border-border/60 bg-card dark:border-white/10 dark:bg-card">
       <button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4 text-left"
       >
-        <span className="text-sm font-semibold text-brand-navy dark:text-white">
+        <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
           {q}
         </span>
         <span
           className={classNames(
-            "text-neutral-500 transition-transform",
+            "text-muted-foreground transition-transform",
             open && "rotate-180",
           )}
         >
@@ -562,7 +562,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         </span>
       </button>
       {open && (
-        <p className="px-4 pb-4 text-sm text-neutral-500 dark:text-neutral-500">
+        <p className="px-4 pb-4 text-sm text-muted-foreground dark:text-muted-foreground">
           {a}
         </p>
       )}

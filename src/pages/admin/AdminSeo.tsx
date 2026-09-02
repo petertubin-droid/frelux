@@ -7,8 +7,8 @@ export default function AdminSeo() {
       <AdminCard>
         <div className="space-y-6">
           <div>
-            <h3 className="text-sm font-bold text-brand-navy dark:text-white">Global SEO</h3>
-            <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">Site wide SEO configuration is managed through site settings and individual page meta tags.</p>
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">Global SEO</h3>
+            <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">Site wide SEO configuration is managed through site settings and individual page meta tags.</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -18,9 +18,9 @@ export default function AdminSeo() {
             <SeoInfoCard title="Structured Data" description="JSON LD schema on Home, Colors, and Learn pages" />
           </div>
 
-          <div className="rounded-lg border border-neutral-200 bg-neutral-50 dark:bg-white/5 dark:border-white/5 p-4">
-            <h4 className="text-sm font-semibold text-brand-navy dark:text-white">SEO Coverage</h4>
-            <ul className="mt-2 space-y-1 text-xs text-neutral-600">
+          <div className="rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 p-4">
+            <h4 className="text-sm font-semibold text-foreground dark:text-primary-foreground">SEO Coverage</h4>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
               <li>- Home page: WebApplication schema with offers</li>
               <li>- Color Library: CollectionPage ready metadata</li>
               <li>- Learn articles: Article schema with author and datePublished</li>
@@ -36,9 +36,9 @@ export default function AdminSeo() {
 
 function SeoInfoCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="rounded-lg border border-neutral-200 p-4">
-      <h4 className="text-sm font-semibold text-brand-navy dark:text-white">{title}</h4>
-      <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{description}</p>
+    <div className="rounded-lg border border-border p-4">
+      <h4 className="text-sm font-semibold text-foreground dark:text-primary-foreground">{title}</h4>
+      <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">{description}</p>
     </div>
   );
 }

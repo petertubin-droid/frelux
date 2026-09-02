@@ -463,7 +463,7 @@ export default function SystemHealth() {
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center p-12">
-        <p className="text-sm text-neutral-500">Administrator access required.</p>
+        <p className="text-sm text-muted-foreground">Administrator access required.</p>
       </div>
     );
   }
@@ -476,7 +476,7 @@ export default function SystemHealth() {
         action={
           <div className="flex items-center gap-2">
             <button onClick={() => { fetchStats(); fetchErrors(); fetchTrend(dateRange); runHealthChecks(); }}
-              className="rounded-lg border border-neutral-200 px-3 py-2 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5">
+              className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5">
               Refresh
             </button>
           </div>
@@ -491,10 +491,10 @@ export default function SystemHealth() {
         }}>
         <span className={classNames('h-3 w-3 rounded-full', STATUS_DOT[systemStatus])} />
         <div>
-          <span className="text-sm font-semibold text-neutral-800 dark:text-white">
+          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
             🟢 {STATUS_TEXT[systemStatus]}
           </span>
-          <span className="ml-2 text-xs text-neutral-500 dark:text-neutral-500">
+          <span className="ml-2 text-xs text-muted-foreground dark:text-muted-foreground">
             {systemStatus === 'operational' && 'All systems operating normally.'}
             {systemStatus === 'degraded' && 'Some errors detected. Monitor for issues.'}
             {systemStatus === 'critical' && 'Critical errors detected. Immediate attention required.'}
@@ -503,14 +503,14 @@ export default function SystemHealth() {
       </div>
 
       {/* ── Tabs ── */}
-      <div className="mb-4 flex gap-1 border-b border-neutral-200 dark:border-white/10">
+      <div className="mb-4 flex gap-1 border-b border-border dark:border-white/10">
         {(['overview', 'errors', 'health', 'alerts'] as const).map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={classNames(
               'px-4 py-2 text-sm font-medium capitalize transition-colors',
               activeTab === tab
                 ? 'border-b-2 border-brand-purple text-brand-purple'
-                : 'text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200',
+                : 'text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60',
             )}>
             {tab === 'overview' ? 'Overview' : tab === 'errors' ? 'Error List' : tab === 'health' ? 'Health Checks' : 'Alert Config'}
           </button>
@@ -532,15 +532,15 @@ export default function SystemHealth() {
 
           {/* Most affected */}
           <AdminCard>
-            <h3 className="mb-3 text-sm font-semibold text-neutral-800 dark:text-white">Most Affected</h3>
+            <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">Most Affected</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-500">Route</span>
-                <p className="mt-1 text-sm font-medium text-neutral-800 dark:text-white">{stats.mostAffectedRoute}</p>
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground">Route</span>
+                <p className="mt-1 text-sm font-medium text-foreground dark:text-primary-foreground">{stats.mostAffectedRoute}</p>
               </div>
               <div>
-                <span className="text-xs text-neutral-500 dark:text-neutral-500">Feature</span>
-                <p className="mt-1 text-sm font-medium text-neutral-800 dark:text-white">{stats.mostAffectedFeature}</p>
+                <span className="text-xs text-muted-foreground dark:text-muted-foreground">Feature</span>
+                <p className="mt-1 text-sm font-medium text-foreground dark:text-primary-foreground">{stats.mostAffectedFeature}</p>
               </div>
             </div>
           </AdminCard>
@@ -548,13 +548,13 @@ export default function SystemHealth() {
           {/* Error trend chart */}
           <AdminCard>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-neutral-800 dark:text-white">Error Trend</h3>
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Error Trend</h3>
               <div className="flex gap-1">
                 {(['24h', '7d', '30d'] as DateRange[]).map((r) => (
                   <button key={r} onClick={() => { setDateRange(r); fetchTrend(r); }}
                     className={classNames(
                       'rounded px-2 py-1 text-xs font-medium',
-                      dateRange === r ? 'bg-brand-purple text-white' : 'text-neutral-500 hover:bg-neutral-100 dark:hover:bg-white/5',
+                      dateRange === r ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted dark:hover:bg-white/5',
                     )}>
                     {r === '24h' ? '24 hours' : r === '7d' ? '7 days' : '30 days'}
                   </button>
@@ -562,7 +562,7 @@ export default function SystemHealth() {
               </div>
             </div>
             {trend.length === 0 ? (
-              <p className="py-8 text-center text-sm text-neutral-500">No errors in this period.</p>
+              <p className="py-8 text-center text-sm text-muted-foreground">No errors in this period.</p>
             ) : (
               <div className="flex h-40 items-end gap-1 overflow-x-auto">
                 {trend.map((point, i) => {
@@ -570,15 +570,15 @@ export default function SystemHealth() {
                   const heightPct = (point.count / maxCount) * 100;
                   return (
                     <div key={i} className="group relative flex min-w-[20px] flex-1 flex-col items-center justify-end" style={{ height: '100%' }}>
-                      <div className="absolute -top-6 hidden whitespace-nowrap rounded bg-neutral-900 px-2 py-1 text-xs text-white group-hover:block">
+                      <div className="absolute -top-6 hidden whitespace-nowrap rounded bg-background px-2 py-1 text-xs text-primary-foreground group-hover:block">
                         {point.hour}: {point.count}
                       </div>
                       <div
-                        className="w-full rounded-t bg-brand-purple/70 transition-colors hover:bg-brand-purple"
+                        className="w-full rounded-t bg-primary/70 transition-colors hover:bg-primary"
                         style={{ height: `${heightPct}%`, minHeight: '2px' }}
                       />
                       {trend.length <= 24 && (
-                        <span className="mt-1 text-[10px] text-neutral-500">{point.hour.split(' ')[1] || point.hour}</span>
+                        <span className="mt-1 text-[10px] text-muted-foreground">{point.hour.split(' ')[1] || point.hour}</span>
                       )}
                     </div>
                   );
@@ -590,16 +590,16 @@ export default function SystemHealth() {
           {/* Recent errors preview */}
           {errors.length > 0 && (
             <AdminCard>
-              <h3 className="mb-3 text-sm font-semibold text-neutral-800 dark:text-white">Recent Errors</h3>
+              <h3 className="mb-3 text-sm font-semibold text-foreground dark:text-primary-foreground">Recent Errors</h3>
               <div className="space-y-2">
                 {errors.slice(0, 5).map((e) => (
-                  <div key={e.id} className="flex items-center gap-3 rounded-lg border border-neutral-100 p-2 dark:border-white/5"
+                  <div key={e.id} className="flex items-center gap-3 rounded-lg border border-border/50 p-2 dark:border-white/5"
                     onClick={() => setSelectedError(e)} role="button">
                     <span className={classNames('rounded px-2 py-0.5 text-[10px] font-medium border', SEVERITY_STYLES[e.severity])}>
                       {e.severity.toUpperCase()}
                     </span>
-                    <span className="flex-1 truncate text-sm text-neutral-700 dark:text-neutral-300">{e.message}</span>
-                    <span className="text-xs text-neutral-500">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : formatDate(e.last_seen)}</span>
+                    <span className="flex-1 truncate text-sm text-card-foreground dark:text-muted-foreground/80">{e.message}</span>
+                    <span className="text-xs text-muted-foreground">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : formatDate(e.last_seen)}</span>
                   </div>
                 ))}
               </div>
@@ -622,10 +622,10 @@ export default function SystemHealth() {
               placeholder="Search errors..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 min-w-[200px] rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid"
+              className="flex-1 min-w-[200px] rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
             />
             <select value={severityFilter} onChange={(e) => setSeverityFilter(e.target.value as SeverityFilter)}
-              className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid">
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card">
               <option value="all">All Severities</option>
               <option value="critical">Critical</option>
               <option value="high">High</option>
@@ -633,13 +633,13 @@ export default function SystemHealth() {
               <option value="low">Low</option>
             </select>
             <select value={showResolved} onChange={(e) => setShowResolved(e.target.value as 'all' | 'unresolved' | 'resolved')}
-              className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid">
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card">
               <option value="unresolved">Unresolved</option>
               <option value="resolved">Resolved</option>
               <option value="all">All</option>
             </select>
             <select value={dateRange} onChange={(e) => setDateRange(e.target.value as DateRange)}
-              className="rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-white/10 dark:bg-brand-navy-mid">
+              className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card">
               <option value="24h">Last 24 hours</option>
               <option value="7d">Last 7 days</option>
               <option value="30d">Last 30 days</option>
@@ -648,14 +648,14 @@ export default function SystemHealth() {
 
           {/* Error table */}
           {loading ? (
-            <p className="py-8 text-center text-sm text-neutral-500">Loading errors...</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">Loading errors...</p>
           ) : errors.length === 0 ? (
-            <p className="py-8 text-center text-sm text-neutral-500">No errors found.</p>
+            <p className="py-8 text-center text-sm text-muted-foreground">No errors found.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-500">
+                  <tr className="border-b border-border text-left text-xs text-muted-foreground dark:border-white/10 dark:text-muted-foreground">
                     <th className="pb-2 pr-3 font-medium">Severity</th>
                     <th className="pb-2 pr-3 font-medium">Error</th>
                     <th className="pb-2 pr-3 font-medium">Feature</th>
@@ -669,18 +669,18 @@ export default function SystemHealth() {
                 <tbody>
                   {errors.map((e) => (
                     <tr key={e.id} onClick={() => setSelectedError(e)} role="button"
-                      className="border-b border-neutral-100 cursor-pointer hover:bg-neutral-50 dark:border-white/5 dark:hover:bg-white/5">
+                      className="border-b border-border/50 cursor-pointer hover:bg-muted/50 dark:border-white/5 dark:hover:bg-white/5">
                       <td className="py-2 pr-3">
                         <span className={classNames('rounded px-2 py-0.5 text-[10px] font-medium border', SEVERITY_STYLES[e.severity])}>
                           {e.severity}
                         </span>
                       </td>
-                      <td className="py-2 pr-3 max-w-[300px] truncate text-neutral-700 dark:text-neutral-300">{e.message}</td>
-                      <td className="py-2 pr-3 text-neutral-500 dark:text-neutral-500">{e.feature ?? '—'}</td>
-                      <td className="py-2 pr-3 max-w-[150px] truncate text-neutral-500 dark:text-neutral-500">{e.route ?? '—'}</td>
-                      <td className="py-2 pr-3 text-neutral-700 dark:text-neutral-300">{e.occurrence_count}</td>
-                      <td className="py-2 pr-3 text-xs text-neutral-500">{formatDate(e.first_seen)}</td>
-                      <td className="py-2 pr-3 text-xs text-neutral-500">{formatDate(e.last_seen)}</td>
+                      <td className="py-2 pr-3 max-w-[300px] truncate text-card-foreground dark:text-muted-foreground/80">{e.message}</td>
+                      <td className="py-2 pr-3 text-muted-foreground dark:text-muted-foreground">{e.feature ?? '—'}</td>
+                      <td className="py-2 pr-3 max-w-[150px] truncate text-muted-foreground dark:text-muted-foreground">{e.route ?? '—'}</td>
+                      <td className="py-2 pr-3 text-card-foreground dark:text-muted-foreground/80">{e.occurrence_count}</td>
+                      <td className="py-2 pr-3 text-xs text-muted-foreground">{formatDate(e.first_seen)}</td>
+                      <td className="py-2 pr-3 text-xs text-muted-foreground">{formatDate(e.last_seen)}</td>
                       <td className="py-2">
                         {e.resolved ? (
                           <span className="text-xs text-emerald-600">Resolved</span>
@@ -702,7 +702,7 @@ export default function SystemHealth() {
         <div className="space-y-4">
           <AdminCard>
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-neutral-800 dark:text-white">Service Health</h3>
+              <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Service Health</h3>
               <button onClick={runHealthChecks}
                 className="text-xs font-medium text-brand-purple hover:underline">
                 Re-check
@@ -710,14 +710,14 @@ export default function SystemHealth() {
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {Object.entries(healthChecks).map(([service, status]) => (
-                <div key={service} className="flex items-center gap-3 rounded-lg border border-neutral-100 p-3 dark:border-white/5">
+                <div key={service} className="flex items-center gap-3 rounded-lg border border-border/50 p-3 dark:border-white/5">
                   <span className={classNames(
                     'h-3 w-3 rounded-full',
                     status === 'operational' ? 'bg-emerald-500' : status === 'degraded' ? 'bg-amber-500' : 'bg-red-500',
                   )} />
                   <div>
-                    <p className="text-sm font-medium text-neutral-800 dark:text-white">{service}</p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 capitalize">{status}</p>
+                    <p className="text-sm font-medium text-foreground dark:text-primary-foreground">{service}</p>
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground capitalize">{status}</p>
                   </div>
                 </div>
               ))}
@@ -730,15 +730,15 @@ export default function SystemHealth() {
       {activeTab === 'alerts' && (
         <div className="space-y-4">
           <AdminCard>
-            <h3 className="mb-4 text-sm font-semibold text-neutral-800 dark:text-white">Alert Thresholds</h3>
+            <h3 className="mb-4 text-sm font-semibold text-foreground dark:text-primary-foreground">Alert Thresholds</h3>
             <div className="space-y-3">
               {alertConfigs.map((cfg) => (
-                <div key={cfg.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-neutral-100 p-3 dark:border-white/5">
+                <div key={cfg.id} className="flex flex-wrap items-center gap-3 rounded-lg border border-border/50 p-3 dark:border-white/5">
                   <div className="flex-1 min-w-[150px]">
-                    <p className="text-sm font-medium capitalize text-neutral-800 dark:text-white">
+                    <p className="text-sm font-medium capitalize text-foreground dark:text-primary-foreground">
                       {cfg.alert_type.replace(/_/g, ' ')}
                     </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                       {cfg.threshold_count} errors in {cfg.threshold_window_minutes} min · cooldown {cfg.cooldown_minutes} min
                     </p>
                   </div>
@@ -747,9 +747,9 @@ export default function SystemHealth() {
                       type="checkbox"
                       checked={cfg.enabled}
                       onChange={(e) => updateAlertConfig(cfg.id, { enabled: e.target.checked })}
-                      className="h-4 w-4 rounded border-neutral-300"
+                      className="h-4 w-4 rounded border-border"
                     />
-                    <span className="text-xs text-neutral-600 dark:text-neutral-500">{cfg.enabled ? 'Enabled' : 'Disabled'}</span>
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">{cfg.enabled ? 'Enabled' : 'Disabled'}</span>
                   </label>
                 </div>
               ))}
@@ -768,7 +768,7 @@ export default function SystemHealth() {
               <span className={classNames('rounded px-2 py-1 text-xs font-medium border', SEVERITY_STYLES[selectedError.severity])}>
                 {selectedError.severity.toUpperCase()}
               </span>
-              <span className="text-xs text-neutral-500 dark:text-neutral-500">
+              <span className="text-xs text-muted-foreground dark:text-muted-foreground">
                 {selectedError.error_type}
               </span>
               {selectedError.resolved ? (
@@ -780,8 +780,8 @@ export default function SystemHealth() {
 
             {/* Message */}
             <div>
-              <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Message</span>
-              <p className="mt-1 rounded-lg bg-neutral-50 p-3 text-sm text-neutral-800 dark:bg-white/5 dark:text-neutral-200">
+              <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">Message</span>
+              <p className="mt-1 rounded-lg bg-muted/50 p-3 text-sm text-foreground dark:bg-white/5 dark:text-muted-foreground/60">
                 {selectedError.message}
               </p>
             </div>
@@ -789,8 +789,8 @@ export default function SystemHealth() {
             {/* Stack trace */}
             {selectedError.stack_trace && (
               <div>
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Stack Trace</span>
-                <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-neutral-900 p-3 text-xs text-neutral-300">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">Stack Trace</span>
+                <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-background p-3 text-xs text-muted-foreground/80">
                   {selectedError.stack_trace}
                 </pre>
               </div>
@@ -820,15 +820,15 @@ export default function SystemHealth() {
             {/* Metadata */}
             {selectedError.metadata && Object.keys(selectedError.metadata).length > 0 && (
               <div>
-                <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">Metadata</span>
-                <pre className="mt-1 max-h-32 overflow-auto rounded-lg bg-neutral-50 p-2 text-xs text-neutral-600 dark:bg-white/5 dark:text-neutral-500">
+                <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">Metadata</span>
+                <pre className="mt-1 max-h-32 overflow-auto rounded-lg bg-muted/50 p-2 text-xs text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
                   {JSON.stringify(selectedError.metadata, null, 2)}
                 </pre>
               </div>
             )}
 
             {/* ── AI Studio Analysis section ── */}
-            <div className="rounded-lg border border-brand-purple/20 bg-brand-purple/5 p-4 space-y-3">
+            <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-brand-purple">AI Studio Error Analysis</h4>
                 <div className="flex gap-2">
@@ -843,7 +843,7 @@ export default function SystemHealth() {
               </div>
 
               {aiAnalyzing && (
-                <div className="flex items-center gap-2 text-sm text-neutral-500">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <svg className="h-4 w-4 animate-spin text-brand-purple" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -861,23 +861,23 @@ export default function SystemHealth() {
               {aiDiagnosis && !aiAnalyzing && (
                 <div className="space-y-2 text-xs">
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">What failed: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.what_failed}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">What failed: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiDiagnosis.what_failed}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Root cause: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.root_cause}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">Root cause: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiDiagnosis.root_cause}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Affected file: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.affected_file}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">Affected file: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiDiagnosis.affected_file}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Category: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.category}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">Category: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiDiagnosis.category}</span>
                   </div>
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Risk level: </span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">Risk level: </span>
                     <span className={classNames(
                       'rounded px-1.5 py-0.5 text-[10px] font-medium',
                       aiDiagnosis.risk_level === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
@@ -892,8 +892,8 @@ export default function SystemHealth() {
                     </div>
                   )}
                   <div>
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">Proposed solution: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiDiagnosis.proposed_solution}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">Proposed solution: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiDiagnosis.proposed_solution}</span>
                   </div>
 
                   {/* Generate Fix button */}
@@ -901,7 +901,7 @@ export default function SystemHealth() {
                     <button
                       onClick={() => handleGenerateFix(selectedError)}
                       disabled={generatingFix}
-                      className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90 disabled:opacity-50"
+                      className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                     >
                       {generatingFix ? 'Generating fix...' : 'Generate Fix'}
                     </button>
@@ -914,19 +914,19 @@ export default function SystemHealth() {
                 <div className="space-y-2 border-t border-brand-purple/10 pt-3">
                   <h5 className="text-xs font-semibold text-brand-purple">Proposed Fix</h5>
                   <div className="text-xs">
-                    <span className="font-medium text-neutral-500 dark:text-neutral-500">File: </span>
-                    <span className="text-neutral-800 dark:text-neutral-200">{aiFix.file}</span>
+                    <span className="font-medium text-muted-foreground dark:text-muted-foreground">File: </span>
+                    <span className="text-foreground dark:text-muted-foreground/60">{aiFix.file}</span>
                   </div>
                   {aiFix.explanation && (
                     <div className="text-xs">
-                      <span className="font-medium text-neutral-500 dark:text-neutral-500">Explanation: </span>
-                      <span className="text-neutral-800 dark:text-neutral-200">{aiFix.explanation}</span>
+                      <span className="font-medium text-muted-foreground dark:text-muted-foreground">Explanation: </span>
+                      <span className="text-foreground dark:text-muted-foreground/60">{aiFix.explanation}</span>
                     </div>
                   )}
                   {aiFix.expected_effect && (
                     <div className="text-xs">
-                      <span className="font-medium text-neutral-500 dark:text-neutral-500">Expected effect: </span>
-                      <span className="text-neutral-800 dark:text-neutral-200">{aiFix.expected_effect}</span>
+                      <span className="font-medium text-muted-foreground dark:text-muted-foreground">Expected effect: </span>
+                      <span className="text-foreground dark:text-muted-foreground/60">{aiFix.expected_effect}</span>
                     </div>
                   )}
                   {aiFix.protected_functionality_affected && (
@@ -938,13 +938,13 @@ export default function SystemHealth() {
                     <button
                       onClick={() => handleApproveFix(selectedError.id)}
                       disabled={approvingFix}
-                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
                     >
                       {approvingFix ? 'Approving...' : 'Approve & Apply Fix'}
                     </button>
                     <button
                       onClick={() => setShowFixHistory(!showFixHistory)}
-                      className="rounded-lg border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 hover:bg-neutral-50 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-white/5"
+                      className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                     >
                       {showFixHistory ? 'Hide' : 'Show'} Fix History
                     </button>
@@ -955,7 +955,7 @@ export default function SystemHealth() {
               {/* Fix History */}
               {showFixHistory && fixHistory.length > 0 && (
                 <div className="space-y-1 border-t border-brand-purple/10 pt-3">
-                  <h5 className="text-xs font-semibold text-neutral-500 dark:text-neutral-500">Fix History</h5>
+                  <h5 className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">Fix History</h5>
                   {fixHistory.map((h) => (
                     <div key={h.id} className="flex items-center gap-2 text-xs">
                       <span className={classNames(
@@ -964,9 +964,9 @@ export default function SystemHealth() {
                         h.status === 'deployed' ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400' :
                         h.status === 'approved' ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400' :
                         h.status === 'failed' || h.status === 'rolled_back' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                        'bg-neutral-100 text-neutral-600 dark:bg-white/5 dark:text-neutral-500'
+                        'bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground'
                       )}>{h.status.replace(/_/g, ' ')}</span>
-                      <span className="text-neutral-500 dark:text-neutral-500">{new Date(h.created_at).toLocaleString()}</span>
+                      <span className="text-muted-foreground dark:text-muted-foreground">{new Date(h.created_at).toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -976,7 +976,7 @@ export default function SystemHealth() {
               {!aiDiagnosis && !aiAnalyzing && !aiError && (
                 <button
                   onClick={() => handleAnalyzeError(selectedError)}
-                  className="rounded-lg bg-brand-purple px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-purple/90"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   Analyze with AI Studio
                 </button>
@@ -984,7 +984,7 @@ export default function SystemHealth() {
             </div>
 
             {/* Resolve/reopen actions */}
-            <div className="flex justify-end gap-2 border-t border-neutral-100 pt-4 dark:border-white/5">
+            <div className="flex justify-end gap-2 border-t border-border/50 pt-4 dark:border-white/5">
               <AdminButton variant="secondary" onClick={handleCloseModal}>
                 Close
               </AdminButton>
@@ -1008,10 +1008,10 @@ export default function SystemHealth() {
 // ── Sub-components ──
 
 function StatCard({ label, value, accent }: { label: string; value: number; accent?: 'amber' | 'red' }) {
-  const colorClass = accent === 'red' ? 'text-red-600' : accent === 'amber' ? 'text-amber-600' : 'text-neutral-800 dark:text-white';
+  const colorClass = accent === 'red' ? 'text-red-600' : accent === 'amber' ? 'text-amber-600' : 'text-foreground dark:text-primary-foreground';
   return (
-    <div className="rounded-lg border border-neutral-100 p-4 dark:border-white/5">
-      <p className="text-xs text-neutral-500 dark:text-neutral-500">{label}</p>
+    <div className="rounded-lg border border-border/50 p-4 dark:border-white/5">
+      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{label}</p>
       <p className={classNames('mt-1 text-2xl font-bold', colorClass)}>{value}</p>
     </div>
   );
@@ -1020,8 +1020,8 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function DetailField({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <span className="text-xs font-medium text-neutral-500 dark:text-neutral-500">{label}</span>
-      <p className="mt-0.5 text-sm text-neutral-800 dark:text-neutral-200">{value ?? '—'}</p>
+      <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">{label}</span>
+      <p className="mt-0.5 text-sm text-foreground dark:text-muted-foreground/60">{value ?? '—'}</p>
     </div>
   );
 }

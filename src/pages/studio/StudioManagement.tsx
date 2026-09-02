@@ -19,7 +19,7 @@ import type { DbStudioPlugin, DbStudioPrompt, DbStudioIntegration, DbStudioFeatu
 export default function StudioManagement() {
   const { toolSlug } = useParams<{ toolSlug: string }>();
   const tool = getTool(toolSlug ?? '');
-  if (!tool) return <div className="py-20 text-center text-sm text-neutral-500">Tool not found.</div>;
+  if (!tool) return <div className="py-20 text-center text-sm text-muted-foreground">Tool not found.</div>;
 
   switch (toolSlug) {
     case 'plugin_manager': return <PluginManager />;
@@ -31,7 +31,7 @@ export default function StudioManagement() {
     case 'version_history': return <VersionHistory />;
     case 'project_explorer': return <ProjectExplorer />;
     case 'file_manager': return <FileManager />;
-    default: return <div className="py-20 text-center text-sm text-neutral-500">Unknown tool.</div>;
+    default: return <div className="py-20 text-center text-sm text-muted-foreground">Unknown tool.</div>;
   }
 }
 
@@ -68,14 +68,14 @@ function PluginManager() {
         {plugins.map((p) => (
           <AdminCard key={p.id} className="flex flex-col">
             <div className="flex items-start justify-between">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Puzzle className="h-5 w-5" /></div>
-              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', p.status === 'enabled' ? 'bg-accent-green/15 text-accent-green' : p.status === 'installed' ? 'bg-accent-blue/15 text-accent-blue' : 'bg-neutral-100 text-neutral-500 dark:text-neutral-500')}>{p.status}</span>
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple"><Puzzle className="h-5 w-5" /></div>
+              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', p.status === 'enabled' ? 'bg-accent-green/15 text-accent-green' : p.status === 'installed' ? 'bg-accent-blue/15 text-accent-blue' : 'bg-muted text-muted-foreground dark:text-muted-foreground')}>{p.status}</span>
             </div>
-            <h3 className="mt-3 text-sm font-bold text-brand-navy dark:text-white">{p.name}</h3>
-            <p className="mt-1 flex-1 text-xs text-neutral-500 dark:text-neutral-500">{p.description}</p>
+            <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground">{p.name}</h3>
+            <p className="mt-1 flex-1 text-xs text-muted-foreground dark:text-muted-foreground">{p.description}</p>
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-neutral-500">v{p.version}{p.author && ` · ${p.author}`}</span>
-              {p.is_official && <span className="rounded bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">Official</span>}
+              <span className="text-xs text-muted-foreground">v{p.version}{p.author && ` · ${p.author}`}</span>
+              {p.is_official && <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">Official</span>}
             </div>
             <div className="mt-3 flex gap-2">
               {p.status === 'available' ? (
@@ -83,7 +83,7 @@ function PluginManager() {
               ) : (
                 <div className="flex flex-1 items-center justify-between">
                   <Toggle checked={p.status === 'enabled'} onChange={() => handleToggle(p)} />
-                  <span className="text-xs text-neutral-500 dark:text-neutral-500">{p.status === 'enabled' ? 'Enabled' : 'Disabled'}</span>
+                  <span className="text-xs text-muted-foreground dark:text-muted-foreground">{p.status === 'enabled' ? 'Enabled' : 'Disabled'}</span>
                 </div>
               )}
             </div>
@@ -150,19 +150,19 @@ function PromptLibrary() {
       )}
       {categories.map((cat) => (
         <div key={cat} className="mb-6">
-          <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-neutral-500">{cat}</h3>
+          <h3 className="mb-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">{cat}</h3>
           <div className="space-y-2">
             {prompts.filter((p) => p.category === cat).map((p) => (
-              <div key={p.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+              <div key={p.id} className="group flex items-center justify-between rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-brand-navy dark:text-white">{p.title}</p>
-                    {p.is_builtin && <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-500">Built in</span>}
+                    <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{p.title}</p>
+                    {p.is_builtin && <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground dark:text-muted-foreground">Built in</span>}
                   </div>
-                  {p.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{p.description}</p>}
+                  {p.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{p.description}</p>}
                 </div>
                 {!p.is_builtin && (
-                  <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
+                  <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
                 )}
               </div>
             ))}
@@ -231,18 +231,18 @@ function IntegrationCenter() {
         {integrations.length === 0 ? (
           <StateMessage type="empty" title="No integrations" message="Add your first integration to get started." />
         ) : integrations.map((i) => (
-          <div key={i.id} className="group flex items-center justify-between rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+          <div key={i.id} className="group flex items-center justify-between rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
             <div className="flex items-center gap-3">
-              <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-brand-purple/10 text-brand-purple"><Plug className="h-5 w-5" /></div>
+              <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple"><Plug className="h-5 w-5" /></div>
               <div>
-                <p className="text-sm font-semibold text-brand-navy dark:text-white">{i.name}</p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-500">{i.service_type} · {i.health_status}</p>
+                <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{i.name}</p>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">{i.service_type} · {i.health_status}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-neutral-100 text-neutral-500 dark:text-neutral-500')}>{i.status}</span>
+              <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground dark:text-muted-foreground')}>{i.status}</span>
               <Toggle checked={i.status === 'connected'} onChange={() => handleToggle(i)} />
-              <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
+              <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
             </div>
           </div>
         ))}
@@ -284,15 +284,15 @@ function FeatureManagement() {
           <AdminCard key={f.id} className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <p className="text-sm font-bold text-brand-navy dark:text-white">{f.label}</p>
-                <code className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{f.feature_key}</code>
-                <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] text-neutral-500 dark:text-neutral-500">{f.category}</span>
+                <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{f.label}</p>
+                <code className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{f.feature_key}</code>
+                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{f.category}</span>
               </div>
-              {f.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{f.description}</p>}
+              {f.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{f.description}</p>}
               <div className="mt-2 flex items-center gap-2">
-                <label className="text-xs text-neutral-500">Rollout:</label>
+                <label className="text-xs text-muted-foreground">Rollout:</label>
                 <input type="range" min={0} max={100} step={10} value={f.rollout_percentage} onChange={(e) => handleRollout(f, Number(e.target.value))} className="h-1 w-32 cursor-pointer accent-brand-purple" />
-                <span className="text-xs font-semibold text-neutral-600">{f.rollout_percentage}%</span>
+                <span className="text-xs font-semibold text-muted-foreground">{f.rollout_percentage}%</span>
               </div>
             </div>
             <Toggle checked={f.is_enabled} onChange={() => handleToggle(f)} />
@@ -359,17 +359,17 @@ function RoleManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-bold text-brand-navy dark:text-white">{r.role_name}</p>
-                  {r.is_system && <span className="rounded bg-brand-purple/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">System</span>}
+                  <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{r.role_name}</p>
+                  {r.is_system && <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-brand-purple">System</span>}
                 </div>
-                {r.description && <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-500">{r.description}</p>}
+                {r.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{r.description}</p>}
                 <div className="mt-2 flex flex-wrap gap-1">
                   {r.permissions.map((perm, i) => (
-                    <span key={i} className="rounded bg-neutral-100 px-1.5 py-0.5 text-[10px] font-mono text-neutral-600">{perm}</span>
+                    <span key={i} className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">{perm}</span>
                   ))}
                 </div>
               </div>
-              {!r.is_system && <button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>}
+              {!r.is_system && <button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>}
             </div>
           </AdminCard>
         ))}
@@ -404,13 +404,13 @@ function SystemMonitoring() {
         <div className="space-y-6">
           {categories.map((cat) => (
             <div key={cat}>
-              <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-neutral-500">{cat}</h3>
+              <h3 className="mb-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">{cat}</h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {metrics.filter((m) => m.category === cat).map((m) => (
-                  <div key={m.id} className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500">{m.metric_name}</p>
-                    <p className="mt-1 text-xl font-bold text-brand-navy dark:text-white">{m.metric_value.toLocaleString()}{m.unit && ` ${m.unit}`}</p>
-                    <p className="mt-0.5 text-[10px] text-neutral-500">{new Date(m.recorded_at).toLocaleString()}</p>
+                  <div key={m.id} className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
+                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">{m.metric_name}</p>
+                    <p className="mt-1 text-xl font-bold text-foreground dark:text-primary-foreground">{m.metric_value.toLocaleString()}{m.unit && ` ${m.unit}`}</p>
+                    <p className="mt-0.5 text-[10px] text-muted-foreground">{new Date(m.recorded_at).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
@@ -461,13 +461,13 @@ function VersionHistory() {
               key={a.id}
               type="button"
               onClick={() => setSelected(a.id)}
-              className={classNames('flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors', selected === a.id ? 'border-brand-purple bg-brand-purple/5' : 'border-neutral-200 bg-white hover:border-neutral-300')}
+              className={classNames('flex w-full items-center justify-between rounded-lg border p-3 text-left transition-colors', selected === a.id ? 'border-brand-purple bg-primary/5' : 'border-border bg-card hover:border-border')}
             >
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{a.title}</p>
-                <p className="text-xs text-neutral-500">{a.artifact_type} · v{a.version_number}</p>
+                <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">{a.title}</p>
+                <p className="text-xs text-muted-foreground">{a.artifact_type} · v{a.version_number}</p>
               </div>
-              <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-neutral-300 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
+              <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
             </button>
           ))}
         </div>
@@ -475,11 +475,11 @@ function VersionHistory() {
           {selected && versions.length > 0 ? (
             <div className="space-y-3">
               {versions.map((v) => (
-                <div key={v.id} className="rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+                <div key={v.id} className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-brand-navy dark:text-white">Version {v.version_number}</span>
+                    <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">Version {v.version_number}</span>
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-neutral-500">{new Date(v.created_at).toLocaleString()}</span>
+                      <span className="text-xs text-muted-foreground">{new Date(v.created_at).toLocaleString()}</span>
                       <button
                         type="button"
                         onClick={async () => {
@@ -491,14 +491,14 @@ function VersionHistory() {
                             setError((e as Error).message);
                           }
                         }}
-                        className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-semibold text-brand-purple hover:bg-brand-purple/5"
+                        className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-semibold text-brand-purple hover:bg-primary/5"
                       >
                         <RotateCcw aria-hidden="true" className="h-3 w-3" /> Restore
                       </button>
                     </div>
                   </div>
-                  {v.change_summary && <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-500">{v.change_summary}</p>}
-                  <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-neutral-50 p-3 text-xs text-neutral-700 dark:text-neutral-200"><code>{v.content.slice(0, 500)}{v.content.length > 500 ? '...' : ''}</code></pre>
+                  {v.change_summary && <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">{v.change_summary}</p>}
+                  <pre className="mt-3 max-h-48 overflow-auto rounded-lg bg-muted/50 p-3 text-xs text-card-foreground dark:text-muted-foreground/60"><code>{v.content.slice(0, 500)}{v.content.length > 500 ? '...' : ''}</code></pre>
                 </div>
               ))}
             </div>
@@ -553,7 +553,7 @@ function ProjectExplorer() {
   return (
     <div>
       <ToolHeader icon={FolderTree} title="Project Explorer" description="Browse the project structure and file organization." />
-      <div className="rounded-xl border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+      <div className="rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card p-4">
         <div className="space-y-1">
           {tree.map((node) => <TreeNode key={node.path} node={node} depth={0} />)}
         </div>
@@ -572,15 +572,15 @@ function TreeNode({ node, depth }: { node: { name: string; path: string; type: s
       <button
         type="button"
         onClick={() => isDir && setOpen(!open)}
-        className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm hover:bg-neutral-50"
+        className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted/50"
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
         {isDir ? (
           <FolderOpen aria-hidden="true" className="h-4 w-4 text-brand-purple" />
         ) : (
-          <FolderTree className="h-4 w-4 text-neutral-500" />
+          <FolderTree className="h-4 w-4 text-muted-foreground" />
         )}
-        <span className={isDir ? 'font-semibold text-brand-navy dark:text-white' : 'text-neutral-600'}>{node.name}</span>
+        <span className={isDir ? 'font-semibold text-foreground dark:text-primary-foreground' : 'text-muted-foreground'}>{node.name}</span>
       </button>
       {isDir && open && children && (
         <div>
@@ -619,7 +619,7 @@ function FileManager() {
       <ToolHeader icon={FolderOpen} title="File Manager" description="Manage generated artifacts and project files." />
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <div className="relative mb-4 w-full sm:max-w-xs">
-        <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+        <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search files…" className="input-field pl-9" />
       </div>
       {filtered.length === 0 ? (
@@ -627,14 +627,14 @@ function FileManager() {
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => (
-            <div key={a.id} className="group rounded-lg border border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid p-4">
+            <div key={a.id} className="group rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
               <div className="flex items-start justify-between">
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{a.title}</p>
-                  <p className="text-xs text-neutral-500">{a.artifact_type} · {a.language}</p>
-                  <p className="mt-0.5 text-[10px] text-neutral-500">{new Date(a.updated_at).toLocaleDateString()}</p>
+                  <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">{a.title}</p>
+                  <p className="text-xs text-muted-foreground">{a.artifact_type} · {a.language}</p>
+                  <p className="mt-0.5 text-[10px] text-muted-foreground">{new Date(a.updated_at).toLocaleDateString()}</p>
                 </div>
-                <button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-neutral-300 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
+                <button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
               </div>
             </div>
           ))}

@@ -101,12 +101,12 @@ export function CompareResults({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl dark:border-white/10 dark:bg-brand-navy-mid animate-fade-in-up">
+      <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl dark:border-white/10 dark:bg-card animate-fade-in-up">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 dark:border-white/5">
+        <div className="flex items-center justify-between border-b border-border/50 px-5 py-4 dark:border-white/5">
           <div className="flex items-center gap-2">
             <ArrowLeftRight className="h-5 w-5 text-brand-purple" />
-            <h2 className="text-lg font-bold text-brand-navy dark:text-white">
+            <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
               Compare Results
             </h2>
           </div>
@@ -118,14 +118,14 @@ export function CompareResults({
                   setEntries([]);
                   setSelected([]);
                 }}
-                className="text-xs font-medium text-neutral-500 hover:text-red-500"
+                className="text-xs font-medium text-muted-foreground hover:text-red-500"
               >
                 Clear all
               </button>
             )}
             <button
               onClick={onClose}
-              className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-600 dark:hover:bg-white/5"
+              className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -135,11 +135,11 @@ export function CompareResults({
 
         {entries.length === 0 ? (
           <div className="py-16 text-center">
-            <ArrowLeftRight className="mx-auto mb-3 h-10 w-10 text-neutral-300" />
-            <p className="text-sm font-semibold text-neutral-500">
+            <ArrowLeftRight className="mx-auto mb-3 h-10 w-10 text-muted-foreground/80" />
+            <p className="text-sm font-semibold text-muted-foreground">
               No saved results to compare
             </p>
-            <p className="mt-1 text-xs text-neutral-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Complete a calculation and save it for comparison to see
               side-by-side results here.
             </p>
@@ -147,8 +147,8 @@ export function CompareResults({
         ) : (
           <>
             {/* Selection chips */}
-            <div className="border-b border-neutral-100 px-5 py-3 dark:border-white/5">
-              <p className="mb-2 text-xs font-medium text-neutral-500">
+            <div className="border-b border-border/50 px-5 py-3 dark:border-white/5">
+              <p className="mb-2 text-xs font-medium text-muted-foreground">
                 Select 2 to compare ({selected.length}/2 selected):
               </p>
               <div className="flex flex-wrap gap-2">
@@ -158,8 +158,8 @@ export function CompareResults({
                     onClick={() => toggle(e.id)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
                       selected.includes(e.id)
-                        ? "border-brand-purple bg-brand-purple/10 text-brand-purple dark:text-brand-purple-lighter"
-                        : "border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:border-white/10"
+                        ? "border-brand-purple bg-primary/10 text-brand-purple dark:text-brand-purple-lighter"
+                        : "border-border text-muted-foreground hover:border-border dark:border-white/10"
                     }`}
                   >
                     {e.label}
@@ -173,14 +173,14 @@ export function CompareResults({
               <div className="overflow-x-auto p-5">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-100 dark:border-white/5">
-                      <th className="pb-2 pr-4 text-left text-xs font-bold uppercase tracking-wider text-neutral-500">
+                    <tr className="border-b border-border/50 dark:border-white/5">
+                      <th className="pb-2 pr-4 text-left text-xs font-bold uppercase tracking-wider text-muted-foreground">
                         Metric
                       </th>
                       {selectedEntries.map((e) => (
                         <th
                           key={e.id}
-                          className="pb-2 px-3 text-left text-sm font-bold text-brand-navy dark:text-white"
+                          className="pb-2 px-3 text-left text-sm font-bold text-foreground dark:text-primary-foreground"
                         >
                           {e.label}
                         </th>
@@ -191,9 +191,9 @@ export function CompareResults({
                     {allKeys.map((key) => (
                       <tr
                         key={key}
-                        className="border-b border-neutral-50 dark:border-white/5"
+                        className="border-b border-border/50 dark:border-white/5"
                       >
-                        <td className="py-2.5 pr-4 text-xs font-medium text-neutral-500">
+                        <td className="py-2.5 pr-4 text-xs font-medium text-muted-foreground">
                           {key}
                         </td>
                         {selectedEntries.map((e) => {
@@ -208,7 +208,7 @@ export function CompareResults({
                           return (
                             <td
                               key={e.id}
-                              className={`py-2.5 px-3 font-semibold ${isDifferent ? "text-brand-purple dark:text-brand-purple-lighter" : "text-neutral-700 dark:text-neutral-200"}`}
+                              className={`py-2.5 px-3 font-semibold ${isDifferent ? "text-brand-purple dark:text-brand-purple-lighter" : "text-card-foreground dark:text-muted-foreground/60"}`}
                             >
                               {val}
                             </td>
@@ -221,7 +221,7 @@ export function CompareResults({
               </div>
             ) : (
               <div className="py-12 text-center">
-                <p className="text-sm text-neutral-500">
+                <p className="text-sm text-muted-foreground">
                   Select at least 2 results to compare
                 </p>
               </div>
