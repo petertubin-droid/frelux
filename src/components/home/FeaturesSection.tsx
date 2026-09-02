@@ -1,39 +1,61 @@
-import { Link } from 'react-router-dom';
-import { ShieldCheck, Ruler, Palette, TrendingUp, ArrowRight } from 'lucide-react';
-import Container from '@/components/ui/Container';
-import SectionHeading from '@/components/ui/SectionHeading';
+import { Link } from "react-router-dom";
+import {
+  ShieldCheck,
+  Ruler,
+  Palette,
+  TrendingUp,
+  ArrowRight,
+} from "lucide-react";
+import Container from "@/components/ui/Container";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 const features = [
   {
     icon: Ruler,
-    title: 'Practical calculations',
-    description: 'Enter your measurements and get realistic paint quantity estimates. No guesswork.',
+    title: "Practical calculations",
+    description:
+      "Enter your measurements and get realistic paint quantity estimates. No guesswork.",
   },
   {
     icon: TrendingUp,
-    title: 'Transparent cost estimates',
-    description: 'Break down materials and labor so you know what goes into a project budget.',
+    title: "Transparent cost estimates",
+    description:
+      "Break down materials and labor so you know what goes into a project budget.",
   },
   {
     icon: Palette,
-    title: 'Curated color palettes',
-    description: 'Explore room ready combinations with color codes you can take to any paint shop.',
+    title: "Curated color palettes",
+    description:
+      "Explore room ready combinations with color codes you can take to any paint shop.",
   },
   {
     icon: ShieldCheck,
-    title: 'Built for real use',
-    description: 'Made for homeowners, decorators, and contractors who plan work that gets done.',
+    title: "Built for real use",
+    description:
+      "Made for homeowners, decorators, and contractors who plan work that gets done.",
   },
 ];
 
 export default function FeaturesSection() {
   return (
-    <section data-tour="ai" className="relative overflow-hidden bg-background py-24 text-primary-foreground sm:py-28">
+    <section
+      data-tour="ai"
+      className="relative overflow-hidden bg-mesh py-24 text-primary-foreground sm:py-28"
+    >
       {/* Grid pattern */}
-      <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40"
+        aria-hidden="true"
+      />
       {/* Ambient glow */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-primary/12 blur-[140px]" aria-hidden="true" />
-      <div className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-primary-deep/10 blur-[120px]" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-primary/12 blur-[140px]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -left-20 bottom-0 h-72 w-72 rounded-full bg-primary-deep/10 blur-[120px]"
+        aria-hidden="true"
+      />
 
       <SectionHeading
         label="Why FRELUX"
@@ -56,8 +78,12 @@ export default function FeaturesSection() {
               <span className="relative inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/8 group-hover:ring-white/20 group-hover:scale-105">
                 <Icon className="h-6 w-6 text-brand-purple-light" />
               </span>
-              <h3 className="mt-5 font-display text-lg font-bold text-primary-foreground">{f.title}</h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-primary-foreground/45">{f.description}</p>
+              <h3 className="mt-5 font-display text-lg font-bold text-primary-foreground">
+                {f.title}
+              </h3>
+              <p className="mt-2.5 text-sm leading-relaxed text-primary-foreground/45">
+                {f.description}
+              </p>
             </div>
           );
         })}
@@ -66,7 +92,7 @@ export default function FeaturesSection() {
       <Container className="relative mt-16 text-center">
         <Link
           to="/paint-calculator"
-          className="group inline-flex items-center justify-center gap-2 rounded-xl bg-card dark:bg-card px-6 py-3.5 text-sm font-semibold text-foreground dark:text-primary-foreground shadow-lg transition-all hover:bg-muted hover:shadow-xl active:scale-[0.98]"
+          className="group inline-flex items-center justify-center gap-2 rounded-xl bg-card dark:bg-card px-6 py-3 text-sm font-semibold text-foreground dark:text-primary-foreground shadow-lg transition-all hover:bg-muted hover:shadow-xl active:scale-[0.98]"
         >
           Start planning
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

@@ -1,12 +1,23 @@
-import { Link } from 'react-router-dom';
-import { Layers, Calculator, DollarSign, Palette, ArrowRight, Check, Gem, Building2 } from 'lucide-react';
-import Container from '@/components/ui/Container';
-import { useHeroContent } from '@/lib/useHeroContent';
-import { useBranding } from '@/lib/branding';
-
+import { Link } from "react-router-dom";
+import {
+  Layers,
+  Calculator,
+  DollarSign,
+  Palette,
+  ArrowRight,
+  Check,
+  Gem,
+  Building2,
+} from "lucide-react";
+import Container from "@/components/ui/Container";
+import { useHeroContent } from "@/lib/useHeroContent";
+import { useBranding } from "@/lib/branding";
 
 /** Splits a headline into words and wraps highlighted words in a colored span. */
-function renderHighlightedHeadline(headline: string, highlights: { wordIndex: number; color: string }[] | null) {
+function renderHighlightedHeadline(
+  headline: string,
+  highlights: { wordIndex: number; color: string }[] | null,
+) {
   if (!highlights || highlights.length === 0) return headline;
   const words = headline.split(/\s+/);
   return words.map((word, i) => {
@@ -14,25 +25,31 @@ function renderHighlightedHeadline(headline: string, highlights: { wordIndex: nu
     if (hl) {
       return (
         <span key={i} style={{ color: hl.color }}>
-          {word}{i < words.length - 1 ? ' ' : ''}
+          {word}
+          {i < words.length - 1 ? " " : ""}
         </span>
       );
     }
-    return <span key={i}>{word}{i < words.length - 1 ? ' ' : ''}</span>;
+    return (
+      <span key={i}>
+        {word}
+        {i < words.length - 1 ? " " : ""}
+      </span>
+    );
   });
 }
 
 const heroSteps = [
-  { icon: Layers, label: 'Screeding', to: '/screeding-calculator' },
-  { icon: Calculator, label: 'Paint', to: '/paint-calculator' },
-  { icon: DollarSign, label: 'Cost', to: '/paint-calculator?mode=cost' },
-  { icon: Palette, label: 'Colors', to: '/ai-color-assistant' },
+  { icon: Layers, label: "Screeding", to: "/screeding-calculator" },
+  { icon: Calculator, label: "Paint", to: "/paint-calculator" },
+  { icon: DollarSign, label: "Cost", to: "/paint-calculator?mode=cost" },
+  { icon: Palette, label: "Colors", to: "/ai-color-assistant" },
 ];
 
 const trustPoints = [
-  'No sign-up required',
-  'Real product prices',
-  'Mobile-friendly',
+  "No sign-up required",
+  "Real product prices",
+  "Mobile-friendly",
 ];
 
 export default function Hero() {
@@ -40,13 +57,22 @@ export default function Hero() {
   const { branding } = useBranding();
 
   // ── Derive image metadata from branding ──
-  const heroImageUrl = branding?.hero_image_url || 'https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900';
-  const heroImageAlt = branding?.hero_image_alt || 'Painter rolling fresh color onto a wall';
+  const heroImageUrl =
+    branding?.hero_image_url ||
+    "https://images.pexels.com/photos/6474471/pexels-photo-6474471.jpeg?auto=compress&cs=tinysrgb&w=900";
+  const heroImageAlt =
+    branding?.hero_image_alt || "Painter rolling fresh color onto a wall";
 
   return (
-    <section data-tour="hero" className={`relative overflow-hidden bg-mesh text-primary-foreground transition-opacity duration-300 ${heroLoaded ? 'opacity-100' : 'opacity-0'}`}>
+    <section
+      data-tour="hero"
+      className={`relative overflow-hidden bg-mesh text-primary-foreground transition-opacity duration-300 ${heroLoaded ? "opacity-100" : "opacity-0"}`}
+    >
       {/* Grid pattern */}
-      <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50"
+        aria-hidden="true"
+      />
 
       {/* Ambient glows */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -56,7 +82,10 @@ export default function Hero() {
       </div>
 
       {/* Top border line */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        aria-hidden="true"
+      />
 
       <Container className="relative grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-2 lg:gap-20 lg:py-36">
         {/* Left: Content */}
@@ -85,7 +114,10 @@ export default function Hero() {
 
           {/* Headline */}
           <h1 className="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
-            {renderHighlightedHeadline(hero.headline, branding?.hero_highlight_config?.highlights ?? null)}
+            {renderHighlightedHeadline(
+              hero.headline,
+              branding?.hero_highlight_config?.highlights ?? null,
+            )}
           </h1>
 
           {/* Subheadline */}
@@ -95,10 +127,10 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {hero.ctaPrimaryHref.startsWith('#') ? (
+            {hero.ctaPrimaryHref.startsWith("#") ? (
               <a
                 href={hero.ctaPrimaryHref}
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
@@ -107,17 +139,17 @@ export default function Hero() {
             ) : (
               <Link
                 to={hero.ctaPrimaryHref}
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
                 {hero.ctaPrimaryLabel}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             )}
-            {hero.ctaSecondaryHref.startsWith('#') ? (
+            {hero.ctaSecondaryHref.startsWith("#") ? (
               <a
                 href={hero.ctaSecondaryHref}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
               >
                 <Calculator className="h-4 w-4" />
                 {hero.ctaSecondaryLabel}
@@ -125,7 +157,7 @@ export default function Hero() {
             ) : (
               <Link
                 to={hero.ctaSecondaryHref}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3.5 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
               >
                 <Calculator className="h-4 w-4" />
                 {hero.ctaSecondaryLabel}
@@ -133,7 +165,7 @@ export default function Hero() {
             )}
             <Link
               to="/build-to-roof-estimator"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
             >
               <Building2 className="h-4 w-4" />
               Build-to-Roof Estimator
@@ -144,7 +176,10 @@ export default function Hero() {
           {/* Trust points */}
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2">
             {trustPoints.map((point) => (
-              <span key={point} className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/40">
+              <span
+                key={point}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/40"
+              >
                 <Check className="h-3.5 w-3.5 text-accent-green" />
                 {point}
               </span>
@@ -153,7 +188,9 @@ export default function Hero() {
 
           {/* Workflow steps */}
           <div className="mt-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/25">Complete workflow</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/25">
+              Complete workflow
+            </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               {heroSteps.map((step, i) => {
                 const Icon = step.icon;
@@ -163,7 +200,9 @@ export default function Hero() {
                       to={step.to}
                       className="group inline-flex items-center gap-1.5 rounded-lg border border-white/8 bg-white/[0.03] px-3.5 py-2 text-xs font-medium text-primary-foreground/60 transition-all hover:border-white/15 hover:text-primary-foreground hover:bg-white/5"
                     >
-                      <span className="text-primary-foreground/20 transition-colors group-hover:text-primary-foreground/40">{i + 1}</span>
+                      <span className="text-primary-foreground/20 transition-colors group-hover:text-primary-foreground/40">
+                        {i + 1}
+                      </span>
                       <Icon className="h-3.5 w-3.5" />
                       {step.label}
                     </Link>
@@ -178,7 +217,10 @@ export default function Hero() {
         </div>
 
         {/* Right: Visual composition */}
-        <div className="relative hidden lg:block animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+        <div
+          className="relative hidden lg:block animate-fade-in-up"
+          style={{ animationDelay: "0.15s" }}
+        >
           <div className="relative mx-auto max-w-md">
             {/* Main image */}
             <div className="relative overflow-hidden rounded-2xl shadow-premium-lg ring-1 ring-white/10 transition-transform duration-500 hover:scale-[1.02]">
@@ -189,7 +231,7 @@ export default function Hero() {
                 loading="eager"
                 onLoad={(e) => {
                   const img = e.currentTarget;
-                  const caption = document.getElementById('hero-image-caption');
+                  const caption = document.getElementById("hero-image-caption");
                   if (caption && img.naturalWidth > 0) {
                     caption.textContent = `${img.naturalWidth}×${img.naturalHeight}`;
                   }
@@ -199,33 +241,48 @@ export default function Hero() {
               <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent" />
               {/* Image caption overlay */}
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between rounded-lg bg-black/30 px-3 py-2 backdrop-blur-sm">
-                <p className="text-xs font-medium text-primary-foreground/80">{heroImageAlt}</p>
-                <span id="hero-image-caption" className="text-[10px] font-medium text-primary-foreground/50" />
+                <p className="text-xs font-medium text-primary-foreground/80">
+                  {heroImageAlt}
+                </p>
+                <span
+                  id="hero-image-caption"
+                  className="text-[10px] font-medium text-primary-foreground/50"
+                />
               </div>
             </div>
 
             {/* Floating swatch card — derived from branding config */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-card dark:bg-card p-4 shadow-premium-lg animate-float">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
-                {branding?.hero_image_label || 'FRELUX Tools'}
+                {branding?.hero_image_label || "FRELUX Tools"}
               </p>
               <div className="mt-2.5 flex gap-1.5">
-                {(branding?.hero_swatch_colors ?? ['#F5F1E8', '#D9D2C5', '#7B9EA8']).map((color, idx) => (
-                  <div key={idx} className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105" style={{ background: color }} />
+                {(
+                  branding?.hero_swatch_colors ?? [
+                    "#F5F1E8",
+                    "#D9D2C5",
+                    "#7B9EA8",
+                  ]
+                ).map((color, idx) => (
+                  <div
+                    key={idx}
+                    className="h-12 flex-1 rounded-lg ring-1 ring-black/5 transition-transform hover:scale-105"
+                    style={{ background: color }}
+                  />
                 ))}
               </div>
               <p className="mt-2.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
-                {branding?.hero_swatch_name || 'Curated Palette'}
+                {branding?.hero_swatch_name || "Curated Palette"}
               </p>
             </div>
 
             {/* Floating estimate chip — uses hero content */}
-            <div className="absolute -right-5 top-8 rounded-xl bg-card dark:bg-card px-4 py-3.5 shadow-premium-lg animate-float-delayed">
+            <div className="absolute -right-5 top-8 rounded-xl bg-card dark:bg-card px-4 py-3 shadow-premium-lg animate-float-delayed">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
-                {branding?.hero_chip_label || 'Plan & Estimate'}
+                {branding?.hero_chip_label || "Plan & Estimate"}
               </p>
               <p className="mt-1 font-display text-2xl font-bold text-foreground dark:text-primary-foreground">
-                {branding?.hero_chip_value || 'Free'}
+                {branding?.hero_chip_value || "Free"}
               </p>
               <p className="text-[11px] text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_chip_subtext || hero.ctaPrimaryLabel}
@@ -235,10 +292,10 @@ export default function Hero() {
             {/* Floating badge — uses branding config */}
             <div className="absolute -top-4 right-12 rounded-xl bg-primary px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
-                {branding?.hero_badge_label || 'Platform'}
+                {branding?.hero_badge_label || "Platform"}
               </p>
               <p className="font-display text-sm font-bold text-primary-foreground">
-                {branding?.hero_badge_value || 'FRELUX'}
+                {branding?.hero_badge_value || "FRELUX"}
               </p>
             </div>
           </div>
@@ -246,7 +303,10 @@ export default function Hero() {
       </Container>
 
       {/* Bottom fade transition */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-card dark:to-background" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-card dark:to-background"
+        aria-hidden="true"
+      />
     </section>
   );
 }
