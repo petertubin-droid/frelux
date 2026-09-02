@@ -27,6 +27,8 @@
   --popover-foreground: 240 10% 9%;
   --primary: 258 74% 48%;              /* #6D28D9 brand-purple */
   --primary-foreground: 0 0% 100%;     /* white */
+  --primary-light: 258 74% 62%;         /* #9B6CF2 — lighter purple */
+  --primary-lighter: 258 80% 75%;        /* #C4A6F8 — lightest purple */
   --secondary: 240 5% 96%;             /* neutral-100 */
   --secondary-foreground: 240 10% 9%;
   --muted: 240 5% 96%;                 /* neutral-100 */
@@ -50,6 +52,8 @@
   --popover-foreground: 0 0% 100%;
   --primary: 258 74% 58%;              /* lighter purple for dark bg */
   --primary-foreground: 0 0% 100%;
+  --primary-light: 258 74% 68%;         /* even lighter for dark bg gradients */
+  --primary-lighter: 258 80% 80%;        /* lightest purple for dark bg */
   --secondary: 240 28% 23%;             /* #2A2A4A navy-soft */
   --secondary-foreground: 0 0% 100%;
   --muted: 240 28% 23%;                /* navy-soft */
