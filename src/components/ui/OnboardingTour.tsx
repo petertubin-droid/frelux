@@ -24,10 +24,10 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
         return;
       }
 
-      // Scroll the element into view first
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Instant scroll to avoid tooltip position drift during smooth scroll animation
+      el.scrollIntoView({ behavior: 'auto', block: 'center' });
 
-      // After scroll animation completes, calculate position
+      // Position the tooltip immediately after instant scroll
       scrollTimer = setTimeout(() => {
         const rect = el.getBoundingClientRect();
         const tooltipWidth = 350;
@@ -60,7 +60,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
 
         setPosition({ top, left, placement });
         setTargetVisible(true);
-      }, 400); // Wait for smooth scroll to settle
+      }, 80); // Short delay after instant scroll
     }
 
     setTargetVisible(false);
@@ -71,7 +71,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
     };
   }, [step, currentTour.target]);
 
-  // Reposition on resize (but NOT on scroll — we handle scrolling ourselves)
+  // Reposition on resize AND scroll — keep tooltip anchored to target
   useEffect(() => {
     function reposition() {
       const el = document.querySelector(currentTour.target) as HTMLElement | null;
@@ -99,7 +99,11 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
     }
 
     window.addEventListener('resize', reposition);
-    return () => window.removeEventListener('resize', reposition);
+    window.addEventListener('scroll', reposition, { passive: true });
+    return () => {
+      window.removeEventListener('resize', reposition);
+      window.removeEventListener('scroll', reposition);
+    };
   }, [step, currentTour.target]);
 
   function next() {
