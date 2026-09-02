@@ -6,6 +6,7 @@ import type { DbEstimateHistory } from '@/types/database';
 import { downloadCsv } from '@/lib/export-utils';
 import { Loader2, Download, TrendingUp, TrendingDown, BarChart3, Calendar, DollarSign, Calculator } from 'lucide-react';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: 'Painting',
@@ -136,13 +137,13 @@ export default function EstimateAnalytics() {
           <option value="pop">POP Ceiling</option>
           <option value="screeding">Wall Screeding</option>
         </select>
-        <button
+        <Button
           onClick={handleExportCsv}
           disabled={filtered.length === 0}
           className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium disabled:opacity-50"
         >
           <Download aria-hidden="true" className="h-4 w-4" /> Export CSV
-        </button>
+        </Button>
       </div>
 
       {/* Stat Cards */}

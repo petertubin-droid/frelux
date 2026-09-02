@@ -17,6 +17,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import type { DbLearnArticle, DbLearnArticleFaq } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = "loading" | "ready" | "error" | "notfound";
 
@@ -403,9 +404,9 @@ export default function LearnArticle() {
                     )}
                   </span>
                 )}
-                <button
+                <Button variant="default"
                   onClick={shareArticle}
-                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
+                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-500" />
@@ -413,7 +414,7 @@ export default function LearnArticle() {
                     <Share2 className="h-4 w-4" />
                   )}
                   {copied ? "Copied!" : "Share"}
-                </button>
+                </Button>
               </div>
             </header>
 
@@ -481,7 +482,7 @@ export default function LearnArticle() {
                         key={faq.id}
                         className="overflow-hidden rounded-xl border border-border/80 bg-card transition-all dark:border-white/10 dark:bg-background"
                       >
-                        <button
+                        <Button
                           onClick={() =>
                             setOpenFaq(openFaq === idx ? null : idx)
                           }
@@ -495,7 +496,7 @@ export default function LearnArticle() {
                               openFaq === idx ? "rotate-180" : ""
                             }`}
                           />
-                        </button>
+                        </Button>
                         <div
                           className={`overflow-hidden transition-all duration-300 ${
                             openFaq === idx ? "max-h-96" : "max-h-0"

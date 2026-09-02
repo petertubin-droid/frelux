@@ -3,6 +3,7 @@ import { X, Upload, Search, Trash2, Folder as FolderIcon, Image as ImageIcon, Ch
 import { fetchMediaFolders, fetchMediaItems, uploadMediaImage, deleteMediaItem } from '@/lib/queries';
 import type { DbMediaFolder, DbMediaItem } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface MediaPickerProps {
   open: boolean;
@@ -75,7 +76,7 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border dark:border-white/5 px-5 py-3">
           <h2 className="text-base font-bold text-foreground dark:text-primary-foreground">Media Library</h2>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-muted-foreground dark:text-muted-foreground hover:bg-muted"><X className="h-5 w-5" /></button>
+          <Button variant="ghost" type="button" onClick={onClose} className="rounded-md p-1.5 text-muted-foreground dark:text-muted-foreground"><X className="h-5 w-5" /></Button>
         </div>
 
         {error && <div className="border-b border-red-200 bg-red-50 px-5 py-2 text-sm text-red-700">{error}</div>}
@@ -85,13 +86,13 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
           <div className="w-48 shrink-0 border-r border-border dark:border-white/5 bg-muted/50 dark:bg-white/5 p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Folders</p>
             <div className="space-y-1">
-              <button type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-primary text-primary-foreground' : 'text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted')}>
+              <Button type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-primary text-primary-foreground' : 'text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted')}>
                 <FolderIcon aria-hidden="true" className="h-4 w-4" /> All
-              </button>
+              </Button>
               {folders.map((f) => (
-                <button key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted')}>
+                <Button key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted')}>
                   <FolderIcon aria-hidden="true" className="h-4 w-4" /> {f.name}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -122,18 +123,18 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                   {items.map((item) => (
                     <div key={item.id} className={classNames('group relative overflow-hidden rounded-lg border-2 transition-all', selected?.id === item.id ? 'border-brand-purple ring-2 ring-brand-purple/20' : 'border-transparent hover:border-border dark:border-white/5')}>
-                      <button type="button" onClick={() => setSelected(item)} className="block w-full">
+                      <Button type="button" onClick={() => setSelected(item)} className="block w-full">
                         <div className="aspect-square overflow-hidden bg-muted">
                           <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
                         </div>
                         <div className="truncate p-1.5 text-[10px] font-medium text-muted-foreground dark:text-muted-foreground/80">{item.file_name}</div>
-                      </button>
+                      </Button>
                       {selected?.id === item.id && (
                         <div className="absolute right-1 top-1 rounded-full bg-primary p-1 text-primary-foreground"><Check aria-hidden="true" className="h-3 w-3" /></div>
                       )}
-                      <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="absolute left-1 top-1 rounded-full bg-card dark:bg-background-mid/80 p-1 text-muted-foreground dark:text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                      <Button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(item); }} className="absolute left-1 top-1 rounded-full bg-card dark:bg-background-mid/80 p-1 text-muted-foreground dark:text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
                         <Trash2 aria-hidden="true" className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -146,8 +147,8 @@ export function MediaPicker({ open, onClose, onSelect, defaultFolder = 'colors' 
         <div className="flex items-center justify-between border-t border-border dark:border-white/5 px-5 py-3">
           {selected ? <p className="truncate text-sm text-muted-foreground dark:text-muted-foreground/80">Selected: {selected.file_name}</p> : <p className="text-sm text-muted-foreground dark:text-muted-foreground">Select an image or upload a new one.</p>}
           <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="rounded-lg border border-border dark:border-white/5 px-4 py-2 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/50 dark:bg-white/5">Cancel</button>
-            <button type="button" onClick={handleConfirm} disabled={!selected} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 hover:bg-primary/90">Select</button>
+            <Button type="button" onClick={onClose} className="rounded-lg border border-border dark:border-white/5 px-4 py-2 text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted/50 dark:bg-white/5">Cancel</Button>
+            <Button variant="default" type="button" onClick={handleConfirm} disabled={!selected} className="rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:/90">Select</Button>
           </div>
         </div>
       </div>

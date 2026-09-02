@@ -6,6 +6,7 @@ import { invokeStudioAi, createArtifact, fetchChatHistory, createSession, fetchS
 import { getTool, getToolType } from '@/components/studio/tools';
 import { ToolHeader, PromptInput, AiResponseDisplay, SaveBar, ChatMessage } from '@/components/studio/StudioShared';
 import type { DbStudioChat, DbStudioSession, StudioToolType } from '@/types/database';
+import { Button } from "@/components/ui/shadcn/button";
 
 const GENERATION_TOOLS = new Set([
   'page_builder', 'crud_generator', 'db_designer', 'api_builder', 'dashboard_builder',
@@ -246,26 +247,26 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
       <div className="grid gap-6 lg:grid-cols-[200px_1fr]">
         {/* Session list */}
         <div className="space-y-2">
-          <button
+          <Button
             type="button"
             onClick={() => { setActiveSession(null); setMessages([]); }}
             className="w-full rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             New Chat
-          </button>
+          </Button>
           <div className="max-h-96 space-y-1 overflow-y-auto">
             {sessions.map((s) => (
               <div key={s.id} className="group flex items-center justify-between rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card px-3 py-2 hover:border-brand-purple">
-                <button
+                <Button
                   type="button"
                   onClick={() => setActiveSession(s.id)}
                   className={`flex-1 truncate text-left text-xs font-medium ${activeSession === s.id ? 'text-brand-purple' : 'text-muted-foreground'}`}
                 >
                   {s.title}
-                </button>
-                <button type="button" onClick={() => handleDeleteSession(s.id)} className="ml-2 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100">
+                </Button>
+                <Button type="button" onClick={() => handleDeleteSession(s.id)} className="ml-2 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100">
                   <X className="h-3 w-3" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -305,14 +306,14 @@ function ChatTool({ tool }: { toolSlug: string; tool: ReturnType<typeof getTool>
               disabled={loading}
               className="input-field flex-1"
             />
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleSend}
               disabled={loading || !input.trim()}
-              className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
             >
               Send
-            </button>
+            </Button>
           </div>
         </div>
       </div>

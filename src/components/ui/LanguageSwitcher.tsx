@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Globe, ChevronDown, Check } from "lucide-react";
 import { useLanguage, LANGUAGES, type Language } from "@/lib/i18n";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 export function LanguageSwitcher({
   compact = false,
@@ -30,7 +31,7 @@ export function LanguageSwitcher({
   if (inline) {
     return (
       <div ref={ref} className="w-full">
-        <button
+        <Button
           type="button"
           onClick={() => setOpen(!open)}
           className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
@@ -47,11 +48,11 @@ export function LanguageSwitcher({
               open && "rotate-180",
             )}
           />
-        </button>
+        </Button>
         {open && (
           <div className="mt-1 space-y-0.5 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
             {LANGUAGES.map((lang) => (
-              <button
+              <Button
                 key={lang.value}
                 type="button"
                 onClick={() => {
@@ -70,7 +71,7 @@ export function LanguageSwitcher({
                   <span>{lang.nativeLabel}</span>
                 </span>
                 {language === lang.value && <Check className="h-4 w-4" />}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -81,7 +82,7 @@ export function LanguageSwitcher({
   // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(!open)}
         className={classNames(
@@ -102,7 +103,7 @@ export function LanguageSwitcher({
             )}
           />
         )}
-      </button>
+      </Button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border/40 bg-card py-1.5 shadow-lg dark:border-white/10 dark:bg-card">
@@ -110,7 +111,7 @@ export function LanguageSwitcher({
             Language
           </p>
           {LANGUAGES.map((lang) => (
-            <button
+            <Button
               key={lang.value}
               type="button"
               onClick={() => {
@@ -129,7 +130,7 @@ export function LanguageSwitcher({
                 <span>{lang.nativeLabel}</span>
               </span>
               {language === lang.value && <Check className="h-4 w-4" />}
-            </button>
+            </Button>
           ))}
         </div>
       )}

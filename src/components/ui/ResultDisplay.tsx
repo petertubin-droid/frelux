@@ -2,6 +2,7 @@ import type {} from 'react';
 import { CheckCircle2, RotateCcw, ArrowRight, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ResultDisplay({
   badge,
@@ -82,14 +83,14 @@ export default function ResultDisplay({
 
       {/* Action buttons */}
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <button type="button" onClick={onAgain} className="btn-secondary press-scale">
+        <Button variant="secondary" type="button" onClick={onAgain} className="press-scale">
           <RotateCcw className="h-4 w-4" />
           Calculate Again
-        </button>
+        </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <button type="button" onClick={onStartOver} className="btn-secondary press-scale">
+          <Button variant="secondary" type="button" onClick={onStartOver} className="press-scale">
             Start Over
-          </button>
+          </Button>
           {continueTo && (
             <Link to={continueTo} state={continueState} className="btn-primary press-scale group btn-glow">
               {continueLabel}

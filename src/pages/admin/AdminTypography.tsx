@@ -16,6 +16,7 @@ import {
 } from '@/lib/font-library';
 import { preloadFontForPreview, clearDynamicFonts } from '@/lib/font-loader';
 import { previewTypography, resetPreview } from '@/lib/useTypography';
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = 'loading' | 'ready' | 'error' | 'saving';
 
@@ -318,12 +319,12 @@ export default function AdminTypography() {
           </p>
           {/* Buttons */}
           <div className="mt-4 flex gap-3">
-            <button className="btn-primary text-sm" style={{ fontFamily: `var(--font-btn)` }}>
+            <Button variant="default" className="text-sm" style={{ fontFamily: `var(--font-btn)` }}>
               Start Calculating
-            </button>
-            <button className="btn-secondary text-sm" style={{ fontFamily: `var(--font-btn)` }}>
+            </Button>
+            <Button variant="secondary" className="text-sm" style={{ fontFamily: `var(--font-btn)` }}>
               Learn More
-            </button>
+            </Button>
           </div>
           {/* Calculator card preview */}
           <div className="mt-6 max-w-sm rounded-lg border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">

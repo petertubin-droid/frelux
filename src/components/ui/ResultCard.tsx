@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Save, FileDown, Share2, MessageCircle, RotateCcw, Gem } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export interface ResultStat {
   label: string;
@@ -91,34 +92,34 @@ export default function ResultCard({
         {/* Action buttons with glow on primary */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           {onSave && (
-            <button type="button" onClick={onSave} className="btn-primary press-scale btn-glow">
+            <Button variant="default" type="button" onClick={onSave} className="press-scale btn-glow">
               <Save className="h-4 w-4" />
               Save
-            </button>
+            </Button>
           )}
           {onExport && (
-            <button type="button" onClick={onExport} className="btn-secondary press-scale">
+            <Button variant="secondary" type="button" onClick={onExport} className="press-scale">
               <FileDown className="h-4 w-4" />
               Export PDF
-            </button>
+            </Button>
           )}
           {onShare && (
-            <button type="button" onClick={onShare} className="btn-secondary press-scale">
+            <Button variant="secondary" type="button" onClick={onShare} className="press-scale">
               <Share2 className="h-4 w-4" />
               Share
-            </button>
+            </Button>
           )}
           {onAskAi && (
-            <button type="button" onClick={onAskAi} className="btn-secondary press-scale">
+            <Button variant="secondary" type="button" onClick={onAskAi} className="press-scale">
               <MessageCircle className="h-4 w-4" />
               Ask AI
-            </button>
+            </Button>
           )}
           {onRecalculate && (
-            <button type="button" onClick={onRecalculate} className="btn-secondary press-scale">
+            <Button variant="secondary" type="button" onClick={onRecalculate} className="press-scale">
               <RotateCcw className="h-4 w-4" />
               Recalculate
-            </button>
+            </Button>
           )}
         </div>
       </div>

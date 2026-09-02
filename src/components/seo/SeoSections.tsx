@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ── FAQ Section ────────────────────────────────────────────────────
 
@@ -32,7 +33,7 @@ export function FaqSection({
             key={i}
             className="overflow-hidden rounded-xl border border-border/60 bg-card dark:border-white/8 dark:bg-card"
           >
-            <button
+            <Button
               type="button"
               onClick={() => setOpenIndex(openIndex === i ? null : i)}
               className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
@@ -46,7 +47,7 @@ export function FaqSection({
                   openIndex === i ? "rotate-180" : ""
                 }`}
               />
-            </button>
+            </Button>
             {openIndex === i && (
               <div className="px-5 pb-4 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
                 {faq.answer}

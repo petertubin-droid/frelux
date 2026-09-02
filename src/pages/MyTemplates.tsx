@@ -8,6 +8,7 @@ import { calculatorLabel, CALCULATOR_META, exportTemplate, importTemplate } from
 import TemplateCard from '@/components/templates/TemplateCard';
 import type { CalculatorType, DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 const SORT_OPTIONS = [
   { key: 'recent', label: 'Recent' },
@@ -137,13 +138,13 @@ export default function MyTemplates() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={() => fileRef.current?.click()}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
             title="Import a template from JSON file"
           >
             <Upload className="h-3.5 w-3.5" /> Import
-          </button>
+          </Button>
           <input
             ref={fileRef}
             type="file"
@@ -152,13 +153,13 @@ export default function MyTemplates() {
             className="hidden"
           />
           {filtered.length > 0 && (
-            <button
+            <Button
               onClick={handleExportAll}
               className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-white/5 dark:text-muted-foreground/80"
               title="Export all templates as JSON files"
             >
               <Download aria-hidden="true" className="h-3.5 w-3.5" /> Export All
-            </button>
+            </Button>
           )}
           <Link
             to="/templates"
@@ -196,7 +197,7 @@ export default function MyTemplates() {
           </div>
           <div className="flex gap-2">
             {SORT_OPTIONS.map((opt) => (
-              <button
+              <Button
                 key={opt.key}
                 onClick={() => setSort(opt.key)}
                 className={classNames(
@@ -207,14 +208,14 @@ export default function MyTemplates() {
                 )}
               >
                 {opt.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
           {CATEGORY_TABS.map((tab) => (
-            <button
+            <Button
               key={tab.key}
               onClick={() => setActiveCategory(tab.key)}
               className={classNames(
@@ -225,7 +226,7 @@ export default function MyTemplates() {
               )}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

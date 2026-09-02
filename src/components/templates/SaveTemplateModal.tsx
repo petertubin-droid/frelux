@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Save, Loader2 } from 'lucide-react';
 import type { CalculatorType } from '@/types/database';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface SaveTemplateModalProps {
   open: boolean;
@@ -54,9 +55,9 @@ export default function SaveTemplateModal({
           <h2 className="text-base font-semibold text-foreground dark:text-primary-foreground">
             Save as Template
           </h2>
-          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground">
+          <Button variant="ghost" onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground">
             <X aria-hidden="true" className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -96,21 +97,21 @@ export default function SaveTemplateModal({
           )}
 
           <div className="flex items-center gap-2 pt-1">
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button variant="default"
               type="submit"
               disabled={saving}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:/90 disabled:opacity-50"
             >
               {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
               {saving ? 'Saving...' : 'Save Template'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

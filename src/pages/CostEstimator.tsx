@@ -79,6 +79,7 @@ import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function CostEstimator({
   embedded = false,
@@ -765,14 +766,14 @@ export default function CostEstimator({
               last
             />
 
-            <button
+            <Button variant="default"
               type="button"
               onClick={compute}
-              className="btn-primary btn-glow mt-6 w-full sm:w-auto"
+              className="btn-glow mt-6 w-full sm:w-auto"
             >
               Calculate estimate
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Results panel */}
@@ -932,46 +933,46 @@ export default function CostEstimator({
               {result && (
                 <>
                   <div className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">
-                    <button
+                    <Button variant="ghost"
                       type="button"
                       onClick={handleWhatsAppShare}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all -green/20"
                     >
                       <MessageCircle className="h-5 w-5 text-accent-green" />
                       <span className="text-xs font-semibold text-accent-green">
                         WhatsApp
                       </span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="default"
                       type="button"
                       onClick={handlePdfExport}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-center transition-all hover:"
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
                       <span className="text-xs font-semibold text-brand-purple">
                         Export PDF
                       </span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="ghost"
                       type="button"
                       onClick={handleShoppingList}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all -orange/20"
                     >
                       <ShoppingBag className="h-5 w-5 text-accent-orange" />
                       <span className="text-xs font-semibold text-accent-orange">
                         Shopping List
                       </span>
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="ghost"
                       type="button"
                       onClick={handleSaveLocal}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-muted p-3 text-center transition-all hover:bg-muted dark:bg-card-foreground/90 dark:hover:bg-card-foreground/80"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-muted p-3 text-center transition-all dark:bg-card-foreground/90 dark:hover:bg-card-foreground/80"
                     >
                       <Save className="h-5 w-5 text-muted-foreground dark:text-muted-foreground/80" />
                       <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
                         Save to Device
                       </span>
-                    </button>
+                    </Button>
                   </div>
                   <div className="mt-3 flex justify-center">
                     <SaveToProjectButton
@@ -1136,7 +1137,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={() => onChange(!checked)}
       className={
@@ -1152,7 +1153,7 @@ function Toggle({
           (checked ? "translate-x-4" : "translate-x-0.5")
         }
       />
-    </button>
+    </Button>
   );
 }
 

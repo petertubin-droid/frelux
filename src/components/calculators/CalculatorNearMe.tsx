@@ -9,6 +9,7 @@ import {
   type NearbyListing,
 } from "@/lib/location-discovery";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // CalculatorNearMe — "Find This Material Near Me" + "Find a Professional Near Me"
@@ -86,10 +87,10 @@ export default function CalculatorNearMe({
           </p>
         </div>
         <div className="flex gap-2">
-          <button
+          <Button variant="default"
             onClick={detect}
             disabled={locLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:/90 disabled:opacity-50"
           >
             {locLoading ? (
               <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -97,12 +98,12 @@ export default function CalculatorNearMe({
               <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
             )}
             {locLoading ? "Detecting..." : "Use My Location"}
-          </button>
+          </Button>
           {hasLocation && (
-            <button
+            <Button variant="default"
               onClick={handleSearch}
               disabled={searching}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-card px-3 py-1.5 text-xs font-semibold text-brand-purple transition-all hover:bg-primary/10 disabled:opacity-50 dark:bg-transparent"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-card px-3 py-1.5 text-xs font-semibold text-brand-purple transition-all hover:disabled:opacity-50 dark:bg-transparent"
             >
               {searching ? (
                 <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -110,7 +111,7 @@ export default function CalculatorNearMe({
                 <Search aria-hidden="true" className="h-3.5 w-3.5" />
               )}
               Search
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -124,7 +125,7 @@ export default function CalculatorNearMe({
           </span>
           <div className="flex items-center gap-1">
             {DISTANCE_FILTERS.map((f) => (
-              <button
+              <Button
                 key={f.value}
                 onClick={() => setRadius(f.value)}
                 className={classNames(
@@ -135,7 +136,7 @@ export default function CalculatorNearMe({
                 )}
               >
                 {f.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -152,7 +153,7 @@ export default function CalculatorNearMe({
         <div className="mt-4 space-y-3 border-t border-brand-purple/10 pt-3">
           {/* Tab switcher */}
           <div className="flex gap-1">
-            <button
+            <Button
               onClick={() => setActiveTab("professionals")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
@@ -163,8 +164,8 @@ export default function CalculatorNearMe({
             >
               <Briefcase className="h-3 w-3" />
               Professionals ({pros.length})
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setActiveTab("listings")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
@@ -175,7 +176,7 @@ export default function CalculatorNearMe({
             >
               <Store className="h-3 w-3" />
               Jobs ({listings.length})
-            </button>
+            </Button>
           </div>
 
           {searching ? (

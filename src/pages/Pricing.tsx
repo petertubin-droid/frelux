@@ -27,6 +27,7 @@ import {
 import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 type BillingCycle = "monthly" | "yearly";
 
@@ -283,7 +284,7 @@ export default function Pricing() {
             aria-label="Billing cycle"
             className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
           >
-            <button
+            <Button
               role="tab"
               aria-selected={billingCycle === "monthly"}
               onClick={() => setBillingCycle("monthly")}
@@ -295,8 +296,8 @@ export default function Pricing() {
               )}
             >
               Monthly
-            </button>
-            <button
+            </Button>
+            <Button
               role="tab"
               aria-selected={billingCycle === "yearly"}
               onClick={() => setBillingCycle("yearly")}
@@ -311,7 +312,7 @@ export default function Pricing() {
               <span className="ml-1.5 rounded-full bg-accent-green/15 px-2 py-0.5 text-[10px] font-bold text-accent-green">
                 2 months free
               </span>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -410,7 +411,7 @@ export default function Pricing() {
                   </span>
                 </div>
 
-                <button
+                <Button
                   onClick={() => handleSubscribe(plan)}
                   disabled={
                     isLoading ||
@@ -452,7 +453,7 @@ export default function Pricing() {
                   ) : (
                     plan.cta
                   )}
-                </button>
+                </Button>
 
                 <ul className="mt-6 space-y-2.5">
                   {plan.features.map((feature, i) => (
@@ -545,7 +546,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border border-border/60 bg-card dark:border-white/10 dark:bg-card">
-      <button
+      <Button
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4 text-left"
       >
@@ -560,7 +561,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         >
           ▾
         </span>
-      </button>
+      </Button>
       {open && (
         <p className="px-4 pb-4 text-sm text-muted-foreground dark:text-muted-foreground">
           {a}

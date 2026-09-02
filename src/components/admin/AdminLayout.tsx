@@ -47,6 +47,7 @@ import {
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { useTheme } from "@/lib/theme";
+import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
 // Admin sidebar — organized into logical modules
@@ -297,26 +298,26 @@ export default function AdminLayout() {
           FRELUX Admin
         </span>
         <div className="flex items-center gap-1">
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={toggle}
             aria-label="Toggle dark mode"
-            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
+            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
               <Sun className="h-5 w-5" />
             ) : (
               <Moon className="h-5 w-5" />
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setMobileOpen(true)}
             className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
             aria-label="Open admin menu"
           >
             <Menu className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -343,14 +344,14 @@ export default function AdminLayout() {
                 <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                   FRELUX Admin
                 </span>
-                <button
+                <Button
                   type="button"
                   onClick={() => setMobileOpen(false)}
                   className="rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
                   aria-label="Close admin menu"
                 >
                   <X className="h-5 w-5" />
-                </button>
+                </Button>
               </div>
               <SidebarContent
                 user={user?.email}
@@ -437,29 +438,29 @@ function SidebarContent({
           >
             <ExternalLink className="h-4 w-4" /> View website
           </Link>
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={onToggleTheme}
             aria-label="Toggle dark mode"
-            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground hover:bg-muted dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
+            className="inline-flex items-center justify-center rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90"
           >
             {theme === "dark" ? (
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
             )}
-          </button>
+          </Button>
         </div>
         <div className="mt-1 px-3 py-1 text-xs text-muted-foreground truncate">
           {user}
         </div>
-        <button
+        <Button
           type="button"
           onClick={onSignOut}
           className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
         >
           <LogOut className="h-4 w-4" /> Sign out
-        </button>
+        </Button>
       </div>
     </div>
   );

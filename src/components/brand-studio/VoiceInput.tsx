@@ -11,6 +11,7 @@
  */
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Mic, Square } from "lucide-react";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface VoiceInputProps {
   value: string;
@@ -216,7 +217,7 @@ export function VoiceInput({
           />
         )}
         {isSupported && (
-          <button
+          <Button
             type="button"
             onClick={handleButtonClick}
             className={`shrink-0 rounded-lg p-2 transition-colors ${
@@ -232,7 +233,7 @@ export function VoiceInput({
             ) : (
               <Mic className="h-4 w-4" />
             )}
-          </button>
+          </Button>
         )}
       </div>
       {error && (

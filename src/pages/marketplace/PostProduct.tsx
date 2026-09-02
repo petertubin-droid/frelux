@@ -15,6 +15,7 @@ import type {
 } from "@/types/marketplace-products";
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -366,26 +367,26 @@ export default function PostProduct() {
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                       <div className="flex gap-1">
-                        <button
+                        <Button
                           onClick={() => moveImage(idx, -1)}
                           disabled={idx === 0}
                           className="rounded bg-white/90 p-1 text-xs disabled:opacity-30"
                         >
                           ←
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => removeImage(idx)}
                           className="rounded bg-red-500 p-1 text-primary-foreground"
                         >
                           <X aria-hidden="true" className="h-3 w-3" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => moveImage(idx, 1)}
                           disabled={idx === images.length - 1}
                           className="rounded bg-white/90 p-1 text-xs disabled:opacity-30"
                         >
                           →
-                        </button>
+                        </Button>
                       </div>
                     </div>
                     {idx === 0 && (
@@ -524,12 +525,12 @@ export default function PostProduct() {
                 className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs text-brand-purple"
               >
                 {t}
-                <button
+                <Button
                   onClick={() => setTags(tags.filter((x) => x !== t))}
                   className="text-brand-purple/60 hover:text-brand-purple"
                 >
                   <X aria-hidden="true" className="h-3 w-3" />
-                </button>
+                </Button>
               </span>
             ))}
           </div>
@@ -543,24 +544,24 @@ export default function PostProduct() {
               placeholder="Add a tag and press Enter"
               className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
-            <button
+            <Button
               onClick={addTag}
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10"
             >
               <Plus aria-hidden="true" className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
 
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-          <button
+          <Button variant="default"
             onClick={handleSubmit}
             disabled={
               submitting || !title.trim() || !price || images.length === 0
             }
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:/90 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -568,13 +569,13 @@ export default function PostProduct() {
               <Send aria-hidden="true" className="h-4 w-4" />
             )}
             Post Product
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => navigate("/marketplace")}
             className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >
             Cancel
-          </button>
+          </Button>
         </div>
       </div>
     </div>

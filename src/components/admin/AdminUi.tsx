@@ -37,9 +37,9 @@ export function AdminButton({
     link: 'bg-transparent text-brand-purple hover:underline px-0 py-0',
   };
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className={classNames(base, variants[variant], className)}>
+    <Button type={type} onClick={onClick} disabled={disabled} className={classNames(base, variants[variant], className)}>
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -96,7 +96,7 @@ export function CollapsibleGroup({
 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border dark:border-white/5">
-      <button
+      <Button
         type="button"
         onClick={onToggle}
         aria-expanded={isOpen}
@@ -108,7 +108,7 @@ export function CollapsibleGroup({
           <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">{count}</span>
         </div>
         {preview && <div className="hidden shrink-0 items-center gap-1 sm:flex">{preview}</div>}
-      </button>
+      </Button>
       {isOpen && (
         <div className="border-t border-border bg-muted/60 p-3 dark:border-white/5 dark:bg-white/[0.02]">
           {children}
@@ -122,9 +122,9 @@ export function GroupControls({ onExpandAll, onCollapseAll, groupLabel = 'groups
   return (
     <div className="flex items-center gap-3 text-xs font-semibold text-muted-foreground dark:text-muted-foreground">
       <span>Organized into {groupLabel}</span>
-      <button type="button" onClick={onExpandAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Expand all</button>
+      <Button type="button" onClick={onExpandAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Expand all</Button>
       <span className="text-muted-foreground/80 dark:text-muted-foreground">·</span>
-      <button type="button" onClick={onCollapseAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Collapse all</button>
+      <Button type="button" onClick={onCollapseAll} className="text-brand-purple hover:underline dark:text-brand-purple-lighter">Collapse all</Button>
     </div>
   );
 }
@@ -170,6 +170,7 @@ export function AdminTextarea({ className, ...props }: TextareaHTMLAttributes<HT
 // =========================================================
 
 import type { SelectHTMLAttributes } from 'react';
+import { Button } from "@/components/ui/shadcn/button";
 
 export function AdminSelect({ className, children, ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return (
@@ -209,9 +210,9 @@ export function AdminIconButton({
     danger: 'text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10',
   };
   return (
-    <button type={type} onClick={onClick} disabled={disabled} title={title} className={classNames(base, variants[variant], className)}>
+    <Button type={type} onClick={onClick} disabled={disabled} title={title} className={classNames(base, variants[variant], className)}>
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -256,12 +257,12 @@ export function AdminTabButton({
   };
   const v = variants[variant];
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       className={classNames(base, v.base, active ? v.active : v.inactive, className)}
     >
       {children}
-    </button>
+    </Button>
   );
 }

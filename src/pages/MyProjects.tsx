@@ -52,6 +52,7 @@ import type {
   ShareableResourceType,
 } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
 type Status = "loading" | "ready" | "error";
@@ -366,7 +367,7 @@ export default function MyProjects() {
           {tabs.map((t) => {
             const Icon = t.icon;
             return (
-              <button
+              <Button
                 key={t.id}
                 type="button"
                 onClick={() => {
@@ -381,7 +382,7 @@ export default function MyProjects() {
                 >
                   {t.count}
                 </span>
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -429,7 +430,7 @@ export default function MyProjects() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
+                    <Button
                       type="button"
                       onClick={() => handleOpenProject(p)}
                       className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
@@ -437,31 +438,31 @@ export default function MyProjects() {
                     >
                       <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                       Open
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
                       onClick={() => handleShare("project", p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                       title="Share"
                     >
                       <Share2 className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
                       onClick={() => handleDuplicate(p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                       title="Duplicate"
                     >
                       <Copy aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
                       onClick={() => handleDeleteProject(p.id)}
                       className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
                       title="Delete"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -575,14 +576,14 @@ export default function MyProjects() {
                 className="input-field flex-1"
                 onKeyDown={(e) => e.key === "Enter" && handleCreateCollection()}
               />
-              <button
+              <Button variant="default"
                 type="button"
                 onClick={handleCreateCollection}
                 disabled={creating || !newCollName.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 hover:bg-primary/90"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:/90"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Create
-              </button>
+              </Button>
             </div>
             {filteredCollections.length > 0 ? (
               <div className="space-y-4">
@@ -604,20 +605,20 @@ export default function MyProjects() {
                                 e.key === "Enter" && handleRename(c.id)
                               }
                             />
-                            <button
+                            <Button
                               type="button"
                               onClick={() => handleRename(c.id)}
                               className="rounded-md bg-primary p-1.5 text-primary-foreground"
                             >
                               <Check aria-hidden="true" className="h-4 w-4" />
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               type="button"
                               onClick={() => setRenamingId(null)}
                               className="rounded-md border border-border p-1.5 text-muted-foreground dark:border-white/5 dark:text-muted-foreground"
                             >
                               <X aria-hidden="true" className="h-4 w-4" />
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <>
@@ -637,7 +638,7 @@ export default function MyProjects() {
                       </div>
                       {renamingId !== c.id && (
                         <div className="flex shrink-0 items-center gap-2">
-                          <button
+                          <Button
                             type="button"
                             onClick={() => {
                               setRenamingId(c.id);
@@ -647,15 +648,15 @@ export default function MyProjects() {
                             title="Rename"
                           >
                             <Pencil className="h-4 w-4" />
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
                             onClick={() => handleDeleteCollection(c.id)}
                             className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
                             title="Delete"
                           >
                             <Trash2 aria-hidden="true" className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -680,7 +681,7 @@ export default function MyProjects() {
                             </Link>
                             {collections.length > 1 && (
                               <div className="relative">
-                                <button
+                                <Button
                                   type="button"
                                   onClick={() =>
                                     setMoveState({
@@ -695,7 +696,7 @@ export default function MyProjects() {
                                     aria-hidden="true"
                                     className="h-3.5 w-3.5"
                                   />
-                                </button>
+                                </Button>
                                 {moveState?.colorId === col.id && (
                                   <div className="absolute right-0 top-6 z-10 w-48 rounded-lg border border-border bg-card p-2 shadow-lg dark:border-white/5 dark:bg-card">
                                     <p className="mb-1 text-[10px] font-semibold uppercase text-muted-foreground">
@@ -704,14 +705,14 @@ export default function MyProjects() {
                                     {collections
                                       .filter((oc) => oc.id !== c.id)
                                       .map((oc) => (
-                                        <button
+                                        <Button
                                           key={oc.id}
                                           type="button"
                                           onClick={() => handleMoveColor(oc.id)}
                                           className="block w-full rounded px-2 py-1.5 text-left text-xs font-medium text-card-foreground dark:text-muted-foreground/60 hover:bg-muted"
                                         >
                                           {oc.name}
-                                        </button>
+                                        </Button>
                                       ))}
                                   </div>
                                 )}
@@ -740,14 +741,14 @@ export default function MyProjects() {
             {recentlyViewed.length > 0 ? (
               <>
                 <div className="mb-4 flex justify-end">
-                  <button
+                  <Button
                     type="button"
                     onClick={handleClearRecent}
                     className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-red-500 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-red-400"
                   >
                     <Trash2 aria-hidden="true" className="h-4 w-4" /> Clear
                     History
-                  </button>
+                  </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                   {recentlyViewed.map((c) => (
@@ -755,14 +756,14 @@ export default function MyProjects() {
                       key={c.id}
                       className="group relative overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                     >
-                      <button
+                      <Button
                         type="button"
                         onClick={() => handlePinRecent(c.id)}
                         className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-muted-foreground dark:bg-background/80 dark:text-muted-foreground hover:text-brand-purple"
                         title="Pin/Unpin"
                       >
                         <Pin className="h-3.5 w-3.5" />
-                      </button>
+                      </Button>
                       <Link to={`/colors/paint/${c.slug}`}>
                         <div
                           className="aspect-square"

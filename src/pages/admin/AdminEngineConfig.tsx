@@ -76,6 +76,7 @@ import {
   fetchMarketActivationStatus,
   toggleMarketActivation,
 } from "@/lib/engine-integration";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   "materials" | "roof" | "waste" | "ai" | "rules" | "settings" | "markets";
@@ -114,7 +115,7 @@ export default function AdminEngineConfig() {
       {/* Tab bar */}
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {TABS.map(({ key, label, icon: Icon }) => (
-          <button
+          <Button
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -125,7 +126,7 @@ export default function AdminEngineConfig() {
             )}
           >
             <Icon className="h-4 w-4" /> {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -198,7 +199,7 @@ function MaterialsTab() {
   return (
     <div>
       <div className="mb-4 flex justify-end">
-        <button
+        <Button
           onClick={() => {
             setEditing(null);
             setShowForm(true);
@@ -206,7 +207,7 @@ function MaterialsTab() {
           className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Profile
-        </button>
+        </Button>
       </div>
 
       {showForm && (
@@ -265,22 +266,22 @@ function MaterialsTab() {
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
                     {!item.is_approved && (
-                      <button
+                      <Button
                         onClick={() => handleApprove(item.id)}
                         title="Approve"
                         className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                       >
                         <Check aria-hidden="true" className="h-4 w-4" />
-                      </button>
+                      </Button>
                     )}
-                    <button
+                    <Button
                       onClick={() => handleToggle(item.id, !item.is_active)}
                       title={item.is_active ? "Deactivate" : "Activate"}
                       className="rounded p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"
                     >
                       <Power className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => {
                         setEditing(item);
                         setShowForm(true);
@@ -289,14 +290,14 @@ function MaterialsTab() {
                       className="rounded p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     >
                       <Edit2 className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleDelete(item.id)}
                       title="Delete"
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -371,9 +372,9 @@ function MaterialProfileForm({
         <h3 className="font-semibold">
           {existing ? "Edit" : "Add"} Material Profile
         </h3>
-        <button onClick={onClose}>
+        <Button onClick={onClose}>
           <X aria-hidden="true" className="h-4 w-4" />
-        </button>
+        </Button>
       </div>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <Input
@@ -456,16 +457,16 @@ function MaterialProfileForm({
         />
       </div>
       <div className="mt-3 flex justify-end gap-2">
-        <button
+        <Button
           onClick={onClose}
           className="rounded-md px-3 py-1.5 text-sm text-muted-foreground"
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button variant="default"
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground"
+          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm"
         >
           {saving ? (
             <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -473,7 +474,7 @@ function MaterialProfileForm({
             <Save aria-hidden="true" className="h-4 w-4" />
           )}{" "}
           Save
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -513,7 +514,7 @@ function RoofTab() {
   return (
     <div>
       <div className="mb-4 flex gap-1">
-        <button
+        <Button
           onClick={() => setSubTab("materials")}
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
@@ -523,8 +524,8 @@ function RoofTab() {
           )}
         >
           Materials
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setSubTab("sections")}
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
@@ -534,7 +535,7 @@ function RoofTab() {
           )}
         >
           Sections & Pitch
-        </button>
+        </Button>
       </div>
 
       {subTab === "materials" && (
@@ -836,27 +837,27 @@ function AiTab() {
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
-                    <button
+                    <Button
                       onClick={() => handleStateChange(item.id, "verified")}
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Check aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleStateChange(item.id, "flagged")}
                       title="Flag"
                       className="rounded p-1 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                     >
                       <AlertTriangle className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleStateChange(item.id, "rejected")}
                       title="Reject"
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                     >
                       <Ban className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -964,21 +965,21 @@ function RulesTab() {
               <td className="px-3 py-2">
                 <div className="flex gap-1">
                   {!item.is_verified && (
-                    <button
+                    <Button
                       onClick={() => handleVerify(item.id)}
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Check aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   )}
-                  <button
+                  <Button
                     onClick={() => handleDelete(item.id)}
                     title="Delete"
                     className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                   >
                     <Trash2 aria-hidden="true" className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </td>
             </tr>
@@ -1095,14 +1096,14 @@ function SettingsTab() {
               <td className="px-3 py-2">
                 {item.is_editable &&
                   (editing[item.setting_key] !== undefined ? (
-                    <button
+                    <Button
                       onClick={() => handleSave(item.setting_key)}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Save aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
                       onClick={() =>
                         setEditing({
                           ...editing,
@@ -1114,7 +1115,7 @@ function SettingsTab() {
                       className="rounded p-1 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                     >
                       <Edit2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   ))}
               </td>
             </tr>
@@ -1217,13 +1218,13 @@ function MarketsTab() {
                       Default market
                     </span>
                   ) : (
-                    <button
+                    <Button
                       onClick={() => handleToggle(m.country_code, m.status)}
                       className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-brand-purple hover:bg-primary/10"
                     >
                       <Power className="h-3 w-3" />
                       {m.status === "active" ? "Deactivate" : "Activate"}
-                    </button>
+                    </Button>
                   )}
                 </td>
               </tr>

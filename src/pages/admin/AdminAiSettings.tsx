@@ -35,6 +35,7 @@ import {
   AdminSelect,
 } from "@/components/admin/AdminUi";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 // Derive Supabase project ref from the env URL for dashboard links
 const SUPABASE_PROJECT_REF =
@@ -436,7 +437,7 @@ export default function AdminAiSettings() {
                   aiDisabled && "opacity-40",
                 )}
               >
-                <button
+                <Button
                   type="button"
                   onClick={() =>
                     setExpandedFeature(isExpanded ? null : feature.key)
@@ -501,7 +502,7 @@ export default function AdminAiSettings() {
                       )}
                     />
                   </div>
-                </button>
+                </Button>
 
                 {isExpanded && (
                   <div className="mt-4 border-t border-border pt-4 dark:border-white/5">

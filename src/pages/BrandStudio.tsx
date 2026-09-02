@@ -30,6 +30,7 @@ import type {
   DbBrandProfile,
   PdfDefaultBrandingConfig,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 const sections = [
   { id: "identity", label: "Brand Identity", icon: "🎨" },
@@ -110,7 +111,7 @@ export default function BrandStudio() {
           {/* Section tabs */}
           <div className="mb-6 flex flex-wrap gap-2 border-b border-border dark:border-white/10 pb-2">
             {sections.map((s) => (
-              <button
+              <Button
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -121,7 +122,7 @@ export default function BrandStudio() {
               >
                 <span className="mr-1">{s.icon}</span>
                 {s.label}
-              </button>
+              </Button>
             ))}
           </div>
 

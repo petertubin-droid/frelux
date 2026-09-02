@@ -24,6 +24,7 @@ import {
   type NearbyProfessional,
 } from "@/lib/location-discovery";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ProConnectDirectory() {
   useSeo({
@@ -256,7 +257,7 @@ export default function ProConnectDirectory() {
             className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
           />
         </div>
-        <button
+        <Button
           onClick={() => setShowFilters(!showFilters)}
           className={classNames(
             "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
@@ -280,7 +281,7 @@ export default function ProConnectDirectory() {
               }
             </span>
           )}
-        </button>
+        </Button>
       </div>
 
       {/* Filters panel */}
@@ -417,13 +418,13 @@ export default function ProConnectDirectory() {
               Verified professionals only
             </label>
             {hasActiveFilters && (
-              <button
+              <Button
                 onClick={clearFilters}
                 className="flex items-center gap-1 text-sm text-brand-purple dark:text-brand-purple-lighter"
               >
                 <X aria-hidden="true" className="h-4 w-4" />
                 Clear all filters
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -458,12 +459,12 @@ export default function ProConnectDirectory() {
             : `${total} professional${total !== 1 ? "s" : ""} found`}
         </p>
         {hasActiveFilters && (
-          <button
+          <Button
             onClick={clearFilters}
             className="text-sm text-brand-purple dark:text-brand-purple-lighter"
           >
             Clear filters
-          </button>
+          </Button>
         )}
       </div>
 
@@ -486,12 +487,12 @@ export default function ProConnectDirectory() {
             Try expanding your search area or removing some filters.
           </p>
           {hasActiveFilters && (
-            <button
+            <Button
               onClick={clearFilters}
               className="mt-4 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
             >
               Clear all filters
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -509,12 +510,12 @@ export default function ProConnectDirectory() {
 
           {hasMore && (
             <div className="mt-8 text-center">
-              <button
+              <Button
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
               >
                 Load more professionals
-              </button>
+              </Button>
             </div>
           )}
         </>

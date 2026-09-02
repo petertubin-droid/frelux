@@ -22,6 +22,7 @@ import {
   type MaterialWithPrice,
 } from "@/lib/project-intelligence";
 import type { DbMaterialPriceHistory } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
@@ -286,7 +287,7 @@ export default function MaterialPriceTracker() {
                             placeholder="Source"
                             className="w-24 rounded-lg border bg-background px-2 py-1.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                           />
-                          <button
+                          <Button
                             onClick={() => handleSavePrice(m)}
                             disabled={saving}
                             className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
@@ -296,8 +297,8 @@ export default function MaterialPriceTracker() {
                             ) : (
                               "Save"
                             )}
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             onClick={() => {
                               setEditId(null);
                               setEditPrice("");
@@ -306,7 +307,7 @@ export default function MaterialPriceTracker() {
                             className="p-1.5 text-muted-foreground hover:text-foreground"
                           >
                             <X className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -357,7 +358,7 @@ export default function MaterialPriceTracker() {
                     {/* Actions */}
                     {!isEditing && (
                       <div className="flex items-center gap-1 shrink-0">
-                        <button
+                        <Button
                           onClick={() => {
                             setEditId(m.id);
                             setEditPrice(String(m.current_price));
@@ -367,14 +368,14 @@ export default function MaterialPriceTracker() {
                           title="Edit price"
                         >
                           <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => loadHistory(m)}
                           className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                           title="Price history"
                         >
                           <History className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -403,12 +404,12 @@ export default function MaterialPriceTracker() {
                   {historyFor.brand && ` · ${historyFor.brand}`}
                 </p>
               </div>
-              <button
+              <Button
                 onClick={() => setHistoryFor(null)}
                 className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <X className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
 
             {historyLoading ? (

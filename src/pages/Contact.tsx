@@ -6,6 +6,7 @@ import { whatsappUrl, track } from '@/lib/analytics';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
 import { supabase } from '@/lib/supabase';
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -115,14 +116,14 @@ export default function Contact() {
                 </Field>
               </div>
 
-              <button
+              <Button variant="default"
                 type="submit"
                 disabled={status === 'submitting'}
-                className="btn-primary mt-6 w-full sm:w-auto disabled:opacity-50"
+                className="mt-6 w-full sm:w-auto disabled:opacity-50"
               >
                 <Send aria-hidden="true" className="h-4 w-4" />
                 {status === 'submitting' ? 'Sending…' : 'Send message'}
-              </button>
+              </Button>
 
               {status === 'error' && (
                 <div role="alert" className="mt-4 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

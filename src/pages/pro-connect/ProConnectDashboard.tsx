@@ -46,6 +46,7 @@ import type {
 import { classNames } from "@/lib/utils";
 import { checkProLevelEligibility } from "@/lib/pro-connect";
 import type { DbProVerificationRequest } from "@/types/pro-connect";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ProConnectDashboard() {
   const { user } = useAuth();
@@ -525,7 +526,7 @@ export default function ProConnectDashboard() {
         {(profile.verification_status === "unverified" ||
           profile.verification_status === "rejected" ||
           profile.verification_status === "more_info") && (
-          <button
+          <Button
             onClick={() => {
               setShowVerificationForm(!showVerificationForm);
               setVerifSuccess(false);
@@ -534,7 +535,7 @@ export default function ProConnectDashboard() {
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"
           >
             {showVerificationForm ? "Cancel" : "Request Verification"}
-          </button>
+          </Button>
         )}
 
         {/* Verification submission form */}
@@ -550,7 +551,7 @@ export default function ProConnectDashboard() {
                 Verification Type
               </label>
               <div className="grid grid-cols-2 gap-2">
-                <button
+                <Button
                   onClick={() => setVerifType("contact")}
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
@@ -563,8 +564,8 @@ export default function ProConnectDashboard() {
                   <span className="text-xs">
                     Verify your contact info &amp; profile
                   </span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setVerifType("identity")}
                   className={classNames(
                     "rounded-lg border p-3 text-left text-sm transition-colors",
@@ -575,7 +576,7 @@ export default function ProConnectDashboard() {
                 >
                   <span className="block font-semibold">Level 2: Identity</span>
                   <span className="text-xs">Verify your identity (NIN/ID)</span>
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -667,7 +668,7 @@ export default function ProConnectDashboard() {
               </p>
             )}
 
-            <button
+            <Button
               onClick={async () => {
                 if (!verifName.trim()) {
                   setVerifError("Please enter your professional name.");
@@ -710,7 +711,7 @@ export default function ProConnectDashboard() {
               className="mt-4 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
             >
               {verifSubmitting ? "Submitting…" : "Submit Verification Request"}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -731,13 +732,13 @@ export default function ProConnectDashboard() {
           <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
             Portfolio
           </h2>
-          <button
+          <Button
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" />
             Add Item
-          </button>
+          </Button>
         </div>
 
         {showPortfolioForm && (
@@ -780,7 +781,7 @@ export default function ProConnectDashboard() {
                     {item.category}
                   </p>
                 </div>
-                <button
+                <Button
                   onClick={async () => {
                     await deletePortfolioItem(item.id);
                     const port = await getProPortfolio(profile.id);
@@ -789,7 +790,7 @@ export default function ProConnectDashboard() {
                   className="absolute right-2 top-2 rounded-lg bg-white/80 p-1.5 text-red-500 opacity-0 transition-opacity group-hover:opacity-100 dark:bg-background/80"
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -876,7 +877,7 @@ export default function ProConnectDashboard() {
                   </p>
                 )}
                 {!review.professional_response && (
-                  <button
+                  <Button
                     onClick={() => {
                       const response = prompt("Type your response:");
                       if (response) {
@@ -892,7 +893,7 @@ export default function ProConnectDashboard() {
                     className="mt-2 text-xs text-brand-purple dark:text-brand-purple-lighter"
                   >
                     Respond to this review
-                  </button>
+                  </Button>
                 )}
                 {review.professional_response && (
                   <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
@@ -1138,13 +1139,13 @@ function PortfolioForm({
             </div>
           )}
         </div>
-        <button
+        <Button variant="default"
           onClick={handleSubmit}
           disabled={!title.trim() || imageUrls.length === 0 || saving}
-          className="w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+          className="w-full rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50"
         >
           {saving ? "Saving..." : "Add to portfolio"}
-        </button>
+        </Button>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import type {
   DbContractorProject,
   DbProjectCalculation,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 export interface SaveToProjectButtonProps {
   /** Calculator type slug (paint, screeding, pop_ceiling, tile, finish, tyrolene, cost, etc.) */
@@ -207,7 +208,7 @@ export default function SaveToProjectButton({
 
   return (
     <>
-      <button
+      <Button
         onClick={() => setShowModal(true)}
         className={
           compact
@@ -223,7 +224,7 @@ export default function SaveToProjectButton({
           }
         />
         {label}
-      </button>
+      </Button>
 
       {showModal && (
         <div
@@ -240,12 +241,12 @@ export default function SaveToProjectButton({
                 <Save className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-bold">Save to Project</h2>
               </div>
-              <button
+              <Button
                 onClick={() => setShowModal(false)}
                 className="rounded-lg p-1.5 hover:bg-muted transition-all hover:scale-110"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
 
             {loading ? (
@@ -265,13 +266,13 @@ export default function SaveToProjectButton({
                   autoFocus
                 />
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => setShowNewProject(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleCreateAndSave}
                     disabled={saving || !newProjectName.trim()}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -284,7 +285,7 @@ export default function SaveToProjectButton({
                         Create & Save
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : projects.length === 0 ? (
@@ -294,13 +295,13 @@ export default function SaveToProjectButton({
                   <p className="text-muted-foreground mb-4">
                     You don't have any projects yet.
                   </p>
-                  <button
+                  <Button
                     onClick={() => setShowNewProject(true)}
                     className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
                   >
                     <FolderPlus className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                     Create First Project
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -310,7 +311,7 @@ export default function SaveToProjectButton({
                 </p>
                 <div className="max-h-64 space-y-2 overflow-y-auto">
                   {projects.map((proj) => (
-                    <button
+                    <Button
                       key={proj.id}
                       onClick={() => setSelectedProject(proj.id)}
                       className={`group flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 hover:shadow-md ${
@@ -328,26 +329,26 @@ export default function SaveToProjectButton({
                       {selectedProject === proj.id && (
                         <Check className="h-5 w-5 text-primary" />
                       )}
-                    </button>
+                    </Button>
                   ))}
                 </div>
 
-                <button
+                <Button
                   onClick={() => setShowNewProject(true)}
                   className="group inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
                 >
                   <FolderPlus className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                   Create new project instead
-                </button>
+                </Button>
 
                 <div className="flex gap-3 pt-2">
-                  <button
+                  <Button
                     onClick={() => setShowModal(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleSave}
                     disabled={saving || !selectedProject}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -360,7 +361,7 @@ export default function SaveToProjectButton({
                         Save
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}

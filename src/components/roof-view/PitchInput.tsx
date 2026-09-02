@@ -13,6 +13,7 @@
 
 import { useState } from "react";
 import { AlertCircle, HelpCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
 // Pitch Ratio ↔ Degrees Conversion
@@ -119,7 +120,7 @@ export function PitchInput({
         </label>
         <div className="flex items-center gap-1">
           {(["degrees", "ratio", "unknown"] as const).map((mode) => (
-            <button
+            <Button
               key={mode}
               type="button"
               onClick={() => {
@@ -138,7 +139,7 @@ export function PitchInput({
                 : mode === "ratio"
                   ? "Ratio"
                   : "Unknown"}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -222,22 +223,22 @@ export function PitchInput({
             </div>
           )}
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => setInputMode("degrees")}
               disabled={disabled}
               className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
             >
               Enter Pitch
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setInputMode("ratio")}
               disabled={disabled}
               className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50"
             >
               Select Ratio
-            </button>
+            </Button>
           </div>
         </div>
       )}

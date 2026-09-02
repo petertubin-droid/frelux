@@ -10,6 +10,7 @@ import {
   createGalleryEntry,
   addGalleryImage,
 } from "@/lib/project-intelligence";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CATEGORIES = [
   { value: "painting", label: "Painting" },
@@ -178,7 +179,7 @@ export default function GalleryUpload() {
                           alt={type}
                           className="h-full w-full object-cover"
                         />
-                        <button
+                        <Button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -187,7 +188,7 @@ export default function GalleryUpload() {
                           className="absolute top-2 right-2 rounded-full bg-background/80 p-1.5 backdrop-blur hover:bg-background transition-all hover:scale-110"
                         >
                           <X className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </>
                     ) : (
                       <div className="text-center text-muted-foreground">
@@ -316,7 +317,7 @@ export default function GalleryUpload() {
             </span>
           </label>
 
-          <button
+          <Button
             type="submit"
             disabled={submitting}
             className="group relative w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -331,7 +332,7 @@ export default function GalleryUpload() {
                 Share Project
               </>
             )}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

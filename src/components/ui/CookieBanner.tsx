@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, BarChart3, Megaphone, Check, X, Settings2, Cookie } from 'lucide-react';
 import { useCookieConsent } from '@/lib/useCookieConsent';
 import { COOKIE_CATEGORIES, type CookieCategory } from '@/lib/cookie-consent';
+import { Button } from "@/components/ui/shadcn/button";
 
 /**
  * Premium Cookie Consent Banner
@@ -86,13 +87,13 @@ export function CookieBanner() {
                   </p>
                 </div>
                 {/* Close button (dismiss without saving — banner returns next visit) */}
-                <button
+                <Button size="icon" variant="ghost"
                   onClick={dismiss}
-                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/60 hover:bg-muted dark:hover:bg-white/5 transition-colors"
+                  className="flex-shrink-0 grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/60 dark:hover:bg-white/5 transition-colors"
                   aria-label="Close"
                 >
                   <X className="h-4.5 w-4.5" style={{ width: '1.125rem', height: '1.125rem' }} />
-                </button>
+                </Button>
               </div>
 
               {/* Customization panel (expandable) */}
@@ -121,7 +122,7 @@ export function CookieBanner() {
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
                         </div>
                         {/* Toggle */}
-                        <button
+                        <Button
                           onClick={() => toggleCategory(key)}
                           disabled={required}
                           className={`flex-shrink-0 relative h-6 w-11 rounded-full transition-colors duration-200 ${
@@ -138,7 +139,7 @@ export function CookieBanner() {
                               enabled ? 'translate-x-5' : 'translate-x-0'
                             }`}
                           />
-                        </button>
+                        </Button>
                       </div>
                     );
                   })}
@@ -149,41 +150,41 @@ export function CookieBanner() {
               <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-2.5">
                 {customizing ? (
                   <>
-                    <button
+                    <Button
                       onClick={() => setCustomizing(false)}
                       className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl hover:bg-muted dark:hover:bg-white/5 transition-colors"
                     >
                       Back
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="default"
                       onClick={handleSaveChoices}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       <Check className="h-4 w-4" />
                       Save Preferences
-                    </button>
+                    </Button>
                   </>
                 ) : (
                   <>
-                    <button
+                    <Button variant="ghost"
                       onClick={reject}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl hover:bg-muted dark:hover:bg-white/5 transition-colors"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 rounded-xl dark:hover:bg-white/5 transition-colors"
                     >
                       Reject Non-Essential
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={handleCustomize}
                       className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-card-foreground dark:text-muted-foreground/60 rounded-xl border border-border dark:border-white/10 hover:bg-muted/50 dark:hover:bg-white/5 transition-colors"
                     >
                       <Settings2 className="h-4 w-4" />
                       Customize
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="default"
                       onClick={accept}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary-foreground bg-primary rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       Accept All
-                    </button>
+                    </Button>
                   </>
                 )}
               </div>

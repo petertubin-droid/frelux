@@ -17,6 +17,7 @@ import {
   getSurfaceRecommendations,
   createSurfaceAssessment,
 } from "@/lib/project-intelligence";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CONDITIONS = [
   {
@@ -117,7 +118,7 @@ export default function SurfaceAssessment() {
           <h3 className="font-semibold mb-4">Select the surface condition</h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CONDITIONS.map((cond) => (
-              <button
+              <Button
                 key={cond.key}
                 onClick={() => {
                   setSelected(cond.key);
@@ -140,7 +141,7 @@ export default function SurfaceAssessment() {
                     </p>
                   </div>
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -214,7 +215,7 @@ export default function SurfaceAssessment() {
                     />
                   </div>
                 </div>
-                <button
+                <Button
                   onClick={handleSave}
                   disabled={saving}
                   className="group mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
@@ -225,7 +226,7 @@ export default function SurfaceAssessment() {
                     <Save className="h-4 w-4 group-hover:rotate-12 transition-transform" />
                   )}{" "}
                   Save Assessment
-                </button>
+                </Button>
               </div>
             )}
 

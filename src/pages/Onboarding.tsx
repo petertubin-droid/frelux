@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { fetchLocations } from "@/lib/pro-connect";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 const PROJECT_GOALS = [
   {
@@ -145,7 +146,7 @@ export default function Onboarding() {
 
           <div className="space-y-3">
             {/* Client option */}
-            <button
+            <Button
               onClick={() => {
                 setAccountType("client");
                 setStep(2);
@@ -174,10 +175,10 @@ export default function Onboarding() {
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground" />
-            </button>
+            </Button>
 
             {/* Pro Worker option */}
-            <button
+            <Button
               onClick={() => {
                 setAccountType("pro_worker");
                 setStep(2);
@@ -206,7 +207,7 @@ export default function Onboarding() {
                 </p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground" />
-            </button>
+            </Button>
           </div>
 
           {accountType === "pro_worker" && (
@@ -241,7 +242,7 @@ export default function Onboarding() {
               const Icon = goal.icon;
               const selected = goals.includes(goal.id);
               return (
-                <button
+                <Button
                   key={goal.id}
                   onClick={() => toggleGoal(goal.id)}
                   className={classNames(
@@ -280,25 +281,25 @@ export default function Onboarding() {
                       className="h-5 w-5 text-brand-purple"
                     />
                   )}
-                </button>
+                </Button>
               );
             })}
           </div>
 
           <div className="mt-6 flex gap-3">
-            <button
+            <Button
               onClick={() => setStep(1)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setStep(3)}
               className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
             >
               Continue{" "}
               <ArrowRight aria-hidden="true" className="ml-1 inline h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -339,14 +340,14 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <button
+            <Button
               onClick={() => setStep(2)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
-            </button>
+            </Button>
             {accountType === "pro_worker" ? (
-              <button
+              <Button
                 onClick={() => setStep(4)}
                 className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground"
               >
@@ -355,26 +356,26 @@ export default function Onboarding() {
                   aria-hidden="true"
                   className="ml-1 inline h-4 w-4"
                 />
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button variant="default"
                 onClick={finish}
                 disabled={saving}
-                className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="flex-1 rounded-xl py-3 text-sm font-semibold disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Done"}{" "}
                 <Check aria-hidden="true" className="ml-1 inline h-4 w-4" />
-              </button>
+              </Button>
             )}
           </div>
 
           {accountType !== "pro_worker" && (
-            <button
+            <Button
               onClick={finish}
               className="mt-3 w-full text-center text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
               Skip for now
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -441,20 +442,20 @@ export default function Onboarding() {
           </div>
 
           <div className="mt-8 flex gap-3">
-            <button
+            <Button
               onClick={() => setStep(3)}
               className="rounded-xl border border-border px-4 py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
               Back
-            </button>
-            <button
+            </Button>
+            <Button variant="default"
               onClick={finish}
               disabled={saving}
-              className="flex-1 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className="flex-1 rounded-xl py-3 text-sm font-semibold disabled:opacity-50"
             >
               {saving ? "Saving…" : "Continue to Profile Setup"}{" "}
               <ArrowRight aria-hidden="true" className="ml-1 inline h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       )}

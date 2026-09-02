@@ -2,6 +2,7 @@ import { Lock, CheckCircle2, Clock } from "lucide-react";
 import { useRewardedAccess, formatExpiry } from "@/lib/rewarded-access";
 import { RewardedAdModal } from "./RewardedAdModal";
 import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   toolKey: string;
@@ -86,18 +87,18 @@ export function RewardedFeatureGate({
               </div>
             ))}
           </div>
-          <button
+          <Button variant="default"
             type="button"
             onClick={access.requestUnlock}
             disabled={
               !access.config?.is_enabled ||
               (!access.primaryProvider && !access.fallbackProvider)
             }
-            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-colors hover:/90 disabled:opacity-50"
           >
             <Lock aria-hidden="true" className="h-4 w-4" />
             Watch Ad to Unlock Advanced Calculator
-          </button>
+          </Button>
           {!access.config?.is_enabled && (
             <p className="mt-2 text-xs text-muted-foreground">
               This feature is temporarily disabled.

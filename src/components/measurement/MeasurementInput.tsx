@@ -32,6 +32,7 @@ import {
   lengthUnitShort,
   getAllowedUnits,
 } from '@/lib/measurement';
+import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
 // Sub-components
@@ -111,22 +112,22 @@ function EntryCard({
     <div className="rounded-lg border border-border bg-card p-4 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <button
+        <Button
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary"
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           Measurement {index + 1}
           {entry.description ? ` — ${entry.description}` : ''}
-        </button>
+        </Button>
         {onRemove && (
-          <button
+          <Button
             onClick={onRemove}
             className="text-muted-foreground hover:text-destructive transition-colors"
             aria-label="Remove measurement"
           >
             <Trash2 size={16} />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -288,7 +289,7 @@ function TileConfigFields({
   const tc = entry.tileConfig;
   if (!tc) {
     return (
-      <button
+      <Button
         onClick={() => onUpdate({
           tileConfig: {
             tileLength: 600,
@@ -301,7 +302,7 @@ function TileConfigFields({
         className="text-sm text-primary hover:underline"
       >
         + Configure tile size & packaging
-      </button>
+      </Button>
     );
   }
 
@@ -414,7 +415,7 @@ export function ProjectModeSelector({
       <label className="block text-sm font-medium text-foreground mb-2">What are you calculating?</label>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {availableModes.map((mode) => (
-          <button
+          <Button
             key={mode}
             onClick={() => onChange(mode)}
             className={`flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-colors ${
@@ -425,7 +426,7 @@ export function ProjectModeSelector({
           >
             {MODE_ICONS[mode]}
             <span>{PROJECT_MODE_LABELS[mode]}</span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>
@@ -447,13 +448,13 @@ export function CalculationBreakdown({
 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-4">
-      <button
+      <Button
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-1 text-sm font-medium text-foreground"
       >
         {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         How this was calculated
-      </button>
+      </Button>
       {expanded && (
         <ol className="mt-3 space-y-2">
           {steps.map((step, i) => (
@@ -582,7 +583,7 @@ export function MeasurementInput({
       )}
 
       {/* Add button */}
-      <button
+      <Button
         onClick={() => {
           const count = activeSection?.groups.length ?? 0;
           const label =
@@ -597,7 +598,7 @@ export function MeasurementInput({
       >
         <Plus size={18} />
         {addButtonLabel}
-      </button>
+      </Button>
     </div>
   );
 }

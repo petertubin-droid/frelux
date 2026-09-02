@@ -28,6 +28,7 @@ import type {
 import { ORDER_STATUS_LABELS, PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 const STATUS_FLOW = [
   "pending_start",
@@ -172,12 +173,12 @@ export default function OrderDetail() {
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:px-8">
-        <button
+        <Button
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back
-        </button>
+        </Button>
 
         {/* Order header */}
         <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
@@ -287,10 +288,10 @@ export default function OrderDetail() {
                 {ORDER_STATUS_LABELS[order.status]}
               </span>
             </p>
-            <button
+            <Button variant="default"
               onClick={handleAdvanceStatus}
               disabled={submitting}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -298,7 +299,7 @@ export default function OrderDetail() {
                 <Check aria-hidden="true" className="h-4 w-4" />
               )}
               {isPro ? "Mark Progress" : "Advance Status"}
-            </button>
+            </Button>
           </div>
         )}
 
@@ -309,12 +310,12 @@ export default function OrderDetail() {
               Milestones ({milestones.length})
             </h2>
             {isPro && canAdvance && (
-              <button
+              <Button
                 onClick={() => setShowMilestoneForm(!showMilestoneForm)}
                 className="inline-flex items-center gap-1 text-xs font-medium text-brand-purple"
               >
                 <Plus aria-hidden="true" className="h-3.5 w-3.5" /> Add
-              </button>
+              </Button>
             )}
           </div>
 
@@ -327,13 +328,13 @@ export default function OrderDetail() {
                 placeholder="Milestone title..."
                 className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
-              <button
+              <Button variant="default"
                 onClick={handleAddMilestone}
                 disabled={submitting || !newMilestoneTitle.trim()}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                className="rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
               >
                 Add
-              </button>
+              </Button>
             </div>
           )}
 
@@ -378,23 +379,23 @@ export default function OrderDetail() {
                     {m.status !== "approved" && m.status !== "rejected" && (
                       <div className="flex items-center gap-1">
                         {isPro && m.status === "pending" && (
-                          <button
+                          <Button
                             onClick={() =>
                               handleUpdateMilestone(m.id, "in_progress")
                             }
                             className="rounded-md border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground hover:text-amber-600 dark:border-white/10 dark:text-muted-foreground/80"
                           >
                             Start
-                          </button>
+                          </Button>
                         )}
                         {isClient && m.status === "in_progress" && (
-                          <button
+                          <Button
                             onClick={() => handleApproveMilestone(m.id)}
                             className="inline-flex items-center gap-0.5 rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-primary-foreground hover:bg-emerald-700"
                           >
                             <Check aria-hidden="true" className="h-3 w-3" />{" "}
                             Approve
-                          </button>
+                          </Button>
                         )}
                       </div>
                     )}
@@ -454,12 +455,12 @@ export default function OrderDetail() {
                   )}
                 </div>
               ) : isClient && !showReviewForm ? (
-                <button
+                <Button
                   onClick={() => setShowReviewForm(true)}
                   className="w-full rounded-lg border border-dashed border-border p-4 text-sm font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   Leave a review for the pro worker
-                </button>
+                </Button>
               ) : null}
 
               {/* Pro review */}
@@ -500,7 +501,7 @@ export default function OrderDetail() {
                 </h3>
                 <div className="mt-2 flex gap-1">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <button
+                    <Button
                       key={i}
                       onClick={() => setReviewRating(i + 1)}
                       className={`text-lg font-bold transition-colors ${
@@ -510,7 +511,7 @@ export default function OrderDetail() {
                       }`}
                     >
                       {i + 1}
-                    </button>
+                    </Button>
                   ))}
                 </div>
                 <textarea
@@ -521,10 +522,10 @@ export default function OrderDetail() {
                   className="mt-3 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
                 <div className="mt-2 flex gap-2">
-                  <button
+                  <Button variant="default"
                     onClick={handleSubmitReview}
                     disabled={submitting}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
                   >
                     {submitting ? (
                       <Loader2
@@ -535,13 +536,13 @@ export default function OrderDetail() {
                       <Send className="h-4 w-4" />
                     )}
                     Submit Review
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setShowReviewForm(false)}
                     className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -552,9 +553,9 @@ export default function OrderDetail() {
         {(order.status === "in_progress" ||
           order.status === "client_review") && (
           <div className="mt-6">
-            <button className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
+            <Button className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10">
               <AlertTriangle className="h-4 w-4" /> Report a Problem
-            </button>
+            </Button>
           </div>
         )}
       </div>

@@ -35,6 +35,7 @@ import {
 import { formatDistance } from "@/lib/location";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -442,7 +443,7 @@ export default function MarketplaceHome() {
 
           {/* Tab switcher */}
           <div className="mt-5 flex gap-1">
-            <button
+            <Button
               onClick={() => switchTab("jobs")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -464,8 +465,8 @@ export default function MarketplaceHome() {
                   {jobsTotal}
                 </span>
               )}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => switchTab("products")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -487,7 +488,7 @@ export default function MarketplaceHome() {
                   {productsTotal}
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -588,7 +589,7 @@ function JobsTab(props: {
             className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
-        <button
+        <Button
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -598,7 +599,7 @@ function JobsTab(props: {
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
-        </button>
+        </Button>
       </div>
 
       {/* Filters */}
@@ -628,7 +629,7 @@ function JobsTab(props: {
               </option>
             ))}
           </select>
-          <button
+          <Button
             onClick={() => {
               props.setProjectType("");
               props.setState("");
@@ -637,7 +638,7 @@ function JobsTab(props: {
             className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
-          </button>
+          </Button>
         </div>
       )}
 
@@ -768,12 +769,12 @@ function JobsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <button
+              <Button
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Load More
-              </button>
+              </Button>
             </div>
           )}
         </>
@@ -832,7 +833,7 @@ function ProductsTab(props: {
             </option>
           ))}
         </select>
-        <button
+        <Button
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -842,12 +843,12 @@ function ProductsTab(props: {
           )}
         >
           <SlidersHorizontal className="h-4 w-4" /> Filters
-        </button>
+        </Button>
       </div>
 
       {/* Category pills */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <button
+        <Button
           onClick={() => props.setCategory("")}
           className={classNames(
             "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
@@ -857,9 +858,9 @@ function ProductsTab(props: {
           )}
         >
           All
-        </button>
+        </Button>
         {props.categories.map((c) => (
-          <button
+          <Button
             key={c.id}
             onClick={() => props.setCategory(c.slug)}
             className={classNames(
@@ -870,7 +871,7 @@ function ProductsTab(props: {
             )}
           >
             {c.name}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -901,7 +902,7 @@ function ProductsTab(props: {
               </option>
             ))}
           </select>
-          <button
+          <Button
             onClick={() => {
               props.setCondition("");
               props.setState("");
@@ -911,7 +912,7 @@ function ProductsTab(props: {
             className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
           >
             <X aria-hidden="true" className="inline h-3 w-3" /> Clear
-          </button>
+          </Button>
         </div>
       )}
 
@@ -1021,12 +1022,12 @@ function ProductsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <button
+              <Button
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Load More
-              </button>
+              </Button>
             </div>
           )}
         </>

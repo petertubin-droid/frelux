@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, Info } from 'lucide-react';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface HowCalculatedSectionProps {
   methodologyText: string;
@@ -20,7 +21,7 @@ export default function HowCalculatedSection({
 
   return (
     <div className="calc-card mt-4 overflow-hidden rounded-xl border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <button
+      <Button
         type="button"
         onClick={() => setExpanded((v) => !v)}
         className="flex w-full items-center justify-between px-4 py-3 text-left transition-colors hover:bg-muted dark:hover:bg-white/5"
@@ -33,7 +34,7 @@ export default function HowCalculatedSection({
         <ChevronDown
           className={`h-4 w-4 text-muted-foreground transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
         />
-      </button>
+      </Button>
 
       {expanded && (
         <div className="animate-content-reveal border-t border-border px-4 py-3 dark:border-white/5">

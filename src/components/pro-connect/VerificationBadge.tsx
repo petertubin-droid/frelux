@@ -3,6 +3,7 @@ import { Check, ShieldCheck, Award, Info } from 'lucide-react';
 import type { DbProProfile } from '@/types/pro-connect';
 import { getVerificationTier, verificationTierInfo } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface VerificationBadgeProps {
   profile: DbProProfile;
@@ -53,7 +54,7 @@ export function VerificationBadge({ profile, size = 'sm', showLabel = true, clas
 
   return (
     <div className={classNames('relative inline-block', className)} ref={tooltipRef}>
-      <button
+      <Button
         type="button"
         onClick={(e) => { e.stopPropagation(); e.preventDefault(); setShowTooltip(!showTooltip); }}
         className={classNames(
@@ -67,7 +68,7 @@ export function VerificationBadge({ profile, size = 'sm', showLabel = true, clas
         <Icon className={sizeClasses[size].icon} />
         {showLabel && <span>{info.shortLabel}</span>}
         <Info className={classNames('opacity-50', size === 'sm' ? 'h-3 w-3' : 'h-3.5 w-3.5')} />
-      </button>
+      </Button>
 
       {showTooltip && (
         <div className="absolute left-0 top-full z-50 mt-2 w-72 rounded-xl border border-border bg-card p-4 shadow-xl dark:border-white/10 dark:bg-card">

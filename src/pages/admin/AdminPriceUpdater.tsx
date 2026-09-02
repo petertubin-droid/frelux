@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { RefreshCw, CheckCircle2, AlertCircle, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { AdminHeader as AdminPageHeader } from '@/components/admin/AdminUi';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface PriceScanResult {
   material_key: string;
@@ -70,22 +71,22 @@ export default function AdminPriceUpdater() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Scan button */}
         <div className="mb-6 flex items-center gap-4">
-          <button
+          <Button
             onClick={handleScan}
             disabled={scanning}
             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-blue-700 disabled:opacity-50 transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${scanning ? 'animate-spin' : ''}`} />
             {scanning ? 'Scanning markets...' : 'Scan Material Prices'}
-          </button>
+          </Button>
           {report && !scanning && (
-            <button
+            <Button
               onClick={handleApply}
               className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-green-700 transition-colors"
             >
               <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
               Apply Updated Prices
-            </button>
+            </Button>
           )}
           {applied && (
             <span className="inline-flex items-center gap-1 text-sm text-green-700">

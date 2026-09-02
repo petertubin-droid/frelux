@@ -4,6 +4,7 @@ import Logo from "@/components/brand/Logo";
 import { siteConfig } from "@/config/site";
 import { whatsappUrl } from "@/lib/analytics";
 import { withdrawConsent } from "@/lib/cookie-consent";
+import { Button } from "@/components/ui/shadcn/button";
 
 const calculateLinks = [
   { label: "Painting Calculator", path: "/paint-calculator" },
@@ -100,13 +101,13 @@ export default function Footer() {
               or quantity.
             </p>
           </div>
-          <button
+          <Button
             onClick={() => withdrawConsent()}
             aria-label="Withdraw cookie consent"
             className="text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter transition-colors"
           >
             Cookie Preferences
-          </button>
+          </Button>
         </div>
       </div>
     </footer>

@@ -133,6 +133,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function PaintCalculator({
   embedded = false,
@@ -883,27 +884,27 @@ export default function PaintCalculator({
             )}
 
             <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
-              <button
+              <Button variant="secondary"
                 type="button"
                 onClick={back}
                 disabled={step === 1}
-                className="btn-secondary disabled:opacity-40"
+                className="disabled:opacity-40"
               >
                 Back
-              </button>
+              </Button>
               {step < 3 ? (
-                <button type="button" onClick={next} className="btn-primary">
+                <Button variant="default" type="button" onClick={next} className="btn-primary">
                   Continue
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button variant="default"
                   type="button"
                   onClick={compute}
-                  className="btn-primary btn-glow"
+                  className="btn-glow"
                 >
                   Calculate
                   <ArrowRight className="h-4 w-4" />
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -1038,7 +1039,7 @@ function Step1({
           const Icon = p.icon;
           const selected = input.projectType === p.value;
           return (
-            <button
+            <Button
               key={p.value}
               type="button"
               onClick={() => update("projectType", p.value)}
@@ -1067,7 +1068,7 @@ function Step1({
                   {p.description}
                 </span>
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -1102,7 +1103,7 @@ function Step2({
 
       <div className="mt-5 inline-flex rounded-lg border border-border p-1">
         {(["meters", "feet"] as Unit[]).map((u) => (
-          <button
+          <Button
             key={u}
             type="button"
             onClick={() => update("unit", u)}
@@ -1115,7 +1116,7 @@ function Step2({
             aria-pressed={input.unit === u}
           >
             {u}
-          </button>
+          </Button>
         ))}
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
@@ -1290,7 +1291,7 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <button
+            <Button
               type="button"
               onClick={() => setShowDoorDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1302,7 +1303,7 @@ function Step3({
                 }
               />
               Custom door dimensions
-            </button>
+            </Button>
             {showDoorDims && (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Field label="Door width (m)">
@@ -1343,7 +1344,7 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <button
+            <Button
               type="button"
               onClick={() => setShowWindowDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1355,7 +1356,7 @@ function Step3({
                 }
               />
               Custom window dimensions
-            </button>
+            </Button>
             {showWindowDims && (
               <div className="mt-2 grid grid-cols-2 gap-2">
                 <Field label="Window width (m)">
@@ -1497,7 +1498,7 @@ function Step3({
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {wasteOptions.map((w: number) => (
-            <button
+            <Button
               key={w}
               type="button"
               onClick={() => update("wasteMargin", w)}
@@ -1509,7 +1510,7 @@ function Step3({
               }
             >
               {w}%
-            </button>
+            </Button>
           ))}
         </div>
         {errors.wasteMargin && (
@@ -1869,22 +1870,22 @@ function ResultCard({
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <button
+        <Button variant="secondary"
           type="button"
           onClick={onAgain}
-          className="btn-secondary press-scale"
+          className="press-scale"
         >
           <RotateCcw className="h-4 w-4" />
           Calculate Again
-        </button>
+        </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <button
+          <Button variant="secondary"
             type="button"
             onClick={onStartOver}
-            className="btn-secondary press-scale"
+            className="press-scale"
           >
             Start Over
-          </button>
+          </Button>
           <Link
             to="/paint-calculator?mode=cost"
             state={{
@@ -1955,7 +1956,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={() => onChange(!checked)}
       style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
@@ -1972,7 +1973,7 @@ function Toggle({
           (checked ? "translate-x-4" : "translate-x-0.5")
         }
       />
-    </button>
+    </Button>
   );
 }
 

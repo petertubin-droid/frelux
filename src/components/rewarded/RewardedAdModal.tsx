@@ -14,6 +14,7 @@ import type { RewardedAccess } from "@/lib/rewarded-access";
 import AdSlot from "@/components/ui/AdSlot";
 import { fetchAdConfig } from "@/lib/ad-config";
 import type { DbAdProvider } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   access: RewardedAccess;
@@ -88,7 +89,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 unlock
               </h2>
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -97,7 +98,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-card-foreground dark:hover:bg-white/10 dark:hover:text-primary-foreground"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
 
           {/* Offerwall iframe */}
@@ -118,7 +119,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               Checking for completion… This will close automatically when you
               earn your reward.
             </p>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -127,7 +128,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               className="text-xs font-semibold text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-primary-foreground"
             >
               Maybe later
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -143,13 +144,13 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 />
                 <h2 className="text-lg font-bold">{featureName}</h2>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={cancelUnlock}
                 className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
               >
                 <X className="h-5 w-5" />
-              </button>
+              </Button>
             </div>
             <p className="mt-2 text-sm text-primary-foreground/70">
               Unlock all advanced features for today. Watch one short ad. No
@@ -254,25 +255,25 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
             {/* CTA */}
             {!adLoading && !isUnlocked && (
-              <button
+              <Button variant="default"
                 type="button"
                 onClick={handleWatchAd}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:/90"
               >
                 <PlayCircle aria-hidden="true" className="h-5 w-5" />
                 Watch Rewarded Ad to Unlock for Today
-              </button>
+              </Button>
             )}
 
             {isUnlocked && (
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={cancelUnlock}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-primary-foreground transition-colors -green/90"
               >
                 <Lock aria-hidden="true" className="h-4 w-4" />
                 Continue to Advanced Calculator
-              </button>
+              </Button>
             )}
 
             {offerwallProviderName && adLoading && (

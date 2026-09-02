@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/auth";
 import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -129,13 +130,13 @@ export default function PostListing() {
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
-        <button
+        <Button
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
           Marketplace
-        </button>
+        </Button>
 
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Post a Job
@@ -305,10 +306,10 @@ export default function PostListing() {
           {error && <p className="text-sm text-red-500">{error}</p>}
 
           <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-            <button
+            <Button variant="default"
               onClick={handleSubmit}
               disabled={submitting || !title.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -316,13 +317,13 @@ export default function PostListing() {
                 <Send aria-hidden="true" className="h-4 w-4" />
               )}
               Post Job
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => navigate("/marketplace")}
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
 

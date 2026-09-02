@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Container from "@/components/ui/Container";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { Button } from "@/components/ui/shadcn/button";
 
 const templateActions = [
   {
@@ -134,14 +135,14 @@ export default function TemplatesShowcase() {
               </div>
             </div>
             <div className="flex items-center gap-2 border-t border-border/50 px-5 py-3 dark:border-white/5">
-              <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/5 hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
+              <Button variant="default" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
                 <Copy className="h-3.5 w-3.5" />
                 Duplicate
-              </button>
-              <button className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/5 hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
+              </Button>
+              <Button variant="default" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
                 <Share2 className="h-3.5 w-3.5" />
                 Share
-              </button>
+              </Button>
               <Link
                 to="/my-templates"
                 className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-purple transition-all hover:gap-2 dark:text-brand-purple-lighter"

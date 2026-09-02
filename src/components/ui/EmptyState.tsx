@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 type EmptyIllustration = 'projects' | 'favorites' | 'templates' | 'learn' | 'search' | 'generic';
 
@@ -101,9 +102,9 @@ export default function EmptyState({
             </Link>
           )}
           {actionLabel && !actionTo && onAction && (
-            <button type="button" onClick={onAction} className="btn-primary">
+            <Button variant="default" type="button" onClick={onAction} className="btn-primary">
               {actionLabel}
-            </button>
+            </Button>
           )}
           {secondaryLabel && secondaryTo && (
             <Link to={secondaryTo} className="btn-secondary">

@@ -32,6 +32,7 @@ import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "beam" | "column" | "slab";
 
@@ -69,7 +70,7 @@ export default function StructuralCalculator() {
               { id: "slab", label: "Slab Design", icon: TrendingUp },
             ] as const
           ).map((t) => (
-            <button
+            <Button
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
@@ -80,7 +81,7 @@ export default function StructuralCalculator() {
             >
               <t.icon className="w-4 h-4" />
               {t.label}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -235,12 +236,12 @@ function BeamCalculator() {
           />
         </InputGrid>
 
-        <button
+        <Button variant="default"
           onClick={calculate}
-          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+          className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
           <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Beam
-        </button>
+        </Button>
       </div>
 
       {result && (
@@ -432,12 +433,12 @@ function ColumnCalculator() {
           />
         </InputGrid>
 
-        <button
+        <Button variant="default"
           onClick={calculate}
-          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+          className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
           <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Column
-        </button>
+        </Button>
       </div>
 
       {result && (
@@ -652,12 +653,12 @@ function SlabCalculator() {
           />
         </InputGrid>
 
-        <button
+        <Button variant="default"
           onClick={calculate}
-          className="btn-primary btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
+          className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
           <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate Slab
-        </button>
+        </Button>
       </div>
 
       {result && (
@@ -915,7 +916,7 @@ function FormulaToggle({
 }) {
   return (
     <div className="mt-4">
-      <button
+      <Button
         onClick={() => setShow(!show)}
         className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
       >
@@ -925,7 +926,7 @@ function FormulaToggle({
           <ChevronRight className="w-3.5 h-3.5" />
         )}
         {show ? "Hide" : "Show"} calculation formulas
-      </button>
+      </Button>
       {show && (
         <div className="mt-3 overflow-hidden rounded-xl bg-background p-5 dark:bg-black/40 space-y-1">
           {formulas.map((f, i) => (

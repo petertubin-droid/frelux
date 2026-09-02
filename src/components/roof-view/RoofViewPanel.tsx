@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useRoofView } from '@/lib/roof/use-roof-view';
 import type {} from '@/lib/roof/types';
+import { Button } from "@/components/ui/shadcn/button";
 
 export function RoofViewPanel() {
   const {
@@ -164,10 +165,10 @@ export function RoofViewPanel() {
             </div>
           </div>
 
-          <button
+          <Button variant="default"
             onClick={handleFetch}
             disabled={loadingImagery || (!address && !latitude)}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium hover:/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingImagery ? (
               <>
@@ -180,7 +181,7 @@ export function RoofViewPanel() {
                 Get Aerial Image
               </>
             )}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -201,13 +202,13 @@ export function RoofViewPanel() {
               alt="Aerial roof view"
               className="w-full h-auto"
             />
-            <button
+            <Button
               onClick={resetImagery}
               className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur px-2 py-1 text-xs text-primary-foreground hover:bg-black/70"
             >
               <X className="w-3 h-3" />
               Clear
-            </button>
+            </Button>
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Eye aria-hidden="true" className="w-3.5 h-3.5" />

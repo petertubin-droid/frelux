@@ -1,4 +1,5 @@
 import { Edit } from "lucide-react";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CONDITIONS = [
   {
@@ -53,9 +54,9 @@ export default function AdminSurfaceConditions() {
             <h3 className="font-semibold mb-1">{c.name}</h3>
             <p className="text-sm text-muted-foreground">{c.desc}</p>
             <div className="mt-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="rounded-lg p-1.5 hover:bg-muted transition-all hover:scale-110">
+              <Button variant="ghost" className="rounded-lg p-1.5 transition-all hover:scale-110">
                 <Edit className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
         ))}

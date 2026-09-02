@@ -67,6 +67,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 export default function TileCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -409,7 +410,7 @@ export default function TileCalculator({
               ).map((s) => {
                 const selected = input.surfaceType === s.value;
                 return (
-                  <button
+                  <Button
                     key={s.value}
                     type="button"
                     onClick={() => update("surfaceType", s.value)}
@@ -438,7 +439,7 @@ export default function TileCalculator({
                         {s.desc}
                       </span>
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -447,7 +448,7 @@ export default function TileCalculator({
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <button
+                  <Button
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -459,7 +460,7 @@ export default function TileCalculator({
                     }
                   >
                     {u}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -615,7 +616,7 @@ export default function TileCalculator({
                 ).map((m) => {
                   const selected = input.method === m.value;
                   return (
-                    <button
+                    <Button
                       key={m.value}
                       type="button"
                       onClick={() => update("method", m.value)}
@@ -644,7 +645,7 @@ export default function TileCalculator({
                           {m.desc}
                         </span>
                       </span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -800,7 +801,7 @@ export default function TileCalculator({
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <button
+                  <Button
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -812,7 +813,7 @@ export default function TileCalculator({
                     }
                   >
                     {w}%
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -827,13 +828,13 @@ export default function TileCalculator({
               </div>
             )}
 
-            <button
+            <Button variant="default"
               type="button"
               onClick={compute}
-              className="btn-primary btn-glow mt-6 w-full sm:w-auto"
+              className="btn-glow mt-6 w-full sm:w-auto"
             >
               Calculate Tiles <ArrowRight className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         )}
 
@@ -1252,20 +1253,20 @@ function TileResultCard({
       />
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <button type="button" onClick={onAgain} className="btn-secondary">
+        <Button variant="secondary" type="button" onClick={onAgain} className="btn-secondary">
           <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
-        </button>
+        </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
           {user && (
             <>
-              <button
+              <Button variant="secondary"
                 type="button"
                 onClick={onSave}
                 disabled={saving}
-                className="btn-secondary disabled:opacity-50"
+                className="disabled:opacity-50"
               >
                 {saving ? "Saving…" : "Save to Projects"}
-              </button>
+              </Button>
               <div className="mt-3 flex justify-center">
                 <SaveToProjectButton
                   calculatorType="tile"
@@ -1279,9 +1280,9 @@ function TileResultCard({
               </div>
             </>
           )}
-          <button type="button" onClick={onStartOver} className="btn-secondary">
+          <Button variant="secondary" type="button" onClick={onStartOver} className="btn-secondary">
             Start Over
-          </button>
+          </Button>
           <Link
             to="/tile-calculator?mode=cost"
             state={{

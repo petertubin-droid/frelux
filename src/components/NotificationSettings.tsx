@@ -9,6 +9,7 @@ import {
 } from '@/lib/push-notifications';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function NotificationSettings() {
   const { user } = useAuth();
@@ -99,7 +100,7 @@ export default function NotificationSettings() {
         </div>
 
         {pushSupported && user && (
-          <button
+          <Button
             onClick={handleToggle}
             disabled={actionLoading}
             className={classNames(
@@ -116,7 +117,7 @@ export default function NotificationSettings() {
             ) : (
               'Enable'
             )}
-          </button>
+          </Button>
         )}
       </div>
 

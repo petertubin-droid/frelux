@@ -8,6 +8,7 @@ import { classNames } from '@/lib/utils';
 
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 const CATEGORY_TABS: { key: CalculatorType | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'paint', label: 'Painting' },
@@ -102,7 +103,7 @@ export default function Templates() {
 
         <div className="flex flex-wrap gap-2">
           {CATEGORY_TABS.map((tab) => (
-            <button
+            <Button
               key={tab.key}
               onClick={() => setActiveCategory(tab.key)}
               className={classNames(
@@ -113,7 +114,7 @@ export default function Templates() {
               )}
             >
               {tab.label}
-            </button>
+            </Button>
           ))}
         </div>
       </div>

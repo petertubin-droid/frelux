@@ -32,6 +32,7 @@ import type {
   OpeningInput,
 } from "@/types/estimation";
 import { formatCurrency } from "@/lib/estimation/pricing";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminPaintEngineTest() {
   const [products, setProducts] = useState<EstimationProduct[]>([]);
@@ -437,12 +438,12 @@ export default function AdminPaintEngineTest() {
                 <h3 className="text-sm font-semibold text-card-foreground">
                   Calculation Results
                 </h3>
-                <button
+                <Button
                   onClick={() => setExpandedSteps(!expandedSteps)}
                   className="text-xs text-brand-purple hover:underline"
                 >
                   {expandedSteps ? "Hide Steps" : "Show Steps"}
-                </button>
+                </Button>
               </div>
 
               {result.errors.length > 0 && (

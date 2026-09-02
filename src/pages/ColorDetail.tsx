@@ -7,6 +7,7 @@ import { useSeo } from '@/lib/seo';
 import type { DbColorCombination, DbColorCategory } from '@/types/database';
 import AdSlot from '@/components/ui/AdSlot';
 import NotFound from '@/pages/NotFound';
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = 'loading' | 'ready' | 'error';
 
@@ -135,14 +136,14 @@ export default function ColorDetail() {
                   <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">{s.label}</p>
                   <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">{s.name}</p>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={() => copy(s.hex)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
                 >
                   {copied === s.hex ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
                   {copied === s.hex ? 'Copied' : s.hex}
-                </button>
+                </Button>
               </div>
             ))}
           </div>

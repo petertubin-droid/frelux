@@ -17,6 +17,7 @@ import {
   DEFAULT_CONTAINER_SIZES_LITERS,
 } from "@/lib/calc";
 import type { CalculatorInput } from "@/types";
+import { Button } from "@/components/ui/shadcn/button";
 
 /**
  * Interactive estimate preview section.
@@ -152,7 +153,7 @@ export default function InteractiveEstimatePreview() {
         {/* Preset selector */}
         <div className="mt-8 flex justify-center gap-2">
           {presets.map((p, i) => (
-            <button
+            <Button
               key={p.label}
               onClick={() => setActivePreset(i)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
@@ -162,7 +163,7 @@ export default function InteractiveEstimatePreview() {
               }`}
             >
               {p.label}
-            </button>
+            </Button>
           ))}
         </div>
 

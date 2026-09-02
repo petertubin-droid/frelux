@@ -52,6 +52,7 @@ import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
 import { SITE_URL } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -282,7 +283,7 @@ function ChooseView({
     config && (!config.aiEnabled || config.accessMode === "disabled");
   return (
     <div className="grid gap-6 sm:grid-cols-2">
-      <button
+      <Button
         type="button"
         onClick={() => onSelect("text")}
         disabled={!!disabled}
@@ -303,9 +304,9 @@ function ChooseView({
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
           Start describing <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
-      </button>
+      </Button>
 
-      <button
+      <Button
         type="button"
         onClick={() => onSelect("image")}
         disabled={!!disabled}
@@ -326,7 +327,7 @@ function ChooseView({
         <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-accent-orange">
           Upload a photo <ArrowRight aria-hidden="true" className="h-4 w-4" />
         </span>
-      </button>
+      </Button>
     </div>
   );
 }
@@ -343,7 +344,7 @@ function ViewTab({
   label: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       className={classNames(
@@ -356,7 +357,7 @@ function ViewTab({
     >
       <Icon className="h-4 w-4" />
       {label}
-    </button>
+    </Button>
   );
 }
 
@@ -399,14 +400,14 @@ function AccessGate({
               Your daily allowance resets tomorrow.
             </p>
             {decision.nextAction === "rewarded" && config?.rewardedEnabled && (
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={onRewarded}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange -orange/5"
               >
                 <Gift className="h-4 w-4" />
                 Unlock with rewarded access
-              </button>
+              </Button>
             )}
             {decision.nextAction === "rewarded" && !config?.rewardedEnabled && (
               <p className="mt-2 text-xs text-muted-foreground">
@@ -613,10 +614,10 @@ function TextConsultation({
           </p>
 
           <div className="mt-4 flex items-center gap-3">
-            <button
+            <Button variant="default"
               type="submit"
               disabled={!canSubmit}
-              className="btn-primary disabled:opacity-50"
+              className="disabled:opacity-50"
             >
               {status === "generating" || status === "preparing" ? (
                 <>
@@ -632,12 +633,12 @@ function TextConsultation({
                   Get color ideas
                 </>
               )}
-            </button>
+            </Button>
             {(status === "success" || status === "error") && (
-              <button type="button" onClick={reset} className="btn-secondary">
+              <Button variant="secondary" type="button" onClick={reset} className="btn-secondary">
                 <RefreshCw className="h-4 w-4" />
                 Start over
-              </button>
+              </Button>
             )}
           </div>
         </form>
@@ -857,14 +858,14 @@ function ImageConsultation({
                 alt="Room preview"
                 className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
               />
-              <button
+              <Button
                 type="button"
                 onClick={clearFile}
                 className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted-foreground shadow hover:bg-card dark:bg-background/90 dark:text-muted-foreground/80 dark:hover:bg-card"
                 aria-label="Remove image"
               >
                 <X aria-hidden="true" className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           )}
 
@@ -899,10 +900,10 @@ function ImageConsultation({
           </label>
 
           <div className="mt-4 flex items-center gap-3">
-            <button
+            <Button variant="default"
               type="submit"
               disabled={!canSubmit}
-              className="btn-primary disabled:opacity-50"
+              className="disabled:opacity-50"
             >
               {status === "uploading" || status === "analyzing" ? (
                 <>
@@ -918,12 +919,12 @@ function ImageConsultation({
                   Analyze image
                 </>
               )}
-            </button>
+            </Button>
             {(status === "success" || status === "error") && (
-              <button type="button" onClick={reset} className="btn-secondary">
+              <Button variant="secondary" type="button" onClick={reset} className="btn-secondary">
                 <RefreshCw className="h-4 w-4" />
                 Start over
-              </button>
+              </Button>
             )}
           </div>
         </form>

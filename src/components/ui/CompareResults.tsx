@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect } from "react";
 import { X, ArrowLeftRight } from "lucide-react";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface CompareEntry {
   id: string;
@@ -112,7 +113,7 @@ export function CompareResults({
           </div>
           <div className="flex items-center gap-2">
             {entries.length > 0 && (
-              <button
+              <Button
                 onClick={() => {
                   clearComparison();
                   setEntries([]);
@@ -121,15 +122,15 @@ export function CompareResults({
                 className="text-xs font-medium text-muted-foreground hover:text-red-500"
               >
                 Clear all
-              </button>
+              </Button>
             )}
-            <button
+            <Button variant="ghost"
               onClick={onClose}
-              className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
+              className="rounded-lg p-1.5 text-muted-foreground hover:text-muted-foreground dark:hover:bg-white/5"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -153,7 +154,7 @@ export function CompareResults({
               </p>
               <div className="flex flex-wrap gap-2">
                 {entries.map((e) => (
-                  <button
+                  <Button
                     key={e.id}
                     onClick={() => toggle(e.id)}
                     className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
@@ -163,7 +164,7 @@ export function CompareResults({
                     }`}
                   >
                     {e.label}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

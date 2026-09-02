@@ -96,6 +96,7 @@ import {
   EngineMaterialSummaryCard,
 } from "@/components/engine";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 // =========================================================
 // Constants
 // =========================================================
@@ -736,7 +737,7 @@ export default function TyroleneEstimator({
                 { value: "outside_owerri", label: "Outside Owerri" },
                 { value: "unknown", label: "Unknown" },
               ].map((opt) => (
-                <button
+                <Button
                   key={opt.value}
                   onClick={() =>
                     setCustomerLocation(
@@ -752,7 +753,7 @@ export default function TyroleneEstimator({
                 >
                   <MapPin className="h-3.5 w-3.5" />
                   {opt.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -766,7 +767,7 @@ export default function TyroleneEstimator({
               Partition Input
             </h3>
             <div className="flex gap-2">
-              <button
+              <Button
                 onClick={() => setInputMode("standard")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -776,8 +777,8 @@ export default function TyroleneEstimator({
                 )}
               >
                 Standard Count
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setInputMode("actual")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -787,7 +788,7 @@ export default function TyroleneEstimator({
                 )}
               >
                 Actual Dimensions
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -798,14 +799,14 @@ export default function TyroleneEstimator({
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
-                <button
+                <Button
                   onClick={() =>
                     setStandardCount(Math.max(0, standardCount - 1))
                   }
                   className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
                   –
-                </button>
+                </Button>
                 <input
                   type="number"
                   min="0"
@@ -815,12 +816,12 @@ export default function TyroleneEstimator({
                   }
                   className="w-24 text-center rounded-lg border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-lg font-semibold text-foreground dark:text-primary-foreground focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
                 />
-                <button
+                <Button
                   onClick={() => setStandardCount(standardCount + 1)}
                   className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
                   +
-                </button>
+                </Button>
               </div>
               {standardPartition.width && standardPartition.height && (
                 <p className="text-xs text-muted-foreground mt-2">
@@ -869,12 +870,12 @@ export default function TyroleneEstimator({
                       {pt.label}
                     </span>
                     {partitionTypes.length > 1 && (
-                      <button
+                      <Button
                         onClick={() => removePartitionType(pt.id)}
                         className="text-muted-foreground hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     )}
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -941,27 +942,27 @@ export default function TyroleneEstimator({
                 </div>
               ))}
 
-              <button
+              <Button
                 onClick={addPartitionType}
                 className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
               >
                 <Plus className="h-4 w-4" />
                 Add Partition Type
-              </button>
+              </Button>
             </div>
           )}
         </div>
 
         {/* Calculate Button */}
         <div className="flex gap-3">
-          <button
+          <Button variant="default"
             onClick={handleCalculate}
             disabled={
               calculating ||
               (inputMode === "actual" &&
                 (!standardPartition.width || !standardPartition.height))
             }
-            className="btn-primary btn-glow flex flex-1 items-center justify-center gap-2 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-glow flex flex-1 items-center justify-center gap-2 px-4 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {calculating ? (
               <>
@@ -974,14 +975,14 @@ export default function TyroleneEstimator({
                 Tyrolene Estimate
               </>
             )}
-          </button>
+          </Button>
           {result && (
-            <button
+            <Button
               onClick={handleReset}
               className="flex items-center justify-center gap-2 rounded-lg border border-border dark:border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-border"
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" /> Reset
-            </button>
+            </Button>
           )}
         </div>
 
@@ -1255,7 +1256,7 @@ export default function TyroleneEstimator({
                     </div>
 
                     {/* Calculation Steps Toggle */}
-                    <button
+                    <Button
                       onClick={() => setShowSteps(!showSteps)}
                       className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
                     >
@@ -1267,7 +1268,7 @@ export default function TyroleneEstimator({
                       {showSteps
                         ? "Hide calculation breakdown"
                         : "How was this calculated?"}
-                    </button>
+                    </Button>
 
                     {showSteps && (
                       <div className="rounded-lg border border-border dark:border-border p-3 space-y-2">
@@ -1435,7 +1436,7 @@ export default function TyroleneEstimator({
 
                     {/* Save Button */}
                     <div className="flex gap-3 pt-2">
-                      <button
+                      <Button
                         onClick={handleSave}
                         disabled={calculating || saved}
                         className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-green-700 transition-colors disabled:opacity-50"
@@ -1449,7 +1450,7 @@ export default function TyroleneEstimator({
                             <Save className="h-4 w-4" /> Save Estimate
                           </>
                         )}
-                      </button>
+                      </Button>
                     </div>
                     <div className="pt-2 flex justify-center">
                       <SaveToProjectButton

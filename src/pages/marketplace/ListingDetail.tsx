@@ -34,6 +34,7 @@ import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 function formatBudget(
   min: number | null,
@@ -216,13 +217,13 @@ export default function ListingDetail() {
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Back */}
-        <button
+        <Button
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
           Marketplace
-        </button>
+        </Button>
 
         {/* Header card */}
         <div className="rounded-xl border border-border bg-card p-6 dark:border-white/5 dark:bg-card">
@@ -378,12 +379,12 @@ export default function ListingDetail() {
               Bids ({bids.length})
             </h2>
             {!isOwner && isOpen && user && (
-              <button
+              <Button
                 onClick={() => setShowBidForm(!showBidForm)}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 <Send aria-hidden="true" className="h-4 w-4" /> Place a Bid
-              </button>
+              </Button>
             )}
             {!user && isOpen && (
               <Link
@@ -441,10 +442,10 @@ export default function ListingDetail() {
               </div>
               {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
               <div className="mt-3 flex gap-2">
-                <button
+                <Button variant="default"
                   onClick={handleBidSubmit}
                   disabled={submitting || !bidPrice || !bidMessage}
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
                 >
                   {submitting ? (
                     <Loader2
@@ -455,13 +456,13 @@ export default function ListingDetail() {
                     <Send aria-hidden="true" className="h-4 w-4" />
                   )}
                   Submit Bid
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowBidForm(false)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -590,20 +591,20 @@ export default function ListingDetail() {
 
                     {isOwner && isOpen && bid.status === "pending" && (
                       <div className="flex gap-2">
-                        <button
+                        <Button
                           onClick={() => handleRejectBid(bid.id)}
                           className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                         >
                           Decline
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => handleAcceptBid(bid.id)}
                           disabled={submitting}
                           className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                           Accept
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>

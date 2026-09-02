@@ -4,6 +4,7 @@ import { Bookmark, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 
 import { calculatorLabel } from '@/lib/templates';
 import type { DbCalculatorTemplate } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface TemplateCardProps {
   template: DbCalculatorTemplate;
@@ -42,7 +43,7 @@ export default function TemplateCard({
         </span>
 
         {onToggleFavorite && (
-          <button
+          <Button
             onClick={onToggleFavorite}
             className={classNames(
               'rounded-md p-1 transition-colors',
@@ -53,7 +54,7 @@ export default function TemplateCard({
             aria-label={template.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Bookmark className="h-4 w-4" fill={template.is_favorite ? 'currentColor' : 'none'} />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -75,13 +76,13 @@ export default function TemplateCard({
       {/* Actions */}
       <div className="mt-4 flex items-center gap-2">
         {onUse ? (
-          <button
+          <Button variant="default"
             onClick={onUse}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors hover:/90"
           >
             Use Template
             <ArrowRight className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         ) : useHref ? (
           <Link
             to={useHref}
@@ -95,48 +96,48 @@ export default function TemplateCard({
         {variant === 'private' && (
           <div className="flex items-center gap-1">
             {onEdit && (
-              <button
+              <Button variant="ghost"
                 onClick={onEdit}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Edit template"
               >
                 <Edit2 className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             )}
             {onExport && (
-              <button
+              <Button variant="ghost"
                 onClick={onExport}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Export template"
               >
                 <Download className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             )}
             {onDuplicate && (
-              <button
+              <Button variant="ghost"
                 onClick={onDuplicate}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Duplicate template"
               >
                 <Copy className="h-3.5 w-3.5" />
-              </button>
+              </Button>
             )}
             {onDelete && (
               confirmDelete ? (
-                <button
+                <Button
                   onClick={() => { onDelete(); setConfirmDelete(false); }}
                   className="rounded-md bg-red-50 px-2 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                 >
                   Confirm?
-                </button>
+                </Button>
               ) : (
-                <button
+                <Button
                   onClick={() => setConfirmDelete(true)}
                   className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                   aria-label="Delete template"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               )
             )}
           </div>

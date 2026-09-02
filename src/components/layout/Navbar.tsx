@@ -37,6 +37,7 @@ import { useCredits } from "@/lib/credits-context";
 import { useTheme } from "@/lib/theme";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -174,7 +175,7 @@ export default function Navbar() {
         >
           {/* Logo — left */}
           <div className="flex items-center gap-3">
-            <button
+            <Button
               type="button"
               onClick={() => setMobileOpen(true)}
               className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-card-foreground transition-all hover:bg-muted active:scale-95 lg:hidden dark:text-muted-foreground/60 dark:hover:bg-white/5"
@@ -182,7 +183,7 @@ export default function Navbar() {
               aria-expanded={mobileOpen}
             >
               <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
-            </button>
+            </Button>
             <Link
               to="/"
               aria-label="FRELUX PAINT CALC home"
@@ -198,7 +199,7 @@ export default function Navbar() {
               <div key={workspace.label} className="relative">
                 {workspace.children ? (
                   <>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setOpenDropdown(workspace.label)}
                       onMouseEnter={() => setOpenDropdown(workspace.label)}
@@ -224,7 +225,7 @@ export default function Navbar() {
                           openDropdown === workspace.label && "rotate-180",
                         )}
                       />
-                    </button>
+                    </Button>
                     {openDropdown === workspace.label && (
                       <div
                         className="absolute left-0 top-full z-50 pt-1"
@@ -359,7 +360,7 @@ export default function Navbar() {
           {/* Right side: utility icons, account, and primary CTA */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Search (desktop only) */}
-            <button
+            <Button
               onClick={() => {
                 const e = new KeyboardEvent("keydown", {
                   key: "k",
@@ -375,24 +376,24 @@ export default function Navbar() {
               <kbd className="rounded border border-border px-1 text-[10px] font-medium dark:border-white/10">
                 ⌘K
               </kbd>
-            </button>
+            </Button>
 
             {/* Utility toggles (desktop only) */}
             <div className="hidden items-center gap-1 lg:flex">
               <AccessibilityToggle />
               <LanguageSwitcher />
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
-                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-card-foreground active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
+                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:text-card-foreground active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
               >
                 {theme === "dark" ? (
                   <Sun className="h-[18px] w-[18px]" />
                 ) : (
                   <Moon className="h-[18px] w-[18px]" />
                 )}
-              </button>
+              </Button>
               <a
                 href={whatsappUrl(
                   "Hello FRELUX, I would like to chat about a paint project.",
@@ -408,7 +409,7 @@ export default function Navbar() {
 
             {/* Language switcher — Nigerian languages */}
             <div className="relative">
-              <button
+              <Button
                 type="button"
                 onClick={() =>
                   setOpenDropdown(openDropdown === "account" ? null : "account")
@@ -436,7 +437,7 @@ export default function Navbar() {
                 ) : (
                   <UserCircle className="h-5 w-5" strokeWidth={1.5} />
                 )}
-              </button>
+              </Button>
 
               {openDropdown === "account" && (
                 <div
@@ -610,7 +611,7 @@ export default function Navbar() {
 
                       {/* Sign out footer */}
                       <div className="border-t border-border/50 px-2 py-2.5 dark:border-white/5">
-                        <button
+                        <Button
                           type="button"
                           onClick={() => {
                             signOut();
@@ -620,7 +621,7 @@ export default function Navbar() {
                         >
                           <LogOut className="h-4 w-4 shrink-0" />
                           Sign Out
-                        </button>
+                        </Button>
                       </div>
                     </>
                   ) : (
@@ -697,14 +698,14 @@ export default function Navbar() {
             <Link to="/" onClick={() => setMobileOpen(false)}>
               <Logo />
             </Link>
-            <button
+            <Button
               type="button"
               onClick={() => setMobileOpen(false)}
               className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
 
           {/* Drawer nav — collapsible sections */}
@@ -713,7 +714,7 @@ export default function Navbar() {
               <div key={workspace.label} className="mb-1">
                 {workspace.children ? (
                   <>
-                    <button
+                    <Button
                       onClick={() =>
                         setMobileExpanded(
                           mobileExpanded === workspace.label
@@ -735,7 +736,7 @@ export default function Navbar() {
                           mobileExpanded === workspace.label && "rotate-180",
                         )}
                       />
-                    </button>
+                    </Button>
                     {mobileExpanded === workspace.label && (
                       <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
                         {groupBySection(workspace.children).map((group, gi) => (
@@ -797,7 +798,7 @@ export default function Navbar() {
             <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />
-              <button
+              <Button
                 type="button"
                 onClick={toggle}
                 aria-label="Toggle dark mode"
@@ -819,7 +820,7 @@ export default function Navbar() {
                 >
                   {theme === "dark" ? "On" : "Off"}
                 </span>
-              </button>
+              </Button>
             </div>
 
             {/* WhatsApp contact */}

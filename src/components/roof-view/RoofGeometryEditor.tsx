@@ -37,6 +37,7 @@ import {
   polygonArea,
   isValidSection,
 } from "@/lib/roof/geometry-engine";
+import { Button } from "@/components/ui/shadcn/button";
 
 const SVG_WIDTH = 600;
 const SVG_HEIGHT = 400;
@@ -172,7 +173,7 @@ export function RoofGeometryEditor({
       {/* Section tabs */}
       <div className="flex items-center gap-2 flex-wrap">
         {geometry.sections.map((section, _i) => (
-          <button
+          <Button
             key={section.id}
             onClick={() =>
               onChange({ ...geometry, activeSectionId: section.id })
@@ -189,16 +190,16 @@ export function RoofGeometryEditor({
             {section.confirmed && (
               <CheckCircle2 aria-hidden="true" className="w-3 h-3 text-green-400" />
             )}
-          </button>
+          </Button>
         ))}
-        <button
+        <Button
           onClick={handleAddSection}
           disabled={disabled}
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
         >
           <Plus aria-hidden="true" className="w-3 h-3" />
           Add Section
-        </button>
+        </Button>
       </div>
 
       {/* Active section name editor + remove */}
@@ -217,7 +218,7 @@ export function RoofGeometryEditor({
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
-            <button
+            <Button
               onClick={() =>
                 onChange(removeSection(geometry, activeSection.id))
               }
@@ -225,7 +226,7 @@ export function RoofGeometryEditor({
               className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs text-red-600 hover:bg-red-50"
             >
               <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -240,7 +241,7 @@ export function RoofGeometryEditor({
             { id: "delete", label: "Delete Points", icon: Eraser },
           ] as const
         ).map((t) => (
-          <button
+          <Button
             key={t.id}
             onClick={() => setTool(t.id)}
             disabled={disabled}
@@ -252,7 +253,7 @@ export function RoofGeometryEditor({
           >
             <t.icon className="w-3.5 h-3.5" />
             {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -422,14 +423,14 @@ export function RoofGeometryEditor({
 
       {/* Confirm button */}
       {hasValidSections && !allConfirmed && (
-        <button
+        <Button variant="ghost"
           onClick={handleConfirm}
           disabled={disabled}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-accent-green/90 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground -green/90 transition-colors"
         >
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Confirm Roof Geometry
-        </button>
+        </Button>
       )}
       {allConfirmed && (
         <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700">

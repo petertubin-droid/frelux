@@ -63,6 +63,7 @@ import {
 } from "@/types/market-intelligence";
 import { classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   "providers" | "sources" | "observations" | "approved" | "anomalies" | "logs";
@@ -94,7 +95,7 @@ export default function AdminMarketIntelligence() {
             ["logs", "Activity Logs", Activity],
           ] as const
         ).map(([key, label, Icon]) => (
-          <button
+          <Button
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -105,7 +106,7 @@ export default function AdminMarketIntelligence() {
             )}
           >
             <Icon className="h-4 w-4" /> {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -180,12 +181,12 @@ function ObservationsTab() {
             {observations.length} observations
           </span>
         </div>
-        <button
+        <Button
           onClick={() => setShowManual(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Manual Price Entry
-        </button>
+        </Button>
       </div>
 
       {observations.length === 0 ? (
@@ -249,7 +250,7 @@ function ObservationsTab() {
                     {obs.validation_status === "review_required" ||
                     obs.validation_status === "collected" ? (
                       <div className="flex gap-1">
-                        <button
+                        <Button
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -263,8 +264,8 @@ function ObservationsTab() {
                           title="Approve"
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -278,7 +279,7 @@ function ObservationsTab() {
                           title="Reject"
                         >
                           <Ban className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">
@@ -388,7 +389,7 @@ function ApprovedTab() {
                 <span className="text-xs text-muted-foreground">
                   Updated {new Date(p.last_updated).toLocaleDateString()}
                 </span>
-                <button
+                <Button
                   onClick={async () => {
                     await deactivateApprovedPrice(p.id);
                     setPrices(prices.filter((x) => x.id !== p.id));
@@ -396,7 +397,7 @@ function ApprovedTab() {
                   className="text-xs text-muted-foreground hover:text-red-500"
                 >
                   Deactivate
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -469,12 +470,12 @@ function SourcesTab() {
         <p className="text-sm text-muted-foreground">
           {sources.length} sources registered
         </p>
-        <button
+        <Button
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Source
-        </button>
+        </Button>
       </div>
 
       {sources.length === 0 ? (
@@ -547,23 +548,23 @@ function SourcesTab() {
                     </span>
                   ) : (
                     <>
-                      <button
+                      <Button
                         onClick={() => handleCrawl(s, "test")}
                         className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
                         title="Fetch and extract without publishing prices"
                       >
                         <Eye aria-hidden="true" className="h-3 w-3" /> Test Crawl
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleCrawl(s, "production")}
                         className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                         title="Full crawl with price observation creation"
                       >
                         <Zap aria-hidden="true" className="h-3 w-3" /> Crawl Now
-                      </button>
+                      </Button>
                     </>
                   )}
-                  <button
+                  <Button
                     onClick={async () => {
                       await deleteSource(s.id);
                       load();
@@ -572,7 +573,7 @@ function SourcesTab() {
                     title="Delete source"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -624,12 +625,12 @@ function CrawlReportModal({
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Crawl Report
           </h2>
-          <button
+          <Button
             onClick={onClose}
             className="text-muted-foreground hover:text-muted-foreground"
           >
             <X aria-hidden="true" className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
         <div className="mb-3 text-sm text-muted-foreground">
           Source:{" "}
@@ -713,12 +714,12 @@ function CrawlReportModal({
           </div>
         )}
         <div className="mt-4 flex justify-end">
-          <button
+          <Button
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -882,16 +883,16 @@ function SourceEditModal({
           Active source
         </label>
         <div className="mt-4 flex justify-end gap-2">
-          <button
+          <Button
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -899,7 +900,7 @@ function SourceEditModal({
               <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -971,7 +972,7 @@ function ProvidersTab() {
                 </div>
               </div>
             </div>
-            <button
+            <Button
               onClick={async () => {
                 await toggleProvider(p.id, !p.is_enabled);
                 setProviders(
@@ -993,7 +994,7 @@ function ProvidersTab() {
                   p.is_enabled ? "translate-x-6" : "translate-x-1",
                 )}
               />
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -1074,7 +1075,7 @@ function AnomaliesTab() {
               )}
               {a.resolution === "open" && (
                 <div className="mt-2 flex gap-2">
-                  <button
+                  <Button
                     onClick={async () => {
                       await resolveAnomaly(a.id, "resolved", user?.id ?? "");
                       load();
@@ -1082,8 +1083,8 @@ function AnomaliesTab() {
                     className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/10"
                   >
                     Resolve
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={async () => {
                       await resolveAnomaly(a.id, "dismissed", user?.id ?? "");
                       load();
@@ -1091,7 +1092,7 @@ function AnomaliesTab() {
                     className="rounded-md bg-muted px-2 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/5"
                   >
                     Dismiss
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -1318,16 +1319,16 @@ function ManualEntryModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <button
+          <Button
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={handleSave}
             disabled={saving || !form.normalized_name || !form.price}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -1335,7 +1336,7 @@ function ManualEntryModal({
               <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save Price
-          </button>
+          </Button>
         </div>
       </div>
     </div>

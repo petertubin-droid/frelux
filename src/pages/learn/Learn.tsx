@@ -20,6 +20,7 @@ import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = "loading" | "ready" | "error";
 
@@ -377,7 +378,7 @@ export default function Learn() {
                     key={cat.id}
                     className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
-                    <button
+                    <Button
                       onClick={() => toggleParent(cat.slug)}
                       className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-primary/[0.03]"
                     >
@@ -402,7 +403,7 @@ export default function Learn() {
                           className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
                         />
                       </div>
-                    </button>
+                    </Button>
                     {isExpanded && (
                       <div
                         className="border-t border-border/50 dark:border-white/5"

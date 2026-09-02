@@ -1,4 +1,5 @@
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export interface CalculatorTab {
   id: string;
@@ -25,7 +26,7 @@ export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
-              <button
+              <Button
                 key={tab.id}
                 role="tab"
                 aria-selected={isActive}
@@ -40,7 +41,7 @@ export default function CalculatorTabs({ tabs, activeTab, onTabChange, ariaLabel
                 )}
               >
                 {tab.label}
-              </button>
+              </Button>
             );
           })}
         </div>

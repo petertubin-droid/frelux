@@ -40,6 +40,7 @@ import type {
   PdfTemplateConfig,
   PdfWatermarkConfig,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminPdfBranding() {
   const [_config, setConfig] = useState<PdfDefaultBrandingConfig | null>(null);
@@ -428,12 +429,12 @@ export default function AdminPdfBranding() {
               PDF Templates
             </h2>
           </div>
-          <button
+          <Button
             onClick={() => setShowNewTpl(!showNewTpl)}
             className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20"
           >
             <Plus className="h-3 w-3" /> New Template
-          </button>
+          </Button>
         </div>
 
         {showNewTpl && (
@@ -478,12 +479,12 @@ export default function AdminPdfBranding() {
               <AdminButton onClick={handleCreateTemplate}>
                 Create Template
               </AdminButton>
-              <button
+              <Button
                 onClick={() => setShowNewTpl(false)}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs dark:border-white/10"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -553,12 +554,12 @@ export default function AdminPdfBranding() {
                     Default
                   </label>
                   {!tpl.is_system && (
-                    <button
+                    <Button
                       onClick={() => handleDeleteTemplate(tpl.id)}
                       className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

@@ -20,6 +20,7 @@ import {
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ConstructionSequence() {
   useSeo({
@@ -192,7 +193,7 @@ function StepCard({
 }) {
   return (
     <div className="rounded-2xl border border-border bg-card shadow-card overflow-hidden">
-      <button
+      <Button
         onClick={onToggle}
         className="flex w-full items-center justify-between p-4 text-left"
       >
@@ -214,7 +215,7 @@ function StepCard({
         ) : (
           <ChevronRight className="w-5 h-5 text-muted-foreground" />
         )}
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="border-t border-border/50 p-4 space-y-4">

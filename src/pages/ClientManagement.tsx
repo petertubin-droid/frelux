@@ -9,6 +9,7 @@ import {
 import type { DbClient, DbClientCommunication } from '@/types/database';
 import { Users, Plus, Mail, Phone, MapPin, Trash2, Edit, X, MessageCircle, Phone as PhoneIcon, Calendar, FileText, Loader2, Building2 } from 'lucide-react';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ClientManagement() {
   const { user } = useAuth();
@@ -97,27 +98,27 @@ export default function ClientManagement() {
       {error && (
         <div className="mt-4 rounded-lg bg-destructive/10 p-4">
           <p className="text-sm text-destructive">{error}</p>
-          <button onClick={() => setError(null)} className="mt-2 text-xs underline">Dismiss</button>
+          <Button onClick={() => setError(null)} className="mt-2 text-xs underline">Dismiss</Button>
         </div>
       )}
 
       <div className="mt-6 flex items-center justify-between">
         <p className="text-sm text-muted-foreground">{clients.length} client{clients.length !== 1 ? 's' : ''}</p>
-        <button
+        <Button
           onClick={() => { setForm({ name: '', company: '', email: '', phone: '', address: '', notes: '' }); setEditingId(null); setShowForm(true); }}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Client
-        </button>
+        </Button>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4 rounded-lg border p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-foreground">{editingId ? 'Edit Client' : 'New Client'}</h3>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}>
+            <Button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}>
               <X aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
-            </button>
+            </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -152,11 +153,11 @@ export default function ClientManagement() {
             </div>
           </div>
           <div className="flex gap-2">
-            <button type="submit" className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground">
+            <Button variant="default" type="submit" className="rounded-lg px-6 py-2 text-sm font-medium">
               {editingId ? 'Update' : 'Create'}
-            </button>
-            <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}
-              className="rounded-lg border px-6 py-2 text-sm">Cancel</button>
+            </Button>
+            <Button type="button" onClick={() => { setShowForm(false); setEditingId(null); }}
+              className="rounded-lg border px-6 py-2 text-sm">Cancel</Button>
           </div>
         </form>
       )}
@@ -207,8 +208,8 @@ function ClientCard({ client, onEdit, onDelete, onSelect }: {
           {client.company && <p className="text-sm text-muted-foreground">{client.company}</p>}
         </div>
         <div className="flex gap-1">
-          <button onClick={onEdit} className="rounded p-1.5 hover:bg-accent"><Edit aria-hidden="true" className="h-4 w-4" /></button>
-          <button onClick={onDelete} className="rounded p-1.5 hover:bg-accent"><Trash2 aria-hidden="true" className="h-4 w-4 text-destructive" /></button>
+          <Button variant="ghost" onClick={onEdit} className="rounded p-1.5"><Edit aria-hidden="true" className="h-4 w-4" /></Button>
+          <Button variant="ghost" onClick={onDelete} className="rounded p-1.5"><Trash2 aria-hidden="true" className="h-4 w-4 text-destructive" /></Button>
         </div>
       </div>
       <div className="mt-3 space-y-1">
@@ -217,7 +218,7 @@ function ClientCard({ client, onEdit, onDelete, onSelect }: {
         {client.address && <p className="flex items-center gap-2 text-xs text-muted-foreground"><MapPin aria-hidden="true" className="h-3 w-3" /> {client.address}</p>}
       </div>
       {client.notes && <p className="mt-2 text-xs text-muted-foreground line-clamp-2">{client.notes}</p>}
-      <button onClick={onSelect} className="mt-3 text-xs font-medium text-brand-purple hover:underline">View details →</button>
+      <Button onClick={onSelect} className="mt-3 text-xs font-medium text-brand-purple hover:underline">View details →</Button>
     </div>
   );
 }
@@ -286,7 +287,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
             <h2 className="text-xl font-bold text-foreground">{client.name}</h2>
             {client.company && <p className="text-sm text-muted-foreground flex items-center gap-1"><Building2 aria-hidden="true" className="h-4 w-4" /> {client.company}</p>}
           </div>
-          <button onClick={onClose}><X aria-hidden="true" className="h-5 w-5 text-muted-foreground" /></button>
+          <Button onClick={onClose}><X aria-hidden="true" className="h-5 w-5 text-muted-foreground" /></Button>
         </div>
 
         <div className="mt-4 space-y-1">
@@ -325,9 +326,9 @@ function ClientDetailDrawer({ client, userId, onClose }: {
         <div className="mt-6">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-semibold text-foreground">Communication History</h3>
-            <button onClick={() => setShowCommForm(!showCommForm)} className="text-xs font-medium text-brand-purple">
+            <Button onClick={() => setShowCommForm(!showCommForm)} className="text-xs font-medium text-brand-purple">
               {showCommForm ? 'Cancel' : '+ Log'}
-            </button>
+            </Button>
           </div>
 
           {showCommForm && (
@@ -344,7 +345,7 @@ function ClientDetailDrawer({ client, userId, onClose }: {
                 placeholder="Subject..." className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />
               <textarea rows={2} value={commForm.body} onChange={(e) => setCommForm({ ...commForm, body: e.target.value })}
                 placeholder="Details..." className="w-full rounded-lg border bg-background px-3 py-2 text-sm" />
-              <button type="submit" className="rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground">Save</button>
+              <Button variant="default" type="submit" className="rounded-lg px-4 py-1.5 text-sm font-medium">Save</Button>
             </form>
           )}
 
@@ -364,9 +365,9 @@ function ClientDetailDrawer({ client, userId, onClose }: {
                       {comm.body && <p className="text-sm text-muted-foreground">{comm.body}</p>}
                       <p className="mt-1 text-xs text-muted-foreground">{new Date(comm.created_at).toLocaleString()}</p>
                     </div>
-                    <button onClick={() => handleDeleteComm(comm.id)} className="rounded p-1 hover:bg-accent">
+                    <Button onClick={() => handleDeleteComm(comm.id)} className="rounded p-1 hover:bg-accent">
                       <Trash2 aria-hidden="true" className="h-3 w-3 text-destructive" />
-                    </button>
+                    </Button>
                   </div>
                 );
               })}

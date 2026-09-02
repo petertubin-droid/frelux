@@ -6,6 +6,7 @@ import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
 import { Loader2, Upload, X, Eye } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ColorPreview() {
   useSeo({ title: 'Color Preview Tool', description: 'Preview paint colors on your room photos with AI.', canonicalPath: '/color-preview', noIndex: true });
@@ -101,10 +102,10 @@ export default function ColorPreview() {
             {imagePreview ? (
               <div className="relative mt-2">
                 <img src={imagePreview} alt="Room" className="max-h-64 rounded-lg border" />
-                <button type="button" onClick={() => setImagePreview(null)}
+                <Button type="button" onClick={() => setImagePreview(null)}
                   className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-primary-foreground">
                   <X aria-hidden="true" className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             ) : (
               <div
@@ -191,7 +192,7 @@ export default function ColorPreview() {
           <div>
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-foreground">Colors to Preview</label>
-              <button type="button" onClick={addColor} className="text-xs font-medium text-brand-purple">+ Add color</button>
+              <Button type="button" onClick={addColor} className="text-xs font-medium text-brand-purple">+ Add color</Button>
             </div>
             <div className="mt-2 space-y-2">
               {colors.map((color, i) => (
@@ -209,23 +210,23 @@ export default function ColorPreview() {
                     className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
                   />
                   {colors.length > 1 && (
-                    <button type="button" onClick={() => removeColor(i)} className="rounded p-2 hover:bg-accent">
+                    <Button type="button" onClick={() => removeColor(i)} className="rounded p-2 hover:bg-accent">
                       <X aria-hidden="true" className="h-4 w-4 text-destructive" />
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
             </div>
           </div>
 
-          <button
+          <Button variant="default"
             type="submit"
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-medium disabled:opacity-50"
           >
             {loading ? <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> : <Eye aria-hidden="true" className="h-5 w-5" />}
             Generate AI Preview
-          </button>
+          </Button>
         </form>
       )}
 

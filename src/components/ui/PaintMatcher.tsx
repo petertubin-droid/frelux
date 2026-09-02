@@ -7,6 +7,7 @@ import { track } from '@/lib/analytics';
 import { normalizeHex } from '@/lib/colors';
 import type { DbPaintColor } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export function PaintMatcher() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'matching' | 'success' | 'error'>('idle');
@@ -132,9 +133,9 @@ const mountedRef = useRef(true);
           <div className="flex flex-col items-center justify-center py-10">
             <X aria-hidden="true" className="h-10 w-10 text-red-500" />
             <p className="mt-3 text-sm text-red-600">{errorMsg}</p>
-            <button type="button" onClick={reset} className="mt-3 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80">
+            <Button type="button" onClick={reset} className="mt-3 rounded-lg bg-muted px-4 py-2 text-sm font-medium text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80">
               Try again
-            </button>
+            </Button>
           </div>
         )}
 
@@ -153,9 +154,9 @@ const mountedRef = useRef(true);
                   <p className="text-sm font-bold text-foreground dark:text-primary-foreground">{extractedHex}</p>
                 </div>
               </div>
-              <button type="button" onClick={reset} className="ml-auto rounded-lg p-2 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90">
+              <Button variant="ghost" type="button" onClick={reset} className="ml-auto rounded-lg p-2 text-muted-foreground dark:hover:bg-card-foreground/90">
                 <X aria-hidden="true" className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
 
             {/* Match results */}
@@ -203,9 +204,9 @@ const mountedRef = useRef(true);
               ))}
             </div>
 
-            <button type="button" onClick={reset} className="mt-4 w-full rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
+            <Button type="button" onClick={reset} className="mt-4 w-full rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
               Match another photo
-            </button>
+            </Button>
           </div>
         )}
       </div>

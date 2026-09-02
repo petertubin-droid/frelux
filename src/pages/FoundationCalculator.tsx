@@ -25,6 +25,7 @@ import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function FoundationCalculator() {
   useSeo({
@@ -103,7 +104,7 @@ export default function FoundationCalculator() {
               Measurement unit:
             </span>
             <div className="inline-flex rounded-lg border border-border overflow-hidden dark:border-white/10">
-              <button
+              <Button
                 onClick={() => {
                   if (measurementUnit === "ft") {
                     setMeasurementUnit("m");
@@ -119,8 +120,8 @@ export default function FoundationCalculator() {
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
               >
                 m
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   if (measurementUnit === "m") {
                     setMeasurementUnit("ft");
@@ -136,7 +137,7 @@ export default function FoundationCalculator() {
                 className={`px-3 py-1.5 text-xs font-medium transition-colors ${measurementUnit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 dark:hover:bg-white/5"}`}
               >
                 ft
-              </button>
+              </Button>
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -253,13 +254,13 @@ export default function FoundationCalculator() {
             </p>
           </div>
 
-          <button
+          <Button variant="default"
             onClick={calculate}
-            className="mt-5 btn-primary btn-glow inline-flex items-center gap-2 px-6 py-3"
+            className="mt-5 btn-glow inline-flex items-center gap-2 px-6 py-3"
           >
             <Calculator aria-hidden="true" className="w-4 h-4" /> Calculate
             Foundation
-          </button>
+          </Button>
         </div>
 
         {/* Results */}
@@ -379,7 +380,7 @@ export default function FoundationCalculator() {
 
             {/* Formula transparency */}
             <div className="mt-2">
-              <button
+              <Button
                 onClick={() => setShowFormulas(!showFormulas)}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
               >
@@ -389,7 +390,7 @@ export default function FoundationCalculator() {
                   <ChevronRight className="w-3.5 h-3.5" />
                 )}
                 {showFormulas ? "Hide" : "Show"} calculation formulas
-              </button>
+              </Button>
               {showFormulas && (
                 <div className="mt-3 overflow-hidden rounded-xl bg-background p-5 dark:bg-black/40">
                   {result.formula_transparency.map((f, i) => (
@@ -406,13 +407,13 @@ export default function FoundationCalculator() {
 
             {/* Reset */}
             <div className="mt-6 flex items-center gap-3 border-t border-border/50 pt-5 dark:border-white/5">
-              <button
+              <Button
                 onClick={() => setResult(null)}
                 className="btn-secondary inline-flex items-center gap-2"
               >
                 <RotateCcw aria-hidden="true" className="h-4 w-4" />
                 Reset
-              </button>
+              </Button>
             </div>
           </div>
         )}

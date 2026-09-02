@@ -26,6 +26,7 @@ import { supabase } from "@/lib/supabase";
 import type { AdvancedEstimateData, ScreedingMixConfig } from "@/types";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   /** Identifies which calculator this is attached to, e.g. "paint", "tile", "pop", "screeding" */
@@ -442,7 +443,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
           {uniqueTabs.map((t) => {
             const Icon = t.icon;
             return (
-              <button
+              <Button
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
@@ -455,7 +456,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
               >
                 <Icon aria-hidden="true" className="h-3.5 w-3.5" />
                 {t.label}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -586,14 +587,14 @@ function AiBreakdownTab({
               AI-Powered Analysis
             </h4>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onRefresh}
             disabled={loading}
             className="text-xs font-semibold text-brand-purple hover:underline disabled:opacity-50"
           >
             {loading ? "Analyzing…" : "Refresh"}
-          </button>
+          </Button>
         </div>
 
         {loading && (
@@ -631,28 +632,28 @@ function AiBreakdownTab({
             placeholder="Estimate name…"
             className="input-field flex-1"
           />
-          <button
+          <Button variant="default"
             type="button"
             onClick={onSave}
-            className="btn-primary flex items-center gap-1.5 whitespace-nowrap"
+            className="flex items-center gap-1.5 whitespace-nowrap"
           >
             <Save aria-hidden="true" className="h-4 w-4" /> Save
-          </button>
+          </Button>
         </div>
-        <button
+        <Button variant="secondary"
           type="button"
           onClick={onDuplicate}
-          className="btn-secondary flex items-center gap-1.5"
+          className="flex items-center gap-1.5"
         >
           <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
-        </button>
-        <button
+        </Button>
+        <Button variant="secondary"
           type="button"
           onClick={onExport}
-          className="btn-secondary flex items-center gap-1.5"
+          className="flex items-center gap-1.5"
         >
           <Download aria-hidden="true" className="h-4 w-4" /> PDF
-        </button>
+        </Button>
       </div>
       {saveStatus === "saving" && (
         <p className="text-xs text-muted-foreground">Saving…</p>
@@ -843,28 +844,28 @@ function ScreedingBreakdownTab({
             placeholder="Estimate name…"
             className="input-field flex-1"
           />
-          <button
+          <Button variant="default"
             type="button"
             onClick={onSave}
-            className="btn-primary flex items-center gap-1.5 whitespace-nowrap"
+            className="flex items-center gap-1.5 whitespace-nowrap"
           >
             <Save aria-hidden="true" className="h-4 w-4" /> Save
-          </button>
+          </Button>
         </div>
-        <button
+        <Button variant="secondary"
           type="button"
           onClick={onDuplicate}
-          className="btn-secondary flex items-center gap-1.5"
+          className="flex items-center gap-1.5"
         >
           <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
-        </button>
-        <button
+        </Button>
+        <Button variant="secondary"
           type="button"
           onClick={onExport}
-          className="btn-secondary flex items-center gap-1.5"
+          className="flex items-center gap-1.5"
         >
           <Download aria-hidden="true" className="h-4 w-4" /> PDF
-        </button>
+        </Button>
       </div>
       {saveStatus === "saving" && (
         <p className="text-xs text-muted-foreground">Saving…</p>
@@ -904,7 +905,7 @@ function MixTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {ratios.map((r) => (
-            <button
+            <Button
               key={r}
               type="button"
               onClick={() => update("mixRatio", r)}
@@ -916,7 +917,7 @@ function MixTab({
               }
             >
               {r}
-            </button>
+            </Button>
           ))}
           <input
             type="text"
@@ -1039,7 +1040,7 @@ function CostsTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
-            <button
+            <Button
               key={w}
               type="button"
               onClick={() => update("wastePercentage", w)}
@@ -1051,7 +1052,7 @@ function CostsTab({
               }
             >
               {w}%
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -1222,7 +1223,7 @@ function CompareTab({
           </p>
           <div className="flex flex-wrap gap-2">
             {saved.map((s) => (
-              <button
+              <Button
                 key={s.id}
                 type="button"
                 onClick={() =>
@@ -1236,7 +1237,7 @@ function CompareTab({
                 }
               >
                 {s.title}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -1364,11 +1365,11 @@ function AiTab({
           Get smart suggestions to reduce waste and lower costs for your{" "}
           {toolLabel.toLowerCase()} project.
         </p>
-        <button
+        <Button variant="default"
           type="button"
           onClick={onRecommend}
           disabled={loading}
-          className="mt-3 flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="mt-3 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold hover:/90 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -1376,7 +1377,7 @@ function AiTab({
             <Brain aria-hidden="true" className="h-3.5 w-3.5" />
           )}
           Analyze Project & Recommend
-        </button>
+        </Button>
       </div>
 
       <div>
@@ -1398,11 +1399,11 @@ function AiTab({
             placeholder="e.g. How can I reduce material waste?"
             className="input-field flex-1"
           />
-          <button
+          <Button variant="default"
             type="button"
             onClick={onAsk}
             disabled={loading || !question.trim()}
-            className="btn-primary flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50"
+            className="flex items-center gap-1.5 whitespace-nowrap disabled:opacity-50"
           >
             {loading ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -1410,7 +1411,7 @@ function AiTab({
               <Bot aria-hidden="true" className="h-4 w-4" />
             )}
             Ask
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -1486,22 +1487,22 @@ function SavedTab({
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <button
+            <Button
               type="button"
               onClick={onExport}
               className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
               aria-label="Export"
             >
               <Download className="h-4 w-4" />
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => onDelete(e.id)}
               className="rounded p-1.5 text-muted-foreground hover:text-red-500"
               aria-label="Delete"
             >
               <Trash2 className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       ))}

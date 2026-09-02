@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { HelpCircle } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function HelpTip({
   text,
@@ -23,7 +24,7 @@ export default function HelpTip({
   return (
     <span className="relative inline-flex items-center">
       {children}
-      <button
+      <Button
         type="button"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
@@ -37,7 +38,7 @@ export default function HelpTip({
         aria-label="More information"
       >
         <HelpCircle className="h-4 w-4" />
-      </button>
+      </Button>
       {open && (
         <span
           role="tooltip"

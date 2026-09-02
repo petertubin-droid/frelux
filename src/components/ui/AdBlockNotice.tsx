@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Shield, X } from 'lucide-react';
 import { detectAdBlocker } from '@/lib/ad-block-detection';
 import { logAdEvent } from '@/lib/ad-config';
+import { Button } from "@/components/ui/shadcn/button";
 
 /**
  * Non-intrusive ad block notice (Issue #10).
@@ -29,14 +30,14 @@ export function AdBlockNotice() {
 
   return (
     <div className="fixed bottom-36 right-4 z-[45] max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-4 shadow-lg dark:border-border border-border dark:bg-background sm:bottom-20 sm:max-w-sm">
-      <button
+      <Button
         type="button"
         onClick={() => setDismissed(true)}
         className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"
         aria-label="Dismiss"
       >
         <X className="h-4 w-4" />
-      </button>
+      </Button>
       <div className="flex items-start gap-3 pr-4">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
           <Shield className="h-5 w-5 text-brand-purple" />

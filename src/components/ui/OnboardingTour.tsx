@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, ArrowRight, ArrowLeft, Check } from 'lucide-react';
 import { TOUR_STEPS, completeOnboarding } from '@/lib/onboarding';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0);
@@ -168,9 +169,9 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
                   <p className="text-[11px] text-primary-foreground/70">Step {step + 1} of {TOUR_STEPS.length}</p>
                 </div>
               </div>
-              <button onClick={skip} className="rounded-lg p-1 text-primary-foreground/70 transition-colors hover:bg-white/10 hover:text-primary-foreground" aria-label="Skip tour">
+              <Button onClick={skip} className="rounded-lg p-1 text-primary-foreground/70 transition-colors hover:bg-white/10 hover:text-primary-foreground" aria-label="Skip tour">
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
             {/* Progress bar */}
             <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/20">
@@ -185,7 +186,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
 
           {/* Actions */}
           <div className="flex items-center justify-between border-t border-border/50 px-5 py-3 dark:border-white/5">
-            <button
+            <Button
               onClick={prev}
               disabled={step === 0}
               className={classNames(
@@ -194,10 +195,10 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
               )}
             >
               <ArrowLeft className="h-4 w-4" /> Back
-            </button>
-            <button
+            </Button>
+            <Button variant="default"
               onClick={next}
-              className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 press-scale"
+              className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:/90 press-scale"
             >
               {isLast ? (
                 <>
@@ -208,7 +209,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
                   {currentTour.cta || 'Next'} <ArrowRight className="h-4 w-4" />
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
 

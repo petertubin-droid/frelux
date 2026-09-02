@@ -28,6 +28,7 @@ import { PRODUCT_CONDITION_LABELS } from "@/types/marketplace-products";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import AdSlot from "@/components/ui/AdSlot";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -228,7 +229,7 @@ export default function ProductDetail() {
           {product.images.length > 1 && (
             <div className="mt-3 grid grid-cols-5 gap-2">
               {product.images.map((img, idx) => (
-                <button
+                <Button
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
                   className={classNames(
@@ -243,7 +244,7 @@ export default function ProductDetail() {
                     alt=""
                     className="h-full w-full object-cover"
                   />
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -391,14 +392,14 @@ export default function ProductDetail() {
 
           {/* Actions */}
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <button
+            <Button
               onClick={() => setShowInquiry(!showInquiry)}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <MessageCircle aria-hidden="true" className="h-4 w-4" />
               Contact Seller
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({
@@ -412,7 +413,7 @@ export default function ProductDetail() {
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
               <Share2 className="h-4 w-4" /> Share
-            </button>
+            </Button>
           </div>
 
           {/* Inquiry form */}
@@ -444,10 +445,10 @@ export default function ProductDetail() {
                   className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
-              <button
+              <Button variant="default"
                 onClick={handleInquiry}
                 disabled={submitting || !inquiryMessage.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
                 {submitting ? (
                   <Loader2
@@ -458,7 +459,7 @@ export default function ProductDetail() {
                   <Send aria-hidden="true" className="h-3.5 w-3.5" />
                 )}
                 Send Inquiry
-              </button>
+              </Button>
             </div>
           )}
 

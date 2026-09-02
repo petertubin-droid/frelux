@@ -1,5 +1,6 @@
 import { Save, FileDown, Share2, MessageCircle, RotateCcw } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function StickyActionBar({
   onSave,
@@ -31,7 +32,7 @@ export default function StickyActionBar({
     <div role="toolbar" aria-label="Quick actions" className="action-bar-glow sticky bottom-0 z-30 mt-6 border-t border-border/80 bg-white/90 backdrop-blur-xl dark:border-white/5 dark:bg-background-mid/90 animate-fade-in-up">
       <div className="mx-auto flex max-w-5xl items-center justify-center gap-2 px-4 py-3">
         {buttons.map((btn) => (
-          <button type="button"
+          <Button type="button"
             key={btn.label}
             onClick={btn.onClick}
             className={classNames(
@@ -43,7 +44,7 @@ export default function StickyActionBar({
           >
             <btn.icon className="h-4 w-4" />
             <span className="hidden sm:inline">{btn.label}</span>
-          </button>
+          </Button>
         ))}
       </div>
     </div>

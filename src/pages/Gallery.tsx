@@ -19,6 +19,7 @@ import {
   fetchGalleryImages,
 } from "@/lib/project-intelligence";
 import type { DbGalleryEntry } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CATEGORIES = [
   { key: "", label: "All" },
@@ -101,7 +102,7 @@ export default function Gallery() {
         <div className="mb-8 flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           {CATEGORIES.map((cat) => (
-            <button
+            <Button
               key={cat.key}
               onClick={() => setFilter(cat.key)}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
@@ -111,7 +112,7 @@ export default function Gallery() {
               }`}
             >
               {cat.label}
-            </button>
+            </Button>
           ))}
           {user && (
             <Link
@@ -211,12 +212,12 @@ export default function Gallery() {
 
                     {/* Hover actions */}
                     <div className="absolute bottom-3 left-3 flex gap-2 opacity-0 transition-all duration-300 group-hover:opacity-100">
-                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
+                      <Button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
                         <Crown className="h-4 w-4" />
-                      </button>
-                      <button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
+                      </Button>
+                      <Button className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-card-foreground backdrop-blur transition-all hover:scale-110 hover:text-brand-purple">
                         <Share2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 

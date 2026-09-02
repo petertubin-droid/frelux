@@ -6,6 +6,7 @@ import type { DbProConversation, DbProMessage } from '@/types/pro-connect';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function Messages() {
   const { conversationId } = useParams();
@@ -144,7 +145,7 @@ export default function Messages() {
           ) : (
             <div className="divide-y divide-border/50 dark:divide-white/5">
               {conversations.map((convo) => (
-                <button
+                <Button
                   key={convo.id}
                   onClick={() => navigate(`/messages/${convo.id}`)}
                   className={classNames(
@@ -163,7 +164,7 @@ export default function Messages() {
                       {convo.last_message_at ? new Date(convo.last_message_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'No messages yet'}
                     </p>
                   </div>
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -178,9 +179,9 @@ export default function Messages() {
             <>
               {/* Header */}
               <div className="flex items-center gap-3 border-b border-border/50 p-4 dark:border-white/5">
-                <button onClick={() => navigate('/messages')} className="lg:hidden">
+                <Button onClick={() => navigate('/messages')} className="lg:hidden">
                   <ArrowLeft aria-hidden="true" className="h-5 w-5 text-muted-foreground" />
-                </button>
+                </Button>
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter">
                   {getDisplayName(activeConvo).charAt(0).toUpperCase()}
                 </div>
@@ -259,13 +260,13 @@ export default function Messages() {
                     placeholder="Type a message..."
                     className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                   />
-                  <button
+                  <Button variant="default"
                     onClick={handleSend}
                     disabled={!messageText.trim()}
-                    className="rounded-lg bg-primary p-2.5 text-primary-foreground disabled:opacity-50"
+                    className="rounded-lg p-2.5 disabled:opacity-50"
                   >
                     <Send aria-hidden="true" className="h-5 w-5" />
-                  </button>
+                  </Button>
                 </div>
               </div>
             </>

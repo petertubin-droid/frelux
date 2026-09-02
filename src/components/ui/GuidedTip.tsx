@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Lightbulb, X } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface TipConfig {
   id: string;
@@ -51,13 +52,13 @@ export function GuidedTip({ tip, className }: { tip: TipConfig; className?: stri
         <p className="text-xs font-bold text-amber-700 dark:text-amber-400">{tip.title}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-amber-600/90 dark:text-amber-400/80">{tip.content}</p>
       </div>
-      <button
+      <Button
         onClick={() => { dismiss(tip.id); setVisible(false); }}
         className="shrink-0 rounded p-0.5 text-amber-400 transition-colors hover:bg-amber-100 hover:text-amber-600 dark:hover:bg-amber-500/20"
         aria-label="Dismiss tip"
       >
         <X className="h-3.5 w-3.5" />
-      </button>
+      </Button>
     </div>
   );
 }
@@ -87,9 +88,9 @@ export function FloatingTip({ tip, children }: { tip: TipConfig; children: React
               <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
               <p className="text-xs font-bold text-amber-700 dark:text-amber-400">{tip.title}</p>
             </div>
-            <button onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
+            <Button onClick={() => { dismiss(tip.id); setDismissed(true); }} className="text-muted-foreground/80 hover:text-muted-foreground" aria-label="Dismiss">
               <X className="h-3 w-3" />
-            </button>
+            </Button>
           </div>
           <p className="mt-1 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">{tip.content}</p>
           <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-amber-200/60 bg-card dark:border-amber-500/15 dark:bg-card" />

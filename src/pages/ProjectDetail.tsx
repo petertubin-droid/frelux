@@ -45,6 +45,7 @@ import type {
   DbProjectStageTemplate,
   DbClientEstimate,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   | "overview"
@@ -210,7 +211,7 @@ export default function ProjectDetail() {
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto pb-px">
             {TABS.map((t) => (
-              <button
+              <Button
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
@@ -220,7 +221,7 @@ export default function ProjectDetail() {
                 }`}
               >
                 <t.icon className="h-4 w-4" /> {t.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -287,20 +288,20 @@ export default function ProjectDetail() {
                   <Calculator className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   Add Calculation
                 </Link>
-                <button
+                <Button
                   onClick={() => setTab("shopping")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-500/20 transition-all hover:scale-105"
                 >
                   <ClipboardList className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   View Shopping List
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setTab("progress")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500/20 transition-all hover:scale-105"
                 >
                   <CheckCircle2 className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   Track Progress
-                </button>
+                </Button>
                 <Link
                   to="/paint-comparison"
                   className="group inline-flex items-center gap-2 rounded-lg bg-purple-500/10 px-4 py-2.5 text-sm font-medium text-purple-600 hover:bg-purple-500/20 transition-all hover:scale-105"
@@ -355,7 +356,7 @@ export default function ProjectDetail() {
                           {new Date(calc.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <button
+                      <Button
                         onClick={async () => {
                           await supabase
                             .from("project_calculations")
@@ -372,7 +373,7 @@ export default function ProjectDetail() {
                         className="rounded-lg p-1.5 hover:bg-destructive/10 transition-colors opacity-0 group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4 text-destructive" />
-                      </button>
+                      </Button>
                     </div>
                     {calc.materials?.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -501,7 +502,7 @@ export default function ProjectDetail() {
                           />
                         </td>
                         <td className="p-3">
-                          <button
+                          <Button
                             onClick={async () => {
                               const newVal = !item.is_purchased;
                               await supabase
@@ -527,7 +528,7 @@ export default function ProjectDetail() {
                                 <Circle className="h-3 w-3" /> Pending
                               </>
                             )}
-                          </button>
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -549,13 +550,13 @@ export default function ProjectDetail() {
                 </p>
               </div>
               {stages.length === 0 && stageTemplates.length > 0 && (
-                <button
+                <Button
                   onClick={handleInitProgress}
                   className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
                 >
                   <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
                   Enable Tracking
-                </button>
+                </Button>
               )}
             </div>
             {stages.length > 0 && (
@@ -582,7 +583,7 @@ export default function ProjectDetail() {
                     className={`group flex items-start gap-4 rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-md ${stage.is_completed ? "border-emerald-500/30 bg-emerald-500/5" : ""}`}
                     style={{ opacity: stage.is_completed ? 0.8 : 1 }}
                   >
-                    <button
+                    <Button
                       onClick={() =>
                         handleToggleStage(stage.id, stage.is_completed)
                       }
@@ -591,7 +592,7 @@ export default function ProjectDetail() {
                       <CheckCircle2
                         className={`h-6 w-6 transition-all ${stage.is_completed ? "text-primary-foreground scale-100" : "text-transparent scale-0"}`}
                       />
-                    </button>
+                    </Button>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-muted-foreground">
@@ -705,7 +706,7 @@ export default function ProjectDetail() {
                           >
                             View
                           </Link>
-                          <button
+                          <Button
                             onClick={async () => {
                               try {
                                 const url = `${window.location.origin}/estimate/${est.share_token}`;
@@ -724,10 +725,10 @@ export default function ProjectDetail() {
                             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                           >
                             Copy Link
-                          </button>
+                          </Button>
                         </>
                       ) : (
-                        <button
+                        <Button
                           onClick={async () => {
                             try {
                               const token = await shareClientEstimate(est.id);
@@ -748,7 +749,7 @@ export default function ProjectDetail() {
                           className="text-xs text-primary hover:underline"
                         >
                           Share
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -839,7 +840,7 @@ export default function ProjectDetail() {
                           <span className="text-xs text-primary-foreground truncate max-w-[70%]">
                             {att.file_name}
                           </span>
-                          <button
+                          <Button
                             onClick={async () => {
                               try {
                                 await deleteAttachment(att.id);
@@ -860,7 +861,7 @@ export default function ProjectDetail() {
                             className="rounded-md bg-destructive/80 p-1.5 text-primary-foreground hover:bg-destructive transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -896,7 +897,7 @@ export default function ProjectDetail() {
                           >
                             View
                           </a>
-                          <button
+                          <Button
                             onClick={async () => {
                               try {
                                 await deleteAttachment(att.id);
@@ -917,7 +918,7 @@ export default function ProjectDetail() {
                             className="rounded-md p-1 text-destructive hover:bg-destructive/10 transition-colors"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     ))}

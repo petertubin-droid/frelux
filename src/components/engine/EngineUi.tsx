@@ -38,6 +38,7 @@ import type {
   MaterialSummary,
   EstimateReportData,
 } from "@/lib/measurement/use-engine-features";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // WASTE SELECTOR
@@ -79,7 +80,7 @@ export function EngineWasteSelector({
             ["none", "No Waste"],
           ] as const
         ).map(([key, label]) => (
-          <button
+          <Button
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
@@ -90,7 +91,7 @@ export function EngineWasteSelector({
             )}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -251,7 +252,7 @@ export function EngineConfidenceDetail({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <button
+      <Button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
@@ -264,7 +265,7 @@ export function EngineConfidenceDetail({
         ) : (
           <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         )}
-      </button>
+      </Button>
       {expanded && (
         <div className="border-t border-border px-4 py-3 dark:border-white/5">
           <div className="space-y-2 text-sm">
@@ -317,7 +318,7 @@ export function EngineExplanationPanel({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <button
+      <Button
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
@@ -330,7 +331,7 @@ export function EngineExplanationPanel({
         ) : (
           <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
         )}
-      </button>
+      </Button>
       {expanded && (
         <div className="border-t border-border px-4 py-3 dark:border-white/5">
           <div className="space-y-1.5">

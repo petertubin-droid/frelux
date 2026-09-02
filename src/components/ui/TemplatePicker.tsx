@@ -11,6 +11,7 @@ import {
 import { useAuth } from '@/lib/auth';
 import { useToast } from '@/components/ui/Toast';
 import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function TemplatePicker({
   calculatorType,
@@ -110,14 +111,14 @@ export default function TemplatePicker({
 
   return (
     <div className="relative">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-2 rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card px-4 py-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60 transition-colors hover:border-brand-purple hover:text-brand-purple press-scale"
       >
         <Bookmark aria-hidden="true" className="h-4 w-4" />
         Templates
-      </button>
+      </Button>
 
       {open && (
         <>
@@ -136,7 +137,7 @@ export default function TemplatePicker({
                     {publicTemplates.length > 0 ? (
                       <div className="space-y-1">
                         {publicTemplates.map((t) => (
-                          <button
+                          <Button
                             key={t.id}
                             onClick={() => {
                               onLoad(t.input_data);
@@ -150,7 +151,7 @@ export default function TemplatePicker({
                               <p className="text-sm font-semibold text-foreground dark:text-muted-foreground/40">{t.name}</p>
                               {t.description && <p className="text-xs text-muted-foreground dark:text-muted-foreground">{t.description}</p>}
                             </div>
-                          </button>
+                          </Button>
                         ))}
                       </div>
                     ) : (
@@ -175,12 +176,12 @@ export default function TemplatePicker({
                                     autoFocus
                                     onKeyDown={(e) => e.key === 'Enter' && handleRename(t.id)}
                                   />
-                                  <button onClick={() => handleRename(t.id)} className="rounded bg-primary p-1 text-primary-foreground"><Check aria-hidden="true" className="h-3.5 w-3.5" /></button>
-                                  <button onClick={() => setEditingId(null)} className="rounded border border-border dark:border-white/5 p-1 text-muted-foreground dark:text-muted-foreground"><X className="h-3.5 w-3.5" /></button>
+                                  <Button onClick={() => handleRename(t.id)} className="rounded bg-primary p-1 text-primary-foreground"><Check aria-hidden="true" className="h-3.5 w-3.5" /></Button>
+                                  <Button onClick={() => setEditingId(null)} className="rounded border border-border dark:border-white/5 p-1 text-muted-foreground dark:text-muted-foreground"><X className="h-3.5 w-3.5" /></Button>
                                 </div>
                               ) : (
                                 <>
-                                  <button
+                                  <Button
                                     onClick={() => {
                                       onLoad(t.input_data);
                                       setOpen(false);
@@ -193,11 +194,11 @@ export default function TemplatePicker({
                                       <p className="truncate text-sm font-semibold text-foreground dark:text-muted-foreground/40">{t.name}</p>
                                       {t.description && <p className="truncate text-xs text-muted-foreground dark:text-muted-foreground">{t.description}</p>}
                                     </div>
-                                  </button>
+                                  </Button>
                                   <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <button onClick={() => { setEditingId(t.id); setEditName(t.name); }} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Rename"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></button>
-                                    <button onClick={() => handleDuplicate(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Duplicate"><Copy aria-hidden="true" className="h-3.5 w-3.5" /></button>
-                                    <button onClick={() => handleDelete(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-red-500" title="Delete"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
+                                    <Button onClick={() => { setEditingId(t.id); setEditName(t.name); }} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Rename"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></Button>
+                                    <Button onClick={() => handleDuplicate(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Duplicate"><Copy aria-hidden="true" className="h-3.5 w-3.5" /></Button>
+                                    <Button onClick={() => handleDelete(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-red-500" title="Delete"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></Button>
                                   </div>
                                 </>
                               )}
@@ -218,13 +219,13 @@ export default function TemplatePicker({
                             className="flex-1 rounded-lg border border-border dark:border-white/5 px-3 py-2 text-sm"
                             onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                           />
-                          <button
+                          <Button variant="default"
                             onClick={handleSave}
                             disabled={saving || !saveName.trim()}
-                            className="inline-flex items-center gap-1 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50 press-scale"
+                            className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50 press-scale"
                           >
                             {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Plus aria-hidden="true" className="h-4 w-4" />}
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </div>

@@ -41,6 +41,7 @@ import {
 import { getClientHash } from "@/lib/rewarded-access";
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/shadcn/button";
 
 // Icon mapping for reward types
 const rewardIcon: Record<string, typeof Crown> = {
@@ -404,7 +405,7 @@ export default function Rewards() {
                     </p>
                   </div>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={handleWatchAd}
                   disabled={!canEarn || watchingAd}
@@ -433,7 +434,7 @@ export default function Rewards() {
                           : "Coming soon"}
                     </>
                   )}
-                </button>
+                </Button>
               </div>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                 <div
@@ -484,7 +485,7 @@ export default function Rewards() {
             { key: "history", label: "History", icon: Clock },
           ] as const
         ).map((tab) => (
-          <button
+          <Button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={classNames(
@@ -496,7 +497,7 @@ export default function Rewards() {
           >
             <tab.icon className="h-4 w-4" />
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -587,7 +588,7 @@ export default function Rewards() {
                       </span>
                     </div>
                   </div>
-                  <button
+                  <Button
                     onClick={() => handleRedeem(reward)}
                     disabled={!canAfford || isRedeeming}
                     className={classNames(
@@ -615,7 +616,7 @@ export default function Rewards() {
                         {reward.credit_cost - balance} more
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               );
             })}

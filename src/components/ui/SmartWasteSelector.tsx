@@ -3,6 +3,7 @@ import { Lightbulb, ChevronDown } from 'lucide-react';
 import { calculateSmartWaste, type SurfaceCondition, type ApplicationMethod } from '@/lib/smart-waste';
 import type { ProjectType } from '@/types';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface SmartWasteSelectorProps {
   projectType: ProjectType;
@@ -32,7 +33,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
 
   return (
     <div className="rounded-lg border border-border dark:border-border border-border">
-      <button
+      <Button
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50 dark:hover:bg-card-foreground/50"
@@ -47,7 +48,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
           )}
         </div>
         <ChevronDown className={classNames('h-4 w-4 text-muted-foreground transition-transform', expanded && 'rotate-180')} />
-      </button>
+      </Button>
 
       {expanded && (
         <div className="border-t border-border/50 p-3 dark:border-white/5">
@@ -56,7 +57,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <label className="block text-xs font-semibold text-muted-foreground">Surface condition</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['smooth', 'textured', 'rough'] as SurfaceCondition[]).map((s) => (
-                <button
+                <Button
                   key={s}
                   type="button"
                   onClick={() => setSurface(s)}
@@ -68,7 +69,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   )}
                 >
                   {s}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -78,7 +79,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
             <label className="block text-xs font-semibold text-muted-foreground">Application method</label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
               {(['brush', 'roller', 'spray'] as ApplicationMethod[]).map((m) => (
-                <button
+                <Button
                   key={m}
                   type="button"
                   onClick={() => setMethod(m)}
@@ -90,7 +91,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   )}
                 >
                   {m}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -98,7 +99,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
           {/* Repair work */}
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-semibold text-muted-foreground">Repair / patch work?</span>
-            <button
+            <Button
               type="button"
               onClick={() => setIsRepair(!isRepair)}
               className={classNames(
@@ -107,7 +108,7 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
               )}
             >
               <span className={classNames('absolute top-0.5 h-4 w-4 rounded-full bg-card transition-transform', isRepair ? 'translate-x-4' : 'translate-x-0.5')} />
-            </button>
+            </Button>
           </div>
 
           {/* Result */}
@@ -121,13 +122,13 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                 <span className="text-xs text-muted-foreground">Current: {currentWaste}%</span>
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground dark:text-muted-foreground">{result.reason}</p>
-              <button
+              <Button
                 type="button"
                 onClick={() => onWasteChange(result.wasteMargin)}
                 className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 Apply {result.wasteMargin}% to calculation
-              </button>
+              </Button>
             </div>
           )}
         </div>

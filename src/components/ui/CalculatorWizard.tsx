@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { ChevronLeft, ChevronRight, Check, BadgeCheck } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 export interface WizardStep {
   title: string;
@@ -44,7 +45,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
       {/* Progress dots */}
       <div className="mb-6 flex items-center justify-center gap-2">
         {steps.map((_, i) => (
-          <button
+          <Button
             key={i}
             type="button"
             onClick={() => setCurrentStep(i)}
@@ -75,18 +76,18 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
 
         {/* Navigation */}
         <div className="mt-6 flex items-center justify-between border-t border-border/50 pt-5 dark:border-border border-border">
-          <button
+          <Button
             type="button"
             onClick={prev}
             className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-brand-purple"
           >
             <ChevronLeft className="h-4 w-4" />
             {currentStep === 0 ? 'Exit' : 'Back'}
-          </button>
+          </Button>
           <span className="text-xs text-muted-foreground dark:text-muted-foreground">
             Step {currentStep + 1} of {steps.length}
           </span>
-          <button
+          <Button
             type="button"
             onClick={next}
             disabled={!canProceed}
@@ -106,7 +107,7 @@ export function CalculatorWizard({ steps, onComplete, onBack, completeLabel = 'S
                 Next <ChevronRight className="h-4 w-4" />
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import {
 } from "react";
 import { CheckCircle2, AlertTriangle, XCircle, Info, X } from "lucide-react";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 type ToastType = "success" | "warning" | "error" | "info";
 
@@ -124,13 +125,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   <p className="mt-0.5 text-xs opacity-80">{t.message}</p>
                 )}
               </div>
-              <button
+              <Button
                 onClick={() => remove(t.id)}
                 className="shrink-0 rounded-md p-0.5 opacity-60 transition-opacity hover:opacity-100"
                 aria-label="Dismiss notification"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
               {/* Auto-dismiss progress bar */}
               {t.duration > 0 && (
                 <div

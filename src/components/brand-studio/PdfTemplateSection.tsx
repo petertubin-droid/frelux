@@ -10,6 +10,7 @@ import type {
   DbBrandProfile,
   DbPdfBrandingTemplate,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   access: BSAccess | null;
@@ -124,13 +125,13 @@ export function PdfTemplateSection({
                   </p>
                 )}
                 {!isLocked && selectedProfileId && (
-                  <button
+                  <Button
                     onClick={() => handleTemplateSelect(tpl.id)}
                     disabled={isSelected}
                     className="mt-2 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20 disabled:opacity-50"
                   >
                     {isSelected ? "Selected" : "Use this template"}
-                  </button>
+                  </Button>
                 )}
               </div>
             );

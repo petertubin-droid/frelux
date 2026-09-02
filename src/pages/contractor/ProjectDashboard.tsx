@@ -80,6 +80,7 @@ import type {
 } from "@/types/database";
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -817,12 +818,12 @@ export default function ProjectDashboard() {
         <div className="flex max-w-md flex-col items-center gap-4 rounded-xl border border-red-200 bg-red-50 p-8 text-center">
           <AlertCircle aria-hidden="true" className="h-10 w-10 text-red-500" />
           <p className="text-sm font-medium text-red-700">{error}</p>
-          <button
+          <Button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Go Back
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -838,12 +839,12 @@ export default function ProjectDashboard() {
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <button
+                <Button
                   onClick={() => navigate(-1)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-card-foreground"
                 >
                   <ArrowLeft aria-hidden="true" className="h-5 w-5" />
-                </button>
+                </Button>
                 <div>
                   <h1 className="text-xl font-bold text-foreground sm:text-2xl">
                     {project.name}
@@ -856,15 +857,15 @@ export default function ProjectDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   onClick={doRecalculate}
                   disabled={actionLoading}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <TrendingUp aria-hidden="true" className="h-4 w-4" />{" "}
                   Recalculate
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() =>
                     createProjectVersion(id!, "Manual version snapshot")
                   }
@@ -872,7 +873,7 @@ export default function ProjectDashboard() {
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
                 >
                   <Save aria-hidden="true" className="h-4 w-4" /> Snapshot
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -882,7 +883,7 @@ export default function ProjectDashboard() {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.key;
                 return (
-                  <button
+                  <Button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -893,7 +894,7 @@ export default function ProjectDashboard() {
                   >
                     <Icon aria-hidden="true" className="h-4 w-4" />
                     {tab.label}
-                  </button>
+                  </Button>
                 );
               })}
             </nav>
@@ -906,12 +907,12 @@ export default function ProjectDashboard() {
             <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
               <span className="flex-1">{error}</span>
-              <button
+              <Button
                 onClick={() => setError(null)}
                 className="text-amber-600 hover:text-amber-800"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -1316,12 +1317,12 @@ function RoomsTab(props: RoomsTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Project Rooms ({rooms.length})
         </h2>
-        <button
+        <Button
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Room
-        </button>
+        </Button>
       </div>
 
       {/* Inline room form */}
@@ -1331,12 +1332,12 @@ function RoomsTab(props: RoomsTabProps) {
             <h3 className="text-base font-semibold text-foreground">
               {editingRoomId ? "Edit Room" : "New Room"}
             </h3>
-            <button
+            <Button
               onClick={onCancelForm}
               className="text-muted-foreground hover:text-muted-foreground"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1557,7 +1558,7 @@ function RoomsTab(props: RoomsTabProps) {
           </div>
 
           <div className="mt-5 flex gap-2">
-            <button
+            <Button
               onClick={onSubmit}
               disabled={actionLoading || !roomForm.name.trim()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -1568,13 +1569,13 @@ function RoomsTab(props: RoomsTabProps) {
                 <Save aria-hidden="true" className="h-4 w-4" />
               )}
               {editingRoomId ? "Update Room" : "Create Room"}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -1618,18 +1619,18 @@ function RoomsTab(props: RoomsTabProps) {
                     </p>
                   </div>
                   <div className="flex gap-1">
-                    <button
+                    <Button
                       onClick={() => onEdit(room)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => onDelete(room.id)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -1723,12 +1724,12 @@ function LabourTab(props: LabourTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Labour Plan ({labourPlan.length})
         </h2>
-        <button
+        <Button
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Role
-        </button>
+        </Button>
       </div>
 
       {/* Inline labour form */}
@@ -1738,12 +1739,12 @@ function LabourTab(props: LabourTabProps) {
             <h3 className="text-base font-semibold text-foreground">
               {editingLabourId ? "Edit Labour Role" : "New Labour Role"}
             </h3>
-            <button
+            <Button
               onClick={onCancelForm}
               className="text-muted-foreground hover:text-muted-foreground"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
 
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -1847,7 +1848,7 @@ function LabourTab(props: LabourTabProps) {
           </div>
 
           <div className="mt-4 flex gap-2">
-            <button
+            <Button
               onClick={onSubmit}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -1858,13 +1859,13 @@ function LabourTab(props: LabourTabProps) {
                 <Save aria-hidden="true" className="h-4 w-4" />
               )}
               {editingLabourId ? "Update Role" : "Add Role"}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -1931,18 +1932,18 @@ function LabourTab(props: LabourTabProps) {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <button
+                        <Button
                           onClick={() => onEdit(item)}
                           className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                         >
                           <Edit aria-hidden="true" className="h-4 w-4" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => onDelete(item.id)}
                           className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                         >
                           <Trash2 aria-hidden="true" className="h-4 w-4" />
-                        </button>
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -1978,18 +1979,18 @@ function LabourTab(props: LabourTabProps) {
                     {prettify(item.role)}
                   </h3>
                   <div className="flex gap-1">
-                    <button
+                    <Button
                       onClick={() => onEdit(item)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => onDelete(item.id)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
                 {item.notes && (
@@ -2088,7 +2089,7 @@ function ShoppingTab(props: ShoppingTabProps) {
           Shopping List ({shoppingList.length})
         </h2>
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
             onClick={onGenerate}
             disabled={actionLoading}
             className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2099,28 +2100,28 @@ function ShoppingTab(props: ShoppingTabProps) {
               <ClipboardList aria-hidden="true" className="h-4 w-4" />
             )}
             Generate Shopping List
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onPrint}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Printer aria-hidden="true" className="h-4 w-4" /> Print
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onDownloadPDF}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Download aria-hidden="true" className="h-4 w-4" /> PDF
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onShareWhatsApp}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
           >
             <Share2 aria-hidden="true" className="h-4 w-4" /> WhatsApp
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -2188,7 +2189,7 @@ function ShoppingTab(props: ShoppingTabProps) {
                       key={item.id}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50"
                     >
-                      <button
+                      <Button
                         onClick={() => onTogglePurchased(item)}
                         className={`shrink-0 rounded ${item.is_purchased ? "text-green-500" : "text-muted-foreground/80 hover:text-muted-foreground"}`}
                       >
@@ -2200,7 +2201,7 @@ function ShoppingTab(props: ShoppingTabProps) {
                         ) : (
                           <Circle aria-hidden="true" className="h-5 w-5" />
                         )}
-                      </button>
+                      </Button>
                       <div
                         className={`flex-1 ${item.is_purchased ? "line-through opacity-60" : ""}`}
                       >
@@ -2361,7 +2362,7 @@ function QuotationTab(props: QuotationTabProps) {
           </div>
         </div>
 
-        <button
+        <Button
           onClick={onGenerate}
           disabled={actionLoading}
           className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2372,7 +2373,7 @@ function QuotationTab(props: QuotationTabProps) {
             <FileText aria-hidden="true" className="h-4 w-4" />
           )}
           Generate Quotation
-        </button>
+        </Button>
       </div>
 
       {/* Generated quotations */}
@@ -2412,21 +2413,21 @@ function QuotationTab(props: QuotationTabProps) {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => onDownloadPDF(quot)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
                   >
                     <Download aria-hidden="true" className="h-4 w-4" /> PDF
-                  </button>
+                  </Button>
                   {quot.status === "draft" && (
-                    <button
+                    <Button
                       onClick={() => onSend(quot.id)}
                       disabled={actionLoading}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
                     >
                       <Share2 aria-hidden="true" className="h-4 w-4" /> Mark
                       Sent
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -2544,7 +2545,7 @@ function TimelineTab(props: TimelineTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Project Timeline ({timeline.length})
         </h2>
-        <button
+        <Button
           onClick={onGenerate}
           disabled={actionLoading}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2555,7 +2556,7 @@ function TimelineTab(props: TimelineTabProps) {
             <Calendar aria-hidden="true" className="h-4 w-4" />
           )}
           Generate Timeline
-        </button>
+        </Button>
       </div>
 
       {timeline.length === 0 ? (
@@ -2643,7 +2644,7 @@ function TimelineTab(props: TimelineTabProps) {
                           Day {phase.start_day}–{phase.end_day} (
                           {phase.days_required}d)
                         </span>
-                        <button
+                        <Button
                           onClick={() => onMarkComplete(phase)}
                           disabled={actionLoading}
                           className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
@@ -2653,7 +2654,7 @@ function TimelineTab(props: TimelineTabProps) {
                           }`}
                         >
                           {phase.is_completed ? "Undo" : "Mark Complete"}
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -2748,7 +2749,7 @@ function NotesTab(props: NotesTabProps) {
             Project Notes
           </h3>
           {notesDirty && (
-            <button
+            <Button
               onClick={onSave}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2759,7 +2760,7 @@ function NotesTab(props: NotesTabProps) {
                 <Save aria-hidden="true" className="h-4 w-4" />
               )}
               Save Notes
-            </button>
+            </Button>
           )}
         </div>
         <textarea
@@ -2836,12 +2837,12 @@ function NotesTab(props: NotesTabProps) {
                     <Download aria-hidden="true" className="h-4 w-4" />
                   </a>
                 )}
-                <button
+                <Button
                   onClick={() => onDeleteAttachment(att.id)}
                   className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             ))}
           </div>

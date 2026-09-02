@@ -123,18 +123,18 @@ export function CodeOutput({
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={download}
-            className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
             title="Download"
           >
             <Download aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>
-          <button
+          </Button>
+          <Button variant="ghost"
             type="button"
             onClick={copy}
-            className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="rounded-md p-1.5 text-muted-foreground hover:text-foreground"
             title="Copy"
           >
             {copied ? (
@@ -145,7 +145,7 @@ export function CodeOutput({
             ) : (
               <Copy aria-hidden="true" className="h-3.5 w-3.5" />
             )}
-          </button>
+          </Button>
         </div>
       </div>
       <pre className="max-h-[60vh] overflow-auto p-4 text-xs leading-relaxed text-foreground">
@@ -302,7 +302,7 @@ export function ArtifactCard({
   };
   return (
     <div className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary hover:shadow-sm">
-      <button
+      <Button
         type="button"
         onClick={onClick}
         className="flex min-w-0 items-center gap-3 text-left"
@@ -330,15 +330,15 @@ export function ArtifactCard({
             </span>
           </div>
         </div>
-      </button>
+      </Button>
       {onDelete && (
-        <button
+        <Button
           type="button"
           onClick={onDelete}
           className="rounded-md p-2 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
         >
           <Trash2 aria-hidden="true" className="h-4 w-4" />
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -359,7 +359,7 @@ export function CollapsibleSection({
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="rounded-lg border border-border bg-card">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4"
@@ -376,7 +376,7 @@ export function CollapsibleSection({
             className="h-4 w-4 text-muted-foreground"
           />
         )}
-      </button>
+      </Button>
       {open && <div className="border-t border-border p-4">{children}</div>}
     </div>
   );

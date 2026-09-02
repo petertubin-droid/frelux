@@ -55,6 +55,7 @@ import type { RoofGeometry } from "@/lib/roof/geometry-types";
 import { trackBuildToRoofRewards } from "@/lib/rewards-integration";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 const STEPS = [
   { id: "project", label: "Project", icon: Home },
@@ -507,7 +508,7 @@ export default function BuildToRoofEstimator() {
                 const isActive = i === step;
                 const isDone = i < step;
                 return (
-                  <button
+                  <Button
                     key={s.id}
                     onClick={() => i <= step && setStep(i)}
                     className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 snap-start ${
@@ -521,7 +522,7 @@ export default function BuildToRoofEstimator() {
                     <Icon className="w-3.5 h-3.5 shrink-0" />
                     <span className="hidden md:inline">{s.label}</span>
                     <span className="md:hidden">{i + 1}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -596,7 +597,7 @@ export default function BuildToRoofEstimator() {
                         Measurement unit:
                       </span>
                       <div className="inline-flex rounded-lg border border-border overflow-hidden">
-                        <button
+                        <Button
                           onClick={() => {
                             if (input.measurement_unit === "ft") {
                               // Convert ft values to m
@@ -633,8 +634,8 @@ export default function BuildToRoofEstimator() {
                           className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "m" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                         >
                           Meters (m)
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => {
                             if (input.measurement_unit === "m") {
                               // Convert m values to ft
@@ -671,7 +672,7 @@ export default function BuildToRoofEstimator() {
                           className={`px-3 py-1.5 text-sm font-medium ${input.measurement_unit === "ft" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted/50"}`}
                         >
                           Feet (ft)
-                        </button>
+                        </Button>
                       </div>
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
@@ -816,7 +817,7 @@ export default function BuildToRoofEstimator() {
                               update("openings", openings);
                             }}
                           />
-                          <button
+                          <Button
                             onClick={() =>
                               update(
                                 "openings",
@@ -826,10 +827,10 @@ export default function BuildToRoofEstimator() {
                             className="text-sm text-red-500 hover:text-red-700 font-medium"
                           >
                             Remove
-                          </button>
+                          </Button>
                         </div>
                       ))}
-                      <button
+                      <Button
                         onClick={() =>
                           update("openings", [
                             ...input.openings,
@@ -844,7 +845,7 @@ export default function BuildToRoofEstimator() {
                         className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium flex items-center gap-1"
                       >
                         + Add opening
-                      </button>
+                      </Button>
                     </div>
                   </SectionCard>
                 )}
@@ -1319,7 +1320,7 @@ export default function BuildToRoofEstimator() {
                                   update("structural_members", members);
                                 }}
                               />
-                              <button
+                              <Button
                                 onClick={() =>
                                   update(
                                     "structural_members",
@@ -1331,10 +1332,10 @@ export default function BuildToRoofEstimator() {
                                 className="col-span-2 md:col-span-6 text-xs text-red-500 hover:text-red-700 font-medium text-left"
                               >
                                 Remove member
-                              </button>
+                              </Button>
                             </div>
                           ))}
-                          <button
+                          <Button
                             onClick={() =>
                               update("structural_members", [
                                 ...input.structural_members,
@@ -1352,7 +1353,7 @@ export default function BuildToRoofEstimator() {
                             className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
                           >
                             + Add structural member
-                          </button>
+                          </Button>
                         </div>
                       )}
                       {!input.has_engineer_schedule && (
@@ -2079,14 +2080,14 @@ export default function BuildToRoofEstimator() {
               </div>
               {/* Navigation */}
               <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
-                <button
+                <Button variant="ghost"
                   onClick={prev}
                   disabled={step === 0}
-                  className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-muted transition-colors active:scale-95"
+                  className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span className="hidden sm:inline">Back</span>
-                </button>
+                </Button>
                 <span className="text-xs text-muted-foreground font-medium">
                   <span className="hidden sm:inline">Step </span>
                   {step + 1}{" "}
@@ -2096,23 +2097,23 @@ export default function BuildToRoofEstimator() {
                   <span className="sm:hidden">/{STEPS.length - 1}</span>
                 </span>
                 {step < STEPS.length - 2 ? (
-                  <button
+                  <Button
                     onClick={next}
                     disabled={!canProceed}
                     className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 sm:px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
                   >
                     <span className="hidden sm:inline">Next</span>
                     <ChevronRight className="w-4 h-4" />
-                  </button>
+                  </Button>
                 ) : step === STEPS.length - 2 ? (
-                  <button
+                  <Button
                     onClick={calculate}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
                   >
                     <Calculator aria-hidden="true" className="w-4 h-4" />
                     <span className="hidden sm:inline">Generate Estimate</span>
                     <span className="sm:hidden">Calculate</span>
-                  </button>
+                  </Button>
                 ) : null}
               </div>
             </>
@@ -2741,23 +2742,23 @@ function EstimateResult({
 
       {/* Premium Actions */}
       <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
-        <button
+        <Button variant="ghost"
           onClick={onBack}
-          className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors active:scale-95"
+          className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors active:scale-95"
         >
           <ChevronLeft className="w-4 h-4" />
           <span className="hidden sm:inline">Edit Inputs</span>
           <span className="sm:hidden">Edit</span>
-        </button>
+        </Button>
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={() => window.print()}
             className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
           >
             <Printer className="w-4 h-4" />
             <span className="hidden sm:inline">Print Estimate</span>
             <span className="sm:hidden">Print</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

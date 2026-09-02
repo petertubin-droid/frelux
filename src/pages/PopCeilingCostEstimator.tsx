@@ -42,6 +42,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 interface PassedState {
   ceilingArea?: number;
   workflow?: string;
@@ -270,7 +271,7 @@ export default function PopCeilingCostEstimator({
             <Section title="Dimensions">
               <div className="inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <button
+                  <Button
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -282,7 +283,7 @@ export default function PopCeilingCostEstimator({
                     }
                   >
                     {u}
-                  </button>
+                  </Button>
                 ))}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -341,7 +342,7 @@ export default function PopCeilingCostEstimator({
             <Section title="Waste margin">
               <div className="flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <button
+                  <Button
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -353,7 +354,7 @@ export default function PopCeilingCostEstimator({
                     }
                   >
                     {w}%
-                  </button>
+                  </Button>
                 ))}
               </div>
             </Section>
@@ -367,15 +368,15 @@ export default function PopCeilingCostEstimator({
               last
             />
 
-            <button
+            <Button variant="default"
               type="button"
               onClick={compute}
               disabled={input.roomLength <= 0 || input.roomWidth <= 0}
-              className="btn-primary mt-6 w-full disabled:opacity-50 sm:w-auto"
+              className="mt-6 w-full disabled:opacity-50 sm:w-auto"
             >
               Generate Estimate{" "}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Results panel */}
@@ -446,14 +447,14 @@ export default function PopCeilingCostEstimator({
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
                     {user && (
-                      <button
+                      <Button variant="secondary"
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="btn-secondary mt-3 w-full disabled:opacity-50"
+                        className="mt-3 w-full disabled:opacity-50"
                       >
                         {saving ? "Saving…" : "Save to Projects"}
-                      </button>
+                      </Button>
                     )}
 
                     {/* ── Engine Features (Additive) ── */}
@@ -711,7 +712,7 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border dark:border-white/5 p-3">
-      <button
+      <Button
         type="button"
         onClick={() => onChange(!checked)}
         className={
@@ -727,7 +728,7 @@ function ToggleRow({
             (checked ? "translate-x-4" : "translate-x-0.5")
           }
         />
-      </button>
+      </Button>
       <div>
         <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           {label}

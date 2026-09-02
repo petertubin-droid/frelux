@@ -41,6 +41,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { SITE_URL } from "@/lib/seo";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface PassedState {
   surfaceArea?: number;
@@ -293,7 +294,7 @@ export default function TileCostEstimator({
               </Field>
               <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <button
+                  <Button
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -305,7 +306,7 @@ export default function TileCostEstimator({
                     }
                   >
                     {u}
-                  </button>
+                  </Button>
                 ))}
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -487,15 +488,15 @@ export default function TileCostEstimator({
               last
             />
 
-            <button
+            <Button variant="default"
               type="button"
               onClick={compute}
               disabled={input.length <= 0}
-              className="btn-primary mt-6 w-full disabled:opacity-50 sm:w-auto"
+              className="mt-6 w-full disabled:opacity-50 sm:w-auto"
             >
               Generate Estimate{" "}
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Results panel */}
@@ -579,14 +580,14 @@ export default function TileCostEstimator({
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
                     {user && (
-                      <button
+                      <Button variant="secondary"
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
-                        className="btn-secondary mt-3 w-full disabled:opacity-50"
+                        className="mt-3 w-full disabled:opacity-50"
                       >
                         {saving ? "Saving…" : "Save to Projects"}
-                      </button>
+                      </Button>
                     )}
 
                     {/* ── Engine Features (Additive) ── */}

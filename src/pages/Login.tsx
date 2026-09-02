@@ -18,6 +18,7 @@ import { useAuth, type AccountType } from "@/lib/auth";
 import Logo from "@/components/brand/Logo";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Mode = "signin" | "signup" | "reset";
 
@@ -261,7 +262,7 @@ export default function Login() {
                 Account type
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
-                <button
+                <Button
                   type="button"
                   onClick={() => setAccountType("client")}
                   className={classNames(
@@ -294,8 +295,8 @@ export default function Login() {
                       Estimate and save projects
                     </p>
                   </div>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setAccountType("pro_worker")}
                   className={classNames(
@@ -328,13 +329,13 @@ export default function Login() {
                       Offer your services
                     </p>
                   </div>
-                </button>
+                </Button>
               </div>
             </div>
           )}
           {mode !== "reset" && (
             <div>
-              <button
+              <Button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
@@ -342,7 +343,7 @@ export default function Login() {
               >
                 <GoogleIcon />
                 {googleLoading ? "Connecting..." : "Continue with Google"}
-              </button>
+              </Button>
               <div className="my-5 flex items-center gap-3">
                 <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                 <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
@@ -398,10 +399,10 @@ export default function Login() {
                 <p>{error}</p>
               </div>
             )}
-            <button
+            <Button variant="default"
               type="submit"
               disabled={loading || !configured}
-              className="btn-primary press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className="press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {mode === "signin" ? (
                 <LogIn className="h-4 w-4" />
@@ -417,11 +418,11 @@ export default function Login() {
                   : mode === "signup"
                     ? "Create account"
                     : "Send reset link"}
-            </button>
+            </Button>
             <div className="flex flex-col items-center gap-2 text-xs">
               {mode === "signin" && (
                 <div className="flex flex-col items-center gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       setMode("signup");
@@ -431,8 +432,8 @@ export default function Login() {
                     className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
                     Need an account? Sign up
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => {
                       setMode("reset");
@@ -442,11 +443,11 @@ export default function Login() {
                     className="text-muted-foreground hover:text-brand-purple hover:underline dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
                   >
                     Forgot your password?
-                  </button>
+                  </Button>
                 </div>
               )}
               {mode === "signup" && (
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setMode("signin");
@@ -456,10 +457,10 @@ export default function Login() {
                   className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
                   Already have an account? Sign in
-                </button>
+                </Button>
               )}
               {mode === "reset" && (
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setMode("signin");
@@ -469,7 +470,7 @@ export default function Login() {
                   className="font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
                   Back to sign in
-                </button>
+                </Button>
               )}
             </div>
           </form>

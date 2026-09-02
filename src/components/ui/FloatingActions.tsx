@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Paintbrush, Layers, Grid3x3, Palette, FolderOpen, X, Calculator } from "lucide-react";
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 const actions = [
   { to: '/paint-calculator', label: 'Paint Calculator', icon: Paintbrush },
@@ -36,7 +37,7 @@ export default function FloatingActions() {
           ))}
         </div>
       )}
-      <button
+      <Button
         data-tour="floating"
         onClick={() => setOpen((v) => !v)}
         className={classNames(
@@ -47,7 +48,7 @@ export default function FloatingActions() {
         aria-expanded={open}
       >
         {open ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Plus className="h-5 w-5 sm:h-6 sm:w-6" />}
-      </button>
+      </Button>
     </div>
   );
 }

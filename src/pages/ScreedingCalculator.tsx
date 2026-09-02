@@ -37,6 +37,7 @@ import {
   EngineConfidenceDetail,
   EngineWasteSelector,
 } from "@/components/engine";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ScreedingCalculator({
   embedded = false,
@@ -226,14 +227,14 @@ export default function ScreedingCalculator({
               )}
             </MeasurementInput>
 
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleCalculate}
               disabled={!validation.valid}
-              className="w-full btn-primary btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-glow py-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Calculate Screeding Area
-            </button>
+            </Button>
           </div>
         )}
 
@@ -293,14 +294,14 @@ export default function ScreedingCalculator({
             </div>
 
             <div className="flex items-center gap-3">
-              <button
+              <Button variant="secondary"
                 type="button"
                 onClick={startOver}
-                className="btn-secondary inline-flex items-center gap-2"
+                className="inline-flex items-center gap-2"
               >
                 <RotateCcw aria-hidden="true" className="h-4 w-4" />
                 Start Over
-              </button>
+              </Button>
               <Link
                 to="/screeding-calculator?mode=cost"
                 state={{ netScreedingArea: screedingResult.totalAreaM2 }}

@@ -26,6 +26,7 @@ import {
 import { logAdEvent } from "@/lib/ad-config";
 import { hasRewardedAdProvider } from "@/lib/ad-config";
 import { useToast } from "@/components/ui/Toast";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   /** Feature key in ai_feature_costs table (e.g. 'pdf_export', 'ai_building_estimation') */
@@ -187,13 +188,13 @@ export function PremiumFeatureGate({
               <PremiumBadge size="md" glow />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
           <p className="mt-2 text-sm text-primary-foreground/70">
             {description ??
@@ -210,11 +211,11 @@ export function PremiumFeatureGate({
 
           <div className="space-y-3">
             {/* Use Credits button */}
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleUseCredits}
               disabled={spending}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:/90 disabled:opacity-50"
             >
               {spending ? (
                 <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
@@ -222,7 +223,7 @@ export function PremiumFeatureGate({
                 <Crown aria-hidden="true" className="h-5 w-5 text-amber-400" />
               )}
               Use {cost} Credits to Unlock
-            </button>
+            </Button>
 
             {/* Watch Ad button */}
             {canWatchAd && (
@@ -234,11 +235,11 @@ export function PremiumFeatureGate({
                   </span>
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                 </div>
-                <button
+                <Button variant="default"
                   type="button"
                   onClick={handleWatchAd}
                   disabled={adUnlocking}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/10 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:disabled:opacity-50"
                 >
                   {adUnlocking ? (
                     <Loader2
@@ -249,7 +250,7 @@ export function PremiumFeatureGate({
                     <PlayCircle aria-hidden="true" className="h-5 w-5" />
                   )}
                   Watch Ad to Unlock
-                </button>
+                </Button>
               </>
             )}
 

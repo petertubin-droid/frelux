@@ -5,6 +5,7 @@ import { classNames } from '@/lib/utils';
 import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
 
 import { useSeo } from '@/lib/seo';
+import { Button } from "@/components/ui/shadcn/button";
 export default function StudioLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   useSeo({ title: 'FRELUX Studio', description: 'FRELUX Studio', noIndex: true });
@@ -17,9 +18,9 @@ export default function StudioLayout() {
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-sm font-bold text-foreground dark:text-primary-foreground">AI Studio</span>
         </Link>
-        <button type="button" onClick={() => setMobileOpen(true)} className="rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted" aria-label="Open menu">
+        <Button type="button" onClick={() => setMobileOpen(true)} className="rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted" aria-label="Open menu">
           <Menu className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       <div className="flex">
@@ -35,7 +36,7 @@ export default function StudioLayout() {
             <aside className="absolute left-0 top-0 h-full w-72 bg-card dark:bg-card shadow-xl">
               <div className="flex h-14 items-center justify-between border-b border-border dark:border-white/5 px-4">
                 <span className="flex items-center gap-2 text-sm font-bold text-foreground dark:text-primary-foreground"><Code className="h-5 w-5 text-brand-purple" /> AI Studio</span>
-                <button type="button" onClick={() => setMobileOpen(false)} className="rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"><X className="h-5 w-5" /></button>
+                <Button type="button" onClick={() => setMobileOpen(false)} className="rounded-md p-2 text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"><X className="h-5 w-5" /></Button>
               </div>
               <SidebarContent onNavigate={() => setMobileOpen(false)} />
             </aside>

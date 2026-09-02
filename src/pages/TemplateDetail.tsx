@@ -19,6 +19,7 @@ import {
 import type { DbCalculatorTemplate } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function TemplateDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -242,13 +243,13 @@ export default function TemplateDetail() {
 
       {/* CTA */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <button
+        <Button
           onClick={() => navigate(`${calcPath}?template=${template.id}`)}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           Use This Template
           <ArrowRight aria-hidden="true" className="h-4 w-4" />
-        </button>
+        </Button>
         <Link
           to={calcPath}
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-6 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"

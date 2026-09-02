@@ -29,6 +29,7 @@ import {
   type RewardedAdCreditConfig,
   type RewardedAdCreditEvent,
 } from "@/lib/credits";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   "overview" | "features" | "ad_config" | "transactions" | "users" | "audit";
@@ -224,7 +225,7 @@ export default function AdminCreditsAds() {
       {/* Tabs */}
       <div className="flex flex-wrap gap-1 rounded-xl border border-border p-1 dark:border-white/10">
         {tabs.map(([key, label]) => (
-          <button
+          <Button
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -236,7 +237,7 @@ export default function AdminCreditsAds() {
             )}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -457,7 +458,7 @@ export default function AdminCreditsAds() {
                     Enabled
                   </label>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={() => handleSaveFeature(f.id)}
                   disabled={savingFeature === f.id}
@@ -469,7 +470,7 @@ export default function AdminCreditsAds() {
                     <Save aria-hidden="true" className="h-3.5 w-3.5" />
                   )}
                   Save
-                </button>
+                </Button>
               </div>
             );
           })}
@@ -564,11 +565,11 @@ export default function AdminCreditsAds() {
               Rewarded Ads Enabled
             </label>
           </div>
-          <button
+          <Button variant="default"
             type="button"
             onClick={handleSaveAdConfig}
             disabled={savingAdConfig}
-            className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
           >
             {savingAdConfig ? (
               <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -576,7 +577,7 @@ export default function AdminCreditsAds() {
               <Save aria-hidden="true" className="h-3.5 w-3.5" />
             )}
             Save Configuration
-          </button>
+          </Button>
         </div>
       )}
 
@@ -653,11 +654,11 @@ export default function AdminCreditsAds() {
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleAdjust}
               disabled={adjusting}
-              className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
             >
               {adjusting ? (
                 <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
@@ -665,7 +666,7 @@ export default function AdminCreditsAds() {
                 <Coins className="h-3.5 w-3.5" />
               )}
               Adjust Credits
-            </button>
+            </Button>
           </div>
 
           {/* Wallet list */}

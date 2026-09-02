@@ -5,6 +5,7 @@ import { whatsappUrl } from '@/lib/analytics';
 import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
 import { getClientId } from '@/lib/ai-access';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface ChatMessage {
   id: number;
@@ -106,7 +107,7 @@ export default function SupportChatWidget() {
     <>
       {/* Floating button — uses a proper icon, not an image */}
       {!open && (
-        <button
+        <Button
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
@@ -117,7 +118,7 @@ export default function SupportChatWidget() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
           </span>
-        </button>
+        </Button>
       )}
 
       {open && (
@@ -129,14 +130,14 @@ export default function SupportChatWidget() {
           }
         >
           {minimized ? (
-            <button
+            <Button
               type="button"
               onClick={() => setMinimized(false)}
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-3 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
               <MessageCircle className="h-5 w-5" strokeWidth={1.8} />
               Chat with FRELUX AI
-            </button>
+            </Button>
           ) : (
             <>
               {/* Header — avatar image only shown here, inside the chat */}
@@ -158,12 +159,12 @@ export default function SupportChatWidget() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button type="button" onClick={() => setMinimized(true)} className="rounded p-1.5 hover:bg-white/10" aria-label="Minimize chat">
+                  <Button type="button" onClick={() => setMinimized(true)} className="rounded p-1.5 hover:bg-white/10" aria-label="Minimize chat">
                     <Minus className="h-4 w-4" />
-                  </button>
-                  <button type="button" onClick={() => setOpen(false)} className="rounded p-1.5 hover:bg-white/10" aria-label="Close chat">
+                  </Button>
+                  <Button type="button" onClick={() => setOpen(false)} className="rounded p-1.5 hover:bg-white/10" aria-label="Close chat">
                     <X className="h-4 w-4" />
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -214,7 +215,7 @@ export default function SupportChatWidget() {
                     </p>
                     <div className="space-y-1.5">
                       {SUGGESTED_QUESTIONS.map((q) => (
-                        <button
+                        <Button
                           key={q}
                           type="button"
                           onClick={() => handleSend(q)}
@@ -222,7 +223,7 @@ export default function SupportChatWidget() {
                         >
                           {q}
                           <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/80 dark:text-muted-foreground" />
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
@@ -259,14 +260,14 @@ export default function SupportChatWidget() {
                   disabled={loading}
                   className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple disabled:opacity-50 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
                 />
-                <button
+                <Button size="icon" variant="default"
                   type="submit"
                   disabled={!draft.trim() || loading}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-opacity disabled:opacity-40"
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity disabled:opacity-40"
                   aria-label="Send message"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </button>
+                </Button>
               </form>
             </>
           )}

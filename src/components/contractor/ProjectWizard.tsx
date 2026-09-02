@@ -48,6 +48,7 @@ import type {
 } from '@/types/database';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
+import { Button } from "@/components/ui/shadcn/button";
 
 // NOTE: lucide-react@0.344.0 does not export `Trowel`, so `Paintbrush2` is used
 // as the icon for the screeding project type instead.
@@ -223,7 +224,7 @@ function OptionButton<T extends string>({
   onSelect,
 }: OptionButtonProps<T>) {
   return (
-    <button
+    <Button
       type="button"
       onClick={() => onSelect(value)}
       className={classNames(
@@ -250,7 +251,7 @@ function OptionButton<T extends string>({
       {selected && (
         <Check className="mt-1 h-5 w-5 flex-shrink-0 text-purple-700" />
       )}
-    </button>
+    </Button>
   );
 }
 
@@ -647,7 +648,7 @@ export default function ProjectWizard() {
 
         {/* Navigation */}
         <div className="mt-8 flex items-center justify-between gap-3">
-          <button
+          <Button
             type="button"
             onClick={handleBack}
             disabled={step === 0 || submitting}
@@ -660,10 +661,10 @@ export default function ProjectWizard() {
           >
             <ArrowLeft className="h-4 w-4" />
             Back
-          </button>
+          </Button>
 
           {step < TOTAL_STEPS - 1 ? (
-            <button
+            <Button
               type="button"
               onClick={handleNext}
               disabled={!canAdvance}
@@ -676,9 +677,9 @@ export default function ProjectWizard() {
             >
               Next
               <ArrowRight className="h-4 w-4" />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
               onClick={handleSubmit}
               disabled={submitting || !state.name.trim()}
@@ -703,7 +704,7 @@ export default function ProjectWizard() {
                   Create Project
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

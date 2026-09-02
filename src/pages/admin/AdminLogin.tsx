@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import Logo from '@/components/brand/Logo';
 import { useSeo } from '@/lib/seo';
 import { AdminButton, AdminInput } from '@/components/admin/AdminUi';
+import { Button } from "@/components/ui/shadcn/button";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -86,7 +87,7 @@ export default function AdminLogin() {
           ) : (
             <>
               {/* Google Sign-In */}
-              <button
+              <Button
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
@@ -94,7 +95,7 @@ export default function AdminLogin() {
               >
                 <GoogleIcon />
                 {googleLoading ? 'Connecting...' : 'Continue with Google'}
-              </button>
+              </Button>
 
               {/* Divider */}
               <div className="my-5 flex items-center gap-3">

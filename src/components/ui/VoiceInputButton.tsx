@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { useVoiceInput, parseSpokenNumber } from '@/lib/voice-input';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface VoiceInputButtonProps {
   onResult: (value: number) => void;
@@ -27,7 +28,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <button
+      <Button
         type="button"
         onClick={isListening ? stopListening : startListening}
         className={classNames(
@@ -42,7 +43,7 @@ export function VoiceInputButton({ onResult, label, compact = true }: VoiceInput
       >
         {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
         {!compact && <span>{isListening ? 'Stop' : 'Speak'}</span>}
-      </button>
+      </Button>
       {feedback && (
         <span className="text-xs text-muted-foreground dark:text-muted-foreground">{feedback}</span>
       )}

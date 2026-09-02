@@ -17,6 +17,7 @@ import {
 } from "@/lib/project-intelligence";
 import type { DbClientEstimate } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const fmt = (v: number, currency = "NGN") =>
   new Intl.NumberFormat("en-NG", {
@@ -311,13 +312,13 @@ export default function ClientEstimateView() {
                   autoFocus
                 />
                 <div className="flex gap-3">
-                  <button
+                  <Button
                     onClick={() => setShowFeedback(false)}
                     className="flex-1 rounded-lg border px-4 py-3 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={handleRequestChanges}
                     disabled={actionLoading || !feedback.trim()}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -329,12 +330,12 @@ export default function ClientEstimateView() {
                         <MessageSquare className="h-4 w-4" /> Submit Feedback
                       </>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex flex-wrap gap-3">
-                <button
+                <Button
                   onClick={handleApprove}
                   disabled={actionLoading}
                   className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
@@ -347,14 +348,14 @@ export default function ClientEstimateView() {
                       Approve Estimate
                     </>
                   )}
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => setShowFeedback(true)}
                   className="group flex-1 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-amber-500/30 px-6 py-3.5 text-sm font-semibold text-amber-600 hover:bg-amber-500/10 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
                   <AlertCircle className="h-5 w-5 group-hover:scale-110 transition-transform" />{" "}
                   Request Changes
-                </button>
+                </Button>
               </div>
             )}
           </div>

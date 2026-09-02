@@ -43,6 +43,7 @@ import type {
 import { formatCurrency } from "@/lib/utils";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Phase = "upload" | "analyzing" | "review" | "result" | "locked" | "error";
 
@@ -365,12 +366,12 @@ export default function ImageEstimator() {
                     alt="Building"
                     className="max-h-80 mx-auto rounded-lg shadow-md"
                   />
-                  <button
+                  <Button
                     onClick={() => fileRef.current?.click()}
                     className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
                   >
                     Choose a different image
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
@@ -382,13 +383,13 @@ export default function ImageEstimator() {
                     JPG or PNG, max 10MB. The clearer the photo, the better the
                     estimate.
                   </p>
-                  <button
+                  <Button
                     onClick={() => fileRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
                     <Camera aria-hidden="true" className="w-4 h-4" />
                     Choose Building Photo
-                  </button>
+                  </Button>
                 </>
               )}
               <input
@@ -453,13 +454,13 @@ export default function ImageEstimator() {
                   </p>
                 </div>
 
-                <button
+                <Button variant="ghost"
                   onClick={runEstimation}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
                 >
                   <Zap className="w-4 h-4" />
                   Analyze Building & Generate Estimate
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -745,13 +746,13 @@ export default function ImageEstimator() {
                   </div>
                 )}
 
-              <button
+              <Button variant="ghost"
                 onClick={generateEstimate}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
               >
                 <TrendingUp className="w-4 h-4" />
                 Generate Full Cost Estimate
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -779,7 +780,7 @@ export default function ImageEstimator() {
             <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">
               {error}
             </p>
-            <button
+            <Button
               onClick={() => {
                 setPhase("upload");
                 setError("");
@@ -787,7 +788,7 @@ export default function ImageEstimator() {
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Try Again
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -927,7 +928,7 @@ function LockedView({
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {adError}
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setAdState("idle");
@@ -937,10 +938,10 @@ function LockedView({
                 >
                   <Zap className="w-4 h-4" />
                   Try Again
-                </button>
+                </Button>
               </div>
             ) : (
-              <button
+              <Button variant="default"
                 type="button"
                 onClick={handleWatchAd}
                 disabled={
@@ -949,7 +950,7 @@ function LockedView({
                   adState === "checking" ||
                   !adProviderReady
                 }
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {adState === "watching" ||
                 adState === "verifying" ||
@@ -968,7 +969,7 @@ function LockedView({
                     {adProviderReady ? "Watch Ad to Unlock" : "Coming Soon"}
                   </>
                 )}
-              </button>
+              </Button>
             )}
             {adState === "idle" && !adProviderReady && (
               <p className="mt-2 text-xs text-muted-foreground">
@@ -978,10 +979,10 @@ function LockedView({
           </>
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
-          <button className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+          <Button variant="default" className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90">
             <PremiumBadge size="xs" />
             Upgrade
-          </button>
+          </Button>
         )}
         {"nextAction" in decision && decision.nextAction === "login" && (
           <a
@@ -1159,12 +1160,12 @@ function EstimateResultView({
 
       {/* Actions */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <button
+        <Button variant="ghost"
           onClick={onEdit}
-          className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+          className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground"
         >
           ← Edit AI Parameters
-        </button>
+        </Button>
         <div className="flex justify-center pb-3">
           <SaveToProjectButton
             calculatorType="build_to_roof"
@@ -1190,7 +1191,7 @@ function EstimateResultView({
               <CheckCircle2 className="w-3.5 h-3.5" /> Saved to your projects
             </span>
           )}
-          <button
+          <Button
             onClick={() => {
               if (isPaid || pdfUnlocked) {
                 window.print();
@@ -1202,7 +1203,7 @@ function EstimateResultView({
             className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
           >
             <FileText className="w-4 h-4" /> Print
-          </button>
+          </Button>
           <a
             href="/build-to-roof-estimator"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"

@@ -6,6 +6,7 @@ import { AdminHeader, AdminCard, AdminButton } from '@/components/admin/AdminUi'
 import { AdminModal } from '@/components/admin/AdminModal';
 import { classNames } from '@/lib/utils';
 import { analyzeErrorWithAI, generateErrorFix, approveFix, type ErrorDiagnosis, type ErrorFix, type ErrorFixHistoryRecord } from '@/lib/error-analysis';
+import { Button } from "@/components/ui/shadcn/button";
 
 
 // ── Types ──
@@ -475,10 +476,10 @@ export default function SystemHealth() {
         subtitle="Centralized error monitoring and system health monitoring"
         action={
           <div className="flex items-center gap-2">
-            <button onClick={() => { fetchStats(); fetchErrors(); fetchTrend(dateRange); runHealthChecks(); }}
+            <Button onClick={() => { fetchStats(); fetchErrors(); fetchTrend(dateRange); runHealthChecks(); }}
               className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5">
               Refresh
-            </button>
+            </Button>
           </div>
         }
       />
@@ -505,7 +506,7 @@ export default function SystemHealth() {
       {/* ── Tabs ── */}
       <div className="mb-4 flex gap-1 border-b border-border dark:border-white/10">
         {(['overview', 'errors', 'health', 'alerts'] as const).map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)}
+          <Button key={tab} onClick={() => setActiveTab(tab)}
             className={classNames(
               'px-4 py-2 text-sm font-medium capitalize transition-colors',
               activeTab === tab
@@ -513,7 +514,7 @@ export default function SystemHealth() {
                 : 'text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60',
             )}>
             {tab === 'overview' ? 'Overview' : tab === 'errors' ? 'Error List' : tab === 'health' ? 'Health Checks' : 'Alert Config'}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -551,13 +552,13 @@ export default function SystemHealth() {
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Error Trend</h3>
               <div className="flex gap-1">
                 {(['24h', '7d', '30d'] as DateRange[]).map((r) => (
-                  <button key={r} onClick={() => { setDateRange(r); fetchTrend(r); }}
+                  <Button key={r} onClick={() => { setDateRange(r); fetchTrend(r); }}
                     className={classNames(
                       'rounded px-2 py-1 text-xs font-medium',
                       dateRange === r ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted dark:hover:bg-white/5',
                     )}>
                     {r === '24h' ? '24 hours' : r === '7d' ? '7 days' : '30 days'}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -603,10 +604,10 @@ export default function SystemHealth() {
                   </div>
                 ))}
               </div>
-              <button onClick={() => setActiveTab('errors')}
+              <Button onClick={() => setActiveTab('errors')}
                 className="mt-3 text-xs font-medium text-brand-purple hover:underline">
                 View all errors →
-              </button>
+              </Button>
             </AdminCard>
           )}
         </div>
@@ -703,10 +704,10 @@ export default function SystemHealth() {
           <AdminCard>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Service Health</h3>
-              <button onClick={runHealthChecks}
+              <Button onClick={runHealthChecks}
                 className="text-xs font-medium text-brand-purple hover:underline">
                 Re-check
-              </button>
+              </Button>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {Object.entries(healthChecks).map(([service, status]) => (
@@ -898,13 +899,13 @@ export default function SystemHealth() {
 
                   {/* Generate Fix button */}
                   {!aiFix && (
-                    <button
+                    <Button
                       onClick={() => handleGenerateFix(selectedError)}
                       disabled={generatingFix}
                       className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                     >
                       {generatingFix ? 'Generating fix...' : 'Generate Fix'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
@@ -935,19 +936,19 @@ export default function SystemHealth() {
                     </div>
                   )}
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       onClick={() => handleApproveFix(selectedError.id)}
                       disabled={approvingFix}
                       className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
                     >
                       {approvingFix ? 'Approving...' : 'Approve & Apply Fix'}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => setShowFixHistory(!showFixHistory)}
                       className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                     >
                       {showFixHistory ? 'Hide' : 'Show'} Fix History
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -974,12 +975,12 @@ export default function SystemHealth() {
 
               {/* Analyze button (initial) */}
               {!aiDiagnosis && !aiAnalyzing && !aiError && (
-                <button
+                <Button
                   onClick={() => handleAnalyzeError(selectedError)}
                   className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   Analyze with AI Studio
-                </button>
+                </Button>
               )}
             </div>
 

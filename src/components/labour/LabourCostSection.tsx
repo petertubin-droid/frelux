@@ -13,6 +13,7 @@ import {
 } from '@/lib/labour';
 import type { DbLabourCategory } from '@/types/database';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface LabourCostSectionProps {
   estimatorKey: LabourEstimatorKey;
@@ -130,7 +131,7 @@ export default function LabourCostSection({
             <label className="mb-2 block text-sm font-semibold text-card-foreground">Pricing Method</label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {methods.map((method) => (
-                <button
+                <Button
                   key={method}
                   type="button"
                   onClick={() => update({ pricingMethod: method })}
@@ -147,7 +148,7 @@ export default function LabourCostSection({
                   <span className="mt-0.5 block text-xs text-muted-foreground">
                     {PRICING_METHOD_DESCRIPTIONS[method]}
                   </span>
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -294,7 +295,7 @@ export default function LabourCostSection({
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button
+    <Button
       type="button"
       role="switch"
       onClick={() => onChange(!checked)}
@@ -316,7 +317,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
             : 'translate-x-0.5',
         )}
       />
-    </button>
+    </Button>
   );
 }
 

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useAccessibility } from "@/lib/accessibility";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 export function AccessibilityToggle({
   compact = false,
@@ -46,7 +47,7 @@ export function AccessibilityToggle({
   if (inline) {
     return (
       <div ref={ref} className="w-full">
-        <button
+        <Button
           type="button"
           onClick={() => setOpen(!open)}
           className={classNames(
@@ -71,10 +72,10 @@ export function AccessibilityToggle({
               open && "rotate-180",
             )}
           />
-        </button>
+        </Button>
         {open && (
           <div className="mt-1 space-y-1 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
-            <button
+            <Button
               type="button"
               onClick={toggleHighContrast}
               className={classNames(
@@ -87,8 +88,8 @@ export function AccessibilityToggle({
               <Contrast className="h-4 w-4" />
               <span className="flex-1 text-left">High contrast</span>
               {highContrast && <Check className="h-4 w-4" />}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={toggleLargeText}
               className={classNames(
@@ -101,8 +102,8 @@ export function AccessibilityToggle({
               <Type className="h-4 w-4" />
               <span className="flex-1 text-left">Larger text</span>
               {largeText && <Check className="h-4 w-4" />}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={toggleReducedMotion}
               className={classNames(
@@ -115,7 +116,7 @@ export function AccessibilityToggle({
               <Zap className="h-4 w-4" />
               <span className="flex-1 text-left">Reduce motion</span>
               {reducedMotion && <Check className="h-4 w-4" />}
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -125,7 +126,7 @@ export function AccessibilityToggle({
   // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen(!open)}
         className={classNames(
@@ -141,7 +142,7 @@ export function AccessibilityToggle({
             {activeCount}
           </span>
         )}
-      </button>
+      </Button>
 
       {open && (
         <div className="absolute right-0 top-full z-50 mt-1 min-w-[220px] rounded-xl border border-border/40 bg-card py-1.5 shadow-lg dark:border-white/10 dark:bg-card">
@@ -149,7 +150,7 @@ export function AccessibilityToggle({
             Accessibility
           </p>
 
-          <button
+          <Button
             type="button"
             onClick={toggleHighContrast}
             className={classNames(
@@ -162,9 +163,9 @@ export function AccessibilityToggle({
             <Contrast className="h-4 w-4" />
             <span className="flex-1 text-left">High contrast</span>
             {highContrast && <Check className="h-4 w-4" />}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={toggleLargeText}
             className={classNames(
@@ -177,9 +178,9 @@ export function AccessibilityToggle({
             <Type className="h-4 w-4" />
             <span className="flex-1 text-left">Larger text</span>
             {largeText && <Check className="h-4 w-4" />}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={toggleReducedMotion}
             className={classNames(
@@ -192,7 +193,7 @@ export function AccessibilityToggle({
             <Zap className="h-4 w-4" />
             <span className="flex-1 text-left">Reduce motion</span>
             {reducedMotion && <Check className="h-4 w-4" />}
-          </button>
+          </Button>
 
           <div className="mt-1 border-t border-border/50 px-4 py-2 dark:border-white/5">
             <p className="text-xs text-muted-foreground">

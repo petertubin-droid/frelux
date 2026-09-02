@@ -3,6 +3,7 @@ import { Bookmark } from "lucide-react";
 import type { DbPaintColor } from "@/types/database";
 import { readableTextColor } from "@/lib/colors";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   color: DbPaintColor;
@@ -57,7 +58,7 @@ export default function ColorCard({
 
       {/* Favorite button */}
       {onToggleFavorite && (
-        <button
+        <Button
           type="button"
           onClick={(e) => {
             e.preventDefault();
@@ -80,7 +81,7 @@ export default function ColorCard({
               isFavorited && "fill-current scale-110",
             )}
           />
-        </button>
+        </Button>
       )}
 
       {/* Info bar */}

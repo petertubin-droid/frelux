@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Upload, Image as ImageIcon, X } from 'lucide-react';
 import { MediaPicker } from '@/components/admin/MediaPicker';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface MediaUploaderProps {
   value: string | null | undefined;
@@ -27,22 +28,22 @@ export function MediaUploader({ value, onChange, label, folder = 'branding', cla
           )}
         </div>
         <div className="flex flex-col gap-2">
-          <button
+          <Button
             type="button"
             onClick={() => setPickerOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
           >
             <Upload aria-hidden="true" className="h-3.5 w-3.5" />
             {value ? 'Change Image' : 'Upload / Select'}
-          </button>
+          </Button>
           {value && (
-            <button
+            <Button
               type="button"
               onClick={() => onChange('')}
               className="inline-flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground hover:text-red-500"
             >
               <X className="h-3 w-3" /> Remove
-            </button>
+            </Button>
           )}
         </div>
       </div>

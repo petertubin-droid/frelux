@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { reportError } from '@/lib/errorMonitor';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -75,13 +76,13 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             <pre className="mt-4 overflow-auto rounded bg-red-100 p-4 text-sm text-red-800">
               {this.state.error?.stack}
             </pre>
-            <button
+            <Button
               type="button"
               onClick={this.handleReset}
               className="mt-4 rounded bg-red-600 px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-red-700"
             >
               Try again
-            </button>
+            </Button>
           </div>
         </div>
       );
@@ -101,13 +102,13 @@ export default class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBo
             FRELUX couldn't complete that request.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
-            <button
+            <Button variant="default"
               type="button"
               onClick={this.handleReload}
-              className="rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              className="rounded-lg px-5 py-2.5 text-sm font-medium transition-colors hover:/90"
             >
               Try Again
-            </button>
+            </Button>
             <a
               href="/"
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"

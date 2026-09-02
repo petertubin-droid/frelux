@@ -4,6 +4,7 @@ import type { ShoppingListItem } from '@/lib/shopping-list';
 import { shoppingListToText } from '@/lib/shopping-list';
 import { shareTextOnWhatsApp } from '@/lib/share';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface ShoppingListModalProps {
   items: ShoppingListItem[];
@@ -69,9 +70,9 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
             <ShoppingBag aria-hidden="true" className="h-5 w-5 text-brand-purple" />
             <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">{title}</h2>
           </div>
-          <button type="button" onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90">
+          <Button variant="ghost" type="button" onClick={onClose} className="rounded-md p-1.5 text-muted-foreground dark:hover:bg-card-foreground/90">
             <X aria-hidden="true" className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Progress bar */}
@@ -90,7 +91,7 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
         {/* Items */}
         <div className="space-y-2">
           {items.map((item, i) => (
-            <button
+            <Button
               key={i}
               type="button"
               onClick={() => toggleItem(i)}
@@ -113,18 +114,18 @@ export function ShoppingListModal({ items: initialItems, title, onClose }: Shopp
                 </p>
                 {item.detail && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{item.detail}</p>}
               </div>
-            </button>
+            </Button>
           ))}
         </div>
 
         {/* Actions */}
         <div className="mt-5 flex gap-3">
-          <button type="button" onClick={handleShare} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90">
+          <Button variant="ghost" type="button" onClick={handleShare} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors -green/90">
             <Share2 className="h-4 w-4" /> Share on WhatsApp
-          </button>
-          <button type="button" onClick={handlePrint} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-bold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
+          </Button>
+          <Button type="button" onClick={handlePrint} className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-bold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-border border-border dark:text-muted-foreground/80">
             <Printer className="h-4 w-4" /> Print
-          </button>
+          </Button>
         </div>
       </div>
     </div>

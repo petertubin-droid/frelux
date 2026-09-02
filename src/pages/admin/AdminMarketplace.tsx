@@ -62,6 +62,7 @@ import {
   SELLER_TYPE_LABELS,
   SELLER_VERIFICATION_LABELS,
 } from "@/types/marketplace-expansion";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   | "listings"
@@ -243,7 +244,7 @@ function ListingsTab() {
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <button
+              <Button
                 type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
                 className={classNames(
@@ -260,7 +261,7 @@ function ListingsTab() {
                   )}
                 />
                 {l.is_featured ? "Featured" : "Feature"}
-              </button>
+              </Button>
               <AdminIconButton
                 variant="ghost"
                 onClick={() => handleRemove(l.id)}

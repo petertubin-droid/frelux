@@ -13,6 +13,7 @@ import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@
 import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ProConnectRegister() {
   const navigate = useNavigate();
@@ -374,13 +375,13 @@ export default function ProConnectRegister() {
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             />
           </div>
-          <button
+          <Button variant="default"
             onClick={handleStep1Submit}
             disabled={saving}
-            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Continue'}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -406,12 +407,12 @@ export default function ProConnectRegister() {
             ))}
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setStep(1)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button onClick={() => setStep(1)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
               Back
-            </button>
-            <button onClick={handleStep2Submit} disabled={saving} className="flex-1 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+            </Button>
+            <Button variant="default" onClick={handleStep2Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
               {saving ? 'Saving...' : 'Continue'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -434,7 +435,7 @@ export default function ProConnectRegister() {
                 <h3 className="mb-2 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">{state}</h3>
                 <div className="flex flex-wrap gap-2">
                   {stateLocations.map((l) => (
-                    <button
+                    <Button
                       key={l.id}
                       onClick={() => {
                         if (selectedLocations.includes(l.id)) {
@@ -451,7 +452,7 @@ export default function ProConnectRegister() {
                       )}
                     >
                       {[l.area, l.city].filter(Boolean).join(', ')}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -462,7 +463,7 @@ export default function ProConnectRegister() {
             <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Availability Status</label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(['available', 'busy', 'unavailable'] as const).map((a) => (
-                <button
+                <Button
                   key={a}
                   onClick={() => setAvailability(a)}
                   className={classNames(
@@ -473,18 +474,18 @@ export default function ProConnectRegister() {
                   )}
                 >
                   {a}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           <div className="flex gap-3">
-            <button onClick={() => setStep(2)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button onClick={() => setStep(2)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
               Back
-            </button>
-            <button onClick={handleStep3Submit} disabled={saving} className="flex-1 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50">
+            </Button>
+            <Button variant="default" onClick={handleStep3Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
               {saving ? 'Saving...' : 'Complete Profile'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -522,13 +523,13 @@ export default function ProConnectRegister() {
               </div>
 
               {!otpSent ? (
-                <button
+                <Button variant="default"
                   onClick={handleSendOTP}
                   disabled={otpSending || !mobileNumber.trim()}
-                  className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                  className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
                 >
                   {otpSending ? 'Sending...' : 'Send OTP Code'}
-                </button>
+                </Button>
               ) : (
                 <>
                   <div>
@@ -545,21 +546,21 @@ export default function ProConnectRegister() {
                   {otpError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
                   {otpSuccess && <p className="text-sm text-emerald-500">{otpSuccess}</p>}
                   <div className="flex gap-3">
-                    <button
+                    <Button
                       onClick={() => { setOtpSent(false); setOtpCode(''); setOtpError(''); }}
                       className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                     >
                       Change Number
-                    </button>
-                    <button
+                    </Button>
+                    <Button variant="default"
                       onClick={handleVerifyOTP}
                       disabled={otpSending || otpCode.length !== 6}
-                      className="flex-1 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                      className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
                     >
                       {otpSending ? 'Verifying...' : 'Verify OTP'}
-                    </button>
+                    </Button>
                   </div>
-                  <button
+                  <Button
                     onClick={handleSendOTP}
                     disabled={otpSending || resendCooldown > 0}
                     className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-muted-foreground' : 'text-brand-purple hover:underline'}`}
@@ -567,7 +568,7 @@ export default function ProConnectRegister() {
                     {resendCooldown > 0
                       ? `Resend OTP in ${resendCooldown}s`
                       : otpSending ? 'Sending...' : 'Resend OTP'}
-                  </button>
+                  </Button>
                 </>
               )}
               {otpError && !otpSent && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
@@ -575,12 +576,12 @@ export default function ProConnectRegister() {
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <button
+            <Button
               onClick={() => setStep(5)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
               Skip for now →
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -632,23 +633,23 @@ export default function ProConnectRegister() {
                 </p>
               </div>
 
-              <button
+              <Button variant="default"
                 onClick={handleSubmitNIN}
                 disabled={ninSubmitting || ninNumber.length !== 11}
-                className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
               >
                 {ninSubmitting ? 'Submitting...' : 'Submit NIN for Verification'}
-              </button>
+              </Button>
             </>
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <button
+            <Button
               onClick={() => setStep(6)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
               Skip for now →
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getRecentTools } from "@/lib/smart-defaults";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface CommandItem {
   id: string;
@@ -406,7 +407,7 @@ function CommandRow({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <Button
       onClick={onSelect}
       onMouseEnter={() => {}}
       className={classNames(
@@ -435,7 +436,7 @@ function CommandRow({
       {index === selectedIndex && (
         <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0 text-brand-purple" />
       )}
-    </button>
+    </Button>
   );
 }
 

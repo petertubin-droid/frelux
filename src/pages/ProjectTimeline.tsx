@@ -10,6 +10,7 @@ import {
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function ProjectTimeline() {
   useSeo({
@@ -171,12 +172,12 @@ export default function ProjectTimeline() {
             Structural engineer engaged (has reinforcement schedule)
           </label>
 
-          <button
+          <Button variant="default"
             onClick={calculate}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold hover:/90"
           >
             <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate Timeline
-          </button>
+          </Button>
         </div>
 
         {result && (

@@ -17,6 +17,7 @@ import { useSeo } from "@/lib/seo";
 import { fetchPaintComparisons } from "@/lib/project-intelligence";
 import type { DbPaintComparison } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function PaintComparison() {
   useSeo({
@@ -143,7 +144,7 @@ export default function PaintComparison() {
                 {comparisons.map((c) => {
                   const isSelected = selectedPaints.has(c.id);
                   return (
-                    <button
+                    <Button
                       key={c.id}
                       onClick={() => togglePaint(c.id)}
                       className={`group inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
@@ -158,7 +159,7 @@ export default function PaintComparison() {
                         <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
                       )}
                       {c.display_name}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>

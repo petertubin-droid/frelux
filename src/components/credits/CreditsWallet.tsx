@@ -35,6 +35,7 @@ import {
 } from "@/lib/credits";
 import { logAdEvent, hasRewardedAdProvider } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ───────────────────────────────────────────────────────
 // Main Credits Wallet Component
@@ -121,7 +122,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
       {/* Earn Credits Button */}
       {config?.is_enabled && (
-        <button
+        <Button
           type="button"
           onClick={() => setShowEarnModal(true)}
           disabled={!canEarn}
@@ -138,7 +139,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
             : adProviderReady
               ? "Daily limit reached"
               : "Coming soon"}
-        </button>
+        </Button>
       )}
 
       {/* Daily limit progress */}
@@ -160,7 +161,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
             ["ads", "Ad History"],
           ] as const
         ).map(([key, label]) => (
-          <button
+          <Button
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -172,7 +173,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
             )}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -471,13 +472,13 @@ function EarnCreditsModal({
               <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">Earn FRELUX Credits</h2>
             </div>
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
           <p className="mt-2 text-sm text-primary-foreground/70">
             Watch a short ad to earn {creditsPerAd} FRELUX Credits. Credits can
@@ -499,14 +500,14 @@ function EarnCreditsModal({
 
           {phase === "idle" && (
             <>
-              <button
+              <Button variant="default"
                 type="button"
                 onClick={handleWatchAd}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:/90"
               >
                 <PlayCircle className="h-5 w-5" />
                 Watch Ad — +{creditsPerAd} Credits
-              </button>
+              </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Credits are only awarded after the ad is fully watched and
                 verified.
@@ -591,13 +592,13 @@ function EarnCreditsModal({
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Added to your FRELUX Credits balance.
               </p>
-              <button
+              <Button variant="ghost"
                 type="button"
                 onClick={onClose}
-                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90"
+                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground -green/90"
               >
                 Done
-              </button>
+              </Button>
             </div>
           )}
 
@@ -618,13 +619,13 @@ function EarnCreditsModal({
               <p className="text-center text-xs text-muted-foreground">
                 No credits were added.
               </p>
-              <button
+              <Button
                 type="button"
                 onClick={() => setPhase("idle")}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Try Again
-              </button>
+              </Button>
             </div>
           )}
 
@@ -643,13 +644,13 @@ function EarnCreditsModal({
                 You've earned the maximum {dailyLimit} credits from ads today.
                 Come back tomorrow!
               </p>
-              <button
+              <Button
                 type="button"
                 onClick={onClose}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Close
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -846,13 +847,13 @@ export function AiFeatureGate({
               <Coins className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
             >
               <X aria-hidden="true" className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
           <p className="mt-2 text-sm text-primary-foreground/70">
             {featureCost?.description ??
@@ -894,7 +895,7 @@ export function AiFeatureGate({
           ) : (
             <div className="space-y-3">
               {/* Use Credits button */}
-              <button
+              <Button
                 type="button"
                 onClick={handleUseCredits}
                 disabled={spending || !canAfford}
@@ -916,7 +917,7 @@ export function AiFeatureGate({
                 {canAfford
                   ? `Use ${featureCost?.credit_cost ?? 0} Credits`
                   : `Need ${featureCost?.credit_cost ?? 0} Credits`}
-              </button>
+              </Button>
 
               {/* Watch Ad to Unlock button */}
               {canWatchAd && (
@@ -928,11 +929,11 @@ export function AiFeatureGate({
                     </span>
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                   </div>
-                  <button
+                  <Button variant="default"
                     type="button"
                     onClick={handleWatchAd}
                     disabled={adUnlocking}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-primary/5 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/10 disabled:opacity-50 dark:text-brand-purple"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:disabled:opacity-50 dark:text-brand-purple"
                   >
                     {adUnlocking ? (
                       <Loader2
@@ -943,7 +944,7 @@ export function AiFeatureGate({
                       <PlayCircle className="h-5 w-5" />
                     )}
                     Watch Ad to Unlock
-                  </button>
+                  </Button>
                 </>
               )}
 

@@ -1,5 +1,6 @@
 import { useAuth } from '@/lib/auth';
 import AdminLogin from '@/pages/admin/AdminLogin';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function RequireAdmin({ children }: { children: React.ReactNode }) {
   const { user, isAdmin, loading, signOut } = useAuth();
@@ -23,7 +24,7 @@ export default function RequireAdmin({ children }: { children: React.ReactNode }
         <p className="max-w-sm text-sm text-muted-foreground">
           Your account doesn't have admin access. Contact an administrator if you believe this is a mistake.
         </p>
-        <button type="button" onClick={() => signOut()} className="btn-secondary">Sign out</button>
+        <Button type="button" onClick={() => signOut()} className="btn-secondary">Sign out</Button>
       </div>
     );
   }

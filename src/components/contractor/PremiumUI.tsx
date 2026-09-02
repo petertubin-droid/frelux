@@ -15,6 +15,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { CheckCircle2 } from 'lucide-react';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // Animated count-up hook (requestAnimationFrame, no deps)
@@ -211,13 +212,13 @@ export function EmptyState({
         {description}
       </p>
       {actionLabel && onAction && (
-        <button
+        <Button variant="default"
           type="button"
           onClick={onAction}
-          className="btn-primary mt-6 animate-fade-in-up"
+          className="mt-6 animate-fade-in-up"
         >
           {actionLabel}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -257,13 +258,13 @@ export function SuccessScreen({
       </p>
 
       {onContinue && (
-        <button
+        <Button variant="default"
           type="button"
           onClick={onContinue}
-          className="btn-primary mt-8 animate-fade-in-up"
+          className="mt-8 animate-fade-in-up"
         >
           {continueLabel}
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -513,7 +514,7 @@ export function Toggle({
         disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
-      <button
+      <Button
         type="button"
         role="switch"
         aria-checked={checked}
@@ -532,7 +533,7 @@ export function Toggle({
             checked ? 'translate-x-5' : 'translate-x-0.5',
           )}
         />
-      </button>
+      </Button>
       {label && (
         <span className="text-sm font-medium text-foreground dark:text-primary-foreground">{label}</span>
       )}

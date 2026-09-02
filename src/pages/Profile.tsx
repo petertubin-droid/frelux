@@ -23,6 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function Profile() {
   useSeo({
@@ -213,7 +214,7 @@ export default function Profile() {
                   </div>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => fileRef.current?.click()}
                 disabled={uploading}
@@ -228,7 +229,7 @@ export default function Profile() {
                 ) : (
                   <Camera className="h-4 w-4" />
                 )}
-              </button>
+              </Button>
               <input
                 ref={fileRef}
                 type="file"
@@ -279,7 +280,7 @@ export default function Profile() {
                   </p>
                 </div>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={copyMarketplaceId}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-card hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5"
@@ -293,7 +294,7 @@ export default function Profile() {
                   <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                 )}
                 {copied ? "Copied" : "Copy"}
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -358,11 +359,11 @@ export default function Profile() {
           </div>
 
           <div className="mt-6 flex justify-end">
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleSave}
               disabled={saving}
-              className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition-all hover:/90 active:scale-95 disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -370,7 +371,7 @@ export default function Profile() {
                 <Save className="h-4 w-4" />
               )}
               {saving ? "Saving..." : "Save Changes"}
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Brain, TrendingDown, HelpCircle, BookOpen, Loader2, Send } from 'lucide-react';
 import { aiProjectReview, aiProjectOptimize, aiProjectExplain, aiProjectQa, type ProjectDataForAi } from '@/lib/ai-project';
+import { Button } from "@/components/ui/shadcn/button";
 
 interface AiProjectPanelProps {
   projectData: ProjectDataForAi;
@@ -280,7 +281,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
       {/* Action tabs */}
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => (
-          <button
+          <Button
             key={action.key}
             onClick={() => { setActiveAction(action.key); setResult(null); setError(null); }}
             className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
@@ -291,7 +292,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           >
             <action.icon className="h-4 w-4" />
             {action.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -305,7 +306,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
           <label className="text-sm font-medium text-foreground">Optimization Goal</label>
           <div className="flex flex-wrap gap-2">
             {optimizePresets.map((preset) => (
-              <button
+              <Button
                 key={preset}
                 onClick={() => setOptimizeTarget(preset)}
                 className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -315,7 +316,7 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
                 }`}
               >
                 {preset}
-              </button>
+              </Button>
             ))}
           </div>
           <input
@@ -340,37 +341,37 @@ export function AiProjectPanel({ projectData }: AiProjectPanelProps) {
               placeholder="Ask about materials, techniques, costs, best practices..."
               className="flex-1 rounded-lg border bg-background px-4 py-2 text-sm text-foreground"
             />
-            <button
+            <Button variant="default"
               onClick={runAi}
               disabled={loading || !question.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium disabled:opacity-50"
             >
               {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Send aria-hidden="true" className="h-4 w-4" />}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {(activeAction === 'review' || activeAction === 'explain') && (
-        <button
+        <Button variant="default"
           onClick={runAi}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-colors hover:/90 disabled:opacity-50"
         >
           {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Brain className="h-4 w-4" />}
           {activeAction === 'review' ? 'Run AI Review' : 'Explain Calculations'}
-        </button>
+        </Button>
       )}
 
       {activeAction === 'optimize' && (
-        <button
+        <Button variant="default"
           onClick={runAi}
           disabled={loading}
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-medium transition-colors hover:/90 disabled:opacity-50"
         >
           {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <TrendingDown className="h-4 w-4" />}
           Optimize Estimate
-        </button>
+        </Button>
       )}
 
       {/* Error */}

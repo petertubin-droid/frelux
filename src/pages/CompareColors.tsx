@@ -6,6 +6,7 @@ import { fetchPaintColors, fetchColorFamilies, fetchColorCombinations } from '@/
 import { useSeo } from '@/lib/seo';
 import { readableTextColor, complementaryColor, colorDistanceHex, normalizeHex } from '@/lib/colors';
 import type { DbPaintColor, DbColorFamily, DbColorCombination } from '@/types/database';
+import { Button } from "@/components/ui/shadcn/button";
 
 const MAX_COMPARE = 4;
 
@@ -147,13 +148,13 @@ export default function CompareColors() {
         {results.length > 0 && (
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {results.map((c) => (
-              <button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-border bg-card text-left dark:border-white/5 dark:bg-card transition-all hover:border-brand-purple hover:shadow-md">
+              <Button key={c.id} type="button" onClick={() => addColor(c)} className="group overflow-hidden rounded-lg border border-border bg-card text-left dark:border-white/5 dark:bg-card transition-all hover:border-brand-purple hover:shadow-md">
                 <div className="aspect-square" style={{ background: c.hex_code }} />
                 <div className="p-2">
                   <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground">{c.name}</p>
                   <p className="text-[10px] text-muted-foreground">{c.hex_code}</p>
                 </div>
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -180,7 +181,7 @@ export default function CompareColors() {
                           <div className="flex aspect-video items-center justify-center rounded-lg" style={{ background: c.hex_code }}>
                             <span className="text-sm font-bold uppercase tracking-widest" style={{ color: readableTextColor(c.hex_code) }}>{c.hex_code}</span>
                           </div>
-                          <button type="button" onClick={() => removeColor(c.id)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-muted-foreground hover:text-red-500"><X aria-hidden="true" className="h-4 w-4" /></button>
+                          <Button type="button" onClick={() => removeColor(c.id)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1 text-muted-foreground hover:text-red-500"><X aria-hidden="true" className="h-4 w-4" /></Button>
                         </div>
                       </td>
                     ))}
@@ -312,9 +313,9 @@ function CompareRow({ label, children }: { label: string; children: React.ReactN
 
 function CopyBtn({ value, copied, onCopy }: { value: string; copied: boolean; onCopy: (v: string) => void }) {
   return (
-    <button type="button" onClick={() => onCopy(value)} className="inline-flex items-center gap-1.5 text-sm font-medium text-card-foreground hover:text-brand-purple">
+    <Button type="button" onClick={() => onCopy(value)} className="inline-flex items-center gap-1.5 text-sm font-medium text-card-foreground hover:text-brand-purple">
       {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
       {copied ? 'Copied' : value}
-    </button>
+    </Button>
   );
 }

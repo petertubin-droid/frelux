@@ -42,6 +42,7 @@ import {
   CALCULATOR_TYPE_LABELS,
 } from "@/types/international";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "profiles" | "rules" | "calculators";
 
@@ -75,7 +76,7 @@ export default function AdminMarkets() {
             ["calculators", "Calculator Availability", CalcIcon],
           ] as const
         ).map(([key, label, Icon]) => (
-          <button
+          <Button
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -86,7 +87,7 @@ export default function AdminMarkets() {
             )}
           >
             <Icon className="h-4 w-4" /> {label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -177,12 +178,12 @@ function ProfilesTab() {
         <p className="text-sm text-muted-foreground">
           {profiles.length} market profiles
         </p>
-        <button
+        <Button
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Market
-        </button>
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -224,14 +225,14 @@ function ProfilesTab() {
             </div>
 
             <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <button
+              <Button
                 onClick={() => setEditing(p)}
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
               >
                 <Edit2 className="h-3 w-3" /> Edit
-              </button>
+              </Button>
               {p.country_code !== "NG" && (
-                <button
+                <Button
                   onClick={async () => {
                     if (
                       confirm(
@@ -245,7 +246,7 @@ function ProfilesTab() {
                   className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-red-500"
                 >
                   <Trash2 aria-hidden="true" className="h-3 w-3" /> Delete
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -450,16 +451,16 @@ function ProfileEditModal({
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <button
+          <Button
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -467,7 +468,7 @@ function ProfileEditModal({
               <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -511,12 +512,12 @@ function RulesTab({ marketCode }: { marketCode: string }) {
         <p className="text-sm text-muted-foreground">
           {rules.length} material rules for {marketCode}
         </p>
-        <button
+        <Button
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> Add Rule
-        </button>
+        </Button>
       </div>
 
       {rules.length === 0 ? (
@@ -556,7 +557,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   {JSON.stringify(r.rule_value, null, 2)}
                 </pre>
               </div>
-              <button
+              <Button
                 onClick={async () => {
                   await deleteMaterialRule(r.id);
                   load();
@@ -564,7 +565,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                 className="rounded-md p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
               >
                 <Trash2 aria-hidden="true" className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           ))}
         </div>
@@ -701,16 +702,16 @@ function RuleEditModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <button
+          <Button
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -718,7 +719,7 @@ function RuleEditModal({
               <Save aria-hidden="true" className="h-4 w-4" />
             )}{" "}
             Save
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -786,7 +787,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                   {config ? `v${config.config_version}` : "No config"}
                 </p>
               </div>
-              <button
+              <Button
                 onClick={async () => {
                   await toggleCalculatorAvailability(
                     marketCode,
@@ -808,7 +809,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                     isAvailable ? "translate-x-6" : "translate-x-1",
                   )}
                 />
-              </button>
+              </Button>
             </div>
           );
         })}

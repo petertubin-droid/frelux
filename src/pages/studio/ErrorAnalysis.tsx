@@ -23,6 +23,7 @@ import {
 } from "@/lib/error-analysis";
 import { ToolHeader } from "@/components/studio/StudioShared";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 // ── Types ──
 
@@ -250,7 +251,7 @@ export default function ErrorAnalysis() {
       {/* ── Tabs ── */}
       <div className="mb-4 flex gap-1 border-b border-border dark:border-white/10">
         {(["errors", "history"] as const).map((tab) => (
-          <button
+          <Button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={classNames(
@@ -261,7 +262,7 @@ export default function ErrorAnalysis() {
             )}
           >
             {tab === "errors" ? "Recent Errors" : "Fix History"}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -280,7 +281,7 @@ export default function ErrorAnalysis() {
             ) : (
               <div className="space-y-1.5 max-h-[600px] overflow-y-auto">
                 {recentErrors.map((e) => (
-                  <button
+                  <Button
                     key={e.id}
                     onClick={() => handleAnalyze(e)}
                     className={classNames(
@@ -311,7 +312,7 @@ export default function ErrorAnalysis() {
                     <p className="text-xs text-muted-foreground">
                       {e.feature ?? "—"}
                     </p>
-                  </button>
+                  </Button>
                 ))}
               </div>
             )}
@@ -361,13 +362,13 @@ export default function ErrorAnalysis() {
 
                 {/* Analyze button (initial) */}
                 {!diagnosis && !analyzing && !error && (
-                  <button
+                  <Button
                     onClick={() => handleAnalyze(selectedError)}
                     className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
                   >
                     <Zap aria-hidden="true" className="h-4 w-4" /> Analyze with
                     AI
-                  </button>
+                  </Button>
                 )}
 
                 {analyzing && (
@@ -400,12 +401,12 @@ export default function ErrorAnalysis() {
                 {error && (
                   <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-500/10 dark:text-red-400">
                     {error}
-                    <button
+                    <Button
                       onClick={() => setError(null)}
                       className="ml-2 text-xs underline"
                     >
                       dismiss
-                    </button>
+                    </Button>
                   </div>
                 )}
 
@@ -484,12 +485,12 @@ export default function ErrorAnalysis() {
 
                     {/* Generate Fix */}
                     {!fix && !generatingFix && (
-                      <button
+                      <Button variant="default"
                         onClick={handleGenerateFix}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold hover:/90"
                       >
                         <FileCode className="h-4 w-4" /> Generate Fix
-                      </button>
+                      </Button>
                     )}
 
                     {generatingFix && (
@@ -598,7 +599,7 @@ export default function ErrorAnalysis() {
 
                           {/* Approve & Apply */}
                           <div className="mt-4 flex items-center gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-                            <button
+                            <Button
                               onClick={handleApprove}
                               disabled={approving}
                               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"
@@ -607,7 +608,7 @@ export default function ErrorAnalysis() {
                               {approving
                                 ? "Approving..."
                                 : "Approve & Apply Fix"}
-                            </button>
+                            </Button>
                             <p className="text-xs text-muted-foreground">
                               Fix will be applied via Git commit and deployed
                               through the existing CI/CD pipeline

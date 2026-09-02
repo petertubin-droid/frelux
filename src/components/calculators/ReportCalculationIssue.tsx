@@ -7,6 +7,7 @@
 import { useState } from "react";
 import { Flag, ChevronDown, Loader2, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface ReportCalculationIssueProps {
   calculatorType: string;
@@ -75,7 +76,7 @@ export default function ReportCalculationIssue({
           Report submitted. Our team will review this calculation. Thank you for
           helping improve FRELUX.
         </p>
-        <button
+        <Button
           type="button"
           onClick={() => {
             setSubmitted(false);
@@ -85,14 +86,14 @@ export default function ReportCalculationIssue({
           aria-label="Dismiss"
         >
           <X className="h-3.5 w-3.5" />
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="mt-2">
-      <button
+      <Button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
@@ -103,7 +104,7 @@ export default function ReportCalculationIssue({
         <ChevronDown
           className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
 
       {open && (
         <form
@@ -155,10 +156,10 @@ export default function ReportCalculationIssue({
 
           {error && <p className="text-xs text-red-500">{error}</p>}
 
-          <button
+          <Button variant="default"
             type="submit"
             disabled={submitting || !description.trim()}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-opacity disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -166,7 +167,7 @@ export default function ReportCalculationIssue({
               <Flag className="h-4 w-4" />
             )}
             Submit report
-          </button>
+          </Button>
         </form>
       )}
     </div>

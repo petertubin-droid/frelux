@@ -6,6 +6,7 @@ import {
   deletePaintComparison,
 } from "@/lib/project-intelligence";
 import type { DbPaintComparison } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminPaintComparison() {
   const [items, setItems] = useState<DbPaintComparison[]>([]);
@@ -85,7 +86,7 @@ export default function AdminPaintComparison() {
             Manage paint comparison data shown on the comparison page.
           </p>
         </div>
-        <button
+        <Button
           onClick={() => {
             setForm(empty);
             setEditing(null);
@@ -95,7 +96,7 @@ export default function AdminPaintComparison() {
         >
           <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
           Add Paint Type
-        </button>
+        </Button>
       </div>
 
       {showForm && (
@@ -107,12 +108,12 @@ export default function AdminPaintComparison() {
             <h3 className="font-semibold">
               {editing ? "Edit" : "Add"} Paint Type
             </h3>
-            <button
+            <Button
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted transition-all"
             >
               <X className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -239,19 +240,19 @@ export default function AdminPaintComparison() {
             </div>
           </div>
           <div className="flex gap-3">
-            <button
+            <Button
               onClick={() => setShowForm(false)}
               className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={handleSave}
               className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
               <Save className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
               Save
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -293,18 +294,18 @@ export default function AdminPaintComparison() {
                 </div>
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
+                <Button
                   onClick={() => startEdit(item)}
                   className="rounded-lg p-2 hover:bg-muted transition-all hover:scale-110"
                 >
                   <Edit className="h-4 w-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleDelete(item.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
-                </button>
+                </Button>
               </div>
             </div>
           ))}

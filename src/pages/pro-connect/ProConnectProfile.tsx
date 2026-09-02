@@ -37,6 +37,7 @@ import {
   fetchProSettings as getProSettings,
 } from "@/lib/pro-connect";
 import type { DbProCredentialPublic, DbProSettings } from "@/types/pro-connect";
+import { Button } from "@/components/ui/shadcn/button";
 
 const availabilityConfig = {
   available: {
@@ -253,13 +254,13 @@ export default function ProConnectProfile() {
                 </div>
               </div>
               {!isOwner && (
-                <button
+                <Button
                   onClick={() => setShowReportModal(true)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
                   title="Report this profile"
                 >
                   <Flag className="h-5 w-5" />
-                </button>
+                </Button>
               )}
             </div>
 
@@ -330,13 +331,13 @@ export default function ProConnectProfile() {
 
             {/* CTA */}
             {!isOwner && (
-              <button
+              <Button variant="default"
                 onClick={handleMessage}
-                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                className="mt-6 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-colors hover:/90"
               >
                 <MessageSquare className="h-4 w-4" />
                 Message this professional
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -473,7 +474,7 @@ export default function ProConnectProfile() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {portfolio.map((item) =>
               item.image_urls.map((url, i) => (
-                <button
+                <Button
                   key={item.id + "-" + i}
                   onClick={() => setActiveImage(url)}
                   className="group relative aspect-square overflow-hidden rounded-xl border border-border dark:border-white/5"
@@ -489,7 +490,7 @@ export default function ProConnectProfile() {
                       {item.title}
                     </p>
                   </div>
-                </button>
+                </Button>
               )),
             )}
           </div>
@@ -503,12 +504,12 @@ export default function ProConnectProfile() {
             Reviews {profile.rating_count > 0 && `(${profile.rating_count})`}
           </h2>
           {user && !isOwner && (
-            <button
+            <Button
               onClick={() => setShowReviewModal(true)}
               className="text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
             >
               Write a review
-            </button>
+            </Button>
           )}
         </div>
 
@@ -693,19 +694,19 @@ function ReportModal({
               />
             </div>
             <div className="mt-6 flex gap-3">
-              <button
+              <Button
                 onClick={onClose}
                 className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleSubmit}
                 disabled={!reason || submitting}
                 className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {submitting ? "Submitting..." : "Submit report"}
-              </button>
+              </Button>
             </div>
           </>
         )}
@@ -763,7 +764,7 @@ function ReviewModal({
           <div>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((s) => (
-                <button key={s} onClick={() => setRating(s)} className="p-1">
+                <Button key={s} onClick={() => setRating(s)} className="p-1">
                   <Award
                     className={classNames(
                       "h-7 w-7 transition-colors",
@@ -772,7 +773,7 @@ function ReviewModal({
                         : "text-muted-foreground/80 dark:text-muted-foreground",
                     )}
                   />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -786,19 +787,19 @@ function ReviewModal({
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
         <div className="mt-6 flex gap-3">
-          <button
+          <Button
             onClick={onClose}
             className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button variant="default"
             onClick={handleSubmit}
             disabled={submitting}
-            className="flex-1 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+            className="flex-1 rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50"
           >
             {submitting ? "Submitting..." : "Submit review"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

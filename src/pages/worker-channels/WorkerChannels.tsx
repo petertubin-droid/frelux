@@ -40,6 +40,7 @@ import { supabase } from "@/lib/supabase";
 import { classNames } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
@@ -438,7 +439,7 @@ export default function WorkerChannels() {
             </span>
           </div>
           {channels.map((ch) => (
-            <button
+            <Button
               key={ch.id}
               onClick={() => navigate(`/worker-channels/${ch.slug}`)}
               className={classNames(
@@ -464,7 +465,7 @@ export default function WorkerChannels() {
                   )}
                 </div>
               </div>
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -529,12 +530,12 @@ export default function WorkerChannels() {
                   <span className="text-xs text-muted-foreground">
                     Replying to a message
                   </span>
-                  <button
+                  <Button
                     onClick={() => setReplyingTo(null)}
                     className="text-xs text-brand-purple"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               )}
 
@@ -588,32 +589,32 @@ export default function WorkerChannels() {
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <button
+                      <Button
                         onClick={() => setShowPriceUpdate(false)}
                         className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
                       >
                         Cancel
-                      </button>
-                      <button
+                      </Button>
+                      <Button variant="default"
                         onClick={handleSendPriceUpdate}
                         disabled={
                           sending || !priceForm.item.trim() || !priceForm.amount
                         }
-                        className="rounded-lg bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                        className="rounded-lg px-4 py-1.5 text-sm font-semibold disabled:opacity-50"
                       >
                         Share Price
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <button
+                    <Button
                       onClick={() => setShowPriceUpdate(true)}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-brand-purple transition-colors hover:bg-primary/5 dark:border-white/10"
                       title="Share price update"
                     >
                       <TrendingUp className="h-5 w-5" />
-                    </button>
+                    </Button>
                     <input
                       type="text"
                       placeholder={`Message ${activeChannel.name.trim()}...`}
@@ -623,13 +624,13 @@ export default function WorkerChannels() {
                       onKeyDown={handleKeyDown}
                       disabled={sending}
                     />
-                    <button
+                    <Button size="icon" variant="default"
                       onClick={handleSendMessage}
                       disabled={!newMessage.trim() || sending}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all hover:bg-primary/90 disabled:opacity-50"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all hover:/90 disabled:opacity-50"
                     >
                       <Send aria-hidden="true" className="h-5 w-5" />
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -689,12 +690,12 @@ export default function WorkerChannels() {
                   )}
                 </div>
               </div>
-              <button
+              <Button
                 onClick={() => setViewingProfile(null)}
                 className="text-muted-foreground hover:text-muted-foreground"
               >
                 ✕
-              </button>
+              </Button>
             </div>
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -764,14 +765,14 @@ export default function WorkerChannels() {
               View Full Profile
             </Link>
             {viewingProfile.id && (
-              <button
+              <Button
                 onClick={() =>
                   viewingProfile && openReportModal(viewingProfile.id)
                 }
                 className="mt-2 w-full rounded-lg border border-red-200 py-2 text-center text-xs font-medium text-red-500 hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
               >
                 Report This User
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -836,19 +837,19 @@ export default function WorkerChannels() {
               )}
 
               <div className="flex gap-2">
-                <button
+                <Button
                   onClick={() => setShowReportModal(false)}
                   className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={handleSubmitReport}
                   disabled={reportSubmitting || !reportReason}
                   className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
                 >
                   {reportSubmitting ? "Submitting..." : "Submit Report"}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -912,12 +913,12 @@ function MessageBubble({
         )}
       >
         {!isOwn && (
-          <button
+          <Button
             onClick={onProfileView}
             className="mb-0.5 text-xs font-semibold text-brand-purple hover:underline"
           >
             {authorName}
-          </button>
+          </Button>
         )}
 
         {message.reply_to && replyTo !== message.reply_to && (
@@ -974,28 +975,28 @@ function MessageBubble({
 
       {/* Actions (hover) */}
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-        <button
+        <Button
           onClick={() => setShowReactions(!showReactions)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="React"
         >
           <span className="text-xs">😊</span>
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => onReply(message.id)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="Reply"
         >
           <MessageSquare className="h-3.5 w-3.5" />
-        </button>
+        </Button>
         {isOwn && (
-          <button
+          <Button
             onClick={() => onDelete(message.id)}
             className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
             title="Delete"
           >
             <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -1003,7 +1004,7 @@ function MessageBubble({
       {showReactions && (
         <div className="absolute z-10 flex gap-1 rounded-lg border border-border bg-card p-1.5 shadow-lg dark:border-white/10 dark:bg-card">
           {QUICK_EMOJIS.map((emoji) => (
-            <button
+            <Button
               key={emoji}
               onClick={() => {
                 onReact(message.id, emoji);
@@ -1012,7 +1013,7 @@ function MessageBubble({
               className="rounded p-1 text-lg hover:bg-muted dark:hover:bg-white/5"
             >
               {emoji}
-            </button>
+            </Button>
           ))}
         </div>
       )}
@@ -1026,13 +1027,13 @@ function MessageBubble({
               return acc;
             }, {}),
           ).map(([emoji, count]) => (
-            <button
+            <Button
               key={emoji}
               onClick={() => onReact(message.id, emoji)}
               className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs dark:bg-white/5"
             >
               {emoji} <span className="text-muted-foreground">{count}</span>
-            </button>
+            </Button>
           ))}
         </div>
       )}

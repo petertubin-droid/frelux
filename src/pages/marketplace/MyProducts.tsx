@@ -8,6 +8,7 @@ import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketp
 import { useSeo } from '@/lib/seo';
 import { classNames } from '@/lib/utils';
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function MyProducts() {
   useSeo({ description: 'FRELUX marketplace', title: 'My Products — FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
@@ -79,7 +80,7 @@ export default function MyProducts() {
       {/* Filter tabs */}
       <div className="mb-4 flex gap-1">
         {(['all', 'active', 'paused', 'sold'] as const).map((f) => (
-          <button
+          <Button
             key={f}
             onClick={() => setFilter(f)}
             className={classNames(
@@ -88,7 +89,7 @@ export default function MyProducts() {
             )}
           >
             {f} ({products.filter((p) => f === 'all' || p.status === f).length})
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -137,15 +138,15 @@ export default function MyProducts() {
 
               {/* Actions */}
               <div className="flex items-center gap-1">
-                <button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
+                <Button onClick={() => toggleStatus(product.id, product.status)} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title={product.status === 'active' ? 'Pause' : 'Activate'}>
                   {product.status === 'active' ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
-                </button>
+                </Button>
                 <Link to={`/marketplace/products/${product.id}`} className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-purple dark:hover:bg-white/5" title="View">
                   <Eye aria-hidden="true" className="h-4 w-4" />
                 </Link>
-                <button onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">
+                <Button onClick={() => handleDelete(product.id)} className="rounded p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10" title="Delete">
                   <Trash2 aria-hidden="true" className="h-4 w-4" />
-                </button>
+                </Button>
               </div>
             </div>
           ))}

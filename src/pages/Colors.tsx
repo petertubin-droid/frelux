@@ -32,6 +32,7 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ColorsPageSeo } from "@/components/seo/SeoContent";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 type Tab = "colors" | "palettes";
 type Status = "loading" | "error" | "ready";
 
@@ -203,7 +204,7 @@ export default function Colors() {
         {/* Tab switcher */}
         <div className="mb-6 inline-flex rounded-xl border border-border/60 bg-card p-1 shadow-card dark:border-white/5 dark:bg-card">
           {(["colors", "palettes"] as Tab[]).map((t) => (
-            <button
+            <Button
               key={t}
               type="button"
               onClick={() => {
@@ -224,7 +225,7 @@ export default function Colors() {
                 <Palette aria-hidden="true" className="h-4 w-4" />
               )}
               {t === "colors" ? "Individual Colors" : "Color Palettes"}
-            </button>
+            </Button>
           ))}
         </div>
 
@@ -244,13 +245,13 @@ export default function Colors() {
               Couldn't load colors
             </p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
-            <button
+            <Button
               type="button"
               onClick={() => window.location.reload()}
               className="mt-4 text-sm font-semibold text-brand-purple hover:underline"
             >
               Try again
-            </button>
+            </Button>
           </div>
         )}
 
@@ -282,7 +283,7 @@ export default function Colors() {
                       const segmentWidth = `${100 / families.length}%`;
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <button
+                        <Button
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -298,7 +299,7 @@ export default function Colors() {
                               {f.name}
                             </span>
                           </div>
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>
@@ -307,7 +308,7 @@ export default function Colors() {
                     {families.map((f) => {
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <button
+                        <Button
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -321,7 +322,7 @@ export default function Colors() {
                             style={{ background: swatch }}
                           />
                           {f.name}
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>
@@ -518,25 +519,25 @@ export default function Colors() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-10 flex items-center justify-center gap-2">
-                <button
+                <Button
                   type="button"
                   disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
                   Prev
-                </button>
+                </Button>
                 <span className="px-3 text-sm text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
-                <button
+                <Button
                   type="button"
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => p + 1)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors disabled:opacity-40 hover:bg-muted/50 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:bg-white/5"
                 >
                   Next
-                </button>
+                </Button>
               </div>
             )}
           </>
@@ -705,7 +706,7 @@ function Chip({
   children: ReactNode;
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       className={classNames(
@@ -716,6 +717,6 @@ function Chip({
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }

@@ -19,6 +19,7 @@ import {
   RefreshCw,
   ExternalLink,
 } from "lucide-react";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface OfferwallAdProps {
   /** The authenticated user's stable Supabase Auth UUID */
@@ -110,14 +111,14 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
         </div>
         {onBack && (
-          <button
+          <Button variant="ghost"
             type="button"
             onClick={onBack}
-            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground dark:hover:bg-white/10 dark:hover:text-primary-foreground"
+            className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/10 dark:hover:text-primary-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Rewards
-          </button>
+          </Button>
         )}
       </div>
 
@@ -148,14 +149,14 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
                 This might be a temporary issue. Please try again.
               </p>
             </div>
-            <button
+            <Button variant="default"
               type="button"
               onClick={handleRetry}
-              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:/90"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
-            </button>
+            </Button>
           </div>
         ) : (
           /* The actual Offerwall iframe */

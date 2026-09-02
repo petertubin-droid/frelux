@@ -63,6 +63,7 @@ import type {
   DbWorkerChannelCategory,
   DbWorkerModerationConfig,
 } from "@/types/worker-channels";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
   | "professionals"
@@ -535,13 +536,13 @@ function AdminVerificationTab() {
                         <Eye aria-hidden="true" className="h-4 w-4" />
                       </a>
                     )}
-                    <button
+                    <Button
                       onClick={() => handleViewDocs(req)}
                       className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
                       title="View verification documents"
                     >
                       <FileText aria-hidden="true" className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 

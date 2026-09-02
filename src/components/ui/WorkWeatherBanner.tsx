@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { classNames } from "@/lib/utils";
+import { Button } from "@/components/ui/shadcn/button";
 
 const WORK_LABELS: Record<WorkType, string> = {
   painting: "Painting",
@@ -136,13 +137,13 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
         </div>
 
         {/* Expand toggle */}
-        <button
+        <Button
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/50 hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
         >
           {goodDays}/5
           <ChevronDown className={classNames("h-3 w-3 transition-transform", expanded && "rotate-180")} />
-        </button>
+        </Button>
       </div>
 
       {/* Mobile metrics */}

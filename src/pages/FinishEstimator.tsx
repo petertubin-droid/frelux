@@ -51,6 +51,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import { Button } from "@/components/ui/shadcn/button";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -290,7 +291,7 @@ export default function FinishEstimator({
                   const Icon = meta.icon;
                   const selected = selectedFinish === ft;
                   return (
-                    <button
+                    <Button
                       key={ft}
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
@@ -319,7 +320,7 @@ export default function FinishEstimator({
                           {getFinishTypeDescription(ft)}
                         </span>
                       </span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -337,7 +338,7 @@ export default function FinishEstimator({
               <div className="mt-6 space-y-5">
                 {/* Method toggle */}
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => updateArea("method", "full_room")}
                     className={
@@ -348,8 +349,8 @@ export default function FinishEstimator({
                     }
                   >
                     Full Room
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => updateArea("method", "individual_wall")}
                     className={
@@ -360,13 +361,13 @@ export default function FinishEstimator({
                     }
                   >
                     Individual Wall
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Unit toggle */}
                 <div className="flex gap-2">
                   {(["meters", "feet"] as Unit[]).map((u) => (
-                    <button
+                    <Button
                       key={u}
                       type="button"
                       onClick={() => updateArea("unit", u)}
@@ -378,7 +379,7 @@ export default function FinishEstimator({
                       }
                     >
                       {u === "meters" ? "Meters" : "Feet"}
-                    </button>
+                    </Button>
                   ))}
                 </div>
 
@@ -551,15 +552,15 @@ export default function FinishEstimator({
                 </div>
               </div>
 
-              <button
+              <Button variant="default"
                 type="button"
                 onClick={compute}
-                className="btn-primary btn-glow mt-6 w-full"
+                className="btn-glow mt-6 w-full"
                 disabled={loading}
               >
                 Calculate Estimate
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </button>
+              </Button>
               {errors.area && (
                 <p className="mt-2 text-center text-xs text-red-500">
                   {errors.area}

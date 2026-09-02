@@ -19,6 +19,7 @@ import type {
   BrandStudioAccess as BSAccess,
   DbAiLogoGeneration,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   userId: string;
@@ -196,10 +197,10 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                 />
               </div>
 
-              <button
+              <Button variant="default"
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold hover:/90 disabled:opacity-50"
               >
                 {generating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -207,7 +208,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                   <Crown className="h-4 w-4" />
                 )}
                 {generating ? "Generating…" : "Generate Logo"}
-              </button>
+              </Button>
               <p className="text-xs text-muted-foreground">
                 Uses AI image generation. Daily limit:{" "}
                 {access?.aiLogoDailyLimit ?? 3} generations.
@@ -236,7 +237,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                       className="mb-2 h-24 w-full rounded-lg object-contain"
                     />
                     <div className="flex items-center justify-between">
-                      <button
+                      <Button
                         onClick={() => handleSelect(logo.id)}
                         className={`rounded-lg p-1.5 text-xs font-medium ${
                           logo.is_selected
@@ -246,13 +247,13 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                       >
                         <Check className="inline h-3 w-3" />{" "}
                         {logo.is_selected ? "Selected" : "Select"}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleDelete(logo.id)}
                         className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                       >
                         <Trash2 className="h-3 w-3" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}

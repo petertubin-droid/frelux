@@ -22,6 +22,7 @@ import {
   type CreateClientEstimateInput,
 } from "@/lib/project-intelligence";
 import type { DbClientEstimate } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
@@ -326,12 +327,12 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Materials Summary</h3>
-              <button
+              <Button variant="default"
                 onClick={addMaterialRow}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-primary hover:transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" /> Add Item
-              </button>
+              </Button>
             </div>
             {materialsSummary.length === 0 ? (
               <p className="text-sm text-muted-foreground py-4 text-center">
@@ -391,12 +392,12 @@ export default function ClientEstimateEditor() {
                       min={0}
                       className="col-span-3 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
-                    <button
+                    <Button
                       onClick={() => removeMaterialRow(idx)}
                       className="col-span-1 flex items-center justify-center rounded-lg p-2 text-destructive hover:bg-destructive/10 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -493,7 +494,7 @@ export default function ClientEstimateEditor() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <button
+            <Button
               onClick={() => handleSave(true)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
@@ -504,8 +505,8 @@ export default function ClientEstimateEditor() {
                 <Save className="h-4 w-4" />
               )}
               Save as Draft
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => handleSave(false)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
@@ -516,7 +517,7 @@ export default function ClientEstimateEditor() {
                 <Send className="h-4 w-4" />
               )}
               Create & Share
-            </button>
+            </Button>
           </div>
         </div>
       </div>

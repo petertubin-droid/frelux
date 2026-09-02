@@ -7,6 +7,7 @@ import type { DbMarketplaceListing } from '@/types/marketplace';
 import { PROJECT_TYPE_LABELS, LISTING_STATUS_LABELS } from '@/types/marketplace';
 import { classNames } from '@/lib/utils';
 import { useSeo } from '@/lib/seo';
+import { Button } from "@/components/ui/shadcn/button";
 
 const STATUS_COLORS: Record<string, string> = {
   draft: 'bg-muted text-muted-foreground',
@@ -137,14 +138,14 @@ export default function MyListings() {
                   </span>
                   <div className="flex gap-2">
                     {listing.status === 'open' && (
-                      <button
+                      <Button
                         onClick={() => handleCancel(listing.id)}
                         disabled={cancellingId === listing.id}
                         className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                       >
                         {cancellingId === listing.id ? <Loader2 aria-hidden="true" className="h-3 w-3 animate-spin" /> : <X aria-hidden="true" className="h-3 w-3" />}
                         Cancel
-                      </button>
+                      </Button>
                     )}
                     <Link
                       to={`/marketplace/${listing.id}`}

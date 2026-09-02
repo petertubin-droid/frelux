@@ -4,6 +4,7 @@ import { useLocation, DISTANCE_FILTERS } from '@/lib/location';
 import { fetchLocations } from '@/lib/pro-connect';
 import type { DbProLocation } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
+import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // LocationPicker — "Use My Location" + manual selection
@@ -86,7 +87,7 @@ export default function LocationPicker({
         {showRadius && (
           <div className="flex items-center gap-1">
             {DISTANCE_FILTERS.map((f) => (
-              <button
+              <Button
                 key={f.value}
                 onClick={() => handleRadiusChange(f.value)}
                 className={classNames(
@@ -97,17 +98,17 @@ export default function LocationPicker({
                 )}
               >
                 {f.label}
-              </button>
+              </Button>
             ))}
           </div>
         )}
-        <button
+        <Button
           onClick={clear}
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/80"
         >
           <X className="h-3 w-3" />
           Clear
-        </button>
+        </Button>
       </div>
     );
   }
@@ -119,12 +120,12 @@ export default function LocationPicker({
           <MapPin className="h-3 w-3 text-brand-purple" />
           {location.label || 'Location set'}
         </span>
-        <button
+        <Button
           onClick={clear}
           className="text-xs text-muted-foreground hover:text-muted-foreground dark:text-muted-foreground"
         >
           ×
-        </button>
+        </Button>
       </div>
     );
   }
@@ -132,10 +133,10 @@ export default function LocationPicker({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-2">
-        <button
+        <Button variant="default"
           onClick={detect}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-all hover:/90 active:scale-95 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -143,14 +144,14 @@ export default function LocationPicker({
             <Navigation className="h-4 w-4" />
           )}
           {loading ? 'Detecting...' : 'Use My Location'}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => setShowManual(!showManual)}
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
           <MapPin className="h-4 w-4" />
           Select Manually
-        </button>
+        </Button>
       </div>
 
       {error && (
@@ -181,13 +182,13 @@ export default function LocationPicker({
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <button
+            <Button variant="default"
               onClick={handleManualSelect}
               disabled={!manualState}
-              className="rounded-md bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className="rounded-md px-4 py-1.5 text-sm font-semibold disabled:opacity-50"
             >
               Set Location
-            </button>
+            </Button>
           </div>
           {permissionDenied && (
             <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">

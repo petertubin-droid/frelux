@@ -27,6 +27,7 @@ import {
   type RewardItem,
   type RewardSettings as RSettings,
 } from "@/lib/credits";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminRewards() {
   const { user } = useAuth();
@@ -229,7 +230,7 @@ export default function AdminRewards() {
             },
           ] as const
         ).map((t) => (
-          <button
+          <Button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={classNames(
@@ -240,7 +241,7 @@ export default function AdminRewards() {
             )}
           >
             <t.icon className="h-4 w-4" /> {t.label}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -313,12 +314,12 @@ export default function AdminRewards() {
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
-              <button
+              <Button variant="default"
                 onClick={handleAdjustCredits}
                 disabled={
                   adjusting || !adjustingUser || !adjustAmount || !adjustReason
                 }
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+                className="rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
               >
                 {adjusting ? (
                   <Loader2
@@ -328,7 +329,7 @@ export default function AdminRewards() {
                 ) : (
                   "Adjust"
                 )}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -426,10 +427,10 @@ export default function AdminRewards() {
                 </p>
               </div>
             </div>
-            <button
+            <Button variant="default"
               onClick={handleSeedRewards}
               disabled={seeding}
-              className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:/90 disabled:opacity-50"
             >
               {seeding ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -437,7 +438,7 @@ export default function AdminRewards() {
                 <Crown aria-hidden="true" className="h-4 w-4" />
               )}
               {seeding ? "Seeding..." : "Seed 4 Core Rewards"}
-            </button>
+            </Button>
           </div>
 
           {/* Empty state */}
@@ -538,7 +539,7 @@ export default function AdminRewards() {
                         Enabled
                       </span>
                     </label>
-                    <button
+                    <Button
                       onClick={() => handleSaveReward(reward.id)}
                       disabled={savingReward === reward.id}
                       className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -552,7 +553,7 @@ export default function AdminRewards() {
                         <Save aria-hidden="true" className="h-4 w-4" />
                       )}
                       Save
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -650,10 +651,10 @@ export default function AdminRewards() {
               </div>
             </div>
 
-            <button
+            <Button variant="default"
               onClick={handleSaveSettings}
               disabled={savingSettings}
-              className="mt-4 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
             >
               {savingSettings ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -661,7 +662,7 @@ export default function AdminRewards() {
                 <Save aria-hidden="true" className="h-4 w-4" />
               )}
               Save Settings
-            </button>
+            </Button>
           </div>
         </div>
       )}

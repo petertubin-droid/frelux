@@ -97,6 +97,7 @@ import {
   EngineMaterialSummaryCard,
 } from "@/components/engine";
 import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 // =========================================================
 // Types
 // =========================================================
@@ -870,20 +871,20 @@ export default function PaintingEstimator({
         ))}
 
         {/* Add room button */}
-        <button
+        <Button
           onClick={addRoom}
           className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
           <Plus aria-hidden="true" className="h-4 w-4" />
           Add Another Room
-        </button>
+        </Button>
 
         {/* Calculate button */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <button
+          <Button variant="default"
             onClick={handleCalculate}
             disabled={calculating}
-            className="btn-primary btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
+            className="btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
           >
             {calculating ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -891,9 +892,9 @@ export default function PaintingEstimator({
               <Calculator className="h-4 w-4" />
             )}
             {calculating ? "Calculating…" : "Calculate Estimate"}
-          </button>
+          </Button>
           {result && (
-            <button
+            <Button
               onClick={() => {
                 setRooms([createDefaultRoom()]);
                 setResult(null);
@@ -904,7 +905,7 @@ export default function PaintingEstimator({
             >
               <RotateCcw aria-hidden="true" className="h-4 w-4" />
               Reset
-            </button>
+            </Button>
           )}
         </div>
 
@@ -1055,7 +1056,7 @@ function RoomCard({
         </div>
         <div className="flex items-center gap-2">
           {canRemove && (
-            <button
+            <Button
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();
@@ -1063,7 +1064,7 @@ function RoomCard({
               className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
             >
               <Trash2 aria-hidden="true" className="h-4 w-4" />
-            </button>
+            </Button>
           )}
           {isExpanded ? (
             <ChevronUp
@@ -1155,21 +1156,21 @@ function RoomCard({
                     value={door.height}
                     onChange={(v) => onUpdateDoor(di, { height: v })}
                   />
-                  <button
+                  <Button
                     onClick={() => onRemoveDoor(di)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             {!room.doors_unknown && (
-              <button
+              <Button
                 onClick={onAddDoor}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
                 + Add door type
-              </button>
+              </Button>
             )}
           </Section>
 
@@ -1206,21 +1207,21 @@ function RoomCard({
                     value={win.height}
                     onChange={(v) => onUpdateWindow(wi, { height: v })}
                   />
-                  <button
+                  <Button
                     onClick={() => onRemoveWindow(wi)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
-                  </button>
+                  </Button>
                 </div>
               ))}
             {!room.windows_unknown && (
-              <button
+              <Button
                 onClick={onAddWindow}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
                 + Add window type
-              </button>
+              </Button>
             )}
           </Section>
 
@@ -1941,7 +1942,7 @@ function EstimateResult({
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-2">
-            <button
+            <Button
               onClick={onSave}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
@@ -1956,7 +1957,7 @@ function EstimateResult({
                 <Save className="h-4 w-4" />
               )}
               {saved ? "Saved" : "Save Estimate"}
-            </button>
+            </Button>
             <SaveToProjectButton
               calculatorType="cost"
               calculatorSlug="painting-estimator"
@@ -1986,7 +1987,7 @@ function EstimateResult({
               compact
               label="Save to Project"
             />
-            <button
+            <Button
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >
@@ -1994,7 +1995,7 @@ function EstimateResult({
               {showCalculation
                 ? "Hide Calculation"
                 : "How was this calculated?"}
-            </button>
+            </Button>
           </div>
 
           {/* Post as Job CTA — marketplace integration */}

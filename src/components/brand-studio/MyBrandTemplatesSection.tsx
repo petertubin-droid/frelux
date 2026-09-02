@@ -8,6 +8,7 @@ import type {
   BrandStudioAccess as BSAccess,
   DbBrandProfile,
 } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   userId: string;
@@ -110,31 +111,31 @@ export function MyBrandTemplatesSection({
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <button
+              <Button
                 onClick={() => onSelectProfile(profile.id)}
                 className="rounded-lg p-2 text-brand-purple hover:bg-primary/10"
                 title="Select for editing"
               >
                 <Edit3 className="h-4 w-4" />
-              </button>
+              </Button>
               {!profile.is_default && (
-                <button
+                <Button
                   onClick={() => handleSetDefault(profile.id)}
                   disabled={busy}
                   className="rounded-lg p-2 text-amber-600 hover:bg-amber-50 disabled:opacity-50 dark:hover:bg-amber-950"
                   title="Set as default"
                 >
                   <Crown className="h-4 w-4" />
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 onClick={() => handleDelete(profile.id)}
                 disabled={busy}
                 className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950"
                 title="Delete"
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </Button>
             </div>
           </div>
         </div>

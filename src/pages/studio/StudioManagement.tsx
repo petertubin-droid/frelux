@@ -15,6 +15,7 @@ import {
   fetchArtifacts, deleteArtifact, fetchVersions, updateArtifact,
 } from '@/lib/ai-studio';
 import type { DbStudioPlugin, DbStudioPrompt, DbStudioIntegration, DbStudioFeature, DbStudioRole, DbStudioMetric, DbStudioArtifact, DbStudioVersion } from '@/types/database';
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function StudioManagement() {
   const { toolSlug } = useParams<{ toolSlug: string }>();
@@ -162,7 +163,7 @@ function PromptLibrary() {
                   {p.description && <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">{p.description}</p>}
                 </div>
                 {!p.is_builtin && (
-                  <button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
+                  <Button type="button" onClick={() => handleDelete(p.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></Button>
                 )}
               </div>
             ))}
@@ -242,7 +243,7 @@ function IntegrationCenter() {
             <div className="flex items-center gap-3">
               <span className={classNames('rounded-full px-2 py-0.5 text-[10px] font-semibold capitalize', i.status === 'connected' ? 'bg-accent-green/15 text-accent-green' : 'bg-muted text-muted-foreground dark:text-muted-foreground')}>{i.status}</span>
               <Toggle checked={i.status === 'connected'} onChange={() => handleToggle(i)} />
-              <button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>
+              <Button type="button" onClick={() => handleDelete(i.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></Button>
             </div>
           </div>
         ))}
@@ -369,7 +370,7 @@ function RoleManagement() {
                   ))}
                 </div>
               </div>
-              {!r.is_system && <button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></button>}
+              {!r.is_system && <Button type="button" onClick={() => handleDelete(r.id)} className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-4 w-4" /></Button>}
             </div>
           </AdminCard>
         ))}
@@ -457,7 +458,7 @@ function VersionHistory() {
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         <div className="space-y-2">
           {artifacts.map((a) => (
-            <button
+            <Button
               key={a.id}
               type="button"
               onClick={() => setSelected(a.id)}
@@ -467,8 +468,8 @@ function VersionHistory() {
                 <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">{a.title}</p>
                 <p className="text-xs text-muted-foreground">{a.artifact_type} · v{a.version_number}</p>
               </div>
-              <button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
-            </button>
+              <Button type="button" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }} className="ml-2 text-muted-foreground/80 hover:text-red-500"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></Button>
+            </Button>
           ))}
         </div>
         <div>
@@ -480,7 +481,7 @@ function VersionHistory() {
                     <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">Version {v.version_number}</span>
                     <div className="flex items-center gap-3">
                       <span className="text-xs text-muted-foreground">{new Date(v.created_at).toLocaleString()}</span>
-                      <button
+                      <Button
                         type="button"
                         onClick={async () => {
                           if (!confirm(`Restore artifact to version ${v.version_number}?`)) return;
@@ -494,7 +495,7 @@ function VersionHistory() {
                         className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 px-2.5 py-1 text-xs font-semibold text-brand-purple hover:bg-primary/5"
                       >
                         <RotateCcw aria-hidden="true" className="h-3 w-3" /> Restore
-                      </button>
+                      </Button>
                     </div>
                   </div>
                   {v.change_summary && <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">{v.change_summary}</p>}
@@ -569,7 +570,7 @@ function TreeNode({ node, depth }: { node: { name: string; path: string; type: s
 
   return (
     <div>
-      <button
+      <Button
         type="button"
         onClick={() => isDir && setOpen(!open)}
         className="flex w-full items-center gap-2 rounded px-2 py-1 text-sm hover:bg-muted/50"
@@ -581,7 +582,7 @@ function TreeNode({ node, depth }: { node: { name: string; path: string; type: s
           <FolderTree className="h-4 w-4 text-muted-foreground" />
         )}
         <span className={isDir ? 'font-semibold text-foreground dark:text-primary-foreground' : 'text-muted-foreground'}>{node.name}</span>
-      </button>
+      </Button>
       {isDir && open && children && (
         <div>
           {children.map((child) => <TreeNode key={child.path} node={child} depth={depth + 1} />)}
@@ -634,7 +635,7 @@ function FileManager() {
                   <p className="text-xs text-muted-foreground">{a.artifact_type} · {a.language}</p>
                   <p className="mt-0.5 text-[10px] text-muted-foreground">{new Date(a.updated_at).toLocaleDateString()}</p>
                 </div>
-                <button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></button>
+                <Button type="button" onClick={() => handleDelete(a.id)} className="rounded-md p-1.5 text-muted-foreground/80 opacity-0 hover:text-red-500 group-hover:opacity-100"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></Button>
               </div>
             </div>
           ))}

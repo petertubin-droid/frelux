@@ -38,6 +38,7 @@ import {
   checkGoogleCompliance,
   type GoogleComplianceReport,
 } from "@/lib/google-compliance";
+import { Button } from "@/components/ui/shadcn/button";
 
 type Status = "loading" | "ready" | "error";
 
@@ -489,7 +490,7 @@ export default function AdminLearn() {
               const isExpanded = expandedArticles.has(article.id);
               return (
                 <div key={article.id} className="card overflow-hidden">
-                  <button
+                  <Button
                     onClick={() => toggleArticleExpanded(article.id)}
                     className="flex w-full items-center gap-3 p-3 text-left"
                   >
@@ -518,7 +519,7 @@ export default function AdminLearn() {
                     >
                       {article.status}
                     </span>
-                  </button>
+                  </Button>
                   {isExpanded && (
                     <div className="border-t border-border/50 dark:border-white/5 p-3">
                       {editingFaq?.articleId === article.id && (

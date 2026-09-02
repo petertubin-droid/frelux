@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { fetchStageTemplates } from "@/lib/project-intelligence";
 import type { DbProjectStageTemplate } from "@/types/database";
+import { Button } from "@/components/ui/shadcn/button";
 
 export default function AdminProjectStages() {
   const [stages, setStages] = useState<DbProjectStageTemplate[]>([]);
@@ -74,7 +75,7 @@ export default function AdminProjectStages() {
             Manage configurable project progress stage templates.
           </p>
         </div>
-        <button
+        <Button
           onClick={() => {
             setForm({
               stage_key: "",
@@ -90,7 +91,7 @@ export default function AdminProjectStages() {
         >
           <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
           Add Stage
-        </button>
+        </Button>
       </div>
 
       {showForm && (
@@ -100,12 +101,12 @@ export default function AdminProjectStages() {
         >
           <div className="flex items-center justify-between">
             <h3 className="font-semibold">{editing ? "Edit" : "Add"} Stage</h3>
-            <button
+            <Button
               onClick={() => setShowForm(false)}
               className="rounded-lg p-1.5 hover:bg-muted"
             >
               <X className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -152,13 +153,13 @@ export default function AdminProjectStages() {
               />
             </div>
           </div>
-          <button
+          <Button
             onClick={handleSave}
             className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             <Save className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
             Save
-          </button>
+          </Button>
         </div>
       )}
 
@@ -190,7 +191,7 @@ export default function AdminProjectStages() {
                 )}
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
+                <Button
                   onClick={() => {
                     setEditing(stage);
                     setForm({
@@ -205,13 +206,13 @@ export default function AdminProjectStages() {
                   className="rounded-lg p-2 hover:bg-muted transition-all hover:scale-110"
                 >
                   <Edit className="h-4 w-4" />
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => handleDelete(stage.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
-                </button>
+                </Button>
               </div>
             </div>
           ))}
