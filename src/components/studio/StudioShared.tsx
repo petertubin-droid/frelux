@@ -1,6 +1,19 @@
-import { useState, type ReactNode } from 'react';
-import { Loader2, Save, Copy, Check, AlertCircle, Cpu, FileCode2, Trash2, Download, ChevronDown, ChevronRight } from 'lucide-react';
-import { classNames } from '@/lib/utils';
+import { useState, type ReactNode } from "react";
+import {
+  Loader2,
+  Save,
+  Copy,
+  Check,
+  AlertCircle,
+  Cpu,
+  FileCode2,
+  Trash2,
+  Download,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
+import { cn } from "@/lib/cn";
+import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
 // Prompt Input — shared natural language input with generate button
@@ -8,7 +21,7 @@ import { classNames } from '@/lib/utils';
 export function PromptInput({
   label,
   placeholder,
-  buttonText = 'Generate',
+  buttonText = "Generate",
   loading,
   onGenerate,
   defaultValue,
@@ -22,11 +35,15 @@ export function PromptInput({
   defaultValue?: string;
   rows?: number;
 }) {
-  const [value, setValue] = useState(defaultValue ?? '');
+  const [value, setValue] = useState(defaultValue ?? "");
 
   return (
     <div>
-      {label && <label className="block text-sm font-semibold text-neutral-700 dark:text-neutral-200 mb-1.5">{label}</label>}
+      {label && (
+        <label className="mb-1.5 block text-sm font-semibold text-foreground">
+          {label}
+        </label>
+      )}
       <textarea
         className="input-field font-mono text-sm"
         rows={rows}
@@ -36,15 +53,18 @@ export function PromptInput({
         disabled={loading}
       />
       <div className="mt-3 flex justify-end">
-        <button
+        <Button
           type="button"
           onClick={() => value.trim() && onGenerate(value.trim())}
           disabled={loading || !value.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark active:scale-95 disabled:opacity-50"
         >
-          {loading ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Cpu aria-hidden="true" className="h-4 w-4" />}
-          {loading ? 'Generating…' : buttonText}
-        </button>
+          {loading ? (
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+          ) : (
+            <Cpu aria-hidden="true" className="h-4 w-4" />
+          )}
+          {loading ? "Generating…" : buttonText}
+        </Button>
       </div>
     </div>
   );
@@ -53,7 +73,15 @@ export function PromptInput({
 // =========================================================
 // Code Output — displays AI-generated code with copy/download
 // =========================================================
-export function CodeOutput({ content, language = 'typescript', title }: { content: string; language?: string; title?: string }) {
+export function CodeOutput({
+  content,
+  language = "typescript",
+  title,
+}: {
+  content: string;
+  language?: string;
+  title?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   function copy() {
@@ -65,33 +93,64 @@ export function CodeOutput({ content, language = 'typescript', title }: { conten
   }
 
   function download() {
-    const ext = language === 'sql' ? 'sql' : language === 'json' ? 'json' : language === 'markdown' ? 'md' : 'tsx';
-    const blob = new Blob([content], { type: 'text/plain' });
+    const ext =
+      language === "sql"
+        ? "sql"
+        : language === "json"
+          ? "json"
+          : language === "markdown"
+            ? "md"
+            : "tsx";
+    const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = `${title ?? 'artifact'}.${ext}`;
+    a.download = `${title ?? "artifact"}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-neutral-200 dark:border-white/5 bg-white">
-      <div className="flex items-center justify-between border-b border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 px-4 py-2">
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border bg-muted px-4 py-2">
         <div className="flex items-center gap-2">
-          <FileCode2 aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />
-          <span className="text-xs font-semibold text-neutral-600 dark:text-neutral-300">{title ?? language}</span>
+          <FileCode2
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
+          <span className="text-xs font-semibold text-foreground">
+            {title ?? language}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <button type="button" onClick={download} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Download">
+          <button
+            type="button"
+            onClick={download}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            title="Download"
+          >
             <Download aria-hidden="true" className="h-3.5 w-3.5" />
           </button>
-          <button type="button" onClick={copy} className="rounded-md p-1.5 text-neutral-500 dark:text-neutral-500 hover:bg-neutral-200 hover:text-neutral-600 dark:text-neutral-300" title="Copy">
-            {copied ? <Check aria-hidden="true" className="h-3.5 w-3.5 text-accent-green" /> : <Copy aria-hidden="true" className="h-3.5 w-3.5" />}
+          <button
+            type="button"
+            onClick={copy}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
+            title="Copy"
+          >
+            {copied ? (
+              <Check
+                aria-hidden="true"
+                className="h-3.5 w-3.5 text-emerald-500"
+              />
+            ) : (
+              <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+            )}
           </button>
         </div>
       </div>
-      <pre className="max-h-[60vh] overflow-auto p-4 text-xs leading-relaxed text-neutral-800 dark:text-neutral-100"><code>{content}</code></pre>
+      <pre className="max-h-[60vh] overflow-auto p-4 text-xs leading-relaxed text-foreground">
+        <code>{content}</code>
+      </pre>
     </div>
   );
 }
@@ -99,23 +158,41 @@ export function CodeOutput({ content, language = 'typescript', title }: { conten
 // =========================================================
 // AI Response — renders AI output (may contain markdown)
 // =========================================================
-export function AiResponseDisplay({ content, loading, error }: { content: string | null; loading: boolean; error: string | null }) {
+export function AiResponseDisplay({
+  content,
+  loading,
+  error,
+}: {
+  content: string | null;
+  loading: boolean;
+  error: string | null;
+}) {
   if (loading) {
     return (
-      <div className="flex items-center gap-3 rounded-xl border border-neutral-200 dark:border-white/5 bg-neutral-50 dark:bg-white/5 p-6">
-        <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-brand-purple" />
-        <span className="text-sm text-neutral-500 dark:text-neutral-500">AI is generating your response…</span>
+      <div className="flex items-center gap-3 rounded-xl border border-border bg-muted p-6">
+        <Loader2
+          aria-hidden="true"
+          className="h-5 w-5 animate-spin text-primary"
+        />
+        <span className="text-sm text-muted-foreground">
+          AI is generating your response…
+        </span>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
-        <AlertCircle aria-hidden="true" className="h-5 w-5 shrink-0 text-red-500" />
+      <div className="flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/5 p-4">
+        <AlertCircle
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 text-destructive"
+        />
         <div>
-          <p className="text-sm font-semibold text-red-700">Generation failed</p>
-          <p className="mt-1 text-xs text-red-600">{error}</p>
+          <p className="text-sm font-semibold text-destructive">
+            Generation failed
+          </p>
+          <p className="mt-1 text-xs text-destructive">{error}</p>
         </div>
       </div>
     );
@@ -124,7 +201,7 @@ export function AiResponseDisplay({ content, loading, error }: { content: string
   if (!content) return null;
 
   return (
-    <div className="rounded-xl border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="prose prose-sm max-w-none">
         <RenderedContent content={content} />
       </div>
@@ -140,34 +217,59 @@ export function RenderedContent({ content }: { content: string }) {
   return (
     <div className="space-y-3">
       {segments.map((seg, i) => {
-        if (seg.type === 'code') {
-          return <CodeOutput key={i} content={seg.content} language={seg.lang} title={seg.lang} />;
+        if (seg.type === "code") {
+          return (
+            <CodeOutput
+              key={i}
+              content={seg.content}
+              language={seg.lang}
+              title={seg.lang}
+            />
+          );
         }
         return (
-          <div key={i} className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-200 whitespace-pre-wrap">{seg.content}</div>
+          <div
+            key={i}
+            className="whitespace-pre-wrap text-sm leading-relaxed text-foreground"
+          >
+            {seg.content}
+          </div>
         );
       })}
     </div>
   );
 }
 
-interface Segment { type: 'text' | 'code'; content: string; lang: string }
+export interface Segment {
+  type: "text" | "code";
+  content: string;
+  lang: string;
+}
 
-function parseMarkdown(text: string): Segment[] {
+export function parseMarkdown(text: string): Segment[] {
   const segments: Segment[] = [];
   const regex = /```(\w+)?\n([\s\S]*?)```/g;
   let lastIdx = 0;
   let match;
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIdx) {
-      segments.push({ type: 'text', content: text.slice(lastIdx, match.index).trim(), lang: '' });
+      segments.push({
+        type: "text",
+        content: text.slice(lastIdx, match.index).trim(),
+        lang: "",
+      });
     }
-    segments.push({ type: 'code', content: match[2], lang: match[1] ?? 'typescript' });
+    segments.push({
+      type: "code",
+      content: match[2],
+      lang: match[1] ?? "typescript",
+    });
     lastIdx = regex.lastIndex;
   }
   if (lastIdx < text.length) {
     const remaining = text.slice(lastIdx).trim();
-    if (remaining) segments.push({ type: 'text', content: remaining, lang: '' });
+    if (remaining)
+      segments.push({ type: "text", content: remaining, lang: "" });
   }
   return segments;
 }
@@ -175,7 +277,14 @@ function parseMarkdown(text: string): Segment[] {
 // =========================================================
 // Artifact Card — for listing saved artifacts
 // =========================================================
-export function ArtifactCard({ title, type, status, updated, onClick, onDelete }: {
+export function ArtifactCard({
+  title,
+  type,
+  status,
+  updated,
+  onClick,
+  onDelete,
+}: {
   title: string;
   type: string;
   status: string;
@@ -184,27 +293,50 @@ export function ArtifactCard({ title, type, status, updated, onClick, onDelete }
   onDelete?: () => void;
 }) {
   const statusColors: Record<string, string> = {
-    draft: 'bg-neutral-100 text-neutral-600 dark:text-neutral-300',
-    review: 'bg-accent-orange/15 text-accent-orange',
-    approved: 'bg-accent-blue/15 text-accent-blue',
-    deployed: 'bg-accent-green/15 text-accent-green',
-    rejected: 'bg-red-100 text-red-600',
+    draft: "bg-muted text-muted-foreground",
+    review: "bg-primary/15 text-primary",
+    approved: "bg-secondary text-secondary-foreground",
+    deployed:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
+    rejected: "bg-destructive/10 text-destructive",
   };
   return (
-    <div className="group flex items-center justify-between rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid p-4 transition-all hover:border-brand-purple hover:shadow-sm">
-      <button type="button" onClick={onClick} className="flex min-w-0 items-center gap-3 text-left">
-        <FileCode2 aria-hidden="true" className="h-5 w-5 shrink-0 text-neutral-500 dark:text-neutral-500" />
+    <div className="group flex items-center justify-between rounded-lg border border-border bg-card p-4 transition-all hover:border-primary hover:shadow-sm">
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex min-w-0 items-center gap-3 text-left"
+      >
+        <FileCode2
+          aria-hidden="true"
+          className="h-5 w-5 shrink-0 text-muted-foreground"
+        />
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-brand-navy dark:text-white">{title}</p>
+          <p className="truncate text-sm font-semibold text-foreground">
+            {title}
+          </p>
           <div className="mt-0.5 flex items-center gap-2">
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">{type}</span>
-            <span className={classNames('rounded-full px-1.5 py-0.5 text-[10px] font-semibold capitalize', statusColors[status] ?? statusColors.draft)}>{status}</span>
-            <span className="text-xs text-neutral-500 dark:text-neutral-500">{new Date(updated).toLocaleDateString()}</span>
+            <span className="text-xs text-muted-foreground">{type}</span>
+            <span
+              className={cn(
+                "rounded-full px-1.5 py-0.5 text-[10px] font-semibold capitalize",
+                statusColors[status] ?? statusColors.draft,
+              )}
+            >
+              {status}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {new Date(updated).toLocaleDateString()}
+            </span>
           </div>
         </div>
       </button>
       {onDelete && (
-        <button type="button" onClick={onDelete} className="rounded-md p-2 text-neutral-300 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={onDelete}
+          className="rounded-md p-2 text-muted-foreground opacity-0 transition-opacity hover:text-destructive group-hover:opacity-100"
+        >
           <Trash2 aria-hidden="true" className="h-4 w-4" />
         </button>
       )}
@@ -215,15 +347,37 @@ export function ArtifactCard({ title, type, status, updated, onClick, onDelete }
 // =========================================================
 // Collapsible section
 // =========================================================
-export function CollapsibleSection({ title, children, defaultOpen = false }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
+export function CollapsibleSection({
+  title,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-lg border border-neutral-200 dark:border-white/5 bg-white">
-      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between p-4">
-        <span className="text-sm font-semibold text-brand-navy dark:text-white">{title}</span>
-        {open ? <ChevronDown aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" /> : <ChevronRight aria-hidden="true" className="h-4 w-4 text-neutral-500 dark:text-neutral-500" />}
+    <div className="rounded-lg border border-border bg-card">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between p-4"
+      >
+        <span className="text-sm font-semibold text-foreground">{title}</span>
+        {open ? (
+          <ChevronDown
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
+        ) : (
+          <ChevronRight
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
+        )}
       </button>
-      {open && <div className="border-t border-neutral-200 dark:border-white/5 p-4">{children}</div>}
+      {open && <div className="border-t border-border p-4">{children}</div>}
     </div>
   );
 }
@@ -231,19 +385,37 @@ export function CollapsibleSection({ title, children, defaultOpen = false }: { t
 // =========================================================
 // Save bar — for saving artifacts
 // =========================================================
-export function SaveBar({ onSave, saving, saved, label = 'Save as artifact' }: { onSave: () => void; saving: boolean; saved: boolean; label?: string }) {
+export function SaveBar({
+  onSave,
+  saving,
+  saved,
+  label = "Save as artifact",
+}: {
+  onSave: () => void;
+  saving: boolean;
+  saved: boolean;
+  label?: string;
+}) {
   return (
     <div className="flex items-center gap-3">
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={onSave}
         disabled={saving}
-        className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 dark:border-white/5 bg-white dark:bg-brand-navy-mid px-4 py-2 text-sm font-semibold text-neutral-600 dark:text-neutral-300 transition-all hover:bg-neutral-50 dark:bg-white/5 disabled:opacity-50"
       >
-        {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
-        {saving ? 'Saving…' : label}
-      </button>
-      {saved && <span className="flex items-center gap-1 text-sm text-accent-green"><Check aria-hidden="true" className="h-4 w-4" /> Saved</span>}
+        {saving ? (
+          <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+        ) : (
+          <Save aria-hidden="true" className="h-4 w-4" />
+        )}
+        {saving ? "Saving…" : label}
+      </Button>
+      {saved && (
+        <span className="flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+          <Check aria-hidden="true" className="h-4 w-4" /> Saved
+        </span>
+      )}
     </div>
   );
 }
@@ -251,15 +423,23 @@ export function SaveBar({ onSave, saving, saved, label = 'Save as artifact' }: {
 // =========================================================
 // ToolHeader — consistent header for each tool page
 // =========================================================
-export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cpu; title: string; description: string }) {
+export function ToolHeader({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: typeof Cpu;
+  title: string;
+  description: string;
+}) {
   return (
     <div className="mb-6 flex items-start gap-4">
-      <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-purple/10 text-brand-purple">
+      <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
         <Icon aria-hidden="true" className="h-6 w-6" />
       </div>
       <div>
-        <h1 className="text-xl font-bold text-brand-navy dark:text-white">{title}</h1>
-        <p className="mt-0.5 text-sm text-neutral-500 dark:text-neutral-500">{description}</p>
+        <h1 className="text-xl font-bold text-foreground">{title}</h1>
+        <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
       </div>
     </div>
   );
@@ -268,16 +448,36 @@ export function ToolHeader({ icon: Icon, title, description }: { icon: typeof Cp
 // =========================================================
 // ChatMessage — for chat display
 // =========================================================
-export function ChatMessage({ role, content }: { role: 'user' | 'assistant' | 'system'; content: string }) {
-  const isUser = role === 'user';
+export function ChatMessage({
+  role,
+  content,
+}: {
+  role: "user" | "assistant" | "system";
+  content: string;
+}) {
+  const isUser = role === "user";
   return (
-    <div className={classNames('flex gap-3', isUser ? 'flex-row-reverse' : 'flex-row')}>
-      <div className={classNames('flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold', isUser ? 'bg-brand-purple text-white' : 'bg-neutral-200 text-neutral-600 dark:text-neutral-300')}>
-        {isUser ? 'U' : 'AI'}
+    <div className={cn("flex gap-3", isUser ? "flex-row-reverse" : "flex-row")}>
+      <div
+        className={cn(
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+          isUser
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted text-foreground",
+        )}
+      >
+        {isUser ? "U" : "AI"}
       </div>
-      <div className={classNames('max-w-[80%] rounded-xl p-4', isUser ? 'bg-brand-purple text-white' : 'bg-neutral-100 text-neutral-800 dark:text-neutral-100')}>
+      <div
+        className={cn(
+          "max-w-[80%] rounded-xl p-4",
+          isUser
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted text-foreground",
+        )}
+      >
         {isUser ? (
-          <p className="text-sm whitespace-pre-wrap">{content}</p>
+          <p className="whitespace-pre-wrap text-sm">{content}</p>
         ) : (
           <div className="text-sm">
             <RenderedContent content={content} />
