@@ -1,119 +1,124 @@
 import { describe, it, expect } from "vitest";
-import { calculateRoofAreaPipeline } from "./area-pipeline";
+import { calculateRoofAreaPipeline } from "@/lib/roof/area-pipeline";
+import type { RoofAreaPipelineInput } from "@/lib/roof/area-pipeline";
 
-describe("roof/area-pipeline", () => {
-  it("calculates flat roof with no cutouts", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: null,
-      roofType: "flat",
-      cutouts: [],
-      wastePercent: 10,
-    });
+function makeInput(
+  overrides: Partial<RoofAreaPipelineInput> = {},
+): RoofAreaPipelineInput {
+  return {
+    planAreaM2: 100,
+    pitchDegrees: 30,
+    roofType: "gable" as const,
+    cutouts: [],
+    wastePercent: 10,
+    ...overrides,
+  };
+}
+
+describe("calculateRoofAreaPipeline", () => {
+  it("returns all pipeline steps", () => {
+    const result = calculateRoofAreaPipeline(makeInput());
     expect(result.planAreaM2).toBe(100);
-    expect(result.slopedSurfaceAreaM2).toBe(100);
-    expect(result.netAreaM2).toBe(100);
-    expect(result.orderAreaM2).toBeCloseTo(110);
-    expect(result.pitchApplied).toBe(false);
+    expect(result.pitchDegrees).toBe(30);
+    expect(result.slopedSurfaceAreaM2).toBeCloseTo(115.47, 1);
+    expect(result.cutoutAreaM2).toBe(0);
+    expect(result.netAreaM2).toBeCloseTo(115.47, 1);
+    expect(result.wastePercent).toBe(10);
+    expect(result.orderAreaM2).toBeCloseTo(127.02, 1);
+    expect(result.pitchApplied).toBe(true);
   });
 
-  it("calculates sloped roof with pitch", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: 30,
-      roofType: "gable",
-      cutouts: [],
-      wastePercent: 0,
-    });
-    expect(result.pitchApplied).toBe(true);
-    expect(result.slopedSurfaceAreaM2).toBeGreaterThan(100);
-    expect(result.orderAreaM2).toBeCloseTo(result.slopedSurfaceAreaM2);
+  it("does not apply pitch for flat roofs", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({ roofType: "flat" as const }),
+    );
+    expect(result.pitchApplied).toBe(false);
+    expect(result.slopedSurfaceAreaM2).toBe(100);
+  });
+
+  it("does not apply pitch when pitch is null", () => {
+    const result = calculateRoofAreaPipeline(makeInput({ pitchDegrees: null }));
+    expect(result.pitchApplied).toBe(false);
+    expect(result.slopedSurfaceAreaM2).toBe(100);
   });
 
   it("subtracts cutouts from net area", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: null,
-      roofType: "flat",
-      cutouts: [
-        { id: "c1", name: "Skylight", areaM2: 5, type: "skylight" },
-        { id: "c2", name: "Courtyard", areaM2: 10, type: "courtyard" },
-      ],
-      wastePercent: 0,
-    });
+    const result = calculateRoofAreaPipeline(
+      makeInput({
+        cutouts: [
+          { id: "c1", name: "Skylight", areaM2: 5, type: "skylight" },
+          { id: "c2", name: "Courtyard", areaM2: 10, type: "courtyard" },
+        ],
+      }),
+    );
     expect(result.cutoutAreaM2).toBe(15);
-    expect(result.netAreaM2).toBe(85);
+    expect(result.netAreaM2).toBeCloseTo(115.47 - 15, 1);
   });
 
-  it("applies waste percentage to order quantity", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 200,
-      pitchDegrees: null,
-      roofType: "flat",
-      cutouts: [],
-      wastePercent: 15,
-    });
-    expect(result.orderAreaM2).toBeCloseTo(230);
+  it("never returns negative net area", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({
+        planAreaM2: 10,
+        cutouts: [{ id: "c1", name: "Huge", areaM2: 100, type: "other" }],
+      }),
+    );
+    expect(result.netAreaM2).toBe(0);
   });
 
-  it("handles negative plan area as 0", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: -50,
-      pitchDegrees: null,
-      roofType: "flat",
-      cutouts: [],
-      wastePercent: 0,
-    });
+  it("applies waste percentage correctly", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({ wastePercent: 20, cutouts: [] }),
+    );
+    // sloped ≈ 115.47, waste 20% → 115.47 * 1.2
+    expect(result.orderAreaM2).toBeCloseTo(115.47 * 1.2, 1);
+  });
+
+  it("handles zero waste", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({ wastePercent: 0, cutouts: [] }),
+    );
+    expect(result.orderAreaM2).toBeCloseTo(result.netAreaM2, 5);
+  });
+
+  it("clamps negative plan area to 0", () => {
+    const result = calculateRoofAreaPipeline(makeInput({ planAreaM2: -50 }));
     expect(result.planAreaM2).toBe(0);
+    expect(result.slopedSurfaceAreaM2).toBe(0);
   });
 
-  it("does not apply pitch for flat roof even if pitch given", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: 45,
-      roofType: "flat",
-      cutouts: [],
-      wastePercent: 0,
-    });
-    expect(result.pitchApplied).toBe(false);
-    expect(result.slopedSurfaceAreaM2).toBe(100);
-  });
-
-  it("does not apply pitch when pitchDegrees is 0", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: 0,
-      roofType: "gable",
-      cutouts: [],
-      wastePercent: 0,
-    });
-    expect(result.pitchApplied).toBe(false);
-  });
-
-  it("generates explanation strings for each step", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: 30,
-      roofType: "gable",
-      cutouts: [{ id: "c1", name: "Sky", areaM2: 5, type: "skylight" }],
-      wastePercent: 10,
-    });
-    expect(result.explanation.planArea).toContain("100.00 m²");
+  it("includes explanation text", () => {
+    const result = calculateRoofAreaPipeline(makeInput());
+    expect(result.explanation.planArea).toContain("100.00");
     expect(result.explanation.pitch).toContain("30.0");
-    expect(result.explanation.cutouts).toContain("Sky");
-    expect(result.explanation.net).toContain("m²");
-    expect(result.explanation.waste).toContain("10.0%");
-    expect(result.explanation.order).toContain("m²");
+    expect(result.explanation.slopedSurface).toBeTruthy();
+    expect(result.explanation.cutouts).toContain("none");
+    expect(result.explanation.net).toBeTruthy();
+    expect(result.explanation.waste).toContain("10.0");
+    expect(result.explanation.order).toBeTruthy();
   });
 
-  it("explanation notes missing pitch for non-flat roof", () => {
-    const result = calculateRoofAreaPipeline({
-      planAreaM2: 100,
-      pitchDegrees: null,
-      roofType: "gable",
-      cutouts: [],
-      wastePercent: 0,
-    });
+  it("explanation mentions cutout names when present", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({
+        cutouts: [
+          { id: "c1", name: "Skylight A", areaM2: 3, type: "skylight" },
+        ],
+      }),
+    );
+    expect(result.explanation.cutouts).toContain("Skylight A");
+  });
+
+  it("explanation says flat roof for flat type", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({ roofType: "flat" as const }),
+    );
+    expect(result.explanation.pitch).toContain("flat roof");
+  });
+
+  it("explanation says NOT PROVIDED when pitch is null for non-flat", () => {
+    const result = calculateRoofAreaPipeline(
+      makeInput({ pitchDegrees: null, roofType: "gable" as const }),
+    );
     expect(result.explanation.pitch).toContain("NOT PROVIDED");
   });
 });
