@@ -385,6 +385,9 @@ export default function AdSlot({
           s.async = true;
           s.setAttribute("data-cfasync", "false");
           s.setAttribute("data-zone", creds.zone_id);
+          // Pin the tag's config/module requests to quge5.com so the
+          // site CSP (script-src/connect-src/frame-src) can reliably allow it.
+          s.setAttribute("data-domain", "quge5.com");
           s.src = "https://quge5.com/88/tag.min.js";
           document.head.appendChild(s);
         }
