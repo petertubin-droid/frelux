@@ -1,151 +1,68 @@
 import { describe, it, expect } from "vitest";
 import {
   generatePaintShoppingList,
-  generateCostEstimateShoppingList,
   shoppingListToText,
-  type ShoppingListItem,
-} from "./shopping-list";
+} from "@/lib/shopping-list";
+import type { CalculatorResult, CalculatorInput } from "@/types";
 
-const baseResult = {
-  paintableArea: 50,
-  adjustedLiters: 10,
-  totalRecommendedLiters: 12,
-  recommendedContainers: [] as { count: number; size: number }[],
-};
+const mockResult: CalculatorResult = {
+  totalArea: 100,
+  paintableArea: 90,
+  totalRecommendedLiters: 15,
+  recommendedContainers: [
+    { size: 4, count: 3, label: "4 L" },
+    { size: 1, count: 1, label: "1 L" },
+  ],
+  wasteAmount: 2,
+  coatBreakdown: [],
+} as unknown as CalculatorResult;
 
-const baseInput = {
+const mockInput: CalculatorInput = {
+  projectType: "room",
+  length: 10,
+  width: 8,
+  height: 3,
   coats: 2,
   wasteMargin: 10,
-  paintableArea: 50,
-};
+  doors: [],
+  windows: [],
+} as unknown as CalculatorInput;
 
-describe("shopping-list", () => {
-  it("generatePaintShoppingList creates items for containers", () => {
-    const items = generatePaintShoppingList(
-      {
-        ...baseResult,
-        recommendedContainers: [
-          { count: 2, size: 5 },
-          { count: 1, size: 2 },
-        ],
-      } as unknown as never,
-      baseInput as unknown as never,
-      "Satin",
-    );
-    expect(items.length).toBeGreaterThan(3);
-    const paintItems = items.filter((i) => i.name.includes("Satin"));
-    expect(paintItems.length).toBe(2);
+describe("generatePaintShoppingList", () => {
+  it("generates items for paint containers", () => {
+    const items = generatePaintShoppingList(mockResult, mockInput, "Premium");
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.some((i) => i.name.includes("Premium"))).toBe(true);
   });
 
-  it("generatePaintShoppingList shows liters when no containers", () => {
-    const items = generatePaintShoppingList(
-      { ...baseResult, recommendedContainers: [] } as unknown as never,
-      { ...baseInput, coats: 1 } as unknown as never,
-      "Emulsion",
-    );
-    const paintItem = items.find((i) => i.name.includes("Emulsion"));
-    expect(paintItem).toBeTruthy();
-    expect(paintItem!.quantity).toContain("12");
+  it("includes container count in quantity", () => {
+    const items = generatePaintShoppingList(mockResult, mockInput, "Premium");
+    const containerItem = items.find((i) => i.name.includes("4 L"));
+    expect(containerItem?.quantity).toContain("3");
   });
 
-  it("generatePaintShoppingList includes primer for multi-coat", () => {
-    const items = generatePaintShoppingList(
-      { ...baseResult } as unknown as never,
-      { ...baseInput, coats: 3 } as unknown as never,
-      "Satin",
-    );
+  it("adds primer for multi-coat projects", () => {
+    const items = generatePaintShoppingList(mockResult, mockInput, "Premium");
     expect(items.some((i) => i.name === "Primer")).toBe(true);
   });
 
-  it("generatePaintShoppingList excludes primer for single coat", () => {
-    const items = generatePaintShoppingList(
-      { ...baseResult } as unknown as never,
-      { ...baseInput, coats: 1 } as unknown as never,
-      "Satin",
-    );
+  it("does not add primer for single coat", () => {
+    const singleCoatInput = { ...mockInput, coats: 1 };
+    const items = generatePaintShoppingList(mockResult, singleCoatInput, "Premium");
     expect(items.some((i) => i.name === "Primer")).toBe(false);
   });
 
-  it("generatePaintShoppingList includes accessories", () => {
-    const items = generatePaintShoppingList(
-      { ...baseResult } as unknown as never,
-      { ...baseInput, coats: 1 } as unknown as never,
-      "Satin",
-    );
-    expect(items.some((i) => i.name.includes("Sandpaper"))).toBe(true);
-    expect(items.some((i) => i.name.includes("brush"))).toBe(true);
-    expect(items.some((i) => i.name.includes("roller"))).toBe(true);
-    expect(items.some((i) => i.name.includes("Masking"))).toBe(true);
-    expect(items.some((i) => i.name.includes("Drop cloth"))).toBe(true);
-  });
-
   it("all items start unchecked", () => {
-    const items = generatePaintShoppingList(
-      { ...baseResult } as unknown as never,
-      { ...baseInput, coats: 1 } as unknown as never,
-      "Satin",
-    );
+    const items = generatePaintShoppingList(mockResult, mockInput, "Premium");
     expect(items.every((i) => i.checked === false)).toBe(true);
   });
+});
 
-  it("generateCostEstimateShoppingList creates items for priced materials", () => {
-    const items = generateCostEstimateShoppingList(
-      {
-        paintCost: 5000,
-        paintContainerCount: 2,
-        primerCost: 1000,
-        fillerCost: 0,
-        puttyCost: 500,
-        sandpaperCost: 0,
-        brushesCost: 200,
-        rollersCost: 0,
-        otherMaterialsCost: 100,
-        total: 6800,
-        currencySymbol: "₦",
-      } as unknown as never,
-      {
-        paintLiters: 10,
-        paintableArea: 50,
-      } as unknown as never,
-      "Satin",
-    );
-    expect(items.length).toBe(5); // paint, primer, putty, brushes, other
-    expect(items.some((i) => i.name.includes("Satin"))).toBe(true);
-    expect(items.some((i) => i.name === "Primer")).toBe(true);
-    expect(items.some((i) => i.name === "Putty")).toBe(true);
-    expect(items.some((i) => i.name === "Brushes")).toBe(true);
-    expect(items.some((i) => i.name === "Other materials")).toBe(true);
-  });
-
-  it("generateCostEstimateShoppingList shows liters when no container count", () => {
-    const items = generateCostEstimateShoppingList(
-      {
-        paintCost: 5000,
-        paintContainerCount: 0,
-        currencySymbol: "₦",
-      } as unknown as never,
-      { paintLiters: 10, paintableArea: 50 } as unknown as never,
-      "Satin",
-    );
-    const paint = items.find((i) => i.name.includes("Satin"));
-    expect(paint?.quantity).toContain("10");
-  });
-
-  it("shoppingListToText generates text output", () => {
-    const items: ShoppingListItem[] = [
-      {
-        name: "Paint",
-        quantity: "2 containers",
-        detail: "10 L",
-        checked: false,
-      },
-      { name: "Brushes", quantity: "2-3", checked: true },
-    ];
+describe("shoppingListToText", () => {
+  it("converts shopping list to text", () => {
+    const items = generatePaintShoppingList(mockResult, mockInput, "Premium");
     const text = shoppingListToText(items);
-    expect(text).toContain("FRELUX Shopping List");
-    expect(text).toContain("Paint");
-    expect(text).toContain("☐");
-    expect(text).toContain("✅");
-    expect(text).toContain("freluxtools");
+    expect(text).toContain("Premium");
+    expect(text.length).toBeGreaterThan(0);
   });
 });

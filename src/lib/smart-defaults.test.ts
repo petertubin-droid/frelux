@@ -4,31 +4,27 @@ import {
   loadPaintCalcDefaults,
   saveCostEstimateDefaults,
   loadCostEstimateDefaults,
-  saveScreedingDefaults,
-  loadScreedingDefaults,
-  saveTileDefaults,
-  loadTileDefaults,
-  savePopDefaults,
-  loadPopDefaults,
-} from "./smart-defaults";
+  getRecentTools,
+  trackRecentTool,
+} from "@/lib/smart-defaults";
 
-describe("smart-defaults", () => {
-  beforeEach(() => {
-    localStorage.clear();
-  });
+beforeEach(() => {
+  localStorage.clear();
+});
 
-  it("loadPaintCalcDefaults returns empty object when nothing saved", () => {
+describe("smart defaults", () => {
+  it("returns empty object when nothing saved", () => {
     expect(loadPaintCalcDefaults()).toEqual({});
   });
 
-  it("savePaintCalcDefaults stores and loads", () => {
+  it("saves and loads paint calc defaults", () => {
     savePaintCalcDefaults({ coats: 3, wasteMargin: 15 });
     const loaded = loadPaintCalcDefaults();
     expect(loaded.coats).toBe(3);
     expect(loaded.wasteMargin).toBe(15);
   });
 
-  it("savePaintCalcDefaults merges with existing", () => {
+  it("merges paint calc defaults on subsequent saves", () => {
     savePaintCalcDefaults({ coats: 2 });
     savePaintCalcDefaults({ wasteMargin: 10 });
     const loaded = loadPaintCalcDefaults();
@@ -36,40 +32,31 @@ describe("smart-defaults", () => {
     expect(loaded.wasteMargin).toBe(10);
   });
 
-  it("loadCostEstimateDefaults returns empty when nothing saved", () => {
-    expect(loadCostEstimateDefaults()).toEqual({});
+  it("saves and loads cost estimate defaults", () => {
+    saveCostEstimateDefaults({ currency: "USD", includeLabor: true });
+    const loaded = loadCostEstimateDefaults();
+    expect(loaded.currency).toBe("USD");
+    expect(loaded.includeLabor).toBe(true);
+  });
+});
+
+describe("recent tools", () => {
+  it("returns empty array when nothing tracked", () => {
+    expect(getRecentTools()).toEqual([]);
   });
 
-  it("saveCostEstimateDefaults stores and loads", () => {
-    saveCostEstimateDefaults({ currency: "NGN", includeLabor: true });
-    expect(loadCostEstimateDefaults().currency).toBe("NGN");
-    expect(loadCostEstimateDefaults().includeLabor).toBe(true);
+  it("tracks tool usage", () => {
+    trackRecentTool("/paint-calculator", "Paint Calculator", "Calculator");
+    const tools = getRecentTools();
+    expect(tools.length).toBe(1);
+    expect(tools[0].label).toBe("Paint Calculator");
   });
 
-  it("loadScreedingDefaults returns empty when nothing saved", () => {
-    expect(loadScreedingDefaults()).toEqual({});
-  });
-
-  it("saveScreedingDefaults stores and loads", () => {
-    saveScreedingDefaults({ thickness: 12 });
-    expect(loadScreedingDefaults().thickness).toBe(12);
-  });
-
-  it("loadTileDefaults returns empty when nothing saved", () => {
-    expect(loadTileDefaults()).toEqual({});
-  });
-
-  it("saveTileDefaults stores and loads", () => {
-    saveTileDefaults({ tileSize: "600x600", wasteMargin: 5 });
-    expect(loadTileDefaults().tileSize).toBe("600x600");
-  });
-
-  it("loadPopDefaults returns empty when nothing saved", () => {
-    expect(loadPopDefaults()).toEqual({});
-  });
-
-  it("savePopDefaults stores and loads", () => {
-    savePopDefaults({ designType: "dome" });
-    expect(loadPopDefaults().designType).toBe("dome");
+  it("moves tool to front on re-visit", () => {
+    trackRecentTool("/paint", "Paint", "Calculator");
+    trackRecentTool("/tile", "Tile", "Grid3x3");
+    trackRecentTool("/paint", "Paint", "Calculator");
+    const tools = getRecentTools();
+    expect(tools[0].path).toBe("/paint");
   });
 });

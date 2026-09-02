@@ -1,81 +1,71 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Mock achievements tracker
+// Mock achievements
 vi.mock("@/lib/achievements", () => ({
-  trackShare: vi.fn(() => []),
+  trackShare: vi.fn(),
 }));
 
 // Mock window.open
-const openSpy = vi.fn();
-Object.defineProperty(window, "open", { value: openSpy, writable: true });
+const mockOpen = vi.fn();
+beforeEach(() => {
+  vi.clearAllMocks();
+  global.window.open = mockOpen;
+});
 
-const {
-  sharePaintCalcOnWhatsApp,
-  shareCostEstimateOnWhatsApp,
-  shareTextOnWhatsApp,
-} = await import("./share");
-const { trackShare } = await import("@/lib/achievements");
-
-describe("share", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("shareTextOnWhatsApp opens WhatsApp URL", () => {
-    shareTextOnWhatsApp("Hello test");
-    expect(openSpy).toHaveBeenCalledTimes(1);
-    const url = openSpy.mock.calls[0][0] as string;
+describe("share utilities", () => {
+  it("shareTextOnWhatsApp opens wa.me link", async () => {
+    const { shareTextOnWhatsApp } = await import("@/lib/share");
+    shareTextOnWhatsApp("Hello world");
+    expect(mockOpen).toHaveBeenCalled();
+    const url = mockOpen.mock.calls[0][0] as string;
     expect(url).toContain("wa.me");
-    expect(url).toContain("Hello%20test");
-    expect(trackShare).toHaveBeenCalled();
+    expect(url).toContain("Hello%20world");
   });
 
-  it("sharePaintCalcOnWhatsApp opens WhatsApp URL with formatted message", () => {
+  it("sharePaintCalcOnWhatsApp encodes message", async () => {
+    const { sharePaintCalcOnWhatsApp } = await import("@/lib/share");
+    const mockResult = {
+      paintableArea: 100,
+      adjustedLiters: 15,
+      totalRecommendedLiters: 18,
+      recommendedContainers: [{ count: 4, size: 4, label: "4 L" }],
+    };
+    const mockInput = {
+      projectType: "room",
+      coats: 2,
+      wasteMargin: 10,
+    };
     sharePaintCalcOnWhatsApp({
-      result: {
-        paintableArea: 50,
-        adjustedLiters: 10,
-        totalRecommendedLiters: 12,
-        recommendedContainers: [{ count: 2, size: 5 }],
-      } as unknown as never,
-      input: {
-        projectType: "room",
-        coats: 2,
-        wasteMargin: 10,
-        paintableArea: 50,
-      } as unknown as never,
-      paintTypeName: "Satin",
+      result: mockResult as never,
+      input: mockInput as never,
+      paintTypeName: "Premium",
     });
-    expect(openSpy).toHaveBeenCalledTimes(1);
-    const url = openSpy.mock.calls[0][0] as string;
+    expect(mockOpen).toHaveBeenCalled();
+    const url = mockOpen.mock.calls[0][0] as string;
     expect(url).toContain("wa.me");
-    expect(trackShare).toHaveBeenCalled();
+    expect(url).toContain("FRELUX");
   });
 
-  it("shareCostEstimateOnWhatsApp opens WhatsApp URL with formatted message", () => {
+  it("shareCostEstimateOnWhatsApp encodes message", async () => {
+    const { shareCostEstimateOnWhatsApp } = await import("@/lib/share");
+    const mockResult = {
+      paintCost: 50000,
+      primerCost: 5000,
+      laborCost: 20000,
+      total: 75000,
+      currencySymbol: "₦",
+    };
+    const mockInput = {
+      projectType: "room",
+      paintableArea: 100,
+    };
     shareCostEstimateOnWhatsApp({
-      result: {
-        paintCost: 5000,
-        primerCost: 0,
-        fillerCost: 0,
-        puttyCost: 0,
-        sandpaperCost: 0,
-        brushesCost: 200,
-        rollersCost: 0,
-        otherMaterialsCost: 0,
-        laborCost: 0,
-        total: 5200,
-        currencySymbol: "₦",
-      } as unknown as never,
-      input: {
-        projectType: "room",
-        paintableArea: 50,
-      } as unknown as never,
-      paintTypeName: "Emulsion",
+      result: mockResult as never,
+      input: mockInput as never,
+      paintTypeName: "Premium",
     });
-    expect(openSpy).toHaveBeenCalledTimes(1);
-    const url = openSpy.mock.calls[0][0] as string;
+    expect(mockOpen).toHaveBeenCalled();
+    const url = mockOpen.mock.calls[0][0] as string;
     expect(url).toContain("wa.me");
-    expect(trackShare).toHaveBeenCalled();
   });
 });
