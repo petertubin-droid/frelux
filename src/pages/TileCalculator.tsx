@@ -24,8 +24,8 @@ import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
-import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
-import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
+import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
+import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -65,6 +65,7 @@ import {
 import { TileCalculatorSeo } from "@/components/seo/SeoContent";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import AdSlot from "@/components/ui/AdSlot";
 export default function TileCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -944,6 +945,7 @@ export default function TileCalculator({
           <ProConnectCTA calculatorType="tile" />
         </>
       )}
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
 }

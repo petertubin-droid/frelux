@@ -96,11 +96,34 @@ export default function AdSlot({
       }
 
       const chain = getProvidersForPlacement(slotKey, providers, placements);
-      for (const provider of chain) {
+      // If a specific providerId is requested, filter to just that one
+      const targetChain = providerId
+        ? chain.filter((p) => p.id === providerId)
+        : chain;
+
+      // Providers that use global credentials (not per-placement ad unit IDs).
+      // They can render on any placement as long as their credentials are set.
+      const GLOBAL_CREDENTIAL_PROVIDERS = [
+        "monetag",
+        "ezoic",
+        "snigel",
+        "monumetric",
+        "carbon_ads",
+        "ethical_ads",
+        "amazon_publisher",
+        "yllix",
+        "revcontent",
+      ];
+
+      for (const provider of targetChain) {
         const adUnitId = getAdUnitId(placement, provider.id);
+        // Per-placement ad unit ID is the primary path
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
-          if (!loggedRef.current && !hasLoggedImpressionThisSession(slotKey)) {
+          if (
+            !loggedRef.current &&
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+          ) {
             loggedRef.current = true;
             logAdEvent({
               event_type: "impression",
@@ -111,12 +134,36 @@ export default function AdSlot({
           }
           return;
         }
+        // Fallback: some providers use global credentials (zone_id, site_id)
+        // and don't need per-placement ad unit IDs. Allow them through if
+        // they have at least one non-empty credential.
+        if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) {
+          const hasCreds = Object.values(provider.credentials ?? {}).some(
+            (v) => typeof v === "string" && v.length > 0,
+          );
+          if (hasCreds) {
+            setResolved({ provider, adUnitId: "", placement });
+            if (
+              !loggedRef.current &&
+              !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            ) {
+              loggedRef.current = true;
+              logAdEvent({
+                event_type: "impression",
+                provider_id: provider.id,
+                placement_key: slotKey,
+                revenue_estimated: 0,
+              });
+            }
+            return;
+          }
+        }
       }
 
       // Fallback: check legacy site_settings config for AdSense
       if (
-        chain.length === 0 ||
-        chain.some((p) => p.slug === "google_adsense")
+        targetChain.length === 0 ||
+        targetChain.some((p) => p.slug === "google_adsense")
       ) {
         fetchLegacyAdSense(slotKey).then((legacy) => {
           if (cancelled) return;
@@ -133,7 +180,7 @@ export default function AdSlot({
     return () => {
       cancelled = true;
     };
-  }, [slotKey]);
+  }, [slotKey, providerId]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {

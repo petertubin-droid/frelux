@@ -37,6 +37,7 @@ import {
   EngineExplanationPanel,
   EngineMaterialSummaryCard,
 } from "@/components/engine";
+import AdSlot from "@/components/ui/AdSlot";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -668,7 +669,7 @@ export default function ScreedingCostEstimator({
                 toolLabel="Screeding Calculator"
                 contextSummary={`Screeding Calculator Results:
 - Net screeding area: ${netArea} m²
-- Mix ratio: ${config.defaultMixRatio || '2:1'}
+- Mix ratio: ${config.defaultMixRatio || "2:1"}
 - Paint coverage: ${config.paintCoverageRateM2PerL} m²/L
 - Paint bucket: ${config.paintBucketSizeL}L @ ${config.currencySymbol}${config.paintPricePerBucket}
 - Cement: ${config.cementBagSizeKg}kg bags @ ${config.currencySymbol}${config.cementPricePerBag}
@@ -721,6 +722,7 @@ export default function ScreedingCostEstimator({
           ]}
         />
       )}
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
 }

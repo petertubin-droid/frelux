@@ -130,6 +130,7 @@ import { useSeo } from "@/lib/seo";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function PaintCalculator({
   embedded = false,
@@ -296,7 +297,7 @@ export default function PaintCalculator({
       }
     }
     loadTypes();
-        loadConditions();
+    loadConditions();
     loadEstimationEngine();
     return () => {
       mountedRef.current = false;
@@ -983,10 +984,10 @@ export default function PaintCalculator({
 - Surface condition: ${result.surfaceCondition}
 - Coverage rate: ${formatNumber(result.coverageRate, 1)} m²/L per coat
 - Paint required: ${formatNumber(result.adjustedLiters)}L (adjusted for ${input.wasteMargin}% waste)
-- Recommended containers: ${result.recommendedContainers.map(c => `${c.count} × ${c.size}L`).join(', ')}
+- Recommended containers: ${result.recommendedContainers.map((c) => `${c.count} × ${c.size}L`).join(", ")}
 - Total recommended: ${formatNumber(result.totalRecommendedLiters)}L
 - Leftover: ${formatNumber(result.leftoverLiters)}L
-${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(c => `${c.count} × ${c.size}L`).join(', ')} (${formatNumber(result.primerTotalLiters)}L)` : '- Primer: none needed'}
+${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map((c) => `${c.count} × ${c.size}L`).join(", ")} (${formatNumber(result.primerTotalLiters)}L)` : "- Primer: none needed"}
 - Waste margin: ${input.wasteMargin}%`}
                 clientHash={access.clientHash}
               />
@@ -1006,6 +1007,7 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
 }

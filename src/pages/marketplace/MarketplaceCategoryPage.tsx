@@ -1,26 +1,32 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, ArrowRight, Loader2, Package } from 'lucide-react';
-import { fetchCategories } from '@/lib/pro-connect';
-import { fetchListings } from '@/lib/marketplace';
-import { useSeo } from '@/lib/seo';
-import { breadcrumbSchema } from '@/lib/structured-data';
-import type { DbProCategory } from '@/types/pro-connect';
-import type { DbMarketplaceListing } from '@/types/marketplace';
-import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
-import LocationPicker from '@/components/ui/LocationPicker';
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { MapPin, ArrowRight, Loader2, Package } from "lucide-react";
+import { fetchCategories } from "@/lib/pro-connect";
+import { fetchListings } from "@/lib/marketplace";
+import { useSeo } from "@/lib/seo";
+import { breadcrumbSchema } from "@/lib/structured-data";
+import type { DbProCategory } from "@/types/pro-connect";
+import type { DbMarketplaceListing } from "@/types/marketplace";
+import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
+import LocationPicker from "@/components/ui/LocationPicker";
+import AdSlot from "@/components/ui/AdSlot";
 
 // ============================================================
 // SEO Page: /marketplace/category/:categorySlug
 // Shows all listings in a category, indexable by search engines
 // ============================================================
 
-function formatBudget(min: number | null, max: number | null, currency: string) {
-  const sym = currency === 'NGN' ? '₦' : '';
-  if (min && max) return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
+function formatBudget(
+  min: number | null,
+  max: number | null,
+  currency: string,
+) {
+  const sym = currency === "NGN" ? "₦" : "";
+  if (min && max)
+    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
   if (min) return `From ${sym}${min.toLocaleString()}`;
   if (max) return `Up to ${sym}${max.toLocaleString()}`;
-  return 'Budget negotiable';
+  return "Budget negotiable";
 }
 
 export default function MarketplaceCategoryPage() {
@@ -58,26 +64,42 @@ export default function MarketplaceCategoryPage() {
   useSeo({
     title: category
       ? `${category.name} Services & Jobs — FRELUX Marketplace`
-      : 'Marketplace Category — FRELUX',
-    description: category?.seo_description || category?.description ||
-      `Browse ${category?.name || 'construction'} jobs and services on the FRELUX Marketplace. Post a job and get bids from verified professionals.`,
+      : "Marketplace Category — FRELUX",
+    description:
+      category?.seo_description ||
+      category?.description ||
+      `Browse ${category?.name || "construction"} jobs and services on the FRELUX Marketplace. Post a job and get bids from verified professionals.`,
     canonicalPath: `/marketplace/category/${categorySlug}`,
     noIndex: false,
     structuredData: breadcrumbSchema([
-      { name: 'Home', path: '/' },
-      { name: 'Marketplace', path: '/marketplace' },
-      { name: category?.name || 'Category', path: `/marketplace/category/${categorySlug}` },
+      { name: "Home", path: "/" },
+      { name: "Marketplace", path: "/marketplace" },
+      {
+        name: category?.name || "Category",
+        path: `/marketplace/category/${categorySlug}`,
+      },
     ]),
   });
 
   if (notFound) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <Package aria-hidden="true" className="mx-auto h-12 w-12 text-neutral-300" />
-        <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">Category Not Found</h1>
-        <p className="mt-2 text-sm text-neutral-500">This category doesn't exist or is no longer active.</p>
-        <Link to="/marketplace" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple">
-          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back to Marketplace
+        <Package
+          aria-hidden="true"
+          className="mx-auto h-12 w-12 text-neutral-300"
+        />
+        <h1 className="mt-4 text-xl font-bold text-neutral-900 dark:text-white">
+          Category Not Found
+        </h1>
+        <p className="mt-2 text-sm text-neutral-500">
+          This category doesn't exist or is no longer active.
+        </p>
+        <Link
+          to="/marketplace"
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple"
+        >
+          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back
+          to Marketplace
         </Link>
       </div>
     );
@@ -89,11 +111,17 @@ export default function MarketplaceCategoryPage() {
       <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
-            <Link to="/" className="hover:text-brand-purple">Home</Link>
+            <Link to="/" className="hover:text-brand-purple">
+              Home
+            </Link>
             <span>/</span>
-            <Link to="/marketplace" className="hover:text-brand-purple">Marketplace</Link>
+            <Link to="/marketplace" className="hover:text-brand-purple">
+              Marketplace
+            </Link>
             <span>/</span>
-            <span className="text-neutral-900 dark:text-white">{category?.name || '...'}</span>
+            <span className="text-neutral-900 dark:text-white">
+              {category?.name || "..."}
+            </span>
           </nav>
         </div>
       </div>
@@ -102,10 +130,11 @@ export default function MarketplaceCategoryPage() {
       <div className="border-b border-neutral-200 bg-white dark:border-white/5 dark:bg-brand-navy-mid">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white sm:text-3xl">
-            {category?.name || 'Loading...'}
+            {category?.name || "Loading..."}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-neutral-500 dark:text-neutral-500">
-            {category?.description || `Find ${category?.name || 'construction'} professionals and job listings on FRELUX.`}
+            {category?.description ||
+              `Find ${category?.name || "construction"} professionals and job listings on FRELUX.`}
           </p>
 
           {/* Location filter */}
@@ -119,12 +148,20 @@ export default function MarketplaceCategoryPage() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+            <Loader2
+              aria-hidden="true"
+              className="h-6 w-6 animate-spin text-brand-purple"
+            />
           </div>
         ) : listings.length === 0 ? (
           <div className="py-20 text-center">
-            <Package aria-hidden="true" className="mx-auto h-12 w-12 text-neutral-300" />
-            <h2 className="mt-4 text-lg font-semibold text-neutral-700 dark:text-neutral-200">No Active Listings</h2>
+            <Package
+              aria-hidden="true"
+              className="mx-auto h-12 w-12 text-neutral-300"
+            />
+            <h2 className="mt-4 text-lg font-semibold text-neutral-700 dark:text-neutral-200">
+              No Active Listings
+            </h2>
             <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-500">
               There are currently no active job listings in this category.
             </p>
@@ -141,7 +178,9 @@ export default function MarketplaceCategoryPage() {
         ) : (
           <>
             <p className="mb-4 text-sm text-neutral-500 dark:text-neutral-500">
-              {listings.length} active {listings.length === 1 ? 'listing' : 'listings'} in {category?.name}
+              {listings.length} active{" "}
+              {listings.length === 1 ? "listing" : "listings"} in{" "}
+              {category?.name}
             </p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {listings.map((listing) => (
@@ -152,9 +191,10 @@ export default function MarketplaceCategoryPage() {
                 >
                   <div className="flex items-center justify-between">
                     <span className="rounded-md bg-brand-purple/10 px-2 py-1 text-xs font-semibold text-brand-purple">
-                      {PROJECT_TYPE_LABELS[listing.project_type] || listing.project_type}
+                      {PROJECT_TYPE_LABELS[listing.project_type] ||
+                        listing.project_type}
                     </span>
-                    {listing.urgency === 'urgent' && (
+                    {listing.urgency === "urgent" && (
                       <span className="rounded-md bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-500/10 dark:text-red-400">
                         Urgent
                       </span>
@@ -170,7 +210,11 @@ export default function MarketplaceCategoryPage() {
                   )}
                   <div className="mt-3 flex items-center justify-between">
                     <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-200">
-                      {formatBudget(listing.budget_min, listing.budget_max, listing.currency)}
+                      {formatBudget(
+                        listing.budget_min,
+                        listing.budget_max,
+                        listing.currency,
+                      )}
                     </span>
                     {listing.location_city && (
                       <span className="inline-flex items-center gap-0.5 text-xs text-neutral-500">
@@ -185,6 +229,7 @@ export default function MarketplaceCategoryPage() {
           </>
         )}
       </div>
+      <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
     </div>
   );
 }

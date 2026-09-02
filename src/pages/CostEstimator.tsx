@@ -76,6 +76,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function CostEstimator({
   embedded = false,
@@ -1044,6 +1045,7 @@ export default function CostEstimator({
           onClose={() => setPdfGateOpen(false)}
         />
       )}
+      <AdSlot slotKey="estimator_bottom" className="mt-8" />
     </>
   );
 }

@@ -201,6 +201,7 @@ export default function Home() {
         slotKey="home_mid"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
+      <AdSlot slotKey="home_sidebar" className="mt-8" />
 
       {/* Saved calculations & templates showcase */}
       <Suspense fallback={<SectionSkeleton minHeight={500} />}>

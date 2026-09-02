@@ -343,7 +343,6 @@ export default function ImageEstimator() {
           )}
         </div>
       </div>
-
       <div className="max-w-5xl mx-auto px-4 py-8">
         {error && (
           <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4 flex items-start gap-3">
@@ -800,7 +799,8 @@ export default function ImageEstimator() {
           CALC_LINKS.structuralCalc,
           CALC_LINKS.foundationCalc,
         ]}
-      />
+      />{" "}
+      <AdSlot slotKey="ai_feature" className="mt-8" />
     </div>
   );
 }

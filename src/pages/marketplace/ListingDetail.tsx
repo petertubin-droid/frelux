@@ -32,6 +32,7 @@ import {
 } from "@/types/marketplace";
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
+import AdSlot from "@/components/ui/AdSlot";
 
 function formatBudget(
   min: number | null,
@@ -611,6 +612,7 @@ export default function ListingDetail() {
           )}
         </div>
       </div>
+      <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
     </div>
   );
 }

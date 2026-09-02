@@ -24,8 +24,8 @@ import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
-import { RewardedFeatureGate } from '@/components/rewarded/RewardedFeatureGate';
-import { AdvancedCalculator } from '@/components/rewarded/AdvancedCalculator';
+import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
+import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -65,6 +65,7 @@ import {
 import { PopCeilingCalculatorSeo } from "@/components/seo/SeoContent";
 import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
+import AdSlot from "@/components/ui/AdSlot";
 export default function PopCeilingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -500,7 +501,7 @@ export default function PopCeilingCalculator({
                 toolLabel="POP Ceiling Calculator"
                 contextSummary={`POP Ceiling Calculator Results:
 - Ceiling area: ${formatNumber(result.ceilingArea)} m²
-- Materials: ${result.materials.map(m => `${m.name}: ${m.quantity}${m.unit} (${m.packagesNeeded} packs) = ${result.currencySymbol}${formatNumber(m.cost)}`).join('\n- ')}
+- Materials: ${result.materials.map((m) => `${m.name}: ${m.quantity}${m.unit} (${m.packagesNeeded} packs) = ${result.currencySymbol}${formatNumber(m.cost)}`).join("\n- ")}
 - Material cost: ${result.currencySymbol}${formatNumber(result.materialCost)}
 - Labour: ${result.currencySymbol}${formatNumber(result.labourCost)}
 - Waste: ${result.currencySymbol}${formatNumber(result.wasteAmount)}
@@ -565,6 +566,7 @@ export default function PopCeilingCalculator({
           <ProConnectCTA calculatorType="pop-ceiling" />
         </>
       )}
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
 }

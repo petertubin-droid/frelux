@@ -1,10 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
-import { X, PlayCircle, Loader2, Gift, CheckCircle2, Lock, Clock, ExternalLink } from 'lucide-react';
-import { formatExpiry } from '@/lib/rewarded-access';
-import type { RewardedAccess } from '@/lib/rewarded-access';
-import AdSlot from '@/components/ui/AdSlot';
-import { fetchAdConfig } from '@/lib/ad-config';
-import type { DbAdProvider } from '@/types/database';
+import { useState, useEffect, useCallback } from "react";
+import {
+  X,
+  PlayCircle,
+  Loader2,
+  Gift,
+  CheckCircle2,
+  Lock,
+  Clock,
+  ExternalLink,
+} from "lucide-react";
+import { formatExpiry } from "@/lib/rewarded-access";
+import type { RewardedAccess } from "@/lib/rewarded-access";
+import AdSlot from "@/components/ui/AdSlot";
+import { fetchAdConfig } from "@/lib/ad-config";
+import type { DbAdProvider } from "@/types/database";
 
 interface Props {
   access: RewardedAccess;
@@ -34,7 +43,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
     fetchAdConfig()
       .then(({ providers }) => {
         const display = providers.filter(
-          (p) => p.provider_type === 'display' || p.provider_type === 'mixed',
+          (p) => p.provider_type === "display" || p.provider_type === "mixed",
         );
         setDisplayProviders(display);
       })
@@ -62,7 +71,10 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm" onClick={cancelUnlock} />
+      <div
+        className="absolute inset-0 bg-neutral-900/60 backdrop-blur-sm"
+        onClick={cancelUnlock}
+      />
 
       {/* Offerwall iframe mode — larger modal */}
       {offerwallUrl ? (
@@ -72,12 +84,16 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             <div className="flex items-center gap-2">
               <Gift aria-hidden="true" className="h-5 w-5 text-brand-purple" />
               <h2 className="text-sm font-bold text-neutral-900 dark:text-white">
-                {offerwallProviderName ?? adProviderUsed} — Complete offers to unlock
+                {offerwallProviderName ?? adProviderUsed} — Complete offers to
+                unlock
               </h2>
             </div>
             <button
               type="button"
-              onClick={() => { closeOfferwall(); cancelUnlock(); }}
+              onClick={() => {
+                closeOfferwall();
+                cancelUnlock();
+              }}
               className="rounded-lg p-1.5 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 dark:hover:bg-white/10 dark:hover:text-white"
             >
               <X className="h-5 w-5" />
@@ -85,10 +101,10 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           </div>
 
           {/* Offerwall iframe */}
-          <div className="relative" style={{ height: '600px' }}>
+          <div className="relative" style={{ height: "600px" }}>
             <iframe
               src={offerwallUrl}
-              title={`${offerwallProviderName ?? 'Sponsor'} offerwall`}
+              title={`${offerwallProviderName ?? "Sponsor"} offerwall`}
               className="h-full w-full border-0"
               sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"
               referrerPolicy="no-referrer-when-downgrade"
@@ -99,11 +115,15 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           <div className="flex items-center justify-between border-t border-neutral-200 px-4 py-3 dark:border-white/5">
             <p className="flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-500">
               <Clock aria-hidden="true" className="h-3.5 w-3.5" />
-              Checking for completion… This will close automatically when you earn your reward.
+              Checking for completion… This will close automatically when you
+              earn your reward.
             </p>
             <button
               type="button"
-              onClick={() => { closeOfferwall(); cancelUnlock(); }}
+              onClick={() => {
+                closeOfferwall();
+                cancelUnlock();
+              }}
               className="text-xs font-semibold text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-white"
             >
               Maybe later
@@ -117,15 +137,23 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           <div className="bg-gradient-to-br from-brand-navy to-brand-purple p-6 text-white">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
-                <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
+                <Gift
+                  aria-hidden="true"
+                  className="h-6 w-6 text-accent-green"
+                />
                 <h2 className="text-lg font-bold">{featureName}</h2>
               </div>
-              <button type="button" onClick={cancelUnlock} className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white">
+              <button
+                type="button"
+                onClick={cancelUnlock}
+                className="rounded-lg p-1 text-white/60 hover:bg-white/10 hover:text-white"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
             <p className="mt-2 text-sm text-white/70">
-              Unlock all advanced features for today. Watch one short ad. No subscriptions, no payments.
+              Unlock all advanced features for today. Watch one short ad. No
+              subscriptions, no payments.
             </p>
           </div>
 
@@ -133,8 +161,14 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           <div className="p-6">
             <div className="space-y-2">
               {features.map((f) => (
-                <div key={f} className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200">
-                  <CheckCircle2 aria-hidden="true" className="h-4 w-4 shrink-0 text-accent-green" />
+                <div
+                  key={f}
+                  className="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-200"
+                >
+                  <CheckCircle2
+                    aria-hidden="true"
+                    className="h-4 w-4 shrink-0 text-accent-green"
+                  />
                   {f}
                 </div>
               ))}
@@ -143,7 +177,10 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             {/* Unlock status */}
             {isUnlocked && expiresAt && (
               <div className="mt-4 flex items-center gap-2 rounded-lg border border-accent-green/30 bg-accent-green/10 p-3 text-sm text-neutral-700 dark:text-neutral-200">
-                <Clock aria-hidden="true" className="h-4 w-4 text-accent-green" />
+                <Clock
+                  aria-hidden="true"
+                  className="h-4 w-4 text-accent-green"
+                />
                 {formatExpiry(expiresAt)}
               </div>
             )}
@@ -159,10 +196,15 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                       </p>
                       <div className="flex items-center gap-1.5 text-xs">
                         {canProceed ? (
-                          <span className="text-accent-green font-semibold">✓ Ad viewed</span>
+                          <span className="text-accent-green font-semibold">
+                            ✓ Ad viewed
+                          </span>
                         ) : (
                           <span className="text-neutral-500">
-                            <Loader2 aria-hidden="true" className="inline h-3 w-3 animate-spin mr-1" />
+                            <Loader2
+                              aria-hidden="true"
+                              className="inline h-3 w-3 animate-spin mr-1"
+                            />
                             {minWatchTime - adWatchSeconds}s remaining…
                           </span>
                         )}
@@ -171,7 +213,10 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                     {/* Render AdSlot for each active display provider */}
                     <div className="space-y-3 max-h-[300px] overflow-y-auto rounded-lg border border-neutral-200 p-3 dark:border-white/5">
                       {displayProviders.map((provider) => (
-                        <div key={provider.id} className="rounded-lg overflow-hidden">
+                        <div
+                          key={provider.id}
+                          className="rounded-lg overflow-hidden"
+                        >
                           <p className="mb-1 text-[10px] font-medium text-neutral-400 uppercase tracking-wide">
                             {provider.name}
                           </p>
@@ -179,6 +224,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                             slotKey="rewarded_unlock"
                             className="block"
                             hideLabel
+                            providerId={provider.id}
                           />
                         </div>
                       ))}
@@ -187,14 +233,19 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 )}
                 {(!showAds || displayProviders.length === 0) && (
                   <div className="flex flex-col items-center gap-3 py-4">
-                    <Loader2 aria-hidden="true" className="h-8 w-8 animate-spin text-brand-purple" />
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-8 w-8 animate-spin text-brand-purple"
+                    />
                     <p className="text-sm font-semibold text-neutral-600 dark:text-neutral-300">
-                      {offerwallProviderName ? 'Opening offerwall…' : 'Loading ads…'}
+                      {offerwallProviderName
+                        ? "Opening offerwall…"
+                        : "Loading ads…"}
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-neutral-500">
                       {offerwallProviderName
-                        ? 'Complete offers in the offerwall to earn your unlock.'
-                        : 'Please keep this tab open while the ad loads.'}
+                        ? "Complete offers in the offerwall to earn your unlock."
+                        : "Please keep this tab open while the ad loads."}
                     </p>
                   </div>
                 )}
@@ -226,7 +277,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
             {offerwallProviderName && adLoading && (
               <a
-                href={offerwallUrl ?? '#'}
+                href={offerwallUrl ?? "#"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-3 flex items-center justify-center gap-1.5 text-xs text-brand-purple hover:underline"

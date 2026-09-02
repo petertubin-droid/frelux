@@ -563,6 +563,7 @@ export default function Learn() {
         )}
 
         <div className="mt-10">
+          <AdSlot slotKey="learn_sidebar" className="mb-8" />
           <AdSlot slotKey="learn_bottom" />
         </div>
       </div>
