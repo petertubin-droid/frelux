@@ -648,11 +648,15 @@ export default function App() {
                       path="/pricing"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <Route
-                            path="/brand-studio"
-                            element={<BrandStudio />}
-                          />
                           <Pricing />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/brand-studio"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <BrandStudio />
                         </Suspense>
                       }
                     />
