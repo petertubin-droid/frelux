@@ -2,17 +2,17 @@ import { describe, it, expect } from "vitest";
 import { DISTANCE_FILTERS, haversineKm, formatDistance } from "@/lib/location";
 
 describe("DISTANCE_FILTERS", () => {
-  it("has at least 3 filter options", () => {
-    expect(DISTANCE_FILTERS.length).toBeGreaterThanOrEqual(3);
+  it("has 4 filter options", () => {
+    expect(DISTANCE_FILTERS).toHaveLength(4);
   });
-  it("every filter has value and label", () => {
+  it("includes 5, 10, 25, 50 km", () => {
+    const values = DISTANCE_FILTERS.map((f) => f.value);
+    expect(values).toEqual([5, 10, 25, 50]);
+  });
+  it("has labels for each", () => {
     DISTANCE_FILTERS.forEach((f) => {
-      expect(f.value).toBeGreaterThan(0);
-      expect(f.label).toBeTruthy();
+      expect(f.label).toContain("km");
     });
-  });
-  it("includes 25km option", () => {
-    expect(DISTANCE_FILTERS.some((f) => f.value === 25)).toBe(true);
   });
 });
 
@@ -20,34 +20,46 @@ describe("haversineKm", () => {
   it("returns 0 for same point", () => {
     expect(haversineKm(6.5, 3.4, 6.5, 3.4)).toBeCloseTo(0, 5);
   });
-  it("calculates distance between Lagos and Abuja (~approx 500km)", () => {
-    const lagos = { lat: 6.5, lng: 3.4 };
-    const abuja = { lat: 9.1, lng: 7.5 };
-    const dist = haversineKm(lagos.lat, lagos.lng, abuja.lat, abuja.lng);
-    expect(dist).toBeGreaterThan(400);
-    expect(dist).toBeLessThan(600);
+
+  it("calculates Lagos to Abuja distance approximately", () => {
+    // Lagos: 6.5°N, 3.4°E  Abuja: 9.1°N, 7.5°E
+    const dist = haversineKm(6.5, 3.4, 9.1, 7.5);
+    // Real distance is ~510 km
+    expect(dist).toBeGreaterThan(480);
+    expect(dist).toBeLessThan(540);
   });
+
   it("is symmetric", () => {
-    const d1 = haversineKm(6.5, 3.4, 9.1, 7.5);
-    const d2 = haversineKm(9.1, 7.5, 6.5, 3.4);
-    expect(d1).toBeCloseTo(d2, 5);
+    const a = haversineKm(6.5, 3.4, 9.1, 7.5);
+    const b = haversineKm(9.1, 7.5, 6.5, 3.4);
+    expect(a).toBeCloseTo(b, 5);
+  });
+
+  it("calculates short distance correctly", () => {
+    // 0.01° lat difference ≈ 1.1 km
+    const dist = haversineKm(6.5, 3.4, 6.51, 3.4);
+    expect(dist).toBeGreaterThan(0.9);
+    expect(dist).toBeLessThan(1.3);
   });
 });
 
 describe("formatDistance", () => {
-  it("formats meters for < 1km", () => {
+  it("formats sub-1km as meters", () => {
     expect(formatDistance(0.5)).toBe("500 m");
   });
-  it("formats 1 decimal for < 10km", () => {
-    expect(formatDistance(5.5)).toBe("5.5 km");
+  it("formats sub-10km with one decimal", () => {
+    expect(formatDistance(5.3)).toBe("5.3 km");
   });
-  it("formats rounded for >= 10km", () => {
-    expect(formatDistance(25)).toBe("25 km");
+  it("formats 10+km as rounded", () => {
+    expect(formatDistance(25.7)).toBe("26 km");
   });
-  it("formats 0 as 0 m", () => {
+  it("formats exactly 1km as meters", () => {
+    expect(formatDistance(0.999)).toBe("999 m");
+  });
+  it("formats exactly 10km as rounded", () => {
+    expect(formatDistance(10.0)).toBe("10 km");
+  });
+  it("formats 0 as meters", () => {
     expect(formatDistance(0)).toBe("0 m");
-  });
-  it("formats 9.9 as 9.9 km", () => {
-    expect(formatDistance(9.9)).toBe("9.9 km");
   });
 });
