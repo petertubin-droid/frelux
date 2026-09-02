@@ -33,6 +33,7 @@ import {
 import { classNames } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import AdSlot from "@/components/ui/AdSlot";
+import { getSafeError } from "@/lib/safeError";
 
 function formatBudget(
   min: number | null,
@@ -171,7 +172,7 @@ export default function ListingDetail() {
       setBidMessage("");
       load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to submit bid");
+      setError(getSafeError(e, "Failed to submit bid"));
     } finally {
       setSubmitting(false);
     }

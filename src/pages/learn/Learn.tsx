@@ -19,6 +19,7 @@ import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 type Status = "loading" | "ready" | "error";
 
@@ -99,7 +100,7 @@ export default function Learn() {
         setRecent((recentRes.data ?? []) as DbLearnArticle[]);
         setStatus("ready");
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load");
+        setError(getSafeError(e, "Failed to load"));
         setStatus("error");
       }
     }

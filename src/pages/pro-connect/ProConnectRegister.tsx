@@ -12,6 +12,7 @@ import type { AccountType } from '@/types/pro-connect';
 import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
 import { classNames } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
+import { getSafeError } from "@/lib/safeError";
 
 export default function ProConnectRegister() {
   const navigate = useNavigate();
@@ -212,7 +213,7 @@ export default function ProConnectRegister() {
         });
       }, 1000);
     } catch (err: unknown) {
-      setOtpError(err instanceof Error ? err.message : 'Failed to send OTP');
+      setOtpError(getSafeError(err, 'Failed to send OTP'));
     } finally {
       setOtpSending(false);
     }
@@ -232,7 +233,7 @@ export default function ProConnectRegister() {
       setOtpSuccess('Phone number verified successfully!');
       setOtpVerified(true);
     } catch (err: unknown) {
-      setOtpError(err instanceof Error ? err.message : 'Invalid OTP');
+      setOtpError(getSafeError(err, 'Invalid OTP'));
     } finally {
       setOtpSending(false);
     }
@@ -252,7 +253,7 @@ export default function ProConnectRegister() {
       setNinSuccess('NIN verification submitted. Status will be updated once verified.');
       setNinSubmitted(true);
     } catch (err: unknown) {
-      setNinError(err instanceof Error ? err.message : 'NIN verification failed');
+      setNinError(getSafeError(err, 'NIN verification failed'));
     } finally {
       setNinSubmitting(false);
     }

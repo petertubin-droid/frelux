@@ -8,6 +8,7 @@ import { createListing } from "@/lib/marketplace";
 import { useAuth } from "@/lib/auth";
 import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import { useSeo } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -119,7 +120,7 @@ export default function PostListing() {
       });
       navigate(`/marketplace/${listing.id}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to post listing");
+      setError(getSafeError(e, "Failed to post listing"));
     } finally {
       setSubmitting(false);
     }

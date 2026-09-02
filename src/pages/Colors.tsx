@@ -31,6 +31,7 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { ColorsPageSeo } from "@/components/seo/SeoContent";
+import { getSafeError } from "@/lib/safeError";
 type Tab = "colors" | "palettes";
 type Status = "loading" | "error" | "ready";
 
@@ -158,7 +159,7 @@ export default function Colors() {
     setErrorMsg("");
     const { data, error } = await fetchColorCombinations();
     if (error) {
-      setErrorMsg(error.message);
+      setErrorMsg(getSafeError(error));
       setStatus("error");
       return;
     }

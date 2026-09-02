@@ -18,6 +18,7 @@ import {
 } from "@/lib/templates";
 import type { DbCalculatorTemplate } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 export default function TemplateDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -42,7 +43,7 @@ export default function TemplateDetail() {
         const rel = await getRelatedPublicTemplates(t.calculator_type, t.id);
         setRelated(rel);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Failed to load template");
+        setError(getSafeError(e, "Failed to load template"));
       } finally {
         setLoading(false);
       }

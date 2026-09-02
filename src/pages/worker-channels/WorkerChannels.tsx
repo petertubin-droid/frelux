@@ -39,6 +39,7 @@ import type {
 import { supabase } from "@/lib/supabase";
 import { classNames } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
+import { getSafeError } from "@/lib/safeError";
 
 const QUICK_EMOJIS = ["👍", "❤️", "🔥", "📈", "🇳🇬", "💰"];
 
@@ -126,7 +127,7 @@ export default function WorkerChannels() {
     });
     setReportSubmitting(false);
     if (error) {
-      setReportResult("Error: " + error.message);
+      setReportResult(getSafeError(error));
     } else {
       setReportResult("Report submitted. An admin will review it shortly.");
       setTimeout(() => {

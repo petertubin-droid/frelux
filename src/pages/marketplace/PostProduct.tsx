@@ -14,6 +14,7 @@ import type {
   ProductCondition,
 } from "@/types/marketplace-products";
 import { useSeo } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -112,7 +113,7 @@ export default function PostProduct() {
         setImages((prev) => [...prev, url]);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      setError(getSafeError(e, "Upload failed"));
     } finally {
       setUploading(false);
     }
@@ -183,7 +184,7 @@ export default function PostProduct() {
       });
       navigate(`/marketplace/products/${product.id}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to post product");
+      setError(getSafeError(e, "Failed to post product"));
     } finally {
       setSubmitting(false);
     }

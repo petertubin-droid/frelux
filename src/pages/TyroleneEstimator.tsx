@@ -95,6 +95,7 @@ import {
   EngineWasteSelector,
   EngineMaterialSummaryCard,
 } from "@/components/engine";
+import { getSafeError } from "@/lib/safeError";
 // =========================================================
 // Constants
 // =========================================================
@@ -336,7 +337,7 @@ export default function TyroleneEstimator({
         setConfigWarnings(warnings);
       } catch (err) {
         setLoadError(
-          err instanceof Error ? err.message : "Failed to load configuration.",
+          getSafeError(err, "Failed to load configuration."),
         );
       } finally {
         setLoading(false);
@@ -389,7 +390,7 @@ export default function TyroleneEstimator({
         valid: calcResult.valid,
       });
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : "Calculation failed.");
+      setLoadError(getSafeError(err, "Calculation failed."));
     } finally {
       setCalculating(false);
     }
@@ -505,7 +506,7 @@ export default function TyroleneEstimator({
       trackCalculationWithRewards("tyrolene", "Tyrolene Estimator");
     } catch (err) {
       setLoadError(
-        err instanceof Error ? err.message : "Failed to save estimate.",
+        getSafeError(err, "Failed to save estimate."),
       );
     } finally {
       setCalculating(false);

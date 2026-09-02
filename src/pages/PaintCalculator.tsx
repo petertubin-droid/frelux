@@ -132,6 +132,7 @@ import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 export default function PaintCalculator({
   embedded = false,
@@ -247,7 +248,7 @@ export default function PaintCalculator({
     const isMounted = mountedRef;
     async function loadTypes() {
       const { data, error } = await fetchPaintTypes();
-      if (error) setTypesError(error.message);
+      if (error) setTypesError(getSafeError(error));
       if (!isMounted.current) return;
       setPaintTypes(data);
       if (data.length > 0 && !input.paintType) {

@@ -16,6 +16,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { fetchPaintComparisons } from "@/lib/project-intelligence";
 import type { DbPaintComparison } from "@/types/database";
+import { getSafeError } from "@/lib/safeError";
 
 export default function PaintComparison() {
   useSeo({
@@ -72,7 +73,7 @@ export default function PaintComparison() {
         setLoading(false);
       })
       .catch((e) => {
-        setError(e.message);
+        setError(getSafeError(e));
         setLoading(false);
       });
   }, []);

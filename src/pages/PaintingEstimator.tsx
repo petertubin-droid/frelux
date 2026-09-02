@@ -96,6 +96,7 @@ import {
   EngineWasteSelector,
   EngineMaterialSummaryCard,
 } from "@/components/engine";
+import { getSafeError } from "@/lib/safeError";
 // =========================================================
 // Types
 // =========================================================
@@ -351,7 +352,7 @@ export default function PaintingEstimator({
         setConfigWarnings(warnings);
       } catch (err) {
         setLoadError(
-          err instanceof Error ? err.message : "Failed to load configuration.",
+          getSafeError(err, "Failed to load configuration."),
         );
       } finally {
         setLoading(false);

@@ -79,6 +79,7 @@ import type {
   TimelinePhase,
 } from "@/types/database";
 import { useSeo } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -335,7 +336,7 @@ export default function ProjectDashboard() {
       setNotes(proj.notes ?? "");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to load project data.",
+        getSafeError(err, "Failed to load project data."),
       );
     } finally {
       setLoading(false);
@@ -354,7 +355,7 @@ export default function ProjectDashboard() {
       const updated = await recalculateProjectTotals(id);
       setProject(updated);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Recalculation failed.");
+      setError(getSafeError(err, "Recalculation failed."));
     } finally {
       setActionLoading(false);
     }
@@ -407,7 +408,7 @@ export default function ProjectDashboard() {
       setEditingRoomId(null);
       setRoomForm(emptyRoomForm);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save room.");
+      setError(getSafeError(err, "Failed to save room."));
     } finally {
       setActionLoading(false);
     }
@@ -440,7 +441,7 @@ export default function ProjectDashboard() {
       setRooms(refreshed);
       await doRecalculate();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete room.");
+      setError(getSafeError(err, "Failed to delete room."));
     } finally {
       setActionLoading(false);
     }
@@ -485,7 +486,7 @@ export default function ProjectDashboard() {
       setLabourForm(emptyLabourForm);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to save labour item.",
+        getSafeError(err, "Failed to save labour item."),
       );
     } finally {
       setActionLoading(false);
@@ -514,7 +515,7 @@ export default function ProjectDashboard() {
       await doRecalculate();
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete labour item.",
+        getSafeError(err, "Failed to delete labour item."),
       );
     } finally {
       setActionLoading(false);
@@ -539,11 +540,7 @@ export default function ProjectDashboard() {
       const saved = await saveShoppingList(id, items);
       setShoppingList(saved);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to generate shopping list.",
-      );
+      setError(getSafeError(err, "Failed to generate shopping list."));
     } finally {
       setActionLoading(false);
     }
@@ -558,7 +555,7 @@ export default function ProjectDashboard() {
         ),
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update item.");
+      setError(getSafeError(err, "Failed to update item."));
     }
   };
 
@@ -577,7 +574,7 @@ export default function ProjectDashboard() {
       await generateShoppingListPDF(project, shoppingList);
       setPdfUnlocked(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "PDF generation failed.");
+      setError(getSafeError(err, "PDF generation failed."));
     }
   };
 
@@ -622,7 +619,7 @@ export default function ProjectDashboard() {
       setQuotations(refreshed);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to generate quotation.",
+        getSafeError(err, "Failed to generate quotation."),
       );
     } finally {
       setActionLoading(false);
@@ -641,7 +638,7 @@ export default function ProjectDashboard() {
       await generateQuotationPDF(project, quotation);
       setPdfUnlocked(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "PDF generation failed.");
+      setError(getSafeError(err, "PDF generation failed."));
     }
   };
 
@@ -654,7 +651,7 @@ export default function ProjectDashboard() {
       );
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to update quotation.",
+        getSafeError(err, "Failed to update quotation."),
       );
     } finally {
       setActionLoading(false);
@@ -675,7 +672,7 @@ export default function ProjectDashboard() {
       if (proj) setProject(proj);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to generate timeline.",
+        getSafeError(err, "Failed to generate timeline."),
       );
     } finally {
       setActionLoading(false);
@@ -716,7 +713,7 @@ export default function ProjectDashboard() {
         setProject(updated);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update phase.");
+      setError(getSafeError(err, "Failed to update phase."));
     } finally {
       setActionLoading(false);
     }
@@ -734,7 +731,7 @@ export default function ProjectDashboard() {
       setProject(updated);
       setNotesDirty(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save notes.");
+      setError(getSafeError(err, "Failed to save notes."));
     } finally {
       setActionLoading(false);
     }
@@ -753,7 +750,7 @@ export default function ProjectDashboard() {
       setAttachments(refreshed);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Failed to delete attachment.",
+        getSafeError(err, "Failed to delete attachment."),
       );
     } finally {
       setActionLoading(false);

@@ -5,6 +5,7 @@ import { getEstimateHistory } from '@/lib/crm';
 import type { DbEstimateHistory } from '@/types/database';
 import { downloadCsv } from '@/lib/export-utils';
 import { Loader2, Download, TrendingUp, TrendingDown, BarChart3, Calendar, DollarSign, Calculator } from 'lucide-react';
+import { getSafeError } from "@/lib/safeError";
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: 'Painting',
@@ -27,7 +28,7 @@ export default function EstimateAnalytics() {
       const data = await getEstimateHistory(user.id, { limit: 500 });
       setHistory(data as DbEstimateHistory[]);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load analytics');
+      setError(getSafeError(e, 'Failed to load analytics'));
     } finally {
       setLoading(false);
     }

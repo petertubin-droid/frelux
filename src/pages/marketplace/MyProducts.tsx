@@ -7,11 +7,13 @@ import type { DbMarketplaceProduct, ProductStatus } from '@/types/marketplace-pr
 import { PRODUCT_CONDITION_LABELS, PRODUCT_STATUS_LABELS } from '@/types/marketplace-products';
 import { useSeo } from '@/lib/seo';
 import { classNames } from '@/lib/utils';
+import { getSafeError } from "@/lib/safeError";
 
 export default function MyProducts() {
   useSeo({ description: 'FRELUX marketplace', title: 'My Products — FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
 
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'active' | 'sold' | 'paused'>('all');
 
@@ -28,7 +30,7 @@ export default function MyProducts() {
       await deleteProduct(id);
       setProducts(products.filter((p) => p.id !== id));
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to delete');
+      setActionError(getSafeError(e, 'Failed to delete'));
     }
   }
 
@@ -39,7 +41,7 @@ export default function MyProducts() {
       if (error) throw error;
       setProducts(products.map((p) => p.id === id ? { ...p, status: newStatus as ProductStatus } : p));
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Failed to update');
+      setActionError(getSafeError(e, 'Failed to update'));
     }
   }
 
@@ -59,6 +61,11 @@ export default function MyProducts() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+      {actionError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+          {actionError}
+        </div>
+      )}
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">My Products</h1>

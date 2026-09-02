@@ -78,6 +78,7 @@ import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
+import { getSafeError } from "@/lib/safeError";
 
 export default function CostEstimator({
   embedded = false,
@@ -209,9 +210,9 @@ export default function CostEstimator({
         fetchMaterialPrices(),
         fetchSiteSettings(),
       ]);
-      if (prodRes.error) setLoadError(prodRes.error.message);
-      if (matRes.error) setLoadError(matRes.error.message);
-      if (settingsRes.error) setLoadError(settingsRes.error.message);
+      if (prodRes.error) setLoadError(getSafeError(prodRes.error));
+      if (matRes.error) setLoadError(getSafeError(matRes.error));
+      if (settingsRes.error) setLoadError(getSafeError(settingsRes.error));
 
       setProducts(prodRes.data);
       setMaterials(matRes.data);

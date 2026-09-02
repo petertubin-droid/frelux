@@ -26,6 +26,7 @@ import {
 } from '@/lib/contractor';
 import type { DbContractorProject } from '@/types/database';
 import { useSeo } from '@/lib/seo';
+import { getSafeError } from "@/lib/safeError";
 
 // ============================================================
 // Constants
@@ -142,7 +143,7 @@ export default function ContractorProjects() {
       const data = await fetchContractorProjects();
       setProjects(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load projects');
+      setError(getSafeError(err, 'Failed to load projects'));
     } finally {
       setLoading(false);
     }
@@ -193,7 +194,7 @@ export default function ContractorProjects() {
         await duplicateContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to duplicate project');
+        setError(getSafeError(err, 'Failed to duplicate project'));
       } finally {
         setBusyId(null);
       }
@@ -209,7 +210,7 @@ export default function ContractorProjects() {
         await archiveContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to archive project');
+        setError(getSafeError(err, 'Failed to archive project'));
       } finally {
         setBusyId(null);
       }
@@ -225,7 +226,7 @@ export default function ContractorProjects() {
         await restoreContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to restore project');
+        setError(getSafeError(err, 'Failed to restore project'));
       } finally {
         setBusyId(null);
       }
@@ -241,7 +242,7 @@ export default function ContractorProjects() {
         await deleteContractorProject(id);
         await loadProjects();
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to delete project');
+        setError(getSafeError(err, 'Failed to delete project'));
       } finally {
         setBusyId(null);
       }

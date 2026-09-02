@@ -8,6 +8,7 @@ import {
 } from '@/lib/crm';
 import type { DbClient, DbClientCommunication } from '@/types/database';
 import { Users, Plus, Mail, Phone, MapPin, Trash2, Edit, X, MessageCircle, Phone as PhoneIcon, Calendar, FileText, Loader2, Building2 } from 'lucide-react';
+import { getSafeError } from "@/lib/safeError";
 
 export default function ClientManagement() {
   const { user } = useAuth();
@@ -27,7 +28,7 @@ export default function ClientManagement() {
       const data = await getClients(user.id);
       setClients(data);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load clients');
+      setError(getSafeError(e, 'Failed to load clients'));
     } finally {
       setLoading(false);
     }
@@ -49,7 +50,7 @@ export default function ClientManagement() {
       setForm({ name: '', company: '', email: '', phone: '', address: '', notes: '' });
       await loadClients();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save client');
+      setError(getSafeError(e, 'Failed to save client'));
     }
   }
 
@@ -60,7 +61,7 @@ export default function ClientManagement() {
       await loadClients();
       if (selectedClient?.id === id) setSelectedClient(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to delete client');
+      setError(getSafeError(e, 'Failed to delete client'));
     }
   }
 

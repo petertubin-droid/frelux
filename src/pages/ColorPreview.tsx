@@ -5,6 +5,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { aiColorPreview, type ColorPreviewResult } from '@/lib/ai-project';
 import { Loader2, Upload, X, Eye } from 'lucide-react';
 import { isValidHexColor, normalizeHex } from '@/lib/colors';
+import { getSafeError } from "@/lib/safeError";
 
 export default function ColorPreview() {
   useSeo({ title: 'Color Preview Tool', description: 'Preview paint colors on your room photos with AI.', canonicalPath: '/color-preview', noIndex: true });
@@ -73,7 +74,7 @@ export default function ColorPreview() {
       });
       setResult(res);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to generate preview');
+      setError(getSafeError(e, 'Failed to generate preview'));
     } finally {
       setLoading(false);
     }

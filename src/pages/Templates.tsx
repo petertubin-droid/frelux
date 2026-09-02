@@ -7,6 +7,7 @@ import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
 import { classNames } from '@/lib/utils';
 
 import { RelatedTools, CALC_LINKS } from '@/components/seo/SeoSections';
+import { getSafeError } from "@/lib/safeError";
 const CATEGORY_TABS: { key: CalculatorType | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'paint', label: 'Painting' },
@@ -42,7 +43,7 @@ export default function Templates() {
         const data = await getPublicTemplates();
         setTemplates(data);
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Failed to load templates');
+        setError(getSafeError(e, 'Failed to load templates'));
       } finally {
         setLoading(false);
       }

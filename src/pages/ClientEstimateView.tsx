@@ -16,6 +16,7 @@ import {
   requestEstimateChanges,
 } from "@/lib/project-intelligence";
 import type { DbClientEstimate } from "@/types/database";
+import { getSafeError } from "@/lib/safeError";
 
 const fmt = (v: number, currency = "NGN") =>
   new Intl.NumberFormat("en-NG", {
@@ -48,7 +49,7 @@ export default function ClientEstimateView() {
           );
         setEstimate(data);
       })
-      .catch((e) => setError(e.message))
+      .catch((e) => setError(getSafeError(e)))
       .finally(() => setLoading(false));
   }, [token]);
 

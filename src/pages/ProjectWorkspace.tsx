@@ -23,6 +23,7 @@ import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import type { DbContractorProject } from "@/types/database";
+import { getSafeError } from "@/lib/safeError";
 
 const STATUS_COLORS: Record<string, string> = {
   draft:
@@ -81,7 +82,7 @@ export default function ProjectWorkspace() {
     if (statusFilter) query = query.eq("status", statusFilter);
     const { data, error } = await query;
     if (error) {
-      toast({ title: error.message, variant: "error" });
+      toast({ title: getSafeError(error), variant: "error" });
     } else {
       let filtered = (data || []) as DbContractorProject[];
       if (search)
