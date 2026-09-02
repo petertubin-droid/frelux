@@ -9,6 +9,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/ai-credit-gate", () => ({
   spendAiCredits: vi.fn().mockResolvedValue(true),
 }));
+vi.mock("@/lib/queries", () => ({ saveAdvancedEstimate: vi.fn().mockResolvedValue({ data: null, error: null }), fetchAdvancedEstimates: vi.fn().mockResolvedValue({ data: [], error: null }), deleteAdvancedEstimate: vi.fn().mockResolvedValue({ data: null, error: null }) }));
 
 beforeEach(() => {
   vi.clearAllMocks();

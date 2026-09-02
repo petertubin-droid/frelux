@@ -8,7 +8,13 @@ vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 vi.mock("@/lib/queries", () => ({
   fetchPaintColors: vi.fn().mockResolvedValue([]),
   fetchColorCollections: vi.fn().mockResolvedValue([]),
+  fetchColorFamilies: vi.fn().mockResolvedValue([]),
+  fetchColorCategories: vi.fn().mockResolvedValue([]),
+  fetchColorCombinations: vi.fn().mockResolvedValue([]),
   fetchBrands: vi.fn().mockResolvedValue([]),
+  fetchFavoriteColorIds: vi.fn().mockResolvedValue([]),
+  toggleFavoriteColor: vi.fn().mockResolvedValue({ data: null, error: null }),
+  logAnalyticsEvent: vi.fn().mockResolvedValue(null),
 }));
 
 beforeEach(() => { vi.clearAllMocks(); });
