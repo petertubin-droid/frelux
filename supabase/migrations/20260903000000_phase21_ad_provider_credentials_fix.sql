@@ -77,7 +77,7 @@ SELECT
           'secure_hash'     -- CPX Research (secret hash)
         )
         AND kv.value IS NOT NULL
-        AND kv.value <> ''
+        AND kv.value::text <> '""'
       )
   ) AS credentials
 FROM
