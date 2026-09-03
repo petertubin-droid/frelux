@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
+import { useToast } from "@/components/ui/Toast";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
 import { useSeo } from "@/lib/seo";
@@ -248,6 +249,9 @@ export default function PaintingEstimator({
   ]);
   const [expandedRoom, setExpandedRoom] = useState(0);
   const [showCalculation, setShowCalculation] = useState(false);
+  // Set true after a failed Calculate attempt — drives live inline validation errors
+  const [attempted, setAttempted] = useState(false);
+  const { toast } = useToast();
 
   // ── State: Result ──
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
@@ -352,15 +356,50 @@ export default function PaintingEstimator({
 
         setConfigWarnings(warnings);
       } catch (err) {
-        setLoadError(
-          getSafeError(err, "Failed to load configuration."),
-        );
+        setLoadError(getSafeError(err, "Failed to load configuration."));
       } finally {
         setLoading(false);
       }
     }
     loadConfig();
   }, []);
+
+  // =========================================================
+  // Auto-select paint type & quality
+  // Pre-fill rooms with the first active product and quality so the
+  // form is valid out of the box and Calculate works immediately.
+  // =========================================================
+  useEffect(() => {
+    if (products.length === 0 || qualities.size === 0) return;
+    setRooms((prev) => {
+      let changed = false;
+      const next = prev.map((room) => {
+        if (room.product_id) {
+          // Room already has a product — just ensure a quality is selected
+          const quals = qualities.get(room.product_id) ?? [];
+          if (room.quality_id && quals.some((q) => q.id === room.quality_id)) {
+            return room;
+          }
+          const firstActive = quals.find((q) => q.is_active);
+          if (!firstActive) return room;
+          changed = true;
+          return { ...room, quality_id: firstActive.id };
+        }
+        const firstProduct = products.find((p) => p.is_active) ?? products[0];
+        if (!firstProduct) return room;
+        const quals = qualities.get(firstProduct.id) ?? [];
+        const firstActive = quals.find((q) => q.is_active);
+        if (!firstActive) return room;
+        changed = true;
+        return {
+          ...room,
+          product_id: firstProduct.id,
+          quality_id: firstActive.id,
+        };
+      });
+      return changed ? next : prev;
+    });
+  }, [products, qualities]);
 
   // =========================================================
   // Room management
@@ -391,6 +430,13 @@ export default function PaintingEstimator({
     setRooms((prev) => {
       const newRoom = createDefaultRoom();
       newRoom.room_name = `Room ${prev.length + 1}`;
+      // Inherit the paint selection from the last room so new rooms
+      // are ready to calculate without extra taps.
+      const lastRoom = prev[prev.length - 1];
+      if (lastRoom?.product_id && lastRoom?.quality_id) {
+        newRoom.product_id = lastRoom.product_id;
+        newRoom.quality_id = lastRoom.quality_id;
+      }
       return [...prev, newRoom];
     });
     setExpandedRoom(rooms.length);
@@ -505,8 +551,16 @@ export default function PaintingEstimator({
       const quality = quals.find((q) => q.id === room.quality_id) ?? null;
       const validation = validateRoomInput(room, product, quality);
       if (!validation.valid) {
+        // Surface the failure instead of silently returning —
+        // expand the offending room, show inline errors, and toast the first issue.
+        setAttempted(true);
         setExpandedRoom(i);
         setCalculating(false);
+        toast({
+          type: "error",
+          title: `${room.room_name || `Room ${i + 1}`} needs your attention`,
+          message: validation.errors[0],
+        });
         return;
       }
     }
@@ -538,6 +592,7 @@ export default function PaintingEstimator({
     setResult(calcResult);
     setShowCalculation(false);
     setCalculating(false);
+    setAttempted(false);
 
     track("painting_estimator_calculated", {
       rooms: rooms.length,
@@ -559,6 +614,7 @@ export default function PaintingEstimator({
     projectDescription,
     customerLocation,
     addPrimer,
+    toast,
   ]);
 
   // =========================================================
@@ -851,6 +907,7 @@ export default function PaintingEstimator({
             room={room}
             roomIndex={roomIndex}
             isExpanded={expandedRoom === roomIndex}
+            showErrors={attempted}
             onToggle={() =>
               setExpandedRoom(expandedRoom === roomIndex ? -1 : roomIndex)
             }
@@ -871,7 +928,8 @@ export default function PaintingEstimator({
         ))}
 
         {/* Add room button */}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={addRoom}
           className="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border py-3 text-sm font-semibold text-muted-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
         >
@@ -881,7 +939,8 @@ export default function PaintingEstimator({
 
         {/* Calculate button */}
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleCalculate}
             disabled={calculating}
             className="btn-glow inline-flex items-center gap-2 px-6 py-3 disabled:opacity-50"
@@ -894,7 +953,8 @@ export default function PaintingEstimator({
             {calculating ? "Calculating…" : "Calculate Estimate"}
           </Button>
           {result && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => {
                 setRooms([createDefaultRoom()]);
                 setResult(null);
@@ -990,6 +1050,7 @@ function RoomCard({
   room,
   roomIndex,
   isExpanded,
+  showErrors,
   onToggle,
   onUpdate,
   onRemove,
@@ -1008,6 +1069,7 @@ function RoomCard({
   room: PaintingRoomInput;
   roomIndex: number;
   isExpanded: boolean;
+  showErrors: boolean;
   onToggle: () => void;
   onUpdate: (updates: Partial<PaintingRoomInput>) => void;
   onRemove: () => void;
@@ -1024,6 +1086,16 @@ function RoomCard({
   onRemoveWindow: (winIndex: number) => void;
 }) {
   const roomQualities = qualities.get(room.product_id) ?? [];
+
+  // Live validation — only shown after a failed Calculate attempt,
+  // so the form isn't covered in red on first load. Errors clear
+  // themselves as the user fixes each field.
+  const roomProduct = products.find((p) => p.id === room.product_id) ?? null;
+  const roomQuality =
+    roomQualities.find((q) => q.id === room.quality_id) ?? null;
+  const validationErrors = showErrors
+    ? validateRoomInput(room, roomProduct, roomQuality).errors
+    : [];
 
   return (
     <div className="card mb-4 overflow-hidden dark:border-white/5">
@@ -1056,7 +1128,8 @@ function RoomCard({
         </div>
         <div className="flex items-center gap-2">
           {canRemove && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={(e) => {
                 e.stopPropagation();
                 onRemove();
@@ -1083,6 +1156,22 @@ function RoomCard({
       {/* Expanded content */}
       {isExpanded && (
         <div className="border-t border-border/50 px-5 py-5 dark:border-white/5">
+          {validationErrors.length > 0 && (
+            <div
+              role="alert"
+              className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300"
+            >
+              <p className="font-semibold">
+                Please complete the following before calculating:
+              </p>
+              <ul className="mt-1 list-inside list-disc space-y-0.5">
+                {validationErrors.map((err) => (
+                  <li key={err}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Dimensions */}
           <Section
             icon={<Square className="h-4 w-4" />}
@@ -1156,7 +1245,8 @@ function RoomCard({
                     value={door.height}
                     onChange={(v) => onUpdateDoor(di, { height: v })}
                   />
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => onRemoveDoor(di)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
@@ -1165,7 +1255,8 @@ function RoomCard({
                 </div>
               ))}
             {!room.doors_unknown && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={onAddDoor}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
@@ -1207,7 +1298,8 @@ function RoomCard({
                     value={win.height}
                     onChange={(v) => onUpdateWindow(wi, { height: v })}
                   />
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => onRemoveWindow(wi)}
                     className="mb-2 rounded p-2 text-muted-foreground hover:text-red-500"
                   >
@@ -1216,7 +1308,8 @@ function RoomCard({
                 </div>
               ))}
             {!room.windows_unknown && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={onAddWindow}
                 className="text-xs font-semibold text-brand-purple hover:underline"
               >
@@ -1942,7 +2035,8 @@ function EstimateResult({
 
           {/* Actions */}
           <div className="flex flex-wrap gap-2 pt-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onSave}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all",
@@ -1987,7 +2081,8 @@ function EstimateResult({
               compact
               label="Save to Project"
             />
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onToggleCalculation}
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-semibold text-muted-foreground hover:bg-muted/50 dark:border-white/10 dark:bg-card dark:text-muted-foreground/60"
             >
@@ -2120,7 +2215,9 @@ function StatBox({
           : "bg-muted/50 dark:bg-white/5",
       )}
     >
-      <p className="text-xs text-muted-foreground dark:text-muted-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+        {label}
+      </p>
       <p
         className={classNames(
           "mt-1 text-sm font-bold",
