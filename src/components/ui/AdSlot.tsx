@@ -183,20 +183,12 @@ export default function AdSlot({
           // providers, resolve with empty adUnitId and let the render
           // code handle it.
           if (provider.slug === "monetag") {
-            // Monetag's global tag is in Layout.tsx — skip container rendering.
-            // Still log the impression for analytics.
-            if (
-              !loggedRef.current &&
-              !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
-            ) {
-              loggedRef.current = true;
-              logAdEvent({
-                event_type: "impression",
-                provider_id: provider.id,
-                placement_key: slotKey,
-                revenue_estimated: 0,
-              });
-            }
+            // Monetag's global tag is in Layout.tsx — it handles
+            // popunder/interstitial/in-page push formats site-wide.
+            // No per-placement container is rendered here, so we do NOT
+            // log a placement-level impression (that would be a false
+            // impression — no visible ad was shown in this slot).
+            // Monetag's own dashboard counts impressions from the tag.
             setResolved("none");
             return;
           }

@@ -105,7 +105,7 @@ describe("showMonetagRewardedAd", () => {
     const pending = showMonetagRewardedAd({
       zone: "275352",
       ymid: "ch_test",
-      minWatchSeconds: 0,
+      minWatchTimeMs: 0,
     });
     // jsdom does not fire script onload — dispatch it manually
     document
@@ -127,7 +127,7 @@ describe("showMonetagRewardedAd", () => {
   });
 
   it("does not inject a duplicate tag script on subsequent calls", async () => {
-    const first = showMonetagRewardedAd({ zone: "275352", minWatchSeconds: 0 });
+    const first = showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -136,7 +136,7 @@ describe("showMonetagRewardedAd", () => {
     await first;
 
     // Second call must resolve via dedup without a second injection
-    await showMonetagRewardedAd({ zone: "275352", minWatchSeconds: 0 });
+    await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
 
     const tags = document.querySelectorAll(
       'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -152,7 +152,7 @@ describe("showMonetagRewardedAd", () => {
     );
     document.head.appendChild(existing);
 
-    const result = await showMonetagRewardedAd({ zone: "275352", minWatchSeconds: 0 });
+    const result = await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
     expect(result.mode).toBe("tag");
 
     const tags = document.querySelectorAll("[data-monetag-src]");

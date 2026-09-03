@@ -49,6 +49,7 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
       ymid: opts.ymid,
       requestVar: opts.toolKey,
       sdkUrl: getMonetagSdkUrl(provider),
+      minWatchTimeMs: 5000,
     });
   },
 };

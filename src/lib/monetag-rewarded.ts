@@ -146,9 +146,13 @@ export async function showMonetagRewardedAd(opts: {
   sdkUrl?: string | null;
   /** Max seconds to wait for the SDK script to load before falling back to tag mode. */
   sdkTimeoutMs?: number;
+  /** Minimum watch time in milliseconds before resolving in tag mode.
+   * Ensures the user actually waits for the ad period before the reward is granted. */
+  minWatchTimeMs?: number;
 }): Promise<MonetagShowResult> {
   const { zone, ymid, requestVar, sdkUrl } = opts;
   const sdkTimeoutMs = opts.sdkTimeoutMs ?? 4000;
+  const minWatchTimeMs = opts.minWatchTimeMs ?? 5000;
 
   // SDK mode: function already present (script loaded previously) or loadable
   const existingFn = getSdkShowFn(zone);
@@ -190,8 +194,60 @@ export async function showMonetagRewardedAd(opts: {
   }
 
   // Tag mode: the zone serves its configured formats (interstitial,
-  // popunder, in-page push). No completion callback exists for these;
-  // the caller gates the reward with its own watch timer.
+  // popunder, in-page push). No completion callback exists for these.
+  //
+  // We do two things here:
+  // 1. Ensure the tag is loaded (it may already be from Layout.tsx).
+  // 2. Wait for minWatchTimeMs before resolving. This is critical —
+  //    without the wait, the caller grants the reward instantly and
+  //    the user never sees an ad. The wait gives the tag time to
+  //    trigger its ad format (interstitial, in-page push) from this
+  //    user gesture, and ensures the user actually spends the
+  //    configured watch time before getting their reward.
   await loadMonetagTag(zone);
+
+  // Try to trigger a Monetag interstitial/on-demand ad if the tag
+  // exposes any callable functions. Monetag's tag.min.js may create
+  // global functions depending on the zone's configured formats.
+  // We check for common patterns without breaking if they don't exist.
+  try {
+    const w = window as unknown as Record<string, unknown>;
+    // Monetag may expose show functions for interstitial/rewarded formats
+    const possibleFns = [
+      `show_${zone}`,
+      `interstitial_${zone}`,
+      `zfgformhttp_${zone}`,
+    ];
+    for (const fnName of possibleFns) {
+      const fn = w[fnName];
+      if (typeof fn === "function") {
+        // Call the function — it may show an interstitial overlay
+        const result = await (fn as (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>)({
+          type: "end",
+          ymid,
+          requestVar,
+        });
+        // If the function returned a result with reward info, use it
+        if (result && typeof result === "object") {
+          return {
+            mode: "sdk",
+            valued: result?.reward_event_type === "valued",
+            estimatedPrice:
+              typeof result?.estimated_price === "number"
+                ? (result.estimated_price as number)
+                : null,
+          };
+        }
+        break;
+      }
+    }
+  } catch {
+    // No callable function available — continue with timer-based wait
+  }
+
+  // Wait for the minimum watch time before resolving.
+  // This ensures the user actually watches for the configured period.
+  await new Promise<void>((resolve) => setTimeout(resolve, minWatchTimeMs));
+
   return { mode: "tag", valued: null, estimatedPrice: null };
 }
