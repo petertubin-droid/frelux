@@ -26,6 +26,9 @@ export function AdBlockNotice() {
     });
   }, []);
 
+  // Admin pages are ad-free — never show ad block notice
+  if (window.location.pathname.startsWith('/admin')) return null;
+
   if (!blocked || dismissed) return null;
 
   return (

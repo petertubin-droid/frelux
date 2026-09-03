@@ -66,6 +66,32 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
+  // ── Monetag multi-tag: inject only on public pages, never on admin ──
+  // The tag serves banner/push/native/interstitial formats. Admin pages
+  // are completely ad-free — no scripts, no redirects, no impressions.
+  useEffect(() => {
+    // Safety: never load on admin routes (Layout shouldn't render there,
+    // but this is a belt-and-suspenders guard)
+    if (location.pathname.startsWith("/admin")) return;
+
+    // Avoid double-injection
+    if (document.querySelector('script[data-monetag-tag]')) return;
+
+    const s = document.createElement("script");
+    s.src = "https://quge5.com/88/tag.min.js";
+    s.setAttribute("data-zone", "275352");
+    s.setAttribute("data-domain", "quge5.com");
+    s.setAttribute("data-monetag-tag", "true");
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    document.head.appendChild(s);
+
+    return () => {
+      // Clean up if the component unmounts (e.g. navigating to admin)
+      s.remove();
+    };
+  }, [location.pathname]);
+
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
     let channel: ReturnType<Awaited<ReturnType<typeof getSupabase>>["channel"]> | null = null;

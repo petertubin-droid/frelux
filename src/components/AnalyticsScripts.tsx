@@ -20,6 +20,8 @@ import { getSupabase } from '@/lib/supabase-lazy';
  */
 export default function AnalyticsScripts() {
   useEffect(() => {
+    // Admin pages are ad-free and analytics-free
+    if (window.location.pathname.startsWith('/admin')) return;
     async function loadAndInject() {
       const supabase = await getSupabase();
       let gaId = '';
