@@ -75,7 +75,7 @@ export default function Layout() {
     if (location.pathname.startsWith("/admin")) return;
 
     // Avoid double-injection
-    if (document.querySelector('script[data-monetag-tag]')) return;
+    if (document.querySelector('script[src*="quge5.com"]')) return;
 
     const s = document.createElement("script");
     s.src = "https://quge5.com/88/tag.min.js";

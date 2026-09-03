@@ -135,9 +135,12 @@ export default function AdSlot({
         "revcontent",
       ];
 
+      // ── Pass 1: Providers with per-placement ad unit IDs ──
+      // These take priority — admin explicitly mapped this provider
+      // to this placement. AdSense, Media.net, etc.
       for (const provider of targetChain) {
+        if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         const adUnitId = getAdUnitId(placement, provider.id);
-        // Per-placement ad unit ID is the primary path
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
           if (
@@ -154,33 +157,60 @@ export default function AdSlot({
           }
           return;
         }
-        // Fallback: some providers use global credentials (zone_id, site_id)
-        // and don't need per-placement ad unit IDs. Allow them through if
-        // they have at least one non-empty credential.
-        if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) {
-          const hasCreds = Object.values(provider.credentials ?? {}).some(
-            (v) => typeof v === "string" && v.length > 0,
-          );
-          // Monetag resolves via its default website zone even when the
-          // DB credential is not yet visible (see src/lib/monetag-rewarded.ts)
-          const zoneFallback =
-            provider.slug === "monetag" ? getMonetagZone(provider) : null;
-          if (hasCreds || zoneFallback) {
-            setResolved({ provider, adUnitId: "", placement });
-            if (
-              !loggedRef.current &&
-              !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
-            ) {
-              loggedRef.current = true;
-              logAdEvent({
-                event_type: "impression",
-                provider_id: provider.id,
-                placement_key: slotKey,
-                revenue_estimated: 0,
-              });
-            }
-            return;
+      }
+
+      // ── Pass 2: Global credential providers ──
+      // Only reached when no per-placement provider resolved. This
+      // ensures Monetag (site-wide tag) doesn't block AdSense or other
+      // specifically-configured providers from rendering.
+      for (const provider of targetChain) {
+        if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
+        const hasCreds = Object.values(provider.credentials ?? {}).some(
+          (v) => typeof v === "string" && v.length > 0,
+        );
+        // Note: do NOT use the hardcoded default zone fallback here.
+        // The Layout's global Monetag tag injection handles site-wide
+        // display ads. AdSlot only renders Monetag when the admin has
+        // explicitly configured credentials for it.
+        if (hasCreds) {
+          setResolved({ provider, adUnitId: "", placement });
+          if (
+            !loggedRef.current &&
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+          ) {
+            loggedRef.current = true;
+            logAdEvent({
+              event_type: "impression",
+              provider_id: provider.id,
+              placement_key: slotKey,
+              revenue_estimated: 0,
+            });
           }
+          return;
+        }
+      }
+
+      // ── Pass 3: Per-placement ad units for global credential providers ──
+      // Some global providers might also have per-placement ad unit IDs
+      // configured (e.g. Monetag with a specific zone for a specific slot).
+      for (const provider of targetChain) {
+        if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
+        const adUnitId = getAdUnitId(placement, provider.id);
+        if (adUnitId) {
+          setResolved({ provider, adUnitId, placement });
+          if (
+            !loggedRef.current &&
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+          ) {
+            loggedRef.current = true;
+            logAdEvent({
+              event_type: "impression",
+              provider_id: provider.id,
+              placement_key: slotKey,
+              revenue_estimated: 0,
+            });
+          }
+          return;
         }
       }
 
