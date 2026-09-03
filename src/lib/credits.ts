@@ -823,6 +823,7 @@ export async function unlockFeatureViaAd(
   adProvider: string,
   adEventId: string,
   metadata?: Record<string, unknown>,
+  adToken?: string,
 ): Promise<{ success: boolean; error?: string; message?: string }> {
   if (!isSupabaseConfigured) return { success: false, error: "Not configured" };
   const supabase = await getSupabase();
@@ -836,6 +837,7 @@ export async function unlockFeatureViaAd(
           mode: "unlock_feature",
           featureKey,
           metadata,
+          adToken,
         },
       },
     );

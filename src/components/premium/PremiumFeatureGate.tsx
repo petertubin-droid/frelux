@@ -23,9 +23,10 @@ import {
   generateReferenceId,
   type AiFeatureCost,
 } from "@/lib/credits";
-import { logAdEvent } from "@/lib/ad-config";
+import { logAdEvent, fetchAdConfig } from "@/lib/ad-config";
 import { hasRewardedAdProvider } from "@/lib/ad-config";
 import { useToast } from "@/components/ui/Toast";
+import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
@@ -130,11 +131,46 @@ export function PremiumFeatureGate({
       metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
     });
 
-    const result = await unlockFeatureViaAd(featureKey, "adsense", adEventId);
+    // Find an active provider with a real client-side rewarded bridge
+    // and actually show the ad from this tap before requesting the unlock.
+    let result: { success: boolean; error?: string; message?: string } | null = null;
+    try {
+      const { providers } = await fetchAdConfig();
+      const activeProvider = providers.find(
+        (p) =>
+          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+          p.is_active &&
+          REWARDED_AD_BRIDGES[p.slug],
+      );
 
-    setAdUnlocking(false);
+      if (!activeProvider) {
+        setError("No ad provider is configured yet. Please check back later!");
+        setAdUnlocking(false);
+        return;
+      }
 
-    if (result.success) {
+      const adResult = await REWARDED_AD_BRIDGES[activeProvider.slug](
+        activeProvider,
+        { ymid: getClientHash(), toolKey: featureKey },
+      );
+
+      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
+      result = await unlockFeatureViaAd(
+        featureKey,
+        activeProvider.slug,
+        adEventId,
+        adToken,
+      );
+    } catch (e) {
+      const msg = e instanceof Error && e.message
+        ? e.message
+        : "The ad could not be loaded. Please try again.";
+      setError(msg);
+    } finally {
+      setAdUnlocking(false);
+    }
+
+    if (result?.success) {
       await logAdEvent({
         event_type: "reward",
         tool_key: featureKey,
