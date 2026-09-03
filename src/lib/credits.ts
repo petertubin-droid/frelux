@@ -786,6 +786,7 @@ export async function verifyRewardedAd(
   adEventId: string,
   mode: "earn_credits" = "earn_credits",
   metadata?: Record<string, unknown>,
+  adToken?: string,
 ): Promise<EarnResult> {
   if (!isSupabaseConfigured)
     return { success: false, error: "Not configured", code: "CONFIG_ERROR" };
@@ -794,7 +795,7 @@ export async function verifyRewardedAd(
     const { data, error } = await supabase.functions.invoke(
       "verify-rewarded-ad",
       {
-        body: { adProvider, adEventId, mode, metadata },
+        body: { adProvider, adEventId, mode, metadata, adToken },
       },
     );
     if (error)

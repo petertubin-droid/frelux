@@ -20,7 +20,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
-import { hasRewardedAdProvider } from "@/lib/ad-config";
+import { hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
 import {
   getRewardCatalogue,
   getCreditTransactions,
@@ -38,7 +38,7 @@ import {
   type RewardedAdCreditConfig,
   type RewardedAdCreditEvent,
 } from "@/lib/credits";
-import { getClientHash } from "@/lib/rewarded-access";
+import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/shadcn/button";
@@ -211,14 +211,48 @@ export default function Rewards() {
 
     setWatchingAd(true);
     try {
-      // Generate a unique ad event ID
+      // Find an active provider with a real client-side rewarded bridge
+      // (e.g. Monetag). We must actually show the ad from this tap —
+      // mobile browsers block window-opening ad formats outside a direct
+      // user gesture — then pass a client attestation token so the
+      // server can verify a real ad was shown before granting credits.
+      const { providers } = await fetchAdConfig();
+      const activeProvider = providers.find(
+        (p) =>
+          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+          p.is_active &&
+          REWARDED_AD_BRIDGES[p.slug],
+      );
+
+      if (!activeProvider) {
+        toast({
+          type: "info",
+          title: "Coming soon",
+          message: "Ad provider is not yet configured. Check back later!",
+        });
+        setWatchingAd(false);
+        return;
+      }
+
+      const adResult = await REWARDED_AD_BRIDGES[activeProvider.slug](
+        activeProvider,
+        { ymid: getClientHash(), toolKey: "earn_credits" },
+      );
+
       const adEventId = `ad_${user.id}_${Date.now()}`;
-      const adProvider = "frelux_rewarded";
+      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
 
       const result = await verifyRewardedAd(
-        adProvider,
+        activeProvider.slug,
         adEventId,
         "earn_credits",
+        {
+          ad_mode: adResult.mode,
+          ...(adResult.estimatedPrice != null
+            ? { estimated_price: adResult.estimatedPrice }
+            : {}),
+        },
+        adToken,
       );
       if (result.success) {
         toast({

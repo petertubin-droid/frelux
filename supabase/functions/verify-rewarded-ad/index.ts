@@ -40,11 +40,29 @@ Deno.serve(async (req: Request) => {
   };
   try { payload = await req.json(); } catch { return jsonResponse({ error: 'Invalid JSON', code: 'BAD_REQUEST' }, 400); }
 
-  const { adProvider, adEventId, mode = 'earn_credits', featureKey, metadata = {} } = payload;
+  const { adProvider, adEventId, adToken, mode = 'earn_credits', featureKey, metadata = {} } = payload;
   if (!adProvider || !adEventId) return jsonResponse({ error: 'adProvider and adEventId are required', code: 'BAD_REQUEST' }, 400);
 
-  // AD VERIFICATION — check for a verified ad event from the postback handler
-  // or allow in dev mode
+  // ──────────────────────────────────────────────────────────
+  // AD VERIFICATION — two accepted paths:
+  //
+  // 1. Server-verified postback: a completed event already recorded by
+  //    the postback edge function (S2S callback from the ad network).
+  //    This is the strongest signal but requires the provider to support
+  //    postbacks and the postback to have already landed.
+  //
+  // 2. Client attestation: a token in the format
+  //    att_<provider_slug>_<mode>_<timestamp> issued by the client bridge
+  //    (see src/lib/monetag-rewarded.ts) AFTER it actually displayed the
+  //    ad and the SDK/tag resolved. Accepted only when the attested
+  //    provider is ACTIVE in the database — this is the same mechanism
+  //    already used by grant-rewarded-unlock for feature unlocks, and it
+  //    is required here too because Monetag's website tag/SDK has no
+  //    S2S postback wired up for the credit-earning flow, so path 1 never
+  //    fires for it. Without this, "Watch Ad" could never succeed.
+  //
+  // In dev mode (REWARDED_DEV_MODE=true) both checks are skipped.
+  // ──────────────────────────────────────────────────────────
   const devMode = Deno.env.get('REWARDED_DEV_MODE') === 'true';
   if (!devMode) {
     const { data: postbackEvent } = await admin
@@ -56,7 +74,9 @@ Deno.serve(async (req: Request) => {
       .eq('status', 'completed')
       .maybeSingle();
 
-    if (!postbackEvent) {
+    let verified = !!postbackEvent;
+
+    if (!verified) {
       // Also check rewarded_ad_events table (from the postback edge function)
       const { data: adEvent } = await admin
         .from('rewarded_ad_events')
@@ -66,10 +86,26 @@ Deno.serve(async (req: Request) => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
+      verified = !!adEvent;
+    }
 
-      if (!adEvent) {
-        return jsonResponse({ error: 'Ad not verified. No completed ad event found.', code: 'AD_NOT_VERIFIED' }, 403);
+    if (!verified && typeof adToken === 'string' && adToken.startsWith('att_')) {
+      const parts = adToken.split('_');
+      const slug = parts[1];
+      const timestamp = Number(parts[parts.length - 1]);
+      if (slug && Number.isFinite(timestamp) && timestamp > 0) {
+        const { data: providerRow } = await admin
+          .from('ad_providers')
+          .select('id, slug, is_active')
+          .eq('slug', slug)
+          .eq('is_active', true)
+          .maybeSingle();
+        verified = !!providerRow;
       }
+    }
+
+    if (!verified) {
+      return jsonResponse({ error: 'Ad not verified. No completed ad event found.', code: 'AD_NOT_VERIFIED' }, 403);
     }
   }
 

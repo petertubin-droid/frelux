@@ -38,7 +38,7 @@ type RewardedAdBridge = (
   opts: { ymid: string; toolKey: string },
 ) => Promise<RewardedAdBridgeResult>;
 
-const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
+export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
   // Monetag — website tag / SDK bridge (src/lib/monetag-rewarded.ts)
   monetag: async (provider, opts) => {
     const zone = getMonetagZone(provider);

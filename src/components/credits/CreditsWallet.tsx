@@ -33,9 +33,10 @@ import {
   spendAiCredits,
   unlockFeatureViaAd,
 } from "@/lib/credits";
-import { logAdEvent, hasRewardedAdProvider } from "@/lib/ad-config";
+import { logAdEvent, hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 
 // ───────────────────────────────────────────────────────
 // Main Credits Wallet Component
@@ -408,19 +409,45 @@ function EarnCreditsModal({
 
     setPhase("watching");
 
-    // In production, this is where the actual ad SDK renders the ad.
-    // The SDK fires a callback on completion with a verification token.
-    // For now, we simulate the ad watch duration and then verify server-side.
-    // The server-side edge function will reject if the ad wasn't verified.
-    setTimeout(async () => {
+    // Find an active provider with a real client-side rewarded bridge
+    // (e.g. Monetag). The ad must be shown from this tap — mobile browsers
+    // block window-opening ad formats outside a direct user gesture —
+    // then we pass a client attestation token to the server.
+    try {
+      const { providers } = await fetchAdConfig();
+      const activeProvider = providers.find(
+        (p) =>
+          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+          p.is_active &&
+          REWARDED_AD_BRIDGES[p.slug],
+      );
+
+      if (!activeProvider) {
+        setErrorMsg("No ad provider is configured yet. Please check back later!");
+        setPhase("error");
+        return;
+      }
+
+      const adResult = await REWARDED_AD_BRIDGES[activeProvider.slug](
+        activeProvider,
+        { ymid: getClientHash(), toolKey: "earn_credits" },
+      );
+
       setPhase("verifying");
 
-      // Call the server-side verification edge function
+      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
       const result: EarnResult = await verifyRewardedAd(
-        "adsense", // default provider — admin configures actual providers
+        activeProvider.slug,
         adEventId,
         "earn_credits",
-        { source: "credits_wallet" },
+        {
+          source: "credits_wallet",
+          ad_mode: adResult.mode,
+          ...(adResult.estimatedPrice != null
+            ? { estimated_price: adResult.estimatedPrice }
+            : {}),
+        },
+        adToken,
       );
 
       if (result.success) {
@@ -455,7 +482,13 @@ function EarnCreditsModal({
           },
         });
       }
-    }, 3000); // Simulated ad duration — real SDK replaces this
+    } catch (e) {
+      const msg = e instanceof Error && e.message
+        ? e.message
+        : "The ad could not be loaded. Please try again.";
+      setErrorMsg(msg);
+      setPhase("error");
+    }
   }
 
   return (
