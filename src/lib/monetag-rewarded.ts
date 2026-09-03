@@ -25,14 +25,6 @@
 import type { DbAdProvider } from "@/types/database";
 
 /**
- * Default Monetag website zone for FRELUX.
- * Public client-side value — zone IDs are not secrets (they are exposed
- * in the page HTML to every visitor). Overridden by the provider's
- * `zone_id` credential when set in Admin → Ads.
- */
-export const MONETAG_DEFAULT_ZONE_ID = "275352";
-
-/**
  * Monetag multi-tag CDN. `data-domain` pins the tag's config/module
  * requests to this domain so the site CSP can reliably allow it
  * (mirrors the tag already embedded in index.html).
@@ -49,15 +41,19 @@ export interface MonetagShowResult {
   estimatedPrice: number | null;
 }
 
-/** Resolve the Monetag zone ID: provider credential → provider setting → default. */
+/**
+ * Resolve the Monetag zone ID from the Admin-configured provider only
+ * (Admin → Ads → Monetag → "Zone ID" credential, or the provider's
+ * `zone_id` / `sub_id` settings). There is deliberately NO hardcoded
+ * fallback: if the Admin has not configured a zone, this returns null and
+ * callers must not serve or inject any Monetag tag. Zone IDs are public
+ * client-side values, not secrets — the requirement to keep them in Admin
+ * is about controlling which zone serves production traffic.
+ */
 export function getMonetagZone(provider?: DbAdProvider | null): string | null {
   const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
   const settings = (provider?.settings ?? {}) as Record<string, unknown>;
-  const raw =
-    creds.zone_id ??
-    settings.zone_id ??
-    settings.sub_id ??
-    MONETAG_DEFAULT_ZONE_ID;
+  const raw = creds.zone_id ?? settings.zone_id ?? settings.sub_id;
   const zone =
     typeof raw === "string" || typeof raw === "number"
       ? String(raw).trim()
@@ -222,7 +218,11 @@ export async function showMonetagRewardedAd(opts: {
       const fn = w[fnName];
       if (typeof fn === "function") {
         // Call the function — it may show an interstitial overlay
-        const result = await (fn as (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>)({
+        const result = await (
+          fn as (
+            opts?: Record<string, unknown>,
+          ) => Promise<Record<string, unknown>>
+        )({
           type: "end",
           ymid,
           requestVar,

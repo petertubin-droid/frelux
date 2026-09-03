@@ -3,7 +3,6 @@ import {
   getMonetagZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
-  MONETAG_DEFAULT_ZONE_ID,
 } from "@/lib/monetag-rewarded";
 import type { DbAdProvider } from "@/types/database";
 
@@ -25,13 +24,14 @@ function makeProvider(overrides: Partial<DbAdProvider> = {}): DbAdProvider {
 }
 
 describe("getMonetagZone", () => {
-  it("falls back to the default zone when no credentials are set", () => {
-    expect(getMonetagZone(makeProvider())).toBe(MONETAG_DEFAULT_ZONE_ID);
-    expect(getMonetagZone(null)).toBe(MONETAG_DEFAULT_ZONE_ID);
-    expect(getMonetagZone()).toBe(MONETAG_DEFAULT_ZONE_ID);
+  it("returns null when no zone is configured — no hardcoded fallback", () => {
+    // The zone ID must ONLY ever come from Admin → Ads configuration.
+    expect(getMonetagZone(makeProvider())).toBeNull();
+    expect(getMonetagZone(null)).toBeNull();
+    expect(getMonetagZone()).toBeNull();
   });
 
-  it("prefers the provider zone_id credential over the default", () => {
+  it("prefers the provider zone_id credential", () => {
     const provider = makeProvider({
       credentials: { zone_id: "999888" },
     });
@@ -77,7 +77,7 @@ describe("showMonetagRewardedAd", () => {
   });
 
   it("uses the SDK path when show_<zone> is already available", async () => {
-    const zone = "275352";
+    const zone = "123456";
     const showFn = vi.fn(() =>
       Promise.resolve({ reward_event_type: "valued", estimated_price: 0.0042 }),
     );
@@ -103,7 +103,7 @@ describe("showMonetagRewardedAd", () => {
 
   it("falls back to tag mode when no SDK is available", async () => {
     const pending = showMonetagRewardedAd({
-      zone: "275352",
+      zone: "123456",
       ymid: "ch_test",
       minWatchTimeMs: 0,
     });
@@ -122,12 +122,12 @@ describe("showMonetagRewardedAd", () => {
       'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
     );
     expect(tag).not.toBeNull();
-    expect(tag?.getAttribute("data-zone")).toBe("275352");
+    expect(tag?.getAttribute("data-zone")).toBe("123456");
     expect(tag?.getAttribute("data-domain")).toBe("quge5.com");
   });
 
   it("does not inject a duplicate tag script on subsequent calls", async () => {
-    const first = showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    const first = showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -136,7 +136,7 @@ describe("showMonetagRewardedAd", () => {
     await first;
 
     // Second call must resolve via dedup without a second injection
-    await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    await showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
 
     const tags = document.querySelectorAll(
       'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -152,7 +152,10 @@ describe("showMonetagRewardedAd", () => {
     );
     document.head.appendChild(existing);
 
-    const result = await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    const result = await showMonetagRewardedAd({
+      zone: "123456",
+      minWatchTimeMs: 0,
+    });
     expect(result.mode).toBe("tag");
 
     const tags = document.querySelectorAll("[data-monetag-src]");

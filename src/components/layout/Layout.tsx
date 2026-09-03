@@ -68,29 +68,58 @@ export default function Layout() {
 
   // ── Monetag multi-tag: inject ONCE on first public page load ──
   // The tag serves popunder/interstitial/in-page push formats globally.
-  // It must NOT be removed and re-injected on SPA route changes —
+  // The zone ID comes ONLY from Admin → Ads → Monetag (Zone ID credential)
+  // — there is no hardcoded fallback. If the admin hasn't configured a
+  // zone, or the ad config can't be fetched, no tag is injected at all.
+  // The tag must NOT be removed and re-injected on SPA route changes —
   // removing it resets the tag's internal state and prevents ads from
   // ever initializing. Admin pages don't use Layout at all (separate
   // AdminLayout), so the admin guard is belt-and-suspenders.
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
-    // Inject once per page session — never remove
-    if (document.querySelector('script[data-monetag-tag="true"]')) return;
 
-    const s = document.createElement("script");
-    s.src = "https://quge5.com/88/tag.min.js";
-    s.setAttribute("data-zone", "275352");
-    s.setAttribute("data-domain", "quge5.com");
-    s.setAttribute("data-monetag-tag", "true");
-    s.async = true;
-    s.setAttribute("data-cfasync", "false");
-    document.head.appendChild(s);
-    // No cleanup — the tag persists for the entire page session
+    let cancelled = false;
+    (async () => {
+      let zone: string | null = null;
+      try {
+        const [{ fetchAdConfig }, { getMonetagZone }] = await Promise.all([
+          import("@/lib/ad-config"),
+          import("@/lib/monetag-rewarded"),
+        ]);
+        const { providers } = await fetchAdConfig();
+        const monetag = providers.find(
+          (p) => p.slug === "monetag" && p.is_active,
+        );
+        zone = monetag ? getMonetagZone(monetag) : null;
+      } catch {
+        // Ad config unavailable — do not inject anything.
+        return;
+      }
+      if (cancelled || !zone) return;
+      // Inject once per page session — never remove
+      if (document.querySelector('script[data-monetag-tag="true"]')) return;
+
+      const s = document.createElement("script");
+      s.src = "https://quge5.com/88/tag.min.js";
+      s.setAttribute("data-zone", zone);
+      s.setAttribute("data-domain", "quge5.com");
+      s.setAttribute("data-monetag-tag", "true");
+      s.async = true;
+      s.setAttribute("data-cfasync", "false");
+      document.head.appendChild(s);
+      // No cleanup — the tag persists for the entire page session
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
-    let channel: ReturnType<Awaited<ReturnType<typeof getSupabase>>["channel"]> | null = null;
+    let channel: ReturnType<
+      Awaited<ReturnType<typeof getSupabase>>["channel"]
+    > | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     // Defer to idle callback so it doesn't compete with initial paint/hydration
@@ -164,7 +193,9 @@ export default function Layout() {
 
     return () => {
       if (channel) {
-        getSupabase().then((sb) => sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]));
+        getSupabase().then((sb) =>
+          sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]),
+        );
       }
       if (pollTimer) clearInterval(pollTimer);
     };
