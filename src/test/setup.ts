@@ -84,6 +84,55 @@ vi.mock("@/lib/supabase", async (importOriginal) => {
   };
 });
 
+// Global mock for the LAZY Supabase client. Same rationale as above, but for
+// code paths that use getSupab() from '@/lib/supabase-lazy': without env vars
+// (test env), the real client creation throws validateSupabaseUrl errors that
+// surface as 11 unhandled rejections across the suite. We preserve the real
+// pure-function exports (isSupabaseConfigured, getFunctionErrorMessage) and
+// only stub getSupabase() to resolve a minimal no-op client.
+vi.mock("@/lib/supabase-lazy", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/supabase-lazy")>();
+  // Infinitely deep chainable proxy: any property access returns a function
+  // that returns the same proxy, so chains of ANY depth (.from().select().eq()
+  // .order().limit()...) work. Awaiting any link resolves { data: null }.
+  const lazyChainable = new Proxy(
+    {},
+    {
+      get: (_target, prop) => {
+        if (prop === "then")
+          return (resolve: (v: unknown) => void) =>
+            resolve({ data: null, error: null, count: 0 });
+        return vi.fn().mockReturnValue(lazyChainable);
+      },
+    },
+  );
+  return {
+    ...actual,
+    getSupabase: vi.fn().mockResolvedValue({
+      auth: {
+        getSession: vi
+          .fn()
+          .mockResolvedValue({ data: { session: null }, error: null }),
+        getUser: vi
+          .fn()
+          .mockResolvedValue({ data: { user: null }, error: null }),
+        onAuthStateChange: vi.fn().mockReturnValue({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        }),
+      },
+      from: vi.fn().mockReturnValue(lazyChainable),
+      functions: {
+        invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
+      },
+      rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
+      channel: vi.fn().mockReturnValue({
+        on: vi.fn().mockReturnThis(),
+        subscribe: vi.fn(),
+      }),
+    }),
+  };
+});
+
 // Mock IntersectionObserver (not available in happy-dom)
 class MockIntersectionObserver {
   readonly root = null;

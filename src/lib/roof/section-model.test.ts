@@ -3,6 +3,7 @@ import {
   pitchAdjustedArea,
   getSectionPlanArea,
   getSectionMissing,
+  createRoofSectionSpec,
   createDefaultMultiRoofSpec,
   addRoofSection,
   removeRoofSection,
