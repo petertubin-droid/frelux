@@ -66,16 +66,16 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
-  // ── Monetag multi-tag: inject only on public pages, never on admin ──
-  // The tag serves banner/push/native/interstitial formats. Admin pages
-  // are completely ad-free — no scripts, no redirects, no impressions.
+  // ── Monetag multi-tag: inject ONCE on first public page load ──
+  // The tag serves popunder/interstitial/in-page push formats globally.
+  // It must NOT be removed and re-injected on SPA route changes —
+  // removing it resets the tag's internal state and prevents ads from
+  // ever initializing. Admin pages don't use Layout at all (separate
+  // AdminLayout), so the admin guard is belt-and-suspenders.
   useEffect(() => {
-    // Safety: never load on admin routes (Layout shouldn't render there,
-    // but this is a belt-and-suspenders guard)
-    if (location.pathname.startsWith("/admin")) return;
-
-    // Avoid double-injection
-    if (document.querySelector('script[src*="quge5.com"]')) return;
+    if (window.location.pathname.startsWith("/admin")) return;
+    // Inject once per page session — never remove
+    if (document.querySelector('script[data-monetag-tag="true"]')) return;
 
     const s = document.createElement("script");
     s.src = "https://quge5.com/88/tag.min.js";
@@ -85,12 +85,8 @@ export default function Layout() {
     s.async = true;
     s.setAttribute("data-cfasync", "false");
     document.head.appendChild(s);
-
-    return () => {
-      // Clean up if the component unmounts (e.g. navigating to admin)
-      s.remove();
-    };
-  }, [location.pathname]);
+    // No cleanup — the tag persists for the entire page session
+  }, []);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {

@@ -105,7 +105,7 @@ export function PremiumFeatureGate({
       } else if (result.code === "DAILY_LIMIT") {
         setError("Daily usage limit reached for this feature.");
       } else {
-        setError(result.error ?? "Failed to spend credits.");
+        setError(result?.error ?? "Failed to spend credits.");
       }
     }
   }, [user, featureKey, featureName, onUnlock, toast]);
@@ -184,7 +184,7 @@ export function PremiumFeatureGate({
       onUnlock();
     } else {
       setError(
-        result.error ?? "Ad verification failed. No reward was granted.",
+        result?.error ?? "Ad verification failed. No reward was granted.",
       );
     }
   }, [user, adProviderReady, featureKey, featureName, onUnlock, toast]);

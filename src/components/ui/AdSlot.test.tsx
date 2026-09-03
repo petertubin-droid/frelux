@@ -87,7 +87,7 @@ describe("AdSlot", () => {
     expect(container.innerHTML).toBe("");
   });
 
-  it("resolves Monetag, injects its tag script, and logs an impression by default", async () => {
+  it("renders null for Monetag without per-placement ad unit ID (global tag handles it)", async () => {
     const provider = makeMonetagProvider();
     const adConfig = await import("@/lib/ad-config");
     vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
@@ -99,7 +99,7 @@ describe("AdSlot", () => {
           placement_type: "banner",
           is_active: true,
           provider_ids: ["prov-monetag"],
-          ad_units: {},
+          ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
           page_target: "all",
           position: "content",
@@ -110,11 +110,43 @@ describe("AdSlot", () => {
 
     const { container } = await renderAdSlot();
 
-    // Monetag container renders
+    // Monetag with no per-placement ad unit ID renders nothing —
+    // the global tag.min.js in Layout.tsx handles Monetag display ads.
     await waitFor(() => {
-      expect(
-        container.querySelector('[data-ad-provider="monetag"]'),
-      ).not.toBeNull();
+      expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    });
+  });
+
+  it("renders Monetag container when per-placement ad unit ID is configured", async () => {
+    const provider = makeMonetagProvider();
+    const adConfig = await import("@/lib/ad-config");
+    // Override getAdUnitId to return the per-placement zone for this provider
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue("zone-999");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: { "prov-monetag": "zone-999" },
+          display_rules: { mobile: true, desktop: true },
+          page_target: "all",
+          position: "content",
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // Monetag container renders with the per-placement zone ID
+    await waitFor(() => {
+      const el = container.querySelector('[data-ad-provider="monetag"]');
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute("data-zone")).toBe("zone-999");
     });
     // Tag script injected
     await waitFor(() => {
@@ -140,7 +172,7 @@ describe("AdSlot", () => {
           placement_type: "banner",
           is_active: true,
           provider_ids: ["prov-monetag"],
-          ad_units: {},
+          ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
           page_target: "all",
           position: "content",

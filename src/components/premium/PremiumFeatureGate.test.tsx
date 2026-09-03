@@ -18,6 +18,26 @@ vi.mock("@/lib/credits", () => ({
 vi.mock("@/lib/ad-config", () => ({
   hasRewardedAdProvider: vi.fn(() => Promise.resolve(true)),
   logAdEvent: vi.fn(() => Promise.resolve()),
+  fetchAdConfig: vi.fn(() =>
+    Promise.resolve({
+      providers: [
+        {
+          id: "prov-1",
+          name: "AdSense",
+          slug: "adsense",
+          provider_type: "rewarded",
+          is_active: true,
+          priority: 1,
+          credentials: {},
+          settings: {},
+          is_system: false,
+          created_at: "",
+          updated_at: "",
+        },
+      ],
+      placements: [],
+    }),
+  ),
 }));
 
 vi.mock("@/components/ui/PremiumBadge", () => ({
@@ -34,7 +54,16 @@ import {
   unlockFeatureViaAd,
   getAiFeatureCost,
 } from "@/lib/credits";
-import { hasRewardedAdProvider, logAdEvent } from "@/lib/ad-config";
+import { hasRewardedAdProvider, logAdEvent, fetchAdConfig } from "@/lib/ad-config";
+
+vi.mock("@/lib/rewarded-access", () => ({
+  getClientHash: vi.fn(() => "test-hash-123"),
+  REWARDED_AD_BRIDGES: {
+    adsense: vi.fn(() =>
+      Promise.resolve({ mode: "sdk", valued: true, estimatedPrice: 0.001 }),
+    ),
+  },
+}));
 
 const defaultProps = {
   featureKey: "pdf_export",
@@ -290,6 +319,7 @@ describe("PremiumFeatureGate", () => {
       expect(unlockFeatureViaAd).toHaveBeenCalledWith(
         "pdf_export",
         "adsense",
+        expect.any(String),
         expect.any(String),
       );
     });

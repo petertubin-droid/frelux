@@ -163,16 +163,43 @@ export default function AdSlot({
       // Only reached when no per-placement provider resolved. This
       // ensures Monetag (site-wide tag) doesn't block AdSense or other
       // specifically-configured providers from rendering.
+      // For global providers that also have a per-placement ad unit ID
+      // configured, use that ID — it allows dedicated zones per placement.
       for (const provider of targetChain) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         const hasCreds = Object.values(provider.credentials ?? {}).some(
           (v) => typeof v === "string" && v.length > 0,
         );
-        // Note: do NOT use the hardcoded default zone fallback here.
-        // The Layout's global Monetag tag injection handles site-wide
-        // display ads. AdSlot only renders Monetag when the admin has
-        // explicitly configured credentials for it.
-        if (hasCreds) {
+        if (!hasCreds) continue;
+        // Check if this placement has a specific ad unit for this provider
+        const perPlacementUnitId = getAdUnitId(placement, provider.id);
+        if (perPlacementUnitId) {
+          // Has a per-placement zone — render with it
+          setResolved({ provider, adUnitId: perPlacementUnitId, placement });
+        } else {
+          // No per-placement zone — global tag handles display.
+          // For Monetag specifically, don't render a container (the
+          // global tag in Layout.tsx handles it). For other global
+          // providers, resolve with empty adUnitId and let the render
+          // code handle it.
+          if (provider.slug === "monetag") {
+            // Monetag's global tag is in Layout.tsx — skip container rendering.
+            // Still log the impression for analytics.
+            if (
+              !loggedRef.current &&
+              !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            ) {
+              loggedRef.current = true;
+              logAdEvent({
+                event_type: "impression",
+                provider_id: provider.id,
+                placement_key: slotKey,
+                revenue_estimated: 0,
+              });
+            }
+            setResolved("none");
+            return;
+          }
           setResolved({ provider, adUnitId: "", placement });
           if (
             !loggedRef.current &&
@@ -191,8 +218,10 @@ export default function AdSlot({
       }
 
       // ── Pass 3: Per-placement ad units for global credential providers ──
-      // Some global providers might also have per-placement ad unit IDs
-      // configured (e.g. Monetag with a specific zone for a specific slot).
+      // Already handled in Pass 2 above (global providers with per-placement
+      // ad unit IDs are resolved there). This pass is kept as a safety net for
+      // any edge case where a global provider has a per-placement ID but no
+      // credentials configured.
       for (const provider of targetChain) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         const adUnitId = getAdUnitId(placement, provider.id);
@@ -702,15 +731,19 @@ export default function AdSlot({
     );
   }
 
-  // Monetag rendering — multi-tag container, tag.min.js fills it
+  // Monetag: the global tag.min.js (injected once in Layout.tsx) handles
+  // all display ad formats (popunder, interstitial, in-page push) site-wide.
+  // It does NOT render into per-placement container divs — rendering an
+  // empty div with an "Advertisement" label looks broken to users.
+  // Only render a container if this placement has a specific per-placement
+  // ad_unit_id configured (e.g. a dedicated Monetag SDK zone for this slot).
   else if (provider.slug === "monetag") {
-    const zone = getMonetagZone(provider);
-    if (!zone) return null;
+    if (!adUnitId) return null;
     adInner = (
       <div
         ref={containerRef}
         data-ad-provider="monetag"
-        data-zone={zone}
+        data-zone={adUnitId}
         data-ad-placement={slotKey}
       />
     );

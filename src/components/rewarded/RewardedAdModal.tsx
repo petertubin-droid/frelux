@@ -11,9 +11,6 @@ import {
 } from "lucide-react";
 import { formatExpiry } from "@/lib/rewarded-access";
 import type { RewardedAccess } from "@/lib/rewarded-access";
-import AdSlot from "@/components/ui/AdSlot";
-import { fetchAdConfig } from "@/lib/ad-config";
-import type { DbAdProvider } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
@@ -35,37 +32,22 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
     adProviderUsed,
   } = access;
 
-  const [displayProviders, setDisplayProviders] = useState<DbAdProvider[]>([]);
   const [adWatchSeconds, setAdWatchSeconds] = useState(0);
-  const [showAds, setShowAds] = useState(false);
 
-  // Fetch all active display ad providers
+  // Count up viewing seconds while the ad is loading/watching
   useEffect(() => {
-    fetchAdConfig()
-      .then(({ providers }) => {
-        const display = providers.filter(
-          (p) => p.provider_type === "display" || p.provider_type === "mixed",
-        );
-        setDisplayProviders(display);
-      })
-      .catch(() => {});
-  }, []);
-
-  // Count up viewing seconds while ads are showing
-  useEffect(() => {
-    if (!showAds) return;
+    if (!adLoading || offerwallUrl) return;
     const interval = setInterval(() => {
       setAdWatchSeconds((s) => s + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [showAds]);
+  }, [adLoading, offerwallUrl]);
 
-  // After 5 seconds of viewing, auto-trigger the unlock
+  // After 5 seconds, show the "ad viewed" indicator
   const minWatchTime = 5;
   const canProceed = adWatchSeconds >= minWatchTime;
 
   const handleWatchAd = useCallback(async () => {
-    setShowAds(true);
     setAdWatchSeconds(0);
     await watchAd();
   }, [watchAd]);
@@ -186,70 +168,40 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               </div>
             )}
 
-            {/* Ad watching state — show real ads from all display providers */}
+            {/* Ad watching state */}
             {adLoading && (
               <div className="mt-6">
-                {showAds && displayProviders.length > 0 && (
-                  <>
-                    <div className="mb-3 flex items-center justify-between">
-                      <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                        Sponsored content from our partners:
-                      </p>
-                      <div className="flex items-center gap-1.5 text-xs">
-                        {canProceed ? (
-                          <span className="text-accent-green font-semibold">
-                            ✓ Ad viewed
-                          </span>
-                        ) : (
-                          <span className="text-muted-foreground">
-                            <Loader2
-                              aria-hidden="true"
-                              className="inline h-3 w-3 animate-spin mr-1"
-                            />
-                            {minWatchTime - adWatchSeconds}s remaining…
-                          </span>
-                        )}
-                      </div>
+                <div className="flex flex-col items-center gap-3 py-4">
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-8 w-8 animate-spin text-brand-purple"
+                  />
+                  <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
+                    {offerwallProviderName
+                      ? "Opening offerwall…"
+                      : canProceed
+                        ? "Ad complete — unlocking…"
+                        : "Sponsored ad playing…"}
+                  </p>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                    {offerwallProviderName
+                      ? "Complete offers in the offerwall to earn your unlock."
+                      : canProceed
+                        ? "Your access is being granted."
+                        : `Please keep this tab open — ${minWatchTime - adWatchSeconds}s remaining.`}
+                  </p>
+                  {/* Progress bar */}
+                  {!offerwallProviderName && (
+                    <div className="mt-2 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-brand-purple transition-all duration-1000 ease-linear"
+                        style={{
+                          width: `${Math.min(100, (adWatchSeconds / minWatchTime) * 100)}%`,
+                        }}
+                      />
                     </div>
-                    {/* Render AdSlot for each active display provider */}
-                    <div className="space-y-3 max-h-[300px] overflow-y-auto rounded-lg border border-border p-3 dark:border-white/5">
-                      {displayProviders.map((provider) => (
-                        <div
-                          key={provider.id}
-                          className="rounded-lg overflow-hidden"
-                        >
-                          <p className="mb-1 text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                            {provider.name}
-                          </p>
-                          <AdSlot
-                            slotKey="rewarded_unlock"
-                            className="block"
-                            hideLabel
-                            providerId={provider.id}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-                {(!showAds || displayProviders.length === 0) && (
-                  <div className="flex flex-col items-center gap-3 py-4">
-                    <Loader2
-                      aria-hidden="true"
-                      className="h-8 w-8 animate-spin text-brand-purple"
-                    />
-                    <p className="text-sm font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                      {offerwallProviderName
-                        ? "Opening offerwall…"
-                        : "Loading ads…"}
-                    </p>
-                    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                      {offerwallProviderName
-                        ? "Complete offers in the offerwall to earn your unlock."
-                        : "Please keep this tab open while the ad loads."}
-                    </p>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             )}
 
