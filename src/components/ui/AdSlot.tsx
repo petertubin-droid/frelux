@@ -47,6 +47,19 @@ interface ResolvedAd {
   placement: DbAdPlacement;
 }
 
+/**
+ * Whether a provider's VISUAL display ads are enabled.
+ * Admin toggle (Admin → Ads → "Display ads"): when off, the provider stays
+ * active for rewarded flows and its impressions keep being logged, but no
+ * ad scripts are injected and nothing is rendered visually. Useful for
+ * hiding intrusive display networks (e.g. Monetag) while awaiting
+ * AdSense approval without losing the provider configuration.
+ * Defaults to enabled — only an explicit `false` in settings disables it.
+ */
+function isDisplayAdsEnabled(provider: DbAdProvider): boolean {
+  return provider.settings?.display_ads_enabled !== false;
+}
+
 export default function AdSlot({
   slotKey,
   className,
@@ -63,9 +76,6 @@ export default function AdSlot({
   providerId?: string;
 }) {
   const { isPaid } = useAuth();
-
-  // Paid subscribers never see ads
-  if (isPaid) return null;
 
   const [resolved, setResolved] = useState<ResolvedAd | null | "none">(null);
   const loggedRef = useRef(false);
@@ -87,6 +97,12 @@ export default function AdSlot({
 
   useEffect(() => {
     let cancelled = false;
+    // Paid subscribers never see ads — resolve to "none" without fetching
+    // config or logging impressions.
+    if (isPaid) {
+      setResolved("none");
+      return;
+    }
     fetchAdConfig().then(({ providers, placements }) => {
       if (cancelled) return;
       const placement = placements.find((p) => p.placement_key === slotKey);
@@ -188,11 +204,16 @@ export default function AdSlot({
     return () => {
       cancelled = true;
     };
-  }, [slotKey, providerId]);
+  }, [slotKey, providerId, isPaid]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {
-    if (resolved && resolved !== "none" && !pushRef.current) {
+    if (
+      resolved &&
+      resolved !== "none" &&
+      !pushRef.current &&
+      isDisplayAdsEnabled(resolved.provider)
+    ) {
       const slug = resolved.provider.slug;
       // Google AdSense and Media.net both use the adsbygoogle push mechanism
       if (slug === "google_adsense" || slug === "media_net") {
@@ -217,10 +238,13 @@ export default function AdSlot({
     }
   }, [resolved]);
 
-  // Inject provider-specific scripts when provider is resolved
+  // Inject provider-specific scripts when provider is resolved.
+  // Skipped entirely when the admin has turned the provider's visual
+  // display ads off — no third-party ad scripts load in that case.
   useEffect(() => {
     if (!resolved || resolved === "none") return;
     const { provider } = resolved;
+    if (!isDisplayAdsEnabled(provider)) return;
     const creds = provider.credentials ?? {};
 
     switch (provider.slug) {
@@ -402,6 +426,9 @@ export default function AdSlot({
     }
   }, [resolved]);
 
+  // Paid subscribers never see ads
+  if (isPaid) return null;
+
   if (resolved === null) return null;
   if (resolved === "none") {
     return (
@@ -415,7 +442,21 @@ export default function AdSlot({
     );
   }
 
-  const { provider, adUnitId } = resolved;
+  const { provider } = resolved;
+
+  // Display ads turned off for this provider — reserve the layout slot
+  // but show nothing (no label, no ad content, no third-party scripts).
+  if (!isDisplayAdsEnabled(provider)) {
+    return (
+      <div
+        className={`hidden rounded-lg border border-dashed border-border bg-muted/50 px-4 py-6 text-center text-xs text-muted-foreground ${className ?? ""}`}
+        aria-hidden="true"
+        data-ad-reserved={slotKey}
+      />
+    );
+  }
+
+  const { adUnitId } = resolved;
   const creds = provider.credentials ?? {};
 
   // ============================================================
