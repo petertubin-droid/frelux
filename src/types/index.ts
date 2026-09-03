@@ -426,3 +426,80 @@ export type ColorFilter = {
   page?: number;
   pageSize?: number;
 };
+
+// =========================================================
+// Screeding Material System (Putty + White Cement/Paint)
+// =========================================================
+
+export type ScreedingMaterialSystem = 'putty' | 'white_cement_paint';
+
+/** Configuration for a screeding material system, loaded from DB. */
+export interface ScreedingSystemConfig {
+  systemType: ScreedingMaterialSystem;
+  displayName: string;
+  description: string | null;
+  coverageAreaM2: number;
+  coverageUnit: string;
+  defaultCoats: number;
+  wastePercentage: number;
+  currency: string;
+  currencySymbol: string;
+  roundingRule: 'ceil' | 'none';
+  // Putty (putty system only)
+  puttyName: string | null;
+  puttyQuantity: number | null;
+  puttyUnit: string | null;
+  puttyPricePerUnit: number | null;
+  // Screeding Paint (white_cement_paint system only)
+  paintName: string | null;
+  paintQuantity: number | null;
+  paintUnit: string | null;
+  paintPricePerUnit: number | null;
+  // White Cement (white_cement_paint system only)
+  cementName: string | null;
+  cementQuantity: number | null;
+  cementUnit: string | null;
+  cementPricePerUnit: number | null;
+}
+
+/** Per-material breakdown in a screeding calculation result. */
+export interface ScreedingMaterialBreakdown {
+  name: string;
+  unit: string;
+  baseQuantity: number;       // before waste
+  wastePercentage: number;
+  wasteQuantity: number;      // waste amount
+  finalQuantity: number;      // base + waste
+  purchaseQuantity: number;   // rounded for purchase (e.g. ceil to whole buckets)
+  pricePerUnit: number | null;
+  totalCost: number | null;   // null when price not configured
+}
+
+/** Result for the Putty material system. */
+export interface ScreedingPuttyResult {
+  systemType: 'putty';
+  netScreedingArea: number;
+  coats: number;
+  coverageAreaM2: number;
+  putty: ScreedingMaterialBreakdown;
+  materialCost: number | null;
+  currency: string;
+  currencySymbol: string;
+}
+
+/** Result for the White Cement + Screeding Paint material system. */
+export interface ScreedingMixSystemResult {
+  systemType: 'white_cement_paint';
+  netScreedingArea: number;
+  coats: number;
+  coverageAreaM2: number;
+  wastePercentage: number;
+  paint: ScreedingMaterialBreakdown;
+  cement: ScreedingMaterialBreakdown;
+  materialCost: number | null;
+  currency: string;
+  currencySymbol: string;
+}
+
+/** Union result type for any screeding material system. */
+export type ScreedingSystemResult = ScreedingPuttyResult | ScreedingMixSystemResult;

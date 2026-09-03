@@ -12,6 +12,12 @@ import type {
   AdvancedEstimateLineItem,
   SurfaceCondition,
   ColorCondition,
+  ScreedingSystemConfig,
+  ScreedingMaterialBreakdown,
+  ScreedingPuttyResult,
+  ScreedingMixSystemResult,
+  ScreedingSystemResult,
+  ScreedingMaterialSystem,
 } from '@/types';
 import {
   feetToMeters,
@@ -490,6 +496,232 @@ export function calculateScreedingMix(
     grandTotal: round(grandTotal),
     currency: config.currency,
     currencySymbol: config.currencySymbol,
+  };
+}
+
+
+// ─────────────────────────────────────────────────────────
+// Screeding Material System — Coverage-Area Model
+// Supports: Putty and White Cement + Screeding Paint
+// All parameters come from ScreedingSystemConfig (Admin-configured).
+// No hardcoded business values.
+// ─────────────────────────────────────────────────────────
+
+/**
+ * Build a material breakdown from config-driven parameters.
+ * Shows base quantity, waste, final quantity, and purchase quantity.
+ */
+function buildMaterialBreakdown(params: {
+  name: string;
+  unit: string;
+  baseQuantity: number;
+  wastePercentage: number;
+  pricePerUnit: number | null;
+  roundingRule: 'ceil' | 'none';
+}): ScreedingMaterialBreakdown {
+  const wasteFraction = Math.max(0, Math.min(100, params.wastePercentage)) / 100;
+  const wasteQuantity = params.baseQuantity * wasteFraction;
+  const finalQuantity = params.baseQuantity + wasteQuantity;
+  const purchaseQuantity = params.roundingRule === 'ceil'
+    ? Math.max(0, Math.ceil(finalQuantity))
+    : Math.max(0, finalQuantity);
+  const totalCost = params.pricePerUnit != null && params.pricePerUnit > 0
+    ? purchaseQuantity * params.pricePerUnit
+    : null;
+
+  return {
+    name: params.name,
+    unit: params.unit,
+    baseQuantity: round(params.baseQuantity),
+    wastePercentage: params.wastePercentage,
+    wasteQuantity: round(wasteQuantity),
+    finalQuantity: round(finalQuantity),
+    purchaseQuantity,
+    pricePerUnit: params.pricePerUnit ?? null,
+    totalCost: totalCost != null ? round(totalCost) : null,
+  };
+}
+
+/**
+ * Calculate Putty screeding requirements.
+ *
+ * Model: For every  of surface,  buckets are needed.
+ * Coats multiply the base requirement linearly.
+ * Waste is applied after coats.
+ *
+ * @param areaM2 - Total screeding surface area in m²
+ * @param config - Admin-configured Putty system configuration
+ * @param coats - Number of coats (defaults to config.defaultCoats)
+ * @returns ScreedingPuttyResult with full breakdown
+ */
+export function calculateScreedingPutty(
+  areaM2: number,
+  config: ScreedingSystemConfig,
+  coats?: number,
+): ScreedingPuttyResult {
+  const area = Math.max(0, areaM2);
+  const effectiveCoats = Math.max(1, coats ?? config.defaultCoats);
+  const coverage = Math.max(0.01, config.coverageAreaM2);
+  const puttyQty = config.puttyQuantity ?? 0;
+  const wastePct = config.wastePercentage;
+
+  // Base units = (area / coverage) × puttyQuantity × coats
+  const baseUnits = (area / coverage) * puttyQty * effectiveCoats;
+
+  const putty = buildMaterialBreakdown({
+    name: config.puttyName ?? 'Putty',
+    unit: config.puttyUnit ?? 'bucket',
+    baseQuantity: baseUnits,
+    wastePercentage: wastePct,
+    pricePerUnit: config.puttyPricePerUnit,
+    roundingRule: config.roundingRule,
+  });
+
+  const materialCost = putty.totalCost ?? null;
+
+  return {
+    systemType: 'putty',
+    netScreedingArea: round(area),
+    coats: effectiveCoats,
+    coverageAreaM2: coverage,
+    putty,
+    materialCost,
+    currency: config.currency,
+    currencySymbol: config.currencySymbol,
+  };
+}
+
+/**
+ * Calculate White Cement + Screeding Paint requirements.
+ *
+ * Model: For every  of surface,  paint buckets
+ * and  cement bags are needed.
+ * Coats multiply the base requirement linearly.
+ * Waste is applied to each material independently.
+ *
+ * @param areaM2 - Total screeding surface area in m²
+ * @param config - Admin-configured White Cement + Paint system configuration
+ * @param coats - Number of coats (defaults to config.defaultCoats)
+ * @returns ScreedingMixSystemResult with separate paint and cement breakdowns
+ */
+export function calculateScreedingMixSystem(
+  areaM2: number,
+  config: ScreedingSystemConfig,
+  coats?: number,
+): ScreedingMixSystemResult {
+  const area = Math.max(0, areaM2);
+  const effectiveCoats = Math.max(1, coats ?? config.defaultCoats);
+  const coverage = Math.max(0.01, config.coverageAreaM2);
+  const paintQty = config.paintQuantity ?? 0;
+  const cementQty = config.cementQuantity ?? 0;
+  const wastePct = config.wastePercentage;
+
+  // Base units = (area / coverage) × materialQuantity × coats
+  const baseUnits = area / coverage;
+  const basePaint = baseUnits * paintQty * effectiveCoats;
+  const baseCement = baseUnits * cementQty * effectiveCoats;
+
+  const paint = buildMaterialBreakdown({
+    name: config.paintName ?? 'Screeding Paint',
+    unit: config.paintUnit ?? 'bucket',
+    baseQuantity: basePaint,
+    wastePercentage: wastePct,
+    pricePerUnit: config.paintPricePerUnit,
+    roundingRule: config.roundingRule,
+  });
+
+  const cement = buildMaterialBreakdown({
+    name: config.cementName ?? 'White Cement',
+    unit: config.cementUnit ?? 'bag',
+    baseQuantity: baseCement,
+    wastePercentage: wastePct,
+    pricePerUnit: config.cementPricePerUnit,
+    roundingRule: config.roundingRule,
+  });
+
+  const paintCost = paint.totalCost ?? 0;
+  const cementCost = cement.totalCost ?? 0;
+  const hasAnyPrice = paint.totalCost != null || cement.totalCost != null;
+  const materialCost = hasAnyPrice ? round(paintCost + cementCost) : null;
+
+  return {
+    systemType: 'white_cement_paint',
+    netScreedingArea: round(area),
+    coats: effectiveCoats,
+    coverageAreaM2: coverage,
+    wastePercentage: wastePct,
+    paint,
+    cement,
+    materialCost,
+    currency: config.currency,
+    currencySymbol: config.currencySymbol,
+  };
+}
+
+/**
+ * Dispatch to the correct screeding calculation function based on system type.
+ */
+export function calculateScreedingSystem(
+  areaM2: number,
+  config: ScreedingSystemConfig,
+  coats?: number,
+): ScreedingSystemResult {
+  if (config.systemType === 'putty') {
+    return calculateScreedingPutty(areaM2, config, coats);
+  }
+  return calculateScreedingMixSystem(areaM2, config, coats);
+}
+
+/**
+ * Convert a DbScreedingSystemConfig to the app-level ScreedingSystemConfig.
+ */
+export function dbToSystemConfig(db: {
+  system_type: 'putty' | 'white_cement_paint';
+  display_name: string;
+  description: string | null;
+  coverage_area_m2: number;
+  coverage_unit: string;
+  default_coats: number;
+  waste_percentage: number;
+  currency: string;
+  currency_symbol: string;
+  putty_name: string | null;
+  putty_quantity: number | null;
+  putty_unit: string | null;
+  putty_price_per_unit: number | null;
+  paint_name: string | null;
+  paint_quantity: number | null;
+  paint_unit: string | null;
+  paint_price_per_unit: number | null;
+  cement_name: string | null;
+  cement_quantity: number | null;
+  cement_unit: string | null;
+  cement_price_per_unit: number | null;
+  rounding_rule: 'ceil' | 'none';
+}): ScreedingSystemConfig {
+  return {
+    systemType: db.system_type,
+    displayName: db.display_name,
+    description: db.description,
+    coverageAreaM2: Number(db.coverage_area_m2),
+    coverageUnit: db.coverage_unit,
+    defaultCoats: Number(db.default_coats),
+    wastePercentage: Number(db.waste_percentage),
+    currency: db.currency,
+    currencySymbol: db.currency_symbol,
+    puttyName: db.putty_name,
+    puttyQuantity: db.putty_quantity != null ? Number(db.putty_quantity) : null,
+    puttyUnit: db.putty_unit,
+    puttyPricePerUnit: db.putty_price_per_unit != null ? Number(db.putty_price_per_unit) : null,
+    paintName: db.paint_name,
+    paintQuantity: db.paint_quantity != null ? Number(db.paint_quantity) : null,
+    paintUnit: db.paint_unit,
+    paintPricePerUnit: db.paint_price_per_unit != null ? Number(db.paint_price_per_unit) : null,
+    cementName: db.cement_name,
+    cementQuantity: db.cement_quantity != null ? Number(db.cement_quantity) : null,
+    cementUnit: db.cement_unit,
+    cementPricePerUnit: db.cement_price_per_unit != null ? Number(db.cement_price_per_unit) : null,
+    roundingRule: db.rounding_rule,
   };
 }
 

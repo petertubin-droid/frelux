@@ -14,7 +14,7 @@ const STATUS_BADGE: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
   approved: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
   rejected: "bg-red-500/10 text-red-600 border-red-500/20",
-  featured: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+  featured: "bg-primary/10 text-primary border-primary/20",
   hidden: "bg-zinc-500/10 text-zinc-600 border-zinc-500/20",
 };
 
@@ -167,7 +167,7 @@ export default function AdminGallery() {
                 {entry.status !== "featured" && (
                   <Button variant="ghost"
                     onClick={() => handleFeature(entry.id)}
-                    className="group inline-flex items-center gap-1.5 rounded-lg bg-purple-500/10 px-3 py-2 text-xs font-medium text-purple-600 hover:bg-purple-500/20 transition-all hover:scale-105"
+                    className="group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                   >
                     <Crown className="h-3.5 w-3.5 group-hover:rotate-12 transition-transform" />{" "}
                     Feature

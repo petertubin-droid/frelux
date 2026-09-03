@@ -64,7 +64,7 @@ function getStatusBadge(status: string) {
     case 'saved':
       return 'bg-emerald-100 text-emerald-800 border-emerald-200';
     case 'shared':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-primary/10 text-primary border-primary/20';
     case 'completed':
       return 'bg-green-100 text-green-800 border-green-200';
     case 'cancelled':
@@ -94,9 +94,9 @@ function getItemTypeBadge(type: string) {
     case 'material':
       return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'primer':
-      return 'bg-purple-50 text-purple-700 border-purple-200';
+      return 'bg-primary/5 text-primary border-primary/20';
     case 'sealer':
-      return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      return 'bg-primary/5 text-primary border-primary/20';
     case 'labour':
       return 'bg-emerald-50 text-emerald-700 border-emerald-200';
     default:

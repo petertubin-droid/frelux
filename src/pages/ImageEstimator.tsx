@@ -657,8 +657,8 @@ export default function ImageEstimator() {
               {/* Structural observations */}
               {analysis.structural_observations &&
                 analysis.structural_observations.length > 0 && (
-                  <div className="mt-3 rounded-lg bg-purple-50 border border-purple-100 p-3">
-                    <p className="text-xs font-medium text-purple-700 mb-1 flex items-center gap-1">
+                  <div className="mt-3 rounded-lg bg-primary/5 border border-primary/10 p-3">
+                    <p className="text-xs font-medium text-primary mb-1 flex items-center gap-1">
                       <Building2 className="w-3.5 h-3.5" /> Structural
                       Observations
                     </p>
@@ -666,9 +666,9 @@ export default function ImageEstimator() {
                       {analysis.structural_observations.map((obs, i) => (
                         <li
                           key={i}
-                          className="text-xs text-purple-600 flex items-start gap-1"
+                          className="text-xs text-primary flex items-start gap-1"
                         >
-                          <span className="text-purple-400">•</span> {obs}
+                          <span className="text-primary-light">•</span> {obs}
                         </li>
                       ))}
                     </ul>

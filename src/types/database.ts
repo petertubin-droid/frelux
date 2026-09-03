@@ -1889,3 +1889,37 @@ export interface PdfDefaultBrandingConfig {
   brand_studio_enabled: boolean;
   ai_logo_daily_limit: number;
 }
+
+// =========================================================
+// Screeding Material System Configuration
+// =========================================================
+
+export interface DbScreedingSystemConfig {
+  id: string;
+  system_type: 'putty' | 'white_cement_paint';
+  display_name: string;
+  description: string | null;
+  coverage_area_m2: number;
+  coverage_unit: string;
+  default_coats: number;
+  waste_percentage: number;
+  currency: string;
+  currency_symbol: string;
+  putty_name: string | null;
+  putty_quantity: number | null;
+  putty_unit: string | null;
+  putty_price_per_unit: number | null;
+  paint_name: string | null;
+  paint_quantity: number | null;
+  paint_unit: string | null;
+  paint_price_per_unit: number | null;
+  cement_name: string | null;
+  cement_quantity: number | null;
+  cement_unit: string | null;
+  cement_price_per_unit: number | null;
+  rounding_rule: 'ceil' | 'none';
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

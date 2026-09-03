@@ -304,7 +304,7 @@ export default function ProjectDetail() {
                 </Button>
                 <Link
                   to="/paint-comparison"
-                  className="group inline-flex items-center gap-2 rounded-lg bg-purple-500/10 px-4 py-2.5 text-sm font-medium text-purple-600 hover:bg-purple-500/20 transition-all hover:scale-105"
+                  className="group inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                 >
                   <Crown className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
                   Compare Paints

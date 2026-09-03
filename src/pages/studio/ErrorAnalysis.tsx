@@ -74,9 +74,9 @@ const STATUS_STYLES: Record<string, string> = {
   validation_failed:
     "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
   approved:
-    "bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400",
+    "bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary-light",
   deployed:
-    "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400",
+    "bg-primary/10 text-primary dark:bg-primary/10 dark:text-primary-light",
   verified:
     "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400",
   failed: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",

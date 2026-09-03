@@ -198,7 +198,7 @@ export default function AdminEstimationProducts() {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5">
                                 <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{p.name}</h3>
-                                {p.has_quality_levels && <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[9px] font-semibold text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">Tiers</span>}
+                                {p.has_quality_levels && <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">Tiers</span>}
                                 {!p.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
                               </div>
                               {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">{p.description}</p>}
@@ -229,7 +229,7 @@ export default function AdminEstimationProducts() {
                               {(qualityMap[p.id] ?? []).map(q => (
                                 <div key={q.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
                                   <div className="flex items-center gap-2">
-                                    <Tag aria-hidden="true" className="h-4 w-4 text-purple-500" />
+                                    <Tag aria-hidden="true" className="h-4 w-4 text-primary" />
                                     <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">{q.name}</span>
                                     {q.coverage && <span className="text-xs text-muted-foreground dark:text-muted-foreground">· {q.coverage} {q.coverage_unit ?? ''}</span>}
                                     {!q.is_active && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">Inactive</span>}

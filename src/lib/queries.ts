@@ -24,6 +24,7 @@ import type {
   DbMediaFolder,
   DbMediaItem,
   DbScreedingMixConfig,
+  DbScreedingSystemConfig,
   DbRewardedToolConfig,
   DbRewardedUnlockLog,
   DbRewardedAdEvent,
@@ -755,6 +756,38 @@ export async function fetchScreedingMixConfig() {
     .maybeSingle();
   return { data: data as DbScreedingMixConfig | null, error: error ? error.message : null };
 }
+
+// =========================================================
+// Screeding Material System Configuration
+// =========================================================
+
+export async function fetchScreedingSystemConfig(systemType: 'putty' | 'white_cement_paint') {
+  const { data, error } = await supabase
+    .from('screeding_system_config')
+    .select('*')
+    .eq('system_type', systemType)
+    .eq('is_active', true)
+    .maybeSingle();
+  return { data: data as DbScreedingSystemConfig | null, error: error ? error.message : null };
+}
+
+export async function fetchAllScreedingSystemConfigs() {
+  const { data, error } = await supabase
+    .from('screeding_system_config')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+  return { data: (data ?? []) as DbScreedingSystemConfig[], error: error ? error.message : null };
+}
+
+export async function updateScreedingSystemConfig(id: string, updates: Record<string, unknown>) {
+  const { error } = await supabase
+    .from('screeding_system_config')
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  return { error: error ? error.message : null };
+}
+
 
 // =========================================================
 // Rewarded Access System

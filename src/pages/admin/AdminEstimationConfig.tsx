@@ -533,7 +533,7 @@ function PackSizesTab() {
               <div key={item.id} className="card p-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700 capitalize">
+                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary capitalize">
                       {item.ref_type}
                     </span>
                     <h3 className="text-base font-bold text-foreground truncate">{refName}</h3>
@@ -872,7 +872,7 @@ function getRuleStatusBadge(status: RuleStatus | string) {
       );
     case 'negotiated':
       return (
-        <span className="rounded-full border border-purple-200 bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800">
+        <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
           Negotiated
         </span>
       );
@@ -1268,7 +1268,7 @@ function CalcVersionsTab() {
             <div key={ver.id} className="card p-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-700 capitalize">
+                  <span className="rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary capitalize">
                     {ver.calculator_type}
                   </span>
                   <h3 className="text-base font-bold text-foreground dark:text-primary-foreground">

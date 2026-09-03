@@ -29,7 +29,7 @@ function getActionBadge(action: string) {
     case 'deactivate':
       return 'bg-amber-100 text-amber-800 border-amber-200';
     case 'price_change':
-      return 'bg-purple-100 text-purple-800 border-purple-200';
+      return 'bg-primary/10 text-primary border-primary/20';
     case 'adjust':
       return 'bg-orange-100 text-orange-800 border-orange-200';
     default:
