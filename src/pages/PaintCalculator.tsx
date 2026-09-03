@@ -747,10 +747,22 @@ export default function PaintCalculator({
       return;
     }
     const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const configSnapshot = {
+      paintTypeName: selectedPaintType?.name ?? null,
+      paintTypeCoverageRate: selectedPaintType?.coverageRate ?? null,
+      qualityName: selectedQuality?.name ?? null,
+      qualityId: selectedQuality?.id ?? null,
+      unitPrice: selectedQualityPrice?.price ?? null,
+      currency: selectedQualityPrice?.currency ?? null,
+      surfaceCondition: input.surfaceCondition ?? null,
+      colourCondition: input.colorCondition ?? null,
+      wasteMargin: input.wasteMargin ?? null,
+      engineVersion: 'paint-engine-v1',
+    };
     const { error } = await saveUserProject(
       name,
       "paint_calc",
-      { input, result },
+      { input, result, configSnapshot },
       undefined,
     );
     if (error) {

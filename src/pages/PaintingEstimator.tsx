@@ -632,10 +632,17 @@ export default function PaintingEstimator({
         client_hash: null,
         calculator_type: "painting",
         project_description: projectDescription || "Painting Estimate",
-        inputs: { rooms, customerLocation, addPrimer } as Record<
-          string,
-          unknown
-        >,
+        inputs: {
+          rooms,
+          customerLocation,
+          addPrimer,
+          configSnapshot: {
+            calculation_method: "room_based",
+            calc_version_id: calcVersionId,
+            engine_version: "paint-engine-v1",
+            saved_at: new Date().toISOString(),
+          },
+        } as Record<string, unknown>,
         calculation_method: "room_based",
         calc_version_id: calcVersionId,
         calculated_quantities: {
