@@ -1039,12 +1039,12 @@ function Step1({
           const Icon = p.icon;
           const selected = input.projectType === p.value;
           return (
-            <Button variant="ghost"
+            <button
               key={p.value}
               type="button"
               onClick={() => update("projectType", p.value)}
               className={
-                "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
+                "select-card flex items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:bg-accent/40 " +
                 (selected
                   ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                   : "border-border")
@@ -1068,7 +1068,7 @@ function Step1({
                   {p.description}
                 </span>
               </span>
-            </Button>
+            </button>
           );
         })}
       </div>

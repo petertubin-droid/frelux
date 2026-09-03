@@ -44,6 +44,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState(false);
   const location = useLocation();
   const { user, profile, signOut, isPaid, paidStatus } = useAuth();
   const { wallet } = useCredits();
@@ -413,8 +414,7 @@ export default function Navbar() {
 
             {/* Language switcher — Nigerian languages */}
             <div className="relative">
-              <Button
-                variant="ghost"
+              <button
                 type="button"
                 onClick={() =>
                   setOpenDropdown(openDropdown === "account" ? null : "account")
@@ -427,11 +427,12 @@ export default function Navbar() {
                 aria-label={user ? "Account menu" : "Sign in"}
                 aria-expanded={openDropdown === "account"}
               >
-                {user && profile?.avatar_url ? (
+                {user && profile?.avatar_url && !avatarError ? (
                   <img
                     src={profile.avatar_url}
                     alt=""
                     className="h-7 w-7 rounded-full object-cover"
+                    onError={() => setAvatarError(true)}
                   />
                 ) : user ? (
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
@@ -442,11 +443,11 @@ export default function Navbar() {
                 ) : (
                   <UserCircle className="h-5 w-5" strokeWidth={1.5} />
                 )}
-              </Button>
+              </button>
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-background-mid/95"
+                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-border/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-background-mid/95"
                   style={{
                     animationDuration: "0.22s",
                     transformOrigin: "top right",
@@ -460,11 +461,12 @@ export default function Navbar() {
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/14 via-primary/5 to-transparent dark:from-primary/25 dark:via-primary/10" />
                         <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-primary/8 blur-2xl dark:bg-primary/15" />
                         <div className="relative flex items-center gap-3.5">
-                          {profile?.avatar_url ? (
+                          {profile?.avatar_url && !avatarError ? (
                             <img
                               src={profile.avatar_url}
                               alt=""
                               className="h-12 w-12 rounded-full object-cover ring-2 ring-white/40 shadow-lg dark:ring-white/20"
+                              onError={() => setAvatarError(true)}
                             />
                           ) : (
                             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-base font-bold text-primary-foreground shadow-lg ring-2 ring-white/40 dark:ring-white/20">
@@ -579,7 +581,7 @@ export default function Navbar() {
 
                       {/* Grouped menu sections */}
                       <div
-                        className="max-h-[min(70vh,420px)] overflow-y-auto nav-scroll px-2 py-1.5"
+                        className="max-h-[min(50vh,320px)] overflow-y-auto nav-scroll px-2 py-1.5"
                         style={{ scrollbarWidth: "thin" }}
                       >
                         {accountMenuSections.map((section, si) => (
