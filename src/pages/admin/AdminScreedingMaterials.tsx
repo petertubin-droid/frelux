@@ -35,7 +35,13 @@ export default function AdminScreedingMaterials() {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        if (err instanceof Error) {
+          setError(err.message);
+        } else if (err && typeof err === 'object' && 'message' in err) {
+          setError(String((err as { message: unknown }).message));
+        } else {
+          setError('Failed to load screeding configuration.');
+        }
       }
       setLoading(false);
     }
