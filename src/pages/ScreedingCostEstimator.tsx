@@ -333,7 +333,7 @@ export default function ScreedingCostEstimator(
                 <Section title="Coats">
                   <Field
                     label="Number of coats"
-                    hint={`Default: ${activeConfig.defaultCoats} coats (admin-configured). Additional coats multiply material requirements.`}
+                    hint={`Default: ${activeConfig.defaultCoats} coats (admin-configured). The configured material quantities already include the default ${activeConfig.defaultCoats} coats; choosing a different number scales requirements proportionally.`}
                   >
                     <div className="flex items-center gap-3">
                       <button
